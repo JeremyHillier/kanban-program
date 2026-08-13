@@ -24,11 +24,4 @@ public class ColumnViewModel(KanbanColumn model, Brush background) : ObservableO
     }
 
     public ObservableCollection<CardViewModel> Cards { get; } = [];
-
-    private string _newCardTitle = string.Empty;
-    public string NewCardTitle
-    {
-        get => _newCardTitle;
-        set => SetField(ref _newCardTitle, value);
-    }
 }

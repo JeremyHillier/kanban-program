@@ -7,7 +7,15 @@
         mc:Ignorable="d"
         Title="Kanban" Height="650" Width="1450">
     <Grid Margin="12">
-        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Button Grid.Row="0" Content="+ Add Task" HorizontalAlignment="Left" Padding="12,6" Margin="0,0,0,12"
+                Click="AddTask_Click"/>
+
+        <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
             <ItemsControl ItemsSource="{Binding Columns}">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
@@ -43,14 +51,6 @@
                                         </DataTemplate>
                                     </ItemsControl.ItemTemplate>
                                 </ItemsControl>
-
-                                <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
-                                    <TextBox Width="170" Padding="4"
-                                             Text="{Binding NewCardTitle, UpdateSourceTrigger=PropertyChanged}"/>
-                                    <Button Content="+" Margin="4,0,0,0" Padding="10,4"
-                                            Command="{Binding DataContext.AddCardCommand, RelativeSource={RelativeSource AncestorType=Window}}"
-                                            CommandParameter="{Binding}"/>
-                                </StackPanel>
                             </StackPanel>
                         </Border>
                     </DataTemplate>

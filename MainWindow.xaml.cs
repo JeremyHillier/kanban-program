@@ -2,6 +2,7 @@ using System.Windows;
 using System.Windows.Input;
 using KanbanApp.Services;
 using KanbanApp.ViewModels;
+using KanbanApp.Views;
 
 namespace KanbanApp;
 
@@ -35,6 +36,17 @@ public partial class MainWindow : Window
         if (sender is FrameworkElement { DataContext: CardViewModel card } element)
         {
             DragDrop.DoDragDrop(element, card, DragDropEffects.Move);
+        }
+    }
+
+    private void AddTask_Click(object sender, RoutedEventArgs e)
+    {
+        if (DataContext is not MainViewModel viewModel) return;
+
+        var dialog = new AddTaskWindow(viewModel.Columns) { Owner = this };
+        if (dialog.ShowDialog() == true && dialog.SelectedColumn is not null)
+        {
+            viewModel.AddCard(dialog.TaskDetails, dialog.SelectedColumn);
         }
     }
 

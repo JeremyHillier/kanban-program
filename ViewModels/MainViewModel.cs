@@ -19,7 +19,6 @@ public class MainViewModel
 
     public ObservableCollection<ColumnViewModel> Columns { get; } = [];
 
-    public RelayCommand AddCardCommand { get; }
     public RelayCommand DeleteCardCommand { get; }
     public RelayCommand MoveCardCommand { get; }
 
@@ -27,7 +26,6 @@ public class MainViewModel
     {
         _db = db;
 
-        AddCardCommand = new RelayCommand(param => AddCard(param as ColumnViewModel));
         DeleteCardCommand = new RelayCommand(param => DeleteCard(param as CardViewModel));
         MoveCardCommand = new RelayCommand(param =>
         {
@@ -59,13 +57,12 @@ public class MainViewModel
         }
     }
 
-    private void AddCard(ColumnViewModel? column)
+    public void AddCard(string title, ColumnViewModel column)
     {
-        if (column is null || string.IsNullOrWhiteSpace(column.NewCardTitle)) return;
+        if (string.IsNullOrWhiteSpace(title)) return;
 
-        var card = _db.AddCard(column.Id, column.NewCardTitle.Trim());
+        var card = _db.AddCard(column.Id, title.Trim());
         column.Cards.Add(new CardViewModel(card));
-        column.NewCardTitle = string.Empty;
     }
 
     private void DeleteCard(CardViewModel? card)
