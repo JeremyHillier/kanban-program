@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:KanbanApp"
         mc:Ignorable="d"
-        Title="Kanban" Height="600" Width="1000">
+        Title="Kanban" Height="650" Width="1450">
     <Grid Margin="12">
         <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
             <ItemsControl ItemsSource="{Binding Columns}">
@@ -16,7 +16,7 @@
                 </ItemsControl.ItemsPanel>
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <Border Width="260" Margin="0,0,12,0" Padding="10" Background="#FFF0F0F0"
+                        <Border Width="260" Margin="0,0,12,0" Padding="10" Background="{Binding Background}"
                                 CornerRadius="6" VerticalAlignment="Top"
                                 AllowDrop="True" Drop="Column_Drop">
                             <StackPanel>

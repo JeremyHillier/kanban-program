@@ -1,11 +1,14 @@
 using System.Collections.ObjectModel;
+using System.Windows.Media;
 using KanbanApp.Models;
 
 namespace KanbanApp.ViewModels;
 
-public class ColumnViewModel(KanbanColumn model) : ObservableObject
+public class ColumnViewModel(KanbanColumn model, Brush background) : ObservableObject
 {
     public KanbanColumn Model { get; } = model;
+
+    public Brush Background { get; } = background;
 
     public int Id => Model.Id;
 
