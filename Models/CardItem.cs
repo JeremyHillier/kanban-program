@@ -7,4 +7,5 @@ public class CardItem
     public string Title { get; set; } = string.Empty;
     public int SortOrder { get; set; }
     public int? ProjectId { get; set; }
+    public bool IsArchived { get; set; }
 }

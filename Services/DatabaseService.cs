@@ -50,6 +50,7 @@ public class DatabaseService
                     Title TEXT NOT NULL,
                     SortOrder INTEGER NOT NULL,
                     ProjectId INTEGER NULL,
+                    IsArchived INTEGER NOT NULL DEFAULT 0,
                     FOREIGN KEY (ColumnId) REFERENCES Columns(Id) ON DELETE CASCADE,
                     FOREIGN KEY (ProjectId) REFERENCES Projects(Id) ON DELETE SET NULL
                 );
@@ -57,7 +58,8 @@ public class DatabaseService
             cmd.ExecuteNonQuery();
         }
 
-        MigrateCardsProjectIdColumn(connection);
+        MigrateCardsColumn(connection, "ProjectId", "INTEGER NULL");
+        MigrateCardsColumn(connection, "IsArchived", "INTEGER NOT NULL DEFAULT 0");
 
         using (var checkCmd = connection.CreateCommand())
         {
@@ -83,19 +85,20 @@ public class DatabaseService
         }
     }
 
-    private static void MigrateCardsProjectIdColumn(SqliteConnection connection)
+    private static void MigrateCardsColumn(SqliteConnection connection, string columnName, string columnDefinition)
     {
-        using var pragmaCmd = connection.CreateCommand();
-        pragmaCmd.CommandText = "PRAGMA table_info(Cards);";
-        using var reader = pragmaCmd.ExecuteReader();
-        while (reader.Read())
+        using (var pragmaCmd = connection.CreateCommand())
         {
-            if (reader.GetString(1) == "ProjectId") return;
+            pragmaCmd.CommandText = "PRAGMA table_info(Cards);";
+            using var reader = pragmaCmd.ExecuteReader();
+            while (reader.Read())
+            {
+                if (reader.GetString(1) == columnName) return;
+            }
         }
-        reader.Close();
 
         using var alterCmd = connection.CreateCommand();
-        alterCmd.CommandText = "ALTER TABLE Cards ADD COLUMN ProjectId INTEGER NULL;";
+        alterCmd.CommandText = $"ALTER TABLE Cards ADD COLUMN {columnName} {columnDefinition};";
         alterCmd.ExecuteNonQuery();
     }
 
@@ -123,7 +126,7 @@ public class DatabaseService
     {
         using var connection = OpenConnection();
         using var cmd = connection.CreateCommand();
-        cmd.CommandText = "SELECT Id, ColumnId, Title, SortOrder, ProjectId FROM Cards ORDER BY SortOrder;";
+        cmd.CommandText = "SELECT Id, ColumnId, Title, SortOrder, ProjectId FROM Cards WHERE IsArchived = 0 ORDER BY SortOrder;";
 
         var result = new List<CardItem>();
         using var reader = cmd.ExecuteReader();
@@ -275,6 +278,15 @@ public class DatabaseService
         using var connection = OpenConnection();
         using var cmd = connection.CreateCommand();
         cmd.CommandText = "DELETE FROM Cards WHERE Id = $id;";
+        cmd.Parameters.AddWithValue("$id", cardId);
+        cmd.ExecuteNonQuery();
+    }
+
+    public void ArchiveCard(int cardId)
+    {
+        using var connection = OpenConnection();
+        using var cmd = connection.CreateCommand();
+        cmd.CommandText = "UPDATE Cards SET IsArchived = 1 WHERE Id = $id;";
         cmd.Parameters.AddWithValue("$id", cardId);
         cmd.ExecuteNonQuery();
     }

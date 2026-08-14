@@ -58,6 +58,13 @@ public partial class MainWindow : Window
         dialog.ShowDialog();
     }
 
+    private void ArchiveDone_Click(object sender, RoutedEventArgs e)
+    {
+        if (DataContext is not MainViewModel viewModel) return;
+
+        viewModel.ArchiveDoneTasks();
+    }
+
     private void Column_Drop(object sender, DragEventArgs e)
     {
         if (e.Data.GetData(typeof(CardViewModel)) is CardViewModel card &&

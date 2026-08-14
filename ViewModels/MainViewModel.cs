@@ -134,4 +134,16 @@ public class MainViewModel
 
         _db.MoveCard(card.Id, targetColumn.Id);
     }
+
+    public void ArchiveDoneTasks()
+    {
+        var doneColumn = Columns.FirstOrDefault(c => c.Name == "Done");
+        if (doneColumn is null) return;
+
+        foreach (var card in doneColumn.Cards.ToList())
+        {
+            _db.ArchiveCard(card.Id);
+            doneColumn.Cards.Remove(card);
+        }
+    }
 }
