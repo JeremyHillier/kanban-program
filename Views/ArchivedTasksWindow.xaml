@@ -6,7 +6,8 @@
         mc:Ignorable="d"
         Title="Archived Tasks" Height="480" Width="520"
         WindowStartupLocation="CenterOwner" ResizeMode="NoResize"
-        ShowInTaskbar="False">
+        ShowInTaskbar="False"
+        Background="{DynamicResource WindowBackgroundBrush}">
     <Grid Margin="16">
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
@@ -17,10 +18,10 @@
             <ItemsControl x:Name="ArchivedList">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <Border BorderBrush="#FFE0E0E0" BorderThickness="0,0,0,1" Padding="0,8">
+                        <Border BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="0,0,0,1" Padding="0,8">
                             <StackPanel>
-                                <TextBlock Text="{Binding Title}" FontWeight="SemiBold"/>
-                                <TextBlock FontSize="11" Foreground="#FF666666" Margin="0,2,0,0">
+                                <TextBlock Text="{Binding Title}" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                                <TextBlock FontSize="11" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,2,0,0">
                                     <Run Text="{Binding ColumnName, Mode=OneWay}"/>
                                     <Run Text=" • "/>
                                     <Run Text="{Binding ProjectName, Mode=OneWay}"/>
@@ -35,10 +36,11 @@
         </ScrollViewer>
 
         <TextBlock x:Name="EmptyStateText" Grid.Row="0" Text="No archived tasks yet."
-                   Foreground="#FF999999" HorizontalAlignment="Center" VerticalAlignment="Center"
+                   Foreground="{DynamicResource SecondaryTextBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"
                    Visibility="Collapsed"/>
 
         <Button Grid.Row="1" Content="Close" Width="90" Padding="0,6" Margin="0,12,0,0"
-                HorizontalAlignment="Right" IsCancel="True"/>
+                HorizontalAlignment="Right" IsCancel="True"
+                Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
     </Grid>
 </Window>

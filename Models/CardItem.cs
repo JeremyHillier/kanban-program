@@ -11,4 +11,5 @@ public class CardItem
     public string Priority { get; set; } = "Normal";
     public DateTime? DueDate { get; set; }
     public string? Who { get; set; }
+    public DateTime? LastUpdated { get; set; }
 }

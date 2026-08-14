@@ -97,6 +97,36 @@ public partial class MainWindow : Window
         dialog.ShowDialog();
     }
 
+    private void ToggleTheme_Click(object sender, RoutedEventArgs e)
+    {
+        if (DataContext is not MainViewModel viewModel) return;
+
+        viewModel.ToggleTheme();
+    }
+
+    private void EditQuickAction_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is FrameworkElement { DataContext: CardViewModel card } && DataContext is MainViewModel viewModel)
+        {
+            EditCard(card, viewModel);
+        }
+    }
+
+    private void QuickMove_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is not FrameworkElement { DataContext: CardViewModel card } element ||
+            element.Tag is not string targetColumnName ||
+            DataContext is not MainViewModel viewModel)
+        {
+            return;
+        }
+
+        var targetColumn = viewModel.Columns.FirstOrDefault(c => c.Name == targetColumnName);
+        if (targetColumn is null) return;
+
+        viewModel.MoveCardCommand.Execute((card, targetColumn));
+    }
+
     private void Column_Drop(object sender, DragEventArgs e)
     {
         if (e.Data.GetData(typeof(CardViewModel)) is CardViewModel card &&

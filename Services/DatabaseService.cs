@@ -54,6 +54,7 @@ public class DatabaseService
                     Priority TEXT NOT NULL DEFAULT 'Normal',
                     DueDate TEXT NULL,
                     Who TEXT NULL,
+                    LastUpdated TEXT NULL,
                     FOREIGN KEY (ColumnId) REFERENCES Columns(Id) ON DELETE CASCADE,
                     FOREIGN KEY (ProjectId) REFERENCES Projects(Id) ON DELETE SET NULL
                 );
@@ -65,6 +66,10 @@ public class DatabaseService
                     Details TEXT NOT NULL,
                     Timestamp TEXT NOT NULL
                 );
+                CREATE TABLE IF NOT EXISTS Settings (
+                    Key TEXT PRIMARY KEY,
+                    Value TEXT NOT NULL
+                );
                 """;
             cmd.ExecuteNonQuery();
         }
@@ -74,6 +79,7 @@ public class DatabaseService
         MigrateCardsColumn(connection, "Priority", "TEXT NOT NULL DEFAULT 'Normal'");
         MigrateCardsColumn(connection, "DueDate", "TEXT NULL");
         MigrateCardsColumn(connection, "Who", "TEXT NULL");
+        MigrateCardsColumn(connection, "LastUpdated", "TEXT NULL");
 
         using (var checkCmd = connection.CreateCommand())
         {
@@ -116,6 +122,8 @@ public class DatabaseService
         alterCmd.ExecuteNonQuery();
     }
 
+    private static string NowStamp() => DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+
     private static void LogHistory(SqliteConnection connection, int cardId, string cardTitle, string eventType, string details)
     {
         using var cmd = connection.CreateCommand();
@@ -127,7 +135,29 @@ public class DatabaseService
         cmd.Parameters.AddWithValue("$cardTitle", cardTitle);
         cmd.Parameters.AddWithValue("$eventType", eventType);
         cmd.Parameters.AddWithValue("$details", details);
-        cmd.Parameters.AddWithValue("$timestamp", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+        cmd.Parameters.AddWithValue("$timestamp", NowStamp());
+        cmd.ExecuteNonQuery();
+    }
+
+    public string? GetSetting(string key)
+    {
+        using var connection = OpenConnection();
+        using var cmd = connection.CreateCommand();
+        cmd.CommandText = "SELECT Value FROM Settings WHERE Key = $key;";
+        cmd.Parameters.AddWithValue("$key", key);
+        return cmd.ExecuteScalar() as string;
+    }
+
+    public void SetSetting(string key, string value)
+    {
+        using var connection = OpenConnection();
+        using var cmd = connection.CreateCommand();
+        cmd.CommandText = """
+            INSERT INTO Settings (Key, Value) VALUES ($key, $value)
+            ON CONFLICT(Key) DO UPDATE SET Value = $value;
+            """;
+        cmd.Parameters.AddWithValue("$key", key);
+        cmd.Parameters.AddWithValue("$value", value);
         cmd.ExecuteNonQuery();
     }
 
@@ -156,7 +186,7 @@ public class DatabaseService
         using var connection = OpenConnection();
         using var cmd = connection.CreateCommand();
         cmd.CommandText = """
-            SELECT Id, ColumnId, Title, SortOrder, ProjectId, Priority, DueDate, Who
+            SELECT Id, ColumnId, Title, SortOrder, ProjectId, Priority, DueDate, Who, LastUpdated
             FROM Cards WHERE IsArchived = 0 ORDER BY SortOrder;
             """;
 
@@ -173,7 +203,8 @@ public class DatabaseService
                 ProjectId = reader.IsDBNull(4) ? null : reader.GetInt32(4),
                 Priority = reader.GetString(5),
                 DueDate = reader.IsDBNull(6) ? null : DateTime.Parse(reader.GetString(6)),
-                Who = reader.IsDBNull(7) ? null : reader.GetString(7)
+                Who = reader.IsDBNull(7) ? null : reader.GetString(7),
+                LastUpdated = reader.IsDBNull(8) ? null : DateTime.Parse(reader.GetString(8))
             });
         }
         return result;
@@ -226,10 +257,11 @@ public class DatabaseService
         maxCmd.Parameters.AddWithValue("$columnId", columnId);
         var sortOrder = (long)maxCmd.ExecuteScalar()!;
 
+        var now = NowStamp();
         using var insertCmd = connection.CreateCommand();
         insertCmd.CommandText = """
-            INSERT INTO Cards (ColumnId, Title, SortOrder, ProjectId, Priority, DueDate, Who)
-            VALUES ($columnId, $title, $sortOrder, $projectId, $priority, $dueDate, $who);
+            INSERT INTO Cards (ColumnId, Title, SortOrder, ProjectId, Priority, DueDate, Who, LastUpdated)
+            VALUES ($columnId, $title, $sortOrder, $projectId, $priority, $dueDate, $who, $lastUpdated);
             SELECT last_insert_rowid();
             """;
         insertCmd.Parameters.AddWithValue("$columnId", columnId);
@@ -239,6 +271,7 @@ public class DatabaseService
         insertCmd.Parameters.AddWithValue("$priority", priority);
         insertCmd.Parameters.AddWithValue("$dueDate", (object?)dueDate?.ToString("yyyy-MM-dd") ?? DBNull.Value);
         insertCmd.Parameters.AddWithValue("$who", (object?)who ?? DBNull.Value);
+        insertCmd.Parameters.AddWithValue("$lastUpdated", now);
         var id = (long)insertCmd.ExecuteScalar()!;
 
         LogHistory(connection, (int)id, title, "Created", $"Added to {columnName}");
@@ -246,19 +279,20 @@ public class DatabaseService
         return new CardItem
         {
             Id = (int)id, ColumnId = columnId, Title = title, SortOrder = (int)sortOrder, ProjectId = projectId,
-            Priority = priority, DueDate = dueDate, Who = who
+            Priority = priority, DueDate = dueDate, Who = who, LastUpdated = DateTime.Parse(now)
         };
     }
 
-    public void UpdateCard(int cardId, string title, int? projectId, string priority, DateTime? dueDate, string? who)
+    public DateTime UpdateCard(int cardId, string title, int? projectId, string priority, DateTime? dueDate, string? who)
     {
         using var connection = OpenConnection();
+        var now = NowStamp();
 
         using (var cmd = connection.CreateCommand())
         {
             cmd.CommandText = """
                 UPDATE Cards SET Title = $title, ProjectId = $projectId, Priority = $priority,
-                    DueDate = $dueDate, Who = $who
+                    DueDate = $dueDate, Who = $who, LastUpdated = $lastUpdated
                 WHERE Id = $id;
                 """;
             cmd.Parameters.AddWithValue("$title", title);
@@ -266,11 +300,13 @@ public class DatabaseService
             cmd.Parameters.AddWithValue("$priority", priority);
             cmd.Parameters.AddWithValue("$dueDate", (object?)dueDate?.ToString("yyyy-MM-dd") ?? DBNull.Value);
             cmd.Parameters.AddWithValue("$who", (object?)who ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("$lastUpdated", now);
             cmd.Parameters.AddWithValue("$id", cardId);
             cmd.ExecuteNonQuery();
         }
 
         LogHistory(connection, cardId, title, "Edited", "Task details updated");
+        return DateTime.Parse(now);
     }
 
     public Project AddProject(string name)
@@ -324,9 +360,10 @@ public class DatabaseService
         deleteCmd.ExecuteNonQuery();
     }
 
-    public void MoveCard(int cardId, int newColumnId, string cardTitle, string fromColumnName, string toColumnName)
+    public DateTime MoveCard(int cardId, int newColumnId, string cardTitle, string fromColumnName, string toColumnName)
     {
         using var connection = OpenConnection();
+        var now = NowStamp();
 
         using var maxCmd = connection.CreateCommand();
         maxCmd.CommandText = "SELECT COALESCE(MAX(SortOrder), -1) + 1 FROM Cards WHERE ColumnId = $columnId;";
@@ -334,13 +371,15 @@ public class DatabaseService
         var sortOrder = (long)maxCmd.ExecuteScalar()!;
 
         using var updateCmd = connection.CreateCommand();
-        updateCmd.CommandText = "UPDATE Cards SET ColumnId = $columnId, SortOrder = $sortOrder WHERE Id = $id;";
+        updateCmd.CommandText = "UPDATE Cards SET ColumnId = $columnId, SortOrder = $sortOrder, LastUpdated = $lastUpdated WHERE Id = $id;";
         updateCmd.Parameters.AddWithValue("$columnId", newColumnId);
         updateCmd.Parameters.AddWithValue("$sortOrder", sortOrder);
+        updateCmd.Parameters.AddWithValue("$lastUpdated", now);
         updateCmd.Parameters.AddWithValue("$id", cardId);
         updateCmd.ExecuteNonQuery();
 
         LogHistory(connection, cardId, cardTitle, "Moved", $"Moved from {fromColumnName} to {toColumnName}");
+        return DateTime.Parse(now);
     }
 
     public void DeleteCard(int cardId, string cardTitle, string columnName)
@@ -360,7 +399,8 @@ public class DatabaseService
         using var connection = OpenConnection();
         using (var cmd = connection.CreateCommand())
         {
-            cmd.CommandText = "UPDATE Cards SET IsArchived = 1 WHERE Id = $id;";
+            cmd.CommandText = "UPDATE Cards SET IsArchived = 1, LastUpdated = $lastUpdated WHERE Id = $id;";
+            cmd.Parameters.AddWithValue("$lastUpdated", NowStamp());
             cmd.Parameters.AddWithValue("$id", cardId);
             cmd.ExecuteNonQuery();
         }

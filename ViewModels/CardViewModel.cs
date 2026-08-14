@@ -86,4 +86,18 @@ public class CardViewModel(CardItem model) : ObservableObject
     }
 
     public string WhoDisplay => string.IsNullOrWhiteSpace(Who) ? string.Empty : $"Assigned: {Who}";
+
+    public DateTime? LastUpdated
+    {
+        get => Model.LastUpdated;
+        set
+        {
+            if (Model.LastUpdated == value) return;
+            Model.LastUpdated = value;
+            OnPropertyChanged();
+            OnPropertyChanged(nameof(LastUpdatedDisplay));
+        }
+    }
+
+    public string LastUpdatedDisplay => LastUpdated is null ? "Updated: unknown" : $"Updated {LastUpdated:MMM d, h:mm tt}";
 }

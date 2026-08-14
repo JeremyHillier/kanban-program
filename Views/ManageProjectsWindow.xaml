@@ -6,7 +6,8 @@
         mc:Ignorable="d"
         Title="Manage Projects" Height="420" Width="360"
         WindowStartupLocation="CenterOwner" ResizeMode="NoResize"
-        ShowInTaskbar="False">
+        ShowInTaskbar="False"
+        Background="{DynamicResource WindowBackgroundBrush}">
     <Grid Margin="16">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -15,15 +16,18 @@
         </Grid.RowDefinitions>
 
         <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,12">
-            <TextBox x:Name="NewProjectTextBox" Width="220" Padding="6"/>
-            <Button Content="Add" Width="80" Margin="8,0,0,0" Padding="0,6" Click="Add_Click"/>
+            <TextBox x:Name="NewProjectTextBox" Width="220" Padding="6"
+                     Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                     BorderBrush="{DynamicResource CardBorderBrush}"/>
+            <Button Content="Add" Width="80" Margin="8,0,0,0" Padding="0,6" Click="Add_Click"
+                    Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
         </StackPanel>
 
         <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
             <ItemsControl ItemsSource="{Binding Projects}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <Border BorderBrush="#FFE0E0E0" BorderThickness="0,0,0,1" Padding="0,6">
+                        <Border BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="0,0,0,1" Padding="0,6">
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
@@ -31,8 +35,11 @@
                                 </Grid.ColumnDefinitions>
                                 <TextBox Grid.Column="0" Padding="6" Margin="0,0,8,0"
                                          Text="{Binding Name, Mode=OneWay}"
-                                         LostFocus="ProjectName_LostFocus"/>
-                                <Button Grid.Column="1" Content="Delete" Padding="10,4" Click="Delete_Click"/>
+                                         LostFocus="ProjectName_LostFocus"
+                                         Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                                         BorderBrush="{DynamicResource CardBorderBrush}"/>
+                                <Button Grid.Column="1" Content="Delete" Padding="10,4" Click="Delete_Click"
+                                        Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
                             </Grid>
                         </Border>
                     </DataTemplate>
@@ -41,6 +48,7 @@
         </ScrollViewer>
 
         <Button Grid.Row="2" Content="Close" Width="90" Padding="0,6" Margin="0,12,0,0"
-                HorizontalAlignment="Right" IsCancel="True"/>
+                HorizontalAlignment="Right" IsCancel="True"
+                Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
     </Grid>
 </Window>

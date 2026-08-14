@@ -4,6 +4,14 @@
              xmlns:local="clr-namespace:KanbanApp"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
-         
+        <SolidColorBrush x:Key="WindowBackgroundBrush" Color="#FFF1F2F5"/>
+        <SolidColorBrush x:Key="CardBackgroundBrush" Color="White"/>
+        <SolidColorBrush x:Key="CardBorderBrush" Color="#FFD0D0D0"/>
+        <SolidColorBrush x:Key="PrimaryTextBrush" Color="#FF1A1A1A"/>
+        <SolidColorBrush x:Key="SecondaryTextBrush" Color="#FF888888"/>
+        <SolidColorBrush x:Key="PanelBackgroundBrush" Color="#FFFAFAFA"/>
+        <SolidColorBrush x:Key="PanelBorderBrush" Color="#FF333333"/>
+        <SolidColorBrush x:Key="ButtonBackgroundBrush" Color="#FFECECEC"/>
+        <SolidColorBrush x:Key="InputBackgroundBrush" Color="White"/>
     </Application.Resources>
 </Application>

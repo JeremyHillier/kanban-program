@@ -6,11 +6,26 @@ using KanbanApp.Services;
 
 namespace KanbanApp.ViewModels;
 
-public class MainViewModel
+public class MainViewModel : ObservableObject
 {
     private readonly DatabaseService _db;
 
     public string AppVersion { get; } = $"v{Assembly.GetExecutingAssembly().GetName().Version?.ToString(3)}";
+
+    private bool _isDarkMode;
+    public bool IsDarkMode
+    {
+        get => _isDarkMode;
+        private set
+        {
+            if (SetField(ref _isDarkMode, value))
+            {
+                OnPropertyChanged(nameof(ThemeButtonLabel));
+            }
+        }
+    }
+
+    public string ThemeButtonLabel => IsDarkMode ? "Light Mode" : "Dark Mode";
 
     private static readonly Brush[] ColumnPalette =
     [
@@ -41,6 +56,16 @@ public class MainViewModel
         });
 
         Load();
+
+        _isDarkMode = _db.GetSetting("Theme") == "Dark";
+        Theming.ThemeManager.Apply(_isDarkMode);
+    }
+
+    public void ToggleTheme()
+    {
+        IsDarkMode = !IsDarkMode;
+        _db.SetSetting("Theme", IsDarkMode ? "Dark" : "Light");
+        Theming.ThemeManager.Apply(IsDarkMode);
     }
 
     private void Load()
@@ -63,7 +88,11 @@ public class MainViewModel
             var columnVm = new ColumnViewModel(column, background);
             foreach (var card in cards.Where(c => c.ColumnId == column.Id))
             {
-                var cardVm = new CardViewModel(card) { ProjectName = ResolveProjectName(card.ProjectId) };
+                var cardVm = new CardViewModel(card)
+                {
+                    ProjectName = ResolveProjectName(card.ProjectId),
+                    LastUpdated = card.LastUpdated
+                };
                 columnVm.Cards.Add(cardVm);
             }
             Columns.Add(columnVm);
@@ -81,7 +110,7 @@ public class MainViewModel
         if (string.IsNullOrWhiteSpace(title)) return;
 
         var card = _db.AddCard(column.Id, title.Trim(), project?.Id, column.Name, priority, dueDate, who);
-        var cardVm = new CardViewModel(card) { ProjectName = project?.Name ?? "No Project" };
+        var cardVm = new CardViewModel(card) { ProjectName = project?.Name ?? "No Project", LastUpdated = card.LastUpdated };
         column.Cards.Add(cardVm);
     }
 
@@ -96,7 +125,7 @@ public class MainViewModel
         card.DueDate = dueDate;
         card.Who = who;
 
-        _db.UpdateCard(card.Id, card.Title, project?.Id, priority, dueDate, who);
+        card.LastUpdated = _db.UpdateCard(card.Id, card.Title, project?.Id, priority, dueDate, who);
 
         var sourceColumn = Columns.FirstOrDefault(c => c.Cards.Contains(card));
         if (sourceColumn is not null && sourceColumn != newColumn)
@@ -156,7 +185,7 @@ public class MainViewModel
         card.ColumnId = targetColumn.Id;
         targetColumn.Cards.Add(card);
 
-        _db.MoveCard(card.Id, targetColumn.Id, card.Title, sourceColumn.Name, targetColumn.Name);
+        card.LastUpdated = _db.MoveCard(card.Id, targetColumn.Id, card.Title, sourceColumn.Name, targetColumn.Name);
     }
 
     public void ArchiveDoneTasks()

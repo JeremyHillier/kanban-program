@@ -6,10 +6,30 @@
         xmlns:local="clr-namespace:KanbanApp"
         xmlns:conv="clr-namespace:KanbanApp.Converters"
         mc:Ignorable="d"
-        Title="Kanban" Height="680" Width="1650">
+        Title="Kanban" Height="700" Width="1650"
+        Background="{DynamicResource WindowBackgroundBrush}">
     <Window.Resources>
         <conv:PriorityToBrushConverter x:Key="PriorityToBrushConverter"/>
         <conv:EmptyStringToVisibilityConverter x:Key="EmptyStringToVisibilityConverter"/>
+
+        <Style x:Key="QuickActionButtonStyle" TargetType="Button">
+            <Setter Property="Width" Value="27"/>
+            <Setter Property="Height" Value="24"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Margin" Value="0,0,3,0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="BorderThickness" Value="0"/>
+        </Style>
+
+        <Style x:Key="PanelButtonStyle" TargetType="Button">
+            <Setter Property="Padding" Value="12,6"/>
+            <Setter Property="Background" Value="{DynamicResource ButtonBackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource PanelBorderBrush}"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
     </Window.Resources>
     <Grid Margin="12">
         <Grid.RowDefinitions>
@@ -31,41 +51,50 @@
                                     CornerRadius="6" VerticalAlignment="Top"
                                     AllowDrop="True" Drop="Column_Drop">
                                 <StackPanel>
-                                    <TextBlock Text="{Binding Name}" FontWeight="Bold" FontSize="14" Margin="0,0,0,10"/>
+                                    <TextBlock Text="{Binding Name}" FontWeight="Bold" FontSize="14" Margin="0,0,0,10" Foreground="#FF1A1A1A"/>
 
                                     <ItemsControl ItemsSource="{Binding Cards}">
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate>
-                                                <Border Background="White" CornerRadius="4" Padding="8" Margin="0,0,0,6"
-                                                        BorderBrush="#FFD0D0D0" BorderThickness="1"
+                                                <Border Background="{DynamicResource CardBackgroundBrush}" CornerRadius="4" Padding="8" Margin="0,0,0,6"
+                                                        BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="1"
                                                         PreviewMouseLeftButtonDown="Card_PreviewMouseLeftButtonDown"
                                                         MouseMove="Card_MouseMove">
-                                                    <Grid>
-                                                        <Grid.ColumnDefinitions>
-                                                            <ColumnDefinition Width="*"/>
-                                                            <ColumnDefinition Width="Auto"/>
-                                                        </Grid.ColumnDefinitions>
-                                                        <StackPanel Grid.Column="0">
-                                                            <TextBlock Text="{Binding Title}" TextWrapping="Wrap"/>
-                                                            <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
-                                                                <Border Background="#FFEFEFEF" CornerRadius="3" Padding="5,1"
-                                                                        HorizontalAlignment="Left">
-                                                                    <TextBlock Text="{Binding ProjectName}" FontSize="10" Foreground="#FF666666"/>
-                                                                </Border>
-                                                                <Border Background="{Binding Priority, Converter={StaticResource PriorityToBrushConverter}}"
-                                                                        CornerRadius="3" Padding="5,1" Margin="4,0,0,0" HorizontalAlignment="Left">
-                                                                    <TextBlock Text="{Binding Priority}" FontSize="10" Foreground="White"/>
-                                                                </Border>
-                                                            </StackPanel>
-                                                            <TextBlock Text="{Binding DueDateDisplay}" FontSize="10" Foreground="#FF888888" Margin="0,3,0,0"
-                                                                       Visibility="{Binding DueDateDisplay, Converter={StaticResource EmptyStringToVisibilityConverter}}"/>
-                                                            <TextBlock Text="{Binding WhoDisplay}" FontSize="10" Foreground="#FF888888" Margin="0,1,0,0"
-                                                                       Visibility="{Binding WhoDisplay, Converter={StaticResource EmptyStringToVisibilityConverter}}"/>
+                                                    <StackPanel>
+                                                        <TextBlock Text="{Binding Title}" TextWrapping="Wrap" Foreground="{DynamicResource PrimaryTextBrush}"/>
+
+                                                        <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                                                            <Border Background="#FFEFEFEF" CornerRadius="3" Padding="5,1" HorizontalAlignment="Left">
+                                                                <TextBlock Text="{Binding ProjectName}" FontSize="10" Foreground="#FF666666"/>
+                                                            </Border>
+                                                            <Border Background="{Binding Priority, Converter={StaticResource PriorityToBrushConverter}}"
+                                                                    CornerRadius="3" Padding="5,1" Margin="4,0,0,0" HorizontalAlignment="Left">
+                                                                <TextBlock Text="{Binding Priority}" FontSize="10" Foreground="White"/>
+                                                            </Border>
                                                         </StackPanel>
-                                                        <Button Grid.Column="1" Content="x" Padding="6,0" Margin="6,0,0,0" VerticalAlignment="Top"
-                                                                Command="{Binding DataContext.DeleteCardCommand, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                                CommandParameter="{Binding}"/>
-                                                    </Grid>
+
+                                                        <TextBlock Text="{Binding DueDateDisplay}" FontSize="10" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,3,0,0"
+                                                                   Visibility="{Binding DueDateDisplay, Converter={StaticResource EmptyStringToVisibilityConverter}}"/>
+                                                        <TextBlock Text="{Binding WhoDisplay}" FontSize="10" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,1,0,0"
+                                                                   Visibility="{Binding WhoDisplay, Converter={StaticResource EmptyStringToVisibilityConverter}}"/>
+                                                        <TextBlock Text="{Binding LastUpdatedDisplay}" FontSize="9" FontStyle="Italic"
+                                                                   Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,3,0,0"/>
+
+                                                        <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
+                                                            <Button Style="{StaticResource QuickActionButtonStyle}" Content="E" Background="#FF607D8B"
+                                                                    ToolTip="Edit" Click="EditQuickAction_Click"/>
+                                                            <Button Style="{StaticResource QuickActionButtonStyle}" Content="H" Background="#FFFFA726"
+                                                                    Tag="On Hold" ToolTip="Move to On Hold" Click="QuickMove_Click"/>
+                                                            <Button Style="{StaticResource QuickActionButtonStyle}" Content="W" Background="#FF9575CD"
+                                                                    Tag="Waiting" ToolTip="Move to Waiting" Click="QuickMove_Click"/>
+                                                            <Button Style="{StaticResource QuickActionButtonStyle}" Content="&#x2713;" Background="#FF66BB6A"
+                                                                    Tag="Done" ToolTip="Mark Done" Click="QuickMove_Click"/>
+                                                            <Button Style="{StaticResource QuickActionButtonStyle}" Content="X" Background="#FFEF5350" Margin="0"
+                                                                    ToolTip="Delete"
+                                                                    Command="{Binding DataContext.DeleteCardCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                    CommandParameter="{Binding}"/>
+                                                        </StackPanel>
+                                                    </StackPanel>
                                                 </Border>
                                             </DataTemplate>
                                         </ItemsControl.ItemTemplate>
@@ -76,19 +105,20 @@
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
 
-                <Border BorderBrush="#FF333333" BorderThickness="2" CornerRadius="2" Padding="12"
-                        VerticalAlignment="Top" Background="#FFFAFAFA">
+                <Border BorderBrush="{DynamicResource PanelBorderBrush}" BorderThickness="2" CornerRadius="2" Padding="12"
+                        VerticalAlignment="Top" Background="{DynamicResource PanelBackgroundBrush}">
                     <StackPanel Width="160">
-                        <Button Content="+ Add Task" Padding="12,6" Click="AddTask_Click"/>
-                        <Button Content="Manage Projects" Padding="12,6" Margin="0,8,0,0" Click="ManageProjects_Click"/>
-                        <Button Content="Archive Done" Padding="12,6" Margin="0,8,0,0" Click="ArchiveDone_Click"/>
-                        <Button Content="View Archived" Padding="12,6" Margin="0,8,0,0" Click="ViewArchived_Click"/>
+                        <Button Content="+ Add Task" Style="{StaticResource PanelButtonStyle}" Click="AddTask_Click"/>
+                        <Button Content="Manage Projects" Style="{StaticResource PanelButtonStyle}" Margin="0,8,0,0" Click="ManageProjects_Click"/>
+                        <Button Content="Archive Done" Style="{StaticResource PanelButtonStyle}" Margin="0,8,0,0" Click="ArchiveDone_Click"/>
+                        <Button Content="View Archived" Style="{StaticResource PanelButtonStyle}" Margin="0,8,0,0" Click="ViewArchived_Click"/>
+                        <Button Content="{Binding ThemeButtonLabel}" Style="{StaticResource PanelButtonStyle}" Margin="0,8,0,0" Click="ToggleTheme_Click"/>
                     </StackPanel>
                 </Border>
             </StackPanel>
         </ScrollViewer>
 
-        <TextBlock Grid.Row="1" Text="{Binding AppVersion}" FontSize="10" Foreground="#FF999999"
+        <TextBlock Grid.Row="1" Text="{Binding AppVersion}" FontSize="10" Foreground="{DynamicResource SecondaryTextBrush}"
                    HorizontalAlignment="Left" Margin="0,8,0,0"/>
     </Grid>
 </Window>
