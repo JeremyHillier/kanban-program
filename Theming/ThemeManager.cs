@@ -20,6 +20,7 @@ public static class ThemeManager
             res["PanelBorderBrush"] = Brush(0x6E, 0x6E, 0x6E);
             res["ButtonBackgroundBrush"] = Brush(0x3F, 0x3F, 0x46);
             res["InputBackgroundBrush"] = Brush(0x33, 0x33, 0x36);
+            res["BoardAreaBrush"] = Brush(0x1E, 0x1E, 0x1E);
         }
         else
         {
@@ -32,6 +33,7 @@ public static class ThemeManager
             res["PanelBorderBrush"] = Brush(0x33, 0x33, 0x33);
             res["ButtonBackgroundBrush"] = Brush(0xEC, 0xEC, 0xEC);
             res["InputBackgroundBrush"] = Brushes.White;
+            res["BoardAreaBrush"] = Brush(0xE2, 0xE2, 0xE6);
         }
     }
 

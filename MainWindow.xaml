@@ -14,7 +14,6 @@
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
         <SolidColorBrush x:Key="AccentPanelBrush" Color="#FF1E3A5F"/>
         <SolidColorBrush x:Key="AccentPanelBorderBrush" Color="#FF3E6491"/>
-        <SolidColorBrush x:Key="BoardAreaBrush" Color="#FFE2E2E6"/>
 
         <Style x:Key="QuickActionButtonStyle" TargetType="Button">
             <Setter Property="Width" Value="27"/>
@@ -113,7 +112,7 @@
         </Border>
 
         <ScrollViewer Grid.Row="1" Grid.Column="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled"
-                      Background="{StaticResource BoardAreaBrush}">
+                      Background="{DynamicResource BoardAreaBrush}">
             <StackPanel Orientation="Horizontal">
                 <ItemsControl ItemsSource="{Binding Columns}">
                     <ItemsControl.ItemsPanel>
