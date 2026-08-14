@@ -12,6 +12,9 @@
         <conv:PriorityToBrushConverter x:Key="PriorityToBrushConverter"/>
         <conv:EmptyStringToVisibilityConverter x:Key="EmptyStringToVisibilityConverter"/>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+        <SolidColorBrush x:Key="AccentPanelBrush" Color="#FF1E3A5F"/>
+        <SolidColorBrush x:Key="AccentPanelBorderBrush" Color="#FF3E6491"/>
+        <SolidColorBrush x:Key="BoardAreaBrush" Color="#FFE2E2E6"/>
 
         <Style x:Key="QuickActionButtonStyle" TargetType="Button">
             <Setter Property="Width" Value="27"/>
@@ -53,50 +56,53 @@
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
-        <StackPanel Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal" Margin="0,0,0,10">
-            <TextBlock Text="Sort by:" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Center" Margin="0,0,8,0"/>
-            <Button Content="Project" Style="{StaticResource SortButtonStyle}" Click="SortByProject_Click"/>
-            <Button Content="Due Date" Style="{StaticResource SortButtonStyle}" Click="SortByDueDate_Click"/>
-        </StackPanel>
+        <Border Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Padding="12,8" Margin="0,0,0,10" CornerRadius="6"
+                Background="{StaticResource AccentPanelBrush}" BorderBrush="{StaticResource AccentPanelBorderBrush}" BorderThickness="1">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="Sort by:" FontWeight="SemiBold" Foreground="White" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                <Button Content="Project" Style="{StaticResource SortButtonStyle}" Click="SortByProject_Click"/>
+                <Button Content="Due Date" Style="{StaticResource SortButtonStyle}" Click="SortByDueDate_Click"/>
+            </StackPanel>
+        </Border>
 
         <Border Grid.Row="1" Grid.Column="0" Width="220" Margin="0,0,12,0" Padding="12"
                 VerticalAlignment="Top" CornerRadius="6"
-                Background="{DynamicResource PanelBackgroundBrush}"
-                BorderBrush="{DynamicResource PanelBorderBrush}" BorderThickness="1">
+                Background="{StaticResource AccentPanelBrush}"
+                BorderBrush="{StaticResource AccentPanelBorderBrush}" BorderThickness="1">
             <StackPanel>
-                <TextBlock Text="Project Filter" FontWeight="Bold" Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,4"/>
+                <TextBlock Text="Project Filter" FontWeight="Bold" Foreground="White" Margin="0,0,0,4"/>
                 <ComboBox ItemsSource="{Binding ProjectFilterOptions}" SelectedItem="{Binding SelectedProjectFilter, Mode=TwoWay}"
                           Padding="6" Margin="0,0,0,12"
                           Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
                           BorderBrush="{DynamicResource CardBorderBrush}"/>
 
-                <TextBlock Text="Priority Filter" FontWeight="Bold" Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,4"/>
+                <TextBlock Text="Priority Filter" FontWeight="Bold" Foreground="White" Margin="0,0,0,4"/>
                 <ComboBox ItemsSource="{Binding PriorityFilterOptions}" SelectedItem="{Binding SelectedPriorityFilter, Mode=TwoWay}"
                           Padding="6" Margin="0,0,0,12"
                           Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
                           BorderBrush="{DynamicResource CardBorderBrush}"/>
 
-                <TextBlock Text="Who Filter" FontWeight="Bold" Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,4"/>
+                <TextBlock Text="Who Filter" FontWeight="Bold" Foreground="White" Margin="0,0,0,4"/>
                 <ComboBox ItemsSource="{Binding WhoFilterOptions}" SelectedItem="{Binding SelectedWhoFilter, Mode=TwoWay}"
                           Padding="6" Margin="0,0,0,16"
                           Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
                           BorderBrush="{DynamicResource CardBorderBrush}"/>
 
-                <TextBlock Text="Show Due" FontWeight="Bold" Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,4"/>
-                <Border BorderBrush="{DynamicResource PanelBorderBrush}" BorderThickness="1" CornerRadius="4" Padding="10" Margin="0,0,0,16">
+                <TextBlock Text="Show Due" FontWeight="Bold" Foreground="White" Margin="0,0,0,4"/>
+                <Border BorderBrush="{StaticResource AccentPanelBorderBrush}" BorderThickness="1" CornerRadius="4" Padding="10" Margin="0,0,0,16">
                     <StackPanel>
                         <RadioButton x:Name="DueTodayRadio" Content="Today" GroupName="DueFilter" Tag="Today"
-                                     Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,8" Checked="DueFilter_Checked"/>
+                                     Foreground="White" Margin="0,0,0,8" Checked="DueFilter_Checked"/>
                         <RadioButton x:Name="DueTomorrowRadio" Content="Tomorrow" GroupName="DueFilter" Tag="Tomorrow"
-                                     Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,8" Checked="DueFilter_Checked"/>
+                                     Foreground="White" Margin="0,0,0,8" Checked="DueFilter_Checked"/>
                         <RadioButton x:Name="DueWithinWeekRadio" Content="Within a Week" GroupName="DueFilter" Tag="Within a Week"
-                                     Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,8" Checked="DueFilter_Checked"/>
+                                     Foreground="White" Margin="0,0,0,8" Checked="DueFilter_Checked"/>
                         <RadioButton x:Name="DueNoDateRadio" Content="No Due Date" GroupName="DueFilter" Tag="No Due Date"
-                                     Foreground="{DynamicResource PrimaryTextBrush}" Checked="DueFilter_Checked"/>
+                                     Foreground="White" Checked="DueFilter_Checked"/>
                     </StackPanel>
                 </Border>
 
-                <TextBlock Text="Keyword Search" FontWeight="Bold" Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,4"/>
+                <TextBlock Text="Keyword Search" FontWeight="Bold" Foreground="White" Margin="0,0,0,4"/>
                 <TextBox Text="{Binding KeywordFilter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Padding="6" Margin="0,0,0,16"
                          Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
                          BorderBrush="{DynamicResource CardBorderBrush}"/>
@@ -106,7 +112,8 @@
             </StackPanel>
         </Border>
 
-        <ScrollViewer Grid.Row="1" Grid.Column="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+        <ScrollViewer Grid.Row="1" Grid.Column="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled"
+                      Background="{StaticResource BoardAreaBrush}">
             <StackPanel Orientation="Horizontal">
                 <ItemsControl ItemsSource="{Binding Columns}">
                     <ItemsControl.ItemsPanel>
@@ -182,8 +189,8 @@
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
 
-                <Border BorderBrush="{DynamicResource PanelBorderBrush}" BorderThickness="2" CornerRadius="2" Padding="12"
-                        VerticalAlignment="Top" Background="{DynamicResource PanelBackgroundBrush}">
+                <Border BorderBrush="{StaticResource AccentPanelBorderBrush}" BorderThickness="2" CornerRadius="2" Padding="12"
+                        VerticalAlignment="Top" Background="{StaticResource AccentPanelBrush}">
                     <StackPanel Width="160">
                         <Button Content="+ Add Task" Style="{StaticResource PanelButtonStyle}" Click="AddTask_Click"/>
                         <Button Content="Manage Projects" Style="{StaticResource PanelButtonStyle}" Margin="0,8,0,0" Click="ManageProjects_Click"/>
