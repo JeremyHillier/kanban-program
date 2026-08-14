@@ -4,8 +4,13 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:KanbanApp"
+        xmlns:conv="clr-namespace:KanbanApp.Converters"
         mc:Ignorable="d"
         Title="Kanban" Height="680" Width="1650">
+    <Window.Resources>
+        <conv:PriorityToBrushConverter x:Key="PriorityToBrushConverter"/>
+        <conv:EmptyStringToVisibilityConverter x:Key="EmptyStringToVisibilityConverter"/>
+    </Window.Resources>
     <Grid Margin="12">
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
@@ -42,10 +47,20 @@
                                                         </Grid.ColumnDefinitions>
                                                         <StackPanel Grid.Column="0">
                                                             <TextBlock Text="{Binding Title}" TextWrapping="Wrap"/>
-                                                            <Border Background="#FFEFEFEF" CornerRadius="3" Padding="5,1"
-                                                                    Margin="0,4,0,0" HorizontalAlignment="Left">
-                                                                <TextBlock Text="{Binding ProjectName}" FontSize="10" Foreground="#FF666666"/>
-                                                            </Border>
+                                                            <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                                                                <Border Background="#FFEFEFEF" CornerRadius="3" Padding="5,1"
+                                                                        HorizontalAlignment="Left">
+                                                                    <TextBlock Text="{Binding ProjectName}" FontSize="10" Foreground="#FF666666"/>
+                                                                </Border>
+                                                                <Border Background="{Binding Priority, Converter={StaticResource PriorityToBrushConverter}}"
+                                                                        CornerRadius="3" Padding="5,1" Margin="4,0,0,0" HorizontalAlignment="Left">
+                                                                    <TextBlock Text="{Binding Priority}" FontSize="10" Foreground="White"/>
+                                                                </Border>
+                                                            </StackPanel>
+                                                            <TextBlock Text="{Binding DueDateDisplay}" FontSize="10" Foreground="#FF888888" Margin="0,3,0,0"
+                                                                       Visibility="{Binding DueDateDisplay, Converter={StaticResource EmptyStringToVisibilityConverter}}"/>
+                                                            <TextBlock Text="{Binding WhoDisplay}" FontSize="10" Foreground="#FF888888" Margin="0,1,0,0"
+                                                                       Visibility="{Binding WhoDisplay, Converter={StaticResource EmptyStringToVisibilityConverter}}"/>
                                                         </StackPanel>
                                                         <Button Grid.Column="1" Content="x" Padding="6,0" Margin="6,0,0,0" VerticalAlignment="Top"
                                                                 Command="{Binding DataContext.DeleteCardCommand, RelativeSource={RelativeSource AncestorType=Window}}"

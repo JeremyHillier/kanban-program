@@ -4,11 +4,18 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         mc:Ignorable="d"
-        Title="Add Task" Height="360" Width="380"
+        x:Name="RootWindow"
+        Title="Add Task" Height="620" Width="380"
         WindowStartupLocation="CenterOwner" ResizeMode="NoResize"
         ShowInTaskbar="False">
     <Grid Margin="16">
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -31,9 +38,29 @@
         <ComboBox Grid.Row="5" x:Name="ProjectComboBox" Padding="6"
                   DisplayMemberPath="Name" SelectedIndex="0"/>
 
-        <StackPanel Grid.Row="7" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,16,0,0">
+        <TextBlock Grid.Row="6" Text="Priority" FontWeight="SemiBold" Margin="0,12,0,4"/>
+        <ComboBox Grid.Row="7" x:Name="PriorityComboBox" Padding="6" SelectedIndex="2">
+            <ComboBoxItem Content="High"/>
+            <ComboBoxItem Content="Medium"/>
+            <ComboBoxItem Content="Normal"/>
+        </ComboBox>
+
+        <TextBlock Grid.Row="8" Text="Due Date (optional)" FontWeight="SemiBold" Margin="0,12,0,4"/>
+        <Grid Grid.Row="9">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <DatePicker Grid.Column="0" x:Name="DueDatePicker" Padding="4"/>
+            <Button Grid.Column="1" Content="Clear" Padding="8,4" Margin="6,0,0,0" Click="ClearDueDate_Click"/>
+        </Grid>
+
+        <TextBlock Grid.Row="10" Text="Who" FontWeight="SemiBold" Margin="0,12,0,4"/>
+        <TextBox Grid.Row="11" x:Name="WhoTextBox" Padding="6"/>
+
+        <StackPanel Grid.Row="13" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,16,0,0">
             <Button Content="Cancel" Width="80" Padding="0,6" IsCancel="True"/>
-            <Button Content="Add Task" Width="90" Padding="0,6" Margin="8,0,0,0" IsDefault="True" Click="Add_Click"/>
+            <Button x:Name="SubmitButton" Content="Add Task" Width="90" Padding="0,6" Margin="8,0,0,0" IsDefault="True" Click="Add_Click"/>
         </StackPanel>
     </Grid>
 </Window>

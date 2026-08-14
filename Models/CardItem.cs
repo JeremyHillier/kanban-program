@@ -8,4 +8,7 @@ public class CardItem
     public int SortOrder { get; set; }
     public int? ProjectId { get; set; }
     public bool IsArchived { get; set; }
+    public string Priority { get; set; } = "Normal";
+    public DateTime? DueDate { get; set; }
+    public string? Who { get; set; }
 }

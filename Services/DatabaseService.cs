@@ -51,6 +51,9 @@ public class DatabaseService
                     SortOrder INTEGER NOT NULL,
                     ProjectId INTEGER NULL,
                     IsArchived INTEGER NOT NULL DEFAULT 0,
+                    Priority TEXT NOT NULL DEFAULT 'Normal',
+                    DueDate TEXT NULL,
+                    Who TEXT NULL,
                     FOREIGN KEY (ColumnId) REFERENCES Columns(Id) ON DELETE CASCADE,
                     FOREIGN KEY (ProjectId) REFERENCES Projects(Id) ON DELETE SET NULL
                 );
@@ -68,6 +71,9 @@ public class DatabaseService
 
         MigrateCardsColumn(connection, "ProjectId", "INTEGER NULL");
         MigrateCardsColumn(connection, "IsArchived", "INTEGER NOT NULL DEFAULT 0");
+        MigrateCardsColumn(connection, "Priority", "TEXT NOT NULL DEFAULT 'Normal'");
+        MigrateCardsColumn(connection, "DueDate", "TEXT NULL");
+        MigrateCardsColumn(connection, "Who", "TEXT NULL");
 
         using (var checkCmd = connection.CreateCommand())
         {
@@ -149,7 +155,10 @@ public class DatabaseService
     {
         using var connection = OpenConnection();
         using var cmd = connection.CreateCommand();
-        cmd.CommandText = "SELECT Id, ColumnId, Title, SortOrder, ProjectId FROM Cards WHERE IsArchived = 0 ORDER BY SortOrder;";
+        cmd.CommandText = """
+            SELECT Id, ColumnId, Title, SortOrder, ProjectId, Priority, DueDate, Who
+            FROM Cards WHERE IsArchived = 0 ORDER BY SortOrder;
+            """;
 
         var result = new List<CardItem>();
         using var reader = cmd.ExecuteReader();
@@ -161,7 +170,10 @@ public class DatabaseService
                 ColumnId = reader.GetInt32(1),
                 Title = reader.GetString(2),
                 SortOrder = reader.GetInt32(3),
-                ProjectId = reader.IsDBNull(4) ? null : reader.GetInt32(4)
+                ProjectId = reader.IsDBNull(4) ? null : reader.GetInt32(4),
+                Priority = reader.GetString(5),
+                DueDate = reader.IsDBNull(6) ? null : DateTime.Parse(reader.GetString(6)),
+                Who = reader.IsDBNull(7) ? null : reader.GetString(7)
             });
         }
         return result;
@@ -205,7 +217,7 @@ public class DatabaseService
         return new KanbanColumn { Id = (int)id, Name = name, SortOrder = (int)sortOrder };
     }
 
-    public CardItem AddCard(int columnId, string title, int? projectId, string columnName)
+    public CardItem AddCard(int columnId, string title, int? projectId, string columnName, string priority, DateTime? dueDate, string? who)
     {
         using var connection = OpenConnection();
 
@@ -216,18 +228,49 @@ public class DatabaseService
 
         using var insertCmd = connection.CreateCommand();
         insertCmd.CommandText = """
-            INSERT INTO Cards (ColumnId, Title, SortOrder, ProjectId) VALUES ($columnId, $title, $sortOrder, $projectId);
+            INSERT INTO Cards (ColumnId, Title, SortOrder, ProjectId, Priority, DueDate, Who)
+            VALUES ($columnId, $title, $sortOrder, $projectId, $priority, $dueDate, $who);
             SELECT last_insert_rowid();
             """;
         insertCmd.Parameters.AddWithValue("$columnId", columnId);
         insertCmd.Parameters.AddWithValue("$title", title);
         insertCmd.Parameters.AddWithValue("$sortOrder", sortOrder);
         insertCmd.Parameters.AddWithValue("$projectId", (object?)projectId ?? DBNull.Value);
+        insertCmd.Parameters.AddWithValue("$priority", priority);
+        insertCmd.Parameters.AddWithValue("$dueDate", (object?)dueDate?.ToString("yyyy-MM-dd") ?? DBNull.Value);
+        insertCmd.Parameters.AddWithValue("$who", (object?)who ?? DBNull.Value);
         var id = (long)insertCmd.ExecuteScalar()!;
 
         LogHistory(connection, (int)id, title, "Created", $"Added to {columnName}");
 
-        return new CardItem { Id = (int)id, ColumnId = columnId, Title = title, SortOrder = (int)sortOrder, ProjectId = projectId };
+        return new CardItem
+        {
+            Id = (int)id, ColumnId = columnId, Title = title, SortOrder = (int)sortOrder, ProjectId = projectId,
+            Priority = priority, DueDate = dueDate, Who = who
+        };
+    }
+
+    public void UpdateCard(int cardId, string title, int? projectId, string priority, DateTime? dueDate, string? who)
+    {
+        using var connection = OpenConnection();
+
+        using (var cmd = connection.CreateCommand())
+        {
+            cmd.CommandText = """
+                UPDATE Cards SET Title = $title, ProjectId = $projectId, Priority = $priority,
+                    DueDate = $dueDate, Who = $who
+                WHERE Id = $id;
+                """;
+            cmd.Parameters.AddWithValue("$title", title);
+            cmd.Parameters.AddWithValue("$projectId", (object?)projectId ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("$priority", priority);
+            cmd.Parameters.AddWithValue("$dueDate", (object?)dueDate?.ToString("yyyy-MM-dd") ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("$who", (object?)who ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("$id", cardId);
+            cmd.ExecuteNonQuery();
+        }
+
+        LogHistory(connection, cardId, title, "Edited", "Task details updated");
     }
 
     public Project AddProject(string name)

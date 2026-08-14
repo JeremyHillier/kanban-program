@@ -18,6 +18,16 @@ public partial class MainWindow : Window
 
     private void Card_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
     {
+        if (e.ClickCount == 2)
+        {
+            if (sender is FrameworkElement { DataContext: CardViewModel card } && DataContext is MainViewModel viewModel)
+            {
+                EditCard(card, viewModel);
+            }
+            e.Handled = true;
+            return;
+        }
+
         _dragStartPoint = e.GetPosition(null);
     }
 
@@ -46,7 +56,21 @@ public partial class MainWindow : Window
         var dialog = new AddTaskWindow(viewModel.Columns, viewModel.Projects) { Owner = this };
         if (dialog.ShowDialog() == true && dialog.SelectedColumn is not null)
         {
-            viewModel.AddCard(dialog.TaskDetails, dialog.SelectedColumn, dialog.SelectedProject);
+            viewModel.AddCard(dialog.TaskDetails, dialog.SelectedColumn, dialog.SelectedProject,
+                dialog.SelectedPriority, dialog.SelectedDueDate, dialog.Who);
+        }
+    }
+
+    private void EditCard(CardViewModel card, MainViewModel viewModel)
+    {
+        var currentColumn = viewModel.Columns.FirstOrDefault(c => c.Cards.Contains(card));
+        if (currentColumn is null) return;
+
+        var dialog = new AddTaskWindow(viewModel.Columns, viewModel.Projects, card, currentColumn) { Owner = this };
+        if (dialog.ShowDialog() == true && dialog.SelectedColumn is not null)
+        {
+            viewModel.EditCard(card, dialog.TaskDetails, dialog.SelectedColumn, dialog.SelectedProject,
+                dialog.SelectedPriority, dialog.SelectedDueDate, dialog.Who);
         }
     }
 

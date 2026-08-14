@@ -76,13 +76,33 @@ public class MainViewModel
         return Projects.FirstOrDefault(p => p.Id == projectId)?.Name ?? "No Project";
     }
 
-    public void AddCard(string title, ColumnViewModel column, ProjectViewModel? project)
+    public void AddCard(string title, ColumnViewModel column, ProjectViewModel? project, string priority, DateTime? dueDate, string? who)
     {
         if (string.IsNullOrWhiteSpace(title)) return;
 
-        var card = _db.AddCard(column.Id, title.Trim(), project?.Id, column.Name);
+        var card = _db.AddCard(column.Id, title.Trim(), project?.Id, column.Name, priority, dueDate, who);
         var cardVm = new CardViewModel(card) { ProjectName = project?.Name ?? "No Project" };
         column.Cards.Add(cardVm);
+    }
+
+    public void EditCard(CardViewModel card, string title, ColumnViewModel newColumn, ProjectViewModel? project, string priority, DateTime? dueDate, string? who)
+    {
+        if (string.IsNullOrWhiteSpace(title)) return;
+
+        card.Title = title.Trim();
+        card.ProjectId = project?.Id;
+        card.ProjectName = project?.Name ?? "No Project";
+        card.Priority = priority;
+        card.DueDate = dueDate;
+        card.Who = who;
+
+        _db.UpdateCard(card.Id, card.Title, project?.Id, priority, dueDate, who);
+
+        var sourceColumn = Columns.FirstOrDefault(c => c.Cards.Contains(card));
+        if (sourceColumn is not null && sourceColumn != newColumn)
+        {
+            MoveCard(card, newColumn);
+        }
     }
 
     public void AddProject(string name)
