@@ -6,11 +6,12 @@
         xmlns:local="clr-namespace:KanbanApp"
         xmlns:conv="clr-namespace:KanbanApp.Converters"
         mc:Ignorable="d"
-        Title="Kanban" Height="700" Width="1650"
+        Title="Kanban" Height="700" Width="1850"
         Background="{DynamicResource WindowBackgroundBrush}">
     <Window.Resources>
         <conv:PriorityToBrushConverter x:Key="PriorityToBrushConverter"/>
         <conv:EmptyStringToVisibilityConverter x:Key="EmptyStringToVisibilityConverter"/>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
 
         <Style x:Key="QuickActionButtonStyle" TargetType="Button">
             <Setter Property="Width" Value="27"/>
@@ -36,8 +37,59 @@
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
 
-        <ScrollViewer Grid.Row="0" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+        <Border Grid.Row="0" Grid.Column="0" Width="220" Margin="0,0,12,0" Padding="12"
+                VerticalAlignment="Top" CornerRadius="6"
+                Background="{DynamicResource PanelBackgroundBrush}"
+                BorderBrush="{DynamicResource PanelBorderBrush}" BorderThickness="1">
+            <StackPanel>
+                <TextBlock Text="Project Filter" FontWeight="Bold" Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,4"/>
+                <ComboBox ItemsSource="{Binding ProjectFilterOptions}" SelectedItem="{Binding SelectedProjectFilter, Mode=TwoWay}"
+                          Padding="6" Margin="0,0,0,12"
+                          Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                          BorderBrush="{DynamicResource CardBorderBrush}"/>
+
+                <TextBlock Text="Priority Filter" FontWeight="Bold" Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,4"/>
+                <ComboBox ItemsSource="{Binding PriorityFilterOptions}" SelectedItem="{Binding SelectedPriorityFilter, Mode=TwoWay}"
+                          Padding="6" Margin="0,0,0,12"
+                          Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                          BorderBrush="{DynamicResource CardBorderBrush}"/>
+
+                <TextBlock Text="Who Filter" FontWeight="Bold" Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,4"/>
+                <ComboBox ItemsSource="{Binding WhoFilterOptions}" SelectedItem="{Binding SelectedWhoFilter, Mode=TwoWay}"
+                          Padding="6" Margin="0,0,0,16"
+                          Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                          BorderBrush="{DynamicResource CardBorderBrush}"/>
+
+                <TextBlock Text="Show Due" FontWeight="Bold" Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,4"/>
+                <Border BorderBrush="{DynamicResource PanelBorderBrush}" BorderThickness="1" CornerRadius="4" Padding="10" Margin="0,0,0,16">
+                    <StackPanel>
+                        <RadioButton x:Name="DueTodayRadio" Content="Today" GroupName="DueFilter" Tag="Today"
+                                     Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,8" Checked="DueFilter_Checked"/>
+                        <RadioButton x:Name="DueTomorrowRadio" Content="Tomorrow" GroupName="DueFilter" Tag="Tomorrow"
+                                     Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,8" Checked="DueFilter_Checked"/>
+                        <RadioButton x:Name="DueWithinWeekRadio" Content="Within a Week" GroupName="DueFilter" Tag="Within a Week"
+                                     Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,8" Checked="DueFilter_Checked"/>
+                        <RadioButton x:Name="DueNoDateRadio" Content="No Due Date" GroupName="DueFilter" Tag="No Due Date"
+                                     Foreground="{DynamicResource PrimaryTextBrush}" Checked="DueFilter_Checked"/>
+                    </StackPanel>
+                </Border>
+
+                <TextBlock Text="Keyword Search" FontWeight="Bold" Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,4"/>
+                <TextBox Text="{Binding KeywordFilter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Padding="6" Margin="0,0,0,16"
+                         Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                         BorderBrush="{DynamicResource CardBorderBrush}"/>
+
+                <Button Content="Clear Filters" Style="{StaticResource PanelButtonStyle}" HorizontalAlignment="Stretch" Padding="0,10"
+                        Click="ClearFilters_Click"/>
+            </StackPanel>
+        </Border>
+
+        <ScrollViewer Grid.Row="0" Grid.Column="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
             <StackPanel Orientation="Horizontal">
                 <ItemsControl ItemsSource="{Binding Columns}">
                     <ItemsControl.ItemsPanel>
@@ -59,6 +111,7 @@
                                             <DataTemplate>
                                                 <Border Background="{DynamicResource CardBackgroundBrush}" CornerRadius="4" Padding="8" Margin="0,0,0,6"
                                                         BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="1"
+                                                        Visibility="{Binding IsVisible, Converter={StaticResource BooleanToVisibilityConverter}}"
                                                         PreviewMouseLeftButtonDown="Card_PreviewMouseLeftButtonDown"
                                                         MouseMove="Card_MouseMove">
                                                     <StackPanel>
@@ -125,7 +178,7 @@
             </StackPanel>
         </ScrollViewer>
 
-        <TextBlock Grid.Row="1" Text="{Binding AppVersion}" FontSize="10" Foreground="{DynamicResource SecondaryTextBrush}"
+        <TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Text="{Binding AppVersion}" FontSize="10" Foreground="{DynamicResource SecondaryTextBrush}"
                    HorizontalAlignment="Left" Margin="0,8,0,0"/>
     </Grid>
 </Window>

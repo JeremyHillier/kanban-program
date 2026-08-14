@@ -97,6 +97,27 @@ public partial class MainWindow : Window
         dialog.ShowDialog();
     }
 
+    private void DueFilter_Checked(object sender, RoutedEventArgs e)
+    {
+        if (sender is FrameworkElement { Tag: string tag } && DataContext is MainViewModel viewModel)
+        {
+            viewModel.DueFilter = tag;
+        }
+    }
+
+    private void ClearFilters_Click(object sender, RoutedEventArgs e)
+    {
+        DueTodayRadio.IsChecked = false;
+        DueTomorrowRadio.IsChecked = false;
+        DueWithinWeekRadio.IsChecked = false;
+        DueNoDateRadio.IsChecked = false;
+
+        if (DataContext is MainViewModel viewModel)
+        {
+            viewModel.ClearFilters();
+        }
+    }
+
     private void ToggleTheme_Click(object sender, RoutedEventArgs e)
     {
         if (DataContext is not MainViewModel viewModel) return;

@@ -39,6 +39,45 @@ public class MainViewModel : ObservableObject
     public ObservableCollection<ColumnViewModel> Columns { get; } = [];
     public ObservableCollection<ProjectViewModel> Projects { get; } = [];
 
+    public ObservableCollection<string> ProjectFilterOptions { get; } = ["All"];
+    public ObservableCollection<string> PriorityFilterOptions { get; } = ["All", "High", "Medium", "Normal"];
+    public ObservableCollection<string> WhoFilterOptions { get; } = ["All"];
+
+    private string _selectedProjectFilter = "All";
+    public string SelectedProjectFilter
+    {
+        get => _selectedProjectFilter;
+        set { if (SetField(ref _selectedProjectFilter, value)) ApplyFilters(); }
+    }
+
+    private string _selectedPriorityFilter = "All";
+    public string SelectedPriorityFilter
+    {
+        get => _selectedPriorityFilter;
+        set { if (SetField(ref _selectedPriorityFilter, value)) ApplyFilters(); }
+    }
+
+    private string _selectedWhoFilter = "All";
+    public string SelectedWhoFilter
+    {
+        get => _selectedWhoFilter;
+        set { if (SetField(ref _selectedWhoFilter, value)) ApplyFilters(); }
+    }
+
+    private string _dueFilter = string.Empty;
+    public string DueFilter
+    {
+        get => _dueFilter;
+        set { if (SetField(ref _dueFilter, value)) ApplyFilters(); }
+    }
+
+    private string _keywordFilter = string.Empty;
+    public string KeywordFilter
+    {
+        get => _keywordFilter;
+        set { if (SetField(ref _keywordFilter, value)) ApplyFilters(); }
+    }
+
     public RelayCommand DeleteCardCommand { get; }
     public RelayCommand MoveCardCommand { get; }
 
@@ -97,6 +136,101 @@ public class MainViewModel : ObservableObject
             }
             Columns.Add(columnVm);
         }
+
+        RefreshProjectFilterOptions();
+        RefreshWhoFilterOptions();
+    }
+
+    private void RefreshProjectFilterOptions()
+    {
+        var current = SelectedProjectFilter;
+        ProjectFilterOptions.Clear();
+        ProjectFilterOptions.Add("All");
+        foreach (var project in Projects.OrderBy(p => p.Name))
+        {
+            ProjectFilterOptions.Add(project.Name);
+        }
+
+        if (!ProjectFilterOptions.Contains(current))
+        {
+            SelectedProjectFilter = "All";
+        }
+    }
+
+    private void RefreshWhoFilterOptions()
+    {
+        var current = SelectedWhoFilter;
+        WhoFilterOptions.Clear();
+        WhoFilterOptions.Add("All");
+        foreach (var who in Columns.SelectMany(c => c.Cards)
+                     .Select(c => c.Who)
+                     .Where(w => !string.IsNullOrWhiteSpace(w))
+                     .Distinct()
+                     .OrderBy(w => w))
+        {
+            WhoFilterOptions.Add(who!);
+        }
+
+        if (!WhoFilterOptions.Contains(current))
+        {
+            SelectedWhoFilter = "All";
+        }
+    }
+
+    public void ApplyFilters()
+    {
+        foreach (var card in Columns.SelectMany(c => c.Cards))
+        {
+            card.IsVisible = MatchesFilters(card);
+        }
+    }
+
+    private bool MatchesFilters(CardViewModel card)
+    {
+        if (SelectedProjectFilter != "All" && card.ProjectName != SelectedProjectFilter) return false;
+        if (SelectedPriorityFilter != "All" && card.Priority != SelectedPriorityFilter) return false;
+        if (SelectedWhoFilter != "All" && (card.Who ?? string.Empty) != SelectedWhoFilter) return false;
+
+        if (!string.IsNullOrEmpty(DueFilter))
+        {
+            var today = DateTime.Today;
+            var matchesDue = DueFilter switch
+            {
+                "Today" => card.DueDate?.Date == today,
+                "Tomorrow" => card.DueDate?.Date == today.AddDays(1),
+                "Within a Week" => card.DueDate is not null && card.DueDate.Value.Date >= today && card.DueDate.Value.Date <= today.AddDays(7),
+                "No Due Date" => card.DueDate is null,
+                _ => true
+            };
+            if (!matchesDue) return false;
+        }
+
+        if (!string.IsNullOrWhiteSpace(KeywordFilter))
+        {
+            var keyword = KeywordFilter.Trim();
+            var matchesKeyword = card.Title.Contains(keyword, StringComparison.OrdinalIgnoreCase)
+                || card.ProjectName.Contains(keyword, StringComparison.OrdinalIgnoreCase)
+                || (card.Who ?? string.Empty).Contains(keyword, StringComparison.OrdinalIgnoreCase);
+            if (!matchesKeyword) return false;
+        }
+
+        return true;
+    }
+
+    public void ClearFilters()
+    {
+        _selectedProjectFilter = "All";
+        OnPropertyChanged(nameof(SelectedProjectFilter));
+        _selectedPriorityFilter = "All";
+        OnPropertyChanged(nameof(SelectedPriorityFilter));
+        _selectedWhoFilter = "All";
+        OnPropertyChanged(nameof(SelectedWhoFilter));
+        _dueFilter = string.Empty;
+        OnPropertyChanged(nameof(DueFilter));
+        _keywordFilter = string.Empty;
+        OnPropertyChanged(nameof(KeywordFilter));
+
+        ApplyFilters();
     }
 
     private string ResolveProjectName(int? projectId)
@@ -113,6 +247,9 @@ public class MainViewModel : ObservableObject
         var card = _db.AddCard(column.Id, title.Trim(), project?.Id, column.Name, priority, dueDate, who, isRecurring, recurrencePattern);
         var cardVm = new CardViewModel(card) { ProjectName = project?.Name ?? "No Project", LastUpdated = card.LastUpdated };
         column.Cards.Add(cardVm);
+
+        RefreshWhoFilterOptions();
+        cardVm.IsVisible = MatchesFilters(cardVm);
     }
 
     public void EditCard(CardViewModel card, string title, ColumnViewModel newColumn, ProjectViewModel? project, string priority, DateTime? dueDate, string? who,
@@ -136,6 +273,9 @@ public class MainViewModel : ObservableObject
         {
             MoveCard(card, newColumn);
         }
+
+        RefreshWhoFilterOptions();
+        card.IsVisible = MatchesFilters(card);
     }
 
     public void AddProject(string name)
@@ -144,6 +284,7 @@ public class MainViewModel : ObservableObject
 
         var project = _db.AddProject(name.Trim());
         Projects.Add(new ProjectViewModel(project));
+        RefreshProjectFilterOptions();
     }
 
     public void RenameProject(ProjectViewModel project, string newName)
@@ -157,6 +298,8 @@ public class MainViewModel : ObservableObject
         {
             card.ProjectName = project.Name;
         }
+
+        RefreshProjectFilterOptions();
     }
 
     public void DeleteProject(ProjectViewModel project)
@@ -169,6 +312,8 @@ public class MainViewModel : ObservableObject
             card.ProjectId = null;
             card.ProjectName = "No Project";
         }
+
+        RefreshProjectFilterOptions();
     }
 
     private void DeleteCard(CardViewModel? card)
