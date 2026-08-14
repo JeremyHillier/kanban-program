@@ -18,6 +18,7 @@ public class MainViewModel
     ];
 
     public ObservableCollection<ColumnViewModel> Columns { get; } = [];
+    public ObservableCollection<ProjectViewModel> Projects { get; } = [];
 
     public RelayCommand DeleteCardCommand { get; }
     public RelayCommand MoveCardCommand { get; }
@@ -41,6 +42,13 @@ public class MainViewModel
     private void Load()
     {
         Columns.Clear();
+        Projects.Clear();
+
+        foreach (var project in _db.GetProjects())
+        {
+            Projects.Add(new ProjectViewModel(project));
+        }
+
         var columns = _db.GetColumns();
         var cards = _db.GetCards();
 
@@ -51,18 +59,59 @@ public class MainViewModel
             var columnVm = new ColumnViewModel(column, background);
             foreach (var card in cards.Where(c => c.ColumnId == column.Id))
             {
-                columnVm.Cards.Add(new CardViewModel(card));
+                var cardVm = new CardViewModel(card) { ProjectName = ResolveProjectName(card.ProjectId) };
+                columnVm.Cards.Add(cardVm);
             }
             Columns.Add(columnVm);
         }
     }
 
-    public void AddCard(string title, ColumnViewModel column)
+    private string ResolveProjectName(int? projectId)
+    {
+        if (projectId is null) return "No Project";
+        return Projects.FirstOrDefault(p => p.Id == projectId)?.Name ?? "No Project";
+    }
+
+    public void AddCard(string title, ColumnViewModel column, ProjectViewModel? project)
     {
         if (string.IsNullOrWhiteSpace(title)) return;
 
-        var card = _db.AddCard(column.Id, title.Trim());
-        column.Cards.Add(new CardViewModel(card));
+        var card = _db.AddCard(column.Id, title.Trim(), project?.Id);
+        var cardVm = new CardViewModel(card) { ProjectName = project?.Name ?? "No Project" };
+        column.Cards.Add(cardVm);
+    }
+
+    public void AddProject(string name)
+    {
+        if (string.IsNullOrWhiteSpace(name)) return;
+
+        var project = _db.AddProject(name.Trim());
+        Projects.Add(new ProjectViewModel(project));
+    }
+
+    public void RenameProject(ProjectViewModel project, string newName)
+    {
+        if (string.IsNullOrWhiteSpace(newName) || project.Name == newName.Trim()) return;
+
+        project.Name = newName.Trim();
+        _db.RenameProject(project.Id, project.Name);
+
+        foreach (var card in Columns.SelectMany(c => c.Cards).Where(c => c.ProjectId == project.Id))
+        {
+            card.ProjectName = project.Name;
+        }
+    }
+
+    public void DeleteProject(ProjectViewModel project)
+    {
+        _db.DeleteProject(project.Id);
+        Projects.Remove(project);
+
+        foreach (var card in Columns.SelectMany(c => c.Cards).Where(c => c.ProjectId == project.Id))
+        {
+            card.ProjectId = null;
+            card.ProjectName = "No Project";
+        }
     }
 
     private void DeleteCard(CardViewModel? card)

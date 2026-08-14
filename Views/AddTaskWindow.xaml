@@ -4,11 +4,13 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         mc:Ignorable="d"
-        Title="Add Task" Height="280" Width="380"
+        Title="Add Task" Height="360" Width="380"
         WindowStartupLocation="CenterOwner" ResizeMode="NoResize"
         ShowInTaskbar="False">
     <Grid Margin="16">
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -25,7 +27,11 @@
         <ComboBox Grid.Row="3" x:Name="CategoryComboBox" Padding="6"
                   DisplayMemberPath="Name" SelectedIndex="0"/>
 
-        <StackPanel Grid.Row="5" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,16,0,0">
+        <TextBlock Grid.Row="4" Text="Project" FontWeight="SemiBold" Margin="0,12,0,4"/>
+        <ComboBox Grid.Row="5" x:Name="ProjectComboBox" Padding="6"
+                  DisplayMemberPath="Name" SelectedIndex="0"/>
+
+        <StackPanel Grid.Row="7" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,16,0,0">
             <Button Content="Cancel" Width="80" Padding="0,6" IsCancel="True"/>
             <Button Content="Add Task" Width="90" Padding="0,6" Margin="8,0,0,0" IsDefault="True" Click="Add_Click"/>
         </StackPanel>

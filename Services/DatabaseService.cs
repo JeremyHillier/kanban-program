@@ -39,16 +39,25 @@ public class DatabaseService
                     Name TEXT NOT NULL,
                     SortOrder INTEGER NOT NULL
                 );
+                CREATE TABLE IF NOT EXISTS Projects (
+                    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    Name TEXT NOT NULL,
+                    SortOrder INTEGER NOT NULL
+                );
                 CREATE TABLE IF NOT EXISTS Cards (
                     Id INTEGER PRIMARY KEY AUTOINCREMENT,
                     ColumnId INTEGER NOT NULL,
                     Title TEXT NOT NULL,
                     SortOrder INTEGER NOT NULL,
-                    FOREIGN KEY (ColumnId) REFERENCES Columns(Id) ON DELETE CASCADE
+                    ProjectId INTEGER NULL,
+                    FOREIGN KEY (ColumnId) REFERENCES Columns(Id) ON DELETE CASCADE,
+                    FOREIGN KEY (ProjectId) REFERENCES Projects(Id) ON DELETE SET NULL
                 );
                 """;
             cmd.ExecuteNonQuery();
         }
+
+        MigrateCardsProjectIdColumn(connection);
 
         using (var checkCmd = connection.CreateCommand())
         {
@@ -62,6 +71,32 @@ public class DatabaseService
                 }
             }
         }
+
+        using (var checkCmd = connection.CreateCommand())
+        {
+            checkCmd.CommandText = "SELECT COUNT(*) FROM Projects;";
+            var count = (long)checkCmd.ExecuteScalar()!;
+            if (count == 0)
+            {
+                AddProject("General", connection);
+            }
+        }
+    }
+
+    private static void MigrateCardsProjectIdColumn(SqliteConnection connection)
+    {
+        using var pragmaCmd = connection.CreateCommand();
+        pragmaCmd.CommandText = "PRAGMA table_info(Cards);";
+        using var reader = pragmaCmd.ExecuteReader();
+        while (reader.Read())
+        {
+            if (reader.GetString(1) == "ProjectId") return;
+        }
+        reader.Close();
+
+        using var alterCmd = connection.CreateCommand();
+        alterCmd.CommandText = "ALTER TABLE Cards ADD COLUMN ProjectId INTEGER NULL;";
+        alterCmd.ExecuteNonQuery();
     }
 
     public List<KanbanColumn> GetColumns()
@@ -88,7 +123,7 @@ public class DatabaseService
     {
         using var connection = OpenConnection();
         using var cmd = connection.CreateCommand();
-        cmd.CommandText = "SELECT Id, ColumnId, Title, SortOrder FROM Cards ORDER BY SortOrder;";
+        cmd.CommandText = "SELECT Id, ColumnId, Title, SortOrder, ProjectId FROM Cards ORDER BY SortOrder;";
 
         var result = new List<CardItem>();
         using var reader = cmd.ExecuteReader();
@@ -99,7 +134,28 @@ public class DatabaseService
                 Id = reader.GetInt32(0),
                 ColumnId = reader.GetInt32(1),
                 Title = reader.GetString(2),
-                SortOrder = reader.GetInt32(3)
+                SortOrder = reader.GetInt32(3),
+                ProjectId = reader.IsDBNull(4) ? null : reader.GetInt32(4)
+            });
+        }
+        return result;
+    }
+
+    public List<Project> GetProjects()
+    {
+        using var connection = OpenConnection();
+        using var cmd = connection.CreateCommand();
+        cmd.CommandText = "SELECT Id, Name, SortOrder FROM Projects ORDER BY SortOrder;";
+
+        var result = new List<Project>();
+        using var reader = cmd.ExecuteReader();
+        while (reader.Read())
+        {
+            result.Add(new Project
+            {
+                Id = reader.GetInt32(0),
+                Name = reader.GetString(1),
+                SortOrder = reader.GetInt32(2)
             });
         }
         return result;
@@ -123,7 +179,7 @@ public class DatabaseService
         return new KanbanColumn { Id = (int)id, Name = name, SortOrder = (int)sortOrder };
     }
 
-    public CardItem AddCard(int columnId, string title)
+    public CardItem AddCard(int columnId, string title, int? projectId)
     {
         using var connection = OpenConnection();
 
@@ -134,15 +190,67 @@ public class DatabaseService
 
         using var insertCmd = connection.CreateCommand();
         insertCmd.CommandText = """
-            INSERT INTO Cards (ColumnId, Title, SortOrder) VALUES ($columnId, $title, $sortOrder);
+            INSERT INTO Cards (ColumnId, Title, SortOrder, ProjectId) VALUES ($columnId, $title, $sortOrder, $projectId);
             SELECT last_insert_rowid();
             """;
         insertCmd.Parameters.AddWithValue("$columnId", columnId);
         insertCmd.Parameters.AddWithValue("$title", title);
         insertCmd.Parameters.AddWithValue("$sortOrder", sortOrder);
+        insertCmd.Parameters.AddWithValue("$projectId", (object?)projectId ?? DBNull.Value);
         var id = (long)insertCmd.ExecuteScalar()!;
 
-        return new CardItem { Id = (int)id, ColumnId = columnId, Title = title, SortOrder = (int)sortOrder };
+        return new CardItem { Id = (int)id, ColumnId = columnId, Title = title, SortOrder = (int)sortOrder, ProjectId = projectId };
+    }
+
+    public Project AddProject(string name)
+    {
+        using var connection = OpenConnection();
+        return AddProject(name, connection);
+    }
+
+    private Project AddProject(string name, SqliteConnection connection)
+    {
+        using var maxCmd = connection.CreateCommand();
+        maxCmd.CommandText = "SELECT COALESCE(MAX(SortOrder), -1) + 1 FROM Projects;";
+        var sortOrder = (long)maxCmd.ExecuteScalar()!;
+
+        using var insertCmd = connection.CreateCommand();
+        insertCmd.CommandText = """
+            INSERT INTO Projects (Name, SortOrder) VALUES ($name, $sortOrder);
+            SELECT last_insert_rowid();
+            """;
+        insertCmd.Parameters.AddWithValue("$name", name);
+        insertCmd.Parameters.AddWithValue("$sortOrder", sortOrder);
+        var id = (long)insertCmd.ExecuteScalar()!;
+
+        return new Project { Id = (int)id, Name = name, SortOrder = (int)sortOrder };
+    }
+
+    public void RenameProject(int projectId, string name)
+    {
+        using var connection = OpenConnection();
+        using var cmd = connection.CreateCommand();
+        cmd.CommandText = "UPDATE Projects SET Name = $name WHERE Id = $id;";
+        cmd.Parameters.AddWithValue("$name", name);
+        cmd.Parameters.AddWithValue("$id", projectId);
+        cmd.ExecuteNonQuery();
+    }
+
+    public void DeleteProject(int projectId)
+    {
+        using var connection = OpenConnection();
+
+        using (var clearCmd = connection.CreateCommand())
+        {
+            clearCmd.CommandText = "UPDATE Cards SET ProjectId = NULL WHERE ProjectId = $id;";
+            clearCmd.Parameters.AddWithValue("$id", projectId);
+            clearCmd.ExecuteNonQuery();
+        }
+
+        using var deleteCmd = connection.CreateCommand();
+        deleteCmd.CommandText = "DELETE FROM Projects WHERE Id = $id;";
+        deleteCmd.Parameters.AddWithValue("$id", projectId);
+        deleteCmd.ExecuteNonQuery();
     }
 
     public void MoveCard(int cardId, int newColumnId)

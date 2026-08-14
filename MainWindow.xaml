@@ -12,8 +12,10 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <Button Grid.Row="0" Content="+ Add Task" HorizontalAlignment="Left" Padding="12,6" Margin="0,0,0,12"
-                Click="AddTask_Click"/>
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,12">
+            <Button Content="+ Add Task" Padding="12,6" Click="AddTask_Click"/>
+            <Button Content="Manage Projects" Padding="12,6" Margin="8,0,0,0" Click="ManageProjects_Click"/>
+        </StackPanel>
 
         <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
             <ItemsControl ItemsSource="{Binding Columns}">
@@ -42,8 +44,14 @@
                                                         <ColumnDefinition Width="*"/>
                                                         <ColumnDefinition Width="Auto"/>
                                                     </Grid.ColumnDefinitions>
-                                                    <TextBlock Grid.Column="0" Text="{Binding Title}" TextWrapping="Wrap" VerticalAlignment="Center"/>
-                                                    <Button Grid.Column="1" Content="x" Padding="6,0" Margin="6,0,0,0"
+                                                    <StackPanel Grid.Column="0">
+                                                        <TextBlock Text="{Binding Title}" TextWrapping="Wrap"/>
+                                                        <Border Background="#FFEFEFEF" CornerRadius="3" Padding="5,1"
+                                                                Margin="0,4,0,0" HorizontalAlignment="Left">
+                                                            <TextBlock Text="{Binding ProjectName}" FontSize="10" Foreground="#FF666666"/>
+                                                        </Border>
+                                                    </StackPanel>
+                                                    <Button Grid.Column="1" Content="x" Padding="6,0" Margin="6,0,0,0" VerticalAlignment="Top"
                                                             Command="{Binding DataContext.DeleteCardCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                                                             CommandParameter="{Binding}"/>
                                                 </Grid>

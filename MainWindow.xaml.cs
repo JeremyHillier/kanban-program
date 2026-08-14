@@ -43,11 +43,19 @@ public partial class MainWindow : Window
     {
         if (DataContext is not MainViewModel viewModel) return;
 
-        var dialog = new AddTaskWindow(viewModel.Columns) { Owner = this };
+        var dialog = new AddTaskWindow(viewModel.Columns, viewModel.Projects) { Owner = this };
         if (dialog.ShowDialog() == true && dialog.SelectedColumn is not null)
         {
-            viewModel.AddCard(dialog.TaskDetails, dialog.SelectedColumn);
+            viewModel.AddCard(dialog.TaskDetails, dialog.SelectedColumn, dialog.SelectedProject);
         }
+    }
+
+    private void ManageProjects_Click(object sender, RoutedEventArgs e)
+    {
+        if (DataContext is not MainViewModel viewModel) return;
+
+        var dialog = new ManageProjectsWindow(viewModel) { Owner = this };
+        dialog.ShowDialog();
     }
 
     private void Column_Drop(object sender, DragEventArgs e)

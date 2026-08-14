@@ -1,0 +1,46 @@
+<Window x:Class="KanbanApp.Views.ManageProjectsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        mc:Ignorable="d"
+        Title="Manage Projects" Height="420" Width="360"
+        WindowStartupLocation="CenterOwner" ResizeMode="NoResize"
+        ShowInTaskbar="False">
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,12">
+            <TextBox x:Name="NewProjectTextBox" Width="220" Padding="6"/>
+            <Button Content="Add" Width="80" Margin="8,0,0,0" Padding="0,6" Click="Add_Click"/>
+        </StackPanel>
+
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <ItemsControl ItemsSource="{Binding Projects}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border BorderBrush="#FFE0E0E0" BorderThickness="0,0,0,1" Padding="0,6">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBox Grid.Column="0" Padding="6" Margin="0,0,8,0"
+                                         Text="{Binding Name, Mode=OneWay}"
+                                         LostFocus="ProjectName_LostFocus"/>
+                                <Button Grid.Column="1" Content="Delete" Padding="10,4" Click="Delete_Click"/>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+
+        <Button Grid.Row="2" Content="Close" Width="90" Padding="0,6" Margin="0,12,0,0"
+                HorizontalAlignment="Right" IsCancel="True"/>
+    </Grid>
+</Window>
