@@ -7,6 +7,7 @@
         xmlns:conv="clr-namespace:KanbanApp.Converters"
         mc:Ignorable="d"
         Title="Kanban" Height="700" Width="1850"
+        Icon="Assets/app.ico"
         Background="{DynamicResource WindowBackgroundBrush}">
     <Window.Resources>
         <conv:PriorityToBrushConverter x:Key="PriorityToBrushConverter"/>
