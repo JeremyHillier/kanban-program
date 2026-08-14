@@ -80,6 +80,8 @@ public class DatabaseService
         MigrateCardsColumn(connection, "DueDate", "TEXT NULL");
         MigrateCardsColumn(connection, "Who", "TEXT NULL");
         MigrateCardsColumn(connection, "LastUpdated", "TEXT NULL");
+        MigrateCardsColumn(connection, "IsRecurring", "INTEGER NOT NULL DEFAULT 0");
+        MigrateCardsColumn(connection, "RecurrencePattern", "TEXT NULL");
 
         using (var checkCmd = connection.CreateCommand())
         {
@@ -186,7 +188,7 @@ public class DatabaseService
         using var connection = OpenConnection();
         using var cmd = connection.CreateCommand();
         cmd.CommandText = """
-            SELECT Id, ColumnId, Title, SortOrder, ProjectId, Priority, DueDate, Who, LastUpdated
+            SELECT Id, ColumnId, Title, SortOrder, ProjectId, Priority, DueDate, Who, LastUpdated, IsRecurring, RecurrencePattern
             FROM Cards WHERE IsArchived = 0 ORDER BY SortOrder;
             """;
 
@@ -204,7 +206,9 @@ public class DatabaseService
                 Priority = reader.GetString(5),
                 DueDate = reader.IsDBNull(6) ? null : DateTime.Parse(reader.GetString(6)),
                 Who = reader.IsDBNull(7) ? null : reader.GetString(7),
-                LastUpdated = reader.IsDBNull(8) ? null : DateTime.Parse(reader.GetString(8))
+                LastUpdated = reader.IsDBNull(8) ? null : DateTime.Parse(reader.GetString(8)),
+                IsRecurring = reader.GetInt32(9) != 0,
+                RecurrencePattern = reader.IsDBNull(10) ? null : reader.GetString(10)
             });
         }
         return result;
@@ -248,7 +252,8 @@ public class DatabaseService
         return new KanbanColumn { Id = (int)id, Name = name, SortOrder = (int)sortOrder };
     }
 
-    public CardItem AddCard(int columnId, string title, int? projectId, string columnName, string priority, DateTime? dueDate, string? who)
+    public CardItem AddCard(int columnId, string title, int? projectId, string columnName, string priority, DateTime? dueDate, string? who,
+        bool isRecurring, string? recurrencePattern)
     {
         using var connection = OpenConnection();
 
@@ -260,8 +265,8 @@ public class DatabaseService
         var now = NowStamp();
         using var insertCmd = connection.CreateCommand();
         insertCmd.CommandText = """
-            INSERT INTO Cards (ColumnId, Title, SortOrder, ProjectId, Priority, DueDate, Who, LastUpdated)
-            VALUES ($columnId, $title, $sortOrder, $projectId, $priority, $dueDate, $who, $lastUpdated);
+            INSERT INTO Cards (ColumnId, Title, SortOrder, ProjectId, Priority, DueDate, Who, LastUpdated, IsRecurring, RecurrencePattern)
+            VALUES ($columnId, $title, $sortOrder, $projectId, $priority, $dueDate, $who, $lastUpdated, $isRecurring, $recurrencePattern);
             SELECT last_insert_rowid();
             """;
         insertCmd.Parameters.AddWithValue("$columnId", columnId);
@@ -272,6 +277,8 @@ public class DatabaseService
         insertCmd.Parameters.AddWithValue("$dueDate", (object?)dueDate?.ToString("yyyy-MM-dd") ?? DBNull.Value);
         insertCmd.Parameters.AddWithValue("$who", (object?)who ?? DBNull.Value);
         insertCmd.Parameters.AddWithValue("$lastUpdated", now);
+        insertCmd.Parameters.AddWithValue("$isRecurring", isRecurring ? 1 : 0);
+        insertCmd.Parameters.AddWithValue("$recurrencePattern", (object?)recurrencePattern ?? DBNull.Value);
         var id = (long)insertCmd.ExecuteScalar()!;
 
         LogHistory(connection, (int)id, title, "Created", $"Added to {columnName}");
@@ -279,11 +286,13 @@ public class DatabaseService
         return new CardItem
         {
             Id = (int)id, ColumnId = columnId, Title = title, SortOrder = (int)sortOrder, ProjectId = projectId,
-            Priority = priority, DueDate = dueDate, Who = who, LastUpdated = DateTime.Parse(now)
+            Priority = priority, DueDate = dueDate, Who = who, LastUpdated = DateTime.Parse(now),
+            IsRecurring = isRecurring, RecurrencePattern = recurrencePattern
         };
     }
 
-    public DateTime UpdateCard(int cardId, string title, int? projectId, string priority, DateTime? dueDate, string? who)
+    public DateTime UpdateCard(int cardId, string title, int? projectId, string priority, DateTime? dueDate, string? who,
+        bool isRecurring, string? recurrencePattern)
     {
         using var connection = OpenConnection();
         var now = NowStamp();
@@ -292,7 +301,8 @@ public class DatabaseService
         {
             cmd.CommandText = """
                 UPDATE Cards SET Title = $title, ProjectId = $projectId, Priority = $priority,
-                    DueDate = $dueDate, Who = $who, LastUpdated = $lastUpdated
+                    DueDate = $dueDate, Who = $who, LastUpdated = $lastUpdated,
+                    IsRecurring = $isRecurring, RecurrencePattern = $recurrencePattern
                 WHERE Id = $id;
                 """;
             cmd.Parameters.AddWithValue("$title", title);
@@ -301,6 +311,8 @@ public class DatabaseService
             cmd.Parameters.AddWithValue("$dueDate", (object?)dueDate?.ToString("yyyy-MM-dd") ?? DBNull.Value);
             cmd.Parameters.AddWithValue("$who", (object?)who ?? DBNull.Value);
             cmd.Parameters.AddWithValue("$lastUpdated", now);
+            cmd.Parameters.AddWithValue("$isRecurring", isRecurring ? 1 : 0);
+            cmd.Parameters.AddWithValue("$recurrencePattern", (object?)recurrencePattern ?? DBNull.Value);
             cmd.Parameters.AddWithValue("$id", cardId);
             cmd.ExecuteNonQuery();
         }

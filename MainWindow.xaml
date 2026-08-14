@@ -78,6 +78,8 @@
                                                                    Visibility="{Binding DueDateDisplay, Converter={StaticResource EmptyStringToVisibilityConverter}}"/>
                                                         <TextBlock Text="{Binding WhoDisplay}" FontSize="10" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,1,0,0"
                                                                    Visibility="{Binding WhoDisplay, Converter={StaticResource EmptyStringToVisibilityConverter}}"/>
+                                                        <TextBlock Text="{Binding RecurrenceDisplay}" FontSize="10" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,1,0,0"
+                                                                   Visibility="{Binding RecurrenceDisplay, Converter={StaticResource EmptyStringToVisibilityConverter}}"/>
                                                         <TextBlock Text="{Binding LastUpdatedDisplay}" FontSize="9" FontStyle="Italic"
                                                                    Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,3,0,0"/>
 

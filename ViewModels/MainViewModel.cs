@@ -105,16 +105,18 @@ public class MainViewModel : ObservableObject
         return Projects.FirstOrDefault(p => p.Id == projectId)?.Name ?? "No Project";
     }
 
-    public void AddCard(string title, ColumnViewModel column, ProjectViewModel? project, string priority, DateTime? dueDate, string? who)
+    public void AddCard(string title, ColumnViewModel column, ProjectViewModel? project, string priority, DateTime? dueDate, string? who,
+        bool isRecurring, string? recurrencePattern)
     {
         if (string.IsNullOrWhiteSpace(title)) return;
 
-        var card = _db.AddCard(column.Id, title.Trim(), project?.Id, column.Name, priority, dueDate, who);
+        var card = _db.AddCard(column.Id, title.Trim(), project?.Id, column.Name, priority, dueDate, who, isRecurring, recurrencePattern);
         var cardVm = new CardViewModel(card) { ProjectName = project?.Name ?? "No Project", LastUpdated = card.LastUpdated };
         column.Cards.Add(cardVm);
     }
 
-    public void EditCard(CardViewModel card, string title, ColumnViewModel newColumn, ProjectViewModel? project, string priority, DateTime? dueDate, string? who)
+    public void EditCard(CardViewModel card, string title, ColumnViewModel newColumn, ProjectViewModel? project, string priority, DateTime? dueDate, string? who,
+        bool isRecurring, string? recurrencePattern)
     {
         if (string.IsNullOrWhiteSpace(title)) return;
 
@@ -124,8 +126,10 @@ public class MainViewModel : ObservableObject
         card.Priority = priority;
         card.DueDate = dueDate;
         card.Who = who;
+        card.IsRecurring = isRecurring;
+        card.RecurrencePattern = recurrencePattern;
 
-        card.LastUpdated = _db.UpdateCard(card.Id, card.Title, project?.Id, priority, dueDate, who);
+        card.LastUpdated = _db.UpdateCard(card.Id, card.Title, project?.Id, priority, dueDate, who, isRecurring, recurrencePattern);
 
         var sourceColumn = Columns.FirstOrDefault(c => c.Cards.Contains(card));
         if (sourceColumn is not null && sourceColumn != newColumn)
@@ -186,6 +190,43 @@ public class MainViewModel : ObservableObject
         targetColumn.Cards.Add(card);
 
         card.LastUpdated = _db.MoveCard(card.Id, targetColumn.Id, card.Title, sourceColumn.Name, targetColumn.Name);
+
+        if (targetColumn.Name == "Done" && card.IsRecurring && !string.IsNullOrWhiteSpace(card.RecurrencePattern))
+        {
+            SpawnNextOccurrence(card);
+        }
+    }
+
+    private void SpawnNextOccurrence(CardViewModel completedCard)
+    {
+        var toDoColumn = Columns.FirstOrDefault(c => c.Name == "To Do");
+        if (toDoColumn is null) return;
+
+        var nextDueDate = CalculateNextDueDate(completedCard.DueDate ?? DateTime.Today, completedCard.RecurrencePattern!);
+        var project = Projects.FirstOrDefault(p => p.Id == completedCard.ProjectId);
+
+        AddCard(completedCard.Title, toDoColumn, project, completedCard.Priority, nextDueDate, completedCard.Who,
+            true, completedCard.RecurrencePattern);
+    }
+
+    private static DateTime CalculateNextDueDate(DateTime anchor, string pattern) => pattern switch
+    {
+        "Daily" => anchor.AddDays(1),
+        "Weekday" => NextWeekday(anchor),
+        "Weekly" => anchor.AddDays(7),
+        "Monthly" => anchor.AddMonths(1),
+        "Annually" => anchor.AddYears(1),
+        _ => anchor.AddDays(1)
+    };
+
+    private static DateTime NextWeekday(DateTime date)
+    {
+        var next = date.AddDays(1);
+        while (next.DayOfWeek is DayOfWeek.Saturday or DayOfWeek.Sunday)
+        {
+            next = next.AddDays(1);
+        }
+        return next;
     }
 
     public void ArchiveDoneTasks()

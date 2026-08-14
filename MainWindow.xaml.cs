@@ -57,7 +57,7 @@ public partial class MainWindow : Window
         if (dialog.ShowDialog() == true && dialog.SelectedColumn is not null)
         {
             viewModel.AddCard(dialog.TaskDetails, dialog.SelectedColumn, dialog.SelectedProject,
-                dialog.SelectedPriority, dialog.SelectedDueDate, dialog.Who);
+                dialog.SelectedPriority, dialog.SelectedDueDate, dialog.Who, dialog.IsRecurring, dialog.RecurrencePattern);
         }
     }
 
@@ -70,7 +70,7 @@ public partial class MainWindow : Window
         if (dialog.ShowDialog() == true && dialog.SelectedColumn is not null)
         {
             viewModel.EditCard(card, dialog.TaskDetails, dialog.SelectedColumn, dialog.SelectedProject,
-                dialog.SelectedPriority, dialog.SelectedDueDate, dialog.Who);
+                dialog.SelectedPriority, dialog.SelectedDueDate, dialog.Who, dialog.IsRecurring, dialog.RecurrencePattern);
         }
     }
 

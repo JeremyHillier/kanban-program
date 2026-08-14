@@ -12,6 +12,8 @@ public partial class AddTaskWindow : Window
     public string SelectedPriority { get; private set; } = "Normal";
     public DateTime? SelectedDueDate { get; private set; }
     public string? Who { get; private set; }
+    public bool IsRecurring { get; private set; }
+    public string? RecurrencePattern { get; private set; }
 
     public AddTaskWindow(IEnumerable<ColumnViewModel> columns, IEnumerable<ProjectViewModel> projects)
     {
@@ -43,11 +45,27 @@ public partial class AddTaskWindow : Window
 
         DueDatePicker.SelectedDate = cardToEdit.DueDate;
         WhoTextBox.Text = cardToEdit.Who ?? string.Empty;
+
+        RecurringCheckBox.IsChecked = cardToEdit.IsRecurring;
+        RecurrenceComboBox.Visibility = cardToEdit.IsRecurring ? Visibility.Visible : Visibility.Collapsed;
+        foreach (var item in RecurrenceComboBox.Items.OfType<ComboBoxItem>())
+        {
+            if ((string)item.Content == cardToEdit.RecurrencePattern)
+            {
+                RecurrenceComboBox.SelectedItem = item;
+                break;
+            }
+        }
     }
 
     private void ClearDueDate_Click(object sender, RoutedEventArgs e)
     {
         DueDatePicker.SelectedDate = null;
+    }
+
+    private void RecurringCheckBox_Changed(object sender, RoutedEventArgs e)
+    {
+        RecurrenceComboBox.Visibility = RecurringCheckBox.IsChecked == true ? Visibility.Visible : Visibility.Collapsed;
     }
 
     private void Add_Click(object sender, RoutedEventArgs e)
@@ -67,6 +85,12 @@ public partial class AddTaskWindow : Window
         SelectedPriority = (string)priorityItem.Content;
         SelectedDueDate = DueDatePicker.SelectedDate;
         Who = string.IsNullOrWhiteSpace(WhoTextBox.Text) ? null : WhoTextBox.Text.Trim();
+
+        IsRecurring = RecurringCheckBox.IsChecked == true;
+        RecurrencePattern = IsRecurring && RecurrenceComboBox.SelectedItem is ComboBoxItem recurrenceItem
+            ? (string)recurrenceItem.Content
+            : null;
+
         DialogResult = true;
         Close();
     }

@@ -12,4 +12,6 @@ public class CardItem
     public DateTime? DueDate { get; set; }
     public string? Who { get; set; }
     public DateTime? LastUpdated { get; set; }
+    public bool IsRecurring { get; set; }
+    public string? RecurrencePattern { get; set; }
 }

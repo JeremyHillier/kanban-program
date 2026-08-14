@@ -87,6 +87,32 @@ public class CardViewModel(CardItem model) : ObservableObject
 
     public string WhoDisplay => string.IsNullOrWhiteSpace(Who) ? string.Empty : $"Assigned: {Who}";
 
+    public bool IsRecurring
+    {
+        get => Model.IsRecurring;
+        set
+        {
+            if (Model.IsRecurring == value) return;
+            Model.IsRecurring = value;
+            OnPropertyChanged();
+            OnPropertyChanged(nameof(RecurrenceDisplay));
+        }
+    }
+
+    public string? RecurrencePattern
+    {
+        get => Model.RecurrencePattern;
+        set
+        {
+            if (Model.RecurrencePattern == value) return;
+            Model.RecurrencePattern = value;
+            OnPropertyChanged();
+            OnPropertyChanged(nameof(RecurrenceDisplay));
+        }
+    }
+
+    public string RecurrenceDisplay => IsRecurring && !string.IsNullOrWhiteSpace(RecurrencePattern) ? $"↻ Repeats {RecurrencePattern}" : string.Empty;
+
     public DateTime? LastUpdated
     {
         get => Model.LastUpdated;
