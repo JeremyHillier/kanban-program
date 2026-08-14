@@ -54,28 +54,28 @@ public class MainViewModel : ObservableObject
     public string SelectedProjectFilter
     {
         get => _selectedProjectFilter;
-        set { if (SetField(ref _selectedProjectFilter, value)) ApplyFilters(); }
+        set { if (SetField(ref _selectedProjectFilter, value ?? "All")) ApplyFilters(); }
     }
 
     private string _selectedPriorityFilter = "All";
     public string SelectedPriorityFilter
     {
         get => _selectedPriorityFilter;
-        set { if (SetField(ref _selectedPriorityFilter, value)) ApplyFilters(); }
+        set { if (SetField(ref _selectedPriorityFilter, value ?? "All")) ApplyFilters(); }
     }
 
     private string _selectedWhoFilter = "All";
     public string SelectedWhoFilter
     {
         get => _selectedWhoFilter;
-        set { if (SetField(ref _selectedWhoFilter, value)) ApplyFilters(); }
+        set { if (SetField(ref _selectedWhoFilter, value ?? "All")) ApplyFilters(); }
     }
 
     private string _selectedGoalFilter = "All";
     public string SelectedGoalFilter
     {
         get => _selectedGoalFilter;
-        set { if (SetField(ref _selectedGoalFilter, value)) ApplyFilters(); }
+        set { if (SetField(ref _selectedGoalFilter, value ?? "All")) ApplyFilters(); }
     }
 
     private string _dueFilter = string.Empty;
@@ -211,6 +211,7 @@ public class MainViewModel : ObservableObject
         {
             SelectedProjectFilter = "All";
         }
+        OnPropertyChanged(nameof(SelectedProjectFilter));
     }
 
     private void RefreshWhoFilterOptions()
@@ -231,6 +232,7 @@ public class MainViewModel : ObservableObject
         {
             SelectedWhoFilter = "All";
         }
+        OnPropertyChanged(nameof(SelectedWhoFilter));
     }
 
     private void RefreshGoalFilterOptions()
@@ -247,6 +249,7 @@ public class MainViewModel : ObservableObject
         {
             SelectedGoalFilter = "All";
         }
+        OnPropertyChanged(nameof(SelectedGoalFilter));
     }
 
     public void ApplyFilters()
