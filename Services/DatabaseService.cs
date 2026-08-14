@@ -54,6 +54,14 @@ public class DatabaseService
                     FOREIGN KEY (ColumnId) REFERENCES Columns(Id) ON DELETE CASCADE,
                     FOREIGN KEY (ProjectId) REFERENCES Projects(Id) ON DELETE SET NULL
                 );
+                CREATE TABLE IF NOT EXISTS CardHistory (
+                    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    CardId INTEGER NOT NULL,
+                    CardTitle TEXT NOT NULL,
+                    EventType TEXT NOT NULL,
+                    Details TEXT NOT NULL,
+                    Timestamp TEXT NOT NULL
+                );
                 """;
             cmd.ExecuteNonQuery();
         }
@@ -100,6 +108,21 @@ public class DatabaseService
         using var alterCmd = connection.CreateCommand();
         alterCmd.CommandText = $"ALTER TABLE Cards ADD COLUMN {columnName} {columnDefinition};";
         alterCmd.ExecuteNonQuery();
+    }
+
+    private static void LogHistory(SqliteConnection connection, int cardId, string cardTitle, string eventType, string details)
+    {
+        using var cmd = connection.CreateCommand();
+        cmd.CommandText = """
+            INSERT INTO CardHistory (CardId, CardTitle, EventType, Details, Timestamp)
+            VALUES ($cardId, $cardTitle, $eventType, $details, $timestamp);
+            """;
+        cmd.Parameters.AddWithValue("$cardId", cardId);
+        cmd.Parameters.AddWithValue("$cardTitle", cardTitle);
+        cmd.Parameters.AddWithValue("$eventType", eventType);
+        cmd.Parameters.AddWithValue("$details", details);
+        cmd.Parameters.AddWithValue("$timestamp", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+        cmd.ExecuteNonQuery();
     }
 
     public List<KanbanColumn> GetColumns()
@@ -182,7 +205,7 @@ public class DatabaseService
         return new KanbanColumn { Id = (int)id, Name = name, SortOrder = (int)sortOrder };
     }
 
-    public CardItem AddCard(int columnId, string title, int? projectId)
+    public CardItem AddCard(int columnId, string title, int? projectId, string columnName)
     {
         using var connection = OpenConnection();
 
@@ -201,6 +224,8 @@ public class DatabaseService
         insertCmd.Parameters.AddWithValue("$sortOrder", sortOrder);
         insertCmd.Parameters.AddWithValue("$projectId", (object?)projectId ?? DBNull.Value);
         var id = (long)insertCmd.ExecuteScalar()!;
+
+        LogHistory(connection, (int)id, title, "Created", $"Added to {columnName}");
 
         return new CardItem { Id = (int)id, ColumnId = columnId, Title = title, SortOrder = (int)sortOrder, ProjectId = projectId };
     }
@@ -256,7 +281,7 @@ public class DatabaseService
         deleteCmd.ExecuteNonQuery();
     }
 
-    public void MoveCard(int cardId, int newColumnId)
+    public void MoveCard(int cardId, int newColumnId, string cardTitle, string fromColumnName, string toColumnName)
     {
         using var connection = OpenConnection();
 
@@ -271,23 +296,61 @@ public class DatabaseService
         updateCmd.Parameters.AddWithValue("$sortOrder", sortOrder);
         updateCmd.Parameters.AddWithValue("$id", cardId);
         updateCmd.ExecuteNonQuery();
+
+        LogHistory(connection, cardId, cardTitle, "Moved", $"Moved from {fromColumnName} to {toColumnName}");
     }
 
-    public void DeleteCard(int cardId)
+    public void DeleteCard(int cardId, string cardTitle, string columnName)
     {
         using var connection = OpenConnection();
+
+        LogHistory(connection, cardId, cardTitle, "Deleted", $"Deleted from {columnName}");
+
         using var cmd = connection.CreateCommand();
         cmd.CommandText = "DELETE FROM Cards WHERE Id = $id;";
         cmd.Parameters.AddWithValue("$id", cardId);
         cmd.ExecuteNonQuery();
     }
 
-    public void ArchiveCard(int cardId)
+    public void ArchiveCard(int cardId, string cardTitle, string columnName)
+    {
+        using var connection = OpenConnection();
+        using (var cmd = connection.CreateCommand())
+        {
+            cmd.CommandText = "UPDATE Cards SET IsArchived = 1 WHERE Id = $id;";
+            cmd.Parameters.AddWithValue("$id", cardId);
+            cmd.ExecuteNonQuery();
+        }
+
+        LogHistory(connection, cardId, cardTitle, "Archived", $"Archived from {columnName}");
+    }
+
+    public List<ArchivedCardInfo> GetArchivedCards()
     {
         using var connection = OpenConnection();
         using var cmd = connection.CreateCommand();
-        cmd.CommandText = "UPDATE Cards SET IsArchived = 1 WHERE Id = $id;";
-        cmd.Parameters.AddWithValue("$id", cardId);
-        cmd.ExecuteNonQuery();
+        cmd.CommandText = """
+            SELECT c.Title, col.Name, COALESCE(p.Name, 'No Project'),
+                (SELECT MAX(h.Timestamp) FROM CardHistory h WHERE h.CardId = c.Id AND h.EventType = 'Archived')
+            FROM Cards c
+            JOIN Columns col ON col.Id = c.ColumnId
+            LEFT JOIN Projects p ON p.Id = c.ProjectId
+            WHERE c.IsArchived = 1
+            ORDER BY c.Id DESC;
+            """;
+
+        var result = new List<ArchivedCardInfo>();
+        using var reader = cmd.ExecuteReader();
+        while (reader.Read())
+        {
+            result.Add(new ArchivedCardInfo
+            {
+                Title = reader.GetString(0),
+                ColumnName = reader.GetString(1),
+                ProjectName = reader.GetString(2),
+                ArchivedAt = reader.IsDBNull(3) ? "Unknown" : reader.GetString(3)
+            });
+        }
+        return result;
     }
 }

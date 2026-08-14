@@ -1,5 +1,7 @@
 using System.Collections.ObjectModel;
+using System.Reflection;
 using System.Windows.Media;
+using KanbanApp.Models;
 using KanbanApp.Services;
 
 namespace KanbanApp.ViewModels;
@@ -7,6 +9,8 @@ namespace KanbanApp.ViewModels;
 public class MainViewModel
 {
     private readonly DatabaseService _db;
+
+    public string AppVersion { get; } = $"v{Assembly.GetExecutingAssembly().GetName().Version?.ToString(3)}";
 
     private static readonly Brush[] ColumnPalette =
     [
@@ -76,7 +80,7 @@ public class MainViewModel
     {
         if (string.IsNullOrWhiteSpace(title)) return;
 
-        var card = _db.AddCard(column.Id, title.Trim(), project?.Id);
+        var card = _db.AddCard(column.Id, title.Trim(), project?.Id, column.Name);
         var cardVm = new CardViewModel(card) { ProjectName = project?.Name ?? "No Project" };
         column.Cards.Add(cardVm);
     }
@@ -120,7 +124,7 @@ public class MainViewModel
 
         var column = Columns.FirstOrDefault(c => c.Cards.Contains(card));
         column?.Cards.Remove(card);
-        _db.DeleteCard(card.Id);
+        _db.DeleteCard(card.Id, card.Title, column?.Name ?? "Unknown");
     }
 
     private void MoveCard(CardViewModel card, ColumnViewModel targetColumn)
@@ -132,7 +136,7 @@ public class MainViewModel
         card.ColumnId = targetColumn.Id;
         targetColumn.Cards.Add(card);
 
-        _db.MoveCard(card.Id, targetColumn.Id);
+        _db.MoveCard(card.Id, targetColumn.Id, card.Title, sourceColumn.Name, targetColumn.Name);
     }
 
     public void ArchiveDoneTasks()
@@ -142,8 +146,10 @@ public class MainViewModel
 
         foreach (var card in doneColumn.Cards.ToList())
         {
-            _db.ArchiveCard(card.Id);
+            _db.ArchiveCard(card.Id, card.Title, doneColumn.Name);
             doneColumn.Cards.Remove(card);
         }
     }
+
+    public List<ArchivedCardInfo> GetArchivedCards() => _db.GetArchivedCards();
 }

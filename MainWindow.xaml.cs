@@ -65,6 +65,14 @@ public partial class MainWindow : Window
         viewModel.ArchiveDoneTasks();
     }
 
+    private void ViewArchived_Click(object sender, RoutedEventArgs e)
+    {
+        if (DataContext is not MainViewModel viewModel) return;
+
+        var dialog = new ArchivedTasksWindow(viewModel.GetArchivedCards()) { Owner = this };
+        dialog.ShowDialog();
+    }
+
     private void Column_Drop(object sender, DragEventArgs e)
     {
         if (e.Data.GetData(typeof(CardViewModel)) is CardViewModel card &&

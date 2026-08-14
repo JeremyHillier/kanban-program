@@ -5,66 +5,75 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:KanbanApp"
         mc:Ignorable="d"
-        Title="Kanban" Height="650" Width="1450">
+        Title="Kanban" Height="680" Width="1650">
     <Grid Margin="12">
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,12">
-            <Button Content="+ Add Task" Padding="12,6" Click="AddTask_Click"/>
-            <Button Content="Manage Projects" Padding="12,6" Margin="8,0,0,0" Click="ManageProjects_Click"/>
-            <Button Content="Archive Done" Padding="12,6" Margin="8,0,0,0" Click="ArchiveDone_Click"/>
-        </StackPanel>
+        <ScrollViewer Grid.Row="0" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+            <StackPanel Orientation="Horizontal">
+                <ItemsControl ItemsSource="{Binding Columns}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Width="260" Margin="0,0,12,0" Padding="10" Background="{Binding Background}"
+                                    CornerRadius="6" VerticalAlignment="Top"
+                                    AllowDrop="True" Drop="Column_Drop">
+                                <StackPanel>
+                                    <TextBlock Text="{Binding Name}" FontWeight="Bold" FontSize="14" Margin="0,0,0,10"/>
 
-        <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
-            <ItemsControl ItemsSource="{Binding Columns}">
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <StackPanel Orientation="Horizontal"/>
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <Border Width="260" Margin="0,0,12,0" Padding="10" Background="{Binding Background}"
-                                CornerRadius="6" VerticalAlignment="Top"
-                                AllowDrop="True" Drop="Column_Drop">
-                            <StackPanel>
-                                <TextBlock Text="{Binding Name}" FontWeight="Bold" FontSize="14" Margin="0,0,0,10"/>
+                                    <ItemsControl ItemsSource="{Binding Cards}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Border Background="White" CornerRadius="4" Padding="8" Margin="0,0,0,6"
+                                                        BorderBrush="#FFD0D0D0" BorderThickness="1"
+                                                        PreviewMouseLeftButtonDown="Card_PreviewMouseLeftButtonDown"
+                                                        MouseMove="Card_MouseMove">
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="*"/>
+                                                            <ColumnDefinition Width="Auto"/>
+                                                        </Grid.ColumnDefinitions>
+                                                        <StackPanel Grid.Column="0">
+                                                            <TextBlock Text="{Binding Title}" TextWrapping="Wrap"/>
+                                                            <Border Background="#FFEFEFEF" CornerRadius="3" Padding="5,1"
+                                                                    Margin="0,4,0,0" HorizontalAlignment="Left">
+                                                                <TextBlock Text="{Binding ProjectName}" FontSize="10" Foreground="#FF666666"/>
+                                                            </Border>
+                                                        </StackPanel>
+                                                        <Button Grid.Column="1" Content="x" Padding="6,0" Margin="6,0,0,0" VerticalAlignment="Top"
+                                                                Command="{Binding DataContext.DeleteCardCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                CommandParameter="{Binding}"/>
+                                                    </Grid>
+                                                </Border>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </StackPanel>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
 
-                                <ItemsControl ItemsSource="{Binding Cards}">
-                                    <ItemsControl.ItemTemplate>
-                                        <DataTemplate>
-                                            <Border Background="White" CornerRadius="4" Padding="8" Margin="0,0,0,6"
-                                                    BorderBrush="#FFD0D0D0" BorderThickness="1"
-                                                    PreviewMouseLeftButtonDown="Card_PreviewMouseLeftButtonDown"
-                                                    MouseMove="Card_MouseMove">
-                                                <Grid>
-                                                    <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition Width="*"/>
-                                                        <ColumnDefinition Width="Auto"/>
-                                                    </Grid.ColumnDefinitions>
-                                                    <StackPanel Grid.Column="0">
-                                                        <TextBlock Text="{Binding Title}" TextWrapping="Wrap"/>
-                                                        <Border Background="#FFEFEFEF" CornerRadius="3" Padding="5,1"
-                                                                Margin="0,4,0,0" HorizontalAlignment="Left">
-                                                            <TextBlock Text="{Binding ProjectName}" FontSize="10" Foreground="#FF666666"/>
-                                                        </Border>
-                                                    </StackPanel>
-                                                    <Button Grid.Column="1" Content="x" Padding="6,0" Margin="6,0,0,0" VerticalAlignment="Top"
-                                                            Command="{Binding DataContext.DeleteCardCommand, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                            CommandParameter="{Binding}"/>
-                                                </Grid>
-                                            </Border>
-                                        </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
-                                </ItemsControl>
-                            </StackPanel>
-                        </Border>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
+                <Border BorderBrush="#FF333333" BorderThickness="2" CornerRadius="2" Padding="12"
+                        VerticalAlignment="Top" Background="#FFFAFAFA">
+                    <StackPanel Width="160">
+                        <Button Content="+ Add Task" Padding="12,6" Click="AddTask_Click"/>
+                        <Button Content="Manage Projects" Padding="12,6" Margin="0,8,0,0" Click="ManageProjects_Click"/>
+                        <Button Content="Archive Done" Padding="12,6" Margin="0,8,0,0" Click="ArchiveDone_Click"/>
+                        <Button Content="View Archived" Padding="12,6" Margin="0,8,0,0" Click="ViewArchived_Click"/>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
         </ScrollViewer>
+
+        <TextBlock Grid.Row="1" Text="{Binding AppVersion}" FontSize="10" Foreground="#FF999999"
+                   HorizontalAlignment="Left" Margin="0,8,0,0"/>
     </Grid>
 </Window>
