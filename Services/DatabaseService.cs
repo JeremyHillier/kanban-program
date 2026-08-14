@@ -321,6 +321,31 @@ public class DatabaseService
         return DateTime.Parse(now);
     }
 
+    public void UpdateSortOrders(IEnumerable<(int CardId, int SortOrder)> updates)
+    {
+        using var connection = OpenConnection();
+        using var transaction = connection.BeginTransaction();
+
+        using var cmd = connection.CreateCommand();
+        cmd.Transaction = transaction;
+        cmd.CommandText = "UPDATE Cards SET SortOrder = $sortOrder WHERE Id = $id;";
+        var sortOrderParam = cmd.CreateParameter();
+        sortOrderParam.ParameterName = "$sortOrder";
+        cmd.Parameters.Add(sortOrderParam);
+        var idParam = cmd.CreateParameter();
+        idParam.ParameterName = "$id";
+        cmd.Parameters.Add(idParam);
+
+        foreach (var (cardId, sortOrder) in updates)
+        {
+            sortOrderParam.Value = sortOrder;
+            idParam.Value = cardId;
+            cmd.ExecuteNonQuery();
+        }
+
+        transaction.Commit();
+    }
+
     public Project AddProject(string name)
     {
         using var connection = OpenConnection();

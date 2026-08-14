@@ -11,6 +11,11 @@ public class MainViewModel : ObservableObject
     private readonly DatabaseService _db;
 
     public string AppVersion { get; } = $"v{Assembly.GetExecutingAssembly().GetName().Version?.ToString(3)}";
+    public string CopyrightText { get; } = "© Jeremy Hillier Consulting Inc";
+
+    private enum SortMode { ProjectThenDueDate, DueDateThenProject }
+
+    private SortMode _currentSortMode = SortMode.ProjectThenDueDate;
 
     private bool _isDarkMode;
     public bool IsDarkMode
@@ -139,6 +144,40 @@ public class MainViewModel : ObservableObject
 
         RefreshProjectFilterOptions();
         RefreshWhoFilterOptions();
+        ApplySort();
+    }
+
+    public void SortByProject()
+    {
+        _currentSortMode = SortMode.ProjectThenDueDate;
+        ApplySort();
+    }
+
+    public void SortByDueDate()
+    {
+        _currentSortMode = SortMode.DueDateThenProject;
+        ApplySort();
+    }
+
+    private void ApplySort()
+    {
+        var updates = new List<(int, int)>();
+
+        foreach (var column in Columns)
+        {
+            var sorted = _currentSortMode == SortMode.DueDateThenProject
+                ? column.Cards.OrderBy(c => c.DueDate ?? DateTime.MaxValue).ThenBy(c => c.ProjectName, StringComparer.OrdinalIgnoreCase).ToList()
+                : column.Cards.OrderBy(c => c.ProjectName, StringComparer.OrdinalIgnoreCase).ThenBy(c => c.DueDate ?? DateTime.MaxValue).ToList();
+
+            column.Cards.Clear();
+            for (var i = 0; i < sorted.Count; i++)
+            {
+                column.Cards.Add(sorted[i]);
+                updates.Add((sorted[i].Id, i));
+            }
+        }
+
+        _db.UpdateSortOrders(updates);
     }
 
     private void RefreshProjectFilterOptions()
@@ -250,6 +289,7 @@ public class MainViewModel : ObservableObject
 
         RefreshWhoFilterOptions();
         cardVm.IsVisible = MatchesFilters(cardVm);
+        ApplySort();
     }
 
     public void EditCard(CardViewModel card, string title, ColumnViewModel newColumn, ProjectViewModel? project, string priority, DateTime? dueDate, string? who,
@@ -276,6 +316,7 @@ public class MainViewModel : ObservableObject
 
         RefreshWhoFilterOptions();
         card.IsVisible = MatchesFilters(card);
+        ApplySort();
     }
 
     public void AddProject(string name)
@@ -340,6 +381,8 @@ public class MainViewModel : ObservableObject
         {
             SpawnNextOccurrence(card);
         }
+
+        ApplySort();
     }
 
     private void SpawnNextOccurrence(CardViewModel completedCard)

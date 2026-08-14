@@ -31,9 +31,20 @@
             <Setter Property="BorderBrush" Value="{DynamicResource PanelBorderBrush}"/>
             <Setter Property="Cursor" Value="Hand"/>
         </Style>
+
+        <Style x:Key="SortButtonStyle" TargetType="Button">
+            <Setter Property="Padding" Value="10,4"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="Background" Value="{DynamicResource ButtonBackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource PanelBorderBrush}"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Margin" Value="0,0,6,0"/>
+        </Style>
     </Window.Resources>
     <Grid Margin="12">
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
@@ -42,7 +53,13 @@
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
-        <Border Grid.Row="0" Grid.Column="0" Width="220" Margin="0,0,12,0" Padding="12"
+        <StackPanel Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal" Margin="0,0,0,10">
+            <TextBlock Text="Sort by:" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Center" Margin="0,0,8,0"/>
+            <Button Content="Project" Style="{StaticResource SortButtonStyle}" Click="SortByProject_Click"/>
+            <Button Content="Due Date" Style="{StaticResource SortButtonStyle}" Click="SortByDueDate_Click"/>
+        </StackPanel>
+
+        <Border Grid.Row="1" Grid.Column="0" Width="220" Margin="0,0,12,0" Padding="12"
                 VerticalAlignment="Top" CornerRadius="6"
                 Background="{DynamicResource PanelBackgroundBrush}"
                 BorderBrush="{DynamicResource PanelBorderBrush}" BorderThickness="1">
@@ -89,7 +106,7 @@
             </StackPanel>
         </Border>
 
-        <ScrollViewer Grid.Row="0" Grid.Column="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+        <ScrollViewer Grid.Row="1" Grid.Column="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
             <StackPanel Orientation="Horizontal">
                 <ItemsControl ItemsSource="{Binding Columns}">
                     <ItemsControl.ItemsPanel>
@@ -178,7 +195,11 @@
             </StackPanel>
         </ScrollViewer>
 
-        <TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Text="{Binding AppVersion}" FontSize="10" Foreground="{DynamicResource SecondaryTextBrush}"
-                   HorizontalAlignment="Left" Margin="0,8,0,0"/>
+        <Grid Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,8,0,0">
+            <TextBlock Text="{Binding AppVersion}" FontSize="10" Foreground="{DynamicResource SecondaryTextBrush}"
+                       HorizontalAlignment="Left"/>
+            <TextBlock Text="{Binding CopyrightText}" FontSize="10" Foreground="{DynamicResource SecondaryTextBrush}"
+                       HorizontalAlignment="Right"/>
+        </Grid>
     </Grid>
 </Window>

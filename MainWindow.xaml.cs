@@ -97,6 +97,18 @@ public partial class MainWindow : Window
         dialog.ShowDialog();
     }
 
+    private void SortByProject_Click(object sender, RoutedEventArgs e)
+    {
+        if (DataContext is not MainViewModel viewModel) return;
+        viewModel.SortByProject();
+    }
+
+    private void SortByDueDate_Click(object sender, RoutedEventArgs e)
+    {
+        if (DataContext is not MainViewModel viewModel) return;
+        viewModel.SortByDueDate();
+    }
+
     private void DueFilter_Checked(object sender, RoutedEventArgs e)
     {
         if (sender is FrameworkElement { Tag: string tag } && DataContext is MainViewModel viewModel)
