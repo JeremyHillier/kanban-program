@@ -53,11 +53,11 @@ public partial class MainWindow : Window
     {
         if (DataContext is not MainViewModel viewModel) return;
 
-        var dialog = new AddTaskWindow(viewModel.Columns, viewModel.Projects) { Owner = this };
+        var dialog = new AddTaskWindow(viewModel.Columns, viewModel.Projects, viewModel.Goals) { Owner = this };
         if (dialog.ShowDialog() == true && dialog.SelectedColumn is not null)
         {
             viewModel.AddCard(dialog.TaskDetails, dialog.SelectedColumn, dialog.SelectedProject,
-                dialog.SelectedPriority, dialog.SelectedDueDate, dialog.Who, dialog.IsRecurring, dialog.RecurrencePattern);
+                dialog.SelectedPriority, dialog.SelectedDueDate, dialog.Who, dialog.IsRecurring, dialog.RecurrencePattern, dialog.SelectedGoal);
         }
     }
 
@@ -66,11 +66,11 @@ public partial class MainWindow : Window
         var currentColumn = viewModel.Columns.FirstOrDefault(c => c.Cards.Contains(card));
         if (currentColumn is null) return;
 
-        var dialog = new AddTaskWindow(viewModel.Columns, viewModel.Projects, card, currentColumn) { Owner = this };
+        var dialog = new AddTaskWindow(viewModel.Columns, viewModel.Projects, viewModel.Goals, card, currentColumn) { Owner = this };
         if (dialog.ShowDialog() == true && dialog.SelectedColumn is not null)
         {
             viewModel.EditCard(card, dialog.TaskDetails, dialog.SelectedColumn, dialog.SelectedProject,
-                dialog.SelectedPriority, dialog.SelectedDueDate, dialog.Who, dialog.IsRecurring, dialog.RecurrencePattern);
+                dialog.SelectedPriority, dialog.SelectedDueDate, dialog.Who, dialog.IsRecurring, dialog.RecurrencePattern, dialog.SelectedGoal);
         }
     }
 
@@ -80,6 +80,19 @@ public partial class MainWindow : Window
 
         var dialog = new ManageProjectsWindow(viewModel) { Owner = this };
         dialog.ShowDialog();
+    }
+
+    private void ManageGoals_Click(object sender, RoutedEventArgs e)
+    {
+        if (DataContext is not MainViewModel viewModel) return;
+
+        var dialog = new ManageGoalsWindow(viewModel) { Owner = this };
+        dialog.ShowDialog();
+    }
+
+    private void Close_Click(object sender, RoutedEventArgs e)
+    {
+        Close();
     }
 
     private void ArchiveDone_Click(object sender, RoutedEventArgs e)

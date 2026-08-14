@@ -44,6 +44,11 @@ public class DatabaseService
                     Name TEXT NOT NULL,
                     SortOrder INTEGER NOT NULL
                 );
+                CREATE TABLE IF NOT EXISTS Goals (
+                    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    Name TEXT NOT NULL,
+                    SortOrder INTEGER NOT NULL
+                );
                 CREATE TABLE IF NOT EXISTS Cards (
                     Id INTEGER PRIMARY KEY AUTOINCREMENT,
                     ColumnId INTEGER NOT NULL,
@@ -82,6 +87,7 @@ public class DatabaseService
         MigrateCardsColumn(connection, "LastUpdated", "TEXT NULL");
         MigrateCardsColumn(connection, "IsRecurring", "INTEGER NOT NULL DEFAULT 0");
         MigrateCardsColumn(connection, "RecurrencePattern", "TEXT NULL");
+        MigrateCardsColumn(connection, "GoalId", "INTEGER NULL");
 
         using (var checkCmd = connection.CreateCommand())
         {
@@ -188,7 +194,7 @@ public class DatabaseService
         using var connection = OpenConnection();
         using var cmd = connection.CreateCommand();
         cmd.CommandText = """
-            SELECT Id, ColumnId, Title, SortOrder, ProjectId, Priority, DueDate, Who, LastUpdated, IsRecurring, RecurrencePattern
+            SELECT Id, ColumnId, Title, SortOrder, ProjectId, Priority, DueDate, Who, LastUpdated, IsRecurring, RecurrencePattern, GoalId
             FROM Cards WHERE IsArchived = 0 ORDER BY SortOrder;
             """;
 
@@ -208,7 +214,8 @@ public class DatabaseService
                 Who = reader.IsDBNull(7) ? null : reader.GetString(7),
                 LastUpdated = reader.IsDBNull(8) ? null : DateTime.Parse(reader.GetString(8)),
                 IsRecurring = reader.GetInt32(9) != 0,
-                RecurrencePattern = reader.IsDBNull(10) ? null : reader.GetString(10)
+                RecurrencePattern = reader.IsDBNull(10) ? null : reader.GetString(10),
+                GoalId = reader.IsDBNull(11) ? null : reader.GetInt32(11)
             });
         }
         return result;
@@ -225,6 +232,26 @@ public class DatabaseService
         while (reader.Read())
         {
             result.Add(new Project
+            {
+                Id = reader.GetInt32(0),
+                Name = reader.GetString(1),
+                SortOrder = reader.GetInt32(2)
+            });
+        }
+        return result;
+    }
+
+    public List<Goal> GetGoals()
+    {
+        using var connection = OpenConnection();
+        using var cmd = connection.CreateCommand();
+        cmd.CommandText = "SELECT Id, Name, SortOrder FROM Goals ORDER BY SortOrder;";
+
+        var result = new List<Goal>();
+        using var reader = cmd.ExecuteReader();
+        while (reader.Read())
+        {
+            result.Add(new Goal
             {
                 Id = reader.GetInt32(0),
                 Name = reader.GetString(1),
@@ -253,7 +280,7 @@ public class DatabaseService
     }
 
     public CardItem AddCard(int columnId, string title, int? projectId, string columnName, string priority, DateTime? dueDate, string? who,
-        bool isRecurring, string? recurrencePattern)
+        bool isRecurring, string? recurrencePattern, int? goalId)
     {
         using var connection = OpenConnection();
 
@@ -265,8 +292,8 @@ public class DatabaseService
         var now = NowStamp();
         using var insertCmd = connection.CreateCommand();
         insertCmd.CommandText = """
-            INSERT INTO Cards (ColumnId, Title, SortOrder, ProjectId, Priority, DueDate, Who, LastUpdated, IsRecurring, RecurrencePattern)
-            VALUES ($columnId, $title, $sortOrder, $projectId, $priority, $dueDate, $who, $lastUpdated, $isRecurring, $recurrencePattern);
+            INSERT INTO Cards (ColumnId, Title, SortOrder, ProjectId, Priority, DueDate, Who, LastUpdated, IsRecurring, RecurrencePattern, GoalId)
+            VALUES ($columnId, $title, $sortOrder, $projectId, $priority, $dueDate, $who, $lastUpdated, $isRecurring, $recurrencePattern, $goalId);
             SELECT last_insert_rowid();
             """;
         insertCmd.Parameters.AddWithValue("$columnId", columnId);
@@ -279,6 +306,7 @@ public class DatabaseService
         insertCmd.Parameters.AddWithValue("$lastUpdated", now);
         insertCmd.Parameters.AddWithValue("$isRecurring", isRecurring ? 1 : 0);
         insertCmd.Parameters.AddWithValue("$recurrencePattern", (object?)recurrencePattern ?? DBNull.Value);
+        insertCmd.Parameters.AddWithValue("$goalId", (object?)goalId ?? DBNull.Value);
         var id = (long)insertCmd.ExecuteScalar()!;
 
         LogHistory(connection, (int)id, title, "Created", $"Added to {columnName}");
@@ -287,12 +315,12 @@ public class DatabaseService
         {
             Id = (int)id, ColumnId = columnId, Title = title, SortOrder = (int)sortOrder, ProjectId = projectId,
             Priority = priority, DueDate = dueDate, Who = who, LastUpdated = DateTime.Parse(now),
-            IsRecurring = isRecurring, RecurrencePattern = recurrencePattern
+            IsRecurring = isRecurring, RecurrencePattern = recurrencePattern, GoalId = goalId
         };
     }
 
     public DateTime UpdateCard(int cardId, string title, int? projectId, string priority, DateTime? dueDate, string? who,
-        bool isRecurring, string? recurrencePattern)
+        bool isRecurring, string? recurrencePattern, int? goalId)
     {
         using var connection = OpenConnection();
         var now = NowStamp();
@@ -302,7 +330,7 @@ public class DatabaseService
             cmd.CommandText = """
                 UPDATE Cards SET Title = $title, ProjectId = $projectId, Priority = $priority,
                     DueDate = $dueDate, Who = $who, LastUpdated = $lastUpdated,
-                    IsRecurring = $isRecurring, RecurrencePattern = $recurrencePattern
+                    IsRecurring = $isRecurring, RecurrencePattern = $recurrencePattern, GoalId = $goalId
                 WHERE Id = $id;
                 """;
             cmd.Parameters.AddWithValue("$title", title);
@@ -313,6 +341,7 @@ public class DatabaseService
             cmd.Parameters.AddWithValue("$lastUpdated", now);
             cmd.Parameters.AddWithValue("$isRecurring", isRecurring ? 1 : 0);
             cmd.Parameters.AddWithValue("$recurrencePattern", (object?)recurrencePattern ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("$goalId", (object?)goalId ?? DBNull.Value);
             cmd.Parameters.AddWithValue("$id", cardId);
             cmd.ExecuteNonQuery();
         }
@@ -394,6 +423,53 @@ public class DatabaseService
         using var deleteCmd = connection.CreateCommand();
         deleteCmd.CommandText = "DELETE FROM Projects WHERE Id = $id;";
         deleteCmd.Parameters.AddWithValue("$id", projectId);
+        deleteCmd.ExecuteNonQuery();
+    }
+
+    public Goal AddGoal(string name)
+    {
+        using var connection = OpenConnection();
+
+        using var maxCmd = connection.CreateCommand();
+        maxCmd.CommandText = "SELECT COALESCE(MAX(SortOrder), -1) + 1 FROM Goals;";
+        var sortOrder = (long)maxCmd.ExecuteScalar()!;
+
+        using var insertCmd = connection.CreateCommand();
+        insertCmd.CommandText = """
+            INSERT INTO Goals (Name, SortOrder) VALUES ($name, $sortOrder);
+            SELECT last_insert_rowid();
+            """;
+        insertCmd.Parameters.AddWithValue("$name", name);
+        insertCmd.Parameters.AddWithValue("$sortOrder", sortOrder);
+        var id = (long)insertCmd.ExecuteScalar()!;
+
+        return new Goal { Id = (int)id, Name = name, SortOrder = (int)sortOrder };
+    }
+
+    public void RenameGoal(int goalId, string name)
+    {
+        using var connection = OpenConnection();
+        using var cmd = connection.CreateCommand();
+        cmd.CommandText = "UPDATE Goals SET Name = $name WHERE Id = $id;";
+        cmd.Parameters.AddWithValue("$name", name);
+        cmd.Parameters.AddWithValue("$id", goalId);
+        cmd.ExecuteNonQuery();
+    }
+
+    public void DeleteGoal(int goalId)
+    {
+        using var connection = OpenConnection();
+
+        using (var clearCmd = connection.CreateCommand())
+        {
+            clearCmd.CommandText = "UPDATE Cards SET GoalId = NULL WHERE GoalId = $id;";
+            clearCmd.Parameters.AddWithValue("$id", goalId);
+            clearCmd.ExecuteNonQuery();
+        }
+
+        using var deleteCmd = connection.CreateCommand();
+        deleteCmd.CommandText = "DELETE FROM Goals WHERE Id = $id;";
+        deleteCmd.Parameters.AddWithValue("$id", goalId);
         deleteCmd.ExecuteNonQuery();
     }
 

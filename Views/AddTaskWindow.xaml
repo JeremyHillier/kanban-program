@@ -5,12 +5,14 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         mc:Ignorable="d"
         x:Name="RootWindow"
-        Title="Add Task" Height="680" Width="380"
+        Title="Add Task" Height="740" Width="380"
         WindowStartupLocation="CenterOwner" ResizeMode="NoResize"
         ShowInTaskbar="False"
         Background="{DynamicResource WindowBackgroundBrush}">
     <Grid Margin="16">
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -47,8 +49,14 @@
                   Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
                   BorderBrush="{DynamicResource CardBorderBrush}"/>
 
-        <TextBlock Grid.Row="6" Text="Priority" FontWeight="SemiBold" Margin="0,12,0,4" Foreground="{DynamicResource PrimaryTextBrush}"/>
-        <ComboBox Grid.Row="7" x:Name="PriorityComboBox" Padding="6" SelectedIndex="2"
+        <TextBlock Grid.Row="6" Text="Goal (optional)" FontWeight="SemiBold" Margin="0,12,0,4" Foreground="{DynamicResource PrimaryTextBrush}"/>
+        <ComboBox Grid.Row="7" x:Name="GoalComboBox" Padding="6" SelectedIndex="-1"
+                  DisplayMemberPath="Name"
+                  Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                  BorderBrush="{DynamicResource CardBorderBrush}"/>
+
+        <TextBlock Grid.Row="8" Text="Priority" FontWeight="SemiBold" Margin="0,12,0,4" Foreground="{DynamicResource PrimaryTextBrush}"/>
+        <ComboBox Grid.Row="9" x:Name="PriorityComboBox" Padding="6" SelectedIndex="2"
                   Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
                   BorderBrush="{DynamicResource CardBorderBrush}">
             <ComboBoxItem Content="High"/>
@@ -56,8 +64,8 @@
             <ComboBoxItem Content="Normal"/>
         </ComboBox>
 
-        <TextBlock Grid.Row="8" Text="Due Date (optional)" FontWeight="SemiBold" Margin="0,12,0,4" Foreground="{DynamicResource PrimaryTextBrush}"/>
-        <Grid Grid.Row="9">
+        <TextBlock Grid.Row="10" Text="Due Date (optional)" FontWeight="SemiBold" Margin="0,12,0,4" Foreground="{DynamicResource PrimaryTextBrush}"/>
+        <Grid Grid.Row="11">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
@@ -69,15 +77,15 @@
                     Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
         </Grid>
 
-        <TextBlock Grid.Row="10" Text="Who" FontWeight="SemiBold" Margin="0,12,0,4" Foreground="{DynamicResource PrimaryTextBrush}"/>
-        <TextBox Grid.Row="11" x:Name="WhoTextBox" Padding="6"
+        <TextBlock Grid.Row="12" Text="Who" FontWeight="SemiBold" Margin="0,12,0,4" Foreground="{DynamicResource PrimaryTextBrush}"/>
+        <TextBox Grid.Row="13" x:Name="WhoTextBox" Padding="6"
                  Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
                  BorderBrush="{DynamicResource CardBorderBrush}"/>
 
-        <CheckBox Grid.Row="12" x:Name="RecurringCheckBox" Content="Recurring task" Margin="0,14,0,4"
+        <CheckBox Grid.Row="14" x:Name="RecurringCheckBox" Content="Recurring task" Margin="0,14,0,4"
                   Foreground="{DynamicResource PrimaryTextBrush}"
                   Checked="RecurringCheckBox_Changed" Unchecked="RecurringCheckBox_Changed"/>
-        <ComboBox Grid.Row="13" x:Name="RecurrenceComboBox" Padding="6" SelectedIndex="0" Visibility="Collapsed"
+        <ComboBox Grid.Row="15" x:Name="RecurrenceComboBox" Padding="6" SelectedIndex="0" Visibility="Collapsed"
                   Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
                   BorderBrush="{DynamicResource CardBorderBrush}">
             <ComboBoxItem Content="Daily"/>
@@ -87,7 +95,7 @@
             <ComboBoxItem Content="Annually"/>
         </ComboBox>
 
-        <StackPanel Grid.Row="15" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,16,0,0">
+        <StackPanel Grid.Row="17" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,16,0,0">
             <Button Content="Cancel" Width="80" Padding="0,6" IsCancel="True"
                     Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
             <Button x:Name="SubmitButton" Content="Add Task" Width="90" Padding="0,6" Margin="8,0,0,0" IsDefault="True" Click="Add_Click"

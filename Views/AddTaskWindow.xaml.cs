@@ -9,22 +9,24 @@ public partial class AddTaskWindow : Window
     public string TaskDetails { get; private set; } = string.Empty;
     public ColumnViewModel? SelectedColumn { get; private set; }
     public ProjectViewModel? SelectedProject { get; private set; }
+    public GoalViewModel? SelectedGoal { get; private set; }
     public string SelectedPriority { get; private set; } = "Normal";
     public DateTime? SelectedDueDate { get; private set; }
     public string? Who { get; private set; }
     public bool IsRecurring { get; private set; }
     public string? RecurrencePattern { get; private set; }
 
-    public AddTaskWindow(IEnumerable<ColumnViewModel> columns, IEnumerable<ProjectViewModel> projects)
+    public AddTaskWindow(IEnumerable<ColumnViewModel> columns, IEnumerable<ProjectViewModel> projects, IEnumerable<GoalViewModel> goals)
     {
         InitializeComponent();
         CategoryComboBox.ItemsSource = columns;
         ProjectComboBox.ItemsSource = projects;
+        GoalComboBox.ItemsSource = goals;
         DetailsTextBox.Focus();
     }
 
-    public AddTaskWindow(IEnumerable<ColumnViewModel> columns, IEnumerable<ProjectViewModel> projects,
-        CardViewModel cardToEdit, ColumnViewModel currentColumn) : this(columns, projects)
+    public AddTaskWindow(IEnumerable<ColumnViewModel> columns, IEnumerable<ProjectViewModel> projects, IEnumerable<GoalViewModel> goals,
+        CardViewModel cardToEdit, ColumnViewModel currentColumn) : this(columns, projects, goals)
     {
         Title = "Edit Task";
         SubmitButton.Content = "Save";
@@ -33,6 +35,8 @@ public partial class AddTaskWindow : Window
         CategoryComboBox.SelectedItem = currentColumn;
         ProjectComboBox.SelectedItem = ProjectComboBox.Items.OfType<ProjectViewModel>()
             .FirstOrDefault(p => p.Id == cardToEdit.ProjectId);
+        GoalComboBox.SelectedItem = GoalComboBox.Items.OfType<GoalViewModel>()
+            .FirstOrDefault(g => g.Id == cardToEdit.GoalId);
 
         foreach (var item in PriorityComboBox.Items.OfType<ComboBoxItem>())
         {
@@ -82,6 +86,7 @@ public partial class AddTaskWindow : Window
         TaskDetails = details;
         SelectedColumn = column;
         SelectedProject = project;
+        SelectedGoal = GoalComboBox.SelectedItem as GoalViewModel;
         SelectedPriority = (string)priorityItem.Content;
         SelectedDueDate = DueDatePicker.SelectedDate;
         Who = string.IsNullOrWhiteSpace(WhoTextBox.Text) ? null : WhoTextBox.Text.Trim();

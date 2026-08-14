@@ -43,10 +43,12 @@ public class MainViewModel : ObservableObject
 
     public ObservableCollection<ColumnViewModel> Columns { get; } = [];
     public ObservableCollection<ProjectViewModel> Projects { get; } = [];
+    public ObservableCollection<GoalViewModel> Goals { get; } = [];
 
     public ObservableCollection<string> ProjectFilterOptions { get; } = ["All"];
     public ObservableCollection<string> PriorityFilterOptions { get; } = ["All", "High", "Medium", "Normal"];
     public ObservableCollection<string> WhoFilterOptions { get; } = ["All"];
+    public ObservableCollection<string> GoalFilterOptions { get; } = ["All"];
 
     private string _selectedProjectFilter = "All";
     public string SelectedProjectFilter
@@ -67,6 +69,13 @@ public class MainViewModel : ObservableObject
     {
         get => _selectedWhoFilter;
         set { if (SetField(ref _selectedWhoFilter, value)) ApplyFilters(); }
+    }
+
+    private string _selectedGoalFilter = "All";
+    public string SelectedGoalFilter
+    {
+        get => _selectedGoalFilter;
+        set { if (SetField(ref _selectedGoalFilter, value)) ApplyFilters(); }
     }
 
     private string _dueFilter = string.Empty;
@@ -116,10 +125,16 @@ public class MainViewModel : ObservableObject
     {
         Columns.Clear();
         Projects.Clear();
+        Goals.Clear();
 
         foreach (var project in _db.GetProjects())
         {
             Projects.Add(new ProjectViewModel(project));
+        }
+
+        foreach (var goal in _db.GetGoals())
+        {
+            Goals.Add(new GoalViewModel(goal));
         }
 
         var columns = _db.GetColumns();
@@ -135,6 +150,7 @@ public class MainViewModel : ObservableObject
                 var cardVm = new CardViewModel(card)
                 {
                     ProjectName = ResolveProjectName(card.ProjectId),
+                    GoalName = ResolveGoalName(card.GoalId),
                     LastUpdated = card.LastUpdated
                 };
                 columnVm.Cards.Add(cardVm);
@@ -144,6 +160,7 @@ public class MainViewModel : ObservableObject
 
         RefreshProjectFilterOptions();
         RefreshWhoFilterOptions();
+        RefreshGoalFilterOptions();
         ApplySort();
     }
 
@@ -216,6 +233,22 @@ public class MainViewModel : ObservableObject
         }
     }
 
+    private void RefreshGoalFilterOptions()
+    {
+        var current = SelectedGoalFilter;
+        GoalFilterOptions.Clear();
+        GoalFilterOptions.Add("All");
+        foreach (var goal in Goals.OrderBy(g => g.Name))
+        {
+            GoalFilterOptions.Add(goal.Name);
+        }
+
+        if (!GoalFilterOptions.Contains(current))
+        {
+            SelectedGoalFilter = "All";
+        }
+    }
+
     public void ApplyFilters()
     {
         foreach (var card in Columns.SelectMany(c => c.Cards))
@@ -229,6 +262,7 @@ public class MainViewModel : ObservableObject
         if (SelectedProjectFilter != "All" && card.ProjectName != SelectedProjectFilter) return false;
         if (SelectedPriorityFilter != "All" && card.Priority != SelectedPriorityFilter) return false;
         if (SelectedWhoFilter != "All" && (card.Who ?? string.Empty) != SelectedWhoFilter) return false;
+        if (SelectedGoalFilter != "All" && card.GoalName != SelectedGoalFilter) return false;
 
         if (!string.IsNullOrEmpty(DueFilter))
         {
@@ -264,6 +298,8 @@ public class MainViewModel : ObservableObject
         OnPropertyChanged(nameof(SelectedPriorityFilter));
         _selectedWhoFilter = "All";
         OnPropertyChanged(nameof(SelectedWhoFilter));
+        _selectedGoalFilter = "All";
+        OnPropertyChanged(nameof(SelectedGoalFilter));
         _dueFilter = string.Empty;
         OnPropertyChanged(nameof(DueFilter));
         _keywordFilter = string.Empty;
@@ -278,13 +314,24 @@ public class MainViewModel : ObservableObject
         return Projects.FirstOrDefault(p => p.Id == projectId)?.Name ?? "No Project";
     }
 
+    private string ResolveGoalName(int? goalId)
+    {
+        if (goalId is null) return "No Goal";
+        return Goals.FirstOrDefault(g => g.Id == goalId)?.Name ?? "No Goal";
+    }
+
     public void AddCard(string title, ColumnViewModel column, ProjectViewModel? project, string priority, DateTime? dueDate, string? who,
-        bool isRecurring, string? recurrencePattern)
+        bool isRecurring, string? recurrencePattern, GoalViewModel? goal)
     {
         if (string.IsNullOrWhiteSpace(title)) return;
 
-        var card = _db.AddCard(column.Id, title.Trim(), project?.Id, column.Name, priority, dueDate, who, isRecurring, recurrencePattern);
-        var cardVm = new CardViewModel(card) { ProjectName = project?.Name ?? "No Project", LastUpdated = card.LastUpdated };
+        var card = _db.AddCard(column.Id, title.Trim(), project?.Id, column.Name, priority, dueDate, who, isRecurring, recurrencePattern, goal?.Id);
+        var cardVm = new CardViewModel(card)
+        {
+            ProjectName = project?.Name ?? "No Project",
+            GoalName = goal?.Name ?? "No Goal",
+            LastUpdated = card.LastUpdated
+        };
         column.Cards.Add(cardVm);
 
         RefreshWhoFilterOptions();
@@ -293,7 +340,7 @@ public class MainViewModel : ObservableObject
     }
 
     public void EditCard(CardViewModel card, string title, ColumnViewModel newColumn, ProjectViewModel? project, string priority, DateTime? dueDate, string? who,
-        bool isRecurring, string? recurrencePattern)
+        bool isRecurring, string? recurrencePattern, GoalViewModel? goal)
     {
         if (string.IsNullOrWhiteSpace(title)) return;
 
@@ -305,8 +352,10 @@ public class MainViewModel : ObservableObject
         card.Who = who;
         card.IsRecurring = isRecurring;
         card.RecurrencePattern = recurrencePattern;
+        card.GoalId = goal?.Id;
+        card.GoalName = goal?.Name ?? "No Goal";
 
-        card.LastUpdated = _db.UpdateCard(card.Id, card.Title, project?.Id, priority, dueDate, who, isRecurring, recurrencePattern);
+        card.LastUpdated = _db.UpdateCard(card.Id, card.Title, project?.Id, priority, dueDate, who, isRecurring, recurrencePattern, goal?.Id);
 
         var sourceColumn = Columns.FirstOrDefault(c => c.Cards.Contains(card));
         if (sourceColumn is not null && sourceColumn != newColumn)
@@ -357,6 +406,44 @@ public class MainViewModel : ObservableObject
         RefreshProjectFilterOptions();
     }
 
+    public void AddGoal(string name)
+    {
+        if (string.IsNullOrWhiteSpace(name)) return;
+
+        var goal = _db.AddGoal(name.Trim());
+        Goals.Add(new GoalViewModel(goal));
+        RefreshGoalFilterOptions();
+    }
+
+    public void RenameGoal(GoalViewModel goal, string newName)
+    {
+        if (string.IsNullOrWhiteSpace(newName) || goal.Name == newName.Trim()) return;
+
+        goal.Name = newName.Trim();
+        _db.RenameGoal(goal.Id, goal.Name);
+
+        foreach (var card in Columns.SelectMany(c => c.Cards).Where(c => c.GoalId == goal.Id))
+        {
+            card.GoalName = goal.Name;
+        }
+
+        RefreshGoalFilterOptions();
+    }
+
+    public void DeleteGoal(GoalViewModel goal)
+    {
+        _db.DeleteGoal(goal.Id);
+        Goals.Remove(goal);
+
+        foreach (var card in Columns.SelectMany(c => c.Cards).Where(c => c.GoalId == goal.Id))
+        {
+            card.GoalId = null;
+            card.GoalName = "No Goal";
+        }
+
+        RefreshGoalFilterOptions();
+    }
+
     private void DeleteCard(CardViewModel? card)
     {
         if (card is null) return;
@@ -392,9 +479,10 @@ public class MainViewModel : ObservableObject
 
         var nextDueDate = CalculateNextDueDate(completedCard.DueDate ?? DateTime.Today, completedCard.RecurrencePattern!);
         var project = Projects.FirstOrDefault(p => p.Id == completedCard.ProjectId);
+        var goal = Goals.FirstOrDefault(g => g.Id == completedCard.GoalId);
 
         AddCard(completedCard.Title, toDoColumn, project, completedCard.Priority, nextDueDate, completedCard.Who,
-            true, completedCard.RecurrencePattern);
+            true, completedCard.RecurrencePattern, goal);
     }
 
     private static DateTime CalculateNextDueDate(DateTime anchor, string pattern) => pattern switch

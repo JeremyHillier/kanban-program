@@ -83,6 +83,12 @@
 
                 <TextBlock Text="Who Filter" FontWeight="Bold" Foreground="White" Margin="0,0,0,4"/>
                 <ComboBox ItemsSource="{Binding WhoFilterOptions}" SelectedItem="{Binding SelectedWhoFilter, Mode=TwoWay}"
+                          Padding="6" Margin="0,0,0,12"
+                          Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                          BorderBrush="{DynamicResource CardBorderBrush}"/>
+
+                <TextBlock Text="Goal Filter" FontWeight="Bold" Foreground="White" Margin="0,0,0,4"/>
+                <ComboBox ItemsSource="{Binding GoalFilterOptions}" SelectedItem="{Binding SelectedGoalFilter, Mode=TwoWay}"
                           Padding="6" Margin="0,0,0,16"
                           Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
                           BorderBrush="{DynamicResource CardBorderBrush}"/>
@@ -150,6 +156,9 @@
                                                             </Border>
                                                         </StackPanel>
 
+                                                        <TextBlock Text="{Binding GoalDisplay}" FontSize="10" Foreground="{DynamicResource SecondaryTextBrush}" FontStyle="Italic" Margin="0,3,0,0"
+                                                                   Visibility="{Binding GoalDisplay, Converter={StaticResource EmptyStringToVisibilityConverter}}"/>
+
                                                         <TextBlock Text="{Binding DueDateDisplay}" FontSize="10" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,3,0,0"
                                                                    Visibility="{Binding DueDateDisplay, Converter={StaticResource EmptyStringToVisibilityConverter}}"/>
                                                         <TextBlock Text="{Binding WhoDisplay}" FontSize="10" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,1,0,0"
@@ -193,6 +202,7 @@
                     <StackPanel Width="160">
                         <Button Content="+ Add Task" Style="{StaticResource PanelButtonStyle}" Click="AddTask_Click"/>
                         <Button Content="Manage Projects" Style="{StaticResource PanelButtonStyle}" Margin="0,8,0,0" Click="ManageProjects_Click"/>
+                        <Button Content="Manage Goals" Style="{StaticResource PanelButtonStyle}" Margin="0,8,0,0" Click="ManageGoals_Click"/>
                         <Button Content="Archive Done" Style="{StaticResource PanelButtonStyle}" Margin="0,8,0,0" Click="ArchiveDone_Click"/>
                         <Button Content="View Archived" Style="{StaticResource PanelButtonStyle}" Margin="0,8,0,0" Click="ViewArchived_Click"/>
                         <Button Content="{Binding ThemeButtonLabel}" Style="{StaticResource PanelButtonStyle}" Margin="0,8,0,0" Click="ToggleTheme_Click"/>
@@ -204,8 +214,14 @@
         <Grid Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,8,0,0">
             <TextBlock Text="{Binding AppVersion}" FontSize="10" Foreground="{DynamicResource SecondaryTextBrush}"
                        HorizontalAlignment="Left"/>
-            <TextBlock Text="{Binding CopyrightText}" FontSize="10" Foreground="{DynamicResource SecondaryTextBrush}"
-                       HorizontalAlignment="Right"/>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <TextBlock Text="{Binding CopyrightText}" FontSize="10" Foreground="{DynamicResource SecondaryTextBrush}"
+                           VerticalAlignment="Center" Margin="0,0,12,0"/>
+                <Button Content="Close" Padding="14,4"
+                        Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                        BorderBrush="{DynamicResource PanelBorderBrush}" Cursor="Hand"
+                        Click="Close_Click"/>
+            </StackPanel>
         </Grid>
     </Grid>
 </Window>

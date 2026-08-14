@@ -48,6 +48,32 @@ public class CardViewModel(CardItem model) : ObservableObject
         set => SetField(ref _projectName, value);
     }
 
+    public int? GoalId
+    {
+        get => Model.GoalId;
+        set
+        {
+            if (Model.GoalId == value) return;
+            Model.GoalId = value;
+            OnPropertyChanged();
+        }
+    }
+
+    private string _goalName = string.Empty;
+    public string GoalName
+    {
+        get => _goalName;
+        set
+        {
+            if (SetField(ref _goalName, value))
+            {
+                OnPropertyChanged(nameof(GoalDisplay));
+            }
+        }
+    }
+
+    public string GoalDisplay => string.IsNullOrWhiteSpace(GoalName) || GoalName == "No Goal" ? string.Empty : $"Goal: {GoalName}";
+
     public string Priority
     {
         get => Model.Priority;
