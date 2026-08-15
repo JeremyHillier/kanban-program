@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:KanbanApp"
         xmlns:conv="clr-namespace:KanbanApp.Converters"
         mc:Ignorable="d"
-        Title="Kanban" Height="740" Width="1700" MinWidth="900" MinHeight="500"
+        Title="Kanban" Width="1700" MinWidth="900" MinHeight="600" SizeToContent="Height"
         Icon="Assets/app.ico"
         Background="{DynamicResource WindowBackgroundBrush}">
     <Window.Resources>
@@ -51,11 +51,12 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <Border Grid.Row="0" Padding="16,12" Margin="0,0,0,10" CornerRadius="6"
+        <Border Grid.Row="0" Padding="16,20" Margin="0,0,0,10" CornerRadius="6"
                 Background="{StaticResource AccentPanelBrush}" BorderBrush="{StaticResource AccentPanelBorderBrush}" BorderThickness="1">
             <Grid>
-                <TextBlock Text="KANBAN TASK BOARD" FontSize="20" FontWeight="Bold" Foreground="White"
-                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                <TextBlock Text="KANBAN TASK BOARD" FontSize="36" FontWeight="Bold" Foreground="White"
+                           HorizontalAlignment="Center" VerticalAlignment="Center"
+                           TextAlignment="Center"/>
                 <StackPanel HorizontalAlignment="Right" VerticalAlignment="Center">
                     <TextBlock Text="{Binding AppVersion}" FontSize="11" Foreground="White" HorizontalAlignment="Right"/>
                     <TextBlock Text="{Binding CopyrightText}" FontSize="10" Foreground="#FFC0CBDA" HorizontalAlignment="Right"/>
@@ -68,17 +69,16 @@
                     CornerRadius="6"
                     Background="{StaticResource AccentPanelBrush}"
                     BorderBrush="{StaticResource AccentPanelBorderBrush}" BorderThickness="1">
-                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
                     <StackPanel>
                         <TextBlock Text="Sort &amp; Add" Style="{StaticResource SectionHeaderStyle}" Margin="0,0,0,6"/>
                         <WrapPanel>
-                            <Button Style="{StaticResource SquareButtonStyle}" Click="SortByProject_Click">
+                            <Button Style="{StaticResource SquareButtonStyle}" Background="#FF42A5F5" Foreground="White" Click="SortByProject_Click">
                                 <TextBlock Text="Sort by Project" TextWrapping="Wrap" TextAlignment="Center"/>
                             </Button>
-                            <Button Style="{StaticResource SquareButtonStyle}" Click="SortByDueDate_Click">
+                            <Button Style="{StaticResource SquareButtonStyle}" Background="#FF26A69A" Foreground="White" Click="SortByDueDate_Click">
                                 <TextBlock Text="Sort by Due Date" TextWrapping="Wrap" TextAlignment="Center"/>
                             </Button>
-                            <Button Style="{StaticResource SquareButtonStyle}" Click="AddTask_Click">
+                            <Button Style="{StaticResource SquareButtonStyle}" Background="#FF66BB6A" Foreground="White" Click="AddTask_Click">
                                 <TextBlock Text="+ Add Task" TextWrapping="Wrap" TextAlignment="Center"/>
                             </Button>
                         </WrapPanel>
@@ -137,30 +137,31 @@
 
                         <TextBlock Text="Other" Style="{StaticResource SectionHeaderStyle}"/>
                         <WrapPanel>
-                            <Button Style="{StaticResource SquareButtonStyle}" Click="ManageProjects_Click">
+                            <Button Style="{StaticResource SquareButtonStyle}" Background="#FF5C6BC0" Foreground="White" Click="ManageProjects_Click">
                                 <TextBlock Text="Manage Projects" TextWrapping="Wrap" TextAlignment="Center"/>
                             </Button>
-                            <Button Style="{StaticResource SquareButtonStyle}" Click="ManageGoals_Click">
+                            <Button Style="{StaticResource SquareButtonStyle}" Background="#FF9575CD" Foreground="White" Click="ManageGoals_Click">
                                 <TextBlock Text="Manage Goals" TextWrapping="Wrap" TextAlignment="Center"/>
                             </Button>
-                            <Button Style="{StaticResource SquareButtonStyle}" Click="ArchiveDone_Click">
+                            <Button Style="{StaticResource SquareButtonStyle}" Background="#FFFFA726" Foreground="White" Click="ArchiveDone_Click">
                                 <TextBlock Text="Archive Done" TextWrapping="Wrap" TextAlignment="Center"/>
                             </Button>
-                            <Button Style="{StaticResource SquareButtonStyle}" Click="ViewArchived_Click">
+                            <Button Style="{StaticResource SquareButtonStyle}" Background="#FF8D6E63" Foreground="White" Click="ViewArchived_Click">
                                 <TextBlock Text="View Archived" TextWrapping="Wrap" TextAlignment="Center"/>
                             </Button>
-                            <Button Style="{StaticResource SquareButtonStyle}" Click="ToggleTheme_Click">
+                            <Button Style="{StaticResource SquareButtonStyle}" Background="#FF546E7A" Foreground="White" Click="ToggleTheme_Click">
                                 <TextBlock Text="{Binding ThemeButtonLabel}" TextWrapping="Wrap" TextAlignment="Center"/>
                             </Button>
-                            <Button Style="{StaticResource SquareButtonStyle}" Click="Settings_Click">
+                            <Button Style="{StaticResource SquareButtonStyle}" Background="#FF78909C" Foreground="White" Click="Settings_Click">
                                 <TextBlock Text="Settings" TextWrapping="Wrap" TextAlignment="Center"/>
                             </Button>
-                            <Button Style="{StaticResource SquareButtonStyle}" Click="Close_Click">
-                                <TextBlock Text="Close" TextWrapping="Wrap" TextAlignment="Center"/>
-                            </Button>
                         </WrapPanel>
+
+                        <Button Style="{StaticResource SquareButtonStyle}" Background="#FFE57373" Foreground="White"
+                                HorizontalAlignment="Center" Margin="0,10,0,0" Click="Close_Click">
+                            <TextBlock Text="Close" TextWrapping="Wrap" TextAlignment="Center"/>
+                        </Button>
                     </StackPanel>
-                </ScrollViewer>
             </Border>
 
             <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled"
@@ -228,8 +229,7 @@
                                                                     Tag="Done" ToolTip="Mark Done" Click="QuickMove_Click"/>
                                                             <Button Style="{StaticResource QuickActionButtonStyle}" Content="X" Background="#FFEF5350" Margin="0"
                                                                     ToolTip="Delete"
-                                                                    Command="{Binding DataContext.DeleteCardCommand, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                                    CommandParameter="{Binding}"/>
+                                                                    Click="DeleteQuickAction_Click"/>
                                                         </StackPanel>
                                                     </StackPanel>
                                                 </Border>

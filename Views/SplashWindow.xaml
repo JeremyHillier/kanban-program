@@ -6,12 +6,20 @@
         mc:Ignorable="d"
         WindowStyle="None" ResizeMode="NoResize" AllowsTransparency="True" Background="Transparent"
         WindowStartupLocation="CenterScreen" ShowInTaskbar="False" Topmost="True"
-        Height="180" Width="340">
-    <Border Background="#FF1E3A5F" CornerRadius="8" BorderBrush="#FF3E6491" BorderThickness="1">
+        Height="320" Width="480">
+    <Border CornerRadius="12" BorderBrush="#FF5B8AC4" BorderThickness="2">
+        <Border.Background>
+            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                <GradientStop Color="#FF16283F" Offset="0"/>
+                <GradientStop Color="#FF2C5282" Offset="0.55"/>
+                <GradientStop Color="#FF3E6491" Offset="1"/>
+            </LinearGradientBrush>
+        </Border.Background>
         <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-            <TextBlock Text="KANBAN TASK BOARD" FontSize="18" FontWeight="Bold" Foreground="White" HorizontalAlignment="Center"/>
-            <TextBlock x:Name="VersionText" FontSize="11" Foreground="#FFC0CBDA" HorizontalAlignment="Center" Margin="0,8,0,0"/>
-            <TextBlock Text="Loading..." FontSize="11" Foreground="#FFC0CBDA" HorizontalAlignment="Center" Margin="0,16,0,0"/>
+            <Image Source="/Assets/app.ico" Width="72" Height="72" Margin="0,0,0,16"/>
+            <TextBlock Text="KANBAN TASK BOARD" FontSize="24" FontWeight="Bold" Foreground="White" HorizontalAlignment="Center"/>
+            <TextBlock x:Name="VersionText" FontSize="12" Foreground="#FFC0CBDA" HorizontalAlignment="Center" Margin="0,8,0,0"/>
+            <TextBlock Text="Loading..." FontSize="12" Foreground="#FFC0CBDA" HorizontalAlignment="Center" Margin="0,20,0,0"/>
         </StackPanel>
     </Border>
 </Window>

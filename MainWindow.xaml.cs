@@ -107,6 +107,10 @@ public partial class MainWindow : Window
     {
         if (DataContext is not MainViewModel viewModel) return;
 
+        var result = MessageBox.Show(this, "Archive all tasks in the Done column? They'll be removed from the board but not deleted.",
+            "Confirm Archive", MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.Yes);
+        if (result != MessageBoxResult.Yes) return;
+
         viewModel.ArchiveDoneTasks();
     }
 
@@ -164,6 +168,17 @@ public partial class MainWindow : Window
         {
             EditCard(card, viewModel);
         }
+    }
+
+    private void DeleteQuickAction_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is not FrameworkElement { DataContext: CardViewModel card } || DataContext is not MainViewModel viewModel) return;
+
+        var result = MessageBox.Show(this, $"Delete \"{card.Title}\"? This cannot be undone.",
+            "Confirm Delete", MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.Yes);
+        if (result != MessageBoxResult.Yes) return;
+
+        viewModel.DeleteCardCommand.Execute(card);
     }
 
     private void QuickMove_Click(object sender, RoutedEventArgs e)
