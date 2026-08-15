@@ -212,6 +212,7 @@ public class MainViewModel : ObservableObject
                     ProjectName = ResolveProjectName(card.ProjectId),
                     GoalName = ResolveGoalName(card.GoalId),
                     Flags = ResolveFlags(card.FlagIds),
+                    SubTasks = card.SubTasks.Select(s => new SubTaskViewModel(s)).ToList(),
                     LastUpdated = card.LastUpdated
                 };
                 columnVm.Cards.Add(cardVm);
@@ -423,18 +424,21 @@ public class MainViewModel : ObservableObject
         Flags.Where(f => flagIds.Contains(f.Id)).ToList();
 
     public void AddCard(string title, ColumnViewModel column, ProjectViewModel? project, string priority, DateTime? dueDate, string? who,
-        bool isRecurring, string? recurrencePattern, GoalViewModel? goal, List<FlagViewModel>? flags = null)
+        bool isRecurring, string? recurrencePattern, GoalViewModel? goal, List<FlagViewModel>? flags = null, List<SubTaskViewModel>? subTasks = null)
     {
         if (string.IsNullOrWhiteSpace(title)) return;
 
         flags ??= [];
+        subTasks ??= [];
         var card = _db.AddCard(column.Id, title.Trim(), project?.Id, column.Name, priority, dueDate, who, isRecurring, recurrencePattern, goal?.Id);
         _db.SetCardFlags(card.Id, flags.Select(f => f.Id));
+        var subTaskItems = _db.SetCardSubTasks(card.Id, subTasks.Select(s => (s.Title, s.IsDone)).ToList());
         var cardVm = new CardViewModel(card)
         {
             ProjectName = project?.Name ?? "No Project",
             GoalName = goal?.Name ?? "No Goal",
             Flags = flags,
+            SubTasks = subTaskItems.Select(s => new SubTaskViewModel(s)).ToList(),
             LastUpdated = card.LastUpdated
         };
         column.Cards.Add(cardVm);
@@ -445,11 +449,12 @@ public class MainViewModel : ObservableObject
     }
 
     public void EditCard(CardViewModel card, string title, ColumnViewModel newColumn, ProjectViewModel? project, string priority, DateTime? dueDate, string? who,
-        bool isRecurring, string? recurrencePattern, GoalViewModel? goal, List<FlagViewModel>? flags = null)
+        bool isRecurring, string? recurrencePattern, GoalViewModel? goal, List<FlagViewModel>? flags = null, List<SubTaskViewModel>? subTasks = null)
     {
         if (string.IsNullOrWhiteSpace(title)) return;
 
         flags ??= [];
+        subTasks ??= [];
         card.Title = title.Trim();
         card.ProjectId = project?.Id;
         card.ProjectName = project?.Name ?? "No Project";
@@ -464,6 +469,8 @@ public class MainViewModel : ObservableObject
 
         card.LastUpdated = _db.UpdateCard(card.Id, card.Title, project?.Id, priority, dueDate, who, isRecurring, recurrencePattern, goal?.Id);
         _db.SetCardFlags(card.Id, flags.Select(f => f.Id));
+        var subTaskItems = _db.SetCardSubTasks(card.Id, subTasks.Select(s => (s.Title, s.IsDone)).ToList());
+        card.SubTasks = subTaskItems.Select(s => new SubTaskViewModel(s)).ToList();
 
         var sourceColumn = Columns.FirstOrDefault(c => c.Cards.Contains(card));
         if (sourceColumn is not null && sourceColumn != newColumn)
@@ -474,6 +481,13 @@ public class MainViewModel : ObservableObject
         RefreshWhoFilterOptions();
         card.IsVisible = MatchesFilters(card);
         ApplySort();
+    }
+
+    public void SetSubTaskDone(CardViewModel card, SubTaskViewModel subTask, bool isDone)
+    {
+        subTask.IsDone = isDone;
+        _db.SetSubTaskDone(subTask.Id, isDone);
+        card.RefreshSubTaskProgress();
     }
 
     public void AddProject(string name)
@@ -627,9 +641,12 @@ public class MainViewModel : ObservableObject
         var nextDueDate = CalculateNextDueDate(completedCard.DueDate ?? DateTime.Today, completedCard.RecurrencePattern!);
         var project = Projects.FirstOrDefault(p => p.Id == completedCard.ProjectId);
         var goal = Goals.FirstOrDefault(g => g.Id == completedCard.GoalId);
+        var freshSubTasks = completedCard.SubTasks
+            .Select(s => new SubTaskViewModel(new SubTaskItem { Title = s.Title, IsDone = false }))
+            .ToList();
 
         AddCard(completedCard.Title, toDoColumn, project, completedCard.Priority, nextDueDate, completedCard.Who,
-            true, completedCard.RecurrencePattern, goal, completedCard.Flags);
+            true, completedCard.RecurrencePattern, goal, completedCard.Flags, freshSubTasks);
     }
 
     private static DateTime CalculateNextDueDate(DateTime anchor, string pattern) => pattern switch

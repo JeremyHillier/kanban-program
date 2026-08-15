@@ -173,4 +173,34 @@ public class CardViewModel(CardItem model) : ObservableObject
     }
 
     public string FlagsDisplay => Flags.Count == 0 ? string.Empty : $"Flags: {string.Join(", ", Flags.Select(f => f.Name))}";
+
+    private List<SubTaskViewModel> _subTasks = [];
+    public List<SubTaskViewModel> SubTasks
+    {
+        get => _subTasks;
+        set
+        {
+            _subTasks = value;
+            OnPropertyChanged();
+            OnPropertyChanged(nameof(HasSubTasks));
+            OnPropertyChanged(nameof(SubTaskProgressDisplay));
+        }
+    }
+
+    public bool HasSubTasks => SubTasks.Count > 0;
+
+    public string SubTaskProgressDisplay
+    {
+        get
+        {
+            if (SubTasks.Count == 0) return string.Empty;
+            var done = SubTasks.Count(s => s.IsDone);
+            return $"Subtasks: {done}/{SubTasks.Count} ({done * 100 / SubTasks.Count}%)";
+        }
+    }
+
+    public void RefreshSubTaskProgress()
+    {
+        OnPropertyChanged(nameof(SubTaskProgressDisplay));
+    }
 }

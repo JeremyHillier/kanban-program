@@ -1,5 +1,7 @@
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
+using KanbanApp.Models;
 using KanbanApp.ViewModels;
 
 namespace KanbanApp.Views;
@@ -13,6 +15,7 @@ public partial class AddTaskWindow : Window
     public ProjectViewModel? SelectedProject { get; private set; }
     public GoalViewModel? SelectedGoal { get; private set; }
     public List<FlagViewModel> SelectedFlags { get; private set; } = [];
+    public List<SubTaskViewModel> SelectedSubTasks { get; private set; } = [];
     public string SelectedPriority { get; private set; } = "Normal";
     public DateTime? SelectedDueDate { get; private set; }
     public string? Who { get; private set; }
@@ -74,6 +77,11 @@ public partial class AddTaskWindow : Window
                 checkBox.IsChecked = true;
             }
         }
+
+        foreach (var subTask in cardToEdit.SubTasks)
+        {
+            AddSubTaskRow(subTask.Title, subTask.IsDone);
+        }
     }
 
     private void RebuildFlagCheckboxes(int? autoCheckFlagId = null)
@@ -92,9 +100,63 @@ public partial class AddTaskWindow : Window
                 Tag = flag,
                 IsChecked = checkedIds.Contains(flag.Id) || flag.Id == autoCheckFlagId,
                 Margin = new Thickness(0, 0, 16, 8),
-                Foreground = (System.Windows.Media.Brush)FindResource("PrimaryTextBrush")
+                Foreground = (Brush)FindResource("PrimaryTextBrush")
             });
         }
+    }
+
+    private void AddSubTaskRow(string title = "", bool isDone = false)
+    {
+        var row = new Grid { Margin = new Thickness(0, 0, 0, 6) };
+        row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+        row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+        row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+
+        var checkBox = new CheckBox
+        {
+            IsChecked = isDone,
+            VerticalAlignment = VerticalAlignment.Center,
+            Margin = new Thickness(0, 0, 8, 0)
+        };
+        Grid.SetColumn(checkBox, 0);
+
+        var textBox = new TextBox
+        {
+            Text = title,
+            Padding = new Thickness(6),
+            Background = (Brush)FindResource("InputBackgroundBrush"),
+            Foreground = (Brush)FindResource("PrimaryTextBrush"),
+            BorderBrush = (Brush)FindResource("CardBorderBrush")
+        };
+        Grid.SetColumn(textBox, 1);
+
+        var deleteButton = new Button
+        {
+            Content = "×",
+            Width = 26,
+            Height = 26,
+            Margin = new Thickness(6, 0, 0, 0),
+            Background = (Brush)FindResource("ButtonBackgroundBrush"),
+            Foreground = (Brush)FindResource("PrimaryTextBrush"),
+            ToolTip = "Remove sub-task"
+        };
+        Grid.SetColumn(deleteButton, 2);
+        deleteButton.Click += (_, _) => SubTasksPanel.Children.Remove(row);
+
+        row.Children.Add(checkBox);
+        row.Children.Add(textBox);
+        row.Children.Add(deleteButton);
+        SubTasksPanel.Children.Add(row);
+
+        if (string.IsNullOrEmpty(title))
+        {
+            textBox.Focus();
+        }
+    }
+
+    private void AddSubTaskRow_Click(object sender, RoutedEventArgs e)
+    {
+        AddSubTaskRow();
     }
 
     private void NewProject_Click(object sender, RoutedEventArgs e)
@@ -161,6 +223,16 @@ public partial class AddTaskWindow : Window
         SelectedFlags = FlagsPanel.Children.OfType<CheckBox>()
             .Where(cb => cb.IsChecked == true)
             .Select(cb => (FlagViewModel)cb.Tag)
+            .ToList();
+
+        SelectedSubTasks = SubTasksPanel.Children.OfType<Grid>()
+            .Select(row => new
+            {
+                Title = ((TextBox)row.Children[1]).Text.Trim(),
+                IsDone = ((CheckBox)row.Children[0]).IsChecked == true
+            })
+            .Where(s => !string.IsNullOrWhiteSpace(s.Title))
+            .Select(s => new SubTaskViewModel(new SubTaskItem { Title = s.Title, IsDone = s.IsDone }))
             .ToList();
 
         DialogResult = true;

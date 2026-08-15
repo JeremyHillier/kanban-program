@@ -232,6 +232,21 @@
                                                         <TextBlock Text="{Binding LastUpdatedDisplay}" FontSize="9" FontStyle="Italic"
                                                                    Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,3,0,0"/>
 
+                                                        <TextBlock Text="{Binding SubTaskProgressDisplay}" FontSize="10" FontWeight="SemiBold"
+                                                                   Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,5,0,0"
+                                                                   Visibility="{Binding HasSubTasks, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                                        <ItemsControl ItemsSource="{Binding SubTasks}" Tag="{Binding}" Margin="0,2,0,0"
+                                                                      Visibility="{Binding HasSubTasks, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                            <ItemsControl.ItemTemplate>
+                                                                <DataTemplate>
+                                                                    <CheckBox Content="{Binding Title}" IsChecked="{Binding IsDone, Mode=OneWay}"
+                                                                              FontSize="10" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,1,0,0"
+                                                                              Tag="{Binding RelativeSource={RelativeSource AncestorType=ItemsControl}, Path=Tag}"
+                                                                              Checked="SubTaskCheckBox_Changed" Unchecked="SubTaskCheckBox_Changed"/>
+                                                                </DataTemplate>
+                                                            </ItemsControl.ItemTemplate>
+                                                        </ItemsControl>
+
                                                         <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
                                                             <Button Style="{StaticResource QuickActionButtonStyle}" Content="T" Background="#FF42A5F5"
                                                                     Tag="To Do" ToolTip="Move to To Do" Click="QuickMove_Click"/>

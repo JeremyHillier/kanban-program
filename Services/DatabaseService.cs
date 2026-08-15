@@ -59,6 +59,13 @@ public class DatabaseService
                     FlagId INTEGER NOT NULL,
                     PRIMARY KEY (CardId, FlagId)
                 );
+                CREATE TABLE IF NOT EXISTS SubTasks (
+                    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    CardId INTEGER NOT NULL,
+                    Title TEXT NOT NULL,
+                    IsDone INTEGER NOT NULL DEFAULT 0,
+                    SortOrder INTEGER NOT NULL
+                );
                 CREATE TABLE IF NOT EXISTS Cards (
                     Id INTEGER PRIMARY KEY AUTOINCREMENT,
                     ColumnId INTEGER NOT NULL,
@@ -247,6 +254,28 @@ public class DatabaseService
             }
         }
 
+        using (var subCmd = connection.CreateCommand())
+        {
+            subCmd.CommandText = "SELECT Id, CardId, Title, IsDone, SortOrder FROM SubTasks ORDER BY CardId, SortOrder;";
+            using var reader = subCmd.ExecuteReader();
+            var byCard = result.ToDictionary(c => c.Id);
+            while (reader.Read())
+            {
+                var cardId = reader.GetInt32(1);
+                if (byCard.TryGetValue(cardId, out var card))
+                {
+                    card.SubTasks.Add(new SubTaskItem
+                    {
+                        Id = reader.GetInt32(0),
+                        CardId = cardId,
+                        Title = reader.GetString(2),
+                        IsDone = reader.GetInt32(3) != 0,
+                        SortOrder = reader.GetInt32(4)
+                    });
+                }
+            }
+        }
+
         return result;
     }
 
@@ -376,6 +405,49 @@ public class DatabaseService
             insertCmd.Parameters.AddWithValue("$flagId", flagId);
             insertCmd.ExecuteNonQuery();
         }
+    }
+
+    public List<SubTaskItem> SetCardSubTasks(int cardId, List<(string Title, bool IsDone)> subTasks)
+    {
+        using var connection = OpenConnection();
+
+        using (var clearCmd = connection.CreateCommand())
+        {
+            clearCmd.CommandText = "DELETE FROM SubTasks WHERE CardId = $cardId;";
+            clearCmd.Parameters.AddWithValue("$cardId", cardId);
+            clearCmd.ExecuteNonQuery();
+        }
+
+        var result = new List<SubTaskItem>();
+        var sortOrder = 0;
+        foreach (var (title, isDone) in subTasks)
+        {
+            using var insertCmd = connection.CreateCommand();
+            insertCmd.CommandText = """
+                INSERT INTO SubTasks (CardId, Title, IsDone, SortOrder) VALUES ($cardId, $title, $isDone, $sortOrder);
+                SELECT last_insert_rowid();
+                """;
+            insertCmd.Parameters.AddWithValue("$cardId", cardId);
+            insertCmd.Parameters.AddWithValue("$title", title);
+            insertCmd.Parameters.AddWithValue("$isDone", isDone ? 1 : 0);
+            insertCmd.Parameters.AddWithValue("$sortOrder", sortOrder);
+            var id = (long)insertCmd.ExecuteScalar()!;
+
+            result.Add(new SubTaskItem { Id = (int)id, CardId = cardId, Title = title, IsDone = isDone, SortOrder = sortOrder });
+            sortOrder++;
+        }
+
+        return result;
+    }
+
+    public void SetSubTaskDone(int subTaskId, bool isDone)
+    {
+        using var connection = OpenConnection();
+        using var cmd = connection.CreateCommand();
+        cmd.CommandText = "UPDATE SubTasks SET IsDone = $isDone WHERE Id = $id;";
+        cmd.Parameters.AddWithValue("$isDone", isDone ? 1 : 0);
+        cmd.Parameters.AddWithValue("$id", subTaskId);
+        cmd.ExecuteNonQuery();
     }
 
     private KanbanColumn AddColumn(string name, SqliteConnection connection)

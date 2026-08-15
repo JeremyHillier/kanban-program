@@ -59,7 +59,7 @@ public partial class MainWindow : Window
         {
             viewModel.AddCard(dialog.TaskDetails, dialog.SelectedColumn, dialog.SelectedProject,
                 dialog.SelectedPriority, dialog.SelectedDueDate, dialog.Who, dialog.IsRecurring, dialog.RecurrencePattern,
-                dialog.SelectedGoal, dialog.SelectedFlags);
+                dialog.SelectedGoal, dialog.SelectedFlags, dialog.SelectedSubTasks);
         }
     }
 
@@ -73,7 +73,7 @@ public partial class MainWindow : Window
         {
             viewModel.EditCard(card, dialog.TaskDetails, dialog.SelectedColumn, dialog.SelectedProject,
                 dialog.SelectedPriority, dialog.SelectedDueDate, dialog.Who, dialog.IsRecurring, dialog.RecurrencePattern,
-                dialog.SelectedGoal, dialog.SelectedFlags);
+                dialog.SelectedGoal, dialog.SelectedFlags, dialog.SelectedSubTasks);
         }
     }
 
@@ -206,6 +206,14 @@ public partial class MainWindow : Window
         if (result != MessageBoxResult.Yes) return;
 
         viewModel.DeleteCardCommand.Execute(card);
+    }
+
+    private void SubTaskCheckBox_Changed(object sender, RoutedEventArgs e)
+    {
+        if (sender is not System.Windows.Controls.CheckBox { DataContext: SubTaskViewModel subTask, Tag: CardViewModel card } checkBox) return;
+        if (DataContext is not MainViewModel viewModel) return;
+
+        viewModel.SetSubTaskDone(card, subTask, checkBox.IsChecked == true);
     }
 
     private void QuickMove_Click(object sender, RoutedEventArgs e)
