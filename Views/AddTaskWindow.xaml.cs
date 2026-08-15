@@ -19,6 +19,7 @@ public partial class AddTaskWindow : Window
     public string SelectedPriority { get; private set; } = "Normal";
     public DateTime? SelectedDueDate { get; private set; }
     public string? Who { get; private set; }
+    public string? Notes { get; private set; }
     public bool IsRecurring { get; private set; }
     public string? RecurrencePattern { get; private set; }
 
@@ -30,6 +31,7 @@ public partial class AddTaskWindow : Window
         ProjectComboBox.ItemsSource = viewModel.Projects;
         GoalComboBox.ItemsSource = viewModel.Goals;
         RebuildFlagCheckboxes();
+        UpdateSubTaskProgressLabel();
 
         DetailsTextBox.Focus();
     }
@@ -57,6 +59,7 @@ public partial class AddTaskWindow : Window
 
         DueDatePicker.SelectedDate = cardToEdit.DueDate;
         WhoTextBox.Text = cardToEdit.Who ?? string.Empty;
+        NotesTextBox.Text = cardToEdit.Notes ?? string.Empty;
 
         RecurringCheckBox.IsChecked = cardToEdit.IsRecurring;
         RecurrenceComboBox.Visibility = cardToEdit.IsRecurring ? Visibility.Visible : Visibility.Collapsed;
@@ -82,6 +85,7 @@ public partial class AddTaskWindow : Window
         {
             AddSubTaskRow(subTask.Title, subTask.IsDone);
         }
+        UpdateSubTaskProgressLabel();
     }
 
     private void RebuildFlagCheckboxes(int? autoCheckFlagId = null)
@@ -118,6 +122,8 @@ public partial class AddTaskWindow : Window
             VerticalAlignment = VerticalAlignment.Center,
             Margin = new Thickness(0, 0, 8, 0)
         };
+        checkBox.Checked += (_, _) => UpdateSubTaskProgressLabel();
+        checkBox.Unchecked += (_, _) => UpdateSubTaskProgressLabel();
         Grid.SetColumn(checkBox, 0);
 
         var textBox = new TextBox
@@ -141,7 +147,11 @@ public partial class AddTaskWindow : Window
             ToolTip = "Remove sub-task"
         };
         Grid.SetColumn(deleteButton, 2);
-        deleteButton.Click += (_, _) => SubTasksPanel.Children.Remove(row);
+        deleteButton.Click += (_, _) =>
+        {
+            SubTasksPanel.Children.Remove(row);
+            UpdateSubTaskProgressLabel();
+        };
 
         row.Children.Add(checkBox);
         row.Children.Add(textBox);
@@ -152,6 +162,24 @@ public partial class AddTaskWindow : Window
         {
             textBox.Focus();
         }
+
+        UpdateSubTaskProgressLabel();
+    }
+
+    private void UpdateSubTaskProgressLabel()
+    {
+        var checkBoxes = SubTasksPanel.Children.OfType<Grid>()
+            .Select(row => (CheckBox)row.Children[0])
+            .ToList();
+
+        if (checkBoxes.Count == 0)
+        {
+            SubTaskProgressLabel.Text = string.Empty;
+            return;
+        }
+
+        var done = checkBoxes.Count(cb => cb.IsChecked == true);
+        SubTaskProgressLabel.Text = $"{done}/{checkBoxes.Count} ({done * 100 / checkBoxes.Count}%)";
     }
 
     private void AddSubTaskRow_Click(object sender, RoutedEventArgs e)
@@ -170,14 +198,7 @@ public partial class AddTaskWindow : Window
 
     private void DeleteProject_Click(object sender, RoutedEventArgs e)
     {
-        if (ProjectComboBox.SelectedItem is not ProjectViewModel project) return;
-
-        var result = MessageBox.Show(this, $"Delete project \"{project.Name}\"? Tasks using it will show as having no project.",
-            "Confirm Delete", MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.Yes);
-        if (result != MessageBoxResult.Yes) return;
-
-        _viewModel.DeleteProject(project);
-        ProjectComboBox.SelectedIndex = ProjectComboBox.Items.Count > 0 ? 0 : -1;
+        ProjectComboBox.SelectedIndex = -1;
     }
 
     private void NewGoal_Click(object sender, RoutedEventArgs e)
@@ -191,13 +212,6 @@ public partial class AddTaskWindow : Window
 
     private void DeleteGoal_Click(object sender, RoutedEventArgs e)
     {
-        if (GoalComboBox.SelectedItem is not GoalViewModel goal) return;
-
-        var result = MessageBox.Show(this, $"Delete goal \"{goal.Name}\"? Tasks using it will show as having no goal.",
-            "Confirm Delete", MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.Yes);
-        if (result != MessageBoxResult.Yes) return;
-
-        _viewModel.DeleteGoal(goal);
         GoalComboBox.SelectedIndex = -1;
     }
 
@@ -225,7 +239,6 @@ public partial class AddTaskWindow : Window
         var details = DetailsTextBox.Text.Trim();
         if (string.IsNullOrWhiteSpace(details) ||
             CategoryComboBox.SelectedItem is not ColumnViewModel column ||
-            ProjectComboBox.SelectedItem is not ProjectViewModel project ||
             PriorityComboBox.SelectedItem is not ComboBoxItem priorityItem)
         {
             return;
@@ -233,11 +246,12 @@ public partial class AddTaskWindow : Window
 
         TaskDetails = details;
         SelectedColumn = column;
-        SelectedProject = project;
+        SelectedProject = ProjectComboBox.SelectedItem as ProjectViewModel;
         SelectedGoal = GoalComboBox.SelectedItem as GoalViewModel;
         SelectedPriority = (string)priorityItem.Content;
         SelectedDueDate = DueDatePicker.SelectedDate;
         Who = string.IsNullOrWhiteSpace(WhoTextBox.Text) ? null : WhoTextBox.Text.Trim();
+        Notes = string.IsNullOrWhiteSpace(NotesTextBox.Text) ? null : NotesTextBox.Text.Trim();
 
         IsRecurring = RecurringCheckBox.IsChecked == true;
         RecurrencePattern = IsRecurring && RecurrenceComboBox.SelectedItem is ComboBoxItem recurrenceItem

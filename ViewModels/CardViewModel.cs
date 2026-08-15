@@ -113,6 +113,17 @@ public class CardViewModel(CardItem model) : ObservableObject
 
     public string WhoDisplay => string.IsNullOrWhiteSpace(Who) ? string.Empty : $"Assigned: {Who}";
 
+    public string? Notes
+    {
+        get => Model.Notes;
+        set
+        {
+            if (Model.Notes == value) return;
+            Model.Notes = value;
+            OnPropertyChanged();
+        }
+    }
+
     public bool IsRecurring
     {
         get => Model.IsRecurring;
