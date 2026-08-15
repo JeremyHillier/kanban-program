@@ -186,6 +186,10 @@
                                     ToolTip="Open app settings">
                                 <TextBlock Text="Settings" TextWrapping="Wrap" TextAlignment="Center"/>
                             </Button>
+                            <Button Style="{StaticResource SquareButtonStyle}" Background="#FF26C6DA" Foreground="White" Click="Help_Click"
+                                    ToolTip="Open the help screen">
+                                <TextBlock Text="Help" TextWrapping="Wrap" TextAlignment="Center"/>
+                            </Button>
                         </WrapPanel>
 
                         <Button Style="{StaticResource SquareButtonStyle}" Background="#FFE57373" Foreground="White"

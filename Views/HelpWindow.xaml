@@ -1,0 +1,95 @@
+<Window x:Class="KanbanApp.Views.HelpWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        mc:Ignorable="d"
+        Title="Help" Height="640" Width="560"
+        WindowStartupLocation="CenterOwner" ResizeMode="NoResize"
+        ShowInTaskbar="False"
+        Background="{DynamicResource WindowBackgroundBrush}">
+    <Window.Resources>
+        <Style x:Key="HelpSectionHeaderStyle" TargetType="TextBlock">
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Margin" Value="0,16,0,4"/>
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
+        </Style>
+        <Style x:Key="HelpBodyStyle" TargetType="TextBlock">
+            <Setter Property="TextWrapping" Value="Wrap"/>
+            <Setter Property="Margin" Value="0,0,0,2"/>
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
+        </Style>
+        <Style x:Key="HelpBulletStyle" TargetType="TextBlock">
+            <Setter Property="TextWrapping" Value="Wrap"/>
+            <Setter Property="Margin" Value="12,2,0,0"/>
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
+        </Style>
+    </Window.Resources>
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0" Text="Kanban Task Board — Help" FontWeight="Bold" FontSize="18" Margin="0,0,0,4"
+                   Foreground="{DynamicResource PrimaryTextBrush}"/>
+
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Margin="0,4,0,8">
+            <StackPanel>
+                <TextBlock Style="{StaticResource HelpBodyStyle}" TextWrapping="Wrap">
+                    This board tracks tasks across five columns: To Do, In Progress, On Hold, Waiting, and Done.
+                    Drag a card to a different column, or use its quick-move buttons.
+                </TextBlock>
+
+                <TextBlock Text="Adding and editing tasks" Style="{StaticResource HelpSectionHeaderStyle}"/>
+                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Click New Task (Sort &amp; Add section) to create a task."/>
+                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Double-click any card to open it for editing."/>
+                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Each task can have a Category, Project, Goal, Priority, Due Date, Who it's assigned to, free-form Notes, Flags, and a checklist of Sub-tasks."/>
+                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Use the + and − buttons next to Project and Goal to add a new one on the fly, or clear the current selection without deleting the record."/>
+
+                <TextBlock Text="Sub-tasks" Style="{StaticResource HelpSectionHeaderStyle}"/>
+                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Add sub-task rows in the task dialog; each has its own checkbox."/>
+                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Sub-task checkboxes also appear directly on the card (in large card view) so you can tick them off without opening the dialog."/>
+                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• A done/total (percent) summary is shown both in the dialog and on the card."/>
+
+                <TextBlock Text="Recurring tasks" Style="{StaticResource HelpSectionHeaderStyle}"/>
+                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Mark a task Recurring and choose a pattern (Daily, Weekday, Weekly, Monthly, or Annually)."/>
+                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• When a recurring task is moved to Done, its next occurrence is created automatically in To Do with the same details and sub-task list — but with every sub-task unchecked."/>
+
+                <TextBlock Text="Quick actions on a card" Style="{StaticResource HelpSectionHeaderStyle}"/>
+                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• The letter buttons move a card directly to To Do, In Progress, On Hold, or Waiting; the check mark moves it to Done; the X deletes it."/>
+
+                <TextBlock Text="Organizing: Projects, Goals, Flags" Style="{StaticResource HelpSectionHeaderStyle}"/>
+                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Manage Projects / Manage Goals / Manage Flags let you add, rename, or permanently delete these from the whole board."/>
+                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Flags are multi-select tags — a task can carry more than one."/>
+
+                <TextBlock Text="Sorting and filtering" Style="{StaticResource HelpSectionHeaderStyle}"/>
+                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Sort by Project, Due Date, or Who reorders every column."/>
+                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• The Filter section narrows the board by Project, Priority, Who, Goal, Flag, Due date range, or a keyword search across titles."/>
+                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Clear Filters resets every filter back to All."/>
+
+                <TextBlock Text="Archiving and deleting" Style="{StaticResource HelpSectionHeaderStyle}"/>
+                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Archive Done moves every task currently in Done out of the board."/>
+                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Deleting a task never erases it — it's kept out of sight instead."/>
+                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Click View Archived to browse archived tasks; double-click the same button to browse deleted tasks."/>
+                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Either list lets you select a task and reactivate it back to To Do."/>
+
+                <TextBlock Text="Display options" Style="{StaticResource HelpSectionHeaderStyle}"/>
+                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Dark Mode / Light Mode switches the whole app's theme."/>
+                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Large Cards / Small Cards toggles how much detail each card shows, useful for fitting more on screen at once."/>
+
+                <TextBlock Text="Settings" Style="{StaticResource HelpSectionHeaderStyle}"/>
+                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Move the button panel to the right side of the board."/>
+                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Turn the startup splash screen on or off and set how long it stays visible."/>
+                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Change where the task database file is stored."/>
+                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Set default folders for future export and import features."/>
+            </StackPanel>
+        </ScrollViewer>
+
+        <Button Grid.Row="2" Content="Close" Width="90" Padding="0,6"
+                HorizontalAlignment="Right" IsCancel="True" IsDefault="True"
+                Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+    </Grid>
+</Window>

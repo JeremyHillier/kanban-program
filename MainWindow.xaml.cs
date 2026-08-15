@@ -114,6 +114,12 @@ public partial class MainWindow : Window
         dialog.ShowDialog();
     }
 
+    private void Help_Click(object sender, RoutedEventArgs e)
+    {
+        var dialog = new HelpWindow { Owner = this };
+        dialog.ShowDialog();
+    }
+
     private void ArchiveDone_Click(object sender, RoutedEventArgs e)
     {
         if (DataContext is not MainViewModel viewModel) return;

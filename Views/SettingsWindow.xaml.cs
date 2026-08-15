@@ -28,6 +28,9 @@ public partial class SettingsWindow : Window
             }
         }
         SplashDelayComboBox.SelectedItem ??= SplashDelayComboBox.Items[1];
+
+        ExportPathTextBox.Text = viewModel.DefaultExportPath;
+        ImportPathTextBox.Text = viewModel.DefaultImportPath;
     }
 
     private void ButtonsOnRightCheckBox_Changed(object sender, RoutedEventArgs e)
@@ -51,6 +54,44 @@ public partial class SettingsWindow : Window
         {
             _viewModel.SetSplashDelayMs(ms);
         }
+    }
+
+    private void ExportPathTextBox_LostFocus(object sender, RoutedEventArgs e)
+    {
+        _viewModel.SetDefaultExportPath(ExportPathTextBox.Text.Trim());
+    }
+
+    private void ImportPathTextBox_LostFocus(object sender, RoutedEventArgs e)
+    {
+        _viewModel.SetDefaultImportPath(ImportPathTextBox.Text.Trim());
+    }
+
+    private void BrowseExportPath_Click(object sender, RoutedEventArgs e)
+    {
+        var dialog = new Microsoft.Win32.OpenFolderDialog
+        {
+            Title = "Choose Default Export Folder",
+            InitialDirectory = Directory.Exists(ExportPathTextBox.Text) ? ExportPathTextBox.Text : null
+        };
+
+        if (dialog.ShowDialog() != true) return;
+
+        ExportPathTextBox.Text = dialog.FolderName;
+        _viewModel.SetDefaultExportPath(dialog.FolderName);
+    }
+
+    private void BrowseImportPath_Click(object sender, RoutedEventArgs e)
+    {
+        var dialog = new Microsoft.Win32.OpenFolderDialog
+        {
+            Title = "Choose Default Import Folder",
+            InitialDirectory = Directory.Exists(ImportPathTextBox.Text) ? ImportPathTextBox.Text : null
+        };
+
+        if (dialog.ShowDialog() != true) return;
+
+        ImportPathTextBox.Text = dialog.FolderName;
+        _viewModel.SetDefaultImportPath(dialog.FolderName);
     }
 
     private void ChangeLocation_Click(object sender, RoutedEventArgs e)

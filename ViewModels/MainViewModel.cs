@@ -82,6 +82,21 @@ public class MainViewModel : ObservableObject
         _db.SetSetting("SplashDelayMs", value.ToString());
     }
 
+    public string DefaultExportPath { get; private set; } = string.Empty;
+    public string DefaultImportPath { get; private set; } = string.Empty;
+
+    public void SetDefaultExportPath(string value)
+    {
+        DefaultExportPath = value;
+        _db.SetSetting("DefaultExportPath", value);
+    }
+
+    public void SetDefaultImportPath(string value)
+    {
+        DefaultImportPath = value;
+        _db.SetSetting("DefaultImportPath", value);
+    }
+
     private static readonly Brush[] ColumnPalette =
     [
         new SolidColorBrush(Color.FromRgb(0xE3, 0xE8, 0xEF)), // To Do - blue-gray
@@ -179,6 +194,9 @@ public class MainViewModel : ObservableObject
 
         ShowSplash = _db.GetSetting("ShowSplash") != "False";
         SplashDelayMs = int.TryParse(_db.GetSetting("SplashDelayMs"), out var delay) ? delay : 1800;
+
+        DefaultExportPath = _db.GetSetting("DefaultExportPath") ?? string.Empty;
+        DefaultImportPath = _db.GetSetting("DefaultImportPath") ?? string.Empty;
     }
 
     public void ToggleButtonPosition()
