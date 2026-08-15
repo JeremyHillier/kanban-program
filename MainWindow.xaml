@@ -40,9 +40,11 @@
         </Style>
 
         <Style x:Key="SmallSquareButtonStyle" BasedOn="{StaticResource SquareButtonStyle}" TargetType="Button">
-            <Setter Property="Width" Value="52"/>
-            <Setter Property="Height" Value="52"/>
-            <Setter Property="FontSize" Value="10"/>
+            <Setter Property="Width" Value="48"/>
+            <Setter Property="Height" Value="48"/>
+            <Setter Property="FontSize" Value="9"/>
+            <Setter Property="Margin" Value="0,0,4,0"/>
+            <Setter Property="Padding" Value="2"/>
         </Style>
 
         <Style x:Key="SectionHeaderStyle" TargetType="TextBlock">
@@ -77,7 +79,7 @@
                     BorderBrush="{StaticResource AccentPanelBorderBrush}" BorderThickness="1">
                     <StackPanel>
                         <TextBlock Text="Sort &amp; Add" Style="{StaticResource SectionHeaderStyle}" Margin="0,0,0,6"/>
-                        <WrapPanel>
+                        <StackPanel Orientation="Horizontal">
                             <Button Style="{StaticResource SmallSquareButtonStyle}" Background="#FF42A5F5" Foreground="White" Click="SortByProject_Click">
                                 <TextBlock Text="Sort by Project" TextWrapping="Wrap" TextAlignment="Center"/>
                             </Button>
@@ -87,10 +89,10 @@
                             <Button Style="{StaticResource SmallSquareButtonStyle}" Background="#FF7E57C2" Foreground="White" Click="SortByWho_Click">
                                 <TextBlock Text="Sort by Who" TextWrapping="Wrap" TextAlignment="Center"/>
                             </Button>
-                            <Button Style="{StaticResource SmallSquareButtonStyle}" Background="#FF66BB6A" Foreground="White" Click="AddTask_Click">
+                            <Button Style="{StaticResource SmallSquareButtonStyle}" Background="#FF66BB6A" Foreground="White" Margin="0" Click="AddTask_Click">
                                 <TextBlock Text="+ Add Task" TextWrapping="Wrap" TextAlignment="Center"/>
                             </Button>
-                        </WrapPanel>
+                        </StackPanel>
 
                         <Separator Margin="0,12,0,0"/>
 
