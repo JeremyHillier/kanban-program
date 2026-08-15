@@ -97,6 +97,28 @@ public class MainViewModel : ObservableObject
         _db.SetSetting("DefaultImportPath", value);
     }
 
+    public bool StartFullScreen { get; private set; }
+    public bool ConfirmDelete { get; private set; } = true;
+    public bool AddNoteOnComplete { get; private set; }
+
+    public void SetStartFullScreen(bool value)
+    {
+        StartFullScreen = value;
+        _db.SetSetting("StartFullScreen", value ? "True" : "False");
+    }
+
+    public void SetConfirmDelete(bool value)
+    {
+        ConfirmDelete = value;
+        _db.SetSetting("ConfirmDelete", value ? "True" : "False");
+    }
+
+    public void SetAddNoteOnComplete(bool value)
+    {
+        AddNoteOnComplete = value;
+        _db.SetSetting("AddNoteOnComplete", value ? "True" : "False");
+    }
+
     private static readonly Brush[] ColumnPalette =
     [
         new SolidColorBrush(Color.FromRgb(0xE3, 0xE8, 0xEF)), // To Do - blue-gray
@@ -197,6 +219,10 @@ public class MainViewModel : ObservableObject
 
         DefaultExportPath = _db.GetSetting("DefaultExportPath") ?? string.Empty;
         DefaultImportPath = _db.GetSetting("DefaultImportPath") ?? string.Empty;
+
+        StartFullScreen = _db.GetSetting("StartFullScreen") == "True";
+        ConfirmDelete = _db.GetSetting("ConfirmDelete") != "False";
+        AddNoteOnComplete = _db.GetSetting("AddNoteOnComplete") == "True";
     }
 
     public void ToggleButtonPosition()

@@ -36,6 +36,13 @@ public partial class ManageGoalsWindow : Window
     {
         if (sender is not FrameworkElement { DataContext: GoalViewModel goal }) return;
 
+        if (_viewModel.ConfirmDelete)
+        {
+            var result = MessageBox.Show(this, $"Delete goal \"{goal.Name}\"? Tasks using it will show as having no goal.",
+                "Confirm Delete", MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.Yes);
+            if (result != MessageBoxResult.Yes) return;
+        }
+
         _viewModel.DeleteGoal(goal);
     }
 }

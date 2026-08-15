@@ -36,6 +36,13 @@ public partial class ManageProjectsWindow : Window
     {
         if (sender is not FrameworkElement { DataContext: ProjectViewModel project }) return;
 
+        if (_viewModel.ConfirmDelete)
+        {
+            var result = MessageBox.Show(this, $"Delete project \"{project.Name}\"? Tasks using it will show as having no project.",
+                "Confirm Delete", MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.Yes);
+            if (result != MessageBoxResult.Yes) return;
+        }
+
         _viewModel.DeleteProject(project);
     }
 }

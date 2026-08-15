@@ -31,6 +31,25 @@ public partial class SettingsWindow : Window
 
         ExportPathTextBox.Text = viewModel.DefaultExportPath;
         ImportPathTextBox.Text = viewModel.DefaultImportPath;
+
+        StartFullScreenCheckBox.IsChecked = viewModel.StartFullScreen;
+        ConfirmDeleteCheckBox.IsChecked = viewModel.ConfirmDelete;
+        AddNoteOnCompleteCheckBox.IsChecked = viewModel.AddNoteOnComplete;
+    }
+
+    private void StartFullScreenCheckBox_Changed(object sender, RoutedEventArgs e)
+    {
+        _viewModel.SetStartFullScreen(StartFullScreenCheckBox.IsChecked == true);
+    }
+
+    private void ConfirmDeleteCheckBox_Changed(object sender, RoutedEventArgs e)
+    {
+        _viewModel.SetConfirmDelete(ConfirmDeleteCheckBox.IsChecked == true);
+    }
+
+    private void AddNoteOnCompleteCheckBox_Changed(object sender, RoutedEventArgs e)
+    {
+        _viewModel.SetAddNoteOnComplete(AddNoteOnCompleteCheckBox.IsChecked == true);
     }
 
     private void ButtonsOnRightCheckBox_Changed(object sender, RoutedEventArgs e)

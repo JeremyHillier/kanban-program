@@ -42,6 +42,10 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
@@ -55,7 +59,7 @@
         <CheckBox Grid.Row="3" x:Name="ShowSplashCheckBox" Content="Show splash screen on startup"
                   Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,8"
                   Checked="ShowSplashCheckBox_Changed" Unchecked="ShowSplashCheckBox_Changed"/>
-        <StackPanel Grid.Row="4" Orientation="Horizontal" Margin="0,0,0,20">
+        <StackPanel Grid.Row="4" Orientation="Horizontal" Margin="0,0,0,8">
             <TextBlock Text="Splash duration:" VerticalAlignment="Center" Margin="0,0,8,0"
                        Foreground="{DynamicResource PrimaryTextBrush}"/>
             <ComboBox x:Name="SplashDelayComboBox" Width="140" Padding="4"
@@ -68,24 +72,35 @@
                 <ComboBoxItem Content="4 seconds" Tag="4000"/>
             </ComboBox>
         </StackPanel>
+        <CheckBox Grid.Row="5" x:Name="StartFullScreenCheckBox" Content="Start in full screen"
+                  Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,20"
+                  Checked="StartFullScreenCheckBox_Changed" Unchecked="StartFullScreenCheckBox_Changed"/>
 
-        <TextBlock Grid.Row="5" Text="Data Storage" Style="{StaticResource SectionHeaderStyle}"/>
-        <TextBlock Grid.Row="6" Text="The task database is currently stored at:" Margin="0,0,0,4"
+        <TextBlock Grid.Row="6" Text="Behavior" Style="{StaticResource SectionHeaderStyle}"/>
+        <CheckBox Grid.Row="7" x:Name="ConfirmDeleteCheckBox" Content="Confirm before deleting a task, project, goal, or flag"
+                  Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,8"
+                  Checked="ConfirmDeleteCheckBox_Changed" Unchecked="ConfirmDeleteCheckBox_Changed"/>
+        <CheckBox Grid.Row="8" x:Name="AddNoteOnCompleteCheckBox" Content="Ask to add a note when a task is marked Done"
+                  Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,20"
+                  Checked="AddNoteOnCompleteCheckBox_Changed" Unchecked="AddNoteOnCompleteCheckBox_Changed"/>
+
+        <TextBlock Grid.Row="9" Text="Data Storage" Style="{StaticResource SectionHeaderStyle}"/>
+        <TextBlock Grid.Row="10" Text="The task database is currently stored at:" Margin="0,0,0,4"
                    Foreground="{DynamicResource PrimaryTextBrush}"/>
-        <TextBox Grid.Row="7" x:Name="DbPathTextBox" IsReadOnly="True" Padding="6" Margin="0,0,0,10"
+        <TextBox Grid.Row="11" x:Name="DbPathTextBox" IsReadOnly="True" Padding="6" Margin="0,0,0,10"
                  Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
                  BorderBrush="{DynamicResource CardBorderBrush}"/>
 
-        <StackPanel Grid.Row="8" VerticalAlignment="Top" Margin="0,0,0,20">
+        <StackPanel Grid.Row="12" VerticalAlignment="Top" Margin="0,0,0,20">
             <Button Content="Change Location..." Padding="10,6" HorizontalAlignment="Left" Click="ChangeLocation_Click"
                     Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
             <TextBlock Text="Changing the location moves the database file and restarts the app." FontSize="11" Margin="0,6,0,0"
                        Foreground="{DynamicResource SecondaryTextBrush}" TextWrapping="Wrap"/>
         </StackPanel>
 
-        <TextBlock Grid.Row="9" Text="Import / Export" Style="{StaticResource SectionHeaderStyle}"/>
-        <TextBlock Grid.Row="10" Text="Default Export Path" Style="{StaticResource FieldLabelStyle}"/>
-        <Grid Grid.Row="11" Margin="0,0,0,10">
+        <TextBlock Grid.Row="13" Text="Import / Export" Style="{StaticResource SectionHeaderStyle}"/>
+        <TextBlock Grid.Row="14" Text="Default Export Path" Style="{StaticResource FieldLabelStyle}"/>
+        <Grid Grid.Row="15" Margin="0,0,0,10">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
@@ -96,8 +111,8 @@
             <Button Grid.Column="1" Content="Browse..." Style="{StaticResource BrowseButtonStyle}" Click="BrowseExportPath_Click"/>
         </Grid>
 
-        <TextBlock Grid.Row="12" Text="Default Import Path" Style="{StaticResource FieldLabelStyle}"/>
-        <Grid Grid.Row="13">
+        <TextBlock Grid.Row="16" Text="Default Import Path" Style="{StaticResource FieldLabelStyle}"/>
+        <Grid Grid.Row="17">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
@@ -108,11 +123,11 @@
             <Button Grid.Column="1" Content="Browse..." Style="{StaticResource BrowseButtonStyle}" Click="BrowseImportPath_Click"/>
         </Grid>
 
-        <TextBlock Grid.Row="14" Text="These folders will be used once export/import support is added."
+        <TextBlock Grid.Row="18" Text="These folders will be used once export/import support is added."
                    FontSize="11" Margin="0,8,0,0"
                    Foreground="{DynamicResource SecondaryTextBrush}" TextWrapping="Wrap"/>
 
-        <Button Grid.Row="15" Content="Save &amp; Close" Width="120" Padding="0,6" Margin="0,16,0,0"
+        <Button Grid.Row="19" Content="Save &amp; Close" Width="120" Padding="0,6" Margin="0,16,0,0"
                 HorizontalAlignment="Right" IsCancel="True" IsDefault="True"
                 Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
     </Grid>

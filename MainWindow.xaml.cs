@@ -63,12 +63,13 @@ public partial class MainWindow : Window
         }
     }
 
-    private void EditCard(CardViewModel card, MainViewModel viewModel)
+    private void EditCard(CardViewModel card, MainViewModel viewModel, bool focusNotes = false)
     {
         var currentColumn = viewModel.Columns.FirstOrDefault(c => c.Cards.Contains(card));
         if (currentColumn is null) return;
 
         var dialog = new AddTaskWindow(viewModel, card, currentColumn) { Owner = this };
+        if (focusNotes) dialog.FocusNotesField();
         if (dialog.ShowDialog() == true && dialog.SelectedColumn is not null)
         {
             viewModel.EditCard(card, dialog.TaskDetails, dialog.SelectedColumn, dialog.SelectedProject,
@@ -214,9 +215,12 @@ public partial class MainWindow : Window
     {
         if (sender is not FrameworkElement { DataContext: CardViewModel card } || DataContext is not MainViewModel viewModel) return;
 
-        var result = MessageBox.Show(this, $"Delete \"{card.Title}\"? This cannot be undone.",
-            "Confirm Delete", MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.Yes);
-        if (result != MessageBoxResult.Yes) return;
+        if (viewModel.ConfirmDelete)
+        {
+            var result = MessageBox.Show(this, $"Delete \"{card.Title}\"? This cannot be undone.",
+                "Confirm Delete", MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.Yes);
+            if (result != MessageBoxResult.Yes) return;
+        }
 
         viewModel.DeleteCardCommand.Execute(card);
     }
@@ -242,6 +246,7 @@ public partial class MainWindow : Window
         if (targetColumn is null) return;
 
         viewModel.MoveCardCommand.Execute((card, targetColumn));
+        MaybePromptCompletionNote(card, targetColumn, viewModel);
     }
 
     private void Column_Drop(object sender, DragEventArgs e)
@@ -251,6 +256,18 @@ public partial class MainWindow : Window
             DataContext is MainViewModel viewModel)
         {
             viewModel.MoveCardCommand.Execute((card, column));
+            MaybePromptCompletionNote(card, column, viewModel);
         }
+    }
+
+    private void MaybePromptCompletionNote(CardViewModel card, ColumnViewModel targetColumn, MainViewModel viewModel)
+    {
+        if (targetColumn.Name != "Done" || !viewModel.AddNoteOnComplete) return;
+
+        var result = MessageBox.Show(this, $"Add a completion note to \"{card.Title}\"?",
+            "Task Complete", MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.Yes);
+        if (result != MessageBoxResult.Yes) return;
+
+        EditCard(card, viewModel, focusNotes: true);
     }
 }

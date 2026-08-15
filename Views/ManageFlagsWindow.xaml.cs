@@ -36,6 +36,13 @@ public partial class ManageFlagsWindow : Window
     {
         if (sender is not FrameworkElement { DataContext: FlagViewModel flag }) return;
 
+        if (_viewModel.ConfirmDelete)
+        {
+            var result = MessageBox.Show(this, $"Delete flag \"{flag.Name}\"? It will be removed from any tasks using it.",
+                "Confirm Delete", MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.Yes);
+            if (result != MessageBoxResult.Yes) return;
+        }
+
         _viewModel.DeleteFlag(flag);
     }
 }

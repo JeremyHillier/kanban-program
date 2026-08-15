@@ -36,6 +36,15 @@ public partial class AddTaskWindow : Window
         DetailsTextBox.Focus();
     }
 
+    public void FocusNotesField()
+    {
+        Loaded += (_, _) =>
+        {
+            NotesTextBox.Focus();
+            NotesTextBox.CaretIndex = NotesTextBox.Text.Length;
+        };
+    }
+
     public AddTaskWindow(MainViewModel viewModel, CardViewModel cardToEdit, ColumnViewModel currentColumn) : this(viewModel)
     {
         Title = "Edit Task";

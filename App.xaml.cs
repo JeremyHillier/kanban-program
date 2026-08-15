@@ -15,12 +15,14 @@ public partial class App : Application
 
         var showSplash = db.GetSetting("ShowSplash") != "False";
         var splashDelayMs = int.TryParse(db.GetSetting("SplashDelayMs"), out var delay) ? delay : 1800;
+        var startFullScreen = db.GetSetting("StartFullScreen") == "True";
 
         if (!showSplash)
         {
             var main = new MainWindow(db);
             MainWindow = main;
             main.Show();
+            if (startFullScreen) main.WindowState = WindowState.Maximized;
             return;
         }
 
@@ -35,6 +37,7 @@ public partial class App : Application
             var main = new MainWindow(db);
             MainWindow = main;
             main.Show();
+            if (startFullScreen) main.WindowState = WindowState.Maximized;
 
             splash.Close();
         };
