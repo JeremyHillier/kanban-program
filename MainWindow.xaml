@@ -90,7 +90,7 @@
                                 <TextBlock Text="Sort by Who" TextWrapping="Wrap" TextAlignment="Center"/>
                             </Button>
                             <Button Style="{StaticResource SmallSquareButtonStyle}" Background="#FF66BB6A" Foreground="White" Margin="0" Click="AddTask_Click">
-                                <TextBlock Text="+ Add Task" TextWrapping="Wrap" TextAlignment="Center"/>
+                                <TextBlock Text="New Task" TextWrapping="Wrap" TextAlignment="Center"/>
                             </Button>
                         </StackPanel>
 

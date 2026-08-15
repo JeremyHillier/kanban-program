@@ -16,10 +16,10 @@
             <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
         </Style>
         <Style x:Key="NewLinkButtonStyle" TargetType="Button">
-            <Setter Property="Width" Value="20"/>
-            <Setter Property="Height" Value="20"/>
+            <Setter Property="Width" Value="22"/>
+            <Setter Property="Height" Value="22"/>
             <Setter Property="Padding" Value="0"/>
-            <Setter Property="Margin" Value="6,6,0,0"/>
+            <Setter Property="Margin" Value="12,6,0,0"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Setter Property="HorizontalContentAlignment" Value="Center"/>
@@ -73,7 +73,7 @@
 
         <!-- Row: Project / Due Date -->
         <StackPanel Grid.Row="4" Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Bottom">
-            <TextBlock Text="Project" Style="{StaticResource FieldLabelStyle}" Margin="0,10,0,0" VerticalAlignment="Center"/>
+            <TextBlock Text="Project" Style="{StaticResource FieldLabelStyle}" Margin="0,14,0,0" VerticalAlignment="Center"/>
             <Button Content="+" Style="{StaticResource NewLinkButtonStyle}" ToolTip="Add new project" Click="NewProject_Click"/>
         </StackPanel>
         <TextBlock Grid.Row="4" Grid.Column="2" Text="Due Date" Style="{StaticResource FieldLabelStyle}"/>
@@ -95,7 +95,7 @@
 
         <!-- Row: Goal / Who -->
         <StackPanel Grid.Row="6" Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Bottom">
-            <TextBlock Text="Goal" Style="{StaticResource FieldLabelStyle}" Margin="0,10,0,0" VerticalAlignment="Center"/>
+            <TextBlock Text="Goal" Style="{StaticResource FieldLabelStyle}" Margin="0,14,0,0" VerticalAlignment="Center"/>
             <Button Content="+" Style="{StaticResource NewLinkButtonStyle}" ToolTip="Add new goal" Click="NewGoal_Click"/>
         </StackPanel>
         <TextBlock Grid.Row="6" Grid.Column="2" Text="Who" Style="{StaticResource FieldLabelStyle}"/>
