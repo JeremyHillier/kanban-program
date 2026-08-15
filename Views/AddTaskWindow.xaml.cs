@@ -168,6 +168,18 @@ public partial class AddTaskWindow : Window
         ProjectComboBox.SelectedItem = _viewModel.Projects.LastOrDefault();
     }
 
+    private void DeleteProject_Click(object sender, RoutedEventArgs e)
+    {
+        if (ProjectComboBox.SelectedItem is not ProjectViewModel project) return;
+
+        var result = MessageBox.Show(this, $"Delete project \"{project.Name}\"? Tasks using it will show as having no project.",
+            "Confirm Delete", MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.Yes);
+        if (result != MessageBoxResult.Yes) return;
+
+        _viewModel.DeleteProject(project);
+        ProjectComboBox.SelectedIndex = ProjectComboBox.Items.Count > 0 ? 0 : -1;
+    }
+
     private void NewGoal_Click(object sender, RoutedEventArgs e)
     {
         var dialog = new PromptWindow("New Goal", "Goal name") { Owner = this };
@@ -175,6 +187,18 @@ public partial class AddTaskWindow : Window
 
         _viewModel.AddGoal(dialog.Value);
         GoalComboBox.SelectedItem = _viewModel.Goals.LastOrDefault();
+    }
+
+    private void DeleteGoal_Click(object sender, RoutedEventArgs e)
+    {
+        if (GoalComboBox.SelectedItem is not GoalViewModel goal) return;
+
+        var result = MessageBox.Show(this, $"Delete goal \"{goal.Name}\"? Tasks using it will show as having no goal.",
+            "Confirm Delete", MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.Yes);
+        if (result != MessageBoxResult.Yes) return;
+
+        _viewModel.DeleteGoal(goal);
+        GoalComboBox.SelectedIndex = -1;
     }
 
     private void NewFlag_Click(object sender, RoutedEventArgs e)

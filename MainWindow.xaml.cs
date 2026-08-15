@@ -197,6 +197,13 @@ public partial class MainWindow : Window
         viewModel.ToggleTheme();
     }
 
+    private void ToggleCardSize_Click(object sender, RoutedEventArgs e)
+    {
+        if (DataContext is not MainViewModel viewModel) return;
+
+        viewModel.ToggleCardSize();
+    }
+
     private void DeleteQuickAction_Click(object sender, RoutedEventArgs e)
     {
         if (sender is not FrameworkElement { DataContext: CardViewModel card } || DataContext is not MainViewModel viewModel) return;

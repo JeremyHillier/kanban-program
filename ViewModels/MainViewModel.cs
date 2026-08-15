@@ -48,6 +48,23 @@ public class MainViewModel : ObservableObject
 
     public Dock SidebarDock => IsButtonsOnRight ? Dock.Right : Dock.Left;
 
+    private bool _isCompactCards;
+    public bool IsCompactCards
+    {
+        get => _isCompactCards;
+        set
+        {
+            if (SetField(ref _isCompactCards, value))
+            {
+                OnPropertyChanged(nameof(IsLargeCards));
+                OnPropertyChanged(nameof(CardSizeButtonLabel));
+            }
+        }
+    }
+
+    public bool IsLargeCards => !IsCompactCards;
+    public string CardSizeButtonLabel => IsCompactCards ? "Large Cards" : "Small Cards";
+
     public string CurrentDbPath => _db.DbPath;
 
     public bool ShowSplash { get; private set; }
@@ -158,6 +175,8 @@ public class MainViewModel : ObservableObject
 
         _isButtonsOnRight = _db.GetSetting("ButtonPosition") == "Right";
 
+        _isCompactCards = _db.GetSetting("CardSize") == "Compact";
+
         ShowSplash = _db.GetSetting("ShowSplash") != "False";
         SplashDelayMs = int.TryParse(_db.GetSetting("SplashDelayMs"), out var delay) ? delay : 1800;
     }
@@ -173,6 +192,12 @@ public class MainViewModel : ObservableObject
         IsDarkMode = !IsDarkMode;
         _db.SetSetting("Theme", IsDarkMode ? "Dark" : "Light");
         Theming.ThemeManager.Apply(IsDarkMode);
+    }
+
+    public void ToggleCardSize()
+    {
+        IsCompactCards = !IsCompactCards;
+        _db.SetSetting("CardSize", IsCompactCards ? "Compact" : "Large");
     }
 
     private void Load()
