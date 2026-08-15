@@ -17,9 +17,9 @@
         <SolidColorBrush x:Key="AccentPanelBorderBrush" Color="#FF3E6491"/>
 
         <Style x:Key="QuickActionButtonStyle" TargetType="Button">
-            <Setter Property="Width" Value="27"/>
-            <Setter Property="Height" Value="24"/>
-            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="Width" Value="22"/>
+            <Setter Property="Height" Value="20"/>
+            <Setter Property="FontSize" Value="10"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="Margin" Value="0,0,3,0"/>
@@ -37,6 +37,12 @@
             <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
             <Setter Property="BorderBrush" Value="{DynamicResource PanelBorderBrush}"/>
             <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+
+        <Style x:Key="SmallSquareButtonStyle" BasedOn="{StaticResource SquareButtonStyle}" TargetType="Button">
+            <Setter Property="Width" Value="52"/>
+            <Setter Property="Height" Value="52"/>
+            <Setter Property="FontSize" Value="10"/>
         </Style>
 
         <Style x:Key="SectionHeaderStyle" TargetType="TextBlock">
@@ -72,13 +78,16 @@
                     <StackPanel>
                         <TextBlock Text="Sort &amp; Add" Style="{StaticResource SectionHeaderStyle}" Margin="0,0,0,6"/>
                         <WrapPanel>
-                            <Button Style="{StaticResource SquareButtonStyle}" Background="#FF42A5F5" Foreground="White" Click="SortByProject_Click">
+                            <Button Style="{StaticResource SmallSquareButtonStyle}" Background="#FF42A5F5" Foreground="White" Click="SortByProject_Click">
                                 <TextBlock Text="Sort by Project" TextWrapping="Wrap" TextAlignment="Center"/>
                             </Button>
-                            <Button Style="{StaticResource SquareButtonStyle}" Background="#FF26A69A" Foreground="White" Click="SortByDueDate_Click">
+                            <Button Style="{StaticResource SmallSquareButtonStyle}" Background="#FF26A69A" Foreground="White" Click="SortByDueDate_Click">
                                 <TextBlock Text="Sort by Due Date" TextWrapping="Wrap" TextAlignment="Center"/>
                             </Button>
-                            <Button Style="{StaticResource SquareButtonStyle}" Background="#FF66BB6A" Foreground="White" Click="AddTask_Click">
+                            <Button Style="{StaticResource SmallSquareButtonStyle}" Background="#FF7E57C2" Foreground="White" Click="SortByWho_Click">
+                                <TextBlock Text="Sort by Who" TextWrapping="Wrap" TextAlignment="Center"/>
+                            </Button>
+                            <Button Style="{StaticResource SmallSquareButtonStyle}" Background="#FF66BB6A" Foreground="White" Click="AddTask_Click">
                                 <TextBlock Text="+ Add Task" TextWrapping="Wrap" TextAlignment="Center"/>
                             </Button>
                         </WrapPanel>
@@ -139,16 +148,16 @@
                             <Button Style="{StaticResource SquareButtonStyle}" Background="#FF5C6BC0" Foreground="White" Click="ManageProjects_Click">
                                 <TextBlock Text="Manage Projects" TextWrapping="Wrap" TextAlignment="Center"/>
                             </Button>
-                            <Button Style="{StaticResource SquareButtonStyle}" Background="#FF9575CD" Foreground="White" Click="ManageGoals_Click">
+                            <Button Style="{StaticResource SquareButtonStyle}" Background="#FF5C6BC0" Foreground="White" Click="ManageGoals_Click">
                                 <TextBlock Text="Manage Goals" TextWrapping="Wrap" TextAlignment="Center"/>
                             </Button>
-                            <Button Style="{StaticResource SquareButtonStyle}" Background="#FFEC407A" Foreground="White" Click="ManageFlags_Click">
+                            <Button Style="{StaticResource SquareButtonStyle}" Background="#FF5C6BC0" Foreground="White" Click="ManageFlags_Click">
                                 <TextBlock Text="Manage Flags" TextWrapping="Wrap" TextAlignment="Center"/>
                             </Button>
                             <Button Style="{StaticResource SquareButtonStyle}" Background="#FFFFA726" Foreground="White" Click="ArchiveDone_Click">
                                 <TextBlock Text="Archive Done" TextWrapping="Wrap" TextAlignment="Center"/>
                             </Button>
-                            <Button Style="{StaticResource SquareButtonStyle}" Background="#FF8D6E63" Foreground="White"
+                            <Button Style="{StaticResource SquareButtonStyle}" Background="#FFFFA726" Foreground="White"
                                     ToolTip="Click: View Archived. Double-click: View Deleted."
                                     PreviewMouseLeftButtonDown="ViewArchived_PreviewMouseDown">
                                 <TextBlock Text="View Archived" TextWrapping="Wrap" TextAlignment="Center"/>
@@ -189,7 +198,7 @@
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate>
                                                 <Border Background="{DynamicResource CardBackgroundBrush}" CornerRadius="4" Padding="8" Margin="0,0,0,6"
-                                                        BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="1"
+                                                        BorderBrush="{DynamicResource CardOutlineBrush}" BorderThickness="1.5"
                                                         Visibility="{Binding IsVisible, Converter={StaticResource BooleanToVisibilityConverter}}"
                                                         PreviewMouseLeftButtonDown="Card_PreviewMouseLeftButtonDown"
                                                         MouseMove="Card_MouseMove">
@@ -222,8 +231,6 @@
                                                                    Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,3,0,0"/>
 
                                                         <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
-                                                            <Button Style="{StaticResource QuickActionButtonStyle}" Content="E" Background="#FF607D8B"
-                                                                    ToolTip="Edit" Click="EditQuickAction_Click"/>
                                                             <Button Style="{StaticResource QuickActionButtonStyle}" Content="T" Background="#FF42A5F5"
                                                                     Tag="To Do" ToolTip="Move to To Do" Click="QuickMove_Click"/>
                                                             <Button Style="{StaticResource QuickActionButtonStyle}" Content="P" Background="#FF26A69A"

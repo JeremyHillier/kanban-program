@@ -62,8 +62,8 @@
                        Foreground="{DynamicResource SecondaryTextBrush}" TextWrapping="Wrap"/>
         </StackPanel>
 
-        <Button Grid.Row="9" Content="Close" Width="90" Padding="0,6" Margin="0,16,0,0"
-                HorizontalAlignment="Right" IsCancel="True"
+        <Button Grid.Row="9" Content="Save &amp; Close" Width="120" Padding="0,6" Margin="0,16,0,0"
+                HorizontalAlignment="Right" IsCancel="True" IsDefault="True"
                 Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
     </Grid>
 </Window>

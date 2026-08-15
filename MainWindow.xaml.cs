@@ -54,7 +54,7 @@ public partial class MainWindow : Window
     {
         if (DataContext is not MainViewModel viewModel) return;
 
-        var dialog = new AddTaskWindow(viewModel.Columns, viewModel.Projects, viewModel.Goals, viewModel.Flags) { Owner = this };
+        var dialog = new AddTaskWindow(viewModel) { Owner = this };
         if (dialog.ShowDialog() == true && dialog.SelectedColumn is not null)
         {
             viewModel.AddCard(dialog.TaskDetails, dialog.SelectedColumn, dialog.SelectedProject,
@@ -68,7 +68,7 @@ public partial class MainWindow : Window
         var currentColumn = viewModel.Columns.FirstOrDefault(c => c.Cards.Contains(card));
         if (currentColumn is null) return;
 
-        var dialog = new AddTaskWindow(viewModel.Columns, viewModel.Projects, viewModel.Goals, viewModel.Flags, card, currentColumn) { Owner = this };
+        var dialog = new AddTaskWindow(viewModel, card, currentColumn) { Owner = this };
         if (dialog.ShowDialog() == true && dialog.SelectedColumn is not null)
         {
             viewModel.EditCard(card, dialog.TaskDetails, dialog.SelectedColumn, dialog.SelectedProject,
@@ -176,6 +176,12 @@ public partial class MainWindow : Window
         viewModel.SortByDueDate();
     }
 
+    private void SortByWho_Click(object sender, RoutedEventArgs e)
+    {
+        if (DataContext is not MainViewModel viewModel) return;
+        viewModel.SortByWho();
+    }
+
     private void ClearFilters_Click(object sender, RoutedEventArgs e)
     {
         if (DataContext is MainViewModel viewModel)
@@ -189,14 +195,6 @@ public partial class MainWindow : Window
         if (DataContext is not MainViewModel viewModel) return;
 
         viewModel.ToggleTheme();
-    }
-
-    private void EditQuickAction_Click(object sender, RoutedEventArgs e)
-    {
-        if (sender is FrameworkElement { DataContext: CardViewModel card } && DataContext is MainViewModel viewModel)
-        {
-            EditCard(card, viewModel);
-        }
     }
 
     private void DeleteQuickAction_Click(object sender, RoutedEventArgs e)

@@ -5,11 +5,30 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         mc:Ignorable="d"
         x:Name="RootWindow"
-        Title="Add Task" Height="800" Width="380"
+        Title="Add Task" Height="460" Width="640" SizeToContent="Height"
         WindowStartupLocation="CenterOwner" ResizeMode="NoResize"
         ShowInTaskbar="False"
         Background="{DynamicResource WindowBackgroundBrush}">
+    <Window.Resources>
+        <Style x:Key="FieldLabelStyle" TargetType="TextBlock">
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Margin" Value="0,10,0,4"/>
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
+        </Style>
+        <Style x:Key="NewLinkButtonStyle" TargetType="Button">
+            <Setter Property="Padding" Value="6,0"/>
+            <Setter Property="Margin" Value="6,10,0,0"/>
+            <Setter Property="Background" Value="{DynamicResource ButtonBackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
+            <Setter Property="FontSize" Value="11"/>
+        </Style>
+    </Window.Resources>
     <Grid Margin="16">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="16"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -22,43 +41,22 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <TextBlock Grid.Row="0" Text="Task details" FontWeight="SemiBold" Margin="0,0,0,4" Foreground="{DynamicResource PrimaryTextBrush}"/>
-        <TextBox Grid.Row="1" x:Name="DetailsTextBox" Height="80" Padding="6"
+        <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Text="Task details" Style="{StaticResource FieldLabelStyle}" Margin="0,0,0,4"/>
+        <TextBox Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" x:Name="DetailsTextBox" Height="60" Padding="6"
                   TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Auto"
                   Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
                   BorderBrush="{DynamicResource CardBorderBrush}"/>
 
-        <TextBlock Grid.Row="2" Text="Category" FontWeight="SemiBold" Margin="0,12,0,4" Foreground="{DynamicResource PrimaryTextBrush}"/>
-        <ComboBox Grid.Row="3" x:Name="CategoryComboBox" Padding="6"
+        <!-- Row: Category / Priority -->
+        <TextBlock Grid.Row="2" Grid.Column="0" Text="Category" Style="{StaticResource FieldLabelStyle}"/>
+        <TextBlock Grid.Row="2" Grid.Column="2" Text="Priority" Style="{StaticResource FieldLabelStyle}"/>
+        <ComboBox Grid.Row="3" Grid.Column="0" x:Name="CategoryComboBox" Padding="6"
                   DisplayMemberPath="Name" SelectedIndex="0"
                   Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
                   BorderBrush="{DynamicResource CardBorderBrush}"/>
-
-        <TextBlock Grid.Row="4" Text="Project" FontWeight="SemiBold" Margin="0,12,0,4" Foreground="{DynamicResource PrimaryTextBrush}"/>
-        <ComboBox Grid.Row="5" x:Name="ProjectComboBox" Padding="6"
-                  DisplayMemberPath="Name" SelectedIndex="0"
-                  Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
-                  BorderBrush="{DynamicResource CardBorderBrush}"/>
-
-        <TextBlock Grid.Row="6" Text="Goal (optional)" FontWeight="SemiBold" Margin="0,12,0,4" Foreground="{DynamicResource PrimaryTextBrush}"/>
-        <ComboBox Grid.Row="7" x:Name="GoalComboBox" Padding="6" SelectedIndex="-1"
-                  DisplayMemberPath="Name"
-                  Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
-                  BorderBrush="{DynamicResource CardBorderBrush}"/>
-
-        <TextBlock Grid.Row="8" Text="Priority" FontWeight="SemiBold" Margin="0,12,0,4" Foreground="{DynamicResource PrimaryTextBrush}"/>
-        <ComboBox Grid.Row="9" x:Name="PriorityComboBox" Padding="6" SelectedIndex="2"
+        <ComboBox Grid.Row="3" Grid.Column="2" x:Name="PriorityComboBox" Padding="6" SelectedIndex="2"
                   Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
                   BorderBrush="{DynamicResource CardBorderBrush}">
             <ComboBoxItem Content="High"/>
@@ -66,8 +64,17 @@
             <ComboBoxItem Content="Normal"/>
         </ComboBox>
 
-        <TextBlock Grid.Row="10" Text="Due Date (optional)" FontWeight="SemiBold" Margin="0,12,0,4" Foreground="{DynamicResource PrimaryTextBrush}"/>
-        <Grid Grid.Row="11">
+        <!-- Row: Project / Due Date -->
+        <StackPanel Grid.Row="4" Grid.Column="0" Orientation="Horizontal">
+            <TextBlock Text="Project" Style="{StaticResource FieldLabelStyle}"/>
+            <Button Content="+ New" Style="{StaticResource NewLinkButtonStyle}" Click="NewProject_Click"/>
+        </StackPanel>
+        <TextBlock Grid.Row="4" Grid.Column="2" Text="Due Date" Style="{StaticResource FieldLabelStyle}"/>
+        <ComboBox Grid.Row="5" Grid.Column="0" x:Name="ProjectComboBox" Padding="6"
+                  DisplayMemberPath="Name" SelectedIndex="0"
+                  Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                  BorderBrush="{DynamicResource CardBorderBrush}"/>
+        <Grid Grid.Row="5" Grid.Column="2">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
@@ -79,28 +86,42 @@
                     Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
         </Grid>
 
-        <TextBlock Grid.Row="12" Text="Who" FontWeight="SemiBold" Margin="0,12,0,4" Foreground="{DynamicResource PrimaryTextBrush}"/>
-        <TextBox Grid.Row="13" x:Name="WhoTextBox" Padding="6"
-                 Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
-                 BorderBrush="{DynamicResource CardBorderBrush}"/>
-
-        <CheckBox Grid.Row="14" x:Name="RecurringCheckBox" Content="Recurring task" Margin="0,14,0,4"
-                  Foreground="{DynamicResource PrimaryTextBrush}"
-                  Checked="RecurringCheckBox_Changed" Unchecked="RecurringCheckBox_Changed"/>
-        <ComboBox Grid.Row="15" x:Name="RecurrenceComboBox" Padding="6" SelectedIndex="0" Visibility="Collapsed"
+        <!-- Row: Goal / Who -->
+        <StackPanel Grid.Row="6" Grid.Column="0" Orientation="Horizontal">
+            <TextBlock Text="Goal" Style="{StaticResource FieldLabelStyle}"/>
+            <Button Content="+ New" Style="{StaticResource NewLinkButtonStyle}" Click="NewGoal_Click"/>
+        </StackPanel>
+        <TextBlock Grid.Row="6" Grid.Column="2" Text="Who" Style="{StaticResource FieldLabelStyle}"/>
+        <ComboBox Grid.Row="7" Grid.Column="0" x:Name="GoalComboBox" Padding="6" SelectedIndex="-1" VerticalAlignment="Top"
+                  DisplayMemberPath="Name"
                   Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
-                  BorderBrush="{DynamicResource CardBorderBrush}">
-            <ComboBoxItem Content="Daily"/>
-            <ComboBoxItem Content="Weekday"/>
-            <ComboBoxItem Content="Weekly"/>
-            <ComboBoxItem Content="Monthly"/>
-            <ComboBoxItem Content="Annually"/>
-        </ComboBox>
+                  BorderBrush="{DynamicResource CardBorderBrush}"/>
+        <StackPanel Grid.Row="7" Grid.Column="2" VerticalAlignment="Top">
+            <TextBox x:Name="WhoTextBox" Padding="6"
+                     Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                     BorderBrush="{DynamicResource CardBorderBrush}"/>
 
-        <TextBlock Grid.Row="16" Text="Flags" FontWeight="SemiBold" Margin="0,14,0,4" Foreground="{DynamicResource PrimaryTextBrush}"/>
-        <WrapPanel Grid.Row="17" x:Name="FlagsPanel"/>
+            <CheckBox x:Name="RecurringCheckBox" Content="Recurring task" Margin="0,14,0,4"
+                      Foreground="{DynamicResource PrimaryTextBrush}"
+                      Checked="RecurringCheckBox_Changed" Unchecked="RecurringCheckBox_Changed"/>
+            <ComboBox x:Name="RecurrenceComboBox" Padding="6" SelectedIndex="0" Visibility="Collapsed"
+                      Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                      BorderBrush="{DynamicResource CardBorderBrush}">
+                <ComboBoxItem Content="Daily"/>
+                <ComboBoxItem Content="Weekday"/>
+                <ComboBoxItem Content="Weekly"/>
+                <ComboBoxItem Content="Monthly"/>
+                <ComboBoxItem Content="Annually"/>
+            </ComboBox>
+        </StackPanel>
 
-        <StackPanel Grid.Row="19" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,16,0,0">
+        <StackPanel Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="3" Orientation="Horizontal" Margin="0,14,0,4">
+            <TextBlock Text="Flags" Style="{StaticResource FieldLabelStyle}" Margin="0"/>
+            <Button Content="+ New" Style="{StaticResource NewLinkButtonStyle}" Margin="6,0,0,0" Click="NewFlag_Click"/>
+        </StackPanel>
+        <WrapPanel Grid.Row="9" Grid.Column="0" Grid.ColumnSpan="3" x:Name="FlagsPanel" VerticalAlignment="Top"/>
+
+        <StackPanel Grid.Row="10" Grid.Column="0" Grid.ColumnSpan="3" HorizontalAlignment="Right" Orientation="Horizontal" Margin="0,10,0,0">
             <Button Content="Cancel" Width="80" Padding="0,6" IsCancel="True"
                     Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
             <Button x:Name="SubmitButton" Content="Add Task" Width="90" Padding="0,6" Margin="8,0,0,0" IsDefault="True" Click="Add_Click"

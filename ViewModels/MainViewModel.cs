@@ -14,7 +14,7 @@ public class MainViewModel : ObservableObject
     public string AppVersion { get; } = $"v{Assembly.GetExecutingAssembly().GetName().Version?.ToString(3)}";
     public string CopyrightText { get; } = "© Jeremy Hillier Consulting Inc";
 
-    private enum SortMode { ProjectThenDueDate, DueDateThenProject }
+    private enum SortMode { ProjectThenDueDate, DueDateThenProject, WhoThenDueDate }
 
     private SortMode _currentSortMode = SortMode.ProjectThenDueDate;
 
@@ -238,15 +238,24 @@ public class MainViewModel : ObservableObject
         ApplySort();
     }
 
+    public void SortByWho()
+    {
+        _currentSortMode = SortMode.WhoThenDueDate;
+        ApplySort();
+    }
+
     private void ApplySort()
     {
         var updates = new List<(int, int)>();
 
         foreach (var column in Columns)
         {
-            var sorted = _currentSortMode == SortMode.DueDateThenProject
-                ? column.Cards.OrderBy(c => c.DueDate ?? DateTime.MaxValue).ThenBy(c => c.ProjectName, StringComparer.OrdinalIgnoreCase).ToList()
-                : column.Cards.OrderBy(c => c.ProjectName, StringComparer.OrdinalIgnoreCase).ThenBy(c => c.DueDate ?? DateTime.MaxValue).ToList();
+            var sorted = _currentSortMode switch
+            {
+                SortMode.DueDateThenProject => column.Cards.OrderBy(c => c.DueDate ?? DateTime.MaxValue).ThenBy(c => c.ProjectName, StringComparer.OrdinalIgnoreCase).ToList(),
+                SortMode.WhoThenDueDate => column.Cards.OrderBy(c => c.Who, StringComparer.OrdinalIgnoreCase).ThenBy(c => c.DueDate ?? DateTime.MaxValue).ToList(),
+                _ => column.Cards.OrderBy(c => c.ProjectName, StringComparer.OrdinalIgnoreCase).ThenBy(c => c.DueDate ?? DateTime.MaxValue).ToList()
+            };
 
             column.Cards.Clear();
             for (var i = 0; i < sorted.Count; i++)

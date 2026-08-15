@@ -6,6 +6,8 @@ namespace KanbanApp.Views;
 
 public partial class AddTaskWindow : Window
 {
+    private readonly MainViewModel _viewModel;
+
     public string TaskDetails { get; private set; } = string.Empty;
     public ColumnViewModel? SelectedColumn { get; private set; }
     public ProjectViewModel? SelectedProject { get; private set; }
@@ -17,30 +19,19 @@ public partial class AddTaskWindow : Window
     public bool IsRecurring { get; private set; }
     public string? RecurrencePattern { get; private set; }
 
-    public AddTaskWindow(IEnumerable<ColumnViewModel> columns, IEnumerable<ProjectViewModel> projects, IEnumerable<GoalViewModel> goals,
-        IEnumerable<FlagViewModel> flags)
+    public AddTaskWindow(MainViewModel viewModel)
     {
         InitializeComponent();
-        CategoryComboBox.ItemsSource = columns;
-        ProjectComboBox.ItemsSource = projects;
-        GoalComboBox.ItemsSource = goals;
-
-        foreach (var flag in flags)
-        {
-            FlagsPanel.Children.Add(new CheckBox
-            {
-                Content = flag.Name,
-                Tag = flag,
-                Margin = new Thickness(0, 0, 16, 8),
-                Foreground = (System.Windows.Media.Brush)FindResource("PrimaryTextBrush")
-            });
-        }
+        _viewModel = viewModel;
+        CategoryComboBox.ItemsSource = viewModel.Columns;
+        ProjectComboBox.ItemsSource = viewModel.Projects;
+        GoalComboBox.ItemsSource = viewModel.Goals;
+        RebuildFlagCheckboxes();
 
         DetailsTextBox.Focus();
     }
 
-    public AddTaskWindow(IEnumerable<ColumnViewModel> columns, IEnumerable<ProjectViewModel> projects, IEnumerable<GoalViewModel> goals,
-        IEnumerable<FlagViewModel> flags, CardViewModel cardToEdit, ColumnViewModel currentColumn) : this(columns, projects, goals, flags)
+    public AddTaskWindow(MainViewModel viewModel, CardViewModel cardToEdit, ColumnViewModel currentColumn) : this(viewModel)
     {
         Title = "Edit Task";
         SubmitButton.Content = "Save";
@@ -83,6 +74,54 @@ public partial class AddTaskWindow : Window
                 checkBox.IsChecked = true;
             }
         }
+    }
+
+    private void RebuildFlagCheckboxes(int? autoCheckFlagId = null)
+    {
+        var checkedIds = FlagsPanel.Children.OfType<CheckBox>()
+            .Where(cb => cb.IsChecked == true)
+            .Select(cb => ((FlagViewModel)cb.Tag).Id)
+            .ToHashSet();
+
+        FlagsPanel.Children.Clear();
+        foreach (var flag in _viewModel.Flags)
+        {
+            FlagsPanel.Children.Add(new CheckBox
+            {
+                Content = flag.Name,
+                Tag = flag,
+                IsChecked = checkedIds.Contains(flag.Id) || flag.Id == autoCheckFlagId,
+                Margin = new Thickness(0, 0, 16, 8),
+                Foreground = (System.Windows.Media.Brush)FindResource("PrimaryTextBrush")
+            });
+        }
+    }
+
+    private void NewProject_Click(object sender, RoutedEventArgs e)
+    {
+        var dialog = new PromptWindow("New Project", "Project name") { Owner = this };
+        if (dialog.ShowDialog() != true) return;
+
+        _viewModel.AddProject(dialog.Value);
+        ProjectComboBox.SelectedItem = _viewModel.Projects.LastOrDefault();
+    }
+
+    private void NewGoal_Click(object sender, RoutedEventArgs e)
+    {
+        var dialog = new PromptWindow("New Goal", "Goal name") { Owner = this };
+        if (dialog.ShowDialog() != true) return;
+
+        _viewModel.AddGoal(dialog.Value);
+        GoalComboBox.SelectedItem = _viewModel.Goals.LastOrDefault();
+    }
+
+    private void NewFlag_Click(object sender, RoutedEventArgs e)
+    {
+        var dialog = new PromptWindow("New Flag", "Flag name") { Owner = this };
+        if (dialog.ShowDialog() != true) return;
+
+        _viewModel.AddFlag(dialog.Value);
+        RebuildFlagCheckboxes(_viewModel.Flags.LastOrDefault()?.Id);
     }
 
     private void ClearDueDate_Click(object sender, RoutedEventArgs e)
