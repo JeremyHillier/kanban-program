@@ -121,6 +121,14 @@ public partial class MainWindow : Window
         dialog.ShowDialog();
     }
 
+    private void ReportBuilder_Click(object sender, RoutedEventArgs e)
+    {
+        if (DataContext is not MainViewModel viewModel) return;
+
+        var dialog = new ReportBuilderWindow(viewModel) { Owner = this };
+        dialog.ShowDialog();
+    }
+
     private void ArchiveDone_Click(object sender, RoutedEventArgs e)
     {
         if (DataContext is not MainViewModel viewModel) return;

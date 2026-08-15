@@ -76,6 +76,11 @@
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Click View Archived to browse archived tasks; double-click the same button to browse deleted tasks."/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Either list lets you select a task and reactivate it back to To Do."/>
 
+                <TextBlock Text="Report Builder" Style="{StaticResource HelpSectionHeaderStyle}"/>
+                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Click Report Builder to design a custom report: choose which columns to include, filter by Project, Priority, Who, Goal, Flag, or Due date, group the results, and choose whether to include Notes and Sub-tasks."/>
+                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Preview shows the report on screen; PDF saves it as a real PDF file."/>
+                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• PDFs are saved to the Default Export Path set in Settings, with a timestamped filename; if no Default Export Path is set, you'll be asked where to save."/>
+
                 <TextBlock Text="Display options" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Dark Mode / Light Mode switches the whole app's theme."/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Large Cards / Small Cards toggles how much detail each card shows, useful for fitting more on screen at once."/>
@@ -87,7 +92,7 @@
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Require a yes/no confirmation before deleting a task, project, goal, or flag — turn this off to delete immediately without asking."/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Ask whether to add a note whenever a task is moved to Done; answering yes opens the task with the cursor already in the Notes field."/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Change where the task database file is stored."/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Set default folders for future export and import features."/>
+                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Set a Default Export Path (used by Report Builder's PDF export) and a Default Import Path for future use."/>
             </StackPanel>
         </ScrollViewer>
 

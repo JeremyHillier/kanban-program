@@ -1,0 +1,118 @@
+<Window x:Class="KanbanApp.Views.ReportBuilderWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        mc:Ignorable="d"
+        Title="Report Builder" Height="600" Width="640" SizeToContent="Height"
+        WindowStartupLocation="CenterOwner" ResizeMode="NoResize"
+        ShowInTaskbar="False"
+        Background="{DynamicResource WindowBackgroundBrush}">
+    <Window.Resources>
+        <Style x:Key="FieldLabelStyle" TargetType="TextBlock">
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Margin" Value="0,12,0,4"/>
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
+        </Style>
+        <Style x:Key="SectionHeaderStyle" TargetType="TextBlock">
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Margin" Value="0,16,0,6"/>
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
+        </Style>
+    </Window.Resources>
+    <Grid Margin="16">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="16"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Text="Report title" Style="{StaticResource FieldLabelStyle}" Margin="0,0,0,4"/>
+        <TextBox Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" x:Name="ReportTitleTextBox" Padding="6" Text="Kanban Task Report"
+                  Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                  BorderBrush="{DynamicResource CardBorderBrush}"/>
+
+        <TextBlock Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" Text="Include Columns" Style="{StaticResource FieldLabelStyle}"/>
+        <WrapPanel Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3" x:Name="ColumnsPanel"/>
+
+        <TextBlock Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="3" Text="Filters" Style="{StaticResource SectionHeaderStyle}"/>
+
+        <TextBlock Grid.Row="5" Grid.Column="0" Text="Project" Style="{StaticResource FieldLabelStyle}"/>
+        <TextBlock Grid.Row="5" Grid.Column="2" Text="Priority" Style="{StaticResource FieldLabelStyle}"/>
+        <ComboBox Grid.Row="6" Grid.Column="0" x:Name="ProjectFilterComboBox" Padding="6"
+                  Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                  BorderBrush="{DynamicResource CardBorderBrush}"/>
+        <ComboBox Grid.Row="6" Grid.Column="2" x:Name="PriorityFilterComboBox" Padding="6"
+                  Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                  BorderBrush="{DynamicResource CardBorderBrush}"/>
+
+        <TextBlock Grid.Row="7" Grid.Column="0" Text="Who" Style="{StaticResource FieldLabelStyle}"/>
+        <TextBlock Grid.Row="7" Grid.Column="2" Text="Goal" Style="{StaticResource FieldLabelStyle}"/>
+        <ComboBox Grid.Row="8" Grid.Column="0" x:Name="WhoFilterComboBox" Padding="6"
+                  Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                  BorderBrush="{DynamicResource CardBorderBrush}"/>
+        <ComboBox Grid.Row="8" Grid.Column="2" x:Name="GoalFilterComboBox" Padding="6"
+                  Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                  BorderBrush="{DynamicResource CardBorderBrush}"/>
+
+        <TextBlock Grid.Row="9" Grid.Column="0" Text="Flag" Style="{StaticResource FieldLabelStyle}"/>
+        <TextBlock Grid.Row="9" Grid.Column="2" Text="Due" Style="{StaticResource FieldLabelStyle}"/>
+        <ComboBox Grid.Row="10" Grid.Column="0" x:Name="FlagFilterComboBox" Padding="6"
+                  Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                  BorderBrush="{DynamicResource CardBorderBrush}"/>
+        <ComboBox Grid.Row="10" Grid.Column="2" x:Name="DueFilterComboBox" Padding="6"
+                  Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                  BorderBrush="{DynamicResource CardBorderBrush}"/>
+
+        <Grid Grid.Row="11" Grid.Column="0" Grid.ColumnSpan="3">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <TextBlock Grid.Row="0" Text="Group by" Style="{StaticResource FieldLabelStyle}"/>
+            <ComboBox Grid.Row="1" x:Name="GroupByComboBox" Padding="6" HorizontalAlignment="Left" Width="200" SelectedIndex="0"
+                      Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                      BorderBrush="{DynamicResource CardBorderBrush}">
+                <ComboBoxItem Content="None" Tag="None"/>
+                <ComboBoxItem Content="Status" Tag="Status"/>
+                <ComboBoxItem Content="Project" Tag="Project"/>
+                <ComboBoxItem Content="Priority" Tag="Priority"/>
+                <ComboBoxItem Content="Who" Tag="Who"/>
+                <ComboBoxItem Content="Goal" Tag="Goal"/>
+            </ComboBox>
+
+            <CheckBox Grid.Row="2" x:Name="IncludeNotesCheckBox" Content="Include notes" Margin="0,14,0,4"
+                      Foreground="{DynamicResource PrimaryTextBrush}"/>
+            <CheckBox Grid.Row="3" x:Name="IncludeSubTasksCheckBox" Content="Include sub-tasks" Margin="0,0,0,4"
+                      Foreground="{DynamicResource PrimaryTextBrush}"/>
+
+            <StackPanel Grid.Row="4" HorizontalAlignment="Right" Orientation="Horizontal" Margin="0,18,0,0">
+                <Button Content="Close" Width="80" Padding="0,6" IsCancel="True"
+                        Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                <Button Content="Preview" Width="90" Padding="0,6" Margin="8,0,0,0" Click="Preview_Click"
+                        Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                <Button Content="PDF" Width="90" Padding="0,6" Margin="8,0,0,0" IsDefault="True" Click="Pdf_Click"
+                        Background="#FF66BB6A" Foreground="White"/>
+            </StackPanel>
+        </Grid>
+    </Grid>
+</Window>
