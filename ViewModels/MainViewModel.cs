@@ -50,6 +50,21 @@ public class MainViewModel : ObservableObject
 
     public string CurrentDbPath => _db.DbPath;
 
+    public bool ShowSplash { get; private set; }
+    public int SplashDelayMs { get; private set; }
+
+    public void SetShowSplash(bool value)
+    {
+        ShowSplash = value;
+        _db.SetSetting("ShowSplash", value ? "True" : "False");
+    }
+
+    public void SetSplashDelayMs(int value)
+    {
+        SplashDelayMs = value;
+        _db.SetSetting("SplashDelayMs", value.ToString());
+    }
+
     private static readonly Brush[] ColumnPalette =
     [
         new SolidColorBrush(Color.FromRgb(0xE3, 0xE8, 0xEF)), // To Do - blue-gray
@@ -62,11 +77,14 @@ public class MainViewModel : ObservableObject
     public ObservableCollection<ColumnViewModel> Columns { get; } = [];
     public ObservableCollection<ProjectViewModel> Projects { get; } = [];
     public ObservableCollection<GoalViewModel> Goals { get; } = [];
+    public ObservableCollection<FlagViewModel> Flags { get; } = [];
 
     public ObservableCollection<string> ProjectFilterOptions { get; } = ["All"];
     public ObservableCollection<string> PriorityFilterOptions { get; } = ["All", "High", "Medium", "Normal"];
     public ObservableCollection<string> WhoFilterOptions { get; } = ["All"];
     public ObservableCollection<string> GoalFilterOptions { get; } = ["All"];
+    public ObservableCollection<string> FlagFilterOptions { get; } = ["All"];
+    public ObservableCollection<string> DueFilterOptions { get; } = ["All", "Today", "Tomorrow", "Within a Week", "No Due Date"];
 
     private string _selectedProjectFilter = "All";
     public string SelectedProjectFilter
@@ -96,11 +114,18 @@ public class MainViewModel : ObservableObject
         set { if (SetField(ref _selectedGoalFilter, value ?? "All")) ApplyFilters(); }
     }
 
-    private string _dueFilter = string.Empty;
+    private string _selectedFlagFilter = "All";
+    public string SelectedFlagFilter
+    {
+        get => _selectedFlagFilter;
+        set { if (SetField(ref _selectedFlagFilter, value ?? "All")) ApplyFilters(); }
+    }
+
+    private string _dueFilter = "All";
     public string DueFilter
     {
         get => _dueFilter;
-        set { if (SetField(ref _dueFilter, value)) ApplyFilters(); }
+        set { if (SetField(ref _dueFilter, value ?? "All")) ApplyFilters(); }
     }
 
     private string _keywordFilter = string.Empty;
@@ -132,6 +157,9 @@ public class MainViewModel : ObservableObject
         Theming.ThemeManager.Apply(_isDarkMode);
 
         _isButtonsOnRight = _db.GetSetting("ButtonPosition") == "Right";
+
+        ShowSplash = _db.GetSetting("ShowSplash") != "False";
+        SplashDelayMs = int.TryParse(_db.GetSetting("SplashDelayMs"), out var delay) ? delay : 1800;
     }
 
     public void ToggleButtonPosition()
@@ -152,6 +180,7 @@ public class MainViewModel : ObservableObject
         Columns.Clear();
         Projects.Clear();
         Goals.Clear();
+        Flags.Clear();
 
         foreach (var project in _db.GetProjects())
         {
@@ -161,6 +190,11 @@ public class MainViewModel : ObservableObject
         foreach (var goal in _db.GetGoals())
         {
             Goals.Add(new GoalViewModel(goal));
+        }
+
+        foreach (var flag in _db.GetFlags())
+        {
+            Flags.Add(new FlagViewModel(flag));
         }
 
         var columns = _db.GetColumns();
@@ -177,6 +211,7 @@ public class MainViewModel : ObservableObject
                 {
                     ProjectName = ResolveProjectName(card.ProjectId),
                     GoalName = ResolveGoalName(card.GoalId),
+                    Flags = ResolveFlags(card.FlagIds),
                     LastUpdated = card.LastUpdated
                 };
                 columnVm.Cards.Add(cardVm);
@@ -187,6 +222,7 @@ public class MainViewModel : ObservableObject
         RefreshProjectFilterOptions();
         RefreshWhoFilterOptions();
         RefreshGoalFilterOptions();
+        RefreshFlagFilterOptions();
         ApplySort();
     }
 
@@ -223,59 +259,81 @@ public class MainViewModel : ObservableObject
         _db.UpdateSortOrders(updates);
     }
 
-    private void RefreshProjectFilterOptions()
+    private static void ReplaceFilterOptions(ObservableCollection<string> options, List<string> desired)
     {
-        var current = SelectedProjectFilter;
-        ProjectFilterOptions.Clear();
-        ProjectFilterOptions.Add("All");
-        foreach (var project in Projects.OrderBy(p => p.Name))
+        if (options.SequenceEqual(desired)) return;
+
+        for (var i = options.Count - 1; i >= 0; i--)
         {
-            ProjectFilterOptions.Add(project.Name);
+            if (!desired.Contains(options[i])) options.RemoveAt(i);
         }
 
-        if (!ProjectFilterOptions.Contains(current))
+        for (var i = 0; i < desired.Count; i++)
+        {
+            if (i < options.Count && options[i] == desired[i]) continue;
+
+            var existingIndex = options.IndexOf(desired[i]);
+            if (existingIndex >= 0)
+            {
+                options.Move(existingIndex, i);
+            }
+            else
+            {
+                options.Insert(i, desired[i]);
+            }
+        }
+    }
+
+    private void RefreshProjectFilterOptions()
+    {
+        var desired = new List<string> { "All" };
+        desired.AddRange(Projects.OrderBy(p => p.Name).Select(p => p.Name));
+        ReplaceFilterOptions(ProjectFilterOptions, desired);
+
+        if (!ProjectFilterOptions.Contains(SelectedProjectFilter))
         {
             SelectedProjectFilter = "All";
         }
-        OnPropertyChanged(nameof(SelectedProjectFilter));
     }
 
     private void RefreshWhoFilterOptions()
     {
-        var current = SelectedWhoFilter;
-        WhoFilterOptions.Clear();
-        WhoFilterOptions.Add("All");
-        foreach (var who in Columns.SelectMany(c => c.Cards)
-                     .Select(c => c.Who)
-                     .Where(w => !string.IsNullOrWhiteSpace(w))
-                     .Distinct()
-                     .OrderBy(w => w))
-        {
-            WhoFilterOptions.Add(who!);
-        }
+        var desired = new List<string> { "All" };
+        desired.AddRange(Columns.SelectMany(c => c.Cards)
+            .Select(c => c.Who)
+            .Where(w => !string.IsNullOrWhiteSpace(w))
+            .Distinct()
+            .OrderBy(w => w)!);
+        ReplaceFilterOptions(WhoFilterOptions, desired);
 
-        if (!WhoFilterOptions.Contains(current))
+        if (!WhoFilterOptions.Contains(SelectedWhoFilter))
         {
             SelectedWhoFilter = "All";
         }
-        OnPropertyChanged(nameof(SelectedWhoFilter));
     }
 
     private void RefreshGoalFilterOptions()
     {
-        var current = SelectedGoalFilter;
-        GoalFilterOptions.Clear();
-        GoalFilterOptions.Add("All");
-        foreach (var goal in Goals.OrderBy(g => g.Name))
-        {
-            GoalFilterOptions.Add(goal.Name);
-        }
+        var desired = new List<string> { "All" };
+        desired.AddRange(Goals.OrderBy(g => g.Name).Select(g => g.Name));
+        ReplaceFilterOptions(GoalFilterOptions, desired);
 
-        if (!GoalFilterOptions.Contains(current))
+        if (!GoalFilterOptions.Contains(SelectedGoalFilter))
         {
             SelectedGoalFilter = "All";
         }
-        OnPropertyChanged(nameof(SelectedGoalFilter));
+    }
+
+    private void RefreshFlagFilterOptions()
+    {
+        var desired = new List<string> { "All" };
+        desired.AddRange(Flags.OrderBy(f => f.Name).Select(f => f.Name));
+        ReplaceFilterOptions(FlagFilterOptions, desired);
+
+        if (!FlagFilterOptions.Contains(SelectedFlagFilter))
+        {
+            SelectedFlagFilter = "All";
+        }
     }
 
     public void ApplyFilters()
@@ -292,8 +350,9 @@ public class MainViewModel : ObservableObject
         if (SelectedPriorityFilter != "All" && card.Priority != SelectedPriorityFilter) return false;
         if (SelectedWhoFilter != "All" && (card.Who ?? string.Empty) != SelectedWhoFilter) return false;
         if (SelectedGoalFilter != "All" && card.GoalName != SelectedGoalFilter) return false;
+        if (SelectedFlagFilter != "All" && card.Flags.All(f => f.Name != SelectedFlagFilter)) return false;
 
-        if (!string.IsNullOrEmpty(DueFilter))
+        if (DueFilter != "All")
         {
             var today = DateTime.Today;
             var matchesDue = DueFilter switch
@@ -329,7 +388,9 @@ public class MainViewModel : ObservableObject
         OnPropertyChanged(nameof(SelectedWhoFilter));
         _selectedGoalFilter = "All";
         OnPropertyChanged(nameof(SelectedGoalFilter));
-        _dueFilter = string.Empty;
+        _selectedFlagFilter = "All";
+        OnPropertyChanged(nameof(SelectedFlagFilter));
+        _dueFilter = "All";
         OnPropertyChanged(nameof(DueFilter));
         _keywordFilter = string.Empty;
         OnPropertyChanged(nameof(KeywordFilter));
@@ -349,16 +410,22 @@ public class MainViewModel : ObservableObject
         return Goals.FirstOrDefault(g => g.Id == goalId)?.Name ?? "No Goal";
     }
 
+    private List<FlagViewModel> ResolveFlags(List<int> flagIds) =>
+        Flags.Where(f => flagIds.Contains(f.Id)).ToList();
+
     public void AddCard(string title, ColumnViewModel column, ProjectViewModel? project, string priority, DateTime? dueDate, string? who,
-        bool isRecurring, string? recurrencePattern, GoalViewModel? goal)
+        bool isRecurring, string? recurrencePattern, GoalViewModel? goal, List<FlagViewModel>? flags = null)
     {
         if (string.IsNullOrWhiteSpace(title)) return;
 
+        flags ??= [];
         var card = _db.AddCard(column.Id, title.Trim(), project?.Id, column.Name, priority, dueDate, who, isRecurring, recurrencePattern, goal?.Id);
+        _db.SetCardFlags(card.Id, flags.Select(f => f.Id));
         var cardVm = new CardViewModel(card)
         {
             ProjectName = project?.Name ?? "No Project",
             GoalName = goal?.Name ?? "No Goal",
+            Flags = flags,
             LastUpdated = card.LastUpdated
         };
         column.Cards.Add(cardVm);
@@ -369,10 +436,11 @@ public class MainViewModel : ObservableObject
     }
 
     public void EditCard(CardViewModel card, string title, ColumnViewModel newColumn, ProjectViewModel? project, string priority, DateTime? dueDate, string? who,
-        bool isRecurring, string? recurrencePattern, GoalViewModel? goal)
+        bool isRecurring, string? recurrencePattern, GoalViewModel? goal, List<FlagViewModel>? flags = null)
     {
         if (string.IsNullOrWhiteSpace(title)) return;
 
+        flags ??= [];
         card.Title = title.Trim();
         card.ProjectId = project?.Id;
         card.ProjectName = project?.Name ?? "No Project";
@@ -383,8 +451,10 @@ public class MainViewModel : ObservableObject
         card.RecurrencePattern = recurrencePattern;
         card.GoalId = goal?.Id;
         card.GoalName = goal?.Name ?? "No Goal";
+        card.Flags = flags;
 
         card.LastUpdated = _db.UpdateCard(card.Id, card.Title, project?.Id, priority, dueDate, who, isRecurring, recurrencePattern, goal?.Id);
+        _db.SetCardFlags(card.Id, flags.Select(f => f.Id));
 
         var sourceColumn = Columns.FirstOrDefault(c => c.Cards.Contains(card));
         if (sourceColumn is not null && sourceColumn != newColumn)
@@ -473,6 +543,45 @@ public class MainViewModel : ObservableObject
         RefreshGoalFilterOptions();
     }
 
+    public void AddFlag(string name)
+    {
+        if (string.IsNullOrWhiteSpace(name)) return;
+
+        var flag = _db.AddFlag(name.Trim());
+        Flags.Add(new FlagViewModel(flag));
+        RefreshFlagFilterOptions();
+    }
+
+    public void RenameFlag(FlagViewModel flag, string newName)
+    {
+        if (string.IsNullOrWhiteSpace(newName) || flag.Name == newName.Trim()) return;
+
+        flag.Name = newName.Trim();
+        _db.RenameFlag(flag.Id, flag.Name);
+        RefreshFlagFilterOptions();
+    }
+
+    public void DeleteFlag(FlagViewModel flag)
+    {
+        _db.DeleteFlag(flag.Id);
+        Flags.Remove(flag);
+
+        foreach (var card in Columns.SelectMany(c => c.Cards).Where(c => c.Flags.Contains(flag)))
+        {
+            card.Flags = card.Flags.Where(f => f.Id != flag.Id).ToList();
+        }
+
+        RefreshFlagFilterOptions();
+    }
+
+    public List<DeletedCardInfo> GetDeletedCards() => _db.GetDeletedCards();
+
+    public void ReactivateCard(int cardId, string cardTitle)
+    {
+        _db.ReactivateCard(cardId, cardTitle);
+        Load();
+    }
+
     private void DeleteCard(CardViewModel? card)
     {
         if (card is null) return;
@@ -511,7 +620,7 @@ public class MainViewModel : ObservableObject
         var goal = Goals.FirstOrDefault(g => g.Id == completedCard.GoalId);
 
         AddCard(completedCard.Title, toDoColumn, project, completedCard.Priority, nextDueDate, completedCard.Who,
-            true, completedCard.RecurrencePattern, goal);
+            true, completedCard.RecurrencePattern, goal, completedCard.Flags);
     }
 
     private static DateTime CalculateNextDueDate(DateTime anchor, string pattern) => pattern switch

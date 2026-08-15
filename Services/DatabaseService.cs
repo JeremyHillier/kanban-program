@@ -49,6 +49,16 @@ public class DatabaseService
                     Name TEXT NOT NULL,
                     SortOrder INTEGER NOT NULL
                 );
+                CREATE TABLE IF NOT EXISTS Flags (
+                    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    Name TEXT NOT NULL,
+                    SortOrder INTEGER NOT NULL
+                );
+                CREATE TABLE IF NOT EXISTS CardFlags (
+                    CardId INTEGER NOT NULL,
+                    FlagId INTEGER NOT NULL,
+                    PRIMARY KEY (CardId, FlagId)
+                );
                 CREATE TABLE IF NOT EXISTS Cards (
                     Id INTEGER PRIMARY KEY AUTOINCREMENT,
                     ColumnId INTEGER NOT NULL,
@@ -88,6 +98,7 @@ public class DatabaseService
         MigrateCardsColumn(connection, "IsRecurring", "INTEGER NOT NULL DEFAULT 0");
         MigrateCardsColumn(connection, "RecurrencePattern", "TEXT NULL");
         MigrateCardsColumn(connection, "GoalId", "INTEGER NULL");
+        MigrateCardsColumn(connection, "IsDeleted", "INTEGER NOT NULL DEFAULT 0");
 
         using (var checkCmd = connection.CreateCommand())
         {
@@ -195,29 +206,47 @@ public class DatabaseService
         using var cmd = connection.CreateCommand();
         cmd.CommandText = """
             SELECT Id, ColumnId, Title, SortOrder, ProjectId, Priority, DueDate, Who, LastUpdated, IsRecurring, RecurrencePattern, GoalId
-            FROM Cards WHERE IsArchived = 0 ORDER BY SortOrder;
+            FROM Cards WHERE IsArchived = 0 AND IsDeleted = 0 ORDER BY SortOrder;
             """;
 
         var result = new List<CardItem>();
-        using var reader = cmd.ExecuteReader();
-        while (reader.Read())
+        using (var reader = cmd.ExecuteReader())
         {
-            result.Add(new CardItem
+            while (reader.Read())
             {
-                Id = reader.GetInt32(0),
-                ColumnId = reader.GetInt32(1),
-                Title = reader.GetString(2),
-                SortOrder = reader.GetInt32(3),
-                ProjectId = reader.IsDBNull(4) ? null : reader.GetInt32(4),
-                Priority = reader.GetString(5),
-                DueDate = reader.IsDBNull(6) ? null : DateTime.Parse(reader.GetString(6)),
-                Who = reader.IsDBNull(7) ? null : reader.GetString(7),
-                LastUpdated = reader.IsDBNull(8) ? null : DateTime.Parse(reader.GetString(8)),
-                IsRecurring = reader.GetInt32(9) != 0,
-                RecurrencePattern = reader.IsDBNull(10) ? null : reader.GetString(10),
-                GoalId = reader.IsDBNull(11) ? null : reader.GetInt32(11)
-            });
+                result.Add(new CardItem
+                {
+                    Id = reader.GetInt32(0),
+                    ColumnId = reader.GetInt32(1),
+                    Title = reader.GetString(2),
+                    SortOrder = reader.GetInt32(3),
+                    ProjectId = reader.IsDBNull(4) ? null : reader.GetInt32(4),
+                    Priority = reader.GetString(5),
+                    DueDate = reader.IsDBNull(6) ? null : DateTime.Parse(reader.GetString(6)),
+                    Who = reader.IsDBNull(7) ? null : reader.GetString(7),
+                    LastUpdated = reader.IsDBNull(8) ? null : DateTime.Parse(reader.GetString(8)),
+                    IsRecurring = reader.GetInt32(9) != 0,
+                    RecurrencePattern = reader.IsDBNull(10) ? null : reader.GetString(10),
+                    GoalId = reader.IsDBNull(11) ? null : reader.GetInt32(11)
+                });
+            }
         }
+
+        using (var flagCmd = connection.CreateCommand())
+        {
+            flagCmd.CommandText = "SELECT CardId, FlagId FROM CardFlags;";
+            using var reader = flagCmd.ExecuteReader();
+            var byCard = result.ToDictionary(c => c.Id);
+            while (reader.Read())
+            {
+                var cardId = reader.GetInt32(0);
+                if (byCard.TryGetValue(cardId, out var card))
+                {
+                    card.FlagIds.Add(reader.GetInt32(1));
+                }
+            }
+        }
+
         return result;
     }
 
@@ -259,6 +288,94 @@ public class DatabaseService
             });
         }
         return result;
+    }
+
+    public List<Flag> GetFlags()
+    {
+        using var connection = OpenConnection();
+        using var cmd = connection.CreateCommand();
+        cmd.CommandText = "SELECT Id, Name, SortOrder FROM Flags ORDER BY SortOrder;";
+
+        var result = new List<Flag>();
+        using var reader = cmd.ExecuteReader();
+        while (reader.Read())
+        {
+            result.Add(new Flag
+            {
+                Id = reader.GetInt32(0),
+                Name = reader.GetString(1),
+                SortOrder = reader.GetInt32(2)
+            });
+        }
+        return result;
+    }
+
+    public Flag AddFlag(string name)
+    {
+        using var connection = OpenConnection();
+
+        using var maxCmd = connection.CreateCommand();
+        maxCmd.CommandText = "SELECT COALESCE(MAX(SortOrder), -1) + 1 FROM Flags;";
+        var sortOrder = (long)maxCmd.ExecuteScalar()!;
+
+        using var insertCmd = connection.CreateCommand();
+        insertCmd.CommandText = """
+            INSERT INTO Flags (Name, SortOrder) VALUES ($name, $sortOrder);
+            SELECT last_insert_rowid();
+            """;
+        insertCmd.Parameters.AddWithValue("$name", name);
+        insertCmd.Parameters.AddWithValue("$sortOrder", sortOrder);
+        var id = (long)insertCmd.ExecuteScalar()!;
+
+        return new Flag { Id = (int)id, Name = name, SortOrder = (int)sortOrder };
+    }
+
+    public void RenameFlag(int flagId, string name)
+    {
+        using var connection = OpenConnection();
+        using var cmd = connection.CreateCommand();
+        cmd.CommandText = "UPDATE Flags SET Name = $name WHERE Id = $id;";
+        cmd.Parameters.AddWithValue("$name", name);
+        cmd.Parameters.AddWithValue("$id", flagId);
+        cmd.ExecuteNonQuery();
+    }
+
+    public void DeleteFlag(int flagId)
+    {
+        using var connection = OpenConnection();
+
+        using (var clearCmd = connection.CreateCommand())
+        {
+            clearCmd.CommandText = "DELETE FROM CardFlags WHERE FlagId = $id;";
+            clearCmd.Parameters.AddWithValue("$id", flagId);
+            clearCmd.ExecuteNonQuery();
+        }
+
+        using var deleteCmd = connection.CreateCommand();
+        deleteCmd.CommandText = "DELETE FROM Flags WHERE Id = $id;";
+        deleteCmd.Parameters.AddWithValue("$id", flagId);
+        deleteCmd.ExecuteNonQuery();
+    }
+
+    public void SetCardFlags(int cardId, IEnumerable<int> flagIds)
+    {
+        using var connection = OpenConnection();
+
+        using (var clearCmd = connection.CreateCommand())
+        {
+            clearCmd.CommandText = "DELETE FROM CardFlags WHERE CardId = $cardId;";
+            clearCmd.Parameters.AddWithValue("$cardId", cardId);
+            clearCmd.ExecuteNonQuery();
+        }
+
+        foreach (var flagId in flagIds)
+        {
+            using var insertCmd = connection.CreateCommand();
+            insertCmd.CommandText = "INSERT INTO CardFlags (CardId, FlagId) VALUES ($cardId, $flagId);";
+            insertCmd.Parameters.AddWithValue("$cardId", cardId);
+            insertCmd.Parameters.AddWithValue("$flagId", flagId);
+            insertCmd.ExecuteNonQuery();
+        }
     }
 
     private KanbanColumn AddColumn(string name, SqliteConnection connection)
@@ -499,12 +616,46 @@ public class DatabaseService
     {
         using var connection = OpenConnection();
 
-        LogHistory(connection, cardId, cardTitle, "Deleted", $"Deleted from {columnName}");
+        using (var cmd = connection.CreateCommand())
+        {
+            cmd.CommandText = "UPDATE Cards SET IsDeleted = 1, LastUpdated = $lastUpdated WHERE Id = $id;";
+            cmd.Parameters.AddWithValue("$lastUpdated", NowStamp());
+            cmd.Parameters.AddWithValue("$id", cardId);
+            cmd.ExecuteNonQuery();
+        }
 
-        using var cmd = connection.CreateCommand();
-        cmd.CommandText = "DELETE FROM Cards WHERE Id = $id;";
-        cmd.Parameters.AddWithValue("$id", cardId);
-        cmd.ExecuteNonQuery();
+        LogHistory(connection, cardId, cardTitle, "Deleted", $"Deleted from {columnName}");
+    }
+
+    public DateTime ReactivateCard(int cardId, string cardTitle)
+    {
+        using var connection = OpenConnection();
+        var now = NowStamp();
+
+        using var toDoCmd = connection.CreateCommand();
+        toDoCmd.CommandText = "SELECT Id FROM Columns WHERE Name = 'To Do' LIMIT 1;";
+        var toDoColumnId = (long)toDoCmd.ExecuteScalar()!;
+
+        using var maxCmd = connection.CreateCommand();
+        maxCmd.CommandText = "SELECT COALESCE(MAX(SortOrder), -1) + 1 FROM Cards WHERE ColumnId = $columnId;";
+        maxCmd.Parameters.AddWithValue("$columnId", toDoColumnId);
+        var sortOrder = (long)maxCmd.ExecuteScalar()!;
+
+        using (var cmd = connection.CreateCommand())
+        {
+            cmd.CommandText = """
+                UPDATE Cards SET IsArchived = 0, IsDeleted = 0, ColumnId = $columnId, SortOrder = $sortOrder, LastUpdated = $lastUpdated
+                WHERE Id = $id;
+                """;
+            cmd.Parameters.AddWithValue("$columnId", toDoColumnId);
+            cmd.Parameters.AddWithValue("$sortOrder", sortOrder);
+            cmd.Parameters.AddWithValue("$lastUpdated", now);
+            cmd.Parameters.AddWithValue("$id", cardId);
+            cmd.ExecuteNonQuery();
+        }
+
+        LogHistory(connection, cardId, cardTitle, "Reactivated", "Moved to To Do");
+        return DateTime.Parse(now);
     }
 
     public void ArchiveCard(int cardId, string cardTitle, string columnName)
@@ -526,12 +677,12 @@ public class DatabaseService
         using var connection = OpenConnection();
         using var cmd = connection.CreateCommand();
         cmd.CommandText = """
-            SELECT c.Title, col.Name, COALESCE(p.Name, 'No Project'),
+            SELECT c.Id, c.Title, col.Name, COALESCE(p.Name, 'No Project'),
                 (SELECT MAX(h.Timestamp) FROM CardHistory h WHERE h.CardId = c.Id AND h.EventType = 'Archived')
             FROM Cards c
             JOIN Columns col ON col.Id = c.ColumnId
             LEFT JOIN Projects p ON p.Id = c.ProjectId
-            WHERE c.IsArchived = 1
+            WHERE c.IsArchived = 1 AND c.IsDeleted = 0
             ORDER BY c.Id DESC;
             """;
 
@@ -541,10 +692,41 @@ public class DatabaseService
         {
             result.Add(new ArchivedCardInfo
             {
-                Title = reader.GetString(0),
-                ColumnName = reader.GetString(1),
-                ProjectName = reader.GetString(2),
-                ArchivedAt = reader.IsDBNull(3) ? "Unknown" : reader.GetString(3)
+                Id = reader.GetInt32(0),
+                Title = reader.GetString(1),
+                ColumnName = reader.GetString(2),
+                ProjectName = reader.GetString(3),
+                ArchivedAt = reader.IsDBNull(4) ? "Unknown" : reader.GetString(4)
+            });
+        }
+        return result;
+    }
+
+    public List<DeletedCardInfo> GetDeletedCards()
+    {
+        using var connection = OpenConnection();
+        using var cmd = connection.CreateCommand();
+        cmd.CommandText = """
+            SELECT c.Id, c.Title, col.Name, COALESCE(p.Name, 'No Project'),
+                (SELECT MAX(h.Timestamp) FROM CardHistory h WHERE h.CardId = c.Id AND h.EventType = 'Deleted')
+            FROM Cards c
+            JOIN Columns col ON col.Id = c.ColumnId
+            LEFT JOIN Projects p ON p.Id = c.ProjectId
+            WHERE c.IsDeleted = 1
+            ORDER BY c.Id DESC;
+            """;
+
+        var result = new List<DeletedCardInfo>();
+        using var reader = cmd.ExecuteReader();
+        while (reader.Read())
+        {
+            result.Add(new DeletedCardInfo
+            {
+                Id = reader.GetInt32(0),
+                Title = reader.GetString(1),
+                ColumnName = reader.GetString(2),
+                ProjectName = reader.GetString(3),
+                DeletedAt = reader.IsDBNull(4) ? "Unknown" : reader.GetString(4)
             });
         }
         return result;

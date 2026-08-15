@@ -19,6 +19,7 @@
             <Image Source="/Assets/app.ico" Width="72" Height="72" Margin="0,0,0,16"/>
             <TextBlock Text="KANBAN TASK BOARD" FontSize="24" FontWeight="Bold" Foreground="White" HorizontalAlignment="Center"/>
             <TextBlock x:Name="VersionText" FontSize="12" Foreground="#FFC0CBDA" HorizontalAlignment="Center" Margin="0,8,0,0"/>
+            <TextBlock x:Name="CopyrightText" FontSize="11" Foreground="#FFC0CBDA" HorizontalAlignment="Center" Margin="0,4,0,0"/>
             <TextBlock Text="Loading..." FontSize="12" Foreground="#FFC0CBDA" HorizontalAlignment="Center" Margin="0,20,0,0"/>
         </StackPanel>
     </Border>

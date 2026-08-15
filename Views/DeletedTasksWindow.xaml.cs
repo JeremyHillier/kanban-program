@@ -5,23 +5,23 @@ using KanbanApp.ViewModels;
 
 namespace KanbanApp.Views;
 
-public partial class ArchivedTasksWindow : Window
+public partial class DeletedTasksWindow : Window
 {
     private readonly MainViewModel _viewModel;
-    private readonly ObservableCollection<ArchivedCardInfo> _items;
+    private readonly ObservableCollection<DeletedCardInfo> _items;
 
-    public ArchivedTasksWindow(MainViewModel viewModel, List<ArchivedCardInfo> archivedCards)
+    public DeletedTasksWindow(MainViewModel viewModel, List<DeletedCardInfo> deletedCards)
     {
         InitializeComponent();
         _viewModel = viewModel;
-        _items = new ObservableCollection<ArchivedCardInfo>(archivedCards);
-        ArchivedList.ItemsSource = _items;
+        _items = new ObservableCollection<DeletedCardInfo>(deletedCards);
+        DeletedList.ItemsSource = _items;
         EmptyStateText.Visibility = _items.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
     }
 
     private void Reactivate_Click(object sender, RoutedEventArgs e)
     {
-        if (ArchivedList.SelectedItem is not ArchivedCardInfo selected)
+        if (DeletedList.SelectedItem is not DeletedCardInfo selected)
         {
             MessageBox.Show(this, "Select a task to reactivate first.", "No Task Selected", MessageBoxButton.OK, MessageBoxImage.Information);
             return;

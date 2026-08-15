@@ -17,6 +17,17 @@ public partial class SettingsWindow : Window
 
         ButtonsOnRightCheckBox.IsChecked = viewModel.IsButtonsOnRight;
         DbPathTextBox.Text = viewModel.CurrentDbPath;
+
+        ShowSplashCheckBox.IsChecked = viewModel.ShowSplash;
+        foreach (System.Windows.Controls.ComboBoxItem item in SplashDelayComboBox.Items)
+        {
+            if (item.Tag is string tag && int.TryParse(tag, out var ms) && ms == viewModel.SplashDelayMs)
+            {
+                SplashDelayComboBox.SelectedItem = item;
+                break;
+            }
+        }
+        SplashDelayComboBox.SelectedItem ??= SplashDelayComboBox.Items[1];
     }
 
     private void ButtonsOnRightCheckBox_Changed(object sender, RoutedEventArgs e)
@@ -25,6 +36,20 @@ public partial class SettingsWindow : Window
         if (wantRight != _viewModel.IsButtonsOnRight)
         {
             _viewModel.ToggleButtonPosition();
+        }
+    }
+
+    private void ShowSplashCheckBox_Changed(object sender, RoutedEventArgs e)
+    {
+        _viewModel.SetShowSplash(ShowSplashCheckBox.IsChecked == true);
+    }
+
+    private void SplashDelayComboBox_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+    {
+        if (SplashDelayComboBox.SelectedItem is System.Windows.Controls.ComboBoxItem { Tag: string tag } &&
+            int.TryParse(tag, out var ms))
+        {
+            _viewModel.SetSplashDelayMs(ms);
         }
     }
 

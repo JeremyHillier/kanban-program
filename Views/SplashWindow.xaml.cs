@@ -9,5 +9,6 @@ public partial class SplashWindow : Window
     {
         InitializeComponent();
         VersionText.Text = $"v{Assembly.GetExecutingAssembly().GetName().Version?.ToString(3)}";
+        CopyrightText.Text = "© Jeremy Hillier Consulting Inc";
     }
 }

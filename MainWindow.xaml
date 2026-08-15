@@ -51,7 +51,7 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <Border Grid.Row="0" Padding="16,20" Margin="0,0,0,10" CornerRadius="6"
+        <Border Grid.Row="0" Padding="16,6" Margin="0,0,0,10" CornerRadius="6"
                 Background="{StaticResource AccentPanelBrush}" BorderBrush="{StaticResource AccentPanelBorderBrush}" BorderThickness="1">
             <Grid>
                 <TextBlock Text="KANBAN TASK BOARD" FontSize="36" FontWeight="Bold" Foreground="White"
@@ -85,51 +85,50 @@
 
                         <Separator Margin="0,12,0,0"/>
 
-                        <TextBlock Text="Filter" Style="{StaticResource SectionHeaderStyle}"/>
-                        <TextBlock Text="Project Filter" FontWeight="Bold" Foreground="White" Margin="0,0,0,4"/>
+                        <TextBlock Text="Filter" Style="{StaticResource SectionHeaderStyle}" Margin="0,10,0,4"/>
+
+                        <TextBlock Text="Project" FontWeight="Bold" FontSize="11" Foreground="White" Margin="0,0,0,2"/>
                         <ComboBox ItemsSource="{Binding ProjectFilterOptions}" SelectedItem="{Binding SelectedProjectFilter, Mode=TwoWay}"
-                                  Padding="6" Margin="0,0,0,12"
+                                  Padding="4" Margin="0,0,0,6"
                                   Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
                                   BorderBrush="{DynamicResource CardBorderBrush}"/>
 
-                        <TextBlock Text="Priority Filter" FontWeight="Bold" Foreground="White" Margin="0,0,0,4"/>
+                        <TextBlock Text="Priority" FontWeight="Bold" FontSize="11" Foreground="White" Margin="0,0,0,2"/>
                         <ComboBox ItemsSource="{Binding PriorityFilterOptions}" SelectedItem="{Binding SelectedPriorityFilter, Mode=TwoWay}"
-                                  Padding="6" Margin="0,0,0,12"
+                                  Padding="4" Margin="0,0,0,6"
                                   Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
                                   BorderBrush="{DynamicResource CardBorderBrush}"/>
 
-                        <TextBlock Text="Who Filter" FontWeight="Bold" Foreground="White" Margin="0,0,0,4"/>
+                        <TextBlock Text="Who" FontWeight="Bold" FontSize="11" Foreground="White" Margin="0,0,0,2"/>
                         <ComboBox ItemsSource="{Binding WhoFilterOptions}" SelectedItem="{Binding SelectedWhoFilter, Mode=TwoWay}"
-                                  Padding="6" Margin="0,0,0,12"
+                                  Padding="4" Margin="0,0,0,6"
                                   Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
                                   BorderBrush="{DynamicResource CardBorderBrush}"/>
 
-                        <TextBlock Text="Goal Filter" FontWeight="Bold" Foreground="White" Margin="0,0,0,4"/>
+                        <TextBlock Text="Goal" FontWeight="Bold" FontSize="11" Foreground="White" Margin="0,0,0,2"/>
                         <ComboBox ItemsSource="{Binding GoalFilterOptions}" SelectedItem="{Binding SelectedGoalFilter, Mode=TwoWay}"
-                                  Padding="6" Margin="0,0,0,16"
+                                  Padding="4" Margin="0,0,0,6"
                                   Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
                                   BorderBrush="{DynamicResource CardBorderBrush}"/>
 
-                        <TextBlock Text="Show Due" FontWeight="Bold" Foreground="White" Margin="0,0,0,4"/>
-                        <Border BorderBrush="{StaticResource AccentPanelBorderBrush}" BorderThickness="1" CornerRadius="4" Padding="10" Margin="0,0,0,16">
-                            <StackPanel>
-                                <RadioButton x:Name="DueTodayRadio" Content="Today" GroupName="DueFilter" Tag="Today"
-                                             Foreground="White" Margin="0,0,0,8" Checked="DueFilter_Checked"/>
-                                <RadioButton x:Name="DueTomorrowRadio" Content="Tomorrow" GroupName="DueFilter" Tag="Tomorrow"
-                                             Foreground="White" Margin="0,0,0,8" Checked="DueFilter_Checked"/>
-                                <RadioButton x:Name="DueWithinWeekRadio" Content="Within a Week" GroupName="DueFilter" Tag="Within a Week"
-                                             Foreground="White" Margin="0,0,0,8" Checked="DueFilter_Checked"/>
-                                <RadioButton x:Name="DueNoDateRadio" Content="No Due Date" GroupName="DueFilter" Tag="No Due Date"
-                                             Foreground="White" Checked="DueFilter_Checked"/>
-                            </StackPanel>
-                        </Border>
+                        <TextBlock Text="Flag" FontWeight="Bold" FontSize="11" Foreground="White" Margin="0,0,0,2"/>
+                        <ComboBox ItemsSource="{Binding FlagFilterOptions}" SelectedItem="{Binding SelectedFlagFilter, Mode=TwoWay}"
+                                  Padding="4" Margin="0,0,0,6"
+                                  Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                                  BorderBrush="{DynamicResource CardBorderBrush}"/>
 
-                        <TextBlock Text="Keyword Search" FontWeight="Bold" Foreground="White" Margin="0,0,0,4"/>
-                        <TextBox Text="{Binding KeywordFilter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Padding="6" Margin="0,0,0,16"
+                        <TextBlock Text="Due" FontWeight="Bold" FontSize="11" Foreground="White" Margin="0,0,0,2"/>
+                        <ComboBox ItemsSource="{Binding DueFilterOptions}" SelectedItem="{Binding DueFilter, Mode=TwoWay}"
+                                  Padding="4" Margin="0,0,0,6"
+                                  Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                                  BorderBrush="{DynamicResource CardBorderBrush}"/>
+
+                        <TextBlock Text="Keyword" FontWeight="Bold" FontSize="11" Foreground="White" Margin="0,0,0,2"/>
+                        <TextBox Text="{Binding KeywordFilter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Padding="4" Margin="0,0,0,8"
                                  Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
                                  BorderBrush="{DynamicResource CardBorderBrush}"/>
 
-                        <Button Content="Clear Filters" Padding="0,10" HorizontalAlignment="Stretch"
+                        <Button Content="Clear Filters" Padding="0,8" HorizontalAlignment="Stretch"
                                 Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
                                 Click="ClearFilters_Click"/>
 
@@ -143,10 +142,15 @@
                             <Button Style="{StaticResource SquareButtonStyle}" Background="#FF9575CD" Foreground="White" Click="ManageGoals_Click">
                                 <TextBlock Text="Manage Goals" TextWrapping="Wrap" TextAlignment="Center"/>
                             </Button>
+                            <Button Style="{StaticResource SquareButtonStyle}" Background="#FFEC407A" Foreground="White" Click="ManageFlags_Click">
+                                <TextBlock Text="Manage Flags" TextWrapping="Wrap" TextAlignment="Center"/>
+                            </Button>
                             <Button Style="{StaticResource SquareButtonStyle}" Background="#FFFFA726" Foreground="White" Click="ArchiveDone_Click">
                                 <TextBlock Text="Archive Done" TextWrapping="Wrap" TextAlignment="Center"/>
                             </Button>
-                            <Button Style="{StaticResource SquareButtonStyle}" Background="#FF8D6E63" Foreground="White" Click="ViewArchived_Click">
+                            <Button Style="{StaticResource SquareButtonStyle}" Background="#FF8D6E63" Foreground="White"
+                                    ToolTip="Click: View Archived. Double-click: View Deleted."
+                                    PreviewMouseLeftButtonDown="ViewArchived_PreviewMouseDown">
                                 <TextBlock Text="View Archived" TextWrapping="Wrap" TextAlignment="Center"/>
                             </Button>
                             <Button Style="{StaticResource SquareButtonStyle}" Background="#FF546E7A" Foreground="White" Click="ToggleTheme_Click">
@@ -204,6 +208,9 @@
 
                                                         <TextBlock Text="{Binding GoalDisplay}" FontSize="10" Foreground="{DynamicResource SecondaryTextBrush}" FontStyle="Italic" Margin="0,3,0,0"
                                                                    Visibility="{Binding GoalDisplay, Converter={StaticResource EmptyStringToVisibilityConverter}}"/>
+
+                                                        <TextBlock Text="{Binding FlagsDisplay}" FontSize="10" Foreground="{DynamicResource SecondaryTextBrush}" FontStyle="Italic" Margin="0,3,0,0"
+                                                                   Visibility="{Binding FlagsDisplay, Converter={StaticResource EmptyStringToVisibilityConverter}}"/>
 
                                                         <TextBlock Text="{Binding DueDateDisplay}" FontSize="10" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,3,0,0"
                                                                    Visibility="{Binding DueDateDisplay, Converter={StaticResource EmptyStringToVisibilityConverter}}"/>

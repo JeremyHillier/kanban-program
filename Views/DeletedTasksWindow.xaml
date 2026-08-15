@@ -1,20 +1,24 @@
-<Window x:Class="KanbanApp.Views.ArchivedTasksWindow"
+<Window x:Class="KanbanApp.Views.DeletedTasksWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         mc:Ignorable="d"
-        Title="Archived Tasks" Height="480" Width="520"
+        Title="Deleted Tasks" Height="480" Width="520"
         WindowStartupLocation="CenterOwner" ResizeMode="NoResize"
         ShowInTaskbar="False"
         Background="{DynamicResource WindowBackgroundBrush}">
     <Grid Margin="16">
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <ListBox x:Name="ArchivedList" Grid.Row="0" BorderThickness="0" Background="Transparent"
+        <TextBlock Grid.Row="0" Text="Deleted tasks are kept here instead of being erased. Select one to bring it back."
+                   TextWrapping="Wrap" FontSize="11" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,0,0,10"/>
+
+        <ListBox x:Name="DeletedList" Grid.Row="1" BorderThickness="0" Background="Transparent"
                  ScrollViewer.VerticalScrollBarVisibility="Auto">
             <ListBox.ItemTemplate>
                 <DataTemplate>
@@ -25,8 +29,8 @@
                                 <Run Text="{Binding ColumnName, Mode=OneWay}"/>
                                 <Run Text=" • "/>
                                 <Run Text="{Binding ProjectName, Mode=OneWay}"/>
-                                <Run Text=" • archived "/>
-                                <Run Text="{Binding ArchivedAt, Mode=OneWay}"/>
+                                <Run Text=" • deleted "/>
+                                <Run Text="{Binding DeletedAt, Mode=OneWay}"/>
                             </TextBlock>
                         </StackPanel>
                     </Border>
@@ -34,11 +38,11 @@
             </ListBox.ItemTemplate>
         </ListBox>
 
-        <TextBlock x:Name="EmptyStateText" Grid.Row="0" Text="No archived tasks yet."
+        <TextBlock x:Name="EmptyStateText" Grid.Row="1" Text="No deleted tasks."
                    Foreground="{DynamicResource SecondaryTextBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"
                    Visibility="Collapsed"/>
 
-        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,12,0,0">
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,12,0,0">
             <Button Content="Reactivate to To Do" Padding="10,6" Click="Reactivate_Click"
                     Background="#FF66BB6A" Foreground="White"/>
             <Button Content="Close" Width="90" Padding="0,6" Margin="8,0,0,0"

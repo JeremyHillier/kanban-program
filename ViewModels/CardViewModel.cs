@@ -159,4 +159,18 @@ public class CardViewModel(CardItem model) : ObservableObject
         get => _isVisible;
         set => SetField(ref _isVisible, value);
     }
+
+    private List<FlagViewModel> _flags = [];
+    public List<FlagViewModel> Flags
+    {
+        get => _flags;
+        set
+        {
+            _flags = value;
+            OnPropertyChanged();
+            OnPropertyChanged(nameof(FlagsDisplay));
+        }
+    }
+
+    public string FlagsDisplay => Flags.Count == 0 ? string.Empty : $"Flags: {string.Join(", ", Flags.Select(f => f.Name))}";
 }

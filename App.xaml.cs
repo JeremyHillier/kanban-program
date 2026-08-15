@@ -1,5 +1,6 @@
 using System.Windows;
 using System.Windows.Threading;
+using KanbanApp.Services;
 using KanbanApp.Views;
 
 namespace KanbanApp;
@@ -10,15 +11,28 @@ public partial class App : Application
     {
         base.OnStartup(e);
 
+        var db = new DatabaseService();
+
+        var showSplash = db.GetSetting("ShowSplash") != "False";
+        var splashDelayMs = int.TryParse(db.GetSetting("SplashDelayMs"), out var delay) ? delay : 1800;
+
+        if (!showSplash)
+        {
+            var main = new MainWindow(db);
+            MainWindow = main;
+            main.Show();
+            return;
+        }
+
         var splash = new SplashWindow();
         splash.Show();
 
-        var timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(1100) };
+        var timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(splashDelayMs) };
         timer.Tick += (_, _) =>
         {
             timer.Stop();
 
-            var main = new MainWindow();
+            var main = new MainWindow(db);
             MainWindow = main;
             main.Show();
 

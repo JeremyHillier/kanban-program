@@ -1,5 +1,6 @@
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Threading;
 using KanbanApp.Services;
 using KanbanApp.ViewModels;
 using KanbanApp.Views;
@@ -10,10 +11,10 @@ public partial class MainWindow : Window
 {
     private Point _dragStartPoint;
 
-    public MainWindow()
+    public MainWindow(DatabaseService db)
     {
         InitializeComponent();
-        DataContext = new MainViewModel(new DatabaseService());
+        DataContext = new MainViewModel(db);
     }
 
     private void Card_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -53,11 +54,12 @@ public partial class MainWindow : Window
     {
         if (DataContext is not MainViewModel viewModel) return;
 
-        var dialog = new AddTaskWindow(viewModel.Columns, viewModel.Projects, viewModel.Goals) { Owner = this };
+        var dialog = new AddTaskWindow(viewModel.Columns, viewModel.Projects, viewModel.Goals, viewModel.Flags) { Owner = this };
         if (dialog.ShowDialog() == true && dialog.SelectedColumn is not null)
         {
             viewModel.AddCard(dialog.TaskDetails, dialog.SelectedColumn, dialog.SelectedProject,
-                dialog.SelectedPriority, dialog.SelectedDueDate, dialog.Who, dialog.IsRecurring, dialog.RecurrencePattern, dialog.SelectedGoal);
+                dialog.SelectedPriority, dialog.SelectedDueDate, dialog.Who, dialog.IsRecurring, dialog.RecurrencePattern,
+                dialog.SelectedGoal, dialog.SelectedFlags);
         }
     }
 
@@ -66,11 +68,12 @@ public partial class MainWindow : Window
         var currentColumn = viewModel.Columns.FirstOrDefault(c => c.Cards.Contains(card));
         if (currentColumn is null) return;
 
-        var dialog = new AddTaskWindow(viewModel.Columns, viewModel.Projects, viewModel.Goals, card, currentColumn) { Owner = this };
+        var dialog = new AddTaskWindow(viewModel.Columns, viewModel.Projects, viewModel.Goals, viewModel.Flags, card, currentColumn) { Owner = this };
         if (dialog.ShowDialog() == true && dialog.SelectedColumn is not null)
         {
             viewModel.EditCard(card, dialog.TaskDetails, dialog.SelectedColumn, dialog.SelectedProject,
-                dialog.SelectedPriority, dialog.SelectedDueDate, dialog.Who, dialog.IsRecurring, dialog.RecurrencePattern, dialog.SelectedGoal);
+                dialog.SelectedPriority, dialog.SelectedDueDate, dialog.Who, dialog.IsRecurring, dialog.RecurrencePattern,
+                dialog.SelectedGoal, dialog.SelectedFlags);
         }
     }
 
@@ -87,6 +90,14 @@ public partial class MainWindow : Window
         if (DataContext is not MainViewModel viewModel) return;
 
         var dialog = new ManageGoalsWindow(viewModel) { Owner = this };
+        dialog.ShowDialog();
+    }
+
+    private void ManageFlags_Click(object sender, RoutedEventArgs e)
+    {
+        if (DataContext is not MainViewModel viewModel) return;
+
+        var dialog = new ManageFlagsWindow(viewModel) { Owner = this };
         dialog.ShowDialog();
     }
 
@@ -114,11 +125,42 @@ public partial class MainWindow : Window
         viewModel.ArchiveDoneTasks();
     }
 
-    private void ViewArchived_Click(object sender, RoutedEventArgs e)
+    private DispatcherTimer? _viewArchivedClickTimer;
+
+    private void ViewArchived_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+    {
+        e.Handled = true;
+
+        if (e.ClickCount == 2)
+        {
+            _viewArchivedClickTimer?.Stop();
+            OpenDeletedTasks();
+            return;
+        }
+
+        _viewArchivedClickTimer?.Stop();
+        _viewArchivedClickTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(280) };
+        _viewArchivedClickTimer.Tick += (_, _) =>
+        {
+            _viewArchivedClickTimer!.Stop();
+            OpenArchivedTasks();
+        };
+        _viewArchivedClickTimer.Start();
+    }
+
+    private void OpenArchivedTasks()
     {
         if (DataContext is not MainViewModel viewModel) return;
 
-        var dialog = new ArchivedTasksWindow(viewModel.GetArchivedCards()) { Owner = this };
+        var dialog = new ArchivedTasksWindow(viewModel, viewModel.GetArchivedCards()) { Owner = this };
+        dialog.ShowDialog();
+    }
+
+    private void OpenDeletedTasks()
+    {
+        if (DataContext is not MainViewModel viewModel) return;
+
+        var dialog = new DeletedTasksWindow(viewModel, viewModel.GetDeletedCards()) { Owner = this };
         dialog.ShowDialog();
     }
 
@@ -134,21 +176,8 @@ public partial class MainWindow : Window
         viewModel.SortByDueDate();
     }
 
-    private void DueFilter_Checked(object sender, RoutedEventArgs e)
-    {
-        if (sender is FrameworkElement { Tag: string tag } && DataContext is MainViewModel viewModel)
-        {
-            viewModel.DueFilter = tag;
-        }
-    }
-
     private void ClearFilters_Click(object sender, RoutedEventArgs e)
     {
-        DueTodayRadio.IsChecked = false;
-        DueTomorrowRadio.IsChecked = false;
-        DueWithinWeekRadio.IsChecked = false;
-        DueNoDateRadio.IsChecked = false;
-
         if (DataContext is MainViewModel viewModel)
         {
             viewModel.ClearFilters();

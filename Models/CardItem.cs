@@ -15,4 +15,6 @@ public class CardItem
     public DateTime? LastUpdated { get; set; }
     public bool IsRecurring { get; set; }
     public string? RecurrencePattern { get; set; }
+    public bool IsDeleted { get; set; }
+    public List<int> FlagIds { get; set; } = [];
 }

@@ -5,12 +5,14 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         mc:Ignorable="d"
         x:Name="RootWindow"
-        Title="Add Task" Height="740" Width="380"
+        Title="Add Task" Height="800" Width="380"
         WindowStartupLocation="CenterOwner" ResizeMode="NoResize"
         ShowInTaskbar="False"
         Background="{DynamicResource WindowBackgroundBrush}">
     <Grid Margin="16">
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -95,7 +97,10 @@
             <ComboBoxItem Content="Annually"/>
         </ComboBox>
 
-        <StackPanel Grid.Row="17" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,16,0,0">
+        <TextBlock Grid.Row="16" Text="Flags" FontWeight="SemiBold" Margin="0,14,0,4" Foreground="{DynamicResource PrimaryTextBrush}"/>
+        <WrapPanel Grid.Row="17" x:Name="FlagsPanel"/>
+
+        <StackPanel Grid.Row="19" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,16,0,0">
             <Button Content="Cancel" Width="80" Padding="0,6" IsCancel="True"
                     Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
             <Button x:Name="SubmitButton" Content="Add Task" Width="90" Padding="0,6" Margin="8,0,0,0" IsDefault="True" Click="Add_Click"

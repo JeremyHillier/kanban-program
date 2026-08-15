@@ -10,23 +10,37 @@ public partial class AddTaskWindow : Window
     public ColumnViewModel? SelectedColumn { get; private set; }
     public ProjectViewModel? SelectedProject { get; private set; }
     public GoalViewModel? SelectedGoal { get; private set; }
+    public List<FlagViewModel> SelectedFlags { get; private set; } = [];
     public string SelectedPriority { get; private set; } = "Normal";
     public DateTime? SelectedDueDate { get; private set; }
     public string? Who { get; private set; }
     public bool IsRecurring { get; private set; }
     public string? RecurrencePattern { get; private set; }
 
-    public AddTaskWindow(IEnumerable<ColumnViewModel> columns, IEnumerable<ProjectViewModel> projects, IEnumerable<GoalViewModel> goals)
+    public AddTaskWindow(IEnumerable<ColumnViewModel> columns, IEnumerable<ProjectViewModel> projects, IEnumerable<GoalViewModel> goals,
+        IEnumerable<FlagViewModel> flags)
     {
         InitializeComponent();
         CategoryComboBox.ItemsSource = columns;
         ProjectComboBox.ItemsSource = projects;
         GoalComboBox.ItemsSource = goals;
+
+        foreach (var flag in flags)
+        {
+            FlagsPanel.Children.Add(new CheckBox
+            {
+                Content = flag.Name,
+                Tag = flag,
+                Margin = new Thickness(0, 0, 16, 8),
+                Foreground = (System.Windows.Media.Brush)FindResource("PrimaryTextBrush")
+            });
+        }
+
         DetailsTextBox.Focus();
     }
 
     public AddTaskWindow(IEnumerable<ColumnViewModel> columns, IEnumerable<ProjectViewModel> projects, IEnumerable<GoalViewModel> goals,
-        CardViewModel cardToEdit, ColumnViewModel currentColumn) : this(columns, projects, goals)
+        IEnumerable<FlagViewModel> flags, CardViewModel cardToEdit, ColumnViewModel currentColumn) : this(columns, projects, goals, flags)
     {
         Title = "Edit Task";
         SubmitButton.Content = "Save";
@@ -58,6 +72,15 @@ public partial class AddTaskWindow : Window
             {
                 RecurrenceComboBox.SelectedItem = item;
                 break;
+            }
+        }
+
+        var assignedIds = cardToEdit.Flags.Select(f => f.Id).ToHashSet();
+        foreach (var checkBox in FlagsPanel.Children.OfType<CheckBox>())
+        {
+            if (checkBox.Tag is FlagViewModel flag && assignedIds.Contains(flag.Id))
+            {
+                checkBox.IsChecked = true;
             }
         }
     }
@@ -95,6 +118,11 @@ public partial class AddTaskWindow : Window
         RecurrencePattern = IsRecurring && RecurrenceComboBox.SelectedItem is ComboBoxItem recurrenceItem
             ? (string)recurrenceItem.Content
             : null;
+
+        SelectedFlags = FlagsPanel.Children.OfType<CheckBox>()
+            .Where(cb => cb.IsChecked == true)
+            .Select(cb => (FlagViewModel)cb.Tag)
+            .ToList();
 
         DialogResult = true;
         Close();
