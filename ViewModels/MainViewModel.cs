@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using System.Reflection;
+using System.Windows.Controls;
 using System.Windows.Media;
 using KanbanApp.Models;
 using KanbanApp.Services;
@@ -31,6 +32,23 @@ public class MainViewModel : ObservableObject
     }
 
     public string ThemeButtonLabel => IsDarkMode ? "Light Mode" : "Dark Mode";
+
+    private bool _isButtonsOnRight;
+    public bool IsButtonsOnRight
+    {
+        get => _isButtonsOnRight;
+        set
+        {
+            if (SetField(ref _isButtonsOnRight, value))
+            {
+                OnPropertyChanged(nameof(SidebarDock));
+            }
+        }
+    }
+
+    public Dock SidebarDock => IsButtonsOnRight ? Dock.Right : Dock.Left;
+
+    public string CurrentDbPath => _db.DbPath;
 
     private static readonly Brush[] ColumnPalette =
     [
@@ -112,6 +130,14 @@ public class MainViewModel : ObservableObject
 
         _isDarkMode = _db.GetSetting("Theme") == "Dark";
         Theming.ThemeManager.Apply(_isDarkMode);
+
+        _isButtonsOnRight = _db.GetSetting("ButtonPosition") == "Right";
+    }
+
+    public void ToggleButtonPosition()
+    {
+        IsButtonsOnRight = !IsButtonsOnRight;
+        _db.SetSetting("ButtonPosition", IsButtonsOnRight ? "Right" : "Left");
     }
 
     public void ToggleTheme()

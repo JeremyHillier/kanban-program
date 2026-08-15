@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:KanbanApp"
         xmlns:conv="clr-namespace:KanbanApp.Converters"
         mc:Ignorable="d"
-        Title="Kanban" Height="700" Width="1850"
+        Title="Kanban" Height="740" Width="1700" MinWidth="900" MinHeight="500"
         Icon="Assets/app.ico"
         Background="{DynamicResource WindowBackgroundBrush}">
     <Window.Resources>
@@ -27,100 +27,144 @@
             <Setter Property="BorderThickness" Value="0"/>
         </Style>
 
-        <Style x:Key="PanelButtonStyle" TargetType="Button">
-            <Setter Property="Padding" Value="12,6"/>
+        <Style x:Key="SquareButtonStyle" TargetType="Button">
+            <Setter Property="Width" Value="66"/>
+            <Setter Property="Height" Value="66"/>
+            <Setter Property="Margin" Value="0,0,6,6"/>
+            <Setter Property="Padding" Value="4"/>
+            <Setter Property="FontSize" Value="11"/>
             <Setter Property="Background" Value="{DynamicResource ButtonBackgroundBrush}"/>
             <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
             <Setter Property="BorderBrush" Value="{DynamicResource PanelBorderBrush}"/>
             <Setter Property="Cursor" Value="Hand"/>
         </Style>
 
-        <Style x:Key="SortButtonStyle" TargetType="Button">
-            <Setter Property="Padding" Value="10,4"/>
-            <Setter Property="FontSize" Value="11"/>
-            <Setter Property="Background" Value="{DynamicResource ButtonBackgroundBrush}"/>
-            <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource PanelBorderBrush}"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Margin" Value="0,0,6,0"/>
+        <Style x:Key="SectionHeaderStyle" TargetType="TextBlock">
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Margin" Value="0,14,0,6"/>
         </Style>
     </Window.Resources>
     <Grid Margin="12">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="*"/>
-        </Grid.ColumnDefinitions>
 
-        <Border Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Padding="12,8" Margin="0,0,0,10" CornerRadius="6"
+        <Border Grid.Row="0" Padding="16,12" Margin="0,0,0,10" CornerRadius="6"
                 Background="{StaticResource AccentPanelBrush}" BorderBrush="{StaticResource AccentPanelBorderBrush}" BorderThickness="1">
-            <StackPanel Orientation="Horizontal">
-                <TextBlock Text="Sort by:" FontWeight="SemiBold" Foreground="White" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                <Button Content="Project" Style="{StaticResource SortButtonStyle}" Click="SortByProject_Click"/>
-                <Button Content="Due Date" Style="{StaticResource SortButtonStyle}" Click="SortByDueDate_Click"/>
-            </StackPanel>
+            <Grid>
+                <TextBlock Text="KANBAN TASK BOARD" FontSize="20" FontWeight="Bold" Foreground="White"
+                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                <StackPanel HorizontalAlignment="Right" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding AppVersion}" FontSize="11" Foreground="White" HorizontalAlignment="Right"/>
+                    <TextBlock Text="{Binding CopyrightText}" FontSize="10" Foreground="#FFC0CBDA" HorizontalAlignment="Right"/>
+                </StackPanel>
+            </Grid>
         </Border>
 
-        <Border Grid.Row="1" Grid.Column="0" Width="220" Margin="0,0,12,0" Padding="12"
-                VerticalAlignment="Top" CornerRadius="6"
-                Background="{StaticResource AccentPanelBrush}"
-                BorderBrush="{StaticResource AccentPanelBorderBrush}" BorderThickness="1">
-            <StackPanel>
-                <TextBlock Text="Project Filter" FontWeight="Bold" Foreground="White" Margin="0,0,0,4"/>
-                <ComboBox ItemsSource="{Binding ProjectFilterOptions}" SelectedItem="{Binding SelectedProjectFilter, Mode=TwoWay}"
-                          Padding="6" Margin="0,0,0,12"
-                          Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
-                          BorderBrush="{DynamicResource CardBorderBrush}"/>
-
-                <TextBlock Text="Priority Filter" FontWeight="Bold" Foreground="White" Margin="0,0,0,4"/>
-                <ComboBox ItemsSource="{Binding PriorityFilterOptions}" SelectedItem="{Binding SelectedPriorityFilter, Mode=TwoWay}"
-                          Padding="6" Margin="0,0,0,12"
-                          Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
-                          BorderBrush="{DynamicResource CardBorderBrush}"/>
-
-                <TextBlock Text="Who Filter" FontWeight="Bold" Foreground="White" Margin="0,0,0,4"/>
-                <ComboBox ItemsSource="{Binding WhoFilterOptions}" SelectedItem="{Binding SelectedWhoFilter, Mode=TwoWay}"
-                          Padding="6" Margin="0,0,0,12"
-                          Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
-                          BorderBrush="{DynamicResource CardBorderBrush}"/>
-
-                <TextBlock Text="Goal Filter" FontWeight="Bold" Foreground="White" Margin="0,0,0,4"/>
-                <ComboBox ItemsSource="{Binding GoalFilterOptions}" SelectedItem="{Binding SelectedGoalFilter, Mode=TwoWay}"
-                          Padding="6" Margin="0,0,0,16"
-                          Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
-                          BorderBrush="{DynamicResource CardBorderBrush}"/>
-
-                <TextBlock Text="Show Due" FontWeight="Bold" Foreground="White" Margin="0,0,0,4"/>
-                <Border BorderBrush="{StaticResource AccentPanelBorderBrush}" BorderThickness="1" CornerRadius="4" Padding="10" Margin="0,0,0,16">
+        <DockPanel Grid.Row="1">
+            <Border DockPanel.Dock="{Binding SidebarDock}" Width="250" Margin="6" Padding="12"
+                    CornerRadius="6"
+                    Background="{StaticResource AccentPanelBrush}"
+                    BorderBrush="{StaticResource AccentPanelBorderBrush}" BorderThickness="1">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
                     <StackPanel>
-                        <RadioButton x:Name="DueTodayRadio" Content="Today" GroupName="DueFilter" Tag="Today"
-                                     Foreground="White" Margin="0,0,0,8" Checked="DueFilter_Checked"/>
-                        <RadioButton x:Name="DueTomorrowRadio" Content="Tomorrow" GroupName="DueFilter" Tag="Tomorrow"
-                                     Foreground="White" Margin="0,0,0,8" Checked="DueFilter_Checked"/>
-                        <RadioButton x:Name="DueWithinWeekRadio" Content="Within a Week" GroupName="DueFilter" Tag="Within a Week"
-                                     Foreground="White" Margin="0,0,0,8" Checked="DueFilter_Checked"/>
-                        <RadioButton x:Name="DueNoDateRadio" Content="No Due Date" GroupName="DueFilter" Tag="No Due Date"
-                                     Foreground="White" Checked="DueFilter_Checked"/>
+                        <TextBlock Text="Sort &amp; Add" Style="{StaticResource SectionHeaderStyle}" Margin="0,0,0,6"/>
+                        <WrapPanel>
+                            <Button Style="{StaticResource SquareButtonStyle}" Click="SortByProject_Click">
+                                <TextBlock Text="Sort by Project" TextWrapping="Wrap" TextAlignment="Center"/>
+                            </Button>
+                            <Button Style="{StaticResource SquareButtonStyle}" Click="SortByDueDate_Click">
+                                <TextBlock Text="Sort by Due Date" TextWrapping="Wrap" TextAlignment="Center"/>
+                            </Button>
+                            <Button Style="{StaticResource SquareButtonStyle}" Click="AddTask_Click">
+                                <TextBlock Text="+ Add Task" TextWrapping="Wrap" TextAlignment="Center"/>
+                            </Button>
+                        </WrapPanel>
+
+                        <Separator Margin="0,12,0,0"/>
+
+                        <TextBlock Text="Filter" Style="{StaticResource SectionHeaderStyle}"/>
+                        <TextBlock Text="Project Filter" FontWeight="Bold" Foreground="White" Margin="0,0,0,4"/>
+                        <ComboBox ItemsSource="{Binding ProjectFilterOptions}" SelectedItem="{Binding SelectedProjectFilter, Mode=TwoWay}"
+                                  Padding="6" Margin="0,0,0,12"
+                                  Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                                  BorderBrush="{DynamicResource CardBorderBrush}"/>
+
+                        <TextBlock Text="Priority Filter" FontWeight="Bold" Foreground="White" Margin="0,0,0,4"/>
+                        <ComboBox ItemsSource="{Binding PriorityFilterOptions}" SelectedItem="{Binding SelectedPriorityFilter, Mode=TwoWay}"
+                                  Padding="6" Margin="0,0,0,12"
+                                  Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                                  BorderBrush="{DynamicResource CardBorderBrush}"/>
+
+                        <TextBlock Text="Who Filter" FontWeight="Bold" Foreground="White" Margin="0,0,0,4"/>
+                        <ComboBox ItemsSource="{Binding WhoFilterOptions}" SelectedItem="{Binding SelectedWhoFilter, Mode=TwoWay}"
+                                  Padding="6" Margin="0,0,0,12"
+                                  Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                                  BorderBrush="{DynamicResource CardBorderBrush}"/>
+
+                        <TextBlock Text="Goal Filter" FontWeight="Bold" Foreground="White" Margin="0,0,0,4"/>
+                        <ComboBox ItemsSource="{Binding GoalFilterOptions}" SelectedItem="{Binding SelectedGoalFilter, Mode=TwoWay}"
+                                  Padding="6" Margin="0,0,0,16"
+                                  Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                                  BorderBrush="{DynamicResource CardBorderBrush}"/>
+
+                        <TextBlock Text="Show Due" FontWeight="Bold" Foreground="White" Margin="0,0,0,4"/>
+                        <Border BorderBrush="{StaticResource AccentPanelBorderBrush}" BorderThickness="1" CornerRadius="4" Padding="10" Margin="0,0,0,16">
+                            <StackPanel>
+                                <RadioButton x:Name="DueTodayRadio" Content="Today" GroupName="DueFilter" Tag="Today"
+                                             Foreground="White" Margin="0,0,0,8" Checked="DueFilter_Checked"/>
+                                <RadioButton x:Name="DueTomorrowRadio" Content="Tomorrow" GroupName="DueFilter" Tag="Tomorrow"
+                                             Foreground="White" Margin="0,0,0,8" Checked="DueFilter_Checked"/>
+                                <RadioButton x:Name="DueWithinWeekRadio" Content="Within a Week" GroupName="DueFilter" Tag="Within a Week"
+                                             Foreground="White" Margin="0,0,0,8" Checked="DueFilter_Checked"/>
+                                <RadioButton x:Name="DueNoDateRadio" Content="No Due Date" GroupName="DueFilter" Tag="No Due Date"
+                                             Foreground="White" Checked="DueFilter_Checked"/>
+                            </StackPanel>
+                        </Border>
+
+                        <TextBlock Text="Keyword Search" FontWeight="Bold" Foreground="White" Margin="0,0,0,4"/>
+                        <TextBox Text="{Binding KeywordFilter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Padding="6" Margin="0,0,0,16"
+                                 Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                                 BorderBrush="{DynamicResource CardBorderBrush}"/>
+
+                        <Button Content="Clear Filters" Padding="0,10" HorizontalAlignment="Stretch"
+                                Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                                Click="ClearFilters_Click"/>
+
+                        <Separator Margin="0,12,0,0"/>
+
+                        <TextBlock Text="Other" Style="{StaticResource SectionHeaderStyle}"/>
+                        <WrapPanel>
+                            <Button Style="{StaticResource SquareButtonStyle}" Click="ManageProjects_Click">
+                                <TextBlock Text="Manage Projects" TextWrapping="Wrap" TextAlignment="Center"/>
+                            </Button>
+                            <Button Style="{StaticResource SquareButtonStyle}" Click="ManageGoals_Click">
+                                <TextBlock Text="Manage Goals" TextWrapping="Wrap" TextAlignment="Center"/>
+                            </Button>
+                            <Button Style="{StaticResource SquareButtonStyle}" Click="ArchiveDone_Click">
+                                <TextBlock Text="Archive Done" TextWrapping="Wrap" TextAlignment="Center"/>
+                            </Button>
+                            <Button Style="{StaticResource SquareButtonStyle}" Click="ViewArchived_Click">
+                                <TextBlock Text="View Archived" TextWrapping="Wrap" TextAlignment="Center"/>
+                            </Button>
+                            <Button Style="{StaticResource SquareButtonStyle}" Click="ToggleTheme_Click">
+                                <TextBlock Text="{Binding ThemeButtonLabel}" TextWrapping="Wrap" TextAlignment="Center"/>
+                            </Button>
+                            <Button Style="{StaticResource SquareButtonStyle}" Click="Settings_Click">
+                                <TextBlock Text="Settings" TextWrapping="Wrap" TextAlignment="Center"/>
+                            </Button>
+                            <Button Style="{StaticResource SquareButtonStyle}" Click="Close_Click">
+                                <TextBlock Text="Close" TextWrapping="Wrap" TextAlignment="Center"/>
+                            </Button>
+                        </WrapPanel>
                     </StackPanel>
-                </Border>
+                </ScrollViewer>
+            </Border>
 
-                <TextBlock Text="Keyword Search" FontWeight="Bold" Foreground="White" Margin="0,0,0,4"/>
-                <TextBox Text="{Binding KeywordFilter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Padding="6" Margin="0,0,0,16"
-                         Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
-                         BorderBrush="{DynamicResource CardBorderBrush}"/>
-
-                <Button Content="Clear Filters" Style="{StaticResource PanelButtonStyle}" HorizontalAlignment="Stretch" Padding="0,10"
-                        Click="ClearFilters_Click"/>
-            </StackPanel>
-        </Border>
-
-        <ScrollViewer Grid.Row="1" Grid.Column="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled"
-                      Background="{DynamicResource BoardAreaBrush}">
-            <StackPanel Orientation="Horizontal">
+            <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled"
+                          Background="{DynamicResource BoardAreaBrush}">
                 <ItemsControl ItemsSource="{Binding Columns}">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
@@ -197,32 +241,7 @@
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
-
-                <Border BorderBrush="{StaticResource AccentPanelBorderBrush}" BorderThickness="2" CornerRadius="2" Padding="12"
-                        VerticalAlignment="Top" Background="{StaticResource AccentPanelBrush}">
-                    <StackPanel Width="160">
-                        <Button Content="+ Add Task" Style="{StaticResource PanelButtonStyle}" Click="AddTask_Click"/>
-                        <Button Content="Manage Projects" Style="{StaticResource PanelButtonStyle}" Margin="0,8,0,0" Click="ManageProjects_Click"/>
-                        <Button Content="Manage Goals" Style="{StaticResource PanelButtonStyle}" Margin="0,8,0,0" Click="ManageGoals_Click"/>
-                        <Button Content="Archive Done" Style="{StaticResource PanelButtonStyle}" Margin="0,8,0,0" Click="ArchiveDone_Click"/>
-                        <Button Content="View Archived" Style="{StaticResource PanelButtonStyle}" Margin="0,8,0,0" Click="ViewArchived_Click"/>
-                        <Button Content="{Binding ThemeButtonLabel}" Style="{StaticResource PanelButtonStyle}" Margin="0,8,0,0" Click="ToggleTheme_Click"/>
-                    </StackPanel>
-                </Border>
-            </StackPanel>
-        </ScrollViewer>
-
-        <Grid Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,8,0,0">
-            <TextBlock Text="{Binding AppVersion}" FontSize="10" Foreground="{DynamicResource SecondaryTextBrush}"
-                       HorizontalAlignment="Left"/>
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                <TextBlock Text="{Binding CopyrightText}" FontSize="10" Foreground="{DynamicResource SecondaryTextBrush}"
-                           VerticalAlignment="Center" Margin="0,0,12,0"/>
-                <Button Content="Close" Padding="14,4"
-                        Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
-                        BorderBrush="{DynamicResource PanelBorderBrush}" Cursor="Hand"
-                        Click="Close_Click"/>
-            </StackPanel>
-        </Grid>
+            </ScrollViewer>
+        </DockPanel>
     </Grid>
 </Window>

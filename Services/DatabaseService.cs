@@ -8,14 +8,14 @@ public class DatabaseService
 {
     private readonly string _connectionString;
 
+    public string DbPath { get; }
+
     public DatabaseService()
     {
-        var appDataDir = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-            "KanbanApp");
-        Directory.CreateDirectory(appDataDir);
-        var dbPath = Path.Combine(appDataDir, "kanban.db");
-        _connectionString = $"Data Source={dbPath}";
+        var config = AppConfig.Load();
+        DbPath = config.DbPath;
+        Directory.CreateDirectory(Path.GetDirectoryName(DbPath)!);
+        _connectionString = $"Data Source={DbPath}";
 
         Initialize();
     }

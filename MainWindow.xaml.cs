@@ -95,6 +95,14 @@ public partial class MainWindow : Window
         Close();
     }
 
+    private void Settings_Click(object sender, RoutedEventArgs e)
+    {
+        if (DataContext is not MainViewModel viewModel) return;
+
+        var dialog = new SettingsWindow(viewModel) { Owner = this };
+        dialog.ShowDialog();
+    }
+
     private void ArchiveDone_Click(object sender, RoutedEventArgs e)
     {
         if (DataContext is not MainViewModel viewModel) return;
