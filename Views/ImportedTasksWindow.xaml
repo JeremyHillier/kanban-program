@@ -90,13 +90,13 @@
                                               BorderBrush="{DynamicResource CardBorderBrush}"/>
 
                                     <ComboBox Grid.Column="3" Style="{StaticResource CellMargin}" Padding="4"
-                                              ItemsSource="{Binding DataContext.Projects, RelativeSource={RelativeSource AncestorType=Window}}"
+                                              ItemsSource="{Binding AvailableProjects}"
                                               SelectedValuePath="Id" DisplayMemberPath="Name" SelectedValue="{Binding ProjectId, Mode=TwoWay}"
                                               Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
                                               BorderBrush="{DynamicResource CardBorderBrush}"/>
 
                                     <ComboBox Grid.Column="4" Style="{StaticResource CellMargin}" Padding="4"
-                                              ItemsSource="{Binding DataContext.Goals, RelativeSource={RelativeSource AncestorType=Window}}"
+                                              ItemsSource="{Binding AvailableGoals}"
                                               SelectedValuePath="Id" DisplayMemberPath="Name" SelectedValue="{Binding GoalId, Mode=TwoWay}"
                                               Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
                                               BorderBrush="{DynamicResource CardBorderBrush}"/>

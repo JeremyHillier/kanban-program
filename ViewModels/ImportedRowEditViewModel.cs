@@ -1,9 +1,14 @@
 namespace KanbanApp.ViewModels;
 
-public class ImportedRowEditViewModel(CardViewModel card) : ObservableObject
+public class ImportedRowEditViewModel(CardViewModel card, MainViewModel viewModel) : ObservableObject
 {
     public CardViewModel Card { get; } = card;
     public int Id => Card.Id;
+
+    public IEnumerable<ProjectViewModel> AvailableProjects =>
+        viewModel.Projects.Where(p => p.IsActive || p.Id == Card.ProjectId);
+    public IEnumerable<GoalViewModel> AvailableGoals =>
+        viewModel.Goals.Where(g => g.IsActive || g.Id == Card.GoalId);
 
     private string _title = card.Title;
     public string Title

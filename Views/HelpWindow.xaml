@@ -65,6 +65,8 @@
                 <TextBlock Text="Organizing: Projects, Goals, Flags" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Manage Projects / Manage Goals / Manage Flags let you add, rename, or permanently delete these from the whole board."/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Flags are multi-select tags — a task can carry more than one."/>
+                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Untick a Project's, Goal's, or Flag's Active checkbox to retire it: it disappears from filters and from selection on new or edited tasks, but any task already using it keeps showing its name and is unaffected."/>
+                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Delete warns you first with the number of tasks currently using that Project, Goal, or Flag, since deleting it removes it from those tasks and cannot be undone."/>
 
                 <TextBlock Text="Sorting and filtering" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Sort by Project, Due Date, Who, or Priority reorders every column. Sort by Due Date sorts by due date then project; Sort by Priority sorts by priority then due date."/>

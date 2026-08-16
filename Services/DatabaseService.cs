@@ -96,18 +96,21 @@ public class DatabaseService
             cmd.ExecuteNonQuery();
         }
 
-        MigrateCardsColumn(connection, "ProjectId", "INTEGER NULL");
-        MigrateCardsColumn(connection, "IsArchived", "INTEGER NOT NULL DEFAULT 0");
-        MigrateCardsColumn(connection, "Priority", "TEXT NOT NULL DEFAULT 'Normal'");
-        MigrateCardsColumn(connection, "DueDate", "TEXT NULL");
-        MigrateCardsColumn(connection, "Who", "TEXT NULL");
-        MigrateCardsColumn(connection, "LastUpdated", "TEXT NULL");
-        MigrateCardsColumn(connection, "IsRecurring", "INTEGER NOT NULL DEFAULT 0");
-        MigrateCardsColumn(connection, "RecurrencePattern", "TEXT NULL");
-        MigrateCardsColumn(connection, "GoalId", "INTEGER NULL");
-        MigrateCardsColumn(connection, "IsDeleted", "INTEGER NOT NULL DEFAULT 0");
-        MigrateCardsColumn(connection, "Notes", "TEXT NULL");
-        MigrateCardsColumn(connection, "IsImported", "INTEGER NOT NULL DEFAULT 0");
+        MigrateColumn(connection, "Cards", "ProjectId", "INTEGER NULL");
+        MigrateColumn(connection, "Cards", "IsArchived", "INTEGER NOT NULL DEFAULT 0");
+        MigrateColumn(connection, "Cards", "Priority", "TEXT NOT NULL DEFAULT 'Normal'");
+        MigrateColumn(connection, "Cards", "DueDate", "TEXT NULL");
+        MigrateColumn(connection, "Cards", "Who", "TEXT NULL");
+        MigrateColumn(connection, "Cards", "LastUpdated", "TEXT NULL");
+        MigrateColumn(connection, "Cards", "IsRecurring", "INTEGER NOT NULL DEFAULT 0");
+        MigrateColumn(connection, "Cards", "RecurrencePattern", "TEXT NULL");
+        MigrateColumn(connection, "Cards", "GoalId", "INTEGER NULL");
+        MigrateColumn(connection, "Cards", "IsDeleted", "INTEGER NOT NULL DEFAULT 0");
+        MigrateColumn(connection, "Cards", "Notes", "TEXT NULL");
+        MigrateColumn(connection, "Cards", "IsImported", "INTEGER NOT NULL DEFAULT 0");
+        MigrateColumn(connection, "Projects", "IsActive", "INTEGER NOT NULL DEFAULT 1");
+        MigrateColumn(connection, "Goals", "IsActive", "INTEGER NOT NULL DEFAULT 1");
+        MigrateColumn(connection, "Flags", "IsActive", "INTEGER NOT NULL DEFAULT 1");
 
         using (var checkCmd = connection.CreateCommand())
         {
@@ -133,11 +136,11 @@ public class DatabaseService
         }
     }
 
-    private static void MigrateCardsColumn(SqliteConnection connection, string columnName, string columnDefinition)
+    private static void MigrateColumn(SqliteConnection connection, string tableName, string columnName, string columnDefinition)
     {
         using (var pragmaCmd = connection.CreateCommand())
         {
-            pragmaCmd.CommandText = "PRAGMA table_info(Cards);";
+            pragmaCmd.CommandText = $"PRAGMA table_info({tableName});";
             using var reader = pragmaCmd.ExecuteReader();
             while (reader.Read())
             {
@@ -146,7 +149,7 @@ public class DatabaseService
         }
 
         using var alterCmd = connection.CreateCommand();
-        alterCmd.CommandText = $"ALTER TABLE Cards ADD COLUMN {columnName} {columnDefinition};";
+        alterCmd.CommandText = $"ALTER TABLE {tableName} ADD COLUMN {columnName} {columnDefinition};";
         alterCmd.ExecuteNonQuery();
     }
 
@@ -287,7 +290,7 @@ public class DatabaseService
     {
         using var connection = OpenConnection();
         using var cmd = connection.CreateCommand();
-        cmd.CommandText = "SELECT Id, Name, SortOrder FROM Projects ORDER BY SortOrder;";
+        cmd.CommandText = "SELECT Id, Name, SortOrder, IsActive FROM Projects ORDER BY SortOrder;";
 
         var result = new List<Project>();
         using var reader = cmd.ExecuteReader();
@@ -297,7 +300,8 @@ public class DatabaseService
             {
                 Id = reader.GetInt32(0),
                 Name = reader.GetString(1),
-                SortOrder = reader.GetInt32(2)
+                SortOrder = reader.GetInt32(2),
+                IsActive = reader.GetInt32(3) != 0
             });
         }
         return result;
@@ -307,7 +311,7 @@ public class DatabaseService
     {
         using var connection = OpenConnection();
         using var cmd = connection.CreateCommand();
-        cmd.CommandText = "SELECT Id, Name, SortOrder FROM Goals ORDER BY SortOrder;";
+        cmd.CommandText = "SELECT Id, Name, SortOrder, IsActive FROM Goals ORDER BY SortOrder;";
 
         var result = new List<Goal>();
         using var reader = cmd.ExecuteReader();
@@ -317,7 +321,8 @@ public class DatabaseService
             {
                 Id = reader.GetInt32(0),
                 Name = reader.GetString(1),
-                SortOrder = reader.GetInt32(2)
+                SortOrder = reader.GetInt32(2),
+                IsActive = reader.GetInt32(3) != 0
             });
         }
         return result;
@@ -327,7 +332,7 @@ public class DatabaseService
     {
         using var connection = OpenConnection();
         using var cmd = connection.CreateCommand();
-        cmd.CommandText = "SELECT Id, Name, SortOrder FROM Flags ORDER BY SortOrder;";
+        cmd.CommandText = "SELECT Id, Name, SortOrder, IsActive FROM Flags ORDER BY SortOrder;";
 
         var result = new List<Flag>();
         using var reader = cmd.ExecuteReader();
@@ -337,7 +342,8 @@ public class DatabaseService
             {
                 Id = reader.GetInt32(0),
                 Name = reader.GetString(1),
-                SortOrder = reader.GetInt32(2)
+                SortOrder = reader.GetInt32(2),
+                IsActive = reader.GetInt32(3) != 0
             });
         }
         return result;
@@ -369,6 +375,16 @@ public class DatabaseService
         using var cmd = connection.CreateCommand();
         cmd.CommandText = "UPDATE Flags SET Name = $name WHERE Id = $id;";
         cmd.Parameters.AddWithValue("$name", name);
+        cmd.Parameters.AddWithValue("$id", flagId);
+        cmd.ExecuteNonQuery();
+    }
+
+    public void SetFlagActive(int flagId, bool isActive)
+    {
+        using var connection = OpenConnection();
+        using var cmd = connection.CreateCommand();
+        cmd.CommandText = "UPDATE Flags SET IsActive = $isActive WHERE Id = $id;";
+        cmd.Parameters.AddWithValue("$isActive", isActive ? 1 : 0);
         cmd.Parameters.AddWithValue("$id", flagId);
         cmd.ExecuteNonQuery();
     }
@@ -615,6 +631,16 @@ public class DatabaseService
         cmd.ExecuteNonQuery();
     }
 
+    public void SetProjectActive(int projectId, bool isActive)
+    {
+        using var connection = OpenConnection();
+        using var cmd = connection.CreateCommand();
+        cmd.CommandText = "UPDATE Projects SET IsActive = $isActive WHERE Id = $id;";
+        cmd.Parameters.AddWithValue("$isActive", isActive ? 1 : 0);
+        cmd.Parameters.AddWithValue("$id", projectId);
+        cmd.ExecuteNonQuery();
+    }
+
     public void DeleteProject(int projectId)
     {
         using var connection = OpenConnection();
@@ -658,6 +684,16 @@ public class DatabaseService
         using var cmd = connection.CreateCommand();
         cmd.CommandText = "UPDATE Goals SET Name = $name WHERE Id = $id;";
         cmd.Parameters.AddWithValue("$name", name);
+        cmd.Parameters.AddWithValue("$id", goalId);
+        cmd.ExecuteNonQuery();
+    }
+
+    public void SetGoalActive(int goalId, bool isActive)
+    {
+        using var connection = OpenConnection();
+        using var cmd = connection.CreateCommand();
+        cmd.CommandText = "UPDATE Goals SET IsActive = $isActive WHERE Id = $id;";
+        cmd.Parameters.AddWithValue("$isActive", isActive ? 1 : 0);
         cmd.Parameters.AddWithValue("$id", goalId);
         cmd.ExecuteNonQuery();
     }

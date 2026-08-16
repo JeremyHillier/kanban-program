@@ -4,7 +4,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         mc:Ignorable="d"
-        Title="Manage Flags" Height="420" Width="360"
+        Title="Manage Flags" Height="420" Width="420"
         WindowStartupLocation="CenterOwner" ResizeMode="NoResize"
         ShowInTaskbar="False"
         Background="{DynamicResource WindowBackgroundBrush}">
@@ -32,13 +32,19 @@
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
                                 <TextBox Grid.Column="0" Padding="6" Margin="0,0,8,0"
                                          Text="{Binding Name, Mode=OneWay}"
                                          LostFocus="FlagName_LostFocus"
                                          Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
                                          BorderBrush="{DynamicResource CardBorderBrush}"/>
-                                <Button Grid.Column="1" Content="Delete" Padding="10,4" Click="Delete_Click"
+                                <CheckBox Grid.Column="1" Content="Active" VerticalAlignment="Center" Margin="0,0,8,0"
+                                          IsChecked="{Binding IsActive, Mode=OneWay}"
+                                          Foreground="{DynamicResource PrimaryTextBrush}"
+                                          ToolTip="When off, this flag is hidden from filters and from selection on new/edited tasks. Tasks already using it are unaffected."
+                                          Checked="Active_Changed" Unchecked="Active_Changed"/>
+                                <Button Grid.Column="2" Content="Delete" Padding="10,4" Click="Delete_Click"
                                         Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
                             </Grid>
                         </Border>

@@ -16,7 +16,7 @@ public partial class ImportedTasksWindow : Window
         DataContext = viewModel;
 
         _rows = new ObservableCollection<ImportedRowEditViewModel>(
-            viewModel.GetImportedCards().Select(c => new ImportedRowEditViewModel(c)));
+            viewModel.GetImportedCards().Select(c => new ImportedRowEditViewModel(c, viewModel)));
         RowsList.ItemsSource = _rows;
         EmptyStateText.Visibility = _rows.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
     }

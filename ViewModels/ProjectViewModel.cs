@@ -18,4 +18,15 @@ public class ProjectViewModel(Project model) : ObservableObject
             OnPropertyChanged();
         }
     }
+
+    public bool IsActive
+    {
+        get => Model.IsActive;
+        set
+        {
+            if (Model.IsActive == value) return;
+            Model.IsActive = value;
+            OnPropertyChanged();
+        }
+    }
 }

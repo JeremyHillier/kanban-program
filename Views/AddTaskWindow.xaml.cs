@@ -28,8 +28,8 @@ public partial class AddTaskWindow : Window
         InitializeComponent();
         _viewModel = viewModel;
         CategoryComboBox.ItemsSource = viewModel.Columns;
-        ProjectComboBox.ItemsSource = viewModel.Projects;
-        GoalComboBox.ItemsSource = viewModel.Goals;
+        RebuildProjectItems();
+        RebuildGoalItems();
         RebuildFlagCheckboxes();
         UpdateSubTaskProgressLabel();
 
@@ -57,10 +57,8 @@ public partial class AddTaskWindow : Window
 
         DetailsTextBox.Text = cardToEdit.Title;
         CategoryComboBox.SelectedItem = currentColumn;
-        ProjectComboBox.SelectedItem = ProjectComboBox.Items.OfType<ProjectViewModel>()
-            .FirstOrDefault(p => p.Id == cardToEdit.ProjectId);
-        GoalComboBox.SelectedItem = GoalComboBox.Items.OfType<GoalViewModel>()
-            .FirstOrDefault(g => g.Id == cardToEdit.GoalId);
+        RebuildProjectItems(_viewModel.Projects.FirstOrDefault(p => p.Id == cardToEdit.ProjectId));
+        RebuildGoalItems(_viewModel.Goals.FirstOrDefault(g => g.Id == cardToEdit.GoalId));
 
         foreach (var item in PriorityComboBox.Items.OfType<ComboBoxItem>())
         {
@@ -86,14 +84,7 @@ public partial class AddTaskWindow : Window
             }
         }
 
-        var assignedIds = cardToEdit.Flags.Select(f => f.Id).ToHashSet();
-        foreach (var checkBox in FlagsPanel.Children.OfType<CheckBox>())
-        {
-            if (checkBox.Tag is FlagViewModel flag && assignedIds.Contains(flag.Id))
-            {
-                checkBox.IsChecked = true;
-            }
-        }
+        RebuildFlagCheckboxes(forceCheckedIds: cardToEdit.Flags.Select(f => f.Id));
 
         foreach (var subTask in cardToEdit.SubTasks)
         {
@@ -102,15 +93,48 @@ public partial class AddTaskWindow : Window
         UpdateSubTaskProgressLabel();
     }
 
-    private void RebuildFlagCheckboxes(int? autoCheckFlagId = null)
+    private void RebuildProjectItems(ProjectViewModel? autoSelect = null)
+    {
+        var items = _viewModel.Projects.Where(p => p.IsActive).ToList();
+        if (autoSelect is not null && !items.Any(p => p.Id == autoSelect.Id))
+        {
+            items.Insert(0, autoSelect);
+        }
+
+        ProjectComboBox.ItemsSource = items;
+        ProjectComboBox.SelectedItem = autoSelect is null
+            ? null
+            : items.FirstOrDefault(p => p.Id == autoSelect.Id);
+    }
+
+    private void RebuildGoalItems(GoalViewModel? autoSelect = null)
+    {
+        var items = _viewModel.Goals.Where(g => g.IsActive).ToList();
+        if (autoSelect is not null && !items.Any(g => g.Id == autoSelect.Id))
+        {
+            items.Insert(0, autoSelect);
+        }
+
+        GoalComboBox.ItemsSource = items;
+        GoalComboBox.SelectedItem = autoSelect is null
+            ? null
+            : items.FirstOrDefault(g => g.Id == autoSelect.Id);
+    }
+
+    private void RebuildFlagCheckboxes(int? autoCheckFlagId = null, IEnumerable<int>? forceCheckedIds = null)
     {
         var checkedIds = FlagsPanel.Children.OfType<CheckBox>()
             .Where(cb => cb.IsChecked == true)
             .Select(cb => ((FlagViewModel)cb.Tag).Id)
             .ToHashSet();
 
+        if (forceCheckedIds is not null)
+        {
+            checkedIds.UnionWith(forceCheckedIds);
+        }
+
         FlagsPanel.Children.Clear();
-        foreach (var flag in _viewModel.Flags)
+        foreach (var flag in _viewModel.Flags.Where(f => f.IsActive || checkedIds.Contains(f.Id)))
         {
             FlagsPanel.Children.Add(new CheckBox
             {
@@ -207,7 +231,7 @@ public partial class AddTaskWindow : Window
         if (dialog.ShowDialog() != true) return;
 
         _viewModel.AddProject(dialog.Value);
-        ProjectComboBox.SelectedItem = _viewModel.Projects.LastOrDefault();
+        RebuildProjectItems(_viewModel.Projects.LastOrDefault());
     }
 
     private void DeleteProject_Click(object sender, RoutedEventArgs e)
@@ -221,7 +245,7 @@ public partial class AddTaskWindow : Window
         if (dialog.ShowDialog() != true) return;
 
         _viewModel.AddGoal(dialog.Value);
-        GoalComboBox.SelectedItem = _viewModel.Goals.LastOrDefault();
+        RebuildGoalItems(_viewModel.Goals.LastOrDefault());
     }
 
     private void DeleteGoal_Click(object sender, RoutedEventArgs e)

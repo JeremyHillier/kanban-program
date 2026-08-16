@@ -159,6 +159,10 @@ public class MainViewModel : ObservableObject
     public ObservableCollection<GoalViewModel> Goals { get; } = [];
     public ObservableCollection<FlagViewModel> Flags { get; } = [];
 
+    public IEnumerable<ProjectViewModel> ActiveProjects => Projects.Where(p => p.IsActive);
+    public IEnumerable<GoalViewModel> ActiveGoals => Goals.Where(g => g.IsActive);
+    public IEnumerable<FlagViewModel> ActiveFlags => Flags.Where(f => f.IsActive);
+
     public ObservableCollection<string> ProjectFilterOptions { get; } = ["All"];
     public ObservableCollection<string> PriorityFilterOptions { get; } = ["All", "High", "Medium", "Normal"];
     public ObservableCollection<string> WhoFilterOptions { get; } = ["All"];
@@ -407,7 +411,7 @@ public class MainViewModel : ObservableObject
     private void RefreshProjectFilterOptions()
     {
         var desired = new List<string> { "All" };
-        desired.AddRange(Projects.OrderBy(p => p.Name).Select(p => p.Name));
+        desired.AddRange(Projects.Where(p => p.IsActive).OrderBy(p => p.Name).Select(p => p.Name));
         ReplaceFilterOptions(ProjectFilterOptions, desired);
 
         if (!ProjectFilterOptions.Contains(SelectedProjectFilter))
@@ -435,7 +439,7 @@ public class MainViewModel : ObservableObject
     private void RefreshGoalFilterOptions()
     {
         var desired = new List<string> { "All" };
-        desired.AddRange(Goals.OrderBy(g => g.Name).Select(g => g.Name));
+        desired.AddRange(Goals.Where(g => g.IsActive).OrderBy(g => g.Name).Select(g => g.Name));
         ReplaceFilterOptions(GoalFilterOptions, desired);
 
         if (!GoalFilterOptions.Contains(SelectedGoalFilter))
@@ -447,7 +451,7 @@ public class MainViewModel : ObservableObject
     private void RefreshFlagFilterOptions()
     {
         var desired = new List<string> { "All" };
-        desired.AddRange(Flags.OrderBy(f => f.Name).Select(f => f.Name));
+        desired.AddRange(Flags.Where(f => f.IsActive).OrderBy(f => f.Name).Select(f => f.Name));
         ReplaceFilterOptions(FlagFilterOptions, desired);
 
         if (!FlagFilterOptions.Contains(SelectedFlagFilter))
@@ -643,6 +647,19 @@ public class MainViewModel : ObservableObject
         RefreshProjectFilterOptions();
     }
 
+    public void SetProjectActive(ProjectViewModel project, bool isActive)
+    {
+        if (project.IsActive == isActive) return;
+
+        project.IsActive = isActive;
+        _db.SetProjectActive(project.Id, isActive);
+        RefreshProjectFilterOptions();
+        OnPropertyChanged(nameof(ActiveProjects));
+    }
+
+    public int CountTasksUsingProject(ProjectViewModel project) =>
+        Columns.SelectMany(c => c.Cards).Count(c => c.ProjectId == project.Id);
+
     public void AddGoal(string name)
     {
         if (string.IsNullOrWhiteSpace(name)) return;
@@ -681,6 +698,19 @@ public class MainViewModel : ObservableObject
         RefreshGoalFilterOptions();
     }
 
+    public void SetGoalActive(GoalViewModel goal, bool isActive)
+    {
+        if (goal.IsActive == isActive) return;
+
+        goal.IsActive = isActive;
+        _db.SetGoalActive(goal.Id, isActive);
+        RefreshGoalFilterOptions();
+        OnPropertyChanged(nameof(ActiveGoals));
+    }
+
+    public int CountTasksUsingGoal(GoalViewModel goal) =>
+        Columns.SelectMany(c => c.Cards).Count(c => c.GoalId == goal.Id);
+
     public void AddFlag(string name)
     {
         if (string.IsNullOrWhiteSpace(name)) return;
@@ -711,6 +741,19 @@ public class MainViewModel : ObservableObject
 
         RefreshFlagFilterOptions();
     }
+
+    public void SetFlagActive(FlagViewModel flag, bool isActive)
+    {
+        if (flag.IsActive == isActive) return;
+
+        flag.IsActive = isActive;
+        _db.SetFlagActive(flag.Id, isActive);
+        RefreshFlagFilterOptions();
+        OnPropertyChanged(nameof(ActiveFlags));
+    }
+
+    public int CountTasksUsingFlag(FlagViewModel flag) =>
+        Columns.SelectMany(c => c.Cards).Count(c => c.Flags.Contains(flag));
 
     public List<DeletedCardInfo> GetDeletedCards() => _db.GetDeletedCards();
 
