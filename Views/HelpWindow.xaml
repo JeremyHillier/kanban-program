@@ -90,6 +90,7 @@
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Move the button panel to the right side of the board."/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Turn the startup splash screen on or off and set how long it stays visible."/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Start the app in full screen."/>
+                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• The window size and position are remembered automatically between sessions; the full-screen setting still applies on top of that when starting up."/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Require a yes/no confirmation before deleting a task, project, goal, or flag — turn this off to delete immediately without asking."/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Ask whether to add a note whenever a task is moved to Done; answering yes opens the task with the cursor already in the Notes field."/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Change where the task database file is stored."/>

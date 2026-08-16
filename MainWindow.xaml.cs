@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Threading;
@@ -10,11 +11,46 @@ namespace KanbanApp;
 public partial class MainWindow : Window
 {
     private Point _dragStartPoint;
+    private readonly DatabaseService _db;
 
     public MainWindow(DatabaseService db)
     {
         InitializeComponent();
+        _db = db;
         DataContext = new MainViewModel(db);
+
+        RestoreWindowBounds();
+        Closing += (_, _) => SaveWindowBounds();
+    }
+
+    private void RestoreWindowBounds()
+    {
+        var width = double.TryParse(_db.GetSetting("WindowWidth"), NumberStyles.Float, CultureInfo.InvariantCulture, out var w) ? w : Width;
+        var height = double.TryParse(_db.GetSetting("WindowHeight"), NumberStyles.Float, CultureInfo.InvariantCulture, out var h) ? h : Height;
+        Width = Math.Clamp(width, MinWidth, SystemParameters.VirtualScreenWidth);
+        Height = Math.Clamp(height, MinHeight, SystemParameters.VirtualScreenHeight);
+
+        var hasLeft = double.TryParse(_db.GetSetting("WindowLeft"), NumberStyles.Float, CultureInfo.InvariantCulture, out var left);
+        var hasTop = double.TryParse(_db.GetSetting("WindowTop"), NumberStyles.Float, CultureInfo.InvariantCulture, out var top);
+        if (hasLeft && hasTop &&
+            left + Width > SystemParameters.VirtualScreenLeft && left < SystemParameters.VirtualScreenLeft + SystemParameters.VirtualScreenWidth &&
+            top + 50 > SystemParameters.VirtualScreenTop && top < SystemParameters.VirtualScreenTop + SystemParameters.VirtualScreenHeight)
+        {
+            WindowStartupLocation = WindowStartupLocation.Manual;
+            Left = left;
+            Top = top;
+        }
+    }
+
+    private void SaveWindowBounds()
+    {
+        var bounds = WindowState == WindowState.Maximized ? RestoreBounds : new Rect(Left, Top, Width, Height);
+        if (bounds.Width <= 0 || bounds.Height <= 0) return;
+
+        _db.SetSetting("WindowWidth", bounds.Width.ToString(CultureInfo.InvariantCulture));
+        _db.SetSetting("WindowHeight", bounds.Height.ToString(CultureInfo.InvariantCulture));
+        _db.SetSetting("WindowLeft", bounds.Left.ToString(CultureInfo.InvariantCulture));
+        _db.SetSetting("WindowTop", bounds.Top.ToString(CultureInfo.InvariantCulture));
     }
 
     private void Card_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
