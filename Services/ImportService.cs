@@ -1,3 +1,4 @@
+using System.Globalization;
 using ClosedXML.Excel;
 using KanbanApp.Models;
 
@@ -14,8 +15,9 @@ public static class ImportService
         var sheet = workbook.AddWorksheet("Tasks");
 
         sheet.Range(1, 1, 1, Headers.Length).Merge();
-        sheet.Cell(1, 1).Value = "One task per row below. Category, Priority, Project, and Goal offer a dropdown of valid values. "
-            + "Due Date format: DD/MM/YYYY. Only Title is required.";
+        sheet.Cell(1, 1).Value = "One task per row below. Category and Priority must be chosen from their dropdown. "
+            + "Project and Goal offer a dropdown of existing values, but you can type a new one instead. "
+            + "Due Date: enter as MM/DD/YYYY (year optional, defaults to this year) — shown as DD-MMM-YYYY. Only Title is required.";
         sheet.Cell(1, 1).Style.Font.Italic = true;
         sheet.Cell(1, 1).Style.Font.FontColor = XLColor.FromArgb(0x88, 0x88, 0x88);
         sheet.Cell(1, 1).Style.Alignment.WrapText = true;
@@ -38,22 +40,23 @@ public static class ImportService
         sheet.Column(7).Width = 14;
 
         const int maxDataRow = 500;
-        sheet.Range(3, 6, maxDataRow, 6).Style.DateFormat.Format = "dd/mm/yyyy";
+        sheet.Range(3, 6, maxDataRow, 6).Style.DateFormat.Format = "dd-mmm-yyyy";
 
         var listsSheet = workbook.AddWorksheet("ValidationLists");
         listsSheet.Visibility = XLWorksheetVisibility.VeryHidden;
 
-        AddValidationList(sheet, listsSheet, column: 2, dataColumn: 2, maxDataRow, categories);
-        AddValidationList(sheet, listsSheet, column: 3, dataColumn: 3, maxDataRow, Priorities);
-        AddValidationList(sheet, listsSheet, column: 4, dataColumn: 4, maxDataRow, projects);
-        AddValidationList(sheet, listsSheet, column: 5, dataColumn: 5, maxDataRow, goals);
+        AddValidationList(sheet, listsSheet, column: 2, dataColumn: 2, maxDataRow, categories, restrict: true);
+        AddValidationList(sheet, listsSheet, column: 3, dataColumn: 3, maxDataRow, Priorities, restrict: true);
+        AddValidationList(sheet, listsSheet, column: 4, dataColumn: 4, maxDataRow, projects, restrict: false);
+        AddValidationList(sheet, listsSheet, column: 5, dataColumn: 5, maxDataRow, goals, restrict: false);
 
         sheet.SheetView.FreezeRows(2);
 
         workbook.SaveAs(filePath);
     }
 
-    private static void AddValidationList(IXLWorksheet sheet, IXLWorksheet listsSheet, int column, int dataColumn, int maxDataRow, IEnumerable<string> values)
+    private static void AddValidationList(IXLWorksheet sheet, IXLWorksheet listsSheet, int column, int dataColumn, int maxDataRow,
+        IEnumerable<string> values, bool restrict)
     {
         var list = values.Where(v => !string.IsNullOrWhiteSpace(v)).Distinct().ToList();
         if (list.Count == 0) return;
@@ -64,7 +67,16 @@ public static class ImportService
         }
 
         var listRange = listsSheet.Range(1, dataColumn, list.Count, dataColumn);
-        sheet.Range(3, column, maxDataRow, column).CreateDataValidation().List(listRange);
+        var validation = sheet.Range(3, column, maxDataRow, column).CreateDataValidation();
+        validation.List(listRange);
+
+        if (!restrict)
+        {
+            // Still shows the dropdown for convenience, but lets the user type a value that isn't on the list.
+            validation.ErrorStyle = XLErrorStyle.Information;
+            validation.InputTitle = "Existing or new";
+            validation.InputMessage = "Pick from the list, or type a new value.";
+        }
     }
 
     public static List<ImportedTaskRow> ReadTasks(string filePath)
@@ -115,7 +127,7 @@ public static class ImportService
                 {
                     dueDate = parsedDate;
                 }
-                else if (DateTime.TryParse(dueCell.GetString().Trim(), out var parsedText))
+                else if (DateTime.TryParse(dueCell.GetString().Trim(), CultureInfo.GetCultureInfo("en-US"), DateTimeStyles.None, out var parsedText))
                 {
                     dueDate = parsedText;
                 }
