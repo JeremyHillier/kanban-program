@@ -146,7 +146,7 @@
                                   BorderBrush="{DynamicResource CardBorderBrush}"/>
 
                         <TextBlock Text="Due" FontWeight="Bold" FontSize="11" Foreground="White" Margin="0,0,0,2"/>
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,4">
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,6">
                             <Button Style="{StaticResource SmallSquareButtonStyle}" Background="#FF42A5F5" Foreground="White" Click="DueToday_Click"
                                     ToolTip="Show only cards due today or earlier (overdue)">
                                 <TextBlock Text="Today" TextWrapping="Wrap" TextAlignment="Center"/>
@@ -164,10 +164,6 @@
                                 <TextBlock Text="No Due Date" TextWrapping="Wrap" TextAlignment="Center"/>
                             </Button>
                         </StackPanel>
-                        <ComboBox ItemsSource="{Binding DueFilterOptions}" SelectedItem="{Binding DueFilter, Mode=TwoWay}"
-                                  Padding="4" Margin="0,0,0,6" ToolTip="Show only cards due within this range"
-                                  Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
-                                  BorderBrush="{DynamicResource CardBorderBrush}"/>
 
                         <TextBlock Text="Keyword" FontWeight="Bold" FontSize="11" Foreground="White" Margin="0,0,0,2"/>
                         <TextBox Text="{Binding KeywordFilter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Padding="4" Margin="0,0,0,8"
