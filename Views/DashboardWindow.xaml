@@ -136,6 +136,24 @@
                         </ItemsPanelTemplate>
                     </ItemsControl.ItemsPanel>
                 </ItemsControl>
+
+                <TextBlock Text="By Project" Style="{StaticResource ChartHeaderStyle}"/>
+                <ItemsControl x:Name="ProjectChart" ItemTemplate="{StaticResource BarItemTemplate}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel Orientation="Horizontal"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                </ItemsControl>
+
+                <TextBlock Text="By Who" Style="{StaticResource ChartHeaderStyle}"/>
+                <ItemsControl x:Name="WhoChart" ItemTemplate="{StaticResource BarItemTemplate}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel Orientation="Horizontal"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                </ItemsControl>
             </StackPanel>
         </ScrollViewer>
 

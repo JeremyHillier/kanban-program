@@ -16,6 +16,18 @@ public partial class DashboardWindow : Window
     private static readonly Brush LaterBrush = new SolidColorBrush(Color.FromRgb(0x7E, 0x57, 0xC2));
     private static readonly Brush NoDueDateBrush = new SolidColorBrush(Color.FromRgb(0x9E, 0x9E, 0x9E));
 
+    private static readonly Brush[] CategoryPalette =
+    [
+        new SolidColorBrush(Color.FromRgb(0x42, 0xA5, 0xF5)), // blue
+        new SolidColorBrush(Color.FromRgb(0x26, 0xA6, 0x9A)), // teal
+        new SolidColorBrush(Color.FromRgb(0x7E, 0x57, 0xC2)), // purple
+        new SolidColorBrush(Color.FromRgb(0x66, 0xBB, 0x6A)), // green
+        new SolidColorBrush(Color.FromRgb(0xFF, 0xA7, 0x26)), // orange
+        new SolidColorBrush(Color.FromRgb(0xEF, 0x53, 0x50)), // red
+        new SolidColorBrush(Color.FromRgb(0xEC, 0x40, 0x7A)), // pink
+        new SolidColorBrush(Color.FromRgb(0x8D, 0x6E, 0x63)), // brown
+    ];
+
     private class BarItem
     {
         public required string Label { get; init; }
@@ -65,6 +77,16 @@ public partial class DashboardWindow : Window
             ("Later", later, LaterBrush),
             ("No Due Date", noDueDate, NoDueDateBrush)
         ]);
+
+        var projectGroups = allCards.GroupBy(c => c.ProjectName)
+            .OrderByDescending(g => g.Count()).ThenBy(g => g.Key, StringComparer.OrdinalIgnoreCase)
+            .Select((g, i) => (g.Key, g.Count(), CategoryPalette[i % CategoryPalette.Length]));
+        ProjectChart.ItemsSource = BuildBars(projectGroups);
+
+        var whoGroups = allCards.GroupBy(c => string.IsNullOrWhiteSpace(c.Who) ? "Unassigned" : c.Who!)
+            .OrderByDescending(g => g.Count()).ThenBy(g => g.Key, StringComparer.OrdinalIgnoreCase)
+            .Select((g, i) => (g.Key, g.Count(), CategoryPalette[i % CategoryPalette.Length]));
+        WhoChart.ItemsSource = BuildBars(whoGroups);
     }
 
     private static List<BarItem> BuildBars(IEnumerable<(string Label, int Count, Brush Brush)> data, double maxHeight = 140)

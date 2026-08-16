@@ -93,7 +93,7 @@
 
                 <TextBlock Text="Dashboard" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• The banner always shows Open, Overdue, Due Today, and Due This Week counts across all non-Done tasks."/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Double-click the banner to open the full Dashboard: summary tiles, a Status Distribution chart, a Priority Mix chart, and a Due Date Timeline for open tasks."/>
+                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Double-click the banner to open the full Dashboard: summary tiles, plus Status Distribution, Priority Mix, Due Date Timeline, By Project, and By Who charts."/>
 
                 <TextBlock Text="Display options" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Dark Mode / Light Mode switches the whole app's theme."/>
