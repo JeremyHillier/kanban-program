@@ -41,6 +41,7 @@ public static class ImportService
 
         const int maxDataRow = 500;
         sheet.Range(3, 6, maxDataRow, 6).Style.DateFormat.Format = "dd-mmm-yyyy";
+        sheet.Range(3, 6, maxDataRow, 6).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Left;
 
         var listsSheet = workbook.AddWorksheet("ValidationLists");
         listsSheet.Visibility = XLWorksheetVisibility.VeryHidden;
@@ -72,8 +73,9 @@ public static class ImportService
 
         if (!restrict)
         {
-            // Still shows the dropdown for convenience, but lets the user type a value that isn't on the list.
-            validation.ErrorStyle = XLErrorStyle.Information;
+            // Still shows the dropdown for convenience, but a typed value that isn't on the list is accepted silently.
+            validation.ShowErrorMessage = false;
+            validation.ShowInputMessage = true;
             validation.InputTitle = "Existing or new";
             validation.InputMessage = "Pick from the list, or type a new value.";
         }
