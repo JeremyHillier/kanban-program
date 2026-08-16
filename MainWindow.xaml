@@ -148,7 +148,7 @@
                         <TextBlock Text="Due" FontWeight="Bold" FontSize="11" Foreground="White" Margin="0,0,0,2"/>
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,4">
                             <Button Style="{StaticResource SmallSquareButtonStyle}" Background="#FF42A5F5" Foreground="White" Click="DueToday_Click"
-                                    ToolTip="Show only cards due today">
+                                    ToolTip="Show only cards due today or earlier (overdue)">
                                 <TextBlock Text="Today" TextWrapping="Wrap" TextAlignment="Center"/>
                             </Button>
                             <Button Style="{StaticResource SmallSquareButtonStyle}" Background="#FF26A69A" Foreground="White" Click="DueTomorrow_Click"
