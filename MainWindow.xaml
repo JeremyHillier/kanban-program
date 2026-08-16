@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:KanbanApp"
         xmlns:conv="clr-namespace:KanbanApp.Converters"
         mc:Ignorable="d"
-        Title="Kanban" Width="1700" Height="900" MinWidth="900" MinHeight="600"
+        Title="{Binding WindowTitle}" Width="1700" Height="900" MinWidth="900" MinHeight="600"
         Icon="Assets/app.ico"
         Background="{DynamicResource WindowBackgroundBrush}">
     <Window.Resources>
@@ -101,6 +101,9 @@
                            HorizontalAlignment="Center" VerticalAlignment="Center"
                            TextAlignment="Center"/>
                 <StackPanel HorizontalAlignment="Right" VerticalAlignment="Center">
+                    <TextBlock Text="TEST BUILD" FontSize="11" FontWeight="Bold" Foreground="#FFFFEB3B" Background="#FFB71C1C"
+                               Padding="6,1" HorizontalAlignment="Right" Margin="0,0,0,4"
+                               Visibility="{Binding IsTestChannel, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                     <TextBlock Text="{Binding AppVersion}" FontSize="11" Foreground="White" HorizontalAlignment="Right"/>
                     <TextBlock Text="{Binding CopyrightText}" FontSize="10" Foreground="#FFC0CBDA" HorizontalAlignment="Right"/>
                 </StackPanel>

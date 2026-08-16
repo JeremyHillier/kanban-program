@@ -1,4 +1,5 @@
 using System.IO;
+using System.Threading;
 using System.Windows;
 using System.Windows.Threading;
 using KanbanApp.Services;
@@ -8,9 +9,27 @@ namespace KanbanApp;
 
 public partial class App : Application
 {
+    private static Mutex? _instanceMutex;
+
     protected override void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
+
+        if (e.Args.Length > 1 && e.Args[0] == "--seed-data-folder")
+        {
+            SeedDataFolder(e.Args[1]);
+            Shutdown();
+            return;
+        }
+
+        _instanceMutex = new Mutex(true, $"KanbanTaskBoard-{AppChannel.Name}", out var createdNew);
+        if (!createdNew)
+        {
+            MessageBox.Show($"{AppChannel.DisplayName} is already running.", AppChannel.DisplayName,
+                MessageBoxButton.OK, MessageBoxImage.Information);
+            Shutdown();
+            return;
+        }
 
         var db = new DatabaseService();
         CleanUpOldDbFileAfterMove(db.DbPath);
@@ -44,6 +63,13 @@ public partial class App : Application
             splash.Close();
         };
         timer.Start();
+    }
+
+    private static void SeedDataFolder(string dataFolder)
+    {
+        if (AppConfig.ConfigFileExists()) return; // Never touch an existing configuration (e.g. on an upgrade).
+
+        new AppConfig { DbPath = Path.Combine(dataFolder, "kanban.db") }.Save();
     }
 
     private static void CleanUpOldDbFileAfterMove(string currentDbPath)

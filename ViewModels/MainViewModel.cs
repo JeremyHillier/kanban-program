@@ -14,6 +14,8 @@ public class MainViewModel : ObservableObject
 
     public string AppVersion { get; } = $"v{Assembly.GetExecutingAssembly().GetName().Version?.ToString(3)}";
     public string CopyrightText { get; } = "© Jeremy Hillier Consulting Inc";
+    public bool IsTestChannel => AppChannel.IsTest;
+    public string WindowTitle => AppChannel.DisplayName;
 
     private enum SortMode { ProjectThenDueDate, DueDateThenProject, WhoThenDueDate, PriorityThenDueDate }
 

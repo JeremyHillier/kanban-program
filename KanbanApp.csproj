@@ -6,8 +6,13 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
-    <Version>0.27.0</Version>
+    <Version>0.28.0</Version>
     <ApplicationIcon>Assets\app.ico</ApplicationIcon>
+
+    <AppChannel Condition="'$(AppChannel)'==''">Test</AppChannel>
+    <DefineConstants Condition="'$(AppChannel)'=='Test'">$(DefineConstants);TEST_CHANNEL</DefineConstants>
+    <Product Condition="'$(AppChannel)'=='Test'">Kanban Task Board (Test)</Product>
+    <Product Condition="'$(AppChannel)'=='Production'">Kanban Task Board</Product>
   </PropertyGroup>
 
   <ItemGroup>

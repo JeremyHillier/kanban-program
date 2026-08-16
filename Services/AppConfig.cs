@@ -6,7 +6,7 @@ namespace KanbanApp.Services;
 public class AppConfig
 {
     private static readonly string ConfigDir = Path.Combine(
-        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "KanbanApp");
+        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), AppChannel.DataFolderName);
 
     private static readonly string ConfigPath = Path.Combine(ConfigDir, "config.json");
 
@@ -15,6 +15,8 @@ public class AppConfig
     public string DbPath { get; set; } = DefaultDbPath;
 
     public string? PendingCleanupPath { get; set; }
+
+    public static bool ConfigFileExists() => File.Exists(ConfigPath);
 
     public static AppConfig Load()
     {
