@@ -72,7 +72,7 @@ public static class ReportService
                     ProjectName = card.ProjectName,
                     Priority = card.Priority,
                     DueDate = card.DueDate,
-                    Who = card.Who,
+                    Who = card.WhoId is null ? null : card.WhoName,
                     GoalName = card.GoalName,
                     Flags = card.Flags.Select(f => f.Name).ToList(),
                     SubTasks = card.SubTasks.Select(s => (s.Title, s.IsDone)).ToList(),
@@ -89,7 +89,7 @@ public static class ReportService
     {
         if (projectFilter != "All" && card.ProjectName != projectFilter) return false;
         if (priorityFilter != "All" && card.Priority != priorityFilter) return false;
-        if (whoFilter != "All" && (card.Who ?? string.Empty) != whoFilter) return false;
+        if (whoFilter != "All" && card.WhoName != whoFilter) return false;
         if (goalFilter != "All" && card.GoalName != goalFilter) return false;
         if (flagFilter != "All" && card.Flags.All(f => f.Name != flagFilter)) return false;
 

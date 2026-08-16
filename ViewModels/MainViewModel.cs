@@ -162,10 +162,12 @@ public class MainViewModel : ObservableObject
     public ObservableCollection<ProjectViewModel> Projects { get; } = [];
     public ObservableCollection<GoalViewModel> Goals { get; } = [];
     public ObservableCollection<FlagViewModel> Flags { get; } = [];
+    public ObservableCollection<PersonViewModel> People { get; } = [];
 
     public IEnumerable<ProjectViewModel> ActiveProjects => Projects.Where(p => p.IsActive);
     public IEnumerable<GoalViewModel> ActiveGoals => Goals.Where(g => g.IsActive);
     public IEnumerable<FlagViewModel> ActiveFlags => Flags.Where(f => f.IsActive);
+    public IEnumerable<PersonViewModel> ActivePeople => People.Where(p => p.IsActive);
 
     public ObservableCollection<string> ProjectFilterOptions { get; } = ["All"];
     public ObservableCollection<string> PriorityFilterOptions { get; } = ["All", "High", "Medium", "Normal"];
@@ -285,6 +287,7 @@ public class MainViewModel : ObservableObject
         Projects.Clear();
         Goals.Clear();
         Flags.Clear();
+        People.Clear();
 
         foreach (var project in _db.GetProjects())
         {
@@ -301,6 +304,11 @@ public class MainViewModel : ObservableObject
             Flags.Add(new FlagViewModel(flag));
         }
 
+        foreach (var person in _db.GetPeople())
+        {
+            People.Add(new PersonViewModel(person));
+        }
+
         var columns = _db.GetColumns();
         var cards = _db.GetCards();
 
@@ -315,6 +323,7 @@ public class MainViewModel : ObservableObject
                 {
                     ProjectName = ResolveProjectName(card.ProjectId),
                     GoalName = ResolveGoalName(card.GoalId),
+                    WhoName = ResolveWhoName(card.WhoId),
                     Flags = ResolveFlags(card.FlagIds),
                     SubTasks = card.SubTasks.Select(s => new SubTaskViewModel(s)).ToList(),
                     Attachments = card.Attachments.Select(a => new AttachmentViewModel(a)).ToList(),
@@ -372,7 +381,7 @@ public class MainViewModel : ObservableObject
             var sorted = _currentSortMode switch
             {
                 SortMode.DueDateThenProject => column.Cards.OrderBy(c => c.DueDate ?? DateTime.MaxValue).ThenBy(c => c.ProjectName, StringComparer.OrdinalIgnoreCase).ToList(),
-                SortMode.WhoThenDueDate => column.Cards.OrderBy(c => c.Who, StringComparer.OrdinalIgnoreCase).ThenBy(c => c.DueDate ?? DateTime.MaxValue).ToList(),
+                SortMode.WhoThenDueDate => column.Cards.OrderBy(c => c.WhoName, StringComparer.OrdinalIgnoreCase).ThenBy(c => c.DueDate ?? DateTime.MaxValue).ToList(),
                 SortMode.PriorityThenDueDate => column.Cards.OrderBy(c => PriorityRank(c.Priority)).ThenBy(c => c.DueDate ?? DateTime.MaxValue).ToList(),
                 _ => column.Cards.OrderBy(c => c.ProjectName, StringComparer.OrdinalIgnoreCase).ThenBy(c => c.DueDate ?? DateTime.MaxValue).ToList()
             };
@@ -428,11 +437,7 @@ public class MainViewModel : ObservableObject
     private void RefreshWhoFilterOptions()
     {
         var desired = new List<string> { "All" };
-        desired.AddRange(Columns.SelectMany(c => c.Cards)
-            .Select(c => c.Who)
-            .Where(w => !string.IsNullOrWhiteSpace(w))
-            .Distinct()
-            .OrderBy(w => w)!);
+        desired.AddRange(People.Where(p => p.IsActive).OrderBy(p => p.Name).Select(p => p.Name));
         ReplaceFilterOptions(WhoFilterOptions, desired);
 
         if (!WhoFilterOptions.Contains(SelectedWhoFilter))
@@ -477,7 +482,7 @@ public class MainViewModel : ObservableObject
     {
         if (SelectedProjectFilter != "All" && card.ProjectName != SelectedProjectFilter) return false;
         if (SelectedPriorityFilter != "All" && card.Priority != SelectedPriorityFilter) return false;
-        if (SelectedWhoFilter != "All" && (card.Who ?? string.Empty) != SelectedWhoFilter) return false;
+        if (SelectedWhoFilter != "All" && card.WhoName != SelectedWhoFilter) return false;
         if (SelectedGoalFilter != "All" && card.GoalName != SelectedGoalFilter) return false;
         if (SelectedFlagFilter != "All" && card.Flags.All(f => f.Name != SelectedFlagFilter)) return false;
 
@@ -500,7 +505,7 @@ public class MainViewModel : ObservableObject
             var keyword = KeywordFilter.Trim();
             var matchesKeyword = card.Title.Contains(keyword, StringComparison.OrdinalIgnoreCase)
                 || card.ProjectName.Contains(keyword, StringComparison.OrdinalIgnoreCase)
-                || (card.Who ?? string.Empty).Contains(keyword, StringComparison.OrdinalIgnoreCase);
+                || card.WhoName.Contains(keyword, StringComparison.OrdinalIgnoreCase);
             if (!matchesKeyword) return false;
         }
 
@@ -539,17 +544,23 @@ public class MainViewModel : ObservableObject
         return Goals.FirstOrDefault(g => g.Id == goalId)?.Name ?? "No Goal";
     }
 
+    private string ResolveWhoName(int? whoId)
+    {
+        if (whoId is null) return "Unassigned";
+        return People.FirstOrDefault(p => p.Id == whoId)?.Name ?? "Unassigned";
+    }
+
     private List<FlagViewModel> ResolveFlags(List<int> flagIds) =>
         Flags.Where(f => flagIds.Contains(f.Id)).ToList();
 
-    public CardViewModel AddCard(string title, ColumnViewModel column, ProjectViewModel? project, string priority, DateTime? dueDate, string? who,
+    public CardViewModel AddCard(string title, ColumnViewModel column, ProjectViewModel? project, string priority, DateTime? dueDate, PersonViewModel? who,
         bool isRecurring, string? recurrencePattern, GoalViewModel? goal, List<FlagViewModel>? flags = null, List<SubTaskViewModel>? subTasks = null,
         string? notes = null, bool isImported = false, List<AttachmentViewModel>? attachments = null)
     {
         flags ??= [];
         subTasks ??= [];
         attachments ??= [];
-        var card = _db.AddCard(column.Id, title.Trim(), project?.Id, column.Name, priority, dueDate, who, isRecurring, recurrencePattern, goal?.Id, notes, isImported);
+        var card = _db.AddCard(column.Id, title.Trim(), project?.Id, column.Name, priority, dueDate, who?.Id, isRecurring, recurrencePattern, goal?.Id, notes, isImported);
         _db.SetCardFlags(card.Id, flags.Select(f => f.Id));
         var subTaskItems = _db.SetCardSubTasks(card.Id, subTasks.Select(s => (s.Title, s.IsDone)).ToList());
         var attachmentItems = _db.SetCardAttachments(card.Id, attachments.Select(a => (a.FilePath, a.DisplayName, a.AddedDate)).ToList());
@@ -557,6 +568,7 @@ public class MainViewModel : ObservableObject
         {
             ProjectName = project?.Name ?? "No Project",
             GoalName = goal?.Name ?? "No Goal",
+            WhoName = who?.Name ?? "Unassigned",
             Flags = flags,
             SubTasks = subTaskItems.Select(s => new SubTaskViewModel(s)).ToList(),
             Attachments = attachmentItems.Select(a => new AttachmentViewModel(a)).ToList(),
@@ -564,7 +576,6 @@ public class MainViewModel : ObservableObject
         };
         column.Cards.Add(cardVm);
 
-        RefreshWhoFilterOptions();
         cardVm.IsVisible = MatchesFilters(cardVm);
         ApplySort();
         RefreshDashboardStats();
@@ -572,7 +583,7 @@ public class MainViewModel : ObservableObject
         return cardVm;
     }
 
-    public void EditCard(CardViewModel card, string title, ColumnViewModel newColumn, ProjectViewModel? project, string priority, DateTime? dueDate, string? who,
+    public void EditCard(CardViewModel card, string title, ColumnViewModel newColumn, ProjectViewModel? project, string priority, DateTime? dueDate, PersonViewModel? who,
         bool isRecurring, string? recurrencePattern, GoalViewModel? goal, List<FlagViewModel>? flags = null, List<SubTaskViewModel>? subTasks = null,
         string? notes = null, List<AttachmentViewModel>? attachments = null)
     {
@@ -588,7 +599,8 @@ public class MainViewModel : ObservableObject
         card.ProjectName = project?.Name ?? "No Project";
         card.Priority = priority;
         card.DueDate = dueDate;
-        card.Who = who;
+        card.WhoId = who?.Id;
+        card.WhoName = who?.Name ?? "Unassigned";
         card.IsRecurring = isRecurring;
         card.RecurrencePattern = recurrencePattern;
         card.GoalId = goal?.Id;
@@ -596,7 +608,7 @@ public class MainViewModel : ObservableObject
         card.Flags = flags;
         card.Notes = notes;
 
-        card.LastUpdated = _db.UpdateCard(card.Id, card.Title, project?.Id, priority, dueDate, who, isRecurring, recurrencePattern, goal?.Id, notes);
+        card.LastUpdated = _db.UpdateCard(card.Id, card.Title, project?.Id, priority, dueDate, who?.Id, isRecurring, recurrencePattern, goal?.Id, notes);
         _db.SetCardFlags(card.Id, flags.Select(f => f.Id));
         var subTaskItems = _db.SetCardSubTasks(card.Id, subTasks.Select(s => (s.Title, s.IsDone)).ToList());
         card.SubTasks = subTaskItems.Select(s => new SubTaskViewModel(s)).ToList();
@@ -610,7 +622,6 @@ public class MainViewModel : ObservableObject
             MoveCard(card, newColumn);
         }
 
-        RefreshWhoFilterOptions();
         card.IsVisible = MatchesFilters(card);
         ApplySort();
         RefreshDashboardStats();
@@ -696,6 +707,57 @@ public class MainViewModel : ObservableObject
 
     public int CountTasksUsingProject(ProjectViewModel project) =>
         Columns.SelectMany(c => c.Cards).Count(c => c.ProjectId == project.Id);
+
+    public void AddPerson(string name)
+    {
+        if (string.IsNullOrWhiteSpace(name)) return;
+
+        var person = _db.AddPerson(name.Trim());
+        People.Add(new PersonViewModel(person));
+        RefreshWhoFilterOptions();
+    }
+
+    public void RenamePerson(PersonViewModel person, string newName)
+    {
+        if (string.IsNullOrWhiteSpace(newName) || person.Name == newName.Trim()) return;
+
+        person.Name = newName.Trim();
+        _db.RenamePerson(person.Id, person.Name);
+
+        foreach (var card in Columns.SelectMany(c => c.Cards).Where(c => c.WhoId == person.Id))
+        {
+            card.WhoName = person.Name;
+        }
+
+        RefreshWhoFilterOptions();
+    }
+
+    public void DeletePerson(PersonViewModel person)
+    {
+        _db.DeletePerson(person.Id);
+        People.Remove(person);
+
+        foreach (var card in Columns.SelectMany(c => c.Cards).Where(c => c.WhoId == person.Id))
+        {
+            card.WhoId = null;
+            card.WhoName = "Unassigned";
+        }
+
+        RefreshWhoFilterOptions();
+    }
+
+    public void SetPersonActive(PersonViewModel person, bool isActive)
+    {
+        if (person.IsActive == isActive) return;
+
+        person.IsActive = isActive;
+        _db.SetPersonActive(person.Id, isActive);
+        RefreshWhoFilterOptions();
+        OnPropertyChanged(nameof(ActivePeople));
+    }
+
+    public int CountTasksUsingPerson(PersonViewModel person) =>
+        Columns.SelectMany(c => c.Cards).Count(c => c.WhoId == person.Id);
 
     public void AddGoal(string name)
     {
@@ -839,11 +901,12 @@ public class MainViewModel : ObservableObject
         var nextDueDate = CalculateNextDueDate(completedCard.DueDate ?? DateTime.Today, completedCard.RecurrencePattern!);
         var project = Projects.FirstOrDefault(p => p.Id == completedCard.ProjectId);
         var goal = Goals.FirstOrDefault(g => g.Id == completedCard.GoalId);
+        var who = People.FirstOrDefault(p => p.Id == completedCard.WhoId);
         var freshSubTasks = completedCard.SubTasks
             .Select(s => new SubTaskViewModel(new SubTaskItem { Title = s.Title, IsDone = false }))
             .ToList();
 
-        AddCard(completedCard.Title, toDoColumn, project, completedCard.Priority, nextDueDate, completedCard.Who,
+        AddCard(completedCard.Title, toDoColumn, project, completedCard.Priority, nextDueDate, who,
             true, completedCard.RecurrencePattern, goal, completedCard.Flags, freshSubTasks, completedCard.Notes);
     }
 
@@ -941,7 +1004,17 @@ public class MainViewModel : ObservableObject
                 }
             }
 
-            var who = string.IsNullOrWhiteSpace(row.Who) ? null : row.Who.Trim();
+            PersonViewModel? who = null;
+            if (!string.IsNullOrWhiteSpace(row.Who))
+            {
+                var name = row.Who.Trim();
+                who = People.FirstOrDefault(p => string.Equals(p.Name, name, StringComparison.OrdinalIgnoreCase));
+                if (who is null)
+                {
+                    AddPerson(name);
+                    who = People.FirstOrDefault(p => string.Equals(p.Name, name, StringComparison.OrdinalIgnoreCase));
+                }
+            }
 
             var cardVm = AddCard(row.Title.Trim(), column, project, priority, row.DueDate, who,
                 false, null, goal, isImported: true);

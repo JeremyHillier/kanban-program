@@ -94,24 +94,50 @@ public class CardViewModel(CardItem model) : ObservableObject
             Model.DueDate = value;
             OnPropertyChanged();
             OnPropertyChanged(nameof(DueDateDisplay));
+            OnPropertyChanged(nameof(DueAndWhoDisplay));
         }
     }
 
     public string DueDateDisplay => DueDate is null ? string.Empty : $"Due {DueDate:MMM d, yyyy}";
 
-    public string? Who
+    public int? WhoId
     {
-        get => Model.Who;
+        get => Model.WhoId;
         set
         {
-            if (Model.Who == value) return;
-            Model.Who = value;
+            if (Model.WhoId == value) return;
+            Model.WhoId = value;
             OnPropertyChanged();
-            OnPropertyChanged(nameof(WhoDisplay));
         }
     }
 
-    public string WhoDisplay => string.IsNullOrWhiteSpace(Who) ? string.Empty : $"Assigned: {Who}";
+    private string _whoName = string.Empty;
+    public string WhoName
+    {
+        get => _whoName;
+        set
+        {
+            if (SetField(ref _whoName, value))
+            {
+                OnPropertyChanged(nameof(WhoDisplay));
+                OnPropertyChanged(nameof(DueAndWhoDisplay));
+            }
+        }
+    }
+
+    public string WhoDisplay => string.IsNullOrWhiteSpace(WhoName) || WhoName == "Unassigned" ? string.Empty : $"Assigned: {WhoName}";
+
+    public string DueAndWhoDisplay
+    {
+        get
+        {
+            var due = DueDateDisplay;
+            var who = WhoDisplay;
+            if (due.Length == 0) return who;
+            if (who.Length == 0) return due;
+            return $"{due}   {who}";
+        }
+    }
 
     public string? Notes
     {

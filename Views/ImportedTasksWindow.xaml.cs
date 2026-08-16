@@ -39,8 +39,9 @@ public partial class ImportedTasksWindow : Window
 
             var project = row.ProjectId is null ? null : _viewModel.Projects.FirstOrDefault(p => p.Id == row.ProjectId);
             var goal = row.GoalId is null ? null : _viewModel.Goals.FirstOrDefault(g => g.Id == row.GoalId);
+            var who = row.WhoId is null ? null : _viewModel.People.FirstOrDefault(p => p.Id == row.WhoId);
 
-            _viewModel.EditCard(row.Card, row.Title, column, project, row.Priority, row.DueDate, row.Who,
+            _viewModel.EditCard(row.Card, row.Title, column, project, row.Priority, row.DueDate, who,
                 row.Card.IsRecurring, row.Card.RecurrencePattern, goal, row.Card.Flags, row.Card.SubTasks, row.Card.Notes,
                 attachments: row.Card.Attachments);
 

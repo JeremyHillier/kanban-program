@@ -128,14 +128,19 @@
             <Button Content="+" Style="{StaticResource NewLinkButtonStyle}" ToolTip="Add new goal" Click="NewGoal_Click"/>
             <Button Content="−" Style="{StaticResource DeleteLinkButtonStyle}" ToolTip="Clear goal" Click="DeleteGoal_Click"/>
         </StackPanel>
-        <TextBlock Grid.Row="6" Grid.Column="2" Text="Who" Style="{StaticResource FieldLabelStyle}"/>
+        <StackPanel Grid.Row="6" Grid.Column="2" Style="{StaticResource FieldLabelRowStyle}">
+            <TextBlock Text="Who" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Center"/>
+            <Button Content="+" Style="{StaticResource NewLinkButtonStyle}" ToolTip="Add new person" Click="NewWho_Click"/>
+            <Button Content="−" Style="{StaticResource DeleteLinkButtonStyle}" ToolTip="Clear who" Click="DeleteWho_Click"/>
+        </StackPanel>
         <ComboBox Grid.Row="7" Grid.Column="0" x:Name="GoalComboBox" Padding="6" SelectedIndex="-1" VerticalAlignment="Top"
                   DisplayMemberPath="Name"
                   Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
                   BorderBrush="{DynamicResource CardBorderBrush}"/>
-        <TextBox Grid.Row="7" Grid.Column="2" x:Name="WhoTextBox" Padding="6" VerticalAlignment="Top"
-                 Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
-                 BorderBrush="{DynamicResource CardBorderBrush}"/>
+        <ComboBox Grid.Row="7" Grid.Column="2" x:Name="WhoComboBox" Padding="6" SelectedIndex="-1" VerticalAlignment="Top"
+                  DisplayMemberPath="Name"
+                  Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                  BorderBrush="{DynamicResource CardBorderBrush}"/>
 
         <TextBlock Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="3" Text="Notes" Style="{StaticResource FieldLabelStyle}"/>
         <TextBox Grid.Row="9" Grid.Column="0" Grid.ColumnSpan="3" x:Name="NotesTextBox" Height="50" Padding="6"

@@ -83,7 +83,7 @@ public partial class DashboardWindow : Window
             .Select((g, i) => (g.Key, g.Count(), CategoryPalette[i % CategoryPalette.Length]));
         ProjectChart.ItemsSource = BuildBars(projectGroups);
 
-        var whoGroups = allCards.GroupBy(c => string.IsNullOrWhiteSpace(c.Who) ? "Unassigned" : c.Who!)
+        var whoGroups = allCards.GroupBy(c => c.WhoName)
             .OrderByDescending(g => g.Count()).ThenBy(g => g.Key, StringComparer.OrdinalIgnoreCase)
             .Select((g, i) => (g.Key, g.Count(), CategoryPalette[i % CategoryPalette.Length]));
         WhoChart.ItemsSource = BuildBars(whoGroups);

@@ -9,14 +9,14 @@ public static class ImportService
     private static readonly string[] Headers = ["Title", "Category", "Priority", "Project", "Goal", "Due Date", "Who"];
     private static readonly string[] Priorities = ["High", "Medium", "Normal"];
 
-    public static void SaveTemplate(string filePath, IEnumerable<string> categories, IEnumerable<string> projects, IEnumerable<string> goals)
+    public static void SaveTemplate(string filePath, IEnumerable<string> categories, IEnumerable<string> projects, IEnumerable<string> goals, IEnumerable<string> people)
     {
         using var workbook = new XLWorkbook();
         var sheet = workbook.AddWorksheet("Tasks");
 
         sheet.Range(1, 1, 1, Headers.Length).Merge();
         sheet.Cell(1, 1).Value = "One task per row below. Category and Priority must be chosen from their dropdown. "
-            + "Project and Goal offer a dropdown of existing values, but you can type a new one instead. "
+            + "Project, Goal, and Who offer a dropdown of existing values, but you can type a new one instead. "
             + "Due Date: enter as MM/DD/YYYY (year optional, defaults to this year) — shown as DD-MMM-YYYY. Only Title is required.";
         sheet.Cell(1, 1).Style.Font.Italic = true;
         sheet.Cell(1, 1).Style.Font.FontColor = XLColor.FromArgb(0x88, 0x88, 0x88);
@@ -50,6 +50,7 @@ public static class ImportService
         AddValidationList(sheet, listsSheet, column: 3, dataColumn: 3, maxDataRow, Priorities, restrict: true);
         AddValidationList(sheet, listsSheet, column: 4, dataColumn: 4, maxDataRow, projects, restrict: false);
         AddValidationList(sheet, listsSheet, column: 5, dataColumn: 5, maxDataRow, goals, restrict: false);
+        AddValidationList(sheet, listsSheet, column: 7, dataColumn: 7, maxDataRow, people, restrict: false);
 
         sheet.SheetView.FreezeRows(2);
 

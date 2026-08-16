@@ -99,6 +99,12 @@ public class DatabaseService
                     DisplayName TEXT NOT NULL,
                     AddedDate TEXT NOT NULL
                 );
+                CREATE TABLE IF NOT EXISTS People (
+                    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    Name TEXT NOT NULL,
+                    SortOrder INTEGER NOT NULL,
+                    IsActive INTEGER NOT NULL DEFAULT 1
+                );
                 """;
             cmd.ExecuteNonQuery();
         }
@@ -115,9 +121,12 @@ public class DatabaseService
         MigrateColumn(connection, "Cards", "IsDeleted", "INTEGER NOT NULL DEFAULT 0");
         MigrateColumn(connection, "Cards", "Notes", "TEXT NULL");
         MigrateColumn(connection, "Cards", "IsImported", "INTEGER NOT NULL DEFAULT 0");
+        MigrateColumn(connection, "Cards", "WhoId", "INTEGER NULL");
         MigrateColumn(connection, "Projects", "IsActive", "INTEGER NOT NULL DEFAULT 1");
         MigrateColumn(connection, "Goals", "IsActive", "INTEGER NOT NULL DEFAULT 1");
         MigrateColumn(connection, "Flags", "IsActive", "INTEGER NOT NULL DEFAULT 1");
+
+        BackfillPeopleFromLegacyWho(connection);
 
         using (var checkCmd = connection.CreateCommand())
         {
@@ -140,6 +149,38 @@ public class DatabaseService
             {
                 AddProject("General", connection);
             }
+        }
+    }
+
+    private void BackfillPeopleFromLegacyWho(SqliteConnection connection)
+    {
+        using (var checkCmd = connection.CreateCommand())
+        {
+            checkCmd.CommandText = "SELECT COUNT(*) FROM People;";
+            var count = (long)checkCmd.ExecuteScalar()!;
+            if (count > 0) return; // Already migrated, or people have already been added through the app.
+        }
+
+        var distinctNames = new List<string>();
+        using (var selectCmd = connection.CreateCommand())
+        {
+            selectCmd.CommandText = "SELECT DISTINCT Who FROM Cards WHERE Who IS NOT NULL AND TRIM(Who) != '' ORDER BY Who;";
+            using var reader = selectCmd.ExecuteReader();
+            while (reader.Read())
+            {
+                distinctNames.Add(reader.GetString(0).Trim());
+            }
+        }
+
+        foreach (var name in distinctNames.Distinct(StringComparer.OrdinalIgnoreCase))
+        {
+            var person = AddPerson(name, connection);
+
+            using var updateCmd = connection.CreateCommand();
+            updateCmd.CommandText = "UPDATE Cards SET WhoId = $whoId WHERE Who = $who COLLATE NOCASE;";
+            updateCmd.Parameters.AddWithValue("$whoId", person.Id);
+            updateCmd.Parameters.AddWithValue("$who", name);
+            updateCmd.ExecuteNonQuery();
         }
     }
 
@@ -224,7 +265,7 @@ public class DatabaseService
         using var connection = OpenConnection();
         using var cmd = connection.CreateCommand();
         cmd.CommandText = """
-            SELECT Id, ColumnId, Title, SortOrder, ProjectId, Priority, DueDate, Who, LastUpdated, IsRecurring, RecurrencePattern, GoalId, Notes, IsImported
+            SELECT Id, ColumnId, Title, SortOrder, ProjectId, Priority, DueDate, WhoId, LastUpdated, IsRecurring, RecurrencePattern, GoalId, Notes, IsImported
             FROM Cards WHERE IsArchived = 0 AND IsDeleted = 0 ORDER BY SortOrder;
             """;
 
@@ -242,7 +283,7 @@ public class DatabaseService
                     ProjectId = reader.IsDBNull(4) ? null : reader.GetInt32(4),
                     Priority = reader.GetString(5),
                     DueDate = reader.IsDBNull(6) ? null : DateTime.Parse(reader.GetString(6)),
-                    Who = reader.IsDBNull(7) ? null : reader.GetString(7),
+                    WhoId = reader.IsDBNull(7) ? null : reader.GetInt32(7),
                     LastUpdated = reader.IsDBNull(8) ? null : DateTime.Parse(reader.GetString(8)),
                     IsRecurring = reader.GetInt32(9) != 0,
                     RecurrencePattern = reader.IsDBNull(10) ? null : reader.GetString(10),
@@ -326,6 +367,27 @@ public class DatabaseService
         while (reader.Read())
         {
             result.Add(new Project
+            {
+                Id = reader.GetInt32(0),
+                Name = reader.GetString(1),
+                SortOrder = reader.GetInt32(2),
+                IsActive = reader.GetInt32(3) != 0
+            });
+        }
+        return result;
+    }
+
+    public List<Person> GetPeople()
+    {
+        using var connection = OpenConnection();
+        using var cmd = connection.CreateCommand();
+        cmd.CommandText = "SELECT Id, Name, SortOrder, IsActive FROM People ORDER BY SortOrder;";
+
+        var result = new List<Person>();
+        using var reader = cmd.ExecuteReader();
+        while (reader.Read())
+        {
+            result.Add(new Person
             {
                 Id = reader.GetInt32(0),
                 Name = reader.GetString(1),
@@ -560,7 +622,7 @@ public class DatabaseService
         return new KanbanColumn { Id = (int)id, Name = name, SortOrder = (int)sortOrder };
     }
 
-    public CardItem AddCard(int columnId, string title, int? projectId, string columnName, string priority, DateTime? dueDate, string? who,
+    public CardItem AddCard(int columnId, string title, int? projectId, string columnName, string priority, DateTime? dueDate, int? whoId,
         bool isRecurring, string? recurrencePattern, int? goalId, string? notes = null, bool isImported = false)
     {
         using var connection = OpenConnection();
@@ -573,8 +635,8 @@ public class DatabaseService
         var now = NowStamp();
         using var insertCmd = connection.CreateCommand();
         insertCmd.CommandText = """
-            INSERT INTO Cards (ColumnId, Title, SortOrder, ProjectId, Priority, DueDate, Who, LastUpdated, IsRecurring, RecurrencePattern, GoalId, Notes, IsImported)
-            VALUES ($columnId, $title, $sortOrder, $projectId, $priority, $dueDate, $who, $lastUpdated, $isRecurring, $recurrencePattern, $goalId, $notes, $isImported);
+            INSERT INTO Cards (ColumnId, Title, SortOrder, ProjectId, Priority, DueDate, WhoId, LastUpdated, IsRecurring, RecurrencePattern, GoalId, Notes, IsImported)
+            VALUES ($columnId, $title, $sortOrder, $projectId, $priority, $dueDate, $whoId, $lastUpdated, $isRecurring, $recurrencePattern, $goalId, $notes, $isImported);
             SELECT last_insert_rowid();
             """;
         insertCmd.Parameters.AddWithValue("$columnId", columnId);
@@ -583,7 +645,7 @@ public class DatabaseService
         insertCmd.Parameters.AddWithValue("$projectId", (object?)projectId ?? DBNull.Value);
         insertCmd.Parameters.AddWithValue("$priority", priority);
         insertCmd.Parameters.AddWithValue("$dueDate", (object?)dueDate?.ToString("yyyy-MM-dd") ?? DBNull.Value);
-        insertCmd.Parameters.AddWithValue("$who", (object?)who ?? DBNull.Value);
+        insertCmd.Parameters.AddWithValue("$whoId", (object?)whoId ?? DBNull.Value);
         insertCmd.Parameters.AddWithValue("$lastUpdated", now);
         insertCmd.Parameters.AddWithValue("$isRecurring", isRecurring ? 1 : 0);
         insertCmd.Parameters.AddWithValue("$recurrencePattern", (object?)recurrencePattern ?? DBNull.Value);
@@ -597,7 +659,7 @@ public class DatabaseService
         return new CardItem
         {
             Id = (int)id, ColumnId = columnId, Title = title, SortOrder = (int)sortOrder, ProjectId = projectId,
-            Priority = priority, DueDate = dueDate, Who = who, LastUpdated = DateTime.Parse(now),
+            Priority = priority, DueDate = dueDate, WhoId = whoId, LastUpdated = DateTime.Parse(now),
             IsRecurring = isRecurring, RecurrencePattern = recurrencePattern, GoalId = goalId, Notes = notes, IsImported = isImported
         };
     }
@@ -612,7 +674,7 @@ public class DatabaseService
         cmd.ExecuteNonQuery();
     }
 
-    public DateTime UpdateCard(int cardId, string title, int? projectId, string priority, DateTime? dueDate, string? who,
+    public DateTime UpdateCard(int cardId, string title, int? projectId, string priority, DateTime? dueDate, int? whoId,
         bool isRecurring, string? recurrencePattern, int? goalId, string? notes = null)
     {
         using var connection = OpenConnection();
@@ -622,7 +684,7 @@ public class DatabaseService
         {
             cmd.CommandText = """
                 UPDATE Cards SET Title = $title, ProjectId = $projectId, Priority = $priority,
-                    DueDate = $dueDate, Who = $who, LastUpdated = $lastUpdated,
+                    DueDate = $dueDate, WhoId = $whoId, LastUpdated = $lastUpdated,
                     IsRecurring = $isRecurring, RecurrencePattern = $recurrencePattern, GoalId = $goalId, Notes = $notes
                 WHERE Id = $id;
                 """;
@@ -630,7 +692,7 @@ public class DatabaseService
             cmd.Parameters.AddWithValue("$projectId", (object?)projectId ?? DBNull.Value);
             cmd.Parameters.AddWithValue("$priority", priority);
             cmd.Parameters.AddWithValue("$dueDate", (object?)dueDate?.ToString("yyyy-MM-dd") ?? DBNull.Value);
-            cmd.Parameters.AddWithValue("$who", (object?)who ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("$whoId", (object?)whoId ?? DBNull.Value);
             cmd.Parameters.AddWithValue("$lastUpdated", now);
             cmd.Parameters.AddWithValue("$isRecurring", isRecurring ? 1 : 0);
             cmd.Parameters.AddWithValue("$recurrencePattern", (object?)recurrencePattern ?? DBNull.Value);
@@ -727,6 +789,67 @@ public class DatabaseService
         using var deleteCmd = connection.CreateCommand();
         deleteCmd.CommandText = "DELETE FROM Projects WHERE Id = $id;";
         deleteCmd.Parameters.AddWithValue("$id", projectId);
+        deleteCmd.ExecuteNonQuery();
+    }
+
+    public Person AddPerson(string name)
+    {
+        using var connection = OpenConnection();
+        return AddPerson(name, connection);
+    }
+
+    private Person AddPerson(string name, SqliteConnection connection)
+    {
+        using var maxCmd = connection.CreateCommand();
+        maxCmd.CommandText = "SELECT COALESCE(MAX(SortOrder), -1) + 1 FROM People;";
+        var sortOrder = (long)maxCmd.ExecuteScalar()!;
+
+        using var insertCmd = connection.CreateCommand();
+        insertCmd.CommandText = """
+            INSERT INTO People (Name, SortOrder) VALUES ($name, $sortOrder);
+            SELECT last_insert_rowid();
+            """;
+        insertCmd.Parameters.AddWithValue("$name", name);
+        insertCmd.Parameters.AddWithValue("$sortOrder", sortOrder);
+        var id = (long)insertCmd.ExecuteScalar()!;
+
+        return new Person { Id = (int)id, Name = name, SortOrder = (int)sortOrder };
+    }
+
+    public void RenamePerson(int personId, string name)
+    {
+        using var connection = OpenConnection();
+        using var cmd = connection.CreateCommand();
+        cmd.CommandText = "UPDATE People SET Name = $name WHERE Id = $id;";
+        cmd.Parameters.AddWithValue("$name", name);
+        cmd.Parameters.AddWithValue("$id", personId);
+        cmd.ExecuteNonQuery();
+    }
+
+    public void SetPersonActive(int personId, bool isActive)
+    {
+        using var connection = OpenConnection();
+        using var cmd = connection.CreateCommand();
+        cmd.CommandText = "UPDATE People SET IsActive = $isActive WHERE Id = $id;";
+        cmd.Parameters.AddWithValue("$isActive", isActive ? 1 : 0);
+        cmd.Parameters.AddWithValue("$id", personId);
+        cmd.ExecuteNonQuery();
+    }
+
+    public void DeletePerson(int personId)
+    {
+        using var connection = OpenConnection();
+
+        using (var clearCmd = connection.CreateCommand())
+        {
+            clearCmd.CommandText = "UPDATE Cards SET WhoId = NULL WHERE WhoId = $id;";
+            clearCmd.Parameters.AddWithValue("$id", personId);
+            clearCmd.ExecuteNonQuery();
+        }
+
+        using var deleteCmd = connection.CreateCommand();
+        deleteCmd.CommandText = "DELETE FROM People WHERE Id = $id;";
+        deleteCmd.Parameters.AddWithValue("$id", personId);
         deleteCmd.ExecuteNonQuery();
     }
 

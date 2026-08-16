@@ -48,7 +48,7 @@
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Double-click a column header (e.g. To Do, In Progress) to create a task already assigned to that column."/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Double-click any card to open it for editing."/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Each task can have a Category, Project, Goal, Priority, Due Date, Who it's assigned to, free-form Notes, Flags, and a checklist of Sub-tasks."/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Use the + and − buttons next to Project and Goal to add a new one on the fly, or clear the current selection without deleting the record."/>
+                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Use the + and − buttons next to Project, Goal, and Who to add a new one on the fly, or clear the current selection without deleting the record."/>
 
                 <TextBlock Text="Sub-tasks" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Add sub-task rows in the task dialog; each has its own checkbox."/>
@@ -67,11 +67,11 @@
                 <TextBlock Text="Quick actions on a card" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• The letter buttons move a card directly to To Do, In Progress, On Hold, or Waiting; the check mark moves it to Done; the X deletes it."/>
 
-                <TextBlock Text="Organizing: Projects, Goals, Flags" Style="{StaticResource HelpSectionHeaderStyle}"/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Manage Projects / Manage Goals / Manage Flags let you add, rename, or permanently delete these from the whole board."/>
+                <TextBlock Text="Organizing: Projects, Goals, Flags, Who" Style="{StaticResource HelpSectionHeaderStyle}"/>
+                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Manage Projects / Manage Goals / Manage Flags / Manage Who let you add, rename, or permanently delete these from the whole board."/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Flags are multi-select tags — a task can carry more than one."/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Untick a Project's, Goal's, or Flag's Active checkbox to retire it: it disappears from filters and from selection on new or edited tasks, but any task already using it keeps showing its name and is unaffected."/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Delete warns you first with the number of tasks currently using that Project, Goal, or Flag, since deleting it removes it from those tasks and cannot be undone."/>
+                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Untick a Project's, Goal's, Flag's, or Who's Active checkbox to retire it: it disappears from filters and from selection on new or edited tasks, but any task already using it keeps showing its name and is unaffected."/>
+                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Delete warns you first with the number of tasks currently using that Project, Goal, Flag, or Who, since deleting it removes it from those tasks and cannot be undone."/>
 
                 <TextBlock Text="Sorting and filtering" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Sort by Project, Due Date, Who, or Priority reorders every column. Sort by Due Date sorts by due date then project; Sort by Priority sorts by priority then due date."/>
@@ -87,9 +87,9 @@
 
                 <TextBlock Text="Importing tasks" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Click Import Tasks to download an Excel template or choose a filled-in .xlsx file to import. Only Task Details is required; Category, Priority, Project, Goal, Due Date, and Who are all optional."/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Category and Priority must be chosen from the template's dropdown. Project and Goal show a dropdown of existing values but also accept a new one you type in."/>
+                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Category and Priority must be chosen from the template's dropdown. Project, Goal, and Who show a dropdown of existing values but also accept a new one you type in."/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Enter Due Date as MM/DD/YYYY (year optional, defaults to the current year); it's displayed as DD-MMM-YYYY."/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Projects and Goals mentioned in the file that don't already exist are created automatically."/>
+                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Projects, Goals, and People mentioned in the file that don't already exist are created automatically."/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Right after import you're shown an editable list of the imported tasks to quickly fix up Category, Task Details, Priority, Project, Goal, Due Date, or Who."/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Double-click Import Tasks any time to review every task still flagged as imported. Uncheck Imported and Save to clear that flag once you're done reviewing a task."/>
 

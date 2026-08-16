@@ -9,6 +9,8 @@ public class ImportedRowEditViewModel(CardViewModel card, MainViewModel viewMode
         viewModel.Projects.Where(p => p.IsActive || p.Id == Card.ProjectId);
     public IEnumerable<GoalViewModel> AvailableGoals =>
         viewModel.Goals.Where(g => g.IsActive || g.Id == Card.GoalId);
+    public IEnumerable<PersonViewModel> AvailablePeople =>
+        viewModel.People.Where(p => p.IsActive || p.Id == Card.WhoId);
 
     private string _title = card.Title;
     public string Title
@@ -52,11 +54,11 @@ public class ImportedRowEditViewModel(CardViewModel card, MainViewModel viewMode
         set => SetField(ref _dueDate, value);
     }
 
-    private string? _who = card.Who;
-    public string? Who
+    private int? _whoId = card.WhoId;
+    public int? WhoId
     {
-        get => _who;
-        set => SetField(ref _who, value);
+        get => _whoId;
+        set => SetField(ref _whoId, value);
     }
 
     private bool _isImported = card.IsImported;

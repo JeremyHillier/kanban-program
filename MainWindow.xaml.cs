@@ -110,7 +110,7 @@ public partial class MainWindow : Window
         if (dialog.ShowDialog() == true && dialog.SelectedColumn is not null)
         {
             viewModel.AddCard(dialog.TaskDetails, dialog.SelectedColumn, dialog.SelectedProject,
-                dialog.SelectedPriority, dialog.SelectedDueDate, dialog.Who, dialog.IsRecurring, dialog.RecurrencePattern,
+                dialog.SelectedPriority, dialog.SelectedDueDate, dialog.SelectedWho, dialog.IsRecurring, dialog.RecurrencePattern,
                 dialog.SelectedGoal, dialog.SelectedFlags, dialog.SelectedSubTasks, dialog.Notes, attachments: dialog.SelectedAttachments);
         }
     }
@@ -125,7 +125,7 @@ public partial class MainWindow : Window
         if (dialog.ShowDialog() == true && dialog.SelectedColumn is not null)
         {
             viewModel.EditCard(card, dialog.TaskDetails, dialog.SelectedColumn, dialog.SelectedProject,
-                dialog.SelectedPriority, dialog.SelectedDueDate, dialog.Who, dialog.IsRecurring, dialog.RecurrencePattern,
+                dialog.SelectedPriority, dialog.SelectedDueDate, dialog.SelectedWho, dialog.IsRecurring, dialog.RecurrencePattern,
                 dialog.SelectedGoal, dialog.SelectedFlags, dialog.SelectedSubTasks, dialog.Notes, attachments: dialog.SelectedAttachments);
         }
     }
@@ -151,6 +151,14 @@ public partial class MainWindow : Window
         if (DataContext is not MainViewModel viewModel) return;
 
         var dialog = new ManageFlagsWindow(viewModel) { Owner = this };
+        dialog.ShowDialog();
+    }
+
+    private void ManageWho_Click(object sender, RoutedEventArgs e)
+    {
+        if (DataContext is not MainViewModel viewModel) return;
+
+        var dialog = new ManageWhoWindow(viewModel) { Owner = this };
         dialog.ShowDialog();
     }
 

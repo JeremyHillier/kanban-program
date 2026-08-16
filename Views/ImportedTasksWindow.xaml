@@ -106,9 +106,11 @@
                                                 Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
                                                 BorderBrush="{DynamicResource CardBorderBrush}"/>
 
-                                    <TextBox Grid.Column="6" Style="{StaticResource CellMargin}" Text="{Binding Who, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                             Padding="4" Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
-                                             BorderBrush="{DynamicResource CardBorderBrush}"/>
+                                    <ComboBox Grid.Column="6" Style="{StaticResource CellMargin}" Padding="4"
+                                              ItemsSource="{Binding AvailablePeople}"
+                                              SelectedValuePath="Id" DisplayMemberPath="Name" SelectedValue="{Binding WhoId, Mode=TwoWay}"
+                                              Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                                              BorderBrush="{DynamicResource CardBorderBrush}"/>
 
                                     <CheckBox Grid.Column="7" Style="{StaticResource CellMargin}" IsChecked="{Binding IsImported, Mode=TwoWay}"
                                               HorizontalAlignment="Center" VerticalAlignment="Center"/>

@@ -24,7 +24,7 @@ public partial class AddTaskWindow : Window
     public List<AttachmentViewModel> SelectedAttachments { get; private set; } = [];
     public string SelectedPriority { get; private set; } = "Normal";
     public DateTime? SelectedDueDate { get; private set; }
-    public string? Who { get; private set; }
+    public PersonViewModel? SelectedWho { get; private set; }
     public string? Notes { get; private set; }
     public bool IsRecurring { get; private set; }
     public string? RecurrencePattern { get; private set; }
@@ -36,6 +36,7 @@ public partial class AddTaskWindow : Window
         CategoryComboBox.ItemsSource = viewModel.Columns;
         RebuildProjectItems();
         RebuildGoalItems();
+        RebuildWhoItems();
         RebuildFlagCheckboxes();
         UpdateSubTaskProgressLabel();
 
@@ -76,7 +77,7 @@ public partial class AddTaskWindow : Window
         }
 
         DueDatePicker.SelectedDate = cardToEdit.DueDate;
-        WhoTextBox.Text = cardToEdit.Who ?? string.Empty;
+        RebuildWhoItems(_viewModel.People.FirstOrDefault(p => p.Id == cardToEdit.WhoId));
         NotesTextBox.Text = cardToEdit.Notes ?? string.Empty;
 
         RecurringCheckBox.IsChecked = cardToEdit.IsRecurring;
@@ -130,6 +131,20 @@ public partial class AddTaskWindow : Window
         GoalComboBox.SelectedItem = autoSelect is null
             ? null
             : items.FirstOrDefault(g => g.Id == autoSelect.Id);
+    }
+
+    private void RebuildWhoItems(PersonViewModel? autoSelect = null)
+    {
+        var items = _viewModel.People.Where(p => p.IsActive).ToList();
+        if (autoSelect is not null && !items.Any(p => p.Id == autoSelect.Id))
+        {
+            items.Insert(0, autoSelect);
+        }
+
+        WhoComboBox.ItemsSource = items;
+        WhoComboBox.SelectedItem = autoSelect is null
+            ? null
+            : items.FirstOrDefault(p => p.Id == autoSelect.Id);
     }
 
     private void RebuildFlagCheckboxes(int? autoCheckFlagId = null, IEnumerable<int>? forceCheckedIds = null)
@@ -424,6 +439,20 @@ public partial class AddTaskWindow : Window
         GoalComboBox.SelectedIndex = -1;
     }
 
+    private void NewWho_Click(object sender, RoutedEventArgs e)
+    {
+        var dialog = new PromptWindow("New Person", "Person name") { Owner = this };
+        if (dialog.ShowDialog() != true) return;
+
+        _viewModel.AddPerson(dialog.Value);
+        RebuildWhoItems(_viewModel.People.LastOrDefault());
+    }
+
+    private void DeleteWho_Click(object sender, RoutedEventArgs e)
+    {
+        WhoComboBox.SelectedIndex = -1;
+    }
+
     private void NewFlag_Click(object sender, RoutedEventArgs e)
     {
         var dialog = new PromptWindow("New Flag", "Flag name") { Owner = this };
@@ -459,7 +488,7 @@ public partial class AddTaskWindow : Window
         SelectedGoal = GoalComboBox.SelectedItem as GoalViewModel;
         SelectedPriority = (string)priorityItem.Content;
         SelectedDueDate = DueDatePicker.SelectedDate;
-        Who = string.IsNullOrWhiteSpace(WhoTextBox.Text) ? null : WhoTextBox.Text.Trim();
+        SelectedWho = WhoComboBox.SelectedItem as PersonViewModel;
         Notes = string.IsNullOrWhiteSpace(NotesTextBox.Text) ? null : NotesTextBox.Text.Trim();
 
         IsRecurring = RecurringCheckBox.IsChecked == true;
