@@ -108,7 +108,8 @@
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• The window size and position are remembered automatically between sessions; the full-screen setting still applies on top of that when starting up."/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Require a yes/no confirmation before deleting a task, project, goal, or flag — turn this off to delete immediately without asking."/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Ask whether to add a note whenever a task is moved to Done; answering yes opens the task with the cursor already in the Notes field."/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Change where the task database file is stored."/>
+                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Change where the task database file is stored. The old file is automatically removed once the app has restarted at the new location."/>
+                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• The chosen location itself is remembered outside the database, in a small config file under your local AppData folder — not inside the database file."/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Set a Default Export Path (used by Report Builder's PDF export) and a Default Import Path (used by Import Tasks, including where the template is saved)."/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Set a Linked Files Default Path for future use, once file linking support is added."/>
             </StackPanel>

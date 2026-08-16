@@ -97,7 +97,9 @@
         <StackPanel Grid.Row="12" VerticalAlignment="Top" Margin="0,0,0,20">
             <Button Content="Change Location..." Padding="10,6" HorizontalAlignment="Left" Click="ChangeLocation_Click"
                     Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
-            <TextBlock Text="Changing the location moves the database file and restarts the app." FontSize="11" Margin="0,6,0,0"
+            <TextBlock Text="Changing the location moves the database file, restarts the app, and removes the old file once the new one is confirmed working." FontSize="11" Margin="0,6,0,0"
+                       Foreground="{DynamicResource SecondaryTextBrush}" TextWrapping="Wrap"/>
+            <TextBlock Text="This path itself is remembered outside the database, in a small config file under your local AppData folder — not inside the database file shown above." FontSize="11" Margin="0,4,0,0"
                        Foreground="{DynamicResource SecondaryTextBrush}" TextWrapping="Wrap"/>
         </StackPanel>
 

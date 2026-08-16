@@ -1,3 +1,4 @@
+using System.IO;
 using System.Windows;
 using System.Windows.Threading;
 using KanbanApp.Services;
@@ -12,6 +13,7 @@ public partial class App : Application
         base.OnStartup(e);
 
         var db = new DatabaseService();
+        CleanUpOldDbFileAfterMove(db.DbPath);
 
         var showSplash = db.GetSetting("ShowSplash") != "False";
         var splashDelayMs = int.TryParse(db.GetSetting("SplashDelayMs"), out var delay) ? delay : 1800;
@@ -42,5 +44,33 @@ public partial class App : Application
             splash.Close();
         };
         timer.Start();
+    }
+
+    private static void CleanUpOldDbFileAfterMove(string currentDbPath)
+    {
+        var config = AppConfig.Load();
+        if (string.IsNullOrEmpty(config.PendingCleanupPath)) return;
+
+        if (string.Equals(Path.GetFullPath(config.PendingCleanupPath), Path.GetFullPath(currentDbPath), StringComparison.OrdinalIgnoreCase))
+        {
+            // Safety guard: never delete the file that's actively in use.
+            config.PendingCleanupPath = null;
+            config.Save();
+            return;
+        }
+
+        try
+        {
+            if (File.Exists(config.PendingCleanupPath))
+            {
+                File.Delete(config.PendingCleanupPath);
+            }
+            config.PendingCleanupPath = null;
+            config.Save();
+        }
+        catch
+        {
+            // Leave PendingCleanupPath set so cleanup is retried on the next startup.
+        }
     }
 }

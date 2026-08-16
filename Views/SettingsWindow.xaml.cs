@@ -155,17 +155,23 @@ public partial class SettingsWindow : Window
 
         try
         {
+            var didCopy = false;
             if (!File.Exists(newPath) && File.Exists(currentPath))
             {
                 File.Copy(currentPath, newPath);
+                didCopy = true;
             }
 
             var config = AppConfig.Load();
             config.DbPath = newPath;
+            config.PendingCleanupPath = didCopy ? currentPath : null;
             config.Save();
 
+            var cleanupNote = didCopy
+                ? " The old database file will be removed automatically once the app restarts at the new location."
+                : "";
             var result = MessageBox.Show(
-                "The database location has been updated. The app needs to restart for this to take effect. Restart now?",
+                $"The database location has been updated.{cleanupNote} The app needs to restart for this to take effect. Restart now?",
                 "Restart Required", MessageBoxButton.YesNo, MessageBoxImage.Information);
 
             if (result == MessageBoxResult.Yes)

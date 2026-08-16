@@ -14,6 +14,8 @@ public class AppConfig
 
     public string DbPath { get; set; } = DefaultDbPath;
 
+    public string? PendingCleanupPath { get; set; }
+
     public static AppConfig Load()
     {
         try
