@@ -14,7 +14,7 @@ public class MainViewModel : ObservableObject
     public string AppVersion { get; } = $"v{Assembly.GetExecutingAssembly().GetName().Version?.ToString(3)}";
     public string CopyrightText { get; } = "© Jeremy Hillier Consulting Inc";
 
-    private enum SortMode { ProjectThenDueDate, DueDateThenProject, WhoThenDueDate }
+    private enum SortMode { ProjectThenDueDate, DueDateThenProject, WhoThenDueDate, PriorityThenDueDate }
 
     private SortMode _currentSortMode = SortMode.ProjectThenDueDate;
 
@@ -63,7 +63,7 @@ public class MainViewModel : ObservableObject
     }
 
     public bool IsLargeCards => !IsCompactCards;
-    public string CardSizeButtonLabel => IsCompactCards ? "Large Cards" : "Small Cards";
+    public string CardSizeButtonLabel => IsCompactCards ? "Large Cards" : "Compact Cards";
 
     public string CurrentDbPath => _db.DbPath;
 
@@ -322,6 +322,19 @@ public class MainViewModel : ObservableObject
         ApplySort();
     }
 
+    public void SortByPriority()
+    {
+        _currentSortMode = SortMode.PriorityThenDueDate;
+        ApplySort();
+    }
+
+    private static int PriorityRank(string priority) => priority switch
+    {
+        "High" => 0,
+        "Medium" => 1,
+        _ => 2
+    };
+
     private void ApplySort()
     {
         var updates = new List<(int, int)>();
@@ -332,6 +345,7 @@ public class MainViewModel : ObservableObject
             {
                 SortMode.DueDateThenProject => column.Cards.OrderBy(c => c.DueDate ?? DateTime.MaxValue).ThenBy(c => c.ProjectName, StringComparer.OrdinalIgnoreCase).ToList(),
                 SortMode.WhoThenDueDate => column.Cards.OrderBy(c => c.Who, StringComparer.OrdinalIgnoreCase).ThenBy(c => c.DueDate ?? DateTime.MaxValue).ToList(),
+                SortMode.PriorityThenDueDate => column.Cards.OrderBy(c => PriorityRank(c.Priority)).ThenBy(c => c.DueDate ?? DateTime.MaxValue).ToList(),
                 _ => column.Cards.OrderBy(c => c.ProjectName, StringComparer.OrdinalIgnoreCase).ThenBy(c => c.DueDate ?? DateTime.MaxValue).ToList()
             };
 

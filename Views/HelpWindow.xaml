@@ -67,15 +67,16 @@
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Flags are multi-select tags — a task can carry more than one."/>
 
                 <TextBlock Text="Sorting and filtering" Style="{StaticResource HelpSectionHeaderStyle}"/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Sort by Project, Due Date, or Who reorders every column."/>
+                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Sort by Project, Due Date, Who, or Priority reorders every column. Sort by Due Date sorts by due date then project; Sort by Priority sorts by priority then due date."/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• The Filter section narrows the board by Project, Priority, Who, Goal, Flag, Due date range, or a keyword search across titles."/>
+                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• The Today / Tomorrow / Within a Week / No Due Date buttons above the Due dropdown are quick shortcuts for the same filter."/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Clear Filters resets every filter back to All."/>
 
                 <TextBlock Text="Archiving and deleting" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Archive Done moves every task currently in Done out of the board."/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Deleting a task never erases it — it's kept out of sight instead."/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Click View Archived to browse archived tasks; double-click the same button to browse deleted tasks."/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Either list lets you select a task and reactivate it back to To Do."/>
+                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Either list lets you select a task and reactivate it back to To Do; in the Archived list, double-clicking a task reactivates it immediately."/>
 
                 <TextBlock Text="Importing tasks" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Click Import Tasks to download an Excel template or choose a filled-in .xlsx file to import. Only Task Details is required; Category, Priority, Project, Goal, Due Date, and Who are all optional."/>
@@ -92,7 +93,7 @@
 
                 <TextBlock Text="Display options" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Dark Mode / Light Mode switches the whole app's theme."/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Large Cards / Small Cards toggles how much detail each card shows, useful for fitting more on screen at once."/>
+                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Large Cards / Compact Cards toggles how much detail each card shows, useful for fitting more on screen at once."/>
 
                 <TextBlock Text="Settings" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Move the button panel to the right side of the board."/>

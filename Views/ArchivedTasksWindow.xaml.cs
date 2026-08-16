@@ -27,6 +27,18 @@ public partial class ArchivedTasksWindow : Window
             return;
         }
 
+        Reactivate(selected);
+    }
+
+    private void ArchivedList_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
+    {
+        if (ArchivedList.SelectedItem is not ArchivedCardInfo selected) return;
+
+        Reactivate(selected);
+    }
+
+    private void Reactivate(ArchivedCardInfo selected)
+    {
         _viewModel.ReactivateCard(selected.Id, selected.Title);
         _items.Remove(selected);
         EmptyStateText.Visibility = _items.Count == 0 ? Visibility.Visible : Visibility.Collapsed;

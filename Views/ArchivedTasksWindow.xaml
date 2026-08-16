@@ -15,7 +15,7 @@
         </Grid.RowDefinitions>
 
         <ListBox x:Name="ArchivedList" Grid.Row="0" BorderThickness="0" Background="Transparent"
-                 ScrollViewer.VerticalScrollBarVisibility="Auto">
+                 ScrollViewer.VerticalScrollBarVisibility="Auto" MouseDoubleClick="ArchivedList_MouseDoubleClick">
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <Border BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="0,0,0,1" Padding="0,8">

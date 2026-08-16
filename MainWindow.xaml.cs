@@ -288,6 +288,36 @@ public partial class MainWindow : Window
         viewModel.SortByWho();
     }
 
+    private void SortByPriority_Click(object sender, RoutedEventArgs e)
+    {
+        if (DataContext is not MainViewModel viewModel) return;
+        viewModel.SortByPriority();
+    }
+
+    private void DueToday_Click(object sender, RoutedEventArgs e)
+    {
+        if (DataContext is not MainViewModel viewModel) return;
+        viewModel.DueFilter = "Today";
+    }
+
+    private void DueTomorrow_Click(object sender, RoutedEventArgs e)
+    {
+        if (DataContext is not MainViewModel viewModel) return;
+        viewModel.DueFilter = "Tomorrow";
+    }
+
+    private void DueWithinWeek_Click(object sender, RoutedEventArgs e)
+    {
+        if (DataContext is not MainViewModel viewModel) return;
+        viewModel.DueFilter = "Within a Week";
+    }
+
+    private void DueNone_Click(object sender, RoutedEventArgs e)
+    {
+        if (DataContext is not MainViewModel viewModel) return;
+        viewModel.DueFilter = "No Due Date";
+    }
+
     private void ClearFilters_Click(object sender, RoutedEventArgs e)
     {
         if (DataContext is MainViewModel viewModel)

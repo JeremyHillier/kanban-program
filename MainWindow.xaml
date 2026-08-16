@@ -94,12 +94,16 @@
                                         ToolTip="Sort all cards by assignee, then due date">
                                     <TextBlock Text="Sort by Who" TextWrapping="Wrap" TextAlignment="Center"/>
                                 </Button>
+                                <Button Style="{StaticResource SmallSquareButtonStyle}" Background="#FFEF5350" Foreground="White" Click="SortByPriority_Click"
+                                        ToolTip="Sort all cards by priority, then due date">
+                                    <TextBlock Text="Sort by Priority" TextWrapping="Wrap" TextAlignment="Center"/>
+                                </Button>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                                 <Button Style="{StaticResource SmallSquareButtonStyle}" Background="#FF66BB6A" Foreground="White" Click="AddTask_Click"
                                         ToolTip="Create a new task">
                                     <TextBlock Text="New Task" TextWrapping="Wrap" TextAlignment="Center"/>
                                 </Button>
-                            </StackPanel>
-                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                                 <Button Style="{StaticResource SmallSquareButtonStyle}" Background="#FF607D8B" Foreground="White" Click="ToggleCardSize_Click"
                                         ToolTip="Toggle task cards between large (full detail) and small (compact) display">
                                     <TextBlock Text="{Binding CardSizeButtonLabel}" TextWrapping="Wrap" TextAlignment="Center"/>
@@ -142,6 +146,24 @@
                                   BorderBrush="{DynamicResource CardBorderBrush}"/>
 
                         <TextBlock Text="Due" FontWeight="Bold" FontSize="11" Foreground="White" Margin="0,0,0,2"/>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,4">
+                            <Button Style="{StaticResource SmallSquareButtonStyle}" Background="#FF42A5F5" Foreground="White" Click="DueToday_Click"
+                                    ToolTip="Show only cards due today">
+                                <TextBlock Text="Today" TextWrapping="Wrap" TextAlignment="Center"/>
+                            </Button>
+                            <Button Style="{StaticResource SmallSquareButtonStyle}" Background="#FF26A69A" Foreground="White" Click="DueTomorrow_Click"
+                                    ToolTip="Show only cards due tomorrow">
+                                <TextBlock Text="Tomorrow" TextWrapping="Wrap" TextAlignment="Center"/>
+                            </Button>
+                            <Button Style="{StaticResource SmallSquareButtonStyle}" Background="#FF7E57C2" Foreground="White" Click="DueWithinWeek_Click"
+                                    ToolTip="Show only cards due within a week">
+                                <TextBlock Text="Within a Week" TextWrapping="Wrap" TextAlignment="Center"/>
+                            </Button>
+                            <Button Style="{StaticResource SmallSquareButtonStyle}" Background="#FF607D8B" Foreground="White" Click="DueNone_Click"
+                                    ToolTip="Show only cards with no due date">
+                                <TextBlock Text="No Due Date" TextWrapping="Wrap" TextAlignment="Center"/>
+                            </Button>
+                        </StackPanel>
                         <ComboBox ItemsSource="{Binding DueFilterOptions}" SelectedItem="{Binding DueFilter, Mode=TwoWay}"
                                   Padding="4" Margin="0,0,0,6" ToolTip="Show only cards due within this range"
                                   Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
