@@ -13,6 +13,7 @@
     <Window.Resources>
         <conv:PriorityToBrushConverter x:Key="PriorityToBrushConverter"/>
         <conv:EmptyStringToVisibilityConverter x:Key="EmptyStringToVisibilityConverter"/>
+        <conv:StringEqualsConverter x:Key="StringEqualsConverter"/>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
         <SolidColorBrush x:Key="AccentPanelBrush" Color="#FF1E3A5F"/>
         <SolidColorBrush x:Key="AccentPanelBorderBrush" Color="#FF3E6491"/>
@@ -46,6 +47,47 @@
             <Setter Property="FontSize" Value="9"/>
             <Setter Property="Margin" Value="0,0,4,0"/>
             <Setter Property="Padding" Value="2"/>
+        </Style>
+
+        <Style x:Key="DueFilterButtonToday" BasedOn="{StaticResource SmallSquareButtonStyle}" TargetType="Button">
+            <Setter Property="BorderThickness" Value="1"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding DueFilter, Converter={StaticResource StringEqualsConverter}, ConverterParameter=Today}" Value="True">
+                    <Setter Property="BorderBrush" Value="White"/>
+                    <Setter Property="BorderThickness" Value="3"/>
+                    <Setter Property="FontWeight" Value="Bold"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="DueFilterButtonTomorrow" BasedOn="{StaticResource SmallSquareButtonStyle}" TargetType="Button">
+            <Setter Property="BorderThickness" Value="1"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding DueFilter, Converter={StaticResource StringEqualsConverter}, ConverterParameter=Tomorrow}" Value="True">
+                    <Setter Property="BorderBrush" Value="White"/>
+                    <Setter Property="BorderThickness" Value="3"/>
+                    <Setter Property="FontWeight" Value="Bold"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="DueFilterButtonWithinWeek" BasedOn="{StaticResource SmallSquareButtonStyle}" TargetType="Button">
+            <Setter Property="BorderThickness" Value="1"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding DueFilter, Converter={StaticResource StringEqualsConverter}, ConverterParameter='Within a Week'}" Value="True">
+                    <Setter Property="BorderBrush" Value="White"/>
+                    <Setter Property="BorderThickness" Value="3"/>
+                    <Setter Property="FontWeight" Value="Bold"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="DueFilterButtonNone" BasedOn="{StaticResource SmallSquareButtonStyle}" TargetType="Button">
+            <Setter Property="BorderThickness" Value="1"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding DueFilter, Converter={StaticResource StringEqualsConverter}, ConverterParameter='No Due Date'}" Value="True">
+                    <Setter Property="BorderBrush" Value="White"/>
+                    <Setter Property="BorderThickness" Value="3"/>
+                    <Setter Property="FontWeight" Value="Bold"/>
+                </DataTrigger>
+            </Style.Triggers>
         </Style>
 
         <Style x:Key="SectionHeaderStyle" TargetType="TextBlock">
@@ -186,19 +228,19 @@
 
                         <TextBlock Text="Due" FontWeight="Bold" FontSize="11" Foreground="White" Margin="0,0,0,2"/>
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,6">
-                            <Button Style="{StaticResource SmallSquareButtonStyle}" Background="#FF42A5F5" Foreground="White" Click="DueToday_Click"
+                            <Button Style="{StaticResource DueFilterButtonToday}" Background="#FF42A5F5" Foreground="White" Click="DueToday_Click"
                                     ToolTip="Show only cards due today or earlier (overdue)">
                                 <TextBlock Text="Today" TextWrapping="Wrap" TextAlignment="Center"/>
                             </Button>
-                            <Button Style="{StaticResource SmallSquareButtonStyle}" Background="#FF26A69A" Foreground="White" Click="DueTomorrow_Click"
+                            <Button Style="{StaticResource DueFilterButtonTomorrow}" Background="#FF26A69A" Foreground="White" Click="DueTomorrow_Click"
                                     ToolTip="Show only cards due tomorrow">
                                 <TextBlock Text="Tomorrow" TextWrapping="Wrap" TextAlignment="Center"/>
                             </Button>
-                            <Button Style="{StaticResource SmallSquareButtonStyle}" Background="#FF7E57C2" Foreground="White" Click="DueWithinWeek_Click"
+                            <Button Style="{StaticResource DueFilterButtonWithinWeek}" Background="#FF7E57C2" Foreground="White" Click="DueWithinWeek_Click"
                                     ToolTip="Show only cards due within a week">
                                 <TextBlock Text="Within a Week" TextWrapping="Wrap" TextAlignment="Center"/>
                             </Button>
-                            <Button Style="{StaticResource SmallSquareButtonStyle}" Background="#FF607D8B" Foreground="White" Click="DueNone_Click"
+                            <Button Style="{StaticResource DueFilterButtonNone}" Background="#FF607D8B" Foreground="White" Click="DueNone_Click"
                                     ToolTip="Show only cards with no due date">
                                 <TextBlock Text="No Due Date" TextWrapping="Wrap" TextAlignment="Center"/>
                             </Button>
@@ -332,12 +374,11 @@
                                                             </TextBlock.Style>
                                                         </TextBlock>
 
-                                                        <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
-                                                            <Border Background="#FFEFEFEF" CornerRadius="3" Padding="5,1" HorizontalAlignment="Left">
-                                                                <TextBlock Text="{Binding ProjectName}" FontSize="10" Foreground="#FF666666"/>
-                                                            </Border>
+                                                        <TextBlock Text="{Binding ProjectName}" FontSize="12" FontWeight="Bold"
+                                                                   Foreground="{DynamicResource AccentTextBrush}" Margin="0,3,0,0"/>
+                                                        <StackPanel Orientation="Horizontal" Margin="0,3,0,0">
                                                             <Border Background="{Binding Priority, Converter={StaticResource PriorityToBrushConverter}}"
-                                                                    CornerRadius="3" Padding="5,1" Margin="4,0,0,0" HorizontalAlignment="Left">
+                                                                    CornerRadius="3" Padding="5,1" HorizontalAlignment="Left">
                                                                 <TextBlock Text="{Binding Priority}" FontSize="10" Foreground="White"/>
                                                             </Border>
                                                         </StackPanel>
@@ -422,9 +463,11 @@
                                                                     Tag="Waiting" ToolTip="Move to Waiting" Click="QuickMove_Click"/>
                                                             <Button Style="{StaticResource QuickActionButtonStyle}" Content="&#x2713;" Background="#FF66BB6A"
                                                                     Tag="Done" ToolTip="Mark Done" Click="QuickMove_Click"/>
-                                                            <Button Style="{StaticResource QuickActionButtonStyle}" Content="X" Background="#FFEF5350" Margin="0"
+                                                            <Button Style="{StaticResource QuickActionButtonStyle}" Content="X" Background="#FFEF5350"
                                                                     ToolTip="Delete"
                                                                     Click="DeleteQuickAction_Click"/>
+                                                            <Button Style="{StaticResource QuickActionButtonStyle}" Content="&#x1F3F7;" Background="#FF8D6E63" Margin="0"
+                                                                    ToolTip="Add a flag" Click="AddFlagQuickAction_Click"/>
                                                         </StackPanel>
                                                     </StackPanel>
                                                 </Border>

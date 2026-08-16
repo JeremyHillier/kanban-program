@@ -13,6 +13,7 @@ public partial class ArchivedTasksWindow : Window
     public ArchivedTasksWindow(MainViewModel viewModel, List<ArchivedCardInfo> archivedCards)
     {
         InitializeComponent();
+        MaxHeight = SystemParameters.WorkArea.Height * 0.9;
         _viewModel = viewModel;
         _items = new ObservableCollection<ArchivedCardInfo>(archivedCards);
         ArchivedList.ItemsSource = _items;

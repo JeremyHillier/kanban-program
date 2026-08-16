@@ -392,6 +392,34 @@ public partial class MainWindow : Window
         viewModel.DeleteCardCommand.Execute(card);
     }
 
+    private void AddFlagQuickAction_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is not FrameworkElement { DataContext: CardViewModel card } element || DataContext is not MainViewModel viewModel) return;
+
+        var available = viewModel.Flags
+            .Where(f => f.IsActive && card.Flags.All(cf => cf.Id != f.Id))
+            .OrderBy(f => f.Name)
+            .ToList();
+
+        if (available.Count == 0)
+        {
+            MessageBox.Show(this, "This task already has every available flag, or no flags have been created yet.",
+                "No Flags to Add", MessageBoxButton.OK, MessageBoxImage.Information);
+            return;
+        }
+
+        var menu = new System.Windows.Controls.ContextMenu();
+        foreach (var flag in available)
+        {
+            var menuItem = new System.Windows.Controls.MenuItem { Header = flag.Name };
+            menuItem.Click += (_, _) => viewModel.AddFlagToCard(card, flag);
+            menu.Items.Add(menuItem);
+        }
+
+        menu.PlacementTarget = element;
+        menu.IsOpen = true;
+    }
+
     private void SubTaskCheckBox_Changed(object sender, RoutedEventArgs e)
     {
         if (sender is not System.Windows.Controls.CheckBox { DataContext: SubTaskViewModel subTask, Tag: CardViewModel card } checkBox) return;

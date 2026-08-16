@@ -11,6 +11,7 @@ public partial class ManageGoalsWindow : Window
     public ManageGoalsWindow(MainViewModel viewModel)
     {
         InitializeComponent();
+        MaxHeight = SystemParameters.WorkArea.Height * 0.9;
         _viewModel = viewModel;
         DataContext = viewModel;
     }

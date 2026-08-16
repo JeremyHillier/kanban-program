@@ -11,6 +11,7 @@ public partial class ManageWhoWindow : Window
     public ManageWhoWindow(MainViewModel viewModel)
     {
         InitializeComponent();
+        MaxHeight = SystemParameters.WorkArea.Height * 0.9;
         _viewModel = viewModel;
         DataContext = viewModel;
     }

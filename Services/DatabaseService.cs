@@ -360,7 +360,7 @@ public class DatabaseService
     {
         using var connection = OpenConnection();
         using var cmd = connection.CreateCommand();
-        cmd.CommandText = "SELECT Id, Name, SortOrder, IsActive FROM Projects ORDER BY SortOrder;";
+        cmd.CommandText = "SELECT Id, Name, SortOrder, IsActive FROM Projects ORDER BY Name COLLATE NOCASE;";
 
         var result = new List<Project>();
         using var reader = cmd.ExecuteReader();
@@ -381,7 +381,7 @@ public class DatabaseService
     {
         using var connection = OpenConnection();
         using var cmd = connection.CreateCommand();
-        cmd.CommandText = "SELECT Id, Name, SortOrder, IsActive FROM People ORDER BY SortOrder;";
+        cmd.CommandText = "SELECT Id, Name, SortOrder, IsActive FROM People ORDER BY Name COLLATE NOCASE;";
 
         var result = new List<Person>();
         using var reader = cmd.ExecuteReader();
@@ -402,7 +402,7 @@ public class DatabaseService
     {
         using var connection = OpenConnection();
         using var cmd = connection.CreateCommand();
-        cmd.CommandText = "SELECT Id, Name, SortOrder, IsActive FROM Goals ORDER BY SortOrder;";
+        cmd.CommandText = "SELECT Id, Name, SortOrder, IsActive FROM Goals ORDER BY Name COLLATE NOCASE;";
 
         var result = new List<Goal>();
         using var reader = cmd.ExecuteReader();
@@ -423,7 +423,7 @@ public class DatabaseService
     {
         using var connection = OpenConnection();
         using var cmd = connection.CreateCommand();
-        cmd.CommandText = "SELECT Id, Name, SortOrder, IsActive FROM Flags ORDER BY SortOrder;";
+        cmd.CommandText = "SELECT Id, Name, SortOrder, IsActive FROM Flags ORDER BY Name COLLATE NOCASE;";
 
         var result = new List<Flag>();
         using var reader = cmd.ExecuteReader();

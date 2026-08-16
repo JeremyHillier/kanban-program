@@ -152,45 +152,78 @@ public static class ReportService
         return parts;
     }
 
+    private static readonly SolidColorBrush BandAccentBrush = new(Color.FromRgb(0x1E, 0x3A, 0x5F));
+    private static readonly SolidColorBrush BandEvenBrush = Brushes.White;
+    private static readonly SolidColorBrush BandOddBrush = new(Color.FromRgb(0xF2, 0xF2, 0xF2));
+    private static readonly SolidColorBrush BandGroupedOddBrush = new(Color.FromRgb(0xE3, 0xF2, 0xFD));
+
+    private static SolidColorBrush RowBandBrush(int rowIndex, bool isGrouped) =>
+        rowIndex % 2 == 0 ? BandEvenBrush : (isGrouped ? BandGroupedOddBrush : BandOddBrush);
+
     public static FlowDocument BuildFlowDocument(string title, List<ReportRow> rows, string groupBy, bool includeNotes, bool includeSubTasks)
     {
         var doc = new FlowDocument
         {
             FontFamily = new FontFamily("Segoe UI"),
-            PagePadding = new Thickness(40),
+            PagePadding = new Thickness(0),
             ColumnWidth = double.PositiveInfinity
         };
 
-        doc.Blocks.Add(new Paragraph(new Run(title)) { FontSize = 22, FontWeight = FontWeights.Bold, Margin = new Thickness(0, 0, 0, 4) });
+        doc.Blocks.Add(new Paragraph(new Run(title))
+        {
+            FontSize = 22,
+            FontWeight = FontWeights.Bold,
+            Foreground = Brushes.White,
+            Background = BandAccentBrush,
+            Padding = new Thickness(40, 16, 40, 4),
+            Margin = new Thickness(0)
+        });
         doc.Blocks.Add(new Paragraph(new Run($"Generated {DateTime.Now:MMM d, yyyy h:mm tt}  —  {rows.Count} task{(rows.Count == 1 ? "" : "s")}"))
         {
             FontSize = 11,
-            Foreground = Brushes.Gray,
+            Foreground = new SolidColorBrush(Color.FromRgb(0xC0, 0xCB, 0xDA)),
+            Background = BandAccentBrush,
+            Padding = new Thickness(40, 0, 40, 16),
             Margin = new Thickness(0, 0, 0, 18)
         });
 
         if (rows.Count == 0)
         {
-            doc.Blocks.Add(new Paragraph(new Run("No tasks match the selected filters.")) { FontStyle = FontStyles.Italic });
+            doc.Blocks.Add(new Paragraph(new Run("No tasks match the selected filters.")) { FontStyle = FontStyles.Italic, Margin = new Thickness(40, 0, 40, 0) });
             return doc;
         }
 
+        var isGrouped = groupBy != "None" && !string.IsNullOrEmpty(groupBy);
+
         foreach (var group in GroupRows(rows, groupBy))
         {
-            if (groupBy != "None" && !string.IsNullOrEmpty(groupBy))
+            if (isGrouped)
             {
                 doc.Blocks.Add(new Paragraph(new Run(group.Key))
                 {
                     FontSize = 15,
                     FontWeight = FontWeights.Bold,
-                    Margin = new Thickness(0, 14, 0, 6),
-                    Foreground = new SolidColorBrush(Color.FromRgb(0x1E, 0x3A, 0x5F))
+                    Margin = new Thickness(40, 14, 40, 6),
+                    Foreground = BandAccentBrush
                 });
             }
 
+            var rowIndex = 0;
             foreach (var row in group)
             {
-                var titlePara = new Paragraph { Margin = new Thickness(0, 6, 0, 0) };
+                var band = RowBandBrush(rowIndex, isGrouped);
+                rowIndex++;
+
+                var hasSubTasks = includeSubTasks && row.SubTasks.Count > 0;
+                var hasNotes = includeNotes && !string.IsNullOrWhiteSpace(row.Notes);
+                var isLastBlock = !hasSubTasks && !hasNotes;
+
+                var titlePara = new Paragraph
+                {
+                    Background = band,
+                    Padding = new Thickness(40, 6, 40, isLastBlock ? 6 : 0),
+                    Margin = new Thickness(0)
+                };
                 titlePara.Inlines.Add(new Run(row.Title) { FontWeight = FontWeights.Bold, FontSize = 13 });
                 doc.Blocks.Add(titlePara);
 
@@ -198,27 +231,37 @@ public static class ReportService
                 {
                     FontSize = 10,
                     Foreground = Brushes.DimGray,
-                    Margin = new Thickness(0, 1, 0, 0)
+                    Background = band,
+                    Padding = new Thickness(40, 1, 40, (hasSubTasks || hasNotes) ? 0 : 6),
+                    Margin = new Thickness(0)
                 });
 
-                if (includeSubTasks && row.SubTasks.Count > 0)
+                if (hasSubTasks)
                 {
-                    var list = new List { Margin = new Thickness(20, 2, 0, 0), MarkerStyle = TextMarkerStyle.None };
+                    var list = new List
+                    {
+                        Background = band,
+                        Padding = new Thickness(56, 2, 40, hasNotes ? 0 : 6),
+                        Margin = new Thickness(0),
+                        MarkerStyle = TextMarkerStyle.None
+                    };
                     foreach (var (subTitle, isDone) in row.SubTasks)
                     {
-                        list.ListItems.Add(new ListItem(new Paragraph(new Run($"{(isDone ? "☑" : "☐")} {subTitle}")) { FontSize = 10 }));
+                        list.ListItems.Add(new ListItem(new Paragraph(new Run($"{(isDone ? "☑" : "☐")} {subTitle}")) { FontSize = 10, Margin = new Thickness(0) }));
                     }
                     doc.Blocks.Add(list);
                 }
 
-                if (includeNotes && !string.IsNullOrWhiteSpace(row.Notes))
+                if (hasNotes)
                 {
                     doc.Blocks.Add(new Paragraph(new Run($"Notes: {row.Notes}"))
                     {
                         FontSize = 10,
                         FontStyle = FontStyles.Italic,
-                        Margin = new Thickness(20, 2, 0, 0),
-                        Foreground = Brushes.DimGray
+                        Foreground = Brushes.DimGray,
+                        Background = band,
+                        Padding = new Thickness(56, 2, 40, 6),
+                        Margin = new Thickness(0)
                     });
                 }
             }
@@ -239,14 +282,21 @@ public static class ReportService
         const double margin = 40;
         double y = margin;
         double width = page.Width.Point - 2 * margin;
+        double pageWidth = page.Width.Point;
 
         var titleFont = new XFont("Segoe UI", 20, XFontStyleEx.Bold);
         var subtitleFont = new XFont("Segoe UI", 10, XFontStyleEx.Regular);
         var groupFont = new XFont("Segoe UI", 13, XFontStyleEx.Bold);
         var rowTitleFont = new XFont("Segoe UI", 11, XFontStyleEx.Bold);
         var metaFont = new XFont("Segoe UI", 9, XFontStyleEx.Regular);
+        var subTaskFont = new XFont("Segoe UI", 9, XFontStyleEx.Regular);
         var noteFont = new XFont("Segoe UI", 9, XFontStyleEx.Italic);
-        var groupBrush = new XSolidBrush(XColor.FromArgb(0x1E, 0x3A, 0x5F));
+
+        var accentBrush = new XSolidBrush(XColor.FromArgb(0x1E, 0x3A, 0x5F));
+        var subtitleBrush = new XSolidBrush(XColor.FromArgb(0xC0, 0xCB, 0xDA));
+        var bandEvenBrush = XBrushes.White;
+        var bandOddBrush = new XSolidBrush(XColor.FromArgb(0xF2, 0xF2, 0xF2));
+        var bandGroupedOddBrush = new XSolidBrush(XColor.FromArgb(0xE3, 0xF2, 0xFD));
 
         void NewPageIfNeeded(double neededHeight)
         {
@@ -257,11 +307,12 @@ public static class ReportService
             y = margin;
         }
 
-        gfx.DrawString(title, titleFont, XBrushes.Black, new XPoint(margin, y));
-        y += 26;
+        const double bandHeight = 70;
+        gfx.DrawRectangle(accentBrush, 0, 0, pageWidth, bandHeight);
+        gfx.DrawString(title, titleFont, XBrushes.White, new XPoint(margin, 30));
         gfx.DrawString($"Generated {DateTime.Now:MMM d, yyyy h:mm tt}  —  {rows.Count} task{(rows.Count == 1 ? "" : "s")}",
-            subtitleFont, XBrushes.Gray, new XPoint(margin, y));
-        y += 24;
+            subtitleFont, subtitleBrush, new XPoint(margin, 56));
+        y = bandHeight + 24;
 
         if (rows.Count == 0)
         {
@@ -270,47 +321,59 @@ public static class ReportService
             return;
         }
 
+        var isGrouped = groupBy != "None" && !string.IsNullOrEmpty(groupBy);
+
         foreach (var group in GroupRows(rows, groupBy))
         {
-            if (groupBy != "None" && !string.IsNullOrEmpty(groupBy))
+            if (isGrouped)
             {
                 NewPageIfNeeded(26);
-                gfx.DrawString(group.Key, groupFont, groupBrush, new XPoint(margin, y));
+                gfx.DrawString(group.Key, groupFont, accentBrush, new XPoint(margin, y));
                 y += 24;
             }
 
+            var rowIndex = 0;
             foreach (var row in group)
             {
-                NewPageIfNeeded(18);
-                gfx.DrawString(row.Title, rowTitleFont, XBrushes.Black, new XPoint(margin, y));
-                y += 15;
+                var band = rowIndex % 2 == 0 ? bandEvenBrush : (isGrouped ? bandGroupedOddBrush : bandOddBrush);
+                rowIndex++;
+
+                var lines = new List<(string Text, XFont Font, XBrush Brush, double XOffset, double LineHeight)>
+                {
+                    (row.Title, rowTitleFont, XBrushes.Black, 0, 18)
+                };
 
                 var metaLine = string.Join("   •   ", BuildMetaParts(row));
-                foreach (var line in WrapText(gfx, metaLine, metaFont, width))
+                foreach (var line in WrapText(gfx, metaLine, metaFont, width - 16))
                 {
-                    NewPageIfNeeded(13);
-                    gfx.DrawString(line, metaFont, XBrushes.DimGray, new XPoint(margin, y));
-                    y += 13;
+                    lines.Add((line, metaFont, XBrushes.DimGray, 0, 13));
                 }
 
                 if (includeSubTasks && row.SubTasks.Count > 0)
                 {
                     foreach (var (subTitle, isDone) in row.SubTasks)
                     {
-                        NewPageIfNeeded(13);
-                        gfx.DrawString($"{(isDone ? "[x]" : "[ ]")} {subTitle}", metaFont, XBrushes.Black, new XPoint(margin + 16, y));
-                        y += 13;
+                        lines.Add(($"{(isDone ? "[x]" : "[ ]")} {subTitle}", subTaskFont, XBrushes.Black, 16, 13));
                     }
                 }
 
                 if (includeNotes && !string.IsNullOrWhiteSpace(row.Notes))
                 {
-                    foreach (var line in WrapText(gfx, $"Notes: {row.Notes}", noteFont, width - 16))
+                    foreach (var line in WrapText(gfx, $"Notes: {row.Notes}", noteFont, width - 32))
                     {
-                        NewPageIfNeeded(13);
-                        gfx.DrawString(line, noteFont, XBrushes.DimGray, new XPoint(margin + 16, y));
-                        y += 13;
+                        lines.Add((line, noteFont, XBrushes.DimGray, 16, 13));
                     }
+                }
+
+                var rowHeight = lines.Sum(l => l.LineHeight) + 10;
+                NewPageIfNeeded(rowHeight + 8);
+
+                gfx.DrawRectangle(band, margin - 8, y - 4, width + 16, rowHeight);
+
+                foreach (var line in lines)
+                {
+                    gfx.DrawString(line.Text, line.Font, line.Brush, new XPoint(margin + line.XOffset, y));
+                    y += line.LineHeight;
                 }
 
                 y += 10;

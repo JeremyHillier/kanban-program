@@ -578,6 +578,17 @@ public class MainViewModel : ObservableObject
     private List<FlagViewModel> ResolveFlags(List<int> flagIds) =>
         Flags.Where(f => flagIds.Contains(f.Id)).ToList();
 
+    private static void InsertSortedByName<T>(ObservableCollection<T> collection, T item, Func<T, string> nameSelector)
+    {
+        var name = nameSelector(item);
+        var index = 0;
+        while (index < collection.Count && string.Compare(nameSelector(collection[index]), name, StringComparison.OrdinalIgnoreCase) < 0)
+        {
+            index++;
+        }
+        collection.Insert(index, item);
+    }
+
     public CardViewModel AddCard(string title, ColumnViewModel column, ProjectViewModel? project, string priority, DateTime? dueDate, PersonViewModel? who,
         bool isRecurring, string? recurrencePattern, GoalViewModel? goal, List<FlagViewModel>? flags = null, List<SubTaskViewModel>? subTasks = null,
         string? notes = null, bool isImported = false, List<AttachmentViewModel>? attachments = null)
@@ -659,6 +670,14 @@ public class MainViewModel : ObservableObject
         card.RefreshSubTaskProgress();
     }
 
+    public void AddFlagToCard(CardViewModel card, FlagViewModel flag)
+    {
+        if (card.Flags.Any(f => f.Id == flag.Id)) return;
+
+        card.Flags = card.Flags.Append(flag).ToList();
+        _db.SetCardFlags(card.Id, card.Flags.Select(f => f.Id));
+    }
+
     private void DeleteOrphanedAttachmentFiles(int cardId, List<AttachmentViewModel> previousAttachments, List<AttachmentViewModel> newAttachments)
     {
         var attachmentsDir = Path.GetFullPath(AttachmentsDir);
@@ -687,7 +706,7 @@ public class MainViewModel : ObservableObject
         if (string.IsNullOrWhiteSpace(name)) return;
 
         var project = _db.AddProject(name.Trim());
-        Projects.Add(new ProjectViewModel(project));
+        InsertSortedByName(Projects, new ProjectViewModel(project), p => p.Name);
         RefreshProjectFilterOptions();
     }
 
@@ -697,6 +716,8 @@ public class MainViewModel : ObservableObject
 
         project.Name = newName.Trim();
         _db.RenameProject(project.Id, project.Name);
+        Projects.Remove(project);
+        InsertSortedByName(Projects, project, p => p.Name);
 
         foreach (var card in Columns.SelectMany(c => c.Cards).Where(c => c.ProjectId == project.Id))
         {
@@ -738,7 +759,7 @@ public class MainViewModel : ObservableObject
         if (string.IsNullOrWhiteSpace(name)) return;
 
         var person = _db.AddPerson(name.Trim());
-        People.Add(new PersonViewModel(person));
+        InsertSortedByName(People, new PersonViewModel(person), p => p.Name);
         RefreshWhoFilterOptions();
     }
 
@@ -748,6 +769,8 @@ public class MainViewModel : ObservableObject
 
         person.Name = newName.Trim();
         _db.RenamePerson(person.Id, person.Name);
+        People.Remove(person);
+        InsertSortedByName(People, person, p => p.Name);
 
         foreach (var card in Columns.SelectMany(c => c.Cards).Where(c => c.WhoId == person.Id))
         {
@@ -789,7 +812,7 @@ public class MainViewModel : ObservableObject
         if (string.IsNullOrWhiteSpace(name)) return;
 
         var goal = _db.AddGoal(name.Trim());
-        Goals.Add(new GoalViewModel(goal));
+        InsertSortedByName(Goals, new GoalViewModel(goal), g => g.Name);
         RefreshGoalFilterOptions();
     }
 
@@ -799,6 +822,8 @@ public class MainViewModel : ObservableObject
 
         goal.Name = newName.Trim();
         _db.RenameGoal(goal.Id, goal.Name);
+        Goals.Remove(goal);
+        InsertSortedByName(Goals, goal, g => g.Name);
 
         foreach (var card in Columns.SelectMany(c => c.Cards).Where(c => c.GoalId == goal.Id))
         {
@@ -840,7 +865,7 @@ public class MainViewModel : ObservableObject
         if (string.IsNullOrWhiteSpace(name)) return;
 
         var flag = _db.AddFlag(name.Trim());
-        Flags.Add(new FlagViewModel(flag));
+        InsertSortedByName(Flags, new FlagViewModel(flag), f => f.Name);
         RefreshFlagFilterOptions();
     }
 
@@ -850,6 +875,8 @@ public class MainViewModel : ObservableObject
 
         flag.Name = newName.Trim();
         _db.RenameFlag(flag.Id, flag.Name);
+        Flags.Remove(flag);
+        InsertSortedByName(Flags, flag, f => f.Name);
         RefreshFlagFilterOptions();
     }
 

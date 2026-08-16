@@ -32,6 +32,7 @@ public partial class AddTaskWindow : Window
     public AddTaskWindow(MainViewModel viewModel)
     {
         InitializeComponent();
+        MaxHeight = SystemParameters.WorkArea.Height * 0.9;
         _viewModel = viewModel;
         CategoryComboBox.ItemsSource = viewModel.Columns;
         RebuildProjectItems();
@@ -417,7 +418,7 @@ public partial class AddTaskWindow : Window
         if (dialog.ShowDialog() != true) return;
 
         _viewModel.AddProject(dialog.Value);
-        RebuildProjectItems(_viewModel.Projects.LastOrDefault());
+        RebuildProjectItems(_viewModel.Projects.FirstOrDefault(p => p.Name == dialog.Value.Trim()));
     }
 
     private void DeleteProject_Click(object sender, RoutedEventArgs e)
@@ -431,7 +432,7 @@ public partial class AddTaskWindow : Window
         if (dialog.ShowDialog() != true) return;
 
         _viewModel.AddGoal(dialog.Value);
-        RebuildGoalItems(_viewModel.Goals.LastOrDefault());
+        RebuildGoalItems(_viewModel.Goals.FirstOrDefault(g => g.Name == dialog.Value.Trim()));
     }
 
     private void DeleteGoal_Click(object sender, RoutedEventArgs e)
@@ -445,7 +446,7 @@ public partial class AddTaskWindow : Window
         if (dialog.ShowDialog() != true) return;
 
         _viewModel.AddPerson(dialog.Value);
-        RebuildWhoItems(_viewModel.People.LastOrDefault());
+        RebuildWhoItems(_viewModel.People.FirstOrDefault(p => p.Name == dialog.Value.Trim()));
     }
 
     private void DeleteWho_Click(object sender, RoutedEventArgs e)
@@ -459,7 +460,7 @@ public partial class AddTaskWindow : Window
         if (dialog.ShowDialog() != true) return;
 
         _viewModel.AddFlag(dialog.Value);
-        RebuildFlagCheckboxes(_viewModel.Flags.LastOrDefault()?.Id);
+        RebuildFlagCheckboxes(_viewModel.Flags.FirstOrDefault(f => f.Name == dialog.Value.Trim())?.Id);
     }
 
     private void ClearDueDate_Click(object sender, RoutedEventArgs e)

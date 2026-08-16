@@ -13,6 +13,7 @@ public partial class DeletedTasksWindow : Window
     public DeletedTasksWindow(MainViewModel viewModel, List<DeletedCardInfo> deletedCards)
     {
         InitializeComponent();
+        MaxHeight = SystemParameters.WorkArea.Height * 0.9;
         _viewModel = viewModel;
         _items = new ObservableCollection<DeletedCardInfo>(deletedCards);
         DeletedList.ItemsSource = _items;
