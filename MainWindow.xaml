@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:KanbanApp"
         xmlns:conv="clr-namespace:KanbanApp.Converters"
         mc:Ignorable="d"
-        Title="Kanban" Width="1700" MinWidth="900" MinHeight="600" SizeToContent="Height"
+        Title="Kanban" Width="1700" Height="900" MinWidth="900" MinHeight="600"
         Icon="Assets/app.ico"
         Background="{DynamicResource WindowBackgroundBrush}">
     <Window.Resources>
@@ -77,6 +77,7 @@
                     CornerRadius="6"
                     Background="{StaticResource AccentPanelBrush}"
                     BorderBrush="{StaticResource AccentPanelBorderBrush}" BorderThickness="1">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
                     <StackPanel>
                         <TextBlock Text="Sort &amp; Add" Style="{StaticResource SectionHeaderStyle}" Margin="0,0,0,6"/>
                         <StackPanel>
@@ -212,6 +213,7 @@
                             <TextBlock Text="Close" TextWrapping="Wrap" TextAlignment="Center"/>
                         </Button>
                     </StackPanel>
+                </ScrollViewer>
             </Border>
 
             <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled"
@@ -225,12 +227,18 @@
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
                             <Border Width="260" Margin="0,0,12,0" Padding="10" Background="{Binding Background}"
-                                    CornerRadius="6" VerticalAlignment="Top"
+                                    CornerRadius="6"
                                     BorderBrush="{DynamicResource PanelBorderBrush}" BorderThickness="1"
                                     AllowDrop="True" Drop="Column_Drop">
-                                <StackPanel>
-                                    <TextBlock Text="{Binding Name}" FontWeight="Bold" FontSize="14" Margin="0,0,0,10" Foreground="#FF1A1A1A"/>
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="*"/>
+                                    </Grid.RowDefinitions>
 
+                                    <TextBlock Grid.Row="0" Text="{Binding Name}" FontWeight="Bold" FontSize="14" Margin="0,0,0,10" Foreground="#FF1A1A1A"/>
+
+                                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
                                     <ItemsControl ItemsSource="{Binding Cards}">
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate>
@@ -322,7 +330,8 @@
                                             </DataTemplate>
                                         </ItemsControl.ItemTemplate>
                                     </ItemsControl>
-                                </StackPanel>
+                                    </ScrollViewer>
+                                </Grid>
                             </Border>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
