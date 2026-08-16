@@ -31,6 +31,7 @@ public partial class SettingsWindow : Window
 
         ExportPathTextBox.Text = viewModel.DefaultExportPath;
         ImportPathTextBox.Text = viewModel.DefaultImportPath;
+        LinkedFilesPathTextBox.Text = viewModel.LinkedFilesDefaultPath;
 
         StartFullScreenCheckBox.IsChecked = viewModel.StartFullScreen;
         ConfirmDeleteCheckBox.IsChecked = viewModel.ConfirmDelete;
@@ -85,6 +86,11 @@ public partial class SettingsWindow : Window
         _viewModel.SetDefaultImportPath(ImportPathTextBox.Text.Trim());
     }
 
+    private void LinkedFilesPathTextBox_LostFocus(object sender, RoutedEventArgs e)
+    {
+        _viewModel.SetLinkedFilesDefaultPath(LinkedFilesPathTextBox.Text.Trim());
+    }
+
     private void BrowseExportPath_Click(object sender, RoutedEventArgs e)
     {
         var dialog = new Microsoft.Win32.OpenFolderDialog
@@ -111,6 +117,20 @@ public partial class SettingsWindow : Window
 
         ImportPathTextBox.Text = dialog.FolderName;
         _viewModel.SetDefaultImportPath(dialog.FolderName);
+    }
+
+    private void BrowseLinkedFilesPath_Click(object sender, RoutedEventArgs e)
+    {
+        var dialog = new Microsoft.Win32.OpenFolderDialog
+        {
+            Title = "Choose Default Linked Files Folder",
+            InitialDirectory = Directory.Exists(LinkedFilesPathTextBox.Text) ? LinkedFilesPathTextBox.Text : null
+        };
+
+        if (dialog.ShowDialog() != true) return;
+
+        LinkedFilesPathTextBox.Text = dialog.FolderName;
+        _viewModel.SetLinkedFilesDefaultPath(dialog.FolderName);
     }
 
     private void ChangeLocation_Click(object sender, RoutedEventArgs e)

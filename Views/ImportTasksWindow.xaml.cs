@@ -24,9 +24,9 @@ public partial class ImportTasksWindow : Window
             Filter = "Excel File (*.xlsx)|*.xlsx",
             FileName = "Task Import Template.xlsx"
         };
-        if (!string.IsNullOrWhiteSpace(_viewModel.DefaultExportPath) && Directory.Exists(_viewModel.DefaultExportPath))
+        if (!string.IsNullOrWhiteSpace(_viewModel.DefaultImportPath) && Directory.Exists(_viewModel.DefaultImportPath))
         {
-            dialog.InitialDirectory = _viewModel.DefaultExportPath;
+            dialog.InitialDirectory = _viewModel.DefaultImportPath;
         }
 
         if (dialog.ShowDialog(this) != true) return;

@@ -84,6 +84,7 @@ public class MainViewModel : ObservableObject
 
     public string DefaultExportPath { get; private set; } = string.Empty;
     public string DefaultImportPath { get; private set; } = string.Empty;
+    public string LinkedFilesDefaultPath { get; private set; } = string.Empty;
 
     public void SetDefaultExportPath(string value)
     {
@@ -95,6 +96,12 @@ public class MainViewModel : ObservableObject
     {
         DefaultImportPath = value;
         _db.SetSetting("DefaultImportPath", value);
+    }
+
+    public void SetLinkedFilesDefaultPath(string value)
+    {
+        LinkedFilesDefaultPath = value;
+        _db.SetSetting("LinkedFilesDefaultPath", value);
     }
 
     public bool StartFullScreen { get; private set; }
@@ -219,6 +226,7 @@ public class MainViewModel : ObservableObject
 
         DefaultExportPath = _db.GetSetting("DefaultExportPath") ?? string.Empty;
         DefaultImportPath = _db.GetSetting("DefaultImportPath") ?? string.Empty;
+        LinkedFilesDefaultPath = _db.GetSetting("LinkedFilesDefaultPath") ?? string.Empty;
 
         StartFullScreen = _db.GetSetting("StartFullScreen") == "True";
         ConfirmDelete = _db.GetSetting("ConfirmDelete") != "False";

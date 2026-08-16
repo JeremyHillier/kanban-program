@@ -102,7 +102,8 @@
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Require a yes/no confirmation before deleting a task, project, goal, or flag — turn this off to delete immediately without asking."/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Ask whether to add a note whenever a task is moved to Done; answering yes opens the task with the cursor already in the Notes field."/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Change where the task database file is stored."/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Set a Default Export Path (used by Report Builder's PDF export) and a Default Import Path for future use."/>
+                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Set a Default Export Path (used by Report Builder's PDF export) and a Default Import Path (used by Import Tasks, including where the template is saved)."/>
+                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Set a Linked Files Default Path for future use, once file linking support is added."/>
             </StackPanel>
         </ScrollViewer>
 
