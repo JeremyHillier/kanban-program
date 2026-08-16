@@ -68,6 +68,19 @@ public class MainViewModel : ObservableObject
     public bool IsLargeCards => !IsCompactCards;
     public string CardSizeButtonLabel => IsCompactCards ? "Large Cards" : "Compact Cards";
 
+    private int _columnWidth = 310;
+    public int ColumnWidth
+    {
+        get => _columnWidth;
+        set => SetField(ref _columnWidth, value);
+    }
+
+    public void SetColumnWidth(int value)
+    {
+        ColumnWidth = Math.Clamp(value, 150, 800);
+        _db.SetSetting("ColumnWidth", ColumnWidth.ToString());
+    }
+
     public string CurrentDbPath => _db.DbPath;
     public string AttachmentsDir => DatabaseService.GetAttachmentsDir(_db.DbPath);
 
@@ -258,6 +271,7 @@ public class MainViewModel : ObservableObject
         _isButtonsOnRight = _db.GetSetting("ButtonPosition") == "Right";
 
         _isCompactCards = _db.GetSetting("CardSize") == "Compact";
+        _columnWidth = int.TryParse(_db.GetSetting("ColumnWidth"), out var columnWidth) ? columnWidth : 310;
 
         ShowSplash = _db.GetSetting("ShowSplash") != "False";
         SplashDelayMs = int.TryParse(_db.GetSetting("SplashDelayMs"), out var delay) ? delay : 1800;

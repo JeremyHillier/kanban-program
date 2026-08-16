@@ -118,6 +118,7 @@
 
                 <TextBlock Text="Settings" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Move the button panel to the right side of the board."/>
+        <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Set the task column width in pixels (default 310)."/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Turn the startup splash screen on or off and set how long it stays visible."/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Start the app in full screen."/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• The window size and position are remembered automatically between sessions; the full-screen setting still applies on top of that when starting up."/>

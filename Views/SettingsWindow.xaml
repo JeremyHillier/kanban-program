@@ -4,7 +4,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         mc:Ignorable="d"
-        Title="Settings" Height="500" Width="460" SizeToContent="Height"
+        Title="Settings" Width="460" SizeToContent="Height"
         WindowStartupLocation="CenterOwner" ResizeMode="NoResize"
         ShowInTaskbar="False"
         Background="{DynamicResource WindowBackgroundBrush}">
@@ -26,43 +26,23 @@
             <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
         </Style>
     </Window.Resources>
-    <Grid Margin="16">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
-
-        <TextBlock Grid.Row="0" Text="Layout" Style="{StaticResource SectionHeaderStyle}"/>
-        <CheckBox Grid.Row="1" x:Name="ButtonsOnRightCheckBox" Content="Show the button panel on the right side of the board"
-                  Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,20"
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+    <StackPanel Margin="16">
+        <TextBlock Text="Layout" Style="{StaticResource SectionHeaderStyle}"/>
+        <CheckBox x:Name="ButtonsOnRightCheckBox" Content="Show the button panel on the right side of the board"
+                  Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,12"
                   Checked="ButtonsOnRightCheckBox_Changed" Unchecked="ButtonsOnRightCheckBox_Changed"/>
+        <TextBlock Text="Task column width (pixels)" Style="{StaticResource FieldLabelStyle}"/>
+        <TextBox x:Name="ColumnWidthTextBox" Width="100" Padding="6" HorizontalAlignment="Left" Margin="0,0,0,20"
+                 LostFocus="ColumnWidthTextBox_LostFocus"
+                 Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                 BorderBrush="{DynamicResource CardBorderBrush}"/>
 
-        <TextBlock Grid.Row="2" Text="Startup" Style="{StaticResource SectionHeaderStyle}"/>
-        <CheckBox Grid.Row="3" x:Name="ShowSplashCheckBox" Content="Show splash screen on startup"
+        <TextBlock Text="Startup" Style="{StaticResource SectionHeaderStyle}"/>
+        <CheckBox x:Name="ShowSplashCheckBox" Content="Show splash screen on startup"
                   Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,8"
                   Checked="ShowSplashCheckBox_Changed" Unchecked="ShowSplashCheckBox_Changed"/>
-        <StackPanel Grid.Row="4" Orientation="Horizontal" Margin="0,0,0,8">
+        <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
             <TextBlock Text="Splash duration:" VerticalAlignment="Center" Margin="0,0,8,0"
                        Foreground="{DynamicResource PrimaryTextBrush}"/>
             <ComboBox x:Name="SplashDelayComboBox" Width="140" Padding="4"
@@ -75,26 +55,26 @@
                 <ComboBoxItem Content="4 seconds" Tag="4000"/>
             </ComboBox>
         </StackPanel>
-        <CheckBox Grid.Row="5" x:Name="StartFullScreenCheckBox" Content="Start in full screen"
+        <CheckBox x:Name="StartFullScreenCheckBox" Content="Start in full screen"
                   Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,20"
                   Checked="StartFullScreenCheckBox_Changed" Unchecked="StartFullScreenCheckBox_Changed"/>
 
-        <TextBlock Grid.Row="6" Text="Behavior" Style="{StaticResource SectionHeaderStyle}"/>
-        <CheckBox Grid.Row="7" x:Name="ConfirmDeleteCheckBox" Content="Confirm before deleting a task, project, goal, or flag"
+        <TextBlock Text="Behavior" Style="{StaticResource SectionHeaderStyle}"/>
+        <CheckBox x:Name="ConfirmDeleteCheckBox" Content="Confirm before deleting a task, project, goal, or flag"
                   Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,8"
                   Checked="ConfirmDeleteCheckBox_Changed" Unchecked="ConfirmDeleteCheckBox_Changed"/>
-        <CheckBox Grid.Row="8" x:Name="AddNoteOnCompleteCheckBox" Content="Ask to add a note when a task is marked Done"
+        <CheckBox x:Name="AddNoteOnCompleteCheckBox" Content="Ask to add a note when a task is marked Done"
                   Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,20"
                   Checked="AddNoteOnCompleteCheckBox_Changed" Unchecked="AddNoteOnCompleteCheckBox_Changed"/>
 
-        <TextBlock Grid.Row="9" Text="Data Storage" Style="{StaticResource SectionHeaderStyle}"/>
-        <TextBlock Grid.Row="10" Text="The task database is currently stored at:" Margin="0,0,0,4"
+        <TextBlock Text="Data Storage" Style="{StaticResource SectionHeaderStyle}"/>
+        <TextBlock Text="The task database is currently stored at:" Margin="0,0,0,4"
                    Foreground="{DynamicResource PrimaryTextBrush}"/>
-        <TextBox Grid.Row="11" x:Name="DbPathTextBox" IsReadOnly="True" Padding="6" Margin="0,0,0,10"
+        <TextBox x:Name="DbPathTextBox" IsReadOnly="True" Padding="6" Margin="0,0,0,10"
                  Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
                  BorderBrush="{DynamicResource CardBorderBrush}"/>
 
-        <StackPanel Grid.Row="12" VerticalAlignment="Top" Margin="0,0,0,20">
+        <StackPanel VerticalAlignment="Top" Margin="0,0,0,20">
             <Button Content="Change Location..." Padding="10,6" HorizontalAlignment="Left" Click="ChangeLocation_Click"
                     Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
             <TextBlock Text="Changing the location moves the database file, restarts the app, and removes the old file once the new one is confirmed working." FontSize="11" Margin="0,6,0,0"
@@ -103,9 +83,9 @@
                        Foreground="{DynamicResource SecondaryTextBrush}" TextWrapping="Wrap"/>
         </StackPanel>
 
-        <TextBlock Grid.Row="13" Text="Import / Export" Style="{StaticResource SectionHeaderStyle}"/>
-        <TextBlock Grid.Row="14" Text="Default Export Path" Style="{StaticResource FieldLabelStyle}"/>
-        <Grid Grid.Row="15" Margin="0,0,0,10">
+        <TextBlock Text="Import / Export" Style="{StaticResource SectionHeaderStyle}"/>
+        <TextBlock Text="Default Export Path" Style="{StaticResource FieldLabelStyle}"/>
+        <Grid Margin="0,0,0,10">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
@@ -116,8 +96,8 @@
             <Button Grid.Column="1" Content="Browse..." Style="{StaticResource BrowseButtonStyle}" Click="BrowseExportPath_Click"/>
         </Grid>
 
-        <TextBlock Grid.Row="16" Text="Default Import Path" Style="{StaticResource FieldLabelStyle}"/>
-        <Grid Grid.Row="17" Margin="0,0,0,20">
+        <TextBlock Text="Default Import Path" Style="{StaticResource FieldLabelStyle}"/>
+        <Grid Margin="0,0,0,20">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
@@ -128,9 +108,9 @@
             <Button Grid.Column="1" Content="Browse..." Style="{StaticResource BrowseButtonStyle}" Click="BrowseImportPath_Click"/>
         </Grid>
 
-        <TextBlock Grid.Row="18" Text="Linked Files" Style="{StaticResource SectionHeaderStyle}"/>
-        <TextBlock Grid.Row="19" Text="Linked Files Default Path" Style="{StaticResource FieldLabelStyle}"/>
-        <Grid Grid.Row="20">
+        <TextBlock Text="Linked Files" Style="{StaticResource SectionHeaderStyle}"/>
+        <TextBlock Text="Linked Files Default Path" Style="{StaticResource FieldLabelStyle}"/>
+        <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
@@ -141,12 +121,13 @@
             <Button Grid.Column="1" Content="Browse..." Style="{StaticResource BrowseButtonStyle}" Click="BrowseLinkedFilesPath_Click"/>
         </Grid>
 
-        <TextBlock Grid.Row="21" Text="This folder will be used once file linking support is added."
+        <TextBlock Text="This folder will be used once file linking support is added."
                    FontSize="11" Margin="0,8,0,0"
                    Foreground="{DynamicResource SecondaryTextBrush}" TextWrapping="Wrap"/>
 
-        <Button Grid.Row="22" Content="Save &amp; Close" Width="120" Padding="0,6" Margin="0,16,0,0"
+        <Button Content="Save &amp; Close" Width="120" Padding="0,6" Margin="0,16,0,0"
                 HorizontalAlignment="Right" IsCancel="True" IsDefault="True"
                 Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
-    </Grid>
+    </StackPanel>
+    </ScrollViewer>
 </Window>

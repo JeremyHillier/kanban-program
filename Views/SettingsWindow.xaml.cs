@@ -13,9 +13,11 @@ public partial class SettingsWindow : Window
     public SettingsWindow(MainViewModel viewModel)
     {
         InitializeComponent();
+        MaxHeight = SystemParameters.WorkArea.Height * 0.9;
         _viewModel = viewModel;
 
         ButtonsOnRightCheckBox.IsChecked = viewModel.IsButtonsOnRight;
+        ColumnWidthTextBox.Text = viewModel.ColumnWidth.ToString();
         DbPathTextBox.Text = viewModel.CurrentDbPath;
 
         ShowSplashCheckBox.IsChecked = viewModel.ShowSplash;
@@ -60,6 +62,18 @@ public partial class SettingsWindow : Window
         {
             _viewModel.ToggleButtonPosition();
         }
+    }
+
+    private void ColumnWidthTextBox_LostFocus(object sender, RoutedEventArgs e)
+    {
+        if (!int.TryParse(ColumnWidthTextBox.Text.Trim(), out var width))
+        {
+            ColumnWidthTextBox.Text = _viewModel.ColumnWidth.ToString();
+            return;
+        }
+
+        _viewModel.SetColumnWidth(width);
+        ColumnWidthTextBox.Text = _viewModel.ColumnWidth.ToString();
     }
 
     private void ShowSplashCheckBox_Changed(object sender, RoutedEventArgs e)

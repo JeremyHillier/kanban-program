@@ -336,7 +336,8 @@
                     </ItemsControl.ItemsPanel>
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <Border Width="312" Margin="0,0,12,0" Padding="10" Background="{Binding Background}"
+                            <Border Width="{Binding DataContext.ColumnWidth, RelativeSource={RelativeSource AncestorType=Window}}"
+                                    Margin="0,0,12,0" Padding="10" Background="{Binding Background}"
                                     CornerRadius="6"
                                     BorderBrush="{DynamicResource PanelBorderBrush}" BorderThickness="1"
                                     AllowDrop="True" Drop="Column_Drop">
