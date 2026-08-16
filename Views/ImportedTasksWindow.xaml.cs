@@ -41,7 +41,8 @@ public partial class ImportedTasksWindow : Window
             var goal = row.GoalId is null ? null : _viewModel.Goals.FirstOrDefault(g => g.Id == row.GoalId);
 
             _viewModel.EditCard(row.Card, row.Title, column, project, row.Priority, row.DueDate, row.Who,
-                row.Card.IsRecurring, row.Card.RecurrencePattern, goal, row.Card.Flags, row.Card.SubTasks, row.Card.Notes);
+                row.Card.IsRecurring, row.Card.RecurrencePattern, goal, row.Card.Flags, row.Card.SubTasks, row.Card.Notes,
+                attachments: row.Card.Attachments);
 
             _viewModel.SetCardImported(row.Card, row.IsImported);
             if (!row.IsImported) toRemove.Add(row);

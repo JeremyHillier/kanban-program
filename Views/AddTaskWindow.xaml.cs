@@ -1,6 +1,10 @@
+using System.Diagnostics;
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using KanbanApp.Models;
 using KanbanApp.ViewModels;
 
@@ -9,6 +13,7 @@ namespace KanbanApp.Views;
 public partial class AddTaskWindow : Window
 {
     private readonly MainViewModel _viewModel;
+    private readonly List<string> _sessionPastedFilePaths = [];
 
     public string TaskDetails { get; private set; } = string.Empty;
     public ColumnViewModel? SelectedColumn { get; private set; }
@@ -16,6 +21,7 @@ public partial class AddTaskWindow : Window
     public GoalViewModel? SelectedGoal { get; private set; }
     public List<FlagViewModel> SelectedFlags { get; private set; } = [];
     public List<SubTaskViewModel> SelectedSubTasks { get; private set; } = [];
+    public List<AttachmentViewModel> SelectedAttachments { get; private set; } = [];
     public string SelectedPriority { get; private set; } = "Normal";
     public DateTime? SelectedDueDate { get; private set; }
     public string? Who { get; private set; }
@@ -91,6 +97,11 @@ public partial class AddTaskWindow : Window
             AddSubTaskRow(subTask.Title, subTask.IsDone);
         }
         UpdateSubTaskProgressLabel();
+
+        foreach (var attachment in cardToEdit.Attachments)
+        {
+            AddAttachmentRow(attachment);
+        }
     }
 
     private void RebuildProjectItems(ProjectViewModel? autoSelect = null)
@@ -144,6 +155,166 @@ public partial class AddTaskWindow : Window
                 Margin = new Thickness(0, 0, 16, 8),
                 Foreground = (Brush)FindResource("PrimaryTextBrush")
             });
+        }
+    }
+
+    private void AddAttachmentRow(AttachmentViewModel attachment)
+    {
+        var row = new Grid { Margin = new Thickness(0, 0, 0, 6), Tag = attachment };
+        row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+        row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+        row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+
+        FrameworkElement preview;
+        if (attachment.IsImage && File.Exists(attachment.FilePath))
+        {
+            try
+            {
+                var bitmap = new BitmapImage();
+                bitmap.BeginInit();
+                bitmap.CacheOption = BitmapCacheOption.OnLoad;
+                bitmap.DecodePixelWidth = 40;
+                bitmap.UriSource = new Uri(attachment.FilePath);
+                bitmap.EndInit();
+                preview = new Image { Source = bitmap, Width = 40, Height = 40, Stretch = Stretch.UniformToFill, Margin = new Thickness(0, 0, 8, 0) };
+            }
+            catch
+            {
+                preview = new TextBlock { Text = "🖼", FontSize = 20, Width = 40, TextAlignment = TextAlignment.Center, Margin = new Thickness(0, 0, 8, 0) };
+            }
+        }
+        else
+        {
+            preview = new TextBlock { Text = "📄", FontSize = 20, Width = 40, TextAlignment = TextAlignment.Center, Margin = new Thickness(0, 0, 8, 0) };
+        }
+        Grid.SetColumn(preview, 0);
+        preview.Cursor = Cursors.Hand;
+        preview.MouseLeftButtonUp += (_, _) => OpenAttachment(attachment.FilePath);
+
+        var nameText = new TextBlock
+        {
+            Text = attachment.DisplayName,
+            VerticalAlignment = VerticalAlignment.Center,
+            TextTrimming = TextTrimming.CharacterEllipsis,
+            Foreground = (Brush)FindResource("PrimaryTextBrush"),
+            Cursor = Cursors.Hand,
+            ToolTip = attachment.FilePath
+        };
+        nameText.MouseLeftButtonUp += (_, _) => OpenAttachment(attachment.FilePath);
+        Grid.SetColumn(nameText, 1);
+
+        var deleteButton = new Button
+        {
+            Content = "×",
+            Width = 26,
+            Height = 26,
+            Margin = new Thickness(6, 0, 0, 0),
+            Background = (Brush)FindResource("ButtonBackgroundBrush"),
+            Foreground = (Brush)FindResource("PrimaryTextBrush"),
+            ToolTip = "Remove attachment"
+        };
+        Grid.SetColumn(deleteButton, 2);
+        deleteButton.Click += (_, _) => AttachmentsPanel.Children.Remove(row);
+
+        row.Children.Add(preview);
+        row.Children.Add(nameText);
+        row.Children.Add(deleteButton);
+        AttachmentsPanel.Children.Add(row);
+    }
+
+    private static void OpenAttachment(string path)
+    {
+        if (!File.Exists(path))
+        {
+            MessageBox.Show($"This file can no longer be found:\n{path}", "File Not Found", MessageBoxButton.OK, MessageBoxImage.Warning);
+            return;
+        }
+
+        try
+        {
+            Process.Start(new ProcessStartInfo(path) { UseShellExecute = true });
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Couldn't open the file: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+    }
+
+    private void AddFile_Click(object sender, RoutedEventArgs e)
+    {
+        var dialog = new Microsoft.Win32.OpenFileDialog
+        {
+            Title = "Choose a File to Link",
+            Filter = "All Files (*.*)|*.*",
+            InitialDirectory = Directory.Exists(_viewModel.LinkedFilesDefaultPath) ? _viewModel.LinkedFilesDefaultPath : null
+        };
+
+        if (dialog.ShowDialog() != true) return;
+
+        var attachment = new AttachmentViewModel(new CardAttachment
+        {
+            FilePath = dialog.FileName,
+            DisplayName = Path.GetFileName(dialog.FileName),
+            AddedDate = DateTime.Now
+        });
+        AddAttachmentRow(attachment);
+    }
+
+    private void PasteScreenshot_Click(object sender, RoutedEventArgs e)
+    {
+        if (!Clipboard.ContainsImage())
+        {
+            MessageBox.Show(this, "There's no image on the clipboard. Copy a screenshot (e.g. with the Snipping Tool or PrtScn) first.",
+                "No Image Found", MessageBoxButton.OK, MessageBoxImage.Information);
+            return;
+        }
+
+        BitmapSource? image;
+        try
+        {
+            image = Clipboard.GetImage();
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(this, $"Couldn't read the clipboard image: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            return;
+        }
+
+        if (image is null) return;
+
+        var attachmentsDir = _viewModel.AttachmentsDir;
+        Directory.CreateDirectory(attachmentsDir);
+
+        var fileName = $"Screenshot_{DateTime.Now:yyyyMMdd_HHmmss_fff}.png";
+        var filePath = Path.Combine(attachmentsDir, fileName);
+
+        using (var stream = new FileStream(filePath, FileMode.Create))
+        {
+            var encoder = new PngBitmapEncoder();
+            encoder.Frames.Add(BitmapFrame.Create(image));
+            encoder.Save(stream);
+        }
+
+        _sessionPastedFilePaths.Add(filePath);
+
+        var attachment = new AttachmentViewModel(new CardAttachment
+        {
+            FilePath = filePath,
+            DisplayName = fileName,
+            AddedDate = DateTime.Now
+        });
+        AddAttachmentRow(attachment);
+    }
+
+    protected override void OnClosed(EventArgs e)
+    {
+        base.OnClosed(e);
+
+        var survivingPaths = SelectedAttachments.Select(a => a.FilePath).ToHashSet(StringComparer.OrdinalIgnoreCase);
+        foreach (var path in _sessionPastedFilePaths)
+        {
+            if (survivingPaths.Contains(path)) continue;
+            try { if (File.Exists(path)) File.Delete(path); } catch { /* best effort */ }
         }
     }
 
@@ -309,6 +480,10 @@ public partial class AddTaskWindow : Window
             })
             .Where(s => !string.IsNullOrWhiteSpace(s.Title))
             .Select(s => new SubTaskViewModel(new SubTaskItem { Title = s.Title, IsDone = s.IsDone }))
+            .ToList();
+
+        SelectedAttachments = AttachmentsPanel.Children.OfType<Grid>()
+            .Select(row => (AttachmentViewModel)row.Tag)
             .ToList();
 
         DialogResult = true;

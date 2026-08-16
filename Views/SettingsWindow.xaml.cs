@@ -160,6 +160,12 @@ public partial class SettingsWindow : Window
             {
                 File.Copy(currentPath, newPath);
                 didCopy = true;
+
+                var oldAttachmentsDir = DatabaseService.GetAttachmentsDir(currentPath);
+                if (Directory.Exists(oldAttachmentsDir))
+                {
+                    CopyDirectoryRecursive(oldAttachmentsDir, DatabaseService.GetAttachmentsDir(newPath));
+                }
             }
 
             var config = AppConfig.Load();
@@ -187,6 +193,19 @@ public partial class SettingsWindow : Window
         catch (Exception ex)
         {
             MessageBox.Show($"Couldn't update the database location: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+    }
+
+    private static void CopyDirectoryRecursive(string sourceDir, string destDir)
+    {
+        Directory.CreateDirectory(destDir);
+        foreach (var file in Directory.GetFiles(sourceDir))
+        {
+            File.Copy(file, Path.Combine(destDir, Path.GetFileName(file)), overwrite: true);
+        }
+        foreach (var subDir in Directory.GetDirectories(sourceDir))
+        {
+            CopyDirectoryRecursive(subDir, Path.Combine(destDir, Path.GetFileName(subDir)));
         }
     }
 }

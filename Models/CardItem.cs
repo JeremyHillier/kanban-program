@@ -20,4 +20,5 @@ public class CardItem
     public string? Notes { get; set; }
     public List<int> FlagIds { get; set; } = [];
     public List<SubTaskItem> SubTasks { get; set; } = [];
+    public List<CardAttachment> Attachments { get; set; } = [];
 }

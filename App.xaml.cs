@@ -65,6 +65,15 @@ public partial class App : Application
             {
                 File.Delete(config.PendingCleanupPath);
             }
+
+            var oldAttachmentsDir = DatabaseService.GetAttachmentsDir(config.PendingCleanupPath);
+            var currentAttachmentsDir = DatabaseService.GetAttachmentsDir(currentDbPath);
+            if (!string.Equals(Path.GetFullPath(oldAttachmentsDir), Path.GetFullPath(currentAttachmentsDir), StringComparison.OrdinalIgnoreCase)
+                && Directory.Exists(oldAttachmentsDir))
+            {
+                Directory.Delete(oldAttachmentsDir, recursive: true);
+            }
+
             config.PendingCleanupPath = null;
             config.Save();
         }

@@ -92,6 +92,13 @@ public class DatabaseService
                     Key TEXT PRIMARY KEY,
                     Value TEXT NOT NULL
                 );
+                CREATE TABLE IF NOT EXISTS CardAttachments (
+                    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    CardId INTEGER NOT NULL,
+                    FilePath TEXT NOT NULL,
+                    DisplayName TEXT NOT NULL,
+                    AddedDate TEXT NOT NULL
+                );
                 """;
             cmd.ExecuteNonQuery();
         }
@@ -283,6 +290,28 @@ public class DatabaseService
             }
         }
 
+        using (var attCmd = connection.CreateCommand())
+        {
+            attCmd.CommandText = "SELECT Id, CardId, FilePath, DisplayName, AddedDate FROM CardAttachments ORDER BY CardId, Id;";
+            using var reader = attCmd.ExecuteReader();
+            var byCard = result.ToDictionary(c => c.Id);
+            while (reader.Read())
+            {
+                var cardId = reader.GetInt32(1);
+                if (byCard.TryGetValue(cardId, out var card))
+                {
+                    card.Attachments.Add(new CardAttachment
+                    {
+                        Id = reader.GetInt32(0),
+                        CardId = cardId,
+                        FilePath = reader.GetString(2),
+                        DisplayName = reader.GetString(3),
+                        AddedDate = DateTime.Parse(reader.GetString(4))
+                    });
+                }
+            }
+        }
+
         return result;
     }
 
@@ -468,6 +497,49 @@ public class DatabaseService
         cmd.Parameters.AddWithValue("$isDone", isDone ? 1 : 0);
         cmd.Parameters.AddWithValue("$id", subTaskId);
         cmd.ExecuteNonQuery();
+    }
+
+    public static string GetAttachmentsDir(string dbPath) => Path.Combine(Path.GetDirectoryName(dbPath)!, "Attachments");
+
+    public List<CardAttachment> SetCardAttachments(int cardId, List<(string FilePath, string DisplayName, DateTime AddedDate)> attachments)
+    {
+        using var connection = OpenConnection();
+
+        using (var clearCmd = connection.CreateCommand())
+        {
+            clearCmd.CommandText = "DELETE FROM CardAttachments WHERE CardId = $cardId;";
+            clearCmd.Parameters.AddWithValue("$cardId", cardId);
+            clearCmd.ExecuteNonQuery();
+        }
+
+        var result = new List<CardAttachment>();
+        foreach (var (filePath, displayName, addedDate) in attachments)
+        {
+            using var insertCmd = connection.CreateCommand();
+            insertCmd.CommandText = """
+                INSERT INTO CardAttachments (CardId, FilePath, DisplayName, AddedDate) VALUES ($cardId, $filePath, $displayName, $addedDate);
+                SELECT last_insert_rowid();
+                """;
+            insertCmd.Parameters.AddWithValue("$cardId", cardId);
+            insertCmd.Parameters.AddWithValue("$filePath", filePath);
+            insertCmd.Parameters.AddWithValue("$displayName", displayName);
+            insertCmd.Parameters.AddWithValue("$addedDate", addedDate.ToString("yyyy-MM-dd HH:mm:ss"));
+            var id = (long)insertCmd.ExecuteScalar()!;
+
+            result.Add(new CardAttachment { Id = (int)id, CardId = cardId, FilePath = filePath, DisplayName = displayName, AddedDate = addedDate });
+        }
+
+        return result;
+    }
+
+    public bool IsAttachmentPathReferencedElsewhere(string filePath, int excludingCardId)
+    {
+        using var connection = OpenConnection();
+        using var cmd = connection.CreateCommand();
+        cmd.CommandText = "SELECT COUNT(*) FROM CardAttachments WHERE FilePath = $filePath AND CardId != $cardId;";
+        cmd.Parameters.AddWithValue("$filePath", filePath);
+        cmd.Parameters.AddWithValue("$cardId", excludingCardId);
+        return (long)cmd.ExecuteScalar()! > 0;
     }
 
     private KanbanColumn AddColumn(string name, SqliteConnection connection)

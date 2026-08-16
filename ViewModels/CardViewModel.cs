@@ -225,4 +225,22 @@ public class CardViewModel(CardItem model) : ObservableObject
     {
         OnPropertyChanged(nameof(SubTaskProgressDisplay));
     }
+
+    private List<AttachmentViewModel> _attachments = [];
+    public List<AttachmentViewModel> Attachments
+    {
+        get => _attachments;
+        set
+        {
+            _attachments = value;
+            OnPropertyChanged();
+            OnPropertyChanged(nameof(HasAttachments));
+            OnPropertyChanged(nameof(AttachmentsCountDisplay));
+        }
+    }
+
+    public bool HasAttachments => Attachments.Count > 0;
+
+    public string AttachmentsCountDisplay =>
+        Attachments.Count == 0 ? string.Empty : $"📎 {Attachments.Count} attachment{(Attachments.Count == 1 ? "" : "s")}";
 }

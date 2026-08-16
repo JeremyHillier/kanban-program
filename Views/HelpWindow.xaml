@@ -55,6 +55,11 @@
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Sub-task checkboxes also appear directly on the card (in large card view) so you can tick them off without opening the dialog."/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• A done/total (percent) summary is shown both in the dialog and on the card."/>
 
+                <TextBlock Text="Attachments" Style="{StaticResource HelpSectionHeaderStyle}"/>
+                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• '+ File...' links an existing file to the task. The file stays where it is — the task just remembers the path, it isn't copied. If you later move, rename, or delete the original, the link breaks."/>
+                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• 'Paste Screenshot' adds whatever image is on the clipboard (e.g. after PrtScn or the Snipping Tool). Unlike linked files, pasted screenshots are saved as real files in an 'Attachments' folder next to your database, so they travel with it if you relocate the database later."/>
+                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Images show as a small thumbnail; other files show as a filename. Click either to open the file in its default app, or × to remove it from the task (removing a pasted screenshot also deletes its saved copy; removing a linked file never touches the original)."/>
+
                 <TextBlock Text="Recurring tasks" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Mark a task Recurring and choose a pattern (Daily, Weekday, Weekly, Monthly, or Annually)."/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• When a recurring task is moved to Done, its next occurrence is created automatically in To Do with the same details and sub-task list — but with every sub-task unchecked."/>

@@ -338,6 +338,10 @@
                                                             <TextBlock Text="{Binding LastUpdatedDisplay}" FontSize="9" FontStyle="Italic"
                                                                        Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,3,0,0"/>
 
+                                                            <TextBlock Text="{Binding AttachmentsCountDisplay}" FontSize="10"
+                                                                       Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,3,0,0"
+                                                                       Visibility="{Binding HasAttachments, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+
                                                             <TextBlock Text="{Binding SubTaskProgressDisplay}" FontSize="10" FontWeight="SemiBold"
                                                                        Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,5,0,0"
                                                                        Visibility="{Binding HasSubTasks, Converter={StaticResource BooleanToVisibilityConverter}}"/>

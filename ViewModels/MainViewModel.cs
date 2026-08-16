@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Reflection;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -66,6 +67,7 @@ public class MainViewModel : ObservableObject
     public string CardSizeButtonLabel => IsCompactCards ? "Large Cards" : "Compact Cards";
 
     public string CurrentDbPath => _db.DbPath;
+    public string AttachmentsDir => DatabaseService.GetAttachmentsDir(_db.DbPath);
 
     public bool ShowSplash { get; private set; }
     public int SplashDelayMs { get; private set; }
@@ -313,6 +315,7 @@ public class MainViewModel : ObservableObject
                     GoalName = ResolveGoalName(card.GoalId),
                     Flags = ResolveFlags(card.FlagIds),
                     SubTasks = card.SubTasks.Select(s => new SubTaskViewModel(s)).ToList(),
+                    Attachments = card.Attachments.Select(a => new AttachmentViewModel(a)).ToList(),
                     LastUpdated = card.LastUpdated
                 };
                 columnVm.Cards.Add(cardVm);
@@ -539,19 +542,22 @@ public class MainViewModel : ObservableObject
 
     public CardViewModel AddCard(string title, ColumnViewModel column, ProjectViewModel? project, string priority, DateTime? dueDate, string? who,
         bool isRecurring, string? recurrencePattern, GoalViewModel? goal, List<FlagViewModel>? flags = null, List<SubTaskViewModel>? subTasks = null,
-        string? notes = null, bool isImported = false)
+        string? notes = null, bool isImported = false, List<AttachmentViewModel>? attachments = null)
     {
         flags ??= [];
         subTasks ??= [];
+        attachments ??= [];
         var card = _db.AddCard(column.Id, title.Trim(), project?.Id, column.Name, priority, dueDate, who, isRecurring, recurrencePattern, goal?.Id, notes, isImported);
         _db.SetCardFlags(card.Id, flags.Select(f => f.Id));
         var subTaskItems = _db.SetCardSubTasks(card.Id, subTasks.Select(s => (s.Title, s.IsDone)).ToList());
+        var attachmentItems = _db.SetCardAttachments(card.Id, attachments.Select(a => (a.FilePath, a.DisplayName, a.AddedDate)).ToList());
         var cardVm = new CardViewModel(card)
         {
             ProjectName = project?.Name ?? "No Project",
             GoalName = goal?.Name ?? "No Goal",
             Flags = flags,
             SubTasks = subTaskItems.Select(s => new SubTaskViewModel(s)).ToList(),
+            Attachments = attachmentItems.Select(a => new AttachmentViewModel(a)).ToList(),
             LastUpdated = card.LastUpdated
         };
         column.Cards.Add(cardVm);
@@ -566,12 +572,15 @@ public class MainViewModel : ObservableObject
 
     public void EditCard(CardViewModel card, string title, ColumnViewModel newColumn, ProjectViewModel? project, string priority, DateTime? dueDate, string? who,
         bool isRecurring, string? recurrencePattern, GoalViewModel? goal, List<FlagViewModel>? flags = null, List<SubTaskViewModel>? subTasks = null,
-        string? notes = null)
+        string? notes = null, List<AttachmentViewModel>? attachments = null)
     {
         if (string.IsNullOrWhiteSpace(title)) return;
 
         flags ??= [];
         subTasks ??= [];
+        attachments ??= [];
+        var previousAttachments = card.Attachments;
+
         card.Title = title.Trim();
         card.ProjectId = project?.Id;
         card.ProjectName = project?.Name ?? "No Project";
@@ -589,6 +598,9 @@ public class MainViewModel : ObservableObject
         _db.SetCardFlags(card.Id, flags.Select(f => f.Id));
         var subTaskItems = _db.SetCardSubTasks(card.Id, subTasks.Select(s => (s.Title, s.IsDone)).ToList());
         card.SubTasks = subTaskItems.Select(s => new SubTaskViewModel(s)).ToList();
+        var attachmentItems = _db.SetCardAttachments(card.Id, attachments.Select(a => (a.FilePath, a.DisplayName, a.AddedDate)).ToList());
+        card.Attachments = attachmentItems.Select(a => new AttachmentViewModel(a)).ToList();
+        DeleteOrphanedAttachmentFiles(card.Id, previousAttachments, attachments);
 
         var sourceColumn = Columns.FirstOrDefault(c => c.Cards.Contains(card));
         if (sourceColumn is not null && sourceColumn != newColumn)
@@ -607,6 +619,29 @@ public class MainViewModel : ObservableObject
         subTask.IsDone = isDone;
         _db.SetSubTaskDone(subTask.Id, isDone);
         card.RefreshSubTaskProgress();
+    }
+
+    private void DeleteOrphanedAttachmentFiles(int cardId, List<AttachmentViewModel> previousAttachments, List<AttachmentViewModel> newAttachments)
+    {
+        var attachmentsDir = Path.GetFullPath(AttachmentsDir);
+        var removed = previousAttachments.Where(old => !newAttachments.Any(a => a.Id != 0 && a.Id == old.Id));
+
+        foreach (var attachment in removed)
+        {
+            try
+            {
+                var fullPath = Path.GetFullPath(attachment.FilePath);
+                if (!fullPath.StartsWith(attachmentsDir, StringComparison.OrdinalIgnoreCase)) continue;
+                if (!File.Exists(fullPath)) continue;
+                if (_db.IsAttachmentPathReferencedElsewhere(fullPath, cardId)) continue;
+
+                File.Delete(fullPath);
+            }
+            catch
+            {
+                // Best-effort cleanup; leave the file if it can't be removed.
+            }
+        }
     }
 
     public void AddProject(string name)
