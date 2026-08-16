@@ -45,6 +45,7 @@
 
                 <TextBlock Text="Adding and editing tasks" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Click New Task (Sort &amp; Add section) to create a task."/>
+                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Double-click a column header (e.g. To Do, In Progress) to create a task already assigned to that column."/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Double-click any card to open it for editing."/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Each task can have a Category, Project, Goal, Priority, Due Date, Who it's assigned to, free-form Notes, Flags, and a checklist of Sub-tasks."/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Use the + and − buttons next to Project and Goal to add a new one on the fly, or clear the current selection without deleting the record."/>

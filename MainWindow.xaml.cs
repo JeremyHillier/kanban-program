@@ -54,7 +54,23 @@ public partial class MainWindow : Window
     {
         if (DataContext is not MainViewModel viewModel) return;
 
+        OpenAddTaskDialog(viewModel, null);
+    }
+
+    private void ColumnHeader_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+    {
+        if (e.ClickCount != 2) return;
+        if (sender is not FrameworkElement { DataContext: ColumnViewModel column } || DataContext is not MainViewModel viewModel) return;
+
+        OpenAddTaskDialog(viewModel, column);
+        e.Handled = true;
+    }
+
+    private void OpenAddTaskDialog(MainViewModel viewModel, ColumnViewModel? initialColumn)
+    {
         var dialog = new AddTaskWindow(viewModel) { Owner = this };
+        if (initialColumn is not null) dialog.PreselectColumn(initialColumn);
+
         if (dialog.ShowDialog() == true && dialog.SelectedColumn is not null)
         {
             viewModel.AddCard(dialog.TaskDetails, dialog.SelectedColumn, dialog.SelectedProject,

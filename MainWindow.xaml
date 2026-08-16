@@ -236,7 +236,9 @@
                                         <RowDefinition Height="*"/>
                                     </Grid.RowDefinitions>
 
-                                    <TextBlock Grid.Row="0" Text="{Binding Name}" FontWeight="Bold" FontSize="14" Margin="0,0,0,10" Foreground="#FF1A1A1A"/>
+                                    <TextBlock Grid.Row="0" Text="{Binding Name}" FontWeight="Bold" FontSize="14" Margin="0,0,0,10" Foreground="#FF1A1A1A"
+                                               Background="Transparent" Cursor="Hand" ToolTip="Double-click to add a new task in this column"
+                                               MouseLeftButtonDown="ColumnHeader_MouseLeftButtonDown"/>
 
                                     <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
                                     <ItemsControl ItemsSource="{Binding Cards}">

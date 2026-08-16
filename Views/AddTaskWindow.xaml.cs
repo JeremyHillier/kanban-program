@@ -36,6 +36,11 @@ public partial class AddTaskWindow : Window
         DetailsTextBox.Focus();
     }
 
+    public void PreselectColumn(ColumnViewModel column)
+    {
+        CategoryComboBox.SelectedItem = column;
+    }
+
     public void FocusNotesField()
     {
         Loaded += (_, _) =>
