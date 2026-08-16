@@ -167,6 +167,27 @@ public partial class MainWindow : Window
         Close();
     }
 
+    private void MainWindow_PreviewKeyDown(object sender, KeyEventArgs e)
+    {
+        if (Keyboard.Modifiers != ModifierKeys.Control) return;
+
+        switch (e.Key)
+        {
+            case Key.Q:
+                Close();
+                e.Handled = true;
+                break;
+            case Key.P:
+                ReportBuilder_Click(sender, e);
+                e.Handled = true;
+                break;
+            case Key.N:
+                AddTask_Click(sender, e);
+                e.Handled = true;
+                break;
+        }
+    }
+
     private void Settings_Click(object sender, RoutedEventArgs e)
     {
         if (DataContext is not MainViewModel viewModel) return;

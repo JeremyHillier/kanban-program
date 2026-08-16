@@ -43,6 +43,11 @@
                     Drag a card to a different column, or use its quick-move buttons.
                 </TextBlock>
 
+                <TextBlock Text="Keyboard shortcuts" Style="{StaticResource HelpSectionHeaderStyle}"/>
+                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Ctrl+N — create a new task."/>
+                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Ctrl+P — open Report Builder."/>
+                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Ctrl+Q — quit the app."/>
+
                 <TextBlock Text="Adding and editing tasks" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Click New Task (Sort &amp; Add section) to create a task."/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Double-click a column header (e.g. To Do, In Progress) to create a task already assigned to that column."/>

@@ -8,7 +8,8 @@
         mc:Ignorable="d"
         Title="{Binding WindowTitle}" Width="1700" Height="900" MinWidth="900" MinHeight="600"
         Icon="Assets/app.ico"
-        Background="{DynamicResource WindowBackgroundBrush}">
+        Background="{DynamicResource WindowBackgroundBrush}"
+        PreviewKeyDown="MainWindow_PreviewKeyDown">
     <Window.Resources>
         <conv:PriorityToBrushConverter x:Key="PriorityToBrushConverter"/>
         <conv:EmptyStringToVisibilityConverter x:Key="EmptyStringToVisibilityConverter"/>
