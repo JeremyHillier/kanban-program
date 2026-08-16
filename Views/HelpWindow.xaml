@@ -91,6 +91,10 @@
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Preview shows the report on screen; PDF saves it as a real PDF file."/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• PDFs are saved to the Default Export Path set in Settings, with a timestamped filename; if no Default Export Path is set, you'll be asked where to save."/>
 
+                <TextBlock Text="Dashboard" Style="{StaticResource HelpSectionHeaderStyle}"/>
+                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• The banner always shows Open, Overdue, Due Today, and Due This Week counts across all non-Done tasks."/>
+                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Double-click the banner to open the full Dashboard: summary tiles, a Status Distribution chart, a Priority Mix chart, and a Due Date Timeline for open tasks."/>
+
                 <TextBlock Text="Display options" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Dark Mode / Light Mode switches the whole app's theme."/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Large Cards / Compact Cards toggles how much detail each card shows, useful for fitting more on screen at once."/>

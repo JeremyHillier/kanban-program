@@ -270,6 +270,15 @@ public partial class MainWindow : Window
         dialog.ShowDialog();
     }
 
+    private void Header_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+    {
+        if (e.ClickCount != 2) return;
+        if (DataContext is not MainViewModel viewModel) return;
+
+        var dialog = new DashboardWindow(viewModel) { Owner = this };
+        dialog.ShowDialog();
+    }
+
     private void SortByProject_Click(object sender, RoutedEventArgs e)
     {
         if (DataContext is not MainViewModel viewModel) return;

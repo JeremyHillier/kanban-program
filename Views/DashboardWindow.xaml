@@ -1,0 +1,146 @@
+<Window x:Class="KanbanApp.Views.DashboardWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        mc:Ignorable="d"
+        Title="Dashboard" Height="760" Width="920" MinWidth="700" MinHeight="560"
+        WindowStartupLocation="CenterOwner"
+        ShowInTaskbar="False"
+        Background="{DynamicResource WindowBackgroundBrush}">
+    <Window.Resources>
+        <Style x:Key="TileStyle" TargetType="Border">
+            <Setter Property="CornerRadius" Value="6"/>
+            <Setter Property="Padding" Value="14,10"/>
+            <Setter Property="Margin" Value="0,0,10,0"/>
+            <Setter Property="Background" Value="{DynamicResource PanelBackgroundBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource CardBorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+        </Style>
+        <Style x:Key="TileNumberStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="26"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+        </Style>
+        <Style x:Key="TileLabelStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="0,2,0,0"/>
+            <Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}"/>
+        </Style>
+        <Style x:Key="ChartHeaderStyle" TargetType="TextBlock">
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Margin" Value="0,20,0,8"/>
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
+        </Style>
+        <Style x:Key="BarItemStyle" TargetType="StackPanel">
+            <Setter Property="Orientation" Value="Vertical"/>
+            <Setter Property="Margin" Value="10,0"/>
+            <Setter Property="Width" Value="80"/>
+        </Style>
+        <Style x:Key="BarCountStyle" TargetType="TextBlock">
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
+        </Style>
+        <Style x:Key="BarLabelStyle" TargetType="TextBlock">
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="TextAlignment" Value="Center"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+            <Setter Property="FontSize" Value="10"/>
+            <Setter Property="Margin" Value="0,4,0,0"/>
+            <Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}"/>
+        </Style>
+        <DataTemplate x:Key="BarItemTemplate">
+            <StackPanel Style="{StaticResource BarItemStyle}">
+                <TextBlock Text="{Binding Count}" Style="{StaticResource BarCountStyle}"/>
+                <Grid Height="140">
+                    <Border Background="{Binding Brush}" Width="44" Height="{Binding BarHeight}"
+                            VerticalAlignment="Bottom" HorizontalAlignment="Center" CornerRadius="3,3,0,0"/>
+                </Grid>
+                <TextBlock Text="{Binding Label}" Style="{StaticResource BarLabelStyle}"/>
+            </StackPanel>
+        </DataTemplate>
+    </Window.Resources>
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0" Text="Dashboard" FontWeight="Bold" FontSize="20" Margin="0,0,0,12"
+                   Foreground="{DynamicResource PrimaryTextBrush}"/>
+
+        <StackPanel Grid.Row="1" Orientation="Horizontal">
+            <Border Style="{StaticResource TileStyle}">
+                <StackPanel>
+                    <TextBlock x:Name="OpenTile" Style="{StaticResource TileNumberStyle}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                    <TextBlock Text="Open" Style="{StaticResource TileLabelStyle}"/>
+                </StackPanel>
+            </Border>
+            <Border Style="{StaticResource TileStyle}">
+                <StackPanel>
+                    <TextBlock x:Name="InDoneTile" Style="{StaticResource TileNumberStyle}" Foreground="#FF66BB6A"/>
+                    <TextBlock Text="In Done" Style="{StaticResource TileLabelStyle}"/>
+                </StackPanel>
+            </Border>
+            <Border Style="{StaticResource TileStyle}">
+                <StackPanel>
+                    <TextBlock x:Name="OverdueTile" Style="{StaticResource TileNumberStyle}" Foreground="#FFEF5350"/>
+                    <TextBlock Text="Overdue" Style="{StaticResource TileLabelStyle}"/>
+                </StackPanel>
+            </Border>
+            <Border Style="{StaticResource TileStyle}">
+                <StackPanel>
+                    <TextBlock x:Name="DueTodayTile" Style="{StaticResource TileNumberStyle}" Foreground="#FFFFA726"/>
+                    <TextBlock Text="Due Today" Style="{StaticResource TileLabelStyle}"/>
+                </StackPanel>
+            </Border>
+            <Border Style="{StaticResource TileStyle}" Margin="0">
+                <StackPanel>
+                    <TextBlock x:Name="DueThisWeekTile" Style="{StaticResource TileNumberStyle}" Foreground="#FFE0C93E"/>
+                    <TextBlock Text="Due This Week" Style="{StaticResource TileLabelStyle}"/>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+
+        <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
+            <StackPanel>
+                <TextBlock Text="Status Distribution" Style="{StaticResource ChartHeaderStyle}"/>
+                <ItemsControl x:Name="StatusChart" ItemTemplate="{StaticResource BarItemTemplate}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                </ItemsControl>
+
+                <TextBlock Text="Priority Mix" Style="{StaticResource ChartHeaderStyle}"/>
+                <ItemsControl x:Name="PriorityChart" ItemTemplate="{StaticResource BarItemTemplate}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                </ItemsControl>
+
+                <TextBlock Text="Due Date Timeline (open tasks)" Style="{StaticResource ChartHeaderStyle}"/>
+                <ItemsControl x:Name="TimelineChart" ItemTemplate="{StaticResource BarItemTemplate}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                </ItemsControl>
+            </StackPanel>
+        </ScrollViewer>
+
+        <Button Grid.Row="3" Content="Close" Width="90" Padding="0,6" Margin="0,16,0,0"
+                HorizontalAlignment="Right" IsCancel="True" IsDefault="True"
+                Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+    </Grid>
+</Window>

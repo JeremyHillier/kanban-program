@@ -135,6 +135,25 @@ public class MainViewModel : ObservableObject
         new SolidColorBrush(Color.FromRgb(0xD4, 0xED, 0xDA)), // Done - green
     ];
 
+    public int OpenTaskCount => Columns.Where(c => c.Name != "Done").SelectMany(c => c.Cards).Count();
+
+    public int OverdueCount => Columns.Where(c => c.Name != "Done").SelectMany(c => c.Cards)
+        .Count(c => c.DueDate is not null && c.DueDate.Value.Date < DateTime.Today);
+
+    public int DueTodayCount => Columns.Where(c => c.Name != "Done").SelectMany(c => c.Cards)
+        .Count(c => c.DueDate?.Date == DateTime.Today);
+
+    public int DueThisWeekCount => Columns.Where(c => c.Name != "Done").SelectMany(c => c.Cards)
+        .Count(c => c.DueDate is not null && c.DueDate.Value.Date >= DateTime.Today && c.DueDate.Value.Date <= DateTime.Today.AddDays(7));
+
+    private void RefreshDashboardStats()
+    {
+        OnPropertyChanged(nameof(OpenTaskCount));
+        OnPropertyChanged(nameof(OverdueCount));
+        OnPropertyChanged(nameof(DueTodayCount));
+        OnPropertyChanged(nameof(DueThisWeekCount));
+    }
+
     public ObservableCollection<ColumnViewModel> Columns { get; } = [];
     public ObservableCollection<ProjectViewModel> Projects { get; } = [];
     public ObservableCollection<GoalViewModel> Goals { get; } = [];
@@ -536,6 +555,7 @@ public class MainViewModel : ObservableObject
         RefreshWhoFilterOptions();
         cardVm.IsVisible = MatchesFilters(cardVm);
         ApplySort();
+        RefreshDashboardStats();
 
         return cardVm;
     }
@@ -575,6 +595,7 @@ public class MainViewModel : ObservableObject
         RefreshWhoFilterOptions();
         card.IsVisible = MatchesFilters(card);
         ApplySort();
+        RefreshDashboardStats();
     }
 
     public void SetSubTaskDone(CardViewModel card, SubTaskViewModel subTask, bool isDone)
@@ -697,6 +718,7 @@ public class MainViewModel : ObservableObject
     {
         _db.ReactivateCard(cardId, cardTitle);
         Load();
+        RefreshDashboardStats();
     }
 
     private void DeleteCard(CardViewModel? card)
@@ -706,6 +728,7 @@ public class MainViewModel : ObservableObject
         var column = Columns.FirstOrDefault(c => c.Cards.Contains(card));
         column?.Cards.Remove(card);
         _db.DeleteCard(card.Id, card.Title, column?.Name ?? "Unknown");
+        RefreshDashboardStats();
     }
 
     private void MoveCard(CardViewModel card, ColumnViewModel targetColumn)
@@ -725,6 +748,7 @@ public class MainViewModel : ObservableObject
         }
 
         ApplySort();
+        RefreshDashboardStats();
     }
 
     private void SpawnNextOccurrence(CardViewModel completedCard)
@@ -773,6 +797,8 @@ public class MainViewModel : ObservableObject
             _db.ArchiveCard(card.Id, card.Title, doneColumn.Name);
             doneColumn.Cards.Remove(card);
         }
+
+        RefreshDashboardStats();
     }
 
     public List<ArchivedCardInfo> GetArchivedCards() => _db.GetArchivedCards();
