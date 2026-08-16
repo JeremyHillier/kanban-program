@@ -6,15 +6,16 @@ namespace KanbanApp.Services;
 public static class ImportService
 {
     private static readonly string[] Headers = ["Title", "Category", "Priority", "Project", "Goal", "Due Date", "Who"];
+    private static readonly string[] Priorities = ["High", "Medium", "Normal"];
 
-    public static void SaveTemplate(string filePath)
+    public static void SaveTemplate(string filePath, IEnumerable<string> categories, IEnumerable<string> projects, IEnumerable<string> goals)
     {
         using var workbook = new XLWorkbook();
         var sheet = workbook.AddWorksheet("Tasks");
 
         sheet.Range(1, 1, 1, Headers.Length).Merge();
-        sheet.Cell(1, 1).Value = "One task per row below. Category: To Do / In Progress / On Hold / Waiting / Done. "
-            + "Priority: High / Medium / Normal. Due Date format: YYYY-MM-DD. Only Title is required.";
+        sheet.Cell(1, 1).Value = "One task per row below. Category, Priority, Project, and Goal offer a dropdown of valid values. "
+            + "Due Date format: DD/MM/YYYY. Only Title is required.";
         sheet.Cell(1, 1).Style.Font.Italic = true;
         sheet.Cell(1, 1).Style.Font.FontColor = XLColor.FromArgb(0x88, 0x88, 0x88);
         sheet.Cell(1, 1).Style.Alignment.WrapText = true;
@@ -29,16 +30,41 @@ public static class ImportService
         }
 
         sheet.Column(1).Width = 40;
-        sheet.Column(2).Width = 14;
-        sheet.Column(3).Width = 10;
-        sheet.Column(4).Width = 16;
-        sheet.Column(5).Width = 16;
-        sheet.Column(6).Width = 12;
+        sheet.Column(2).Width = 16;
+        sheet.Column(3).Width = 12;
+        sheet.Column(4).Width = 20;
+        sheet.Column(5).Width = 20;
+        sheet.Column(6).Width = 14;
         sheet.Column(7).Width = 14;
+
+        const int maxDataRow = 500;
+        sheet.Range(3, 6, maxDataRow, 6).Style.DateFormat.Format = "dd/mm/yyyy";
+
+        var listsSheet = workbook.AddWorksheet("ValidationLists");
+        listsSheet.Visibility = XLWorksheetVisibility.VeryHidden;
+
+        AddValidationList(sheet, listsSheet, column: 1, dataColumn: 2, maxDataRow, categories);
+        AddValidationList(sheet, listsSheet, column: 2, dataColumn: 3, maxDataRow, Priorities);
+        AddValidationList(sheet, listsSheet, column: 3, dataColumn: 4, maxDataRow, projects);
+        AddValidationList(sheet, listsSheet, column: 4, dataColumn: 5, maxDataRow, goals);
 
         sheet.SheetView.FreezeRows(2);
 
         workbook.SaveAs(filePath);
+    }
+
+    private static void AddValidationList(IXLWorksheet sheet, IXLWorksheet listsSheet, int column, int dataColumn, int maxDataRow, IEnumerable<string> values)
+    {
+        var list = values.Where(v => !string.IsNullOrWhiteSpace(v)).Distinct().ToList();
+        if (list.Count == 0) return;
+
+        for (var i = 0; i < list.Count; i++)
+        {
+            listsSheet.Cell(i + 1, dataColumn).Value = list[i];
+        }
+
+        var listRange = listsSheet.Range(1, dataColumn, list.Count, dataColumn);
+        sheet.Range(3, column, maxDataRow, column).CreateDataValidation().List(listRange);
     }
 
     public static List<ImportedTaskRow> ReadTasks(string filePath)

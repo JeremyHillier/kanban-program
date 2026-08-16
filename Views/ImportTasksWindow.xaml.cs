@@ -33,7 +33,10 @@ public partial class ImportTasksWindow : Window
 
         try
         {
-            ImportService.SaveTemplate(dialog.FileName);
+            ImportService.SaveTemplate(dialog.FileName,
+                _viewModel.Columns.Select(c => c.Name),
+                _viewModel.Projects.Select(p => p.Name),
+                _viewModel.Goals.Select(g => g.Name));
             StatusText.Text = $"Template saved to:\n{dialog.FileName}";
         }
         catch (Exception ex)

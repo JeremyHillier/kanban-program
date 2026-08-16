@@ -79,6 +79,7 @@
 
                 <TextBlock Text="Importing tasks" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Click Import Tasks to download an Excel template or choose a filled-in .xlsx file to import. Only Task Details is required; Category, Priority, Project, Goal, Due Date, and Who are all optional."/>
+                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• The template gives Category, Priority, Project, and Goal a dropdown of valid values, and formats Due Date as DD/MM/YYYY."/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Projects and Goals mentioned in the file that don't already exist are created automatically."/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Right after import you're shown an editable list of the imported tasks to quickly fix up Category, Task Details, Priority, Project, Goal, Due Date, or Who."/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Double-click Import Tasks any time to review every task still flagged as imported. Uncheck Imported and Save to clear that flag once you're done reviewing a task."/>
