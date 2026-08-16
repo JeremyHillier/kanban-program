@@ -186,12 +186,17 @@
                                         PreviewMouseLeftButtonDown="ViewArchived_PreviewMouseDown">
                                     <TextBlock Text="View Archived" TextWrapping="Wrap" TextAlignment="Center"/>
                                 </Button>
+                                <Button Style="{StaticResource SquareButtonStyle}" Background="#FFFFA726" Foreground="White"
+                                        ToolTip="Click: Import Tasks from Excel. Double-click: Review Imported Tasks."
+                                        PreviewMouseLeftButtonDown="ImportTasks_PreviewMouseDown">
+                                    <TextBlock Text="Import Tasks" TextWrapping="Wrap" TextAlignment="Center"/>
+                                </Button>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                                 <Button Style="{StaticResource SquareButtonStyle}" Background="#FF546E7A" Foreground="White" Click="ToggleTheme_Click"
                                         ToolTip="Switch between light and dark theme">
                                     <TextBlock Text="{Binding ThemeButtonLabel}" TextWrapping="Wrap" TextAlignment="Center"/>
                                 </Button>
-                            </StackPanel>
-                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                                 <Button Style="{StaticResource SquareButtonStyle}" Background="#FF78909C" Foreground="White" Click="Settings_Click"
                                         ToolTip="Open app settings">
                                     <TextBlock Text="Settings" TextWrapping="Wrap" TextAlignment="Center"/>
@@ -200,6 +205,8 @@
                                         ToolTip="Open the help screen">
                                     <TextBlock Text="Help" TextWrapping="Wrap" TextAlignment="Center"/>
                                 </Button>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                                 <Button Style="{StaticResource SquareButtonStyle}" Background="#FF66BB6A" Foreground="White" Click="ReportBuilder_Click"
                                         ToolTip="Build a custom report and preview it or save it as a PDF">
                                     <TextBlock Text="Report Builder" TextWrapping="Wrap" TextAlignment="Center"/>

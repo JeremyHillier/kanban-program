@@ -1,0 +1,42 @@
+<Window x:Class="KanbanApp.Views.ImportTasksWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        mc:Ignorable="d"
+        Title="Import Tasks" Height="320" Width="460" SizeToContent="Height"
+        WindowStartupLocation="CenterOwner" ResizeMode="NoResize"
+        ShowInTaskbar="False"
+        Background="{DynamicResource WindowBackgroundBrush}">
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0" Text="Import Tasks from Excel" FontWeight="Bold" FontSize="18" Margin="0,0,0,4"
+                   Foreground="{DynamicResource PrimaryTextBrush}"/>
+        <TextBlock Grid.Row="1" TextWrapping="Wrap" Margin="0,0,0,16"
+                   Foreground="{DynamicResource SecondaryTextBrush}"
+                   Text="Start from the template so your columns line up, fill in one task per row, then choose the file to import. Only Task Details is required."/>
+
+        <Button Grid.Row="2" Content="Download Template..." Padding="0,10" HorizontalAlignment="Stretch" Margin="0,0,0,10"
+                Click="DownloadTemplate_Click"
+                Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+
+        <Button Grid.Row="3" Content="Choose File to Import..." Padding="0,10" HorizontalAlignment="Stretch"
+                Click="ChooseFile_Click"
+                Background="#FF66BB6A" Foreground="White"/>
+
+        <TextBlock Grid.Row="4" x:Name="StatusText" TextWrapping="Wrap" Margin="0,14,0,0"
+                   Foreground="{DynamicResource SecondaryTextBrush}"/>
+
+        <Button Grid.Row="5" Content="Close" Width="90" Padding="0,6" Margin="0,16,0,0"
+                HorizontalAlignment="Right" IsCancel="True"
+                Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+    </Grid>
+</Window>

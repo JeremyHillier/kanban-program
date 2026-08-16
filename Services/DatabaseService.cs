@@ -107,6 +107,7 @@ public class DatabaseService
         MigrateCardsColumn(connection, "GoalId", "INTEGER NULL");
         MigrateCardsColumn(connection, "IsDeleted", "INTEGER NOT NULL DEFAULT 0");
         MigrateCardsColumn(connection, "Notes", "TEXT NULL");
+        MigrateCardsColumn(connection, "IsImported", "INTEGER NOT NULL DEFAULT 0");
 
         using (var checkCmd = connection.CreateCommand())
         {
@@ -213,7 +214,7 @@ public class DatabaseService
         using var connection = OpenConnection();
         using var cmd = connection.CreateCommand();
         cmd.CommandText = """
-            SELECT Id, ColumnId, Title, SortOrder, ProjectId, Priority, DueDate, Who, LastUpdated, IsRecurring, RecurrencePattern, GoalId, Notes
+            SELECT Id, ColumnId, Title, SortOrder, ProjectId, Priority, DueDate, Who, LastUpdated, IsRecurring, RecurrencePattern, GoalId, Notes, IsImported
             FROM Cards WHERE IsArchived = 0 AND IsDeleted = 0 ORDER BY SortOrder;
             """;
 
@@ -236,7 +237,8 @@ public class DatabaseService
                     IsRecurring = reader.GetInt32(9) != 0,
                     RecurrencePattern = reader.IsDBNull(10) ? null : reader.GetString(10),
                     GoalId = reader.IsDBNull(11) ? null : reader.GetInt32(11),
-                    Notes = reader.IsDBNull(12) ? null : reader.GetString(12)
+                    Notes = reader.IsDBNull(12) ? null : reader.GetString(12),
+                    IsImported = reader.GetInt32(13) != 0
                 });
             }
         }
@@ -471,7 +473,7 @@ public class DatabaseService
     }
 
     public CardItem AddCard(int columnId, string title, int? projectId, string columnName, string priority, DateTime? dueDate, string? who,
-        bool isRecurring, string? recurrencePattern, int? goalId, string? notes = null)
+        bool isRecurring, string? recurrencePattern, int? goalId, string? notes = null, bool isImported = false)
     {
         using var connection = OpenConnection();
 
@@ -483,8 +485,8 @@ public class DatabaseService
         var now = NowStamp();
         using var insertCmd = connection.CreateCommand();
         insertCmd.CommandText = """
-            INSERT INTO Cards (ColumnId, Title, SortOrder, ProjectId, Priority, DueDate, Who, LastUpdated, IsRecurring, RecurrencePattern, GoalId, Notes)
-            VALUES ($columnId, $title, $sortOrder, $projectId, $priority, $dueDate, $who, $lastUpdated, $isRecurring, $recurrencePattern, $goalId, $notes);
+            INSERT INTO Cards (ColumnId, Title, SortOrder, ProjectId, Priority, DueDate, Who, LastUpdated, IsRecurring, RecurrencePattern, GoalId, Notes, IsImported)
+            VALUES ($columnId, $title, $sortOrder, $projectId, $priority, $dueDate, $who, $lastUpdated, $isRecurring, $recurrencePattern, $goalId, $notes, $isImported);
             SELECT last_insert_rowid();
             """;
         insertCmd.Parameters.AddWithValue("$columnId", columnId);
@@ -499,6 +501,7 @@ public class DatabaseService
         insertCmd.Parameters.AddWithValue("$recurrencePattern", (object?)recurrencePattern ?? DBNull.Value);
         insertCmd.Parameters.AddWithValue("$goalId", (object?)goalId ?? DBNull.Value);
         insertCmd.Parameters.AddWithValue("$notes", (object?)notes ?? DBNull.Value);
+        insertCmd.Parameters.AddWithValue("$isImported", isImported ? 1 : 0);
         var id = (long)insertCmd.ExecuteScalar()!;
 
         LogHistory(connection, (int)id, title, "Created", $"Added to {columnName}");
@@ -507,8 +510,18 @@ public class DatabaseService
         {
             Id = (int)id, ColumnId = columnId, Title = title, SortOrder = (int)sortOrder, ProjectId = projectId,
             Priority = priority, DueDate = dueDate, Who = who, LastUpdated = DateTime.Parse(now),
-            IsRecurring = isRecurring, RecurrencePattern = recurrencePattern, GoalId = goalId, Notes = notes
+            IsRecurring = isRecurring, RecurrencePattern = recurrencePattern, GoalId = goalId, Notes = notes, IsImported = isImported
         };
+    }
+
+    public void SetCardImported(int cardId, bool isImported)
+    {
+        using var connection = OpenConnection();
+        using var cmd = connection.CreateCommand();
+        cmd.CommandText = "UPDATE Cards SET IsImported = $isImported WHERE Id = $id;";
+        cmd.Parameters.AddWithValue("$isImported", isImported ? 1 : 0);
+        cmd.Parameters.AddWithValue("$id", cardId);
+        cmd.ExecuteNonQuery();
     }
 
     public DateTime UpdateCard(int cardId, string title, int? projectId, string priority, DateTime? dueDate, string? who,

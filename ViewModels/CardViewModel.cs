@@ -124,6 +124,17 @@ public class CardViewModel(CardItem model) : ObservableObject
         }
     }
 
+    public bool IsImported
+    {
+        get => Model.IsImported;
+        set
+        {
+            if (Model.IsImported == value) return;
+            Model.IsImported = value;
+            OnPropertyChanged();
+        }
+    }
+
     public bool IsRecurring
     {
         get => Model.IsRecurring;

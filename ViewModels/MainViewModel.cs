@@ -492,15 +492,13 @@ public class MainViewModel : ObservableObject
     private List<FlagViewModel> ResolveFlags(List<int> flagIds) =>
         Flags.Where(f => flagIds.Contains(f.Id)).ToList();
 
-    public void AddCard(string title, ColumnViewModel column, ProjectViewModel? project, string priority, DateTime? dueDate, string? who,
+    public CardViewModel AddCard(string title, ColumnViewModel column, ProjectViewModel? project, string priority, DateTime? dueDate, string? who,
         bool isRecurring, string? recurrencePattern, GoalViewModel? goal, List<FlagViewModel>? flags = null, List<SubTaskViewModel>? subTasks = null,
-        string? notes = null)
+        string? notes = null, bool isImported = false)
     {
-        if (string.IsNullOrWhiteSpace(title)) return;
-
         flags ??= [];
         subTasks ??= [];
-        var card = _db.AddCard(column.Id, title.Trim(), project?.Id, column.Name, priority, dueDate, who, isRecurring, recurrencePattern, goal?.Id, notes);
+        var card = _db.AddCard(column.Id, title.Trim(), project?.Id, column.Name, priority, dueDate, who, isRecurring, recurrencePattern, goal?.Id, notes, isImported);
         _db.SetCardFlags(card.Id, flags.Select(f => f.Id));
         var subTaskItems = _db.SetCardSubTasks(card.Id, subTasks.Select(s => (s.Title, s.IsDone)).ToList());
         var cardVm = new CardViewModel(card)
@@ -516,6 +514,8 @@ public class MainViewModel : ObservableObject
         RefreshWhoFilterOptions();
         cardVm.IsVisible = MatchesFilters(cardVm);
         ApplySort();
+
+        return cardVm;
     }
 
     public void EditCard(CardViewModel card, string title, ColumnViewModel newColumn, ProjectViewModel? project, string priority, DateTime? dueDate, string? who,
@@ -754,4 +754,72 @@ public class MainViewModel : ObservableObject
     }
 
     public List<ArchivedCardInfo> GetArchivedCards() => _db.GetArchivedCards();
+
+    public List<CardViewModel> GetImportedCards() =>
+        Columns.SelectMany(c => c.Cards).Where(c => c.IsImported).ToList();
+
+    public void SetCardImported(CardViewModel card, bool isImported)
+    {
+        if (card.IsImported == isImported) return;
+
+        card.IsImported = isImported;
+        _db.SetCardImported(card.Id, isImported);
+    }
+
+    public List<CardViewModel> ImportCards(IEnumerable<ImportedTaskRow> rows)
+    {
+        var toDoColumn = Columns.FirstOrDefault(c => c.Name == "To Do") ?? Columns.First();
+        var created = new List<CardViewModel>();
+
+        foreach (var row in rows)
+        {
+            if (string.IsNullOrWhiteSpace(row.Title)) continue;
+
+            var column = toDoColumn;
+            if (!string.IsNullOrWhiteSpace(row.Category))
+            {
+                var match = Columns.FirstOrDefault(c => string.Equals(c.Name, row.Category.Trim(), StringComparison.OrdinalIgnoreCase));
+                if (match is not null) column = match;
+            }
+
+            var priority = row.Priority?.Trim() switch
+            {
+                { } p when string.Equals(p, "High", StringComparison.OrdinalIgnoreCase) => "High",
+                { } p when string.Equals(p, "Medium", StringComparison.OrdinalIgnoreCase) => "Medium",
+                _ => "Normal"
+            };
+
+            ProjectViewModel? project = null;
+            if (!string.IsNullOrWhiteSpace(row.Project))
+            {
+                var name = row.Project.Trim();
+                project = Projects.FirstOrDefault(p => string.Equals(p.Name, name, StringComparison.OrdinalIgnoreCase));
+                if (project is null)
+                {
+                    AddProject(name);
+                    project = Projects.FirstOrDefault(p => string.Equals(p.Name, name, StringComparison.OrdinalIgnoreCase));
+                }
+            }
+
+            GoalViewModel? goal = null;
+            if (!string.IsNullOrWhiteSpace(row.Goal))
+            {
+                var name = row.Goal.Trim();
+                goal = Goals.FirstOrDefault(g => string.Equals(g.Name, name, StringComparison.OrdinalIgnoreCase));
+                if (goal is null)
+                {
+                    AddGoal(name);
+                    goal = Goals.FirstOrDefault(g => string.Equals(g.Name, name, StringComparison.OrdinalIgnoreCase));
+                }
+            }
+
+            var who = string.IsNullOrWhiteSpace(row.Who) ? null : row.Who.Trim();
+
+            var cardVm = AddCard(row.Title.Trim(), column, project, priority, row.DueDate, who,
+                false, null, goal, isImported: true);
+            created.Add(cardVm);
+        }
+
+        return created;
+    }
 }

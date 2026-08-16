@@ -11,7 +11,7 @@ public static class ThemeManager
 
         if (isDark)
         {
-            res["WindowBackgroundBrush"] = Brush(0x1E, 0x1E, 0x1E);
+            res["WindowBackgroundBrush"] = Brush(0x16, 0x16, 0x16);
             res["CardBackgroundBrush"] = Brush(0x2D, 0x2D, 0x30);
             res["CardBorderBrush"] = Brush(0x3F, 0x3F, 0x46);
             res["CardOutlineBrush"] = Brush(0x6E, 0x6E, 0x76);
@@ -21,11 +21,11 @@ public static class ThemeManager
             res["PanelBorderBrush"] = Brush(0x6E, 0x6E, 0x6E);
             res["ButtonBackgroundBrush"] = Brush(0x3F, 0x3F, 0x46);
             res["InputBackgroundBrush"] = Brush(0x33, 0x33, 0x36);
-            res["BoardAreaBrush"] = Brush(0x1E, 0x1E, 0x1E);
+            res["BoardAreaBrush"] = Brush(0x16, 0x16, 0x16);
         }
         else
         {
-            res["WindowBackgroundBrush"] = Brush(0xF1, 0xF2, 0xF5);
+            res["WindowBackgroundBrush"] = Brush(0xE3, 0xE4, 0xE7);
             res["CardBackgroundBrush"] = Brushes.White;
             res["CardBorderBrush"] = Brush(0xD0, 0xD0, 0xD0);
             res["CardOutlineBrush"] = Brush(0x9E, 0x9E, 0x9E);
@@ -35,7 +35,7 @@ public static class ThemeManager
             res["PanelBorderBrush"] = Brush(0x33, 0x33, 0x33);
             res["ButtonBackgroundBrush"] = Brush(0xEC, 0xEC, 0xEC);
             res["InputBackgroundBrush"] = Brushes.White;
-            res["BoardAreaBrush"] = Brush(0xE2, 0xE2, 0xE6);
+            res["BoardAreaBrush"] = Brush(0xD4, 0xD4, 0xD8);
         }
     }
 

@@ -77,6 +77,12 @@
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Click View Archived to browse archived tasks; double-click the same button to browse deleted tasks."/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Either list lets you select a task and reactivate it back to To Do."/>
 
+                <TextBlock Text="Importing tasks" Style="{StaticResource HelpSectionHeaderStyle}"/>
+                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Click Import Tasks to download an Excel template or choose a filled-in .xlsx file to import. Only Task Details is required; Category, Priority, Project, Goal, Due Date, and Who are all optional."/>
+                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Projects and Goals mentioned in the file that don't already exist are created automatically."/>
+                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Right after import you're shown an editable list of the imported tasks to quickly fix up Category, Task Details, Priority, Project, Goal, Due Date, or Who."/>
+                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Double-click Import Tasks any time to review every task still flagged as imported. Uncheck Imported and Save to clear that flag once you're done reviewing a task."/>
+
                 <TextBlock Text="Report Builder" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Click Report Builder to design a custom report: choose which columns to include, filter by Project, Priority, Who, Goal, Flag, or Due date, group the results, and choose whether to include Notes and Sub-tasks."/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Preview shows the report on screen; PDF saves it as a real PDF file."/>

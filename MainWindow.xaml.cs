@@ -231,6 +231,45 @@ public partial class MainWindow : Window
         dialog.ShowDialog();
     }
 
+    private DispatcherTimer? _importTasksClickTimer;
+
+    private void ImportTasks_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+    {
+        e.Handled = true;
+
+        if (e.ClickCount == 2)
+        {
+            _importTasksClickTimer?.Stop();
+            OpenImportedTasks();
+            return;
+        }
+
+        _importTasksClickTimer?.Stop();
+        _importTasksClickTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(280) };
+        _importTasksClickTimer.Tick += (_, _) =>
+        {
+            _importTasksClickTimer!.Stop();
+            OpenImportTasks();
+        };
+        _importTasksClickTimer.Start();
+    }
+
+    private void OpenImportTasks()
+    {
+        if (DataContext is not MainViewModel viewModel) return;
+
+        var dialog = new ImportTasksWindow(viewModel) { Owner = this };
+        dialog.ShowDialog();
+    }
+
+    private void OpenImportedTasks()
+    {
+        if (DataContext is not MainViewModel viewModel) return;
+
+        var dialog = new ImportedTasksWindow(viewModel) { Owner = this };
+        dialog.ShowDialog();
+    }
+
     private void SortByProject_Click(object sender, RoutedEventArgs e)
     {
         if (DataContext is not MainViewModel viewModel) return;
