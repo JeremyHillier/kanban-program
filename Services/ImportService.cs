@@ -43,10 +43,10 @@ public static class ImportService
         var listsSheet = workbook.AddWorksheet("ValidationLists");
         listsSheet.Visibility = XLWorksheetVisibility.VeryHidden;
 
-        AddValidationList(sheet, listsSheet, column: 1, dataColumn: 2, maxDataRow, categories);
-        AddValidationList(sheet, listsSheet, column: 2, dataColumn: 3, maxDataRow, Priorities);
-        AddValidationList(sheet, listsSheet, column: 3, dataColumn: 4, maxDataRow, projects);
-        AddValidationList(sheet, listsSheet, column: 4, dataColumn: 5, maxDataRow, goals);
+        AddValidationList(sheet, listsSheet, column: 2, dataColumn: 2, maxDataRow, categories);
+        AddValidationList(sheet, listsSheet, column: 3, dataColumn: 3, maxDataRow, Priorities);
+        AddValidationList(sheet, listsSheet, column: 4, dataColumn: 4, maxDataRow, projects);
+        AddValidationList(sheet, listsSheet, column: 5, dataColumn: 5, maxDataRow, goals);
 
         sheet.SheetView.FreezeRows(2);
 
