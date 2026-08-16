@@ -231,6 +231,8 @@
                                         ToolTip="Add, rename, or delete flags">
                                     <TextBlock Text="Manage Flags" TextWrapping="Wrap" TextAlignment="Center"/>
                                 </Button>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                                 <Button Style="{StaticResource SquareButtonStyle}" Background="#FF5C6BC0" Foreground="White" Click="ManageWho_Click"
                                         ToolTip="Add, rename, or delete people">
                                     <TextBlock Text="Manage Who" TextWrapping="Wrap" TextAlignment="Center"/>
