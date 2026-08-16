@@ -482,9 +482,15 @@ public partial class AddTaskWindow : Window
             return;
         }
 
+        if (ProjectComboBox.SelectedItem is not ProjectViewModel project)
+        {
+            MessageBox.Show(this, "Please select a Project before saving.", "Project Required", MessageBoxButton.OK, MessageBoxImage.Warning);
+            return;
+        }
+
         TaskDetails = details;
         SelectedColumn = column;
-        SelectedProject = ProjectComboBox.SelectedItem as ProjectViewModel;
+        SelectedProject = project;
         SelectedGoal = GoalComboBox.SelectedItem as GoalViewModel;
         SelectedPriority = (string)priorityItem.Content;
         SelectedDueDate = DueDatePicker.SelectedDate;

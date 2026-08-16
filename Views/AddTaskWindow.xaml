@@ -87,7 +87,7 @@
 
         <!-- Row: Project / Due Date -->
         <StackPanel Grid.Row="4" Grid.Column="0" Style="{StaticResource FieldLabelRowStyle}">
-            <TextBlock Text="Project" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Center"/>
+            <TextBlock Text="Project *" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Center" ToolTip="Required"/>
             <Button Content="+" Style="{StaticResource NewLinkButtonStyle}" ToolTip="Add new project" Click="NewProject_Click"/>
             <Button Content="−" Style="{StaticResource DeleteLinkButtonStyle}" ToolTip="Clear project" Click="DeleteProject_Click"/>
         </StackPanel>

@@ -94,7 +94,6 @@ public class CardViewModel(CardItem model) : ObservableObject
             Model.DueDate = value;
             OnPropertyChanged();
             OnPropertyChanged(nameof(DueDateDisplay));
-            OnPropertyChanged(nameof(DueAndWhoDisplay));
         }
     }
 
@@ -120,24 +119,11 @@ public class CardViewModel(CardItem model) : ObservableObject
             if (SetField(ref _whoName, value))
             {
                 OnPropertyChanged(nameof(WhoDisplay));
-                OnPropertyChanged(nameof(DueAndWhoDisplay));
             }
         }
     }
 
     public string WhoDisplay => string.IsNullOrWhiteSpace(WhoName) || WhoName == "Unassigned" ? string.Empty : $"Assigned: {WhoName}";
-
-    public string DueAndWhoDisplay
-    {
-        get
-        {
-            var due = DueDateDisplay;
-            var who = WhoDisplay;
-            if (due.Length == 0) return who;
-            if (who.Length == 0) return due;
-            return $"{due}   {who}";
-        }
-    }
 
     public string? Notes
     {
@@ -206,6 +192,13 @@ public class CardViewModel(CardItem model) : ObservableObject
     {
         get => _isVisible;
         set => SetField(ref _isVisible, value);
+    }
+
+    private bool _isOverdue;
+    public bool IsOverdue
+    {
+        get => _isOverdue;
+        set => SetField(ref _isOverdue, value);
     }
 
     private List<FlagViewModel> _flags = [];

@@ -89,9 +89,24 @@ public static class ReportService
     {
         if (projectFilter != "All" && card.ProjectName != projectFilter) return false;
         if (priorityFilter != "All" && card.Priority != priorityFilter) return false;
-        if (whoFilter != "All" && card.WhoName != whoFilter) return false;
-        if (goalFilter != "All" && card.GoalName != goalFilter) return false;
-        if (flagFilter != "All" && card.Flags.All(f => f.Name != flagFilter)) return false;
+
+        if (whoFilter == "Unassigned")
+        {
+            if (card.WhoId is not null) return false;
+        }
+        else if (whoFilter != "All" && card.WhoName != whoFilter) return false;
+
+        if (goalFilter == "Unassigned")
+        {
+            if (card.GoalId is not null) return false;
+        }
+        else if (goalFilter != "All" && card.GoalName != goalFilter) return false;
+
+        if (flagFilter == "Unassigned")
+        {
+            if (card.Flags.Count > 0) return false;
+        }
+        else if (flagFilter != "All" && card.Flags.All(f => f.Name != flagFilter)) return false;
 
         if (dueFilter != "All")
         {

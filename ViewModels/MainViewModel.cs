@@ -156,6 +156,15 @@ public class MainViewModel : ObservableObject
         OnPropertyChanged(nameof(OverdueCount));
         OnPropertyChanged(nameof(DueTodayCount));
         OnPropertyChanged(nameof(DueThisWeekCount));
+
+        foreach (var column in Columns)
+        {
+            var canBeOverdue = column.Name != "Done";
+            foreach (var card in column.Cards)
+            {
+                card.IsOverdue = canBeOverdue && card.DueDate is not null && card.DueDate.Value.Date < DateTime.Today;
+            }
+        }
     }
 
     public ObservableCollection<ColumnViewModel> Columns { get; } = [];
@@ -339,6 +348,7 @@ public class MainViewModel : ObservableObject
         RefreshGoalFilterOptions();
         RefreshFlagFilterOptions();
         ApplySort();
+        RefreshDashboardStats();
     }
 
     public void SortByProject()
@@ -436,7 +446,7 @@ public class MainViewModel : ObservableObject
 
     private void RefreshWhoFilterOptions()
     {
-        var desired = new List<string> { "All" };
+        var desired = new List<string> { "All", "Unassigned" };
         desired.AddRange(People.Where(p => p.IsActive).OrderBy(p => p.Name).Select(p => p.Name));
         ReplaceFilterOptions(WhoFilterOptions, desired);
 
@@ -448,7 +458,7 @@ public class MainViewModel : ObservableObject
 
     private void RefreshGoalFilterOptions()
     {
-        var desired = new List<string> { "All" };
+        var desired = new List<string> { "All", "Unassigned" };
         desired.AddRange(Goals.Where(g => g.IsActive).OrderBy(g => g.Name).Select(g => g.Name));
         ReplaceFilterOptions(GoalFilterOptions, desired);
 
@@ -460,7 +470,7 @@ public class MainViewModel : ObservableObject
 
     private void RefreshFlagFilterOptions()
     {
-        var desired = new List<string> { "All" };
+        var desired = new List<string> { "All", "Unassigned" };
         desired.AddRange(Flags.Where(f => f.IsActive).OrderBy(f => f.Name).Select(f => f.Name));
         ReplaceFilterOptions(FlagFilterOptions, desired);
 
@@ -482,9 +492,24 @@ public class MainViewModel : ObservableObject
     {
         if (SelectedProjectFilter != "All" && card.ProjectName != SelectedProjectFilter) return false;
         if (SelectedPriorityFilter != "All" && card.Priority != SelectedPriorityFilter) return false;
-        if (SelectedWhoFilter != "All" && card.WhoName != SelectedWhoFilter) return false;
-        if (SelectedGoalFilter != "All" && card.GoalName != SelectedGoalFilter) return false;
-        if (SelectedFlagFilter != "All" && card.Flags.All(f => f.Name != SelectedFlagFilter)) return false;
+
+        if (SelectedWhoFilter == "Unassigned")
+        {
+            if (card.WhoId is not null) return false;
+        }
+        else if (SelectedWhoFilter != "All" && card.WhoName != SelectedWhoFilter) return false;
+
+        if (SelectedGoalFilter == "Unassigned")
+        {
+            if (card.GoalId is not null) return false;
+        }
+        else if (SelectedGoalFilter != "All" && card.GoalName != SelectedGoalFilter) return false;
+
+        if (SelectedFlagFilter == "Unassigned")
+        {
+            if (card.Flags.Count > 0) return false;
+        }
+        else if (SelectedFlagFilter != "All" && card.Flags.All(f => f.Name != SelectedFlagFilter)) return false;
 
         if (DueFilter != "All")
         {

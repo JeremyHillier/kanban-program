@@ -47,7 +47,7 @@
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Click New Task (Sort &amp; Add section) to create a task."/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Double-click a column header (e.g. To Do, In Progress) to create a task already assigned to that column."/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Double-click any card to open it for editing."/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Each task can have a Category, Project, Goal, Priority, Due Date, Who it's assigned to, free-form Notes, Flags, and a checklist of Sub-tasks."/>
+                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Each task can have a Category, Project, Goal, Priority, Due Date, Who it's assigned to, free-form Notes, Flags, and a checklist of Sub-tasks. Project is required; everything else is optional."/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Use the + and − buttons next to Project, Goal, and Who to add a new one on the fly, or clear the current selection without deleting the record."/>
 
                 <TextBlock Text="Sub-tasks" Style="{StaticResource HelpSectionHeaderStyle}"/>
@@ -66,6 +66,7 @@
 
                 <TextBlock Text="Quick actions on a card" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• The letter buttons move a card directly to To Do, In Progress, On Hold, or Waiting; the check mark moves it to Done; the X deletes it."/>
+                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• A task's title and due date are highlighted yellow once it's past due (and still outside Done)."/>
 
                 <TextBlock Text="Organizing: Projects, Goals, Flags, Who" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Manage Projects / Manage Goals / Manage Flags / Manage Who let you add, rename, or permanently delete these from the whole board."/>
@@ -76,6 +77,7 @@
                 <TextBlock Text="Sorting and filtering" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Sort by Project, Due Date, Who, or Priority reorders every column. Sort by Due Date sorts by due date then project; Sort by Priority sorts by priority then due date."/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• The Filter section narrows the board by Project, Priority, Who, Goal, Flag, Due date range, or a keyword search across titles."/>
+                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Who, Goal, and Flag each offer an 'Unassigned' filter option, showing only tasks with none set."/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• The Today / Tomorrow / Within a Week / No Due Date buttons filter by due date; Today also includes overdue tasks. Clear Filters resets Due back to All."/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Clear Filters resets every filter back to All."/>
 

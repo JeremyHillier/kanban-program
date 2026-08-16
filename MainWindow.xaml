@@ -317,7 +317,19 @@
                                                         PreviewMouseLeftButtonDown="Card_PreviewMouseLeftButtonDown"
                                                         MouseMove="Card_MouseMove">
                                                     <StackPanel>
-                                                        <TextBlock Text="{Binding Title}" TextWrapping="Wrap" FontSize="13" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                                                        <TextBlock Text="{Binding Title}" TextWrapping="Wrap" FontSize="13" FontWeight="SemiBold">
+                                                            <TextBlock.Style>
+                                                                <Style TargetType="TextBlock">
+                                                                    <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding IsOverdue}" Value="True">
+                                                                            <Setter Property="Background" Value="#FFFFF176"/>
+                                                                            <Setter Property="Foreground" Value="#FF1A1A1A"/>
+                                                                        </DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </TextBlock.Style>
+                                                        </TextBlock>
 
                                                         <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
                                                             <Border Background="#FFEFEFEF" CornerRadius="3" Padding="5,1" HorizontalAlignment="Left">
@@ -336,8 +348,25 @@
                                                             <TextBlock Text="{Binding FlagsDisplay}" FontSize="10" Foreground="{DynamicResource SecondaryTextBrush}" FontStyle="Italic" Margin="0,3,0,0"
                                                                        Visibility="{Binding FlagsDisplay, Converter={StaticResource EmptyStringToVisibilityConverter}}"/>
 
-                                                            <TextBlock Text="{Binding DueAndWhoDisplay}" FontSize="10" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,3,0,0"
-                                                                       Visibility="{Binding DueAndWhoDisplay, Converter={StaticResource EmptyStringToVisibilityConverter}}"/>
+                                                            <StackPanel Orientation="Horizontal" Margin="0,3,0,0">
+                                                                <TextBlock Text="{Binding DueDateDisplay}" FontSize="10"
+                                                                           Visibility="{Binding DueDateDisplay, Converter={StaticResource EmptyStringToVisibilityConverter}}">
+                                                                    <TextBlock.Style>
+                                                                        <Style TargetType="TextBlock">
+                                                                            <Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}"/>
+                                                                            <Style.Triggers>
+                                                                                <DataTrigger Binding="{Binding IsOverdue}" Value="True">
+                                                                                    <Setter Property="Background" Value="#FFFFF176"/>
+                                                                                    <Setter Property="Foreground" Value="#FF1A1A1A"/>
+                                                                                    <Setter Property="FontWeight" Value="Bold"/>
+                                                                                </DataTrigger>
+                                                                            </Style.Triggers>
+                                                                        </Style>
+                                                                    </TextBlock.Style>
+                                                                </TextBlock>
+                                                                <TextBlock Text="{Binding WhoDisplay}" FontSize="10" Foreground="{DynamicResource SecondaryTextBrush}" Margin="8,0,0,0"
+                                                                           Visibility="{Binding WhoDisplay, Converter={StaticResource EmptyStringToVisibilityConverter}}"/>
+                                                            </StackPanel>
                                                             <TextBlock Text="{Binding RecurrenceDisplay}" FontSize="10" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,1,0,0"
                                                                        Visibility="{Binding RecurrenceDisplay, Converter={StaticResource EmptyStringToVisibilityConverter}}"/>
                                                             <TextBlock Text="{Binding LastUpdatedDisplay}" FontSize="9" FontStyle="Italic"
