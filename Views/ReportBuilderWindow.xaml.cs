@@ -68,9 +68,10 @@ public partial class ReportBuilderWindow : Window
 
     private void Preview_Click(object sender, RoutedEventArgs e)
     {
+        var title = GetReportTitle();
         var rows = BuildRows();
-        var document = ReportService.BuildFlowDocument(
-            GetReportTitle(), rows, GetGroupBy(), IncludeNotesCheckBox.IsChecked == true, IncludeSubTasksCheckBox.IsChecked == true);
+        var document = ReportService.BuildFixedDocument(
+            title, rows, GetGroupBy(), IncludeNotesCheckBox.IsChecked == true, IncludeSubTasksCheckBox.IsChecked == true);
 
         new ReportPreviewWindow(document) { Owner = this }.ShowDialog();
     }

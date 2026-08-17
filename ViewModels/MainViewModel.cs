@@ -130,6 +130,7 @@ public class MainViewModel : ObservableObject
 
     public bool StartFullScreen { get; private set; }
     public bool ConfirmDelete { get; private set; } = true;
+    public bool ConfirmArchive { get; private set; } = true;
     public bool AddNoteOnComplete { get; private set; }
 
     public void SetStartFullScreen(bool value)
@@ -142,6 +143,12 @@ public class MainViewModel : ObservableObject
     {
         ConfirmDelete = value;
         _db.SetSetting("ConfirmDelete", value ? "True" : "False");
+    }
+
+    public void SetConfirmArchive(bool value)
+    {
+        ConfirmArchive = value;
+        _db.SetSetting("ConfirmArchive", value ? "True" : "False");
     }
 
     public void SetAddNoteOnComplete(bool value)
@@ -289,6 +296,7 @@ public class MainViewModel : ObservableObject
 
         StartFullScreen = _db.GetSetting("StartFullScreen") == "True";
         ConfirmDelete = _db.GetSetting("ConfirmDelete") != "False";
+        ConfirmArchive = _db.GetSetting("ConfirmArchive") != "False";
         AddNoteOnComplete = _db.GetSetting("AddNoteOnComplete") == "True";
     }
 

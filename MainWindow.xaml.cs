@@ -214,9 +214,12 @@ public partial class MainWindow : Window
     {
         if (DataContext is not MainViewModel viewModel) return;
 
-        var result = MessageBox.Show(this, "Archive all tasks in the Done column? They'll be removed from the board but not deleted.",
-            "Confirm Archive", MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.Yes);
-        if (result != MessageBoxResult.Yes) return;
+        if (viewModel.ConfirmArchive)
+        {
+            var result = MessageBox.Show(this, "Archive all tasks in the Done column? They'll be removed from the board but not deleted.",
+                "Confirm Archive", MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.Yes);
+            if (result != MessageBoxResult.Yes) return;
+        }
 
         viewModel.ArchiveDoneTasks();
     }

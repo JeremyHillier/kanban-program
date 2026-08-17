@@ -5,9 +5,9 @@ namespace KanbanApp.Views;
 
 public partial class ReportPreviewWindow : Window
 {
-    public ReportPreviewWindow(FlowDocument document)
+    public ReportPreviewWindow(FixedDocument document)
     {
         InitializeComponent();
-        DocumentViewer.Document = document;
+        Viewer.Document = document;
     }
 }

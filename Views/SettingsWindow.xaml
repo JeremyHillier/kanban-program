@@ -63,6 +63,9 @@
         <CheckBox x:Name="ConfirmDeleteCheckBox" Content="Confirm before deleting a task, project, goal, or flag"
                   Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,8"
                   Checked="ConfirmDeleteCheckBox_Changed" Unchecked="ConfirmDeleteCheckBox_Changed"/>
+        <CheckBox x:Name="ConfirmArchiveCheckBox" Content="Confirm before archiving the Done column"
+                  Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,8"
+                  Checked="ConfirmArchiveCheckBox_Changed" Unchecked="ConfirmArchiveCheckBox_Changed"/>
         <CheckBox x:Name="AddNoteOnCompleteCheckBox" Content="Ask to add a note when a task is marked Done"
                   Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,20"
                   Checked="AddNoteOnCompleteCheckBox_Changed" Unchecked="AddNoteOnCompleteCheckBox_Changed"/>

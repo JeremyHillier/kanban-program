@@ -4,7 +4,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         mc:Ignorable="d"
-        Title="Report Preview" Height="740" Width="700"
+        Title="Report Preview" Height="820" Width="860"
         WindowStartupLocation="CenterOwner"
         Background="{DynamicResource WindowBackgroundBrush}">
     <Grid Margin="16">
@@ -14,7 +14,7 @@
         </Grid.RowDefinitions>
 
         <Border Grid.Row="0" Background="White" BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="1">
-            <FlowDocumentScrollViewer x:Name="DocumentViewer" VerticalScrollBarVisibility="Auto" Padding="8"/>
+            <DocumentViewer x:Name="Viewer"/>
         </Border>
 
         <Button Grid.Row="1" Content="Close" Width="90" Padding="0,6" Margin="0,12,0,0"
