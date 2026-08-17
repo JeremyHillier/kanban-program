@@ -431,7 +431,10 @@ public partial class MainWindow : Window
         foreach (var priority in new[] { "High", "Medium", "Normal" })
         {
             var menuItem = new System.Windows.Controls.MenuItem { Header = priority, IsChecked = card.Priority == priority };
-            menuItem.Click += (_, _) => viewModel.SetCardPriority(card, priority);
+            // Deferred via BeginInvoke: mutating the card collection (ApplySort) synchronously from inside
+            // a MenuItem.Click handler tears down the popup's PlacementTarget while it's still closing,
+            // which deadlocks WPF's layout engine. Running it after the menu has actually closed avoids that.
+            menuItem.Click += (_, _) => Dispatcher.BeginInvoke(new Action(() => viewModel.SetCardPriority(card, priority)), DispatcherPriority.Background);
             menu.Items.Add(menuItem);
         }
 
@@ -446,18 +449,72 @@ public partial class MainWindow : Window
 
         var menu = new System.Windows.Controls.ContextMenu();
         var unassignedItem = new System.Windows.Controls.MenuItem { Header = "Unassigned", IsChecked = card.WhoId is null };
-        unassignedItem.Click += (_, _) => viewModel.SetCardWho(card, null);
+        unassignedItem.Click += (_, _) => Dispatcher.BeginInvoke(new Action(() => viewModel.SetCardWho(card, null)), DispatcherPriority.Background);
         menu.Items.Add(unassignedItem);
 
         foreach (var person in viewModel.People.Where(p => p.IsActive))
         {
             var menuItem = new System.Windows.Controls.MenuItem { Header = person.Name, IsChecked = card.WhoId == person.Id };
-            menuItem.Click += (_, _) => viewModel.SetCardWho(card, person);
+            menuItem.Click += (_, _) => Dispatcher.BeginInvoke(new Action(() => viewModel.SetCardWho(card, person)), DispatcherPriority.Background);
             menu.Items.Add(menuItem);
         }
 
         menu.PlacementTarget = element;
         menu.IsOpen = true;
+        e.Handled = true;
+    }
+
+    private void DueDateDisplay_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+    {
+        if (sender is not FrameworkElement { DataContext: CardViewModel card } element || DataContext is not MainViewModel viewModel) return;
+
+        var datePicker = new System.Windows.Controls.DatePicker
+        {
+            SelectedDate = card.DueDate,
+            Width = 160,
+            Margin = new Thickness(8, 8, 8, 4)
+        };
+        var clearButton = new System.Windows.Controls.Button
+        {
+            Content = "Clear Due Date",
+            Margin = new Thickness(8, 0, 8, 8),
+            Padding = new Thickness(4)
+        };
+
+        var panel = new System.Windows.Controls.StackPanel();
+        panel.Children.Add(datePicker);
+        panel.Children.Add(clearButton);
+
+        var popup = new System.Windows.Controls.Primitives.Popup
+        {
+            PlacementTarget = element,
+            Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom,
+            StaysOpen = false,
+            AllowsTransparency = true,
+            Child = new System.Windows.Controls.Border
+            {
+                Background = System.Windows.Media.Brushes.White,
+                BorderBrush = System.Windows.Media.Brushes.Gray,
+                BorderThickness = new Thickness(1),
+                Child = panel
+            }
+        };
+
+        // Deferred via BeginInvoke: see the comment in PriorityBadge_MouseLeftButtonDown — mutating the
+        // card collection while this popup is still closing deadlocks WPF's layout engine.
+        datePicker.SelectedDateChanged += (_, _) =>
+        {
+            var newDate = datePicker.SelectedDate;
+            popup.IsOpen = false;
+            Dispatcher.BeginInvoke(new Action(() => viewModel.SetCardDueDate(card, newDate)), DispatcherPriority.Background);
+        };
+        clearButton.Click += (_, _) =>
+        {
+            popup.IsOpen = false;
+            Dispatcher.BeginInvoke(new Action(() => viewModel.SetCardDueDate(card, null)), DispatcherPriority.Background);
+        };
+
+        popup.IsOpen = true;
         e.Handled = true;
     }
 

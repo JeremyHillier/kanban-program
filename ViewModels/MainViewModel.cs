@@ -724,6 +724,19 @@ public class MainViewModel : ObservableObject
         RefreshDashboardStats();
     }
 
+    public void SetCardDueDate(CardViewModel card, DateTime? dueDate)
+    {
+        if (card.DueDate == dueDate) return;
+
+        card.DueDate = dueDate;
+        card.LastUpdated = _db.UpdateCard(card.Id, card.Title, card.ProjectId, card.Priority, dueDate, card.WhoId,
+            card.IsRecurring, card.RecurrencePattern, card.GoalId, card.Notes);
+
+        card.IsVisible = MatchesFilters(card);
+        ApplySort();
+        RefreshDashboardStats();
+    }
+
     public void SetCardWho(CardViewModel card, PersonViewModel? who)
     {
         if (card.WhoId == who?.Id) return;

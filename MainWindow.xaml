@@ -444,6 +444,8 @@
 
                                                                     <StackPanel Orientation="Horizontal" Margin="0,3,0,0">
                                                                         <TextBlock Text="{Binding DueDateDisplay}" FontSize="10"
+                                                                                   Cursor="Hand" ToolTip="Click to change due date"
+                                                                                   MouseLeftButtonUp="DueDateDisplay_MouseLeftButtonUp"
                                                                                    Visibility="{Binding DueDateDisplay, Converter={StaticResource EmptyStringToVisibilityConverter}}">
                                                                             <TextBlock.Style>
                                                                                 <Style TargetType="TextBlock">
