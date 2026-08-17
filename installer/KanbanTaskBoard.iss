@@ -22,6 +22,7 @@
 AppId={{{#MyAppId}}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
+AppVerName={#MyAppName} {#MyAppVersion}
 AppPublisher={#MyAppPublisher}
 DefaultDirName={userpf}\{#MyAppName}
 DefaultGroupName={#MyAppName}
@@ -52,9 +53,29 @@ Filename: "{app}\{#MyAppExeName}"; Parameters: "--seed-data-folder ""{code:GetDa
 [Code]
 var
   DataDirPage: TInputDirWizardPage;
+  PreviousVersion: String;
+  IsUpdate: Boolean;
+
+function GetInstalledVersion(): String;
+begin
+  Result := '';
+  RegQueryStringValue(HKCU, 'Software\Microsoft\Windows\CurrentVersion\Uninstall\{{#MyAppId}}_is1', 'DisplayVersion', Result);
+end;
 
 procedure InitializeWizard;
 begin
+  PreviousVersion := GetInstalledVersion();
+  IsUpdate := PreviousVersion <> '';
+
+  if IsUpdate then
+    WizardForm.WelcomeLabel2.Caption :=
+      'Setup will update {#MyAppName} from version ' + PreviousVersion + ' to version {#MyAppVersion}.' + #13#10#13#10 +
+      'It is recommended that you close all other applications before continuing.'
+  else
+    WizardForm.WelcomeLabel2.Caption :=
+      'Setup will install {#MyAppName} version {#MyAppVersion} on your computer.' + #13#10#13#10 +
+      'It is recommended that you close all other applications before continuing.';
+
   DataDirPage := CreateInputDirPage(wpSelectDir,
     'Select Task Data Location', 'Where should {#MyAppName} store your task data?',
     'Setup will store your task database, and any screenshots you attach to tasks, in the folder below.' + #13#10 +
