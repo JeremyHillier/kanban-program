@@ -27,6 +27,7 @@ AppPublisher={#MyAppPublisher}
 DefaultDirName={userpf}\{#MyAppName}
 DefaultGroupName={#MyAppName}
 DisableProgramGroupPage=yes
+DisableWelcomePage=no
 PrivilegesRequired=lowest
 AppMutex=KanbanTaskBoard-{#Channel}
 CloseApplications=yes
@@ -39,6 +40,9 @@ SolidCompression=yes
 WizardStyle=modern
 ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
+SetupIconFile=..\Assets\app.ico
+WizardImageFile=WizardImage.bmp
+WizardSmallImageFile=WizardSmallImage.bmp
 
 [Files]
 Source: "..\publish\{#Channel}\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
@@ -57,9 +61,15 @@ var
   IsUpdate: Boolean;
 
 function GetInstalledVersion(): String;
+var
+  UninstallKey: String;
 begin
   Result := '';
-  RegQueryStringValue(HKCU, 'Software\Microsoft\Windows\CurrentVersion\Uninstall\{{#MyAppId}}_is1', 'DisplayVersion', Result);
+  UninstallKey := 'Software\Microsoft\Windows\CurrentVersion\Uninstall\{{#MyAppId}}_is1';
+  // Check both hives: a per-user install (the normal case here) registers under HKCU, but fall
+  // back to HKLM in case a previous version was ever installed elevated.
+  if RegQueryStringValue(HKCU, UninstallKey, 'DisplayVersion', Result) then exit;
+  RegQueryStringValue(HKLM, UninstallKey, 'DisplayVersion', Result);
 end;
 
 procedure InitializeWizard;
