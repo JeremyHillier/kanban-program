@@ -322,6 +322,10 @@
                                         ToolTip="Add, rename, or delete people (Alt+W)">
                                     <TextBlock Text="Manage Who" TextWrapping="Wrap" TextAlignment="Center"/>
                                 </Button>
+                                <Button Style="{StaticResource SquareButtonStyle}" Background="#FFEF5350" Foreground="White" Click="Reminders_Click"
+                                        ToolTip="Show tasks that are overdue or due today">
+                                    <TextBlock Text="Reminders" TextWrapping="Wrap" TextAlignment="Center"/>
+                                </Button>
                                 <Button Style="{StaticResource SquareButtonStyle}" Background="#FF546E7A" Foreground="White" Click="ToggleTheme_Click"
                                         ToolTip="Switch between light and dark theme">
                                     <TextBlock Text="{Binding ThemeButtonLabel}" TextWrapping="Wrap" TextAlignment="Center"/>

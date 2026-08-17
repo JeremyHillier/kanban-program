@@ -121,6 +121,11 @@
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• The banner always shows Open, Overdue, Due Today, and Due This Week counts across all non-Done tasks."/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Double-click the banner to open the full Dashboard: summary tiles, plus Status Distribution, Priority Mix, Due Date Timeline, By Project, and By Who charts."/>
 
+                <TextBlock Text="Reminders" Style="{StaticResource HelpSectionHeaderStyle}"/>
+                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• If any task is overdue or due today, a reminder pop-up lists them automatically when the app opens."/>
+                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Double-click a task in the reminder list to open it for editing; Close dismisses the list without changing anything."/>
+                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Click the Reminders button any time to bring the same list back up."/>
+
                 <TextBlock Text="Display options" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Dark Mode / Light Mode switches the whole app's theme."/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Large Cards / Compact Cards toggles how much detail each card shows, useful for fitting more on screen at once."/>
@@ -134,6 +139,7 @@
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Require a yes/no confirmation before deleting a task, project, goal, or flag — turn this off to delete immediately without asking."/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Require a yes/no confirmation before Archive Done — turn this off to archive immediately without asking."/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Ask whether to add a note whenever a task is moved to Done; answering yes opens the task with the cursor already in the Notes field."/>
+                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Turn off the overdue/due-today reminder pop-up that appears on startup; the Reminders button still works either way."/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Change where the task database file is stored. The old file is automatically removed once the app has restarted at the new location."/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• The chosen location itself is remembered outside the database, in a small config file under your local AppData folder — not inside the database file."/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Set a Default Export Path (used by Report Builder's PDF export) and a Default Import Path (used by Import Tasks, including where the template is saved)."/>

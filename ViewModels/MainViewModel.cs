@@ -132,6 +132,7 @@ public class MainViewModel : ObservableObject
     public bool ConfirmDelete { get; private set; } = true;
     public bool ConfirmArchive { get; private set; } = true;
     public bool AddNoteOnComplete { get; private set; }
+    public bool ShowDueReminders { get; private set; } = true;
 
     public void SetStartFullScreen(bool value)
     {
@@ -155,6 +156,12 @@ public class MainViewModel : ObservableObject
     {
         AddNoteOnComplete = value;
         _db.SetSetting("AddNoteOnComplete", value ? "True" : "False");
+    }
+
+    public void SetShowDueReminders(bool value)
+    {
+        ShowDueReminders = value;
+        _db.SetSetting("ShowDueReminders", value ? "True" : "False");
     }
 
     private static readonly Brush[] ColumnPaletteLight =
@@ -185,6 +192,13 @@ public class MainViewModel : ObservableObject
 
     public int DueThisWeekCount => Columns.Where(c => c.Name != "Done").SelectMany(c => c.Cards)
         .Count(c => c.DueDate is not null && c.DueDate.Value.Date >= DateTime.Today && c.DueDate.Value.Date <= DateTime.Today.AddDays(7));
+
+    public List<CardViewModel> GetDueReminders() =>
+        Columns.Where(c => c.Name != "Done").SelectMany(c => c.Cards)
+            .Where(c => c.DueDate is not null && c.DueDate.Value.Date <= DateTime.Today)
+            .OrderBy(c => c.DueDate)
+            .ThenBy(c => c.Title)
+            .ToList();
 
     private void RefreshDashboardStats()
     {
@@ -308,6 +322,7 @@ public class MainViewModel : ObservableObject
         ConfirmDelete = _db.GetSetting("ConfirmDelete") != "False";
         ConfirmArchive = _db.GetSetting("ConfirmArchive") != "False";
         AddNoteOnComplete = _db.GetSetting("AddNoteOnComplete") == "True";
+        ShowDueReminders = _db.GetSetting("ShowDueReminders") != "False";
     }
 
     public void ToggleButtonPosition()

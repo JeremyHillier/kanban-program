@@ -21,6 +21,39 @@ public partial class MainWindow : Window
 
         RestoreWindowBounds();
         Closing += (_, _) => SaveWindowBounds();
+        Loaded += MainWindow_Loaded;
+    }
+
+    private void MainWindow_Loaded(object sender, RoutedEventArgs e)
+    {
+        if (DataContext is not MainViewModel viewModel || !viewModel.ShowDueReminders) return;
+
+        var dueCards = viewModel.GetDueReminders();
+        if (dueCards.Count == 0) return;
+
+        // Deferred: showing the modal reminder dialog synchronously here would block before the
+        // splash screen (still on screen at this point) gets a chance to close.
+        Dispatcher.BeginInvoke(() => ShowReminders(dueCards, viewModel), DispatcherPriority.ApplicationIdle);
+    }
+
+    private void ShowReminders(List<CardViewModel> dueCards, MainViewModel viewModel)
+    {
+        var dialog = new ReminderWindow(dueCards, card => EditCard(card, viewModel)) { Owner = this };
+        dialog.ShowDialog();
+    }
+
+    private void Reminders_Click(object sender, RoutedEventArgs e)
+    {
+        if (DataContext is not MainViewModel viewModel) return;
+
+        var dueCards = viewModel.GetDueReminders();
+        if (dueCards.Count == 0)
+        {
+            MessageBox.Show(this, "No overdue or due-today tasks.", "Task Reminders", MessageBoxButton.OK, MessageBoxImage.Information);
+            return;
+        }
+
+        ShowReminders(dueCards, viewModel);
     }
 
     private void RestoreWindowBounds()

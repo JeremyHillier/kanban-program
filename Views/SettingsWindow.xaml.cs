@@ -39,6 +39,7 @@ public partial class SettingsWindow : Window
         ConfirmDeleteCheckBox.IsChecked = viewModel.ConfirmDelete;
         ConfirmArchiveCheckBox.IsChecked = viewModel.ConfirmArchive;
         AddNoteOnCompleteCheckBox.IsChecked = viewModel.AddNoteOnComplete;
+        ShowDueRemindersCheckBox.IsChecked = viewModel.ShowDueReminders;
     }
 
     private void StartFullScreenCheckBox_Changed(object sender, RoutedEventArgs e)
@@ -59,6 +60,11 @@ public partial class SettingsWindow : Window
     private void AddNoteOnCompleteCheckBox_Changed(object sender, RoutedEventArgs e)
     {
         _viewModel.SetAddNoteOnComplete(AddNoteOnCompleteCheckBox.IsChecked == true);
+    }
+
+    private void ShowDueRemindersCheckBox_Changed(object sender, RoutedEventArgs e)
+    {
+        _viewModel.SetShowDueReminders(ShowDueRemindersCheckBox.IsChecked == true);
     }
 
     private void ButtonsOnRightCheckBox_Changed(object sender, RoutedEventArgs e)
