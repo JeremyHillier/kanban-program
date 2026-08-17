@@ -103,7 +103,10 @@
                     <ComboBoxItem Content="Daily"/>
                     <ComboBoxItem Content="Weekday"/>
                     <ComboBoxItem Content="Weekly"/>
+                    <ComboBoxItem Content="Bi-Weekly"/>
                     <ComboBoxItem Content="Monthly"/>
+                    <ComboBoxItem Content="Bi-Monthly"/>
+                    <ComboBoxItem Content="Quarterly"/>
                     <ComboBoxItem Content="Annually"/>
                 </ComboBox>
 

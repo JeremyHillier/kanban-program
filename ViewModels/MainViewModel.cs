@@ -21,6 +21,13 @@ public class MainViewModel : ObservableObject
 
     private SortMode _currentSortMode = SortMode.ProjectThenDueDate;
 
+    private string _selectedSortMode = "Project";
+    public string SelectedSortMode
+    {
+        get => _selectedSortMode;
+        private set => SetField(ref _selectedSortMode, value);
+    }
+
     private bool _isDarkMode;
     public bool IsDarkMode
     {
@@ -368,24 +375,28 @@ public class MainViewModel : ObservableObject
     public void SortByProject()
     {
         _currentSortMode = SortMode.ProjectThenDueDate;
+        SelectedSortMode = "Project";
         ApplySort();
     }
 
     public void SortByDueDate()
     {
         _currentSortMode = SortMode.DueDateThenProject;
+        SelectedSortMode = "DueDate";
         ApplySort();
     }
 
     public void SortByWho()
     {
         _currentSortMode = SortMode.WhoThenDueDate;
+        SelectedSortMode = "Who";
         ApplySort();
     }
 
     public void SortByPriority()
     {
         _currentSortMode = SortMode.PriorityThenDueDate;
+        SelectedSortMode = "Priority";
         ApplySort();
     }
 
@@ -981,7 +992,10 @@ public class MainViewModel : ObservableObject
         "Daily" => anchor.AddDays(1),
         "Weekday" => NextWeekday(anchor),
         "Weekly" => anchor.AddDays(7),
+        "Bi-Weekly" => anchor.AddDays(14),
         "Monthly" => anchor.AddMonths(1),
+        "Bi-Monthly" => anchor.AddMonths(2),
+        "Quarterly" => anchor.AddMonths(3),
         "Annually" => anchor.AddYears(1),
         _ => anchor.AddDays(1)
     };

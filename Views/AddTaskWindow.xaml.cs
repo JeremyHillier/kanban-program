@@ -41,7 +41,7 @@ public partial class AddTaskWindow : Window
         RebuildFlagCheckboxes();
         UpdateSubTaskProgressLabel();
 
-        DetailsTextBox.Focus();
+        ProjectComboBox.Focus();
     }
 
     public void PreselectColumn(ColumnViewModel column)

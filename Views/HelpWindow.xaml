@@ -66,7 +66,7 @@
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Images show as a small thumbnail; other files show as a filename. Click either to open the file in its default app, or × to remove it from the task (removing a pasted screenshot also deletes its saved copy; removing a linked file never touches the original)."/>
 
                 <TextBlock Text="Recurring tasks" Style="{StaticResource HelpSectionHeaderStyle}"/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Mark a task Recurring and choose a pattern (Daily, Weekday, Weekly, Monthly, or Annually)."/>
+                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Mark a task Recurring and choose a pattern (Daily, Weekday, Weekly, Bi-Weekly, Monthly, Bi-Monthly, Quarterly, or Annually)."/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• When a recurring task is moved to Done, its next occurrence is created automatically in To Do with the same details and sub-task list — but with every sub-task unchecked."/>
 
                 <TextBlock Text="Quick actions on a card" Style="{StaticResource HelpSectionHeaderStyle}"/>
@@ -82,7 +82,7 @@
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Delete warns you first with the number of tasks currently using that Project, Goal, Flag, or Who, since deleting it removes it from those tasks and cannot be undone."/>
 
                 <TextBlock Text="Sorting and filtering" Style="{StaticResource HelpSectionHeaderStyle}"/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Sort by Project, Due Date, Who, or Priority reorders every column. Sort by Due Date sorts by due date then project; Sort by Priority sorts by priority then due date."/>
+                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Sort by Project, Due Date, Who, or Priority reorders every column. Sort by Due Date sorts by due date then project; Sort by Priority sorts by priority then due date. The active sort is shown with a highlighted border."/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• The Filter section narrows the board by Project, Priority, Who, Goal, Flag, Due date range, or a keyword search across titles."/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Who, Goal, and Flag each offer an 'Unassigned' filter option, showing only tasks with none set."/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• The Today / Tomorrow / Within a Week / No Due Date buttons filter by due date; Today also includes overdue tasks. The active one is shown with a highlighted border."/>

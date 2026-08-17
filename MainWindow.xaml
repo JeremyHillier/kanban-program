@@ -49,6 +49,47 @@
             <Setter Property="Padding" Value="2"/>
         </Style>
 
+        <Style x:Key="SortButtonProject" BasedOn="{StaticResource SmallSquareButtonStyle}" TargetType="Button">
+            <Setter Property="BorderThickness" Value="1"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding SelectedSortMode, Converter={StaticResource StringEqualsConverter}, ConverterParameter=Project}" Value="True">
+                    <Setter Property="BorderBrush" Value="White"/>
+                    <Setter Property="BorderThickness" Value="3"/>
+                    <Setter Property="FontWeight" Value="Bold"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="SortButtonDueDate" BasedOn="{StaticResource SmallSquareButtonStyle}" TargetType="Button">
+            <Setter Property="BorderThickness" Value="1"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding SelectedSortMode, Converter={StaticResource StringEqualsConverter}, ConverterParameter=DueDate}" Value="True">
+                    <Setter Property="BorderBrush" Value="White"/>
+                    <Setter Property="BorderThickness" Value="3"/>
+                    <Setter Property="FontWeight" Value="Bold"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="SortButtonWho" BasedOn="{StaticResource SmallSquareButtonStyle}" TargetType="Button">
+            <Setter Property="BorderThickness" Value="1"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding SelectedSortMode, Converter={StaticResource StringEqualsConverter}, ConverterParameter=Who}" Value="True">
+                    <Setter Property="BorderBrush" Value="White"/>
+                    <Setter Property="BorderThickness" Value="3"/>
+                    <Setter Property="FontWeight" Value="Bold"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="SortButtonPriority" BasedOn="{StaticResource SmallSquareButtonStyle}" TargetType="Button">
+            <Setter Property="BorderThickness" Value="1"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding SelectedSortMode, Converter={StaticResource StringEqualsConverter}, ConverterParameter=Priority}" Value="True">
+                    <Setter Property="BorderBrush" Value="White"/>
+                    <Setter Property="BorderThickness" Value="3"/>
+                    <Setter Property="FontWeight" Value="Bold"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
         <Style x:Key="DueFilterButtonToday" BasedOn="{StaticResource SmallSquareButtonStyle}" TargetType="Button">
             <Setter Property="BorderThickness" Value="1"/>
             <Style.Triggers>
@@ -163,19 +204,19 @@
                         <TextBlock Text="Sort &amp; Add" Style="{StaticResource SectionHeaderStyle}" Margin="0,0,0,6"/>
                         <StackPanel>
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                <Button Style="{StaticResource SmallSquareButtonStyle}" Background="#FF42A5F5" Foreground="White" Click="SortByProject_Click"
+                                <Button Style="{StaticResource SortButtonProject}" Background="#FF42A5F5" Foreground="White" Click="SortByProject_Click"
                                         ToolTip="Sort all cards by project, then due date">
                                     <TextBlock Text="Sort by Project" TextWrapping="Wrap" TextAlignment="Center"/>
                                 </Button>
-                                <Button Style="{StaticResource SmallSquareButtonStyle}" Background="#FF26A69A" Foreground="White" Click="SortByDueDate_Click"
+                                <Button Style="{StaticResource SortButtonDueDate}" Background="#FF26A69A" Foreground="White" Click="SortByDueDate_Click"
                                         ToolTip="Sort all cards by due date, then project">
                                     <TextBlock Text="Sort by Due Date" TextWrapping="Wrap" TextAlignment="Center"/>
                                 </Button>
-                                <Button Style="{StaticResource SmallSquareButtonStyle}" Background="#FF7E57C2" Foreground="White" Click="SortByWho_Click"
+                                <Button Style="{StaticResource SortButtonWho}" Background="#FF7E57C2" Foreground="White" Click="SortByWho_Click"
                                         ToolTip="Sort all cards by assignee, then due date">
                                     <TextBlock Text="Sort by Who" TextWrapping="Wrap" TextAlignment="Center"/>
                                 </Button>
-                                <Button Style="{StaticResource SmallSquareButtonStyle}" Background="#FFEF5350" Foreground="White" Click="SortByPriority_Click"
+                                <Button Style="{StaticResource SortButtonPriority}" Background="#FFEF5350" Foreground="White" Click="SortByPriority_Click"
                                         ToolTip="Sort all cards by priority, then due date">
                                     <TextBlock Text="Sort by Priority" TextWrapping="Wrap" TextAlignment="Center"/>
                                 </Button>
