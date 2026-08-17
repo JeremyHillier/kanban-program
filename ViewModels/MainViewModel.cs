@@ -711,6 +711,33 @@ public class MainViewModel : ObservableObject
         _db.SetCardFlags(card.Id, card.Flags.Select(f => f.Id));
     }
 
+    public void SetCardPriority(CardViewModel card, string priority)
+    {
+        if (card.Priority == priority) return;
+
+        card.Priority = priority;
+        card.LastUpdated = _db.UpdateCard(card.Id, card.Title, card.ProjectId, priority, card.DueDate, card.WhoId,
+            card.IsRecurring, card.RecurrencePattern, card.GoalId, card.Notes);
+
+        card.IsVisible = MatchesFilters(card);
+        ApplySort();
+        RefreshDashboardStats();
+    }
+
+    public void SetCardWho(CardViewModel card, PersonViewModel? who)
+    {
+        if (card.WhoId == who?.Id) return;
+
+        card.WhoId = who?.Id;
+        card.WhoName = who?.Name ?? "Unassigned";
+        card.LastUpdated = _db.UpdateCard(card.Id, card.Title, card.ProjectId, card.Priority, card.DueDate, who?.Id,
+            card.IsRecurring, card.RecurrencePattern, card.GoalId, card.Notes);
+
+        card.IsVisible = MatchesFilters(card);
+        ApplySort();
+        RefreshDashboardStats();
+    }
+
     private void DeleteOrphanedAttachmentFiles(int cardId, List<AttachmentViewModel> previousAttachments, List<AttachmentViewModel> newAttachments)
     {
         var attachmentsDir = Path.GetFullPath(AttachmentsDir);

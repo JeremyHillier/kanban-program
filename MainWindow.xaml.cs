@@ -423,6 +423,44 @@ public partial class MainWindow : Window
         menu.IsOpen = true;
     }
 
+    private void PriorityBadge_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+    {
+        if (sender is not FrameworkElement { DataContext: CardViewModel card } element || DataContext is not MainViewModel viewModel) return;
+
+        var menu = new System.Windows.Controls.ContextMenu();
+        foreach (var priority in new[] { "High", "Medium", "Normal" })
+        {
+            var menuItem = new System.Windows.Controls.MenuItem { Header = priority, IsChecked = card.Priority == priority };
+            menuItem.Click += (_, _) => viewModel.SetCardPriority(card, priority);
+            menu.Items.Add(menuItem);
+        }
+
+        menu.PlacementTarget = element;
+        menu.IsOpen = true;
+        e.Handled = true;
+    }
+
+    private void WhoDisplay_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+    {
+        if (sender is not FrameworkElement { DataContext: CardViewModel card } element || DataContext is not MainViewModel viewModel) return;
+
+        var menu = new System.Windows.Controls.ContextMenu();
+        var unassignedItem = new System.Windows.Controls.MenuItem { Header = "Unassigned", IsChecked = card.WhoId is null };
+        unassignedItem.Click += (_, _) => viewModel.SetCardWho(card, null);
+        menu.Items.Add(unassignedItem);
+
+        foreach (var person in viewModel.People.Where(p => p.IsActive))
+        {
+            var menuItem = new System.Windows.Controls.MenuItem { Header = person.Name, IsChecked = card.WhoId == person.Id };
+            menuItem.Click += (_, _) => viewModel.SetCardWho(card, person);
+            menu.Items.Add(menuItem);
+        }
+
+        menu.PlacementTarget = element;
+        menu.IsOpen = true;
+        e.Handled = true;
+    }
+
     private void SubTaskCheckBox_Changed(object sender, RoutedEventArgs e)
     {
         if (sender is not System.Windows.Controls.CheckBox { DataContext: SubTaskViewModel subTask, Tag: CardViewModel card } checkBox) return;

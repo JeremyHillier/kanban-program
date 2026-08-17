@@ -418,81 +418,99 @@
 
                                                         <TextBlock Text="{Binding ProjectName}" FontSize="12" FontWeight="Bold"
                                                                    Foreground="{DynamicResource AccentTextBrush}" Margin="0,3,0,0"/>
-                                                        <StackPanel Orientation="Horizontal" Margin="0,3,0,0">
-                                                            <Border Background="{Binding Priority, Converter={StaticResource PriorityToBrushConverter}}"
-                                                                    CornerRadius="3" Padding="5,1" HorizontalAlignment="Left">
-                                                                <TextBlock Text="{Binding Priority}" FontSize="10" Foreground="White"/>
-                                                            </Border>
-                                                        </StackPanel>
 
-                                                        <StackPanel Visibility="{Binding DataContext.IsLargeCards, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BooleanToVisibilityConverter}}">
-                                                            <TextBlock Text="{Binding GoalDisplay}" FontSize="10" Foreground="{DynamicResource SecondaryTextBrush}" FontStyle="Italic" Margin="0,3,0,0"
-                                                                       Visibility="{Binding GoalDisplay, Converter={StaticResource EmptyStringToVisibilityConverter}}"/>
+                                                        <Grid Margin="0,3,0,0">
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="*"/>
+                                                                <ColumnDefinition Width="Auto"/>
+                                                            </Grid.ColumnDefinitions>
 
-                                                            <TextBlock Text="{Binding FlagsDisplay}" FontSize="10" Foreground="{DynamicResource SecondaryTextBrush}" FontStyle="Italic" Margin="0,3,0,0"
-                                                                       Visibility="{Binding FlagsDisplay, Converter={StaticResource EmptyStringToVisibilityConverter}}"/>
+                                                            <StackPanel Grid.Column="0">
+                                                                <StackPanel Orientation="Horizontal">
+                                                                    <Border Background="{Binding Priority, Converter={StaticResource PriorityToBrushConverter}}"
+                                                                            CornerRadius="3" Padding="5,1" HorizontalAlignment="Left"
+                                                                            Cursor="Hand" ToolTip="Click to change priority"
+                                                                            MouseLeftButtonDown="PriorityBadge_MouseLeftButtonDown">
+                                                                        <TextBlock Text="{Binding Priority}" FontSize="10" Foreground="White"/>
+                                                                    </Border>
+                                                                </StackPanel>
 
-                                                            <StackPanel Orientation="Horizontal" Margin="0,3,0,0">
-                                                                <TextBlock Text="{Binding DueDateDisplay}" FontSize="10"
-                                                                           Visibility="{Binding DueDateDisplay, Converter={StaticResource EmptyStringToVisibilityConverter}}">
+                                                                <StackPanel Visibility="{Binding DataContext.IsLargeCards, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                                    <TextBlock Text="{Binding GoalDisplay}" FontSize="10" Foreground="{DynamicResource SecondaryTextBrush}" FontStyle="Italic" Margin="0,3,0,0"
+                                                                               Visibility="{Binding GoalDisplay, Converter={StaticResource EmptyStringToVisibilityConverter}}"/>
+
+                                                                    <TextBlock Text="{Binding FlagsDisplay}" FontSize="10" Foreground="{DynamicResource SecondaryTextBrush}" FontStyle="Italic" Margin="0,3,0,0"
+                                                                               Visibility="{Binding FlagsDisplay, Converter={StaticResource EmptyStringToVisibilityConverter}}"/>
+
+                                                                    <StackPanel Orientation="Horizontal" Margin="0,3,0,0">
+                                                                        <TextBlock Text="{Binding DueDateDisplay}" FontSize="10"
+                                                                                   Visibility="{Binding DueDateDisplay, Converter={StaticResource EmptyStringToVisibilityConverter}}">
+                                                                            <TextBlock.Style>
+                                                                                <Style TargetType="TextBlock">
+                                                                                    <Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}"/>
+                                                                                    <Style.Triggers>
+                                                                                        <DataTrigger Binding="{Binding IsOverdue}" Value="True">
+                                                                                            <Setter Property="Background" Value="#FFFFF176"/>
+                                                                                            <Setter Property="Foreground" Value="#FF1A1A1A"/>
+                                                                                            <Setter Property="FontWeight" Value="Bold"/>
+                                                                                        </DataTrigger>
+                                                                                    </Style.Triggers>
+                                                                                </Style>
+                                                                            </TextBlock.Style>
+                                                                        </TextBlock>
+                                                                        <TextBlock Text="{Binding WhoDisplay}" FontSize="10" Foreground="{DynamicResource SecondaryTextBrush}" Margin="8,0,0,0"
+                                                                                   Cursor="Hand" ToolTip="Click to reassign"
+                                                                                   MouseLeftButtonDown="WhoDisplay_MouseLeftButtonDown"
+                                                                                   Visibility="{Binding WhoDisplay, Converter={StaticResource EmptyStringToVisibilityConverter}}"/>
+                                                                    </StackPanel>
+                                                                    <TextBlock Text="{Binding RecurrenceDisplay}" FontSize="10" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,1,0,0"
+                                                                               Visibility="{Binding RecurrenceDisplay, Converter={StaticResource EmptyStringToVisibilityConverter}}"/>
+                                                                    <TextBlock Text="{Binding LastUpdatedDisplay}" FontSize="9" FontStyle="Italic"
+                                                                               Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,3,0,0"/>
+
+                                                                    <TextBlock Text="{Binding AttachmentsCountDisplay}" FontSize="10"
+                                                                               Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,3,0,0"
+                                                                               Visibility="{Binding HasAttachments, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+
+                                                                    <TextBlock Text="{Binding SubTaskProgressDisplay}" FontSize="10" FontWeight="SemiBold"
+                                                                               Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,5,0,0"
+                                                                               Visibility="{Binding HasSubTasks, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                                                    <ItemsControl ItemsSource="{Binding SubTasks}" Tag="{Binding}" Margin="0,2,0,0"
+                                                                                  Visibility="{Binding HasSubTasks, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                                        <ItemsControl.ItemTemplate>
+                                                                            <DataTemplate>
+                                                                                <CheckBox Content="{Binding Title}" IsChecked="{Binding IsDone, Mode=OneWay}"
+                                                                                          FontSize="10" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,1,0,0"
+                                                                                          Tag="{Binding RelativeSource={RelativeSource AncestorType=ItemsControl}, Path=Tag}"
+                                                                                          Checked="SubTaskCheckBox_Changed" Unchecked="SubTaskCheckBox_Changed"/>
+                                                                            </DataTemplate>
+                                                                        </ItemsControl.ItemTemplate>
+                                                                    </ItemsControl>
+                                                                </StackPanel>
+
+                                                                <TextBlock Text="{Binding SubTaskProgressDisplay}" FontSize="9"
+                                                                           Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,3,0,0">
                                                                     <TextBlock.Style>
                                                                         <Style TargetType="TextBlock">
-                                                                            <Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}"/>
+                                                                            <Setter Property="Visibility" Value="Collapsed"/>
                                                                             <Style.Triggers>
-                                                                                <DataTrigger Binding="{Binding IsOverdue}" Value="True">
-                                                                                    <Setter Property="Background" Value="#FFFFF176"/>
-                                                                                    <Setter Property="Foreground" Value="#FF1A1A1A"/>
-                                                                                    <Setter Property="FontWeight" Value="Bold"/>
-                                                                                </DataTrigger>
+                                                                                <MultiDataTrigger>
+                                                                                    <MultiDataTrigger.Conditions>
+                                                                                        <Condition Binding="{Binding HasSubTasks}" Value="True"/>
+                                                                                        <Condition Binding="{Binding DataContext.IsLargeCards, RelativeSource={RelativeSource AncestorType=Window}}" Value="False"/>
+                                                                                    </MultiDataTrigger.Conditions>
+                                                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                                                </MultiDataTrigger>
                                                                             </Style.Triggers>
                                                                         </Style>
                                                                     </TextBlock.Style>
                                                                 </TextBlock>
-                                                                <TextBlock Text="{Binding WhoDisplay}" FontSize="10" Foreground="{DynamicResource SecondaryTextBrush}" Margin="8,0,0,0"
-                                                                           Visibility="{Binding WhoDisplay, Converter={StaticResource EmptyStringToVisibilityConverter}}"/>
                                                             </StackPanel>
-                                                            <TextBlock Text="{Binding RecurrenceDisplay}" FontSize="10" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,1,0,0"
-                                                                       Visibility="{Binding RecurrenceDisplay, Converter={StaticResource EmptyStringToVisibilityConverter}}"/>
-                                                            <TextBlock Text="{Binding LastUpdatedDisplay}" FontSize="9" FontStyle="Italic"
-                                                                       Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,3,0,0"/>
 
-                                                            <TextBlock Text="{Binding AttachmentsCountDisplay}" FontSize="10"
-                                                                       Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,3,0,0"
-                                                                       Visibility="{Binding HasAttachments, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-
-                                                            <TextBlock Text="{Binding SubTaskProgressDisplay}" FontSize="10" FontWeight="SemiBold"
-                                                                       Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,5,0,0"
-                                                                       Visibility="{Binding HasSubTasks, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-                                                            <ItemsControl ItemsSource="{Binding SubTasks}" Tag="{Binding}" Margin="0,2,0,0"
-                                                                          Visibility="{Binding HasSubTasks, Converter={StaticResource BooleanToVisibilityConverter}}">
-                                                                <ItemsControl.ItemTemplate>
-                                                                    <DataTemplate>
-                                                                        <CheckBox Content="{Binding Title}" IsChecked="{Binding IsDone, Mode=OneWay}"
-                                                                                  FontSize="10" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,1,0,0"
-                                                                                  Tag="{Binding RelativeSource={RelativeSource AncestorType=ItemsControl}, Path=Tag}"
-                                                                                  Checked="SubTaskCheckBox_Changed" Unchecked="SubTaskCheckBox_Changed"/>
-                                                                    </DataTemplate>
-                                                                </ItemsControl.ItemTemplate>
-                                                            </ItemsControl>
-                                                        </StackPanel>
-
-                                                        <TextBlock Text="{Binding SubTaskProgressDisplay}" FontSize="9"
-                                                                   Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,3,0,0">
-                                                            <TextBlock.Style>
-                                                                <Style TargetType="TextBlock">
-                                                                    <Setter Property="Visibility" Value="Collapsed"/>
-                                                                    <Style.Triggers>
-                                                                        <MultiDataTrigger>
-                                                                            <MultiDataTrigger.Conditions>
-                                                                                <Condition Binding="{Binding HasSubTasks}" Value="True"/>
-                                                                                <Condition Binding="{Binding DataContext.IsLargeCards, RelativeSource={RelativeSource AncestorType=Window}}" Value="False"/>
-                                                                            </MultiDataTrigger.Conditions>
-                                                                            <Setter Property="Visibility" Value="Visible"/>
-                                                                        </MultiDataTrigger>
-                                                                    </Style.Triggers>
-                                                                </Style>
-                                                            </TextBlock.Style>
-                                                        </TextBlock>
+                                                            <Button Grid.Column="1" Style="{StaticResource QuickActionButtonStyle}" Content="&#x1F3F7;" Background="#FF8D6E63"
+                                                                    VerticalAlignment="Top" Margin="6,0,0,0"
+                                                                    ToolTip="Add a flag" Click="AddFlagQuickAction_Click"/>
+                                                        </Grid>
 
                                                         <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
                                                             <Button Style="{StaticResource QuickActionButtonStyle}" Content="T" Background="#FF42A5F5"
@@ -505,11 +523,9 @@
                                                                     Tag="Waiting" ToolTip="Move to Waiting" Click="QuickMove_Click"/>
                                                             <Button Style="{StaticResource QuickActionButtonStyle}" Content="&#x2713;" Background="#FF66BB6A"
                                                                     Tag="Done" ToolTip="Mark Done" Click="QuickMove_Click"/>
-                                                            <Button Style="{StaticResource QuickActionButtonStyle}" Content="X" Background="#FFEF5350"
+                                                            <Button Style="{StaticResource QuickActionButtonStyle}" Content="X" Background="#FFEF5350" Margin="0"
                                                                     ToolTip="Delete"
                                                                     Click="DeleteQuickAction_Click"/>
-                                                            <Button Style="{StaticResource QuickActionButtonStyle}" Content="&#x1F3F7;" Background="#FF8D6E63" Margin="0"
-                                                                    ToolTip="Add a flag" Click="AddFlagQuickAction_Click"/>
                                                         </StackPanel>
                                                     </StackPanel>
                                                 </Border>

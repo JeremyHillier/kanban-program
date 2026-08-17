@@ -70,7 +70,9 @@
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• When a recurring task is moved to Done, its next occurrence is created automatically in To Do with the same details and sub-task list — but with every sub-task unchecked."/>
 
                 <TextBlock Text="Quick actions on a card" Style="{StaticResource HelpSectionHeaderStyle}"/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• The letter buttons move a card directly to To Do, In Progress, On Hold, or Waiting; the check mark moves it to Done; the X deletes it; the tag icon adds an existing flag from a dropdown without opening the task."/>
+                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• The letter buttons move a card directly to To Do, In Progress, On Hold, or Waiting; the check mark moves it to Done; the X deletes it."/>
+                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• The tag icon, beside the task's details, adds an existing flag from a dropdown without opening the task."/>
+                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Click a card's Priority badge or its Assigned name to change either one directly from the board, without opening the task."/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• A task's title and due date are highlighted yellow once it's past due (and still outside Done)."/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• A card's Project name is shown prominently just below the title."/>
 

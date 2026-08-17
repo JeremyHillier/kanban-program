@@ -32,6 +32,7 @@
             <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="ToolTip" Value="Add new"/>
+            <Setter Property="IsTabStop" Value="False"/>
         </Style>
         <Style x:Key="DeleteLinkButtonStyle" BasedOn="{StaticResource NewLinkButtonStyle}" TargetType="Button">
             <Setter Property="Margin" Value="4,0,0,0"/>
