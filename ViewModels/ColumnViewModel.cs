@@ -8,7 +8,12 @@ public class ColumnViewModel(KanbanColumn model, Brush background) : ObservableO
 {
     public KanbanColumn Model { get; } = model;
 
-    public Brush Background { get; } = background;
+    private Brush _background = background;
+    public Brush Background
+    {
+        get => _background;
+        set => SetField(ref _background, value);
+    }
 
     public int Id => Model.Id;
 
