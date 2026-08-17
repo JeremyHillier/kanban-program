@@ -63,6 +63,40 @@
                 <TextBlock Text="{Binding Label}" Style="{StaticResource BarLabelStyle}"/>
             </StackPanel>
         </DataTemplate>
+
+        <DataTemplate x:Key="StackedSegmentTemplate">
+            <Border Background="{Binding Brush}" Width="44" Height="{Binding SegmentHeight}"/>
+        </DataTemplate>
+
+        <DataTemplate x:Key="StackedBarItemTemplate">
+            <StackPanel Style="{StaticResource BarItemStyle}">
+                <TextBlock Text="{Binding Total}" Style="{StaticResource BarCountStyle}"/>
+                <Grid Height="140">
+                    <ItemsControl ItemsSource="{Binding Segments}" ItemTemplate="{StaticResource StackedSegmentTemplate}"
+                                  VerticalAlignment="Bottom" HorizontalAlignment="Center">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel Orientation="Vertical"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                    </ItemsControl>
+                </Grid>
+                <TextBlock Text="{Binding Label}" Style="{StaticResource BarLabelStyle}"/>
+            </StackPanel>
+        </DataTemplate>
+
+        <Style x:Key="LegendSwatchStyle" TargetType="Border">
+            <Setter Property="Width" Value="10"/>
+            <Setter Property="Height" Value="10"/>
+            <Setter Property="CornerRadius" Value="2"/>
+            <Setter Property="Margin" Value="0,0,4,0"/>
+        </Style>
+        <Style x:Key="LegendLabelStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="10"/>
+            <Setter Property="Margin" Value="0,0,12,0"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}"/>
+        </Style>
     </Window.Resources>
     <Grid Margin="16">
         <Grid.RowDefinitions>
@@ -110,17 +144,18 @@
 
         <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
             <StackPanel>
-                <TextBlock Text="Status Distribution" Style="{StaticResource ChartHeaderStyle}"/>
-                <ItemsControl x:Name="StatusChart" ItemTemplate="{StaticResource BarItemTemplate}">
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <StackPanel Orientation="Horizontal"/>
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                </ItemsControl>
-
-                <TextBlock Text="Priority Mix" Style="{StaticResource ChartHeaderStyle}"/>
-                <ItemsControl x:Name="PriorityChart" ItemTemplate="{StaticResource BarItemTemplate}">
+                <TextBlock Text="Status Distribution by Priority" Style="{StaticResource ChartHeaderStyle}"/>
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+                    <Border Style="{StaticResource LegendSwatchStyle}" Background="#FFE53935"/>
+                    <TextBlock Text="High" Style="{StaticResource LegendLabelStyle}"/>
+                    <Border Style="{StaticResource LegendSwatchStyle}" Background="#FFFB8C00"/>
+                    <TextBlock Text="Medium" Style="{StaticResource LegendLabelStyle}"/>
+                    <Border Style="{StaticResource LegendSwatchStyle}" Background="#FF607D8B"/>
+                    <TextBlock Text="Normal" Style="{StaticResource LegendLabelStyle}"/>
+                    <Border Style="{StaticResource LegendSwatchStyle}" Background="#FF29B6F6"/>
+                    <TextBlock Text="Low" Style="{StaticResource LegendLabelStyle}"/>
+                </StackPanel>
+                <ItemsControl x:Name="StatusByPriorityChart" ItemTemplate="{StaticResource StackedBarItemTemplate}">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
                             <StackPanel Orientation="Horizontal"/>
@@ -137,8 +172,20 @@
                     </ItemsControl.ItemsPanel>
                 </ItemsControl>
 
-                <TextBlock Text="By Project" Style="{StaticResource ChartHeaderStyle}"/>
-                <ItemsControl x:Name="ProjectChart" ItemTemplate="{StaticResource BarItemTemplate}">
+                <TextBlock Text="By Project, by Status" Style="{StaticResource ChartHeaderStyle}"/>
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+                    <Border Style="{StaticResource LegendSwatchStyle}" Background="#FF42A5F5"/>
+                    <TextBlock Text="To Do" Style="{StaticResource LegendLabelStyle}"/>
+                    <Border Style="{StaticResource LegendSwatchStyle}" Background="#FFFDD835"/>
+                    <TextBlock Text="In Progress" Style="{StaticResource LegendLabelStyle}"/>
+                    <Border Style="{StaticResource LegendSwatchStyle}" Background="#FFFB8C00"/>
+                    <TextBlock Text="On Hold" Style="{StaticResource LegendLabelStyle}"/>
+                    <Border Style="{StaticResource LegendSwatchStyle}" Background="#FFAB47BC"/>
+                    <TextBlock Text="Waiting" Style="{StaticResource LegendLabelStyle}"/>
+                    <Border Style="{StaticResource LegendSwatchStyle}" Background="#FF66BB6A"/>
+                    <TextBlock Text="Done" Style="{StaticResource LegendLabelStyle}"/>
+                </StackPanel>
+                <ItemsControl x:Name="ProjectByStatusChart" ItemTemplate="{StaticResource StackedBarItemTemplate}">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
                             <WrapPanel Orientation="Horizontal"/>
