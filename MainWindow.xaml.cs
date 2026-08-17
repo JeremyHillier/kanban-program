@@ -169,21 +169,54 @@ public partial class MainWindow : Window
 
     private void MainWindow_PreviewKeyDown(object sender, KeyEventArgs e)
     {
-        if (Keyboard.Modifiers != ModifierKeys.Control) return;
-
-        switch (e.Key)
+        switch (Keyboard.Modifiers)
         {
-            case Key.Q:
-                Close();
-                e.Handled = true;
+            case ModifierKeys.Control:
+                switch (e.Key)
+                {
+                    case Key.Q:
+                        Close();
+                        e.Handled = true;
+                        break;
+                    case Key.P:
+                        ReportBuilder_Click(sender, e);
+                        e.Handled = true;
+                        break;
+                    case Key.N:
+                        AddTask_Click(sender, e);
+                        e.Handled = true;
+                        break;
+                }
                 break;
-            case Key.P:
-                ReportBuilder_Click(sender, e);
-                e.Handled = true;
-                break;
-            case Key.N:
-                AddTask_Click(sender, e);
-                e.Handled = true;
+
+            case ModifierKeys.Alt:
+                switch (e.Key == Key.System ? e.SystemKey : e.Key)
+                {
+                    case Key.A:
+                        ArchiveDone_Click(sender, e);
+                        e.Handled = true;
+                        break;
+                    case Key.P:
+                        ManageProjects_Click(sender, e);
+                        e.Handled = true;
+                        break;
+                    case Key.G:
+                        ManageGoals_Click(sender, e);
+                        e.Handled = true;
+                        break;
+                    case Key.F:
+                        ManageFlags_Click(sender, e);
+                        e.Handled = true;
+                        break;
+                    case Key.W:
+                        ManageWho_Click(sender, e);
+                        e.Handled = true;
+                        break;
+                    case Key.S:
+                        Settings_Click(sender, e);
+                        e.Handled = true;
+                        break;
+                }
                 break;
         }
     }
@@ -513,6 +546,13 @@ public partial class MainWindow : Window
             popup.IsOpen = false;
             Dispatcher.BeginInvoke(new Action(() => viewModel.SetCardDueDate(card, null)), DispatcherPriority.Background);
         };
+        panel.PreviewKeyDown += (_, keyArgs) =>
+        {
+            if (keyArgs.Key != Key.Escape) return;
+            popup.IsOpen = false;
+            keyArgs.Handled = true;
+        };
+        popup.Opened += (_, _) => datePicker.Focus();
 
         popup.IsOpen = true;
         e.Handled = true;

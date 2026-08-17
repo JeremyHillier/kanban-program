@@ -47,6 +47,13 @@
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Ctrl+N — create a new task."/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Ctrl+P — open Report Builder."/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Ctrl+Q — quit the app."/>
+                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Alt+A — archive done tasks."/>
+                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Alt+P — manage Projects."/>
+                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Alt+G — manage Goals."/>
+                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Alt+F — manage Flags."/>
+                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Alt+W — manage Who."/>
+                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Alt+S — open Settings."/>
+                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Esc — close the open dialog."/>
 
                 <TextBlock Text="Adding and editing tasks" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Click New Task (Sort &amp; Add section) to create a task."/>
