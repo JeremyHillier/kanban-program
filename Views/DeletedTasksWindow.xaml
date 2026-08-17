@@ -46,7 +46,7 @@
             <Button Content="Reactivate to To Do" Padding="10,6" Click="Reactivate_Click"
                     Background="#FF66BB6A" Foreground="White"/>
             <Button Content="Close" Width="90" Padding="0,6" Margin="8,0,0,0"
-                    IsCancel="True"
+                    IsCancel="True" IsDefault="True"
                     Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
         </StackPanel>
     </Grid>

@@ -24,6 +24,7 @@ public static class ThemeManager
             res["BoardAreaBrush"] = Brush(0x16, 0x16, 0x16);
             res["AccentTextBrush"] = Brush(0x64, 0xB5, 0xF6);
             res["ColumnHeaderTextBrush"] = Brushes.White;
+            res["AlternateRowBrush"] = Brush(0x20, 0x20, 0x22);
         }
         else
         {
@@ -40,6 +41,7 @@ public static class ThemeManager
             res["BoardAreaBrush"] = Brush(0xD4, 0xD4, 0xD8);
             res["AccentTextBrush"] = Brush(0x1E, 0x3A, 0x5F);
             res["ColumnHeaderTextBrush"] = Brush(0x1A, 0x1A, 0x1A);
+            res["AlternateRowBrush"] = Brush(0xD7, 0xD8, 0xDB);
         }
     }
 

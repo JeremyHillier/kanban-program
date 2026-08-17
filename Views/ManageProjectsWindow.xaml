@@ -19,7 +19,7 @@
             <TextBox x:Name="NewProjectTextBox" Width="220" Padding="6"
                      Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
                      BorderBrush="{DynamicResource CardBorderBrush}"/>
-            <Button Content="Add" Width="80" Margin="8,0,0,0" Padding="0,6" Click="Add_Click"
+            <Button Content="Add" Width="80" Margin="8,0,0,0" Padding="0,6" Click="Add_Click" IsDefault="True"
                     Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
         </StackPanel>
 

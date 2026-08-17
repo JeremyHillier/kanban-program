@@ -17,7 +17,7 @@
             <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
         </Style>
         <Style x:Key="CellMargin" TargetType="FrameworkElement">
-            <Setter Property="Margin" Value="4,3"/>
+            <Setter Property="Margin" Value="4,1"/>
         </Style>
     </Window.Resources>
     <Grid Margin="16" IsSharedSizeScope="True">
@@ -61,7 +61,7 @@
                 <ItemsControl x:Name="RowsList">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate DataType="{x:Type vm:ImportedRowEditViewModel}">
-                            <Border BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="0,0,0,1" Padding="0,2">
+                            <Border BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="0,0,0,1" Padding="0,1">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="2*" SharedSizeGroup="Title"/>
@@ -75,38 +75,38 @@
                                     </Grid.ColumnDefinitions>
 
                                     <TextBox Grid.Column="0" Style="{StaticResource CellMargin}" Text="{Binding Title, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                             Padding="4" Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                                             Padding="4,2" Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
                                              BorderBrush="{DynamicResource CardBorderBrush}"/>
 
-                                    <ComboBox Grid.Column="1" Style="{StaticResource CellMargin}" Padding="4"
+                                    <ComboBox Grid.Column="1" Style="{StaticResource CellMargin}" Padding="4,2"
                                               ItemsSource="{Binding DataContext.Columns, RelativeSource={RelativeSource AncestorType=Window}}"
                                               SelectedValuePath="Id" DisplayMemberPath="Name" SelectedValue="{Binding ColumnId, Mode=TwoWay}"
                                               Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
                                               BorderBrush="{DynamicResource CardBorderBrush}"/>
 
-                                    <ComboBox Grid.Column="2" Style="{StaticResource CellMargin}" Padding="4"
+                                    <ComboBox Grid.Column="2" Style="{StaticResource CellMargin}" Padding="4,2"
                                               ItemsSource="{x:Static vm:PriorityOptions.All}" SelectedItem="{Binding Priority, Mode=TwoWay}"
                                               Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
                                               BorderBrush="{DynamicResource CardBorderBrush}"/>
 
-                                    <ComboBox Grid.Column="3" Style="{StaticResource CellMargin}" Padding="4"
+                                    <ComboBox Grid.Column="3" Style="{StaticResource CellMargin}" Padding="4,2"
                                               ItemsSource="{Binding AvailableProjects}"
                                               SelectedValuePath="Id" DisplayMemberPath="Name" SelectedValue="{Binding ProjectId, Mode=TwoWay}"
                                               Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
                                               BorderBrush="{DynamicResource CardBorderBrush}"/>
 
-                                    <ComboBox Grid.Column="4" Style="{StaticResource CellMargin}" Padding="4"
+                                    <ComboBox Grid.Column="4" Style="{StaticResource CellMargin}" Padding="4,2"
                                               ItemsSource="{Binding AvailableGoals}"
                                               SelectedValuePath="Id" DisplayMemberPath="Name" SelectedValue="{Binding GoalId, Mode=TwoWay}"
                                               Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
                                               BorderBrush="{DynamicResource CardBorderBrush}"/>
 
-                                    <DatePicker Grid.Column="5" Style="{StaticResource CellMargin}" Padding="4"
+                                    <DatePicker Grid.Column="5" Style="{StaticResource CellMargin}" Padding="4,2"
                                                 SelectedDate="{Binding DueDate, Mode=TwoWay}"
                                                 Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
                                                 BorderBrush="{DynamicResource CardBorderBrush}"/>
 
-                                    <ComboBox Grid.Column="6" Style="{StaticResource CellMargin}" Padding="4"
+                                    <ComboBox Grid.Column="6" Style="{StaticResource CellMargin}" Padding="4,2"
                                               ItemsSource="{Binding AvailablePeople}"
                                               SelectedValuePath="Id" DisplayMemberPath="Name" SelectedValue="{Binding WhoId, Mode=TwoWay}"
                                               Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"

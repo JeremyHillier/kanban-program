@@ -15,10 +15,22 @@
         </Grid.RowDefinitions>
 
         <ListBox x:Name="ArchivedList" Grid.Row="0" BorderThickness="0" Background="Transparent"
+                 AlternationCount="2"
                  ScrollViewer.VerticalScrollBarVisibility="Auto" MouseDoubleClick="ArchivedList_MouseDoubleClick">
+            <ListBox.ItemContainerStyle>
+                <Style TargetType="ListBoxItem">
+                    <Setter Property="Padding" Value="0"/>
+                    <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                    <Style.Triggers>
+                        <Trigger Property="ItemsControl.AlternationIndex" Value="1">
+                            <Setter Property="Background" Value="{DynamicResource AlternateRowBrush}"/>
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </ListBox.ItemContainerStyle>
             <ListBox.ItemTemplate>
                 <DataTemplate>
-                    <Border BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="0,0,0,1" Padding="0,8">
+                    <Border BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="0,0,0,1" Padding="0,4">
                         <StackPanel>
                             <TextBlock Text="{Binding Title}" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryTextBrush}"/>
                             <TextBlock FontSize="11" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,2,0,0">
@@ -42,7 +54,7 @@
             <Button Content="Reactivate to To Do" Padding="10,6" Click="Reactivate_Click"
                     Background="#FF66BB6A" Foreground="White"/>
             <Button Content="Close" Width="90" Padding="0,6" Margin="8,0,0,0"
-                    IsCancel="True"
+                    IsCancel="True" IsDefault="True"
                     Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
         </StackPanel>
     </Grid>

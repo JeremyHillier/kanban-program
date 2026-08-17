@@ -607,7 +607,7 @@ public partial class MainWindow : Window
 
         if (!viewModel.AddNoteOnComplete) return;
 
-        var result = MessageBox.Show(this, $"Add a completion note to \"{card.Title}\"?",
+        var result = MessageBox.Show(this, $"Add a completion note to \"{card.Title}\"?\n\nYou can jot down any final details before it's marked Done.",
             "Task Complete", MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.Yes);
         if (result != MessageBoxResult.Yes) return;
 
