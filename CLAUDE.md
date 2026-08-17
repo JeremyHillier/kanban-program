@@ -4,7 +4,8 @@ WPF (.NET, `net10.0-windows`) desktop kanban app, SQLite-backed via `Microsoft.D
 
 ## Working across two computers
 
-- **Git via GitHub is the source of truth, not OneDrive.** OneDrive also raw-syncs the `.git` folder since the whole project sits inside OneDrive — that's a secondary convenience, not the sync mechanism. `git pull` at the start of a session, `git push` after committing. Don't leave uncommitted work sitting around between sessions on either machine.
+- **Git via GitHub is the source of truth, not OneDrive.** OneDrive also raw-syncs the `.git` folder since the whole project sits inside OneDrive — that's a secondary convenience, not the sync mechanism. `git pull` at the start of a session. Don't leave uncommitted work sitting around between sessions on either machine.
+- **Auto-push**: the user wants every commit pushed to GitHub immediately after it's made, without asking first — standing instruction, not a one-off. Push right after each commit on both machines.
 - If you ever see a stuck `index.lock`, weird "bad object", or other git corruption, it's almost certainly OneDrive's file-level sync colliding with git's own writes to `.git` (e.g. both machines touching it near-simultaneously). Recover via `git fsck` / re-clone from GitHub if needed; don't try to hand-fix `.git` internals.
 - This file is the persistent shared brief between sessions/machines — Claude Code loads it automatically at the start of every session in this repo. Keep it updated with anything a fresh session on either computer would need to not re-derive from scratch. Session history and Claude's memory do **not** sync between machines — only files (including this one) do.
 - Commit messages here are doing real work as a paper trail (e.g. `Fix the real cause of the quick-edit freeze` → `Fix the actual cause...`) — keep them descriptive; `git log` is the fastest way for a session on the other machine to re-orient.
