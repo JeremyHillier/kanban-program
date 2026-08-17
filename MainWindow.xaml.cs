@@ -111,7 +111,8 @@ public partial class MainWindow : Window
         {
             viewModel.AddCard(dialog.TaskDetails, dialog.SelectedColumn, dialog.SelectedProject,
                 dialog.SelectedPriority, dialog.SelectedDueDate, dialog.SelectedWho, dialog.IsRecurring, dialog.RecurrencePattern,
-                dialog.SelectedGoal, dialog.SelectedFlags, dialog.SelectedSubTasks, dialog.Notes, attachments: dialog.SelectedAttachments);
+                dialog.SelectedGoal, dialog.SelectedFlags, dialog.SelectedSubTasks, dialog.Notes, attachments: dialog.SelectedAttachments,
+                forceEditOnComplete: dialog.ForceEditOnComplete);
         }
     }
 
@@ -126,7 +127,8 @@ public partial class MainWindow : Window
         {
             viewModel.EditCard(card, dialog.TaskDetails, dialog.SelectedColumn, dialog.SelectedProject,
                 dialog.SelectedPriority, dialog.SelectedDueDate, dialog.SelectedWho, dialog.IsRecurring, dialog.RecurrencePattern,
-                dialog.SelectedGoal, dialog.SelectedFlags, dialog.SelectedSubTasks, dialog.Notes, attachments: dialog.SelectedAttachments);
+                dialog.SelectedGoal, dialog.SelectedFlags, dialog.SelectedSubTasks, dialog.Notes, attachments: dialog.SelectedAttachments,
+                forceEditOnComplete: dialog.ForceEditOnComplete);
         }
     }
 
@@ -595,7 +597,15 @@ public partial class MainWindow : Window
 
     private void MaybePromptCompletionNote(CardViewModel card, ColumnViewModel targetColumn, MainViewModel viewModel)
     {
-        if (targetColumn.Name != "Done" || !viewModel.AddNoteOnComplete) return;
+        if (targetColumn.Name != "Done") return;
+
+        if (card.ForceEditOnComplete)
+        {
+            EditCard(card, viewModel);
+            return;
+        }
+
+        if (!viewModel.AddNoteOnComplete) return;
 
         var result = MessageBox.Show(this, $"Add a completion note to \"{card.Title}\"?",
             "Task Complete", MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.Yes);

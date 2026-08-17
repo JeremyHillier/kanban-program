@@ -112,6 +112,10 @@
                     <ComboBoxItem Content="Annually"/>
                 </ComboBox>
 
+                <CheckBox x:Name="ForceEditOnCompleteCheckBox" Content="Force edit upon completion" Margin="0,8,0,4"
+                          Foreground="{DynamicResource PrimaryTextBrush}"
+                          ToolTip="When on, marking this task Done will automatically open it for editing instead of just moving it."/>
+
                 <!-- Who -->
                 <StackPanel Style="{StaticResource FieldLabelRowStyle}">
                     <TextBlock Text="Who" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Center"/>

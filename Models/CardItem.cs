@@ -17,6 +17,7 @@ public class CardItem
     public string? RecurrencePattern { get; set; }
     public bool IsDeleted { get; set; }
     public bool IsImported { get; set; }
+    public bool ForceEditOnComplete { get; set; }
     public string? Notes { get; set; }
     public List<int> FlagIds { get; set; } = [];
     public List<SubTaskItem> SubTasks { get; set; } = [];

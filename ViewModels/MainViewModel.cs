@@ -653,12 +653,12 @@ public class MainViewModel : ObservableObject
 
     public CardViewModel AddCard(string title, ColumnViewModel column, ProjectViewModel? project, string priority, DateTime? dueDate, PersonViewModel? who,
         bool isRecurring, string? recurrencePattern, GoalViewModel? goal, List<FlagViewModel>? flags = null, List<SubTaskViewModel>? subTasks = null,
-        string? notes = null, bool isImported = false, List<AttachmentViewModel>? attachments = null)
+        string? notes = null, bool isImported = false, List<AttachmentViewModel>? attachments = null, bool forceEditOnComplete = false)
     {
         flags ??= [];
         subTasks ??= [];
         attachments ??= [];
-        var card = _db.AddCard(column.Id, title.Trim(), project?.Id, column.Name, priority, dueDate, who?.Id, isRecurring, recurrencePattern, goal?.Id, notes, isImported);
+        var card = _db.AddCard(column.Id, title.Trim(), project?.Id, column.Name, priority, dueDate, who?.Id, isRecurring, recurrencePattern, goal?.Id, notes, isImported, forceEditOnComplete);
         _db.SetCardFlags(card.Id, flags.Select(f => f.Id));
         var subTaskItems = _db.SetCardSubTasks(card.Id, subTasks.Select(s => (s.Title, s.IsDone)).ToList());
         var attachmentItems = _db.SetCardAttachments(card.Id, attachments.Select(a => (a.FilePath, a.DisplayName, a.AddedDate)).ToList());
@@ -683,7 +683,7 @@ public class MainViewModel : ObservableObject
 
     public void EditCard(CardViewModel card, string title, ColumnViewModel newColumn, ProjectViewModel? project, string priority, DateTime? dueDate, PersonViewModel? who,
         bool isRecurring, string? recurrencePattern, GoalViewModel? goal, List<FlagViewModel>? flags = null, List<SubTaskViewModel>? subTasks = null,
-        string? notes = null, List<AttachmentViewModel>? attachments = null)
+        string? notes = null, List<AttachmentViewModel>? attachments = null, bool forceEditOnComplete = false)
     {
         if (string.IsNullOrWhiteSpace(title)) return;
 
@@ -705,8 +705,9 @@ public class MainViewModel : ObservableObject
         card.GoalName = goal?.Name ?? "No Goal";
         card.Flags = flags;
         card.Notes = notes;
+        card.ForceEditOnComplete = forceEditOnComplete;
 
-        card.LastUpdated = _db.UpdateCard(card.Id, card.Title, project?.Id, priority, dueDate, who?.Id, isRecurring, recurrencePattern, goal?.Id, notes);
+        card.LastUpdated = _db.UpdateCard(card.Id, card.Title, project?.Id, priority, dueDate, who?.Id, isRecurring, recurrencePattern, goal?.Id, notes, forceEditOnComplete);
         _db.SetCardFlags(card.Id, flags.Select(f => f.Id));
         var subTaskItems = _db.SetCardSubTasks(card.Id, subTasks.Select(s => (s.Title, s.IsDone)).ToList());
         card.SubTasks = subTaskItems.Select(s => new SubTaskViewModel(s)).ToList();
@@ -1061,7 +1062,8 @@ public class MainViewModel : ObservableObject
             .ToList();
 
         AddCard(completedCard.Title, toDoColumn, project, completedCard.Priority, nextDueDate, who,
-            true, completedCard.RecurrencePattern, goal, completedCard.Flags, freshSubTasks, completedCard.Notes);
+            true, completedCard.RecurrencePattern, goal, completedCard.Flags, freshSubTasks, completedCard.Notes,
+            forceEditOnComplete: completedCard.ForceEditOnComplete);
     }
 
     private static DateTime CalculateNextDueDate(DateTime anchor, string pattern) => pattern switch

@@ -28,6 +28,7 @@ public partial class AddTaskWindow : Window
     public string? Notes { get; private set; }
     public bool IsRecurring { get; private set; }
     public string? RecurrencePattern { get; private set; }
+    public bool ForceEditOnComplete { get; private set; }
 
     public AddTaskWindow(MainViewModel viewModel)
     {
@@ -80,6 +81,7 @@ public partial class AddTaskWindow : Window
         DueDatePicker.SelectedDate = cardToEdit.DueDate;
         RebuildWhoItems(_viewModel.People.FirstOrDefault(p => p.Id == cardToEdit.WhoId));
         NotesTextBox.Text = cardToEdit.Notes ?? string.Empty;
+        ForceEditOnCompleteCheckBox.IsChecked = cardToEdit.ForceEditOnComplete;
 
         RecurringCheckBox.IsChecked = cardToEdit.IsRecurring;
         RecurrenceComboBox.Visibility = cardToEdit.IsRecurring ? Visibility.Visible : Visibility.Collapsed;
@@ -502,6 +504,7 @@ public partial class AddTaskWindow : Window
         RecurrencePattern = IsRecurring && RecurrenceComboBox.SelectedItem is ComboBoxItem recurrenceItem
             ? (string)recurrenceItem.Content
             : null;
+        ForceEditOnComplete = ForceEditOnCompleteCheckBox.IsChecked == true;
 
         SelectedFlags = FlagsPanel.Children.OfType<CheckBox>()
             .Where(cb => cb.IsChecked == true)

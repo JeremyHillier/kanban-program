@@ -147,6 +147,17 @@ public class CardViewModel(CardItem model) : ObservableObject
         }
     }
 
+    public bool ForceEditOnComplete
+    {
+        get => Model.ForceEditOnComplete;
+        set
+        {
+            if (Model.ForceEditOnComplete == value) return;
+            Model.ForceEditOnComplete = value;
+            OnPropertyChanged();
+        }
+    }
+
     public bool IsRecurring
     {
         get => Model.IsRecurring;
