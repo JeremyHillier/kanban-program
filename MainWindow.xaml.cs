@@ -216,7 +216,7 @@ public partial class MainWindow : Window
 
         if (viewModel.ConfirmArchive)
         {
-            var result = MessageBox.Show(this, "Archive all tasks in the Done column? They'll be removed from the board but not deleted.",
+            var result = MessageBox.Show(this, "Archive all tasks in the Done column?\n\nThey'll be removed from the board but not deleted.",
                 "Confirm Archive", MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.Yes);
             if (result != MessageBoxResult.Yes) return;
         }
@@ -387,7 +387,7 @@ public partial class MainWindow : Window
 
         if (viewModel.ConfirmDelete)
         {
-            var result = MessageBox.Show(this, $"Delete \"{card.Title}\"? This cannot be undone.",
+            var result = MessageBox.Show(this, $"Delete \"{card.Title}\"?\n\nThis cannot be undone.",
                 "Confirm Delete", MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.Yes);
             if (result != MessageBoxResult.Yes) return;
         }
@@ -428,7 +428,7 @@ public partial class MainWindow : Window
         if (sender is not FrameworkElement { DataContext: CardViewModel card } element || DataContext is not MainViewModel viewModel) return;
 
         var menu = new System.Windows.Controls.ContextMenu();
-        foreach (var priority in new[] { "High", "Medium", "Normal" })
+        foreach (var priority in new[] { "High", "Medium", "Normal", "Low" })
         {
             var menuItem = new System.Windows.Controls.MenuItem { Header = priority, IsChecked = card.Priority == priority };
             // Deferred via BeginInvoke: mutating the card collection (ApplySort) synchronously from inside

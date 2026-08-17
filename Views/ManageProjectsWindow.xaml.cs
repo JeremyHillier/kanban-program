@@ -48,7 +48,7 @@ public partial class ManageProjectsWindow : Window
         {
             var count = _viewModel.CountTasksUsingProject(project);
             var impact = count == 0 ? "No tasks currently use it." : $"{count} task{(count == 1 ? "" : "s")} currently use it — they'll show as having no project.";
-            var result = MessageBox.Show(this, $"Delete project \"{project.Name}\"? {impact} This cannot be undone.",
+            var result = MessageBox.Show(this, $"Delete project \"{project.Name}\"?\n\n{impact}\n\nThis cannot be undone.",
                 "Confirm Delete", MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.Yes);
             if (result != MessageBoxResult.Yes) return;
         }

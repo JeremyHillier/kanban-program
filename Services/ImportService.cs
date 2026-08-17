@@ -7,7 +7,7 @@ namespace KanbanApp.Services;
 public static class ImportService
 {
     private static readonly string[] Headers = ["Title", "Category", "Priority", "Project", "Goal", "Due Date", "Who"];
-    private static readonly string[] Priorities = ["High", "Medium", "Normal"];
+    private static readonly string[] Priorities = ["High", "Medium", "Normal", "Low"];
 
     public static void SaveTemplate(string filePath, IEnumerable<string> categories, IEnumerable<string> projects, IEnumerable<string> goals, IEnumerable<string> people)
     {

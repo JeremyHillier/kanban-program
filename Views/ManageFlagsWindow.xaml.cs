@@ -48,7 +48,7 @@ public partial class ManageFlagsWindow : Window
         {
             var count = _viewModel.CountTasksUsingFlag(flag);
             var impact = count == 0 ? "No tasks currently use it." : $"{count} task{(count == 1 ? "" : "s")} currently use it — they'll lose this flag.";
-            var result = MessageBox.Show(this, $"Delete flag \"{flag.Name}\"? {impact} This cannot be undone.",
+            var result = MessageBox.Show(this, $"Delete flag \"{flag.Name}\"?\n\n{impact}\n\nThis cannot be undone.",
                 "Confirm Delete", MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.Yes);
             if (result != MessageBoxResult.Yes) return;
         }

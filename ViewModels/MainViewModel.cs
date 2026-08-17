@@ -206,7 +206,7 @@ public class MainViewModel : ObservableObject
     public IEnumerable<PersonViewModel> ActivePeople => People.Where(p => p.IsActive);
 
     public ObservableCollection<string> ProjectFilterOptions { get; } = ["All"];
-    public ObservableCollection<string> PriorityFilterOptions { get; } = ["All", "High", "Medium", "Normal"];
+    public ObservableCollection<string> PriorityFilterOptions { get; } = ["All", "High", "Medium", "Normal", "Low"];
     public ObservableCollection<string> WhoFilterOptions { get; } = ["All"];
     public ObservableCollection<string> GoalFilterOptions { get; } = ["All"];
     public ObservableCollection<string> FlagFilterOptions { get; } = ["All"];
@@ -412,6 +412,8 @@ public class MainViewModel : ObservableObject
     {
         "High" => 0,
         "Medium" => 1,
+        "Normal" => 2,
+        "Low" => 3,
         _ => 2
     };
 
@@ -1111,6 +1113,7 @@ public class MainViewModel : ObservableObject
             {
                 { } p when string.Equals(p, "High", StringComparison.OrdinalIgnoreCase) => "High",
                 { } p when string.Equals(p, "Medium", StringComparison.OrdinalIgnoreCase) => "Medium",
+                { } p when string.Equals(p, "Low", StringComparison.OrdinalIgnoreCase) => "Low",
                 _ => "Normal"
             };
 

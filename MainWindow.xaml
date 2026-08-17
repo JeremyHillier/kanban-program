@@ -35,6 +35,7 @@
             <Setter Property="Margin" Value="0,0,6,6"/>
             <Setter Property="Padding" Value="4"/>
             <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="Background" Value="{DynamicResource ButtonBackgroundBrush}"/>
             <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
             <Setter Property="BorderBrush" Value="{DynamicResource PanelBorderBrush}"/>
@@ -416,8 +417,20 @@
                                                             </TextBlock.Style>
                                                         </TextBlock>
 
-                                                        <TextBlock Text="{Binding ProjectName}" FontSize="12" FontWeight="Bold"
-                                                                   Foreground="{DynamicResource AccentTextBrush}" Margin="0,3,0,0"/>
+                                                        <Grid Margin="0,3,0,0">
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="*"/>
+                                                                <ColumnDefinition Width="Auto"/>
+                                                            </Grid.ColumnDefinitions>
+                                                            <TextBlock Grid.Column="0" Text="{Binding ProjectName}" FontSize="12" FontWeight="Bold"
+                                                                       Foreground="{DynamicResource AccentTextBrush}" VerticalAlignment="Center"/>
+                                                            <Border Grid.Column="1" Background="{Binding Priority, Converter={StaticResource PriorityToBrushConverter}}"
+                                                                    CornerRadius="3" Padding="5,1" Margin="6,0,0,0" VerticalAlignment="Center"
+                                                                    Cursor="Hand" ToolTip="Click to change priority"
+                                                                    MouseLeftButtonUp="PriorityBadge_MouseLeftButtonUp">
+                                                                <TextBlock Text="{Binding Priority}" FontSize="10" Foreground="White"/>
+                                                            </Border>
+                                                        </Grid>
 
                                                         <Grid Margin="0,3,0,0">
                                                             <Grid.ColumnDefinitions>
@@ -426,15 +439,6 @@
                                                             </Grid.ColumnDefinitions>
 
                                                             <StackPanel Grid.Column="0">
-                                                                <StackPanel Orientation="Horizontal">
-                                                                    <Border Background="{Binding Priority, Converter={StaticResource PriorityToBrushConverter}}"
-                                                                            CornerRadius="3" Padding="5,1" HorizontalAlignment="Left"
-                                                                            Cursor="Hand" ToolTip="Click to change priority"
-                                                                            MouseLeftButtonUp="PriorityBadge_MouseLeftButtonUp">
-                                                                        <TextBlock Text="{Binding Priority}" FontSize="10" Foreground="White"/>
-                                                                    </Border>
-                                                                </StackPanel>
-
                                                                 <StackPanel Visibility="{Binding DataContext.IsLargeCards, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BooleanToVisibilityConverter}}">
                                                                     <TextBlock Text="{Binding GoalDisplay}" FontSize="10" Foreground="{DynamicResource SecondaryTextBrush}" FontStyle="Italic" Margin="0,3,0,0"
                                                                                Visibility="{Binding GoalDisplay, Converter={StaticResource EmptyStringToVisibilityConverter}}"/>

@@ -9,6 +9,7 @@ public partial class DashboardWindow : Window
     private static readonly Brush HighBrush = new SolidColorBrush(Color.FromRgb(0xD9, 0x53, 0x4F));
     private static readonly Brush MediumBrush = new SolidColorBrush(Color.FromRgb(0xE0, 0x9A, 0x3E));
     private static readonly Brush NormalBrush = new SolidColorBrush(Color.FromRgb(0x9E, 0x9E, 0x9E));
+    private static readonly Brush LowBrush = new SolidColorBrush(Color.FromRgb(0x5C, 0x8A, 0xAE));
     private static readonly Brush OverdueBrush = new SolidColorBrush(Color.FromRgb(0xEF, 0x53, 0x50));
     private static readonly Brush TodayBrush = new SolidColorBrush(Color.FromRgb(0xFF, 0xA7, 0x26));
     private static readonly Brush ThisWeekBrush = new SolidColorBrush(Color.FromRgb(0xE0, 0xC9, 0x3E));
@@ -58,7 +59,8 @@ public partial class DashboardWindow : Window
         [
             ("High", allCards.Count(c => c.Priority == "High"), HighBrush),
             ("Medium", allCards.Count(c => c.Priority == "Medium"), MediumBrush),
-            ("Normal", allCards.Count(c => c.Priority == "Normal"), NormalBrush)
+            ("Normal", allCards.Count(c => c.Priority == "Normal"), NormalBrush),
+            ("Low", allCards.Count(c => c.Priority == "Low"), LowBrush)
         ]);
 
         var overdue = openCards.Count(c => c.DueDate is not null && c.DueDate.Value.Date < today);

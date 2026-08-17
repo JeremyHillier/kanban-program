@@ -73,6 +73,7 @@
                     <ComboBoxItem Content="High"/>
                     <ComboBoxItem Content="Medium"/>
                     <ComboBoxItem Content="Normal"/>
+                    <ComboBoxItem Content="Low"/>
                 </ComboBox>
 
                 <!-- Category -->

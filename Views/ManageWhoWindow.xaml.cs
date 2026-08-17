@@ -48,7 +48,7 @@ public partial class ManageWhoWindow : Window
         {
             var count = _viewModel.CountTasksUsingPerson(person);
             var impact = count == 0 ? "No tasks currently use it." : $"{count} task{(count == 1 ? "" : "s")} currently use it — they'll show as unassigned.";
-            var result = MessageBox.Show(this, $"Delete \"{person.Name}\"? {impact} This cannot be undone.",
+            var result = MessageBox.Show(this, $"Delete \"{person.Name}\"?\n\n{impact}\n\nThis cannot be undone.",
                 "Confirm Delete", MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.Yes);
             if (result != MessageBoxResult.Yes) return;
         }

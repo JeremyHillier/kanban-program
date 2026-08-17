@@ -194,10 +194,10 @@ public partial class SettingsWindow : Window
             config.Save();
 
             var cleanupNote = didCopy
-                ? " The old database file will be removed automatically once the app restarts at the new location."
+                ? "\n\nThe old database file will be removed automatically once the app restarts at the new location."
                 : "";
             var result = MessageBox.Show(
-                $"The database location has been updated.{cleanupNote} The app needs to restart for this to take effect. Restart now?",
+                $"The database location has been updated.{cleanupNote}\n\nThe app needs to restart for this to take effect. Restart now?",
                 "Restart Required", MessageBoxButton.YesNo, MessageBoxImage.Information);
 
             if (result == MessageBoxResult.Yes)
