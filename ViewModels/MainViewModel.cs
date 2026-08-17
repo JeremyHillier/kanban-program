@@ -429,10 +429,16 @@ public class MainViewModel : ObservableObject
                 _ => column.Cards.OrderBy(c => c.ProjectName, StringComparer.OrdinalIgnoreCase).ThenBy(c => c.DueDate ?? DateTime.MaxValue).ToList()
             };
 
-            column.Cards.Clear();
+            // Reorder in place with Move() rather than Clear()+Add(): the latter tears down and
+            // recreates every card's visual container, which can orphan an in-flight drag capture
+            // or a still-closing popup anchored to one of those cards and appear to freeze the app.
             for (var i = 0; i < sorted.Count; i++)
             {
-                column.Cards.Add(sorted[i]);
+                var currentIndex = column.Cards.IndexOf(sorted[i]);
+                if (currentIndex != i)
+                {
+                    column.Cards.Move(currentIndex, i);
+                }
                 updates.Add((sorted[i].Id, i));
             }
         }
