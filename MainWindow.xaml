@@ -430,7 +430,7 @@
                                                                     <Border Background="{Binding Priority, Converter={StaticResource PriorityToBrushConverter}}"
                                                                             CornerRadius="3" Padding="5,1" HorizontalAlignment="Left"
                                                                             Cursor="Hand" ToolTip="Click to change priority"
-                                                                            MouseLeftButtonDown="PriorityBadge_MouseLeftButtonDown">
+                                                                            MouseLeftButtonUp="PriorityBadge_MouseLeftButtonUp">
                                                                         <TextBlock Text="{Binding Priority}" FontSize="10" Foreground="White"/>
                                                                     </Border>
                                                                 </StackPanel>
@@ -462,7 +462,7 @@
                                                                         </TextBlock>
                                                                         <TextBlock Text="{Binding WhoDisplay}" FontSize="10" Foreground="{DynamicResource SecondaryTextBrush}" Margin="8,0,0,0"
                                                                                    Cursor="Hand" ToolTip="Click to reassign"
-                                                                                   MouseLeftButtonDown="WhoDisplay_MouseLeftButtonDown"
+                                                                                   MouseLeftButtonUp="WhoDisplay_MouseLeftButtonUp"
                                                                                    Visibility="{Binding WhoDisplay, Converter={StaticResource EmptyStringToVisibilityConverter}}"/>
                                                                     </StackPanel>
                                                                     <TextBlock Text="{Binding RecurrenceDisplay}" FontSize="10" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,1,0,0"

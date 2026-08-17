@@ -423,7 +423,7 @@ public partial class MainWindow : Window
         menu.IsOpen = true;
     }
 
-    private void PriorityBadge_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+    private void PriorityBadge_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
     {
         if (sender is not FrameworkElement { DataContext: CardViewModel card } element || DataContext is not MainViewModel viewModel) return;
 
@@ -443,7 +443,7 @@ public partial class MainWindow : Window
         e.Handled = true;
     }
 
-    private void WhoDisplay_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+    private void WhoDisplay_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
     {
         if (sender is not FrameworkElement { DataContext: CardViewModel card } element || DataContext is not MainViewModel viewModel) return;
 
