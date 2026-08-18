@@ -18,7 +18,13 @@
         <SolidColorBrush x:Key="AccentPanelBrush" Color="#FF1E3A5F"/>
         <SolidColorBrush x:Key="AccentPanelBorderBrush" Color="#FF3E6491"/>
 
-        <Style x:Key="QuickActionButtonStyle" TargetType="Button">
+        <!-- Explicit no-op style (no Template setter) so this stays square like the rest of the
+             Filter cluster, instead of picking up the app-wide rounded Button style. -->
+        <Style x:Key="ClearFiltersButtonStyle" TargetType="Button">
+            <Setter Property="Padding" Value="0,8"/>
+        </Style>
+
+        <Style x:Key="QuickActionButtonStyle" BasedOn="{StaticResource {x:Type Button}}" TargetType="Button">
             <Setter Property="Width" Value="22"/>
             <Setter Property="Height" Value="20"/>
             <Setter Property="FontSize" Value="10"/>
@@ -294,7 +300,7 @@
                                  Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
                                  BorderBrush="{DynamicResource CardBorderBrush}"/>
 
-                        <Button Content="Clear Filters" Padding="0,8" HorizontalAlignment="Stretch"
+                        <Button Style="{StaticResource ClearFiltersButtonStyle}" Content="Clear Filters" HorizontalAlignment="Stretch"
                                 ToolTip="Reset every filter back to All"
                                 Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
                                 Click="ClearFilters_Click"/>

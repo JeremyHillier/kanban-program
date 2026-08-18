@@ -15,6 +15,7 @@ public partial class ReminderWindow : Window
     private readonly Action<CardViewModel> _onOpenTask;
     private readonly Action<CardViewModel> _onMarkDone;
     private readonly Func<CardViewModel, bool> _isStillDue;
+    private readonly List<ColumnViewModel> _columns;
     private readonly Dictionary<ReminderRow, CardViewModel> _rowsToCards = [];
     private readonly ObservableCollection<ReminderRow> _rows = [];
 
@@ -22,18 +23,22 @@ public partial class ReminderWindow : Window
     {
         public required string Title { get; init; }
         public required string ProjectName { get; init; }
+        public required string WhoName { get; init; }
+        public required string Priority { get; init; }
+        public required string CategoryName { get; init; }
         public required string DueLabel { get; init; }
         public required Brush DueLabelBrush { get; init; }
     }
 
-    public ReminderWindow(List<CardViewModel> dueCards, Action<CardViewModel> onOpenTask, Action<CardViewModel> onMarkDone,
-        Func<CardViewModel, bool> isStillDue)
+    public ReminderWindow(List<CardViewModel> dueCards, IEnumerable<ColumnViewModel> columns, Action<CardViewModel> onOpenTask,
+        Action<CardViewModel> onMarkDone, Func<CardViewModel, bool> isStillDue)
     {
         InitializeComponent();
         MaxHeight = SystemParameters.WorkArea.Height * 0.9;
         _onOpenTask = onOpenTask;
         _onMarkDone = onMarkDone;
         _isStillDue = isStillDue;
+        _columns = columns.ToList();
 
         foreach (var card in dueCards)
         {
@@ -47,13 +52,16 @@ public partial class ReminderWindow : Window
         ReminderList.MouseDoubleClick += ReminderList_MouseDoubleClick;
     }
 
-    private static ReminderRow BuildRow(CardViewModel card)
+    private ReminderRow BuildRow(CardViewModel card)
     {
         var isOverdue = card.DueDate!.Value.Date < DateTime.Today;
         return new ReminderRow
         {
             Title = card.Title,
             ProjectName = card.ProjectName,
+            WhoName = card.WhoName,
+            Priority = card.Priority,
+            CategoryName = _columns.FirstOrDefault(c => c.Cards.Contains(card))?.DisplayName ?? string.Empty,
             DueLabel = isOverdue ? $"Overdue since {card.DueDate:MMM d, yyyy}" : "Due today",
             DueLabelBrush = isOverdue ? OverdueBrush : DueTodayBrush
         };

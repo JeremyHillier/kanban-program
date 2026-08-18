@@ -3,11 +3,15 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:conv="clr-namespace:KanbanApp.Converters"
         mc:Ignorable="d"
         Title="Task Reminders" Width="520" SizeToContent="Height"
         WindowStartupLocation="CenterOwner" ResizeMode="NoResize"
         ShowInTaskbar="False"
         Background="{DynamicResource WindowBackgroundBrush}">
+    <Window.Resources>
+        <conv:PriorityToBrushConverter x:Key="PriorityToBrushConverter"/>
+    </Window.Resources>
     <Grid Margin="16">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -45,6 +49,17 @@
                                       Checked="MarkDoneCheckBox_Checked"/>
                             <StackPanel Grid.Column="1">
                                 <TextBlock Text="{Binding Title}" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                                <StackPanel Orientation="Horizontal" Margin="0,3,0,0">
+                                    <Border Background="{Binding Priority, Converter={StaticResource PriorityToBrushConverter}}"
+                                            CornerRadius="3" Padding="5,1" Margin="0,0,6,0">
+                                        <TextBlock Text="{Binding Priority}" FontSize="10" Foreground="White"/>
+                                    </Border>
+                                    <TextBlock FontSize="11">
+                                        <Run Text="{Binding CategoryName, Mode=OneWay}" Foreground="{DynamicResource SecondaryTextBrush}"/>
+                                        <Run Text=" • " Foreground="{DynamicResource SecondaryTextBrush}"/>
+                                        <Run Text="{Binding WhoName, Mode=OneWay}" Foreground="{DynamicResource SecondaryTextBrush}"/>
+                                    </TextBlock>
+                                </StackPanel>
                                 <TextBlock FontSize="11" Margin="0,2,0,0">
                                     <Run Text="{Binding ProjectName, Mode=OneWay}" Foreground="{DynamicResource SecondaryTextBrush}"/>
                                     <Run Text=" • " Foreground="{DynamicResource SecondaryTextBrush}"/>
