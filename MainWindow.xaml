@@ -551,9 +551,19 @@
                                                                 </TextBlock>
                                                             </StackPanel>
 
-                                                            <Button Grid.Column="1" Style="{StaticResource QuickActionButtonStyle}" Content="&#x1F3F7;" Background="#FF8D6E63"
+                                                            <Button Grid.Column="1" Content="&#x1F3F7;" Background="#FF8D6E63"
                                                                     VerticalAlignment="Top" Margin="6,0,0,0"
-                                                                    ToolTip="Add a flag" Click="AddFlagQuickAction_Click"/>
+                                                                    ToolTip="Add a flag" Click="AddFlagQuickAction_Click">
+                                                                <Button.Style>
+                                                                    <Style TargetType="Button" BasedOn="{StaticResource QuickActionButtonStyle}">
+                                                                        <Style.Triggers>
+                                                                            <DataTrigger Binding="{Binding DataContext.IsLargeCards, RelativeSource={RelativeSource AncestorType=Window}}" Value="False">
+                                                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                                                            </DataTrigger>
+                                                                        </Style.Triggers>
+                                                                    </Style>
+                                                                </Button.Style>
+                                                            </Button>
                                                         </Grid>
 
                                                         <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
