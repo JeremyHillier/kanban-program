@@ -12,4 +12,5 @@ public class ReportRow
     public List<string> Flags { get; init; } = [];
     public List<(string Title, bool IsDone)> SubTasks { get; init; } = [];
     public string? Notes { get; init; }
+    public bool IsArchived { get; init; }
 }

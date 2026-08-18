@@ -20,7 +20,11 @@ public partial class MainWindow : Window
         DataContext = new MainViewModel(db);
 
         RestoreWindowBounds();
-        Closing += (_, _) => SaveWindowBounds();
+        Closing += (_, _) =>
+        {
+            SaveWindowBounds();
+            (DataContext as MainViewModel)?.SaveLastViewState();
+        };
         Loaded += MainWindow_Loaded;
     }
 

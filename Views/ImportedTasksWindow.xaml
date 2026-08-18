@@ -80,7 +80,7 @@
 
                                     <ComboBox Grid.Column="1" Style="{StaticResource CellMargin}" Padding="4,2"
                                               ItemsSource="{Binding DataContext.Columns, RelativeSource={RelativeSource AncestorType=Window}}"
-                                              SelectedValuePath="Id" DisplayMemberPath="Name" SelectedValue="{Binding ColumnId, Mode=TwoWay}"
+                                              SelectedValuePath="Id" DisplayMemberPath="DisplayName" SelectedValue="{Binding ColumnId, Mode=TwoWay}"
                                               Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
                                               BorderBrush="{DynamicResource CardBorderBrush}"/>
 

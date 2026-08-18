@@ -126,6 +126,13 @@ public class DatabaseService
         MigrateColumn(connection, "Projects", "IsActive", "INTEGER NOT NULL DEFAULT 1");
         MigrateColumn(connection, "Goals", "IsActive", "INTEGER NOT NULL DEFAULT 1");
         MigrateColumn(connection, "Flags", "IsActive", "INTEGER NOT NULL DEFAULT 1");
+        MigrateColumn(connection, "Columns", "DisplayName", "TEXT");
+
+        using (var backfillCmd = connection.CreateCommand())
+        {
+            backfillCmd.CommandText = "UPDATE Columns SET DisplayName = Name WHERE DisplayName IS NULL;";
+            backfillCmd.ExecuteNonQuery();
+        }
 
         BackfillPeopleFromLegacyWho(connection);
 
@@ -245,29 +252,41 @@ public class DatabaseService
     {
         using var connection = OpenConnection();
         using var cmd = connection.CreateCommand();
-        cmd.CommandText = "SELECT Id, Name, SortOrder FROM Columns ORDER BY SortOrder;";
+        cmd.CommandText = "SELECT Id, Name, DisplayName, SortOrder FROM Columns ORDER BY SortOrder;";
 
         var result = new List<KanbanColumn>();
         using var reader = cmd.ExecuteReader();
         while (reader.Read())
         {
+            var name = reader.GetString(1);
             result.Add(new KanbanColumn
             {
                 Id = reader.GetInt32(0),
-                Name = reader.GetString(1),
-                SortOrder = reader.GetInt32(2)
+                Name = name,
+                DisplayName = reader.IsDBNull(2) ? name : reader.GetString(2),
+                SortOrder = reader.GetInt32(3)
             });
         }
         return result;
     }
 
-    public List<CardItem> GetCards()
+    public void RenameColumnDisplayName(int columnId, string displayName)
     {
         using var connection = OpenConnection();
         using var cmd = connection.CreateCommand();
-        cmd.CommandText = """
+        cmd.CommandText = "UPDATE Columns SET DisplayName = $displayName WHERE Id = $id;";
+        cmd.Parameters.AddWithValue("$displayName", displayName);
+        cmd.Parameters.AddWithValue("$id", columnId);
+        cmd.ExecuteNonQuery();
+    }
+
+    public List<CardItem> GetCards(bool archivedOnly = false)
+    {
+        using var connection = OpenConnection();
+        using var cmd = connection.CreateCommand();
+        cmd.CommandText = $"""
             SELECT Id, ColumnId, Title, SortOrder, ProjectId, Priority, DueDate, WhoId, LastUpdated, IsRecurring, RecurrencePattern, GoalId, Notes, IsImported, ForceEditOnComplete
-            FROM Cards WHERE IsArchived = 0 AND IsDeleted = 0 ORDER BY SortOrder;
+            FROM Cards WHERE IsArchived = {(archivedOnly ? 1 : 0)} AND IsDeleted = 0 ORDER BY SortOrder;
             """;
 
         var result = new List<CardItem>();
@@ -614,14 +633,14 @@ public class DatabaseService
 
         using var insertCmd = connection.CreateCommand();
         insertCmd.CommandText = """
-            INSERT INTO Columns (Name, SortOrder) VALUES ($name, $sortOrder);
+            INSERT INTO Columns (Name, DisplayName, SortOrder) VALUES ($name, $name, $sortOrder);
             SELECT last_insert_rowid();
             """;
         insertCmd.Parameters.AddWithValue("$name", name);
         insertCmd.Parameters.AddWithValue("$sortOrder", sortOrder);
         var id = (long)insertCmd.ExecuteScalar()!;
 
-        return new KanbanColumn { Id = (int)id, Name = name, SortOrder = (int)sortOrder };
+        return new KanbanColumn { Id = (int)id, Name = name, DisplayName = name, SortOrder = (int)sortOrder };
     }
 
     public CardItem AddCard(int columnId, string title, int? projectId, string columnName, string priority, DateTime? dueDate, int? whoId,

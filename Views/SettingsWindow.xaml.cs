@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.IO;
 using System.Windows;
+using System.Windows.Controls;
 using KanbanApp.Services;
 using KanbanApp.ViewModels;
 
@@ -15,6 +16,31 @@ public partial class SettingsWindow : Window
         InitializeComponent();
         MaxHeight = SystemParameters.WorkArea.Height * 0.9;
         _viewModel = viewModel;
+
+        foreach (var column in viewModel.Columns)
+        {
+            var row = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 0, 0, 8) };
+            row.Children.Add(new TextBlock
+            {
+                Text = column.Name,
+                Width = 100,
+                VerticalAlignment = VerticalAlignment.Center,
+                Foreground = (System.Windows.Media.Brush)FindResource("SecondaryTextBrush")
+            });
+            var textBox = new TextBox
+            {
+                Text = column.DisplayName,
+                Width = 220,
+                Padding = new Thickness(6),
+                Tag = column,
+                Background = (System.Windows.Media.Brush)FindResource("InputBackgroundBrush"),
+                Foreground = (System.Windows.Media.Brush)FindResource("PrimaryTextBrush"),
+                BorderBrush = (System.Windows.Media.Brush)FindResource("CardBorderBrush")
+            };
+            textBox.LostFocus += ColumnDisplayNameTextBox_LostFocus;
+            row.Children.Add(textBox);
+            ColumnNamesPanel.Children.Add(row);
+        }
 
         ButtonsOnRightCheckBox.IsChecked = viewModel.IsButtonsOnRight;
         ColumnWidthTextBox.Text = viewModel.ColumnWidth.ToString();
@@ -40,6 +66,21 @@ public partial class SettingsWindow : Window
         ConfirmArchiveCheckBox.IsChecked = viewModel.ConfirmArchive;
         AddNoteOnCompleteCheckBox.IsChecked = viewModel.AddNoteOnComplete;
         ShowDueRemindersCheckBox.IsChecked = viewModel.ShowDueReminders;
+        RememberLastViewCheckBox.IsChecked = viewModel.RememberLastView;
+    }
+
+    private void ColumnDisplayNameTextBox_LostFocus(object sender, RoutedEventArgs e)
+    {
+        if (sender is not TextBox { Tag: ColumnViewModel column } textBox) return;
+
+        if (string.IsNullOrWhiteSpace(textBox.Text))
+        {
+            textBox.Text = column.DisplayName;
+            return;
+        }
+
+        _viewModel.RenameColumnDisplayName(column, textBox.Text);
+        textBox.Text = column.DisplayName;
     }
 
     private void StartFullScreenCheckBox_Changed(object sender, RoutedEventArgs e)
@@ -65,6 +106,11 @@ public partial class SettingsWindow : Window
     private void ShowDueRemindersCheckBox_Changed(object sender, RoutedEventArgs e)
     {
         _viewModel.SetShowDueReminders(ShowDueRemindersCheckBox.IsChecked == true);
+    }
+
+    private void RememberLastViewCheckBox_Changed(object sender, RoutedEventArgs e)
+    {
+        _viewModel.SetRememberLastView(RememberLastViewCheckBox.IsChecked == true);
     }
 
     private void ButtonsOnRightCheckBox_Changed(object sender, RoutedEventArgs e)

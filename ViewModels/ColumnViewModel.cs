@@ -28,5 +28,16 @@ public class ColumnViewModel(KanbanColumn model, Brush background) : ObservableO
         }
     }
 
+    public string DisplayName
+    {
+        get => Model.DisplayName;
+        set
+        {
+            if (Model.DisplayName == value) return;
+            Model.DisplayName = value;
+            OnPropertyChanged();
+        }
+    }
+
     public ObservableCollection<CardViewModel> Cards { get; } = [];
 }

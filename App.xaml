@@ -13,5 +13,18 @@
         <SolidColorBrush x:Key="PanelBorderBrush" Color="#FF333333"/>
         <SolidColorBrush x:Key="ButtonBackgroundBrush" Color="#FFECECEC"/>
         <SolidColorBrush x:Key="InputBackgroundBrush" Color="White"/>
+
+        <!-- Without this, a ComboBox's dropdown list items fall back to the system default
+             foreground/background (dark-on-white) instead of the app's theme, making them
+             unreadable in dark mode (light text on a light popup). -->
+        <Style TargetType="{x:Type ComboBoxItem}">
+            <Setter Property="Background" Value="{DynamicResource InputBackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
+            <Style.Triggers>
+                <Trigger Property="IsHighlighted" Value="True">
+                    <Setter Property="Background" Value="{DynamicResource ButtonBackgroundBrush}"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
     </Application.Resources>
 </Application>

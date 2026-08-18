@@ -38,6 +38,12 @@
                  Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
                  BorderBrush="{DynamicResource CardBorderBrush}"/>
 
+        <TextBlock Text="Columns" Style="{StaticResource SectionHeaderStyle}"/>
+        <TextBlock Text="Rename any column's label. Its role on the board (e.g. what counts as &quot;done&quot;) doesn't change."
+                   FontSize="11" Margin="0,0,0,8" TextWrapping="Wrap"
+                   Foreground="{DynamicResource SecondaryTextBrush}"/>
+        <StackPanel x:Name="ColumnNamesPanel" Margin="0,0,0,20"/>
+
         <TextBlock Text="Startup" Style="{StaticResource SectionHeaderStyle}"/>
         <CheckBox x:Name="ShowSplashCheckBox" Content="Show splash screen on startup"
                   Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,8"
@@ -70,8 +76,11 @@
                   Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,8"
                   Checked="AddNoteOnCompleteCheckBox_Changed" Unchecked="AddNoteOnCompleteCheckBox_Changed"/>
         <CheckBox x:Name="ShowDueRemindersCheckBox" Content="Show overdue/due-today reminders when the app opens"
-                  Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,20"
+                  Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,8"
                   Checked="ShowDueRemindersCheckBox_Changed" Unchecked="ShowDueRemindersCheckBox_Changed"/>
+        <CheckBox x:Name="RememberLastViewCheckBox" Content="Remember filters, sort, and search between sessions"
+                  Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,20"
+                  Checked="RememberLastViewCheckBox_Changed" Unchecked="RememberLastViewCheckBox_Changed"/>
 
         <TextBlock Text="Data Storage" Style="{StaticResource SectionHeaderStyle}"/>
         <TextBlock Text="The task database is currently stored at:" Margin="0,0,0,4"

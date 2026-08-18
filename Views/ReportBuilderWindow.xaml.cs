@@ -21,7 +21,7 @@ public partial class ReportBuilderWindow : Window
         {
             var checkBox = new CheckBox
             {
-                Content = column.Name,
+                Content = column.DisplayName,
                 Tag = column.Name,
                 IsChecked = true,
                 Margin = new Thickness(0, 0, 16, 6)
@@ -64,7 +64,8 @@ public partial class ReportBuilderWindow : Window
         (string)WhoFilterComboBox.SelectedItem,
         (string)GoalFilterComboBox.SelectedItem,
         (string)FlagFilterComboBox.SelectedItem,
-        (string)DueFilterComboBox.SelectedItem);
+        (string)DueFilterComboBox.SelectedItem,
+        IncludeArchivedCheckBox.IsChecked == true ? _viewModel.GetArchivedReportRows() : null);
 
     private void Preview_Click(object sender, RoutedEventArgs e)
     {

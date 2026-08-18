@@ -56,7 +56,8 @@ public static class ReportService
     public static List<ReportRow> BuildRows(
         IEnumerable<ColumnViewModel> columns,
         HashSet<string> includeColumns,
-        string projectFilter, string priorityFilter, string whoFilter, string goalFilter, string flagFilter, string dueFilter)
+        string projectFilter, string priorityFilter, string whoFilter, string goalFilter, string flagFilter, string dueFilter,
+        IEnumerable<(CardViewModel Card, string ColumnName)>? archivedCards = null)
     {
         var rows = new List<ReportRow>();
 
@@ -68,24 +69,37 @@ public static class ReportService
             {
                 if (!Matches(card, projectFilter, priorityFilter, whoFilter, goalFilter, flagFilter, dueFilter)) continue;
 
-                rows.Add(new ReportRow
-                {
-                    Title = card.Title,
-                    ColumnName = column.Name,
-                    ProjectName = card.ProjectName,
-                    Priority = card.Priority,
-                    DueDate = card.DueDate,
-                    Who = card.WhoId is null ? null : card.WhoName,
-                    GoalName = card.GoalName,
-                    Flags = card.Flags.Select(f => f.Name).ToList(),
-                    SubTasks = card.SubTasks.Select(s => (s.Title, s.IsDone)).ToList(),
-                    Notes = card.Notes
-                });
+                rows.Add(BuildRow(card, column.DisplayName, isArchived: false));
+            }
+        }
+
+        if (archivedCards is not null)
+        {
+            foreach (var (card, columnName) in archivedCards)
+            {
+                if (!Matches(card, projectFilter, priorityFilter, whoFilter, goalFilter, flagFilter, dueFilter)) continue;
+
+                rows.Add(BuildRow(card, columnName, isArchived: true));
             }
         }
 
         return rows;
     }
+
+    private static ReportRow BuildRow(CardViewModel card, string columnName, bool isArchived) => new()
+    {
+        Title = card.Title,
+        ColumnName = columnName,
+        ProjectName = card.ProjectName,
+        Priority = card.Priority,
+        DueDate = card.DueDate,
+        Who = card.WhoId is null ? null : card.WhoName,
+        GoalName = card.GoalName,
+        Flags = card.Flags.Select(f => f.Name).ToList(),
+        SubTasks = card.SubTasks.Select(s => (s.Title, s.IsDone)).ToList(),
+        Notes = card.Notes,
+        IsArchived = isArchived
+    };
 
     private static bool Matches(CardViewModel card, string projectFilter, string priorityFilter, string whoFilter,
         string goalFilter, string flagFilter, string dueFilter)
@@ -142,7 +156,7 @@ public static class ReportService
     {
         var parts = new List<string>
         {
-            $"Status: {row.ColumnName}",
+            $"Status: {row.ColumnName}{(row.IsArchived ? " (Archived)" : "")}",
             $"Project: {row.ProjectName}",
             $"Priority: {row.Priority}"
         };
@@ -151,8 +165,21 @@ public static class ReportService
         parts.Add(string.IsNullOrWhiteSpace(row.Who) ? "Unassigned" : $"Who: {row.Who}");
         if (row.GoalName != "No Goal") parts.Add($"Goal: {row.GoalName}");
         if (row.Flags.Count > 0) parts.Add($"Flags: {string.Join(", ", row.Flags)}");
+        if (row.SubTasks.Count > 0)
+        {
+            var done = row.SubTasks.Count(s => s.IsDone);
+            parts.Add($"Sub-tasks: {done}/{row.SubTasks.Count}");
+        }
 
         return parts;
+    }
+
+    private static string BuildStatusSummary(List<ReportRow> rows)
+    {
+        var counts = rows.GroupBy(r => r.IsArchived ? "Archived" : r.ColumnName)
+            .OrderByDescending(g => g.Count())
+            .Select(g => $"{g.Key}: {g.Count()}");
+        return string.Join("   •   ", counts);
     }
 
     private static readonly SolidColorBrush BandAccentBrush = new(Color.FromRgb(0x1E, 0x3A, 0x5F));
@@ -252,6 +279,14 @@ public static class ReportService
         }
         else
         {
+            var statusSummary = BuildStatusSummary(rows);
+            foreach (var line in WrapLine(statusSummary, regularTypeface, 10, contentWidth))
+            {
+                AddText(canvas, line, margin, y, regularTypeface, 10, Brushes.DimGray);
+                y += 14;
+            }
+            y += 10;
+
             var isGrouped = groupBy != "None" && !string.IsNullOrEmpty(groupBy);
 
             foreach (var group in GroupRows(rows, groupBy))
@@ -259,7 +294,7 @@ public static class ReportService
                 if (isGrouped)
                 {
                     EnsureSpace(30);
-                    AddText(canvas, group.Key, margin, y, boldTypeface, 14, BandAccentBrush);
+                    AddText(canvas, $"{group.Key} ({group.Count()})", margin, y, boldTypeface, 14, BandAccentBrush);
                     y += 22;
                     var divider = new System.Windows.Shapes.Line { X1 = margin - 8, Y1 = y, X2 = pageWidth - margin + 8, Y2 = y, Stroke = BandAccentBrush, StrokeThickness = 1.2 };
                     canvas.Children.Add(divider);
@@ -400,6 +435,14 @@ public static class ReportService
             return;
         }
 
+        var metaBrush = new XSolidBrush(XColor.FromArgb(0x69, 0x69, 0x69));
+        foreach (var line in WrapText(gfx, BuildStatusSummary(rows), metaFont, width))
+        {
+            gfx.DrawString(line, metaFont, metaBrush, new XPoint(margin, y));
+            y += 13;
+        }
+        y += 10;
+
         var isGrouped = groupBy != "None" && !string.IsNullOrEmpty(groupBy);
 
         foreach (var group in GroupRows(rows, groupBy))
@@ -407,7 +450,7 @@ public static class ReportService
             if (isGrouped)
             {
                 NewPageIfNeeded(30);
-                gfx.DrawString(group.Key, groupFont, accentBrush, new XPoint(margin, y));
+                gfx.DrawString($"{group.Key} ({group.Count()})", groupFont, accentBrush, new XPoint(margin, y));
                 y += 20;
                 gfx.DrawLine(new XPen(XColor.FromArgb(0x1E, 0x3A, 0x5F), 1.2), new XPoint(margin - 8, y), new XPoint(pageWidth - margin + 8, y));
                 y += 12;

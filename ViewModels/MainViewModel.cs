@@ -133,6 +133,7 @@ public class MainViewModel : ObservableObject
     public bool ConfirmArchive { get; private set; } = true;
     public bool AddNoteOnComplete { get; private set; }
     public bool ShowDueReminders { get; private set; } = true;
+    public bool RememberLastView { get; private set; }
 
     public void SetStartFullScreen(bool value)
     {
@@ -164,6 +165,26 @@ public class MainViewModel : ObservableObject
         _db.SetSetting("ShowDueReminders", value ? "True" : "False");
     }
 
+    public void SetRememberLastView(bool value)
+    {
+        RememberLastView = value;
+        _db.SetSetting("RememberLastView", value ? "True" : "False");
+    }
+
+    public void SaveLastViewState()
+    {
+        if (!RememberLastView) return;
+
+        _db.SetSetting("LastProjectFilter", SelectedProjectFilter);
+        _db.SetSetting("LastPriorityFilter", SelectedPriorityFilter);
+        _db.SetSetting("LastWhoFilter", SelectedWhoFilter);
+        _db.SetSetting("LastGoalFilter", SelectedGoalFilter);
+        _db.SetSetting("LastFlagFilter", SelectedFlagFilter);
+        _db.SetSetting("LastDueFilter", DueFilter);
+        _db.SetSetting("LastKeywordFilter", KeywordFilter);
+        _db.SetSetting("LastSortMode", SelectedSortMode);
+    }
+
     private static readonly Brush[] ColumnPaletteLight =
     [
         new SolidColorBrush(Color.FromRgb(0xE3, 0xE8, 0xEF)), // To Do - blue-gray
@@ -192,6 +213,27 @@ public class MainViewModel : ObservableObject
 
     public int DueThisWeekCount => Columns.Where(c => c.Name != "Done").SelectMany(c => c.Cards)
         .Count(c => c.DueDate is not null && c.DueDate.Value.Date >= DateTime.Today && c.DueDate.Value.Date <= DateTime.Today.AddDays(7));
+
+    public List<(CardViewModel Card, string ColumnName)> GetArchivedReportRows()
+    {
+        var displayNameById = Columns.ToDictionary(c => c.Id, c => c.DisplayName);
+
+        return _db.GetCards(archivedOnly: true).Select(card =>
+        {
+            var cardVm = new CardViewModel(card)
+            {
+                ProjectName = ResolveProjectName(card.ProjectId),
+                GoalName = ResolveGoalName(card.GoalId),
+                WhoName = ResolveWhoName(card.WhoId),
+                Flags = ResolveFlags(card.FlagIds),
+                SubTasks = card.SubTasks.Select(s => new SubTaskViewModel(s)).ToList(),
+                Attachments = card.Attachments.Select(a => new AttachmentViewModel(a)).ToList(),
+                LastUpdated = card.LastUpdated
+            };
+            var columnName = displayNameById.GetValueOrDefault(card.ColumnId, "Unknown");
+            return (cardVm, columnName);
+        }).ToList();
+    }
 
     public List<CardViewModel> GetDueReminders() =>
         Columns.Where(c => c.Name != "Done").SelectMany(c => c.Cards)
@@ -290,6 +332,7 @@ public class MainViewModel : ObservableObject
     public MainViewModel(DatabaseService db)
     {
         _db = db;
+        RememberLastView = _db.GetSetting("RememberLastView") == "True";
 
         DeleteCardCommand = new RelayCommand(param => DeleteCard(param as CardViewModel));
         MoveCardCommand = new RelayCommand(param =>
@@ -354,6 +397,15 @@ public class MainViewModel : ObservableObject
         _db.SetSetting("CardSize", IsCompactCards ? "Compact" : "Large");
     }
 
+    public void RenameColumnDisplayName(ColumnViewModel column, string newDisplayName)
+    {
+        var trimmed = newDisplayName.Trim();
+        if (trimmed.Length == 0 || column.DisplayName == trimmed) return;
+
+        column.DisplayName = trimmed;
+        _db.RenameColumnDisplayName(column.Id, trimmed);
+    }
+
     private void Load()
     {
         Columns.Clear();
@@ -406,6 +458,24 @@ public class MainViewModel : ObservableObject
                 columnVm.Cards.Add(cardVm);
             }
             Columns.Add(columnVm);
+        }
+
+        if (RememberLastView)
+        {
+            _selectedProjectFilter = _db.GetSetting("LastProjectFilter") ?? "All";
+            _selectedPriorityFilter = _db.GetSetting("LastPriorityFilter") ?? "All";
+            _selectedWhoFilter = _db.GetSetting("LastWhoFilter") ?? "All";
+            _selectedGoalFilter = _db.GetSetting("LastGoalFilter") ?? "All";
+            _selectedFlagFilter = _db.GetSetting("LastFlagFilter") ?? "All";
+            _dueFilter = _db.GetSetting("LastDueFilter") ?? "All";
+            _keywordFilter = _db.GetSetting("LastKeywordFilter") ?? string.Empty;
+            (_currentSortMode, _selectedSortMode) = _db.GetSetting("LastSortMode") switch
+            {
+                "DueDate" => (SortMode.DueDateThenProject, "DueDate"),
+                "Who" => (SortMode.WhoThenDueDate, "Who"),
+                "Priority" => (SortMode.PriorityThenDueDate, "Priority"),
+                _ => (SortMode.ProjectThenDueDate, "Project")
+            };
         }
 
         RefreshProjectFilterOptions();
@@ -1143,7 +1213,7 @@ public class MainViewModel : ObservableObject
             var column = toDoColumn;
             if (!string.IsNullOrWhiteSpace(row.Category))
             {
-                var match = Columns.FirstOrDefault(c => string.Equals(c.Name, row.Category.Trim(), StringComparison.OrdinalIgnoreCase));
+                var match = Columns.FirstOrDefault(c => string.Equals(c.DisplayName, row.Category.Trim(), StringComparison.OrdinalIgnoreCase));
                 if (match is not null) column = match;
             }
 

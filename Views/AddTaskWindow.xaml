@@ -79,7 +79,7 @@
                 <!-- Category -->
                 <TextBlock Text="Category" Style="{StaticResource FieldLabelStyle}"/>
                 <ComboBox x:Name="CategoryComboBox" Padding="6"
-                          DisplayMemberPath="Name" SelectedIndex="0"
+                          DisplayMemberPath="DisplayName" SelectedIndex="0"
                           Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
                           BorderBrush="{DynamicResource CardBorderBrush}"/>
 

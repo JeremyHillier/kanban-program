@@ -34,7 +34,7 @@ public partial class ImportTasksWindow : Window
         try
         {
             ImportService.SaveTemplate(dialog.FileName,
-                _viewModel.Columns.Select(c => c.Name),
+                _viewModel.Columns.Select(c => c.DisplayName),
                 _viewModel.Projects.Select(p => p.Name),
                 _viewModel.Goals.Select(g => g.Name),
                 _viewModel.People.Select(p => p.Name));

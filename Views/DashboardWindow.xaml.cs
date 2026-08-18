@@ -73,7 +73,7 @@ public partial class DashboardWindow : Window
     {
         InitializeComponent();
 
-        var cardsWithColumn = viewModel.Columns.SelectMany(c => c.Cards.Select(card => (Card: card, ColumnName: c.Name))).ToList();
+        var cardsWithColumn = viewModel.Columns.SelectMany(c => c.Cards.Select(card => (Card: card, ColumnName: c.Name, ColumnDisplayName: c.DisplayName))).ToList();
         var allCards = cardsWithColumn.Select(x => x.Card).ToList();
         var openCards = cardsWithColumn.Where(x => x.ColumnName != "Done").Select(x => x.Card).ToList();
         var doneColumn = viewModel.Columns.FirstOrDefault(c => c.Name == "Done");
@@ -88,8 +88,8 @@ public partial class DashboardWindow : Window
 
         // Status Distribution + Priority Mix combined: one stacked bar per status, segments by priority.
         StatusByPriorityChart.ItemsSource = BuildStackedBars(
-            viewModel.Columns.Select(c => c.Name),
-            status => PriorityLegend.Select(p => (p.Name, cardsWithColumn.Count(x => x.ColumnName == status && x.Card.Priority == p.Name), p.Brush)));
+            viewModel.Columns.Select(c => c.DisplayName),
+            status => PriorityLegend.Select(p => (p.Name, cardsWithColumn.Count(x => x.ColumnDisplayName == status && x.Card.Priority == p.Name), p.Brush)));
 
         var overdue = openCards.Count(c => c.DueDate is not null && c.DueDate.Value.Date < today);
         var dueToday = openCards.Count(c => c.DueDate?.Date == today);
@@ -113,12 +113,12 @@ public partial class DashboardWindow : Window
             .OrderByDescending(g => g.Count()).ThenBy(g => g.Key, StringComparer.OrdinalIgnoreCase)
             .Select(g => g.Key)
             .ToList();
-        var statusOrder = viewModel.Columns.Select(c => c.Name).ToList();
+        var statusOrder = viewModel.Columns.Select(c => (c.Name, c.DisplayName)).ToList();
         ProjectByStatusChart.ItemsSource = BuildStackedBars(
             projectNames,
             project => statusOrder.Select(status =>
-                (status, cardsWithColumn.Count(x => x.Card.ProjectName == project && x.ColumnName == status),
-                 StatusPalette.GetValueOrDefault(status, FallbackStatusBrush))));
+                (status.DisplayName, cardsWithColumn.Count(x => x.Card.ProjectName == project && x.ColumnName == status.Name),
+                 StatusPalette.GetValueOrDefault(status.Name, FallbackStatusBrush))));
 
         var whoGroups = allCards.GroupBy(c => c.WhoName)
             .OrderByDescending(g => g.Count()).ThenBy(g => g.Key, StringComparer.OrdinalIgnoreCase)

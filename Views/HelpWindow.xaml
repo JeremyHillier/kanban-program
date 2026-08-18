@@ -117,6 +117,8 @@
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Preview opens a print-preview window with distinct pages, zoom, and a print button; each page after the first repeats a running header and shows a 'Page X of Y' footer. PDF saves it as a real PDF file."/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• PDFs are saved to the Default Export Path set in Settings, with a timestamped filename; if no Default Export Path is set, you'll be asked where to save."/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Rows alternate shading for readability; grouped reports use a distinct alternating colour from ungrouped ones."/>
+                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Include archived tasks to add them to the report, clearly marked (Archived) in the Status line; they're not affected by the Include Columns checkboxes."/>
+                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• A summary line under the title breaks down the task count by status (and Archived, if included). Grouped reports also show a count next to each group heading, and each task's sub-task line shows how many are done, e.g. Sub-tasks: 2/5."/>
 
                 <TextBlock Text="Dashboard" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• The banner always shows Open, Overdue, Due Today, and Due This Week counts across all non-Done tasks."/>
@@ -133,6 +135,7 @@
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Large Cards / Compact Cards toggles how much detail each card shows, useful for fitting more on screen at once."/>
 
                 <TextBlock Text="Settings" Style="{StaticResource HelpSectionHeaderStyle}"/>
+                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Rename any column's label (e.g. change &quot;Waiting&quot; to &quot;Blocked&quot;). This only changes what's displayed — the board still treats the same column as the completion column for archiving, reminders, and recurring tasks."/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Move the button panel to the right side of the board."/>
         <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Set the task column width in pixels (default 310)."/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Turn the startup splash screen on or off and set how long it stays visible."/>
@@ -142,6 +145,7 @@
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Require a yes/no confirmation before Archive Done — turn this off to archive immediately without asking."/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Ask whether to add a note whenever a task is moved to Done; answering yes opens the task with the cursor already in the Notes field."/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Turn off the overdue/due-today reminder pop-up that appears on startup; the Reminders button still works either way."/>
+                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Remember filters, sort, and search between sessions — when on, the board reopens showing whatever view you had when you last closed it, instead of resetting to All/unsorted."/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Change where the task database file is stored. The old file is automatically removed once the app has restarted at the new location."/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• The chosen location itself is remembered outside the database, in a small config file under your local AppData folder — not inside the database file."/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Set a Default Export Path (used by Report Builder's PDF export) and a Default Import Path (used by Import Tasks, including where the template is saved)."/>
