@@ -28,7 +28,6 @@
             <Setter Property="Width" Value="22"/>
             <Setter Property="Height" Value="20"/>
             <Setter Property="FontSize" Value="10"/>
-            <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="Margin" Value="0,0,3,0"/>
             <Setter Property="Cursor" Value="Hand"/>
@@ -193,10 +192,8 @@
                            TextAlignment="Center"/>
                 <StackPanel HorizontalAlignment="Right" VerticalAlignment="Center">
                     <TextBlock Text="TEST BUILD" FontSize="11" FontWeight="Bold" Foreground="#FFFFEB3B" Background="#FFB71C1C"
-                               Padding="6,1" HorizontalAlignment="Right" Margin="0,0,0,4"
+                               Padding="6,1" HorizontalAlignment="Right"
                                Visibility="{Binding IsTestChannel, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-                    <TextBlock Text="{Binding AppVersion}" FontSize="11" Foreground="White" HorizontalAlignment="Right"/>
-                    <TextBlock Text="{Binding CopyrightText}" FontSize="10" Foreground="#FFC0CBDA" HorizontalAlignment="Right"/>
                 </StackPanel>
             </Grid>
         </Border>
@@ -228,7 +225,7 @@
                                     <TextBlock Text="Sort by Priority" TextWrapping="Wrap" TextAlignment="Center"/>
                                 </Button>
                             </StackPanel>
-                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,4,0,0">
                                 <Button Style="{StaticResource SmallSquareButtonStyle}" Background="#FF66BB6A" Foreground="White" Click="AddTask_Click"
                                         ToolTip="Create a new task (Ctrl+N)">
                                     <TextBlock Text="New Task" TextWrapping="Wrap" TextAlignment="Center"/>
@@ -282,7 +279,9 @@
                             </Button>
                             <Button Style="{StaticResource DueFilterButtonTomorrow}" Background="#FF26A69A" Foreground="White" Click="DueTomorrow_Click"
                                     ToolTip="Show only cards due tomorrow">
-                                <TextBlock Text="Tomorrow" TextWrapping="Wrap" TextAlignment="Center"/>
+                                <Viewbox Stretch="Uniform" StretchDirection="DownOnly">
+                                    <TextBlock Text="Tomorrow" TextAlignment="Center"/>
+                                </Viewbox>
                             </Button>
                             <Button Style="{StaticResource DueFilterButtonWithinWeek}" Background="#FF7E57C2" Foreground="White" Click="DueWithinWeek_Click"
                                     ToolTip="Show only cards due within a week">
@@ -367,13 +366,21 @@
                                     <TextBlock Text="Report Builder" TextWrapping="Wrap" TextAlignment="Center"/>
                                 </Button>
                             </StackPanel>
-                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,0">
-                                <Button Style="{StaticResource SquareButtonStyle}" Background="#FFE57373" Foreground="White" Click="Close_Click"
-                                        ToolTip="Close the application (Ctrl+Q)">
-                                    <TextBlock Text="Close" TextWrapping="Wrap" TextAlignment="Center"/>
-                                </Button>
-                            </StackPanel>
                         </StackPanel>
+
+                        <Separator Margin="0,14,0,10"/>
+
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                            <Button Style="{StaticResource SquareButtonStyle}" Background="#FFE57373" Foreground="White" Click="Close_Click"
+                                    ToolTip="Close the application (Ctrl+Q)">
+                                <TextBlock Text="Close" TextWrapping="Wrap" TextAlignment="Center"/>
+                            </Button>
+                        </StackPanel>
+
+                        <TextBlock Text="{Binding AppVersion}" FontSize="10" Foreground="#FFC0CBDA"
+                                   HorizontalAlignment="Center" Margin="0,14,0,0"/>
+                        <TextBlock Text="{Binding CopyrightText}" FontSize="9" Foreground="#FFC0CBDA"
+                                   HorizontalAlignment="Center" Margin="0,2,0,0"/>
                     </StackPanel>
                 </ScrollViewer>
             </Border>
