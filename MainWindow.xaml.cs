@@ -431,25 +431,25 @@ public partial class MainWindow : Window
     private void SortByProject_Click(object sender, RoutedEventArgs e)
     {
         if (DataContext is not MainViewModel viewModel) return;
-        viewModel.SortByProject();
+        viewModel.ToggleSortKey(MainViewModel.SortKey.Project, Keyboard.Modifiers.HasFlag(ModifierKeys.Control));
     }
 
     private void SortByDueDate_Click(object sender, RoutedEventArgs e)
     {
         if (DataContext is not MainViewModel viewModel) return;
-        viewModel.SortByDueDate();
+        viewModel.ToggleSortKey(MainViewModel.SortKey.DueDate, Keyboard.Modifiers.HasFlag(ModifierKeys.Control));
     }
 
     private void SortByWho_Click(object sender, RoutedEventArgs e)
     {
         if (DataContext is not MainViewModel viewModel) return;
-        viewModel.SortByWho();
+        viewModel.ToggleSortKey(MainViewModel.SortKey.Who, Keyboard.Modifiers.HasFlag(ModifierKeys.Control));
     }
 
     private void SortByPriority_Click(object sender, RoutedEventArgs e)
     {
         if (DataContext is not MainViewModel viewModel) return;
-        viewModel.SortByPriority();
+        viewModel.ToggleSortKey(MainViewModel.SortKey.Priority, Keyboard.Modifiers.HasFlag(ModifierKeys.Control));
     }
 
     private void DueToday_Click(object sender, RoutedEventArgs e)

@@ -17,15 +17,29 @@ public class MainViewModel : ObservableObject
     public bool IsTestChannel => AppChannel.IsTest;
     public string WindowTitle => AppChannel.DisplayName;
 
-    private enum SortMode { ProjectThenDueDate, DueDateThenProject, WhoThenDueDate, PriorityThenDueDate }
+    public enum SortKey { Project, DueDate, Who, Priority }
 
-    private SortMode _currentSortMode = SortMode.ProjectThenDueDate;
+    // Order matters: this is the active multi-key sort, most-significant key first. Never empty -
+    // ToggleSortKey falls back to the default rather than letting the board end up unsorted.
+    private readonly List<SortKey> _sortKeys = [SortKey.Project];
 
-    private string _selectedSortMode = "Project";
-    public string SelectedSortMode
+    public int ProjectSortRank => SortRankOf(SortKey.Project);
+    public int DueDateSortRank => SortRankOf(SortKey.DueDate);
+    public int WhoSortRank => SortRankOf(SortKey.Who);
+    public int PrioritySortRank => SortRankOf(SortKey.Priority);
+
+    private int SortRankOf(SortKey key)
     {
-        get => _selectedSortMode;
-        private set => SetField(ref _selectedSortMode, value);
+        var index = _sortKeys.IndexOf(key);
+        return index < 0 ? 0 : index + 1;
+    }
+
+    private void NotifySortRanksChanged()
+    {
+        OnPropertyChanged(nameof(ProjectSortRank));
+        OnPropertyChanged(nameof(DueDateSortRank));
+        OnPropertyChanged(nameof(WhoSortRank));
+        OnPropertyChanged(nameof(PrioritySortRank));
     }
 
     private bool _isDarkMode;
@@ -182,7 +196,7 @@ public class MainViewModel : ObservableObject
         _db.SetSetting("LastFlagFilter", SelectedFlagFilter);
         _db.SetSetting("LastDueFilter", DueFilter);
         _db.SetSetting("LastKeywordFilter", KeywordFilter);
-        _db.SetSetting("LastSortMode", SelectedSortMode);
+        _db.SetSetting("LastSortMode", string.Join(",", _sortKeys));
     }
 
     private static readonly Brush[] ColumnPaletteLight =
@@ -502,13 +516,19 @@ public class MainViewModel : ObservableObject
             _selectedFlagFilter = _db.GetSetting("LastFlagFilter") ?? "All";
             _dueFilter = _db.GetSetting("LastDueFilter") ?? "All";
             _keywordFilter = _db.GetSetting("LastKeywordFilter") ?? string.Empty;
-            (_currentSortMode, _selectedSortMode) = _db.GetSetting("LastSortMode") switch
+            var savedKeys = (_db.GetSetting("LastSortMode") ?? string.Empty)
+                .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                .Select(token => Enum.TryParse<SortKey>(token, out var key) ? key : (SortKey?)null)
+                .Where(key => key is not null)
+                .Select(key => key!.Value)
+                .Distinct()
+                .ToList();
+
+            if (savedKeys.Count > 0)
             {
-                "DueDate" => (SortMode.DueDateThenProject, "DueDate"),
-                "Who" => (SortMode.WhoThenDueDate, "Who"),
-                "Priority" => (SortMode.PriorityThenDueDate, "Priority"),
-                _ => (SortMode.ProjectThenDueDate, "Project")
-            };
+                _sortKeys.Clear();
+                _sortKeys.AddRange(savedKeys);
+            }
         }
 
         RefreshProjectFilterOptions();
@@ -520,31 +540,30 @@ public class MainViewModel : ObservableObject
         RefreshDashboardStats();
     }
 
-    public void SortByProject()
+    // Plain click: reset the sort to just this one key. Ctrl+click: toggle this key in/out of the
+    // active multi-key sort, appending it at the end when added. Never leaves the sort empty - if
+    // toggling off the last key would do that, it falls back to the default (Project alone).
+    public void ToggleSortKey(SortKey key, bool additive)
     {
-        _currentSortMode = SortMode.ProjectThenDueDate;
-        SelectedSortMode = "Project";
-        ApplySort();
-    }
+        if (additive)
+        {
+            if (!_sortKeys.Remove(key))
+            {
+                _sortKeys.Add(key);
+            }
 
-    public void SortByDueDate()
-    {
-        _currentSortMode = SortMode.DueDateThenProject;
-        SelectedSortMode = "DueDate";
-        ApplySort();
-    }
+            if (_sortKeys.Count == 0)
+            {
+                _sortKeys.Add(SortKey.Project);
+            }
+        }
+        else
+        {
+            _sortKeys.Clear();
+            _sortKeys.Add(key);
+        }
 
-    public void SortByWho()
-    {
-        _currentSortMode = SortMode.WhoThenDueDate;
-        SelectedSortMode = "Who";
-        ApplySort();
-    }
-
-    public void SortByPriority()
-    {
-        _currentSortMode = SortMode.PriorityThenDueDate;
-        SelectedSortMode = "Priority";
+        NotifySortRanksChanged();
         ApplySort();
     }
 
@@ -557,19 +576,34 @@ public class MainViewModel : ObservableObject
         _ => 2
     };
 
+    private static IOrderedEnumerable<CardViewModel> OrderByKey(IEnumerable<CardViewModel> cards, SortKey key) => key switch
+    {
+        SortKey.DueDate => cards.OrderBy(c => c.DueDate ?? DateTime.MaxValue),
+        SortKey.Who => cards.OrderBy(c => c.WhoName, StringComparer.OrdinalIgnoreCase),
+        SortKey.Priority => cards.OrderBy(c => PriorityRank(c.Priority)),
+        _ => cards.OrderBy(c => c.ProjectName, StringComparer.OrdinalIgnoreCase)
+    };
+
+    private static IOrderedEnumerable<CardViewModel> ThenByKey(IOrderedEnumerable<CardViewModel> cards, SortKey key) => key switch
+    {
+        SortKey.DueDate => cards.ThenBy(c => c.DueDate ?? DateTime.MaxValue),
+        SortKey.Who => cards.ThenBy(c => c.WhoName, StringComparer.OrdinalIgnoreCase),
+        SortKey.Priority => cards.ThenBy(c => PriorityRank(c.Priority)),
+        _ => cards.ThenBy(c => c.ProjectName, StringComparer.OrdinalIgnoreCase)
+    };
+
     private void ApplySort()
     {
         var updates = new List<(int, int)>();
 
         foreach (var column in Columns)
         {
-            var sorted = _currentSortMode switch
+            var ordered = OrderByKey(column.Cards, _sortKeys[0]);
+            for (var k = 1; k < _sortKeys.Count; k++)
             {
-                SortMode.DueDateThenProject => column.Cards.OrderBy(c => c.DueDate ?? DateTime.MaxValue).ThenBy(c => c.ProjectName, StringComparer.OrdinalIgnoreCase).ToList(),
-                SortMode.WhoThenDueDate => column.Cards.OrderBy(c => c.WhoName, StringComparer.OrdinalIgnoreCase).ThenBy(c => c.DueDate ?? DateTime.MaxValue).ToList(),
-                SortMode.PriorityThenDueDate => column.Cards.OrderBy(c => PriorityRank(c.Priority)).ThenBy(c => c.DueDate ?? DateTime.MaxValue).ToList(),
-                _ => column.Cards.OrderBy(c => c.ProjectName, StringComparer.OrdinalIgnoreCase).ThenBy(c => c.DueDate ?? DateTime.MaxValue).ToList()
-            };
+                ordered = ThenByKey(ordered, _sortKeys[k]);
+            }
+            var sorted = ordered.ToList();
 
             // Reorder in place with Move() rather than Clear()+Add(): the latter tears down and
             // recreates every card's visual container, which can orphan an in-flight drag capture

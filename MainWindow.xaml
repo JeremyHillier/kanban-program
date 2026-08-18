@@ -14,6 +14,7 @@
         <conv:PriorityToBrushConverter x:Key="PriorityToBrushConverter"/>
         <conv:EmptyStringToVisibilityConverter x:Key="EmptyStringToVisibilityConverter"/>
         <conv:StringEqualsConverter x:Key="StringEqualsConverter"/>
+        <conv:GreaterThanZeroToVisibilityConverter x:Key="GreaterThanZeroToVisibilityConverter"/>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
         <SolidColorBrush x:Key="AccentPanelBrush" Color="#FF1E3A5F"/>
         <SolidColorBrush x:Key="AccentPanelBorderBrush" Color="#FF3E6491"/>
@@ -78,7 +79,7 @@
         <Style x:Key="SortButtonProject" BasedOn="{StaticResource SmallSquareButtonStyle}" TargetType="Button">
             <Setter Property="BorderThickness" Value="1"/>
             <Style.Triggers>
-                <DataTrigger Binding="{Binding SelectedSortMode, Converter={StaticResource StringEqualsConverter}, ConverterParameter=Project}" Value="True">
+                <DataTrigger Binding="{Binding ProjectSortRank, Converter={StaticResource GreaterThanZeroToVisibilityConverter}}" Value="Visible">
                     <Setter Property="BorderBrush" Value="White"/>
                     <Setter Property="BorderThickness" Value="3"/>
                     <Setter Property="FontWeight" Value="Bold"/>
@@ -88,7 +89,7 @@
         <Style x:Key="SortButtonDueDate" BasedOn="{StaticResource SmallSquareButtonStyle}" TargetType="Button">
             <Setter Property="BorderThickness" Value="1"/>
             <Style.Triggers>
-                <DataTrigger Binding="{Binding SelectedSortMode, Converter={StaticResource StringEqualsConverter}, ConverterParameter=DueDate}" Value="True">
+                <DataTrigger Binding="{Binding DueDateSortRank, Converter={StaticResource GreaterThanZeroToVisibilityConverter}}" Value="Visible">
                     <Setter Property="BorderBrush" Value="White"/>
                     <Setter Property="BorderThickness" Value="3"/>
                     <Setter Property="FontWeight" Value="Bold"/>
@@ -98,7 +99,7 @@
         <Style x:Key="SortButtonWho" BasedOn="{StaticResource SmallSquareButtonStyle}" TargetType="Button">
             <Setter Property="BorderThickness" Value="1"/>
             <Style.Triggers>
-                <DataTrigger Binding="{Binding SelectedSortMode, Converter={StaticResource StringEqualsConverter}, ConverterParameter=Who}" Value="True">
+                <DataTrigger Binding="{Binding WhoSortRank, Converter={StaticResource GreaterThanZeroToVisibilityConverter}}" Value="Visible">
                     <Setter Property="BorderBrush" Value="White"/>
                     <Setter Property="BorderThickness" Value="3"/>
                     <Setter Property="FontWeight" Value="Bold"/>
@@ -108,7 +109,7 @@
         <Style x:Key="SortButtonPriority" BasedOn="{StaticResource SmallSquareButtonStyle}" TargetType="Button">
             <Setter Property="BorderThickness" Value="1"/>
             <Style.Triggers>
-                <DataTrigger Binding="{Binding SelectedSortMode, Converter={StaticResource StringEqualsConverter}, ConverterParameter=Priority}" Value="True">
+                <DataTrigger Binding="{Binding PrioritySortRank, Converter={StaticResource GreaterThanZeroToVisibilityConverter}}" Value="Visible">
                     <Setter Property="BorderBrush" Value="White"/>
                     <Setter Property="BorderThickness" Value="3"/>
                     <Setter Property="FontWeight" Value="Bold"/>
@@ -229,20 +230,52 @@
                         <StackPanel>
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                                 <Button Style="{StaticResource SortButtonProject}" Background="#FF42A5F5" Foreground="White" Click="SortByProject_Click"
-                                        ToolTip="Sort all cards by project, then due date">
-                                    <TextBlock Text="Sort by Project" TextWrapping="Wrap" TextAlignment="Center"/>
+                                        ToolTip="Click to sort by project alone. Ctrl+click to add or remove project as a sort key alongside others.">
+                                    <Grid>
+                                        <TextBlock Text="Sort by Project" TextWrapping="Wrap" TextAlignment="Center"/>
+                                        <Border Background="White" CornerRadius="7" Width="14" Height="14" Margin="0,-4,-4,0"
+                                                HorizontalAlignment="Right" VerticalAlignment="Top"
+                                                Visibility="{Binding ProjectSortRank, Converter={StaticResource GreaterThanZeroToVisibilityConverter}}">
+                                            <TextBlock Text="{Binding ProjectSortRank}" FontSize="9" FontWeight="Bold" Foreground="#FF1A1A1A"
+                                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </Border>
+                                    </Grid>
                                 </Button>
                                 <Button Style="{StaticResource SortButtonDueDate}" Background="#FF26A69A" Foreground="White" Click="SortByDueDate_Click"
-                                        ToolTip="Sort all cards by due date, then project">
-                                    <TextBlock Text="Sort by Due Date" TextWrapping="Wrap" TextAlignment="Center"/>
+                                        ToolTip="Click to sort by due date alone. Ctrl+click to add or remove due date as a sort key alongside others.">
+                                    <Grid>
+                                        <TextBlock Text="Sort by Due Date" TextWrapping="Wrap" TextAlignment="Center"/>
+                                        <Border Background="White" CornerRadius="7" Width="14" Height="14" Margin="0,-4,-4,0"
+                                                HorizontalAlignment="Right" VerticalAlignment="Top"
+                                                Visibility="{Binding DueDateSortRank, Converter={StaticResource GreaterThanZeroToVisibilityConverter}}">
+                                            <TextBlock Text="{Binding DueDateSortRank}" FontSize="9" FontWeight="Bold" Foreground="#FF1A1A1A"
+                                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </Border>
+                                    </Grid>
                                 </Button>
                                 <Button Style="{StaticResource SortButtonWho}" Background="#FF7E57C2" Foreground="White" Click="SortByWho_Click"
-                                        ToolTip="Sort all cards by assignee, then due date">
-                                    <TextBlock Text="Sort by Who" TextWrapping="Wrap" TextAlignment="Center"/>
+                                        ToolTip="Click to sort by assignee alone. Ctrl+click to add or remove assignee as a sort key alongside others.">
+                                    <Grid>
+                                        <TextBlock Text="Sort by Who" TextWrapping="Wrap" TextAlignment="Center"/>
+                                        <Border Background="White" CornerRadius="7" Width="14" Height="14" Margin="0,-4,-4,0"
+                                                HorizontalAlignment="Right" VerticalAlignment="Top"
+                                                Visibility="{Binding WhoSortRank, Converter={StaticResource GreaterThanZeroToVisibilityConverter}}">
+                                            <TextBlock Text="{Binding WhoSortRank}" FontSize="9" FontWeight="Bold" Foreground="#FF1A1A1A"
+                                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </Border>
+                                    </Grid>
                                 </Button>
                                 <Button Style="{StaticResource SortButtonPriority}" Background="#FFEF5350" Foreground="White" Click="SortByPriority_Click"
-                                        ToolTip="Sort all cards by priority, then due date">
-                                    <TextBlock Text="Sort by Priority" TextWrapping="Wrap" TextAlignment="Center"/>
+                                        ToolTip="Click to sort by priority alone. Ctrl+click to add or remove priority as a sort key alongside others.">
+                                    <Grid>
+                                        <TextBlock Text="Sort by Priority" TextWrapping="Wrap" TextAlignment="Center"/>
+                                        <Border Background="White" CornerRadius="7" Width="14" Height="14" Margin="0,-4,-4,0"
+                                                HorizontalAlignment="Right" VerticalAlignment="Top"
+                                                Visibility="{Binding PrioritySortRank, Converter={StaticResource GreaterThanZeroToVisibilityConverter}}">
+                                            <TextBlock Text="{Binding PrioritySortRank}" FontSize="9" FontWeight="Bold" Foreground="#FF1A1A1A"
+                                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </Border>
+                                    </Grid>
                                 </Button>
                             </StackPanel>
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,4,0,0">
