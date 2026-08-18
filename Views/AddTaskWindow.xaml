@@ -180,14 +180,22 @@
                 <StackPanel x:Name="SubTasksPanel"/>
 
                 <!-- Attachments -->
-                <StackPanel Style="{StaticResource FieldLabelRowStyle}">
-                    <TextBlock Text="Attachments" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Center"/>
-                    <Button Content="+ File..." Padding="8,2" Margin="8,0,0,0" Click="AddFile_Click" ToolTip="Link an existing file (the file itself is not copied)"
-                            Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
-                    <Button Content="📷 Paste Screenshot" Padding="8,2" Margin="6,0,0,0" Click="PasteScreenshot_Click" ToolTip="Paste an image from the clipboard"
-                            Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
-                </StackPanel>
-                <StackPanel x:Name="AttachmentsPanel"/>
+                <Border AllowDrop="True" DragOver="AttachmentsDropZone_DragOver" Drop="AttachmentsDropZone_Drop"
+                        BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="1" CornerRadius="4"
+                        Margin="0,12,0,0" Padding="8,6">
+                    <StackPanel>
+                        <StackPanel Style="{StaticResource FieldLabelRowStyle}" Margin="0,0,0,4">
+                            <TextBlock Text="Attachments" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Center"/>
+                            <Button Content="+ File..." Padding="8,2" Margin="8,0,0,0" Click="AddFile_Click" ToolTip="Link an existing file (the file itself is not copied)"
+                                    Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                            <Button Content="📷 Paste Screenshot" Padding="8,2" Margin="6,0,0,0" Click="PasteScreenshot_Click" ToolTip="Paste an image from the clipboard"
+                                    Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                        </StackPanel>
+                        <TextBlock Text="or drag a file / an email from Outlook here" FontSize="10" FontStyle="Italic"
+                                   Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,0,0,4"/>
+                        <StackPanel x:Name="AttachmentsPanel" MinHeight="8"/>
+                    </StackPanel>
+                </Border>
             </StackPanel>
         </ScrollViewer>
 

@@ -438,7 +438,8 @@
                                                         BorderBrush="{DynamicResource CardOutlineBrush}" BorderThickness="1.5"
                                                         Visibility="{Binding IsVisible, Converter={StaticResource BooleanToVisibilityConverter}}"
                                                         PreviewMouseLeftButtonDown="Card_PreviewMouseLeftButtonDown"
-                                                        MouseMove="Card_MouseMove">
+                                                        MouseMove="Card_MouseMove"
+                                                        AllowDrop="True" DragOver="Card_DragOver" Drop="Card_Drop">
                                                     <StackPanel>
                                                         <TextBlock Text="{Binding Title}" TextWrapping="Wrap" FontSize="13" FontWeight="SemiBold">
                                                             <TextBlock.Style>

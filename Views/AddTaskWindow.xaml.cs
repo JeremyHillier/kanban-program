@@ -6,6 +6,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using KanbanApp.Models;
+using KanbanApp.Services;
 using KanbanApp.ViewModels;
 
 namespace KanbanApp.Views;
@@ -276,6 +277,45 @@ public partial class AddTaskWindow : Window
             AddedDate = DateTime.Now
         });
         AddAttachmentRow(attachment);
+    }
+
+    private void AttachmentsDropZone_DragOver(object sender, DragEventArgs e)
+    {
+        var canDrop = OutlookDragDropHelper.HasDroppableFiles(e.Data);
+        e.Effects = canDrop ? DragDropEffects.Copy : DragDropEffects.None;
+        e.Handled = true;
+    }
+
+    private void AttachmentsDropZone_Drop(object sender, DragEventArgs e)
+    {
+        e.Handled = true;
+        if (!OutlookDragDropHelper.HasDroppableFiles(e.Data)) return;
+
+        List<(string FilePath, string DisplayName, bool WasSaved)> files;
+        try
+        {
+            files = OutlookDragDropHelper.ExtractDroppedFiles(e.Data, _viewModel.AttachmentsDir);
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(this, $"Couldn't read the dropped item: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            return;
+        }
+
+        foreach (var file in files)
+        {
+            if (file.WasSaved)
+            {
+                _sessionPastedFilePaths.Add(file.FilePath);
+            }
+
+            AddAttachmentRow(new AttachmentViewModel(new CardAttachment
+            {
+                FilePath = file.FilePath,
+                DisplayName = file.DisplayName,
+                AddedDate = DateTime.Now
+            }));
+        }
     }
 
     private void PasteScreenshot_Click(object sender, RoutedEventArgs e)

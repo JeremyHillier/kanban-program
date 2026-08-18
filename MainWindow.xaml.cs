@@ -133,6 +133,37 @@ public partial class MainWindow : Window
         }
     }
 
+    private void Card_DragOver(object sender, DragEventArgs e)
+    {
+        var canDrop = OutlookDragDropHelper.HasDroppableFiles(e.Data);
+        e.Effects = canDrop ? DragDropEffects.Copy : DragDropEffects.None;
+        e.Handled = canDrop;
+    }
+
+    private void Card_Drop(object sender, DragEventArgs e)
+    {
+        if (!OutlookDragDropHelper.HasDroppableFiles(e.Data)) return;
+        e.Handled = true;
+
+        if (sender is not FrameworkElement { DataContext: CardViewModel card } || DataContext is not MainViewModel viewModel) return;
+
+        List<(string FilePath, string DisplayName, bool WasSaved)> files;
+        try
+        {
+            files = OutlookDragDropHelper.ExtractDroppedFiles(e.Data, viewModel.AttachmentsDir);
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(this, $"Couldn't read the dropped item: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            return;
+        }
+
+        foreach (var file in files)
+        {
+            viewModel.AddAttachmentToCard(card, file.FilePath, file.DisplayName);
+        }
+    }
+
     private void AddTask_Click(object sender, RoutedEventArgs e)
     {
         if (DataContext is not MainViewModel viewModel) return;

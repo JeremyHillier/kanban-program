@@ -842,6 +842,19 @@ public class MainViewModel : ObservableObject
         RefreshDashboardStats();
     }
 
+    public void AddAttachmentToCard(CardViewModel card, string filePath, string displayName)
+    {
+        var updatedAttachments = card.Attachments
+            .Select(a => (a.FilePath, a.DisplayName, a.AddedDate))
+            .Append((filePath, displayName, DateTime.Now))
+            .ToList();
+
+        var attachmentItems = _db.SetCardAttachments(card.Id, updatedAttachments);
+        card.Attachments = attachmentItems.Select(a => new AttachmentViewModel(a)).ToList();
+        card.LastUpdated = _db.UpdateCard(card.Id, card.Title, card.ProjectId, card.Priority, card.DueDate, card.WhoId,
+            card.IsRecurring, card.RecurrencePattern, card.GoalId, card.Notes, card.ForceEditOnComplete);
+    }
+
     public void SetSubTaskDone(CardViewModel card, SubTaskViewModel subTask, bool isDone)
     {
         subTask.IsDone = isDone;
