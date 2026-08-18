@@ -131,7 +131,7 @@
             <CheckBox Grid.Row="7" x:Name="IncludeSubTasksCheckBox" Content="Include sub-tasks" Margin="0,0,0,4"
                       Foreground="{DynamicResource PrimaryTextBrush}"/>
             <CheckBox Grid.Row="8" x:Name="IncludeSubTaskSummaryCheckBox"
-                      Content="Include sub-task completion summary (e.g. how many times 'Push-ups' was completed)" Margin="0,0,0,4"
+                      Content="Include sub-task completion summary (e.g. how many times a sub task was completed)" Margin="0,0,0,4"
                       Foreground="{DynamicResource PrimaryTextBrush}"/>
 
             <StackPanel Grid.Row="9" HorizontalAlignment="Right" Orientation="Horizontal" Margin="0,18,0,0">

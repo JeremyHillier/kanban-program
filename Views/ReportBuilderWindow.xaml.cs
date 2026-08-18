@@ -25,7 +25,8 @@ public partial class ReportBuilderWindow : Window
                 Content = column.DisplayName,
                 Tag = column.Name,
                 IsChecked = true,
-                Margin = new Thickness(0, 0, 16, 6)
+                Margin = new Thickness(0, 0, 16, 6),
+                Foreground = (System.Windows.Media.Brush)FindResource("PrimaryTextBrush")
             };
             _columnCheckBoxes.Add(checkBox);
             ColumnsPanel.Children.Add(checkBox);
