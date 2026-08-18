@@ -1,4 +1,6 @@
+using System.Collections.ObjectModel;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using KanbanApp.ViewModels;
@@ -11,7 +13,9 @@ public partial class ReminderWindow : Window
     private static readonly Brush DueTodayBrush = new SolidColorBrush(Color.FromRgb(0xFF, 0xA7, 0x26));
 
     private readonly Action<CardViewModel> _onOpenTask;
+    private readonly Action<CardViewModel> _onMarkDone;
     private readonly Dictionary<ReminderRow, CardViewModel> _rowsToCards = [];
+    private readonly ObservableCollection<ReminderRow> _rows = [];
 
     private class ReminderRow
     {
@@ -21,17 +25,13 @@ public partial class ReminderWindow : Window
         public required Brush DueLabelBrush { get; init; }
     }
 
-    public ReminderWindow(List<CardViewModel> dueCards, Action<CardViewModel> onOpenTask)
+    public ReminderWindow(List<CardViewModel> dueCards, Action<CardViewModel> onOpenTask, Action<CardViewModel> onMarkDone)
     {
         InitializeComponent();
         MaxHeight = SystemParameters.WorkArea.Height * 0.9;
         _onOpenTask = onOpenTask;
+        _onMarkDone = onMarkDone;
 
-        var overdueCount = dueCards.Count(c => c.DueDate!.Value.Date < DateTime.Today);
-        var todayCount = dueCards.Count - overdueCount;
-        IntroText.Text = BuildIntro(overdueCount, todayCount);
-
-        var rows = new List<ReminderRow>();
         foreach (var card in dueCards)
         {
             var isOverdue = card.DueDate!.Value.Date < DateTime.Today;
@@ -42,30 +42,56 @@ public partial class ReminderWindow : Window
                 DueLabel = isOverdue ? $"Overdue since {card.DueDate:MMM d, yyyy}" : "Due today",
                 DueLabelBrush = isOverdue ? OverdueBrush : DueTodayBrush
             };
-            rows.Add(row);
+            _rows.Add(row);
             _rowsToCards[row] = card;
         }
 
-        ReminderList.ItemsSource = rows;
+        UpdateIntro();
+        ReminderList.ItemsSource = _rows;
         ReminderList.MouseDoubleClick += ReminderList_MouseDoubleClick;
     }
 
-    private static string BuildIntro(int overdueCount, int todayCount)
+    private void UpdateIntro()
     {
+        var overdueCount = _rows.Count(r => ReferenceEquals(r.DueLabelBrush, OverdueBrush));
+        var todayCount = _rows.Count - overdueCount;
+
         var parts = new List<string>();
         if (overdueCount > 0) parts.Add($"{overdueCount} overdue task{(overdueCount == 1 ? "" : "s")}");
         if (todayCount > 0) parts.Add($"{todayCount} task{(todayCount == 1 ? "" : "s")} due today");
 
-        return parts.Count == 0
-            ? "No overdue or due-today tasks."
-            : $"You have {string.Join(" and ", parts)}. Double-click a task to open it.";
+        IntroText.Text = parts.Count == 0
+            ? "All caught up."
+            : $"You have {string.Join(" and ", parts)}. Check a task off to mark it Done, or double-click to open it.";
     }
 
     private void ReminderList_MouseDoubleClick(object sender, MouseButtonEventArgs e)
     {
+        if (e.OriginalSource is DependencyObject source && FindAncestor<CheckBox>(source) is not null) return;
         if (ReminderList.SelectedItem is not ReminderRow row || !_rowsToCards.TryGetValue(row, out var card)) return;
 
-        Close();
+        // Deliberately left open: the user may want to review or act on other reminders after this one.
         _onOpenTask(card);
+    }
+
+    private void MarkDoneCheckBox_Checked(object sender, RoutedEventArgs e)
+    {
+        if (sender is not FrameworkElement { DataContext: ReminderRow row } || !_rowsToCards.TryGetValue(row, out var card)) return;
+
+        _onMarkDone(card);
+        _rowsToCards.Remove(row);
+        _rows.Remove(row);
+        UpdateIntro();
+    }
+
+    private static T? FindAncestor<T>(DependencyObject source) where T : DependencyObject
+    {
+        var current = source;
+        while (current is not null)
+        {
+            if (current is T match) return match;
+            current = VisualTreeHelper.GetParent(current);
+        }
+        return null;
     }
 }

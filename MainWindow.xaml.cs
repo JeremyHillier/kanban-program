@@ -38,8 +38,17 @@ public partial class MainWindow : Window
 
     private void ShowReminders(List<CardViewModel> dueCards, MainViewModel viewModel)
     {
-        var dialog = new ReminderWindow(dueCards, card => EditCard(card, viewModel)) { Owner = this };
+        var dialog = new ReminderWindow(dueCards, card => EditCard(card, viewModel), card => MarkCardDone(card, viewModel)) { Owner = this };
         dialog.ShowDialog();
+    }
+
+    private void MarkCardDone(CardViewModel card, MainViewModel viewModel)
+    {
+        var doneColumn = viewModel.Columns.FirstOrDefault(c => c.Name == "Done");
+        if (doneColumn is null) return;
+
+        viewModel.MoveCardCommand.Execute((card, doneColumn));
+        MaybePromptCompletionNote(card, doneColumn, viewModel);
     }
 
     private void Reminders_Click(object sender, RoutedEventArgs e)
@@ -245,6 +254,10 @@ public partial class MainWindow : Window
                         break;
                     case Key.W:
                         ManageWho_Click(sender, e);
+                        e.Handled = true;
+                        break;
+                    case Key.R:
+                        Reminders_Click(sender, e);
                         e.Handled = true;
                         break;
                     case Key.S:

@@ -35,14 +35,23 @@
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <Border BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="0,0,0,1" Padding="0,4">
-                        <StackPanel>
-                            <TextBlock Text="{Binding Title}" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryTextBrush}"/>
-                            <TextBlock FontSize="11" Margin="0,2,0,0">
-                                <Run Text="{Binding ProjectName, Mode=OneWay}" Foreground="{DynamicResource SecondaryTextBrush}"/>
-                                <Run Text=" • " Foreground="{DynamicResource SecondaryTextBrush}"/>
-                                <Run Text="{Binding DueLabel, Mode=OneWay}" Foreground="{Binding DueLabelBrush, Mode=OneWay}" FontWeight="Bold"/>
-                            </TextBlock>
-                        </StackPanel>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <CheckBox Grid.Column="0" VerticalAlignment="Center" Margin="4,0,10,0"
+                                      ToolTip="Mark this task Done"
+                                      Checked="MarkDoneCheckBox_Checked"/>
+                            <StackPanel Grid.Column="1">
+                                <TextBlock Text="{Binding Title}" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                                <TextBlock FontSize="11" Margin="0,2,0,0">
+                                    <Run Text="{Binding ProjectName, Mode=OneWay}" Foreground="{DynamicResource SecondaryTextBrush}"/>
+                                    <Run Text=" • " Foreground="{DynamicResource SecondaryTextBrush}"/>
+                                    <Run Text="{Binding DueLabel, Mode=OneWay}" Foreground="{Binding DueLabelBrush, Mode=OneWay}" FontWeight="Bold"/>
+                                </TextBlock>
+                            </StackPanel>
+                        </Grid>
                     </Border>
                 </DataTemplate>
             </ListBox.ItemTemplate>

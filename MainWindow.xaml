@@ -323,7 +323,7 @@
                                     <TextBlock Text="Manage Who" TextWrapping="Wrap" TextAlignment="Center"/>
                                 </Button>
                                 <Button Style="{StaticResource SquareButtonStyle}" Background="#FFEF5350" Foreground="White" Click="Reminders_Click"
-                                        ToolTip="Show tasks that are overdue or due today">
+                                        ToolTip="Show tasks that are overdue or due today (Alt+R)">
                                     <TextBlock Text="Reminders" TextWrapping="Wrap" TextAlignment="Center"/>
                                 </Button>
                                 <Button Style="{StaticResource SquareButtonStyle}" Background="#FF546E7A" Foreground="White" Click="ToggleTheme_Click"
