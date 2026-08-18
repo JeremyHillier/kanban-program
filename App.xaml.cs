@@ -34,6 +34,15 @@ public partial class App : Application
         var db = new DatabaseService();
         CleanUpOldDbFileAfterMove(db.DbPath);
 
+        DispatcherUnhandledException += (_, ex) =>
+        {
+            LogCrash(db.DbPath, ex.Exception);
+            MessageBox.Show(
+                "Something went wrong, but the app will stay open. Details were written to crash.log next to your data file.\n\n" + ex.Exception.Message,
+                "Unexpected Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+            ex.Handled = true;
+        };
+
         var showSplash = db.GetSetting("ShowSplash") != "False";
         var splashDelayMs = int.TryParse(db.GetSetting("SplashDelayMs"), out var delay) ? delay : 1800;
         var startFullScreen = db.GetSetting("StartFullScreen") == "True";
@@ -63,6 +72,19 @@ public partial class App : Application
             splash.Close();
         };
         timer.Start();
+    }
+
+    private static void LogCrash(string dbPath, Exception ex)
+    {
+        try
+        {
+            var logPath = Path.Combine(Path.GetDirectoryName(dbPath) ?? Path.GetTempPath(), "crash.log");
+            File.AppendAllText(logPath, $"{DateTime.Now:yyyy-MM-dd HH:mm:ss}\n{ex}\n\n");
+        }
+        catch
+        {
+            // Logging is best-effort; never let a failure here mask the original error.
+        }
     }
 
     private static void SeedDataFolder(string dataFolder)

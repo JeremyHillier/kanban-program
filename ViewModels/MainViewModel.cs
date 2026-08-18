@@ -482,6 +482,7 @@ public class MainViewModel : ObservableObject
         RefreshWhoFilterOptions();
         RefreshGoalFilterOptions();
         RefreshFlagFilterOptions();
+        ApplyFilters();
         ApplySort();
         RefreshDashboardStats();
     }

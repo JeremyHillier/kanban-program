@@ -93,8 +93,10 @@ public partial class ReminderWindow : Window
             return;
         }
 
-        var updatedRow = BuildRow(card);
         var index = _rows.IndexOf(row);
+        if (index < 0) return; // Row already gone (e.g. removed via the checkbox) — nothing to refresh.
+
+        var updatedRow = BuildRow(card);
         _rowsToCards.Remove(row);
         _rows[index] = updatedRow;
         _rowsToCards[updatedRow] = card;
