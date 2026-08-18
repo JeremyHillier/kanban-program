@@ -32,6 +32,26 @@
             <Setter Property="Margin" Value="0,0,3,0"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="0"/>
+            <!-- Own template (not just Padding) because the app-wide Button template hardcodes a
+                 6px CornerRadius sized for full-size buttons — proportionally too large at 22x20px. -->
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="4" SnapsToDevicePixels="True">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Opacity" Value="0.85"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Opacity" Value="0.7"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
 
         <Style x:Key="SquareButtonStyle" TargetType="Button">
@@ -538,11 +558,11 @@
                                                         <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
                                                             <Button Style="{StaticResource QuickActionButtonStyle}" Content="T" Background="#FF42A5F5"
                                                                     Tag="To Do" ToolTip="Move to To Do" Click="QuickMove_Click"/>
-                                                            <Button Style="{StaticResource QuickActionButtonStyle}" Content="P" Background="#FF26A69A"
+                                                            <Button Style="{StaticResource QuickActionButtonStyle}" Content="P" Background="#FFF9A825"
                                                                     Tag="In Progress" ToolTip="Move to In Progress" Click="QuickMove_Click"/>
-                                                            <Button Style="{StaticResource QuickActionButtonStyle}" Content="H" Background="#FFFFA726"
+                                                            <Button Style="{StaticResource QuickActionButtonStyle}" Content="H" Background="#FFFB8C00"
                                                                     Tag="On Hold" ToolTip="Move to On Hold" Click="QuickMove_Click"/>
-                                                            <Button Style="{StaticResource QuickActionButtonStyle}" Content="W" Background="#FF9575CD"
+                                                            <Button Style="{StaticResource QuickActionButtonStyle}" Content="W" Background="#FFAB47BC"
                                                                     Tag="Waiting" ToolTip="Move to Waiting" Click="QuickMove_Click"/>
                                                             <Button Style="{StaticResource QuickActionButtonStyle}" Content="&#x2713;" Background="#FF66BB6A"
                                                                     Tag="Done" ToolTip="Mark Done" Click="QuickMove_Click"/>
