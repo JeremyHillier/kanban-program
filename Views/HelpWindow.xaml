@@ -129,7 +129,7 @@
                 <TextBlock Text="Reminders" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• If any task is overdue or due today, a reminder pop-up lists them automatically when the app opens."/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Check a task off in the reminder list to mark it Done, following the same confirmation/notes prompts as marking it Done from the board; the row then disappears from the list."/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Double-click a task to open it for editing — the reminder list stays open behind it so you can keep working through the rest, and Close it yourself when you're done."/>
+                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Double-click a task to open it for editing — the reminder list stays open behind it so you can keep working through the rest, and Close it yourself when you're done. Once saved, that row refreshes with your changes, or drops off the list if it's no longer overdue or due today."/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Click the Reminders button (Alt+R) any time to bring the same list back up."/>
 
                 <TextBlock Text="Display options" Style="{StaticResource HelpSectionHeaderStyle}"/>

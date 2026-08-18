@@ -50,6 +50,10 @@ public partial class ReportBuilderWindow : Window
         IncludeSubTasksCheckBox.IsChecked = true;
     }
 
+    private void TodayArchivedFrom_Click(object sender, RoutedEventArgs e) => ArchivedFromDatePicker.SelectedDate = DateTime.Today;
+
+    private void TodayArchivedTo_Click(object sender, RoutedEventArgs e) => ArchivedToDatePicker.SelectedDate = DateTime.Today;
+
     private HashSet<string> GetIncludedColumns() =>
         _columnCheckBoxes.Where(c => c.IsChecked == true).Select(c => (string)c.Tag).ToHashSet();
 

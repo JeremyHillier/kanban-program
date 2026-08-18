@@ -5,7 +5,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         mc:Ignorable="d"
         x:Name="RootWindow"
-        Title="Add Task" Width="560" SizeToContent="Height"
+        Title="Add Task" Width="680" SizeToContent="Height"
         WindowStartupLocation="CenterOwner" ResizeMode="NoResize"
         ShowInTaskbar="False"
         Background="{DynamicResource WindowBackgroundBrush}">
@@ -65,78 +65,96 @@
                           Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
                           BorderBrush="{DynamicResource CardBorderBrush}"/>
 
-                <!-- Priority -->
-                <TextBlock Text="Priority" Style="{StaticResource FieldLabelStyle}"/>
-                <ComboBox x:Name="PriorityComboBox" Padding="6" SelectedIndex="2"
-                          Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
-                          BorderBrush="{DynamicResource CardBorderBrush}">
-                    <ComboBoxItem Content="High"/>
-                    <ComboBoxItem Content="Medium"/>
-                    <ComboBoxItem Content="Normal"/>
-                    <ComboBoxItem Content="Low"/>
-                </ComboBox>
-
-                <!-- Category -->
-                <TextBlock Text="Category" Style="{StaticResource FieldLabelStyle}"/>
-                <ComboBox x:Name="CategoryComboBox" Padding="6"
-                          DisplayMemberPath="DisplayName" SelectedIndex="0"
-                          Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
-                          BorderBrush="{DynamicResource CardBorderBrush}"/>
-
-                <!-- Due Date and Recurring -->
-                <TextBlock Text="Due Date" Style="{StaticResource FieldLabelStyle}"/>
+                <!-- Compact two-column fields -->
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="16"/>
+                        <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <DatePicker Grid.Column="0" x:Name="DueDatePicker" Padding="4"
-                                Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
-                                BorderBrush="{DynamicResource CardBorderBrush}"/>
-                    <Button Grid.Column="1" Content="Clear" Padding="8,4" Margin="6,0,0,0" Click="ClearDueDate_Click"
-                            Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Priority | Category -->
+                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Priority" Style="{StaticResource FieldLabelStyle}"/>
+                    <TextBlock Grid.Row="0" Grid.Column="2" Text="Category" Style="{StaticResource FieldLabelStyle}"/>
+                    <ComboBox Grid.Row="1" Grid.Column="0" x:Name="PriorityComboBox" Padding="6" SelectedIndex="2"
+                              Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                              BorderBrush="{DynamicResource CardBorderBrush}">
+                        <ComboBoxItem Content="High"/>
+                        <ComboBoxItem Content="Medium"/>
+                        <ComboBoxItem Content="Normal"/>
+                        <ComboBoxItem Content="Low"/>
+                    </ComboBox>
+                    <ComboBox Grid.Row="1" Grid.Column="2" x:Name="CategoryComboBox" Padding="6"
+                              DisplayMemberPath="DisplayName" SelectedIndex="0"
+                              Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                              BorderBrush="{DynamicResource CardBorderBrush}"/>
+
+                    <!-- Due Date | Who -->
+                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Due Date" Style="{StaticResource FieldLabelStyle}"/>
+                    <StackPanel Grid.Row="2" Grid.Column="2" Style="{StaticResource FieldLabelRowStyle}">
+                        <TextBlock Text="Who" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Center"/>
+                        <Button Content="+" Style="{StaticResource NewLinkButtonStyle}" ToolTip="Add new person" Click="NewWho_Click"/>
+                        <Button Content="−" Style="{StaticResource DeleteLinkButtonStyle}" ToolTip="Clear who" Click="DeleteWho_Click"/>
+                    </StackPanel>
+                    <Grid Grid.Row="3" Grid.Column="0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <DatePicker Grid.Column="0" x:Name="DueDatePicker" Padding="4"
+                                    Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                                    BorderBrush="{DynamicResource CardBorderBrush}"/>
+                        <Button Grid.Column="1" Content="Today" Padding="8,4" Margin="6,0,0,0" Click="TodayDueDate_Click"
+                                Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                        <Button Grid.Column="2" Content="Clear" Padding="8,4" Margin="6,0,0,0" Click="ClearDueDate_Click"
+                                Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                    </Grid>
+                    <ComboBox Grid.Row="3" Grid.Column="2" x:Name="WhoComboBox" Padding="6" SelectedIndex="-1"
+                              DisplayMemberPath="Name"
+                              Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                              BorderBrush="{DynamicResource CardBorderBrush}"/>
+
+                    <!-- Goal | Recurring -->
+                    <StackPanel Grid.Row="4" Grid.Column="0" Style="{StaticResource FieldLabelRowStyle}">
+                        <TextBlock Text="Goal" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Center"/>
+                        <Button Content="+" Style="{StaticResource NewLinkButtonStyle}" ToolTip="Add new goal" Click="NewGoal_Click"/>
+                        <Button Content="−" Style="{StaticResource DeleteLinkButtonStyle}" ToolTip="Clear goal" Click="DeleteGoal_Click"/>
+                    </StackPanel>
+                    <CheckBox Grid.Row="4" Grid.Column="2" x:Name="RecurringCheckBox" Content="Recurring task"
+                              VerticalAlignment="Bottom" Margin="0,12,0,4"
+                              Foreground="{DynamicResource PrimaryTextBrush}"
+                              Checked="RecurringCheckBox_Changed" Unchecked="RecurringCheckBox_Changed"/>
+                    <ComboBox Grid.Row="5" Grid.Column="0" x:Name="GoalComboBox" Padding="6" SelectedIndex="-1"
+                              DisplayMemberPath="Name"
+                              Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                              BorderBrush="{DynamicResource CardBorderBrush}"/>
+                    <ComboBox Grid.Row="5" Grid.Column="2" x:Name="RecurrenceComboBox" Padding="6" SelectedIndex="0" Visibility="Collapsed"
+                              Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                              BorderBrush="{DynamicResource CardBorderBrush}">
+                        <ComboBoxItem Content="Daily"/>
+                        <ComboBoxItem Content="Weekday"/>
+                        <ComboBoxItem Content="Weekly"/>
+                        <ComboBoxItem Content="Bi-Weekly"/>
+                        <ComboBoxItem Content="Monthly"/>
+                        <ComboBoxItem Content="Bi-Monthly"/>
+                        <ComboBoxItem Content="Quarterly"/>
+                        <ComboBoxItem Content="Annually"/>
+                    </ComboBox>
+
+                    <CheckBox Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="3" x:Name="ForceEditOnCompleteCheckBox" Content="Force edit upon completion" Margin="0,12,0,4"
+                              Foreground="{DynamicResource PrimaryTextBrush}"
+                              ToolTip="When on, marking this task Done will automatically open it for editing instead of just moving it."/>
                 </Grid>
-                <CheckBox x:Name="RecurringCheckBox" Content="Recurring task" Margin="0,8,0,4"
-                          Foreground="{DynamicResource PrimaryTextBrush}"
-                          Checked="RecurringCheckBox_Changed" Unchecked="RecurringCheckBox_Changed"/>
-                <ComboBox x:Name="RecurrenceComboBox" Padding="6" SelectedIndex="0" Visibility="Collapsed"
-                          Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
-                          BorderBrush="{DynamicResource CardBorderBrush}">
-                    <ComboBoxItem Content="Daily"/>
-                    <ComboBoxItem Content="Weekday"/>
-                    <ComboBoxItem Content="Weekly"/>
-                    <ComboBoxItem Content="Bi-Weekly"/>
-                    <ComboBoxItem Content="Monthly"/>
-                    <ComboBoxItem Content="Bi-Monthly"/>
-                    <ComboBoxItem Content="Quarterly"/>
-                    <ComboBoxItem Content="Annually"/>
-                </ComboBox>
-
-                <CheckBox x:Name="ForceEditOnCompleteCheckBox" Content="Force edit upon completion" Margin="0,8,0,4"
-                          Foreground="{DynamicResource PrimaryTextBrush}"
-                          ToolTip="When on, marking this task Done will automatically open it for editing instead of just moving it."/>
-
-                <!-- Who -->
-                <StackPanel Style="{StaticResource FieldLabelRowStyle}">
-                    <TextBlock Text="Who" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Center"/>
-                    <Button Content="+" Style="{StaticResource NewLinkButtonStyle}" ToolTip="Add new person" Click="NewWho_Click"/>
-                    <Button Content="−" Style="{StaticResource DeleteLinkButtonStyle}" ToolTip="Clear who" Click="DeleteWho_Click"/>
-                </StackPanel>
-                <ComboBox x:Name="WhoComboBox" Padding="6" SelectedIndex="-1"
-                          DisplayMemberPath="Name"
-                          Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
-                          BorderBrush="{DynamicResource CardBorderBrush}"/>
-
-                <!-- Goal -->
-                <StackPanel Style="{StaticResource FieldLabelRowStyle}">
-                    <TextBlock Text="Goal" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Center"/>
-                    <Button Content="+" Style="{StaticResource NewLinkButtonStyle}" ToolTip="Add new goal" Click="NewGoal_Click"/>
-                    <Button Content="−" Style="{StaticResource DeleteLinkButtonStyle}" ToolTip="Clear goal" Click="DeleteGoal_Click"/>
-                </StackPanel>
-                <ComboBox x:Name="GoalComboBox" Padding="6" SelectedIndex="-1"
-                          DisplayMemberPath="Name"
-                          Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
-                          BorderBrush="{DynamicResource CardBorderBrush}"/>
 
                 <!-- Notes -->
                 <TextBlock Text="Notes" Style="{StaticResource FieldLabelStyle}"/>

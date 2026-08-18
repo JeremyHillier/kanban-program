@@ -42,7 +42,8 @@ public partial class MainWindow : Window
 
     private void ShowReminders(List<CardViewModel> dueCards, MainViewModel viewModel)
     {
-        var dialog = new ReminderWindow(dueCards, card => EditCard(card, viewModel), card => MarkCardDone(card, viewModel)) { Owner = this };
+        var dialog = new ReminderWindow(dueCards, card => EditCard(card, viewModel), card => MarkCardDone(card, viewModel),
+            card => viewModel.GetDueReminders().Contains(card)) { Owner = this };
         dialog.ShowDialog();
     }
 

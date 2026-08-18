@@ -14,6 +14,7 @@ public partial class ReminderWindow : Window
 
     private readonly Action<CardViewModel> _onOpenTask;
     private readonly Action<CardViewModel> _onMarkDone;
+    private readonly Func<CardViewModel, bool> _isStillDue;
     private readonly Dictionary<ReminderRow, CardViewModel> _rowsToCards = [];
     private readonly ObservableCollection<ReminderRow> _rows = [];
 
@@ -25,23 +26,18 @@ public partial class ReminderWindow : Window
         public required Brush DueLabelBrush { get; init; }
     }
 
-    public ReminderWindow(List<CardViewModel> dueCards, Action<CardViewModel> onOpenTask, Action<CardViewModel> onMarkDone)
+    public ReminderWindow(List<CardViewModel> dueCards, Action<CardViewModel> onOpenTask, Action<CardViewModel> onMarkDone,
+        Func<CardViewModel, bool> isStillDue)
     {
         InitializeComponent();
         MaxHeight = SystemParameters.WorkArea.Height * 0.9;
         _onOpenTask = onOpenTask;
         _onMarkDone = onMarkDone;
+        _isStillDue = isStillDue;
 
         foreach (var card in dueCards)
         {
-            var isOverdue = card.DueDate!.Value.Date < DateTime.Today;
-            var row = new ReminderRow
-            {
-                Title = card.Title,
-                ProjectName = card.ProjectName,
-                DueLabel = isOverdue ? $"Overdue since {card.DueDate:MMM d, yyyy}" : "Due today",
-                DueLabelBrush = isOverdue ? OverdueBrush : DueTodayBrush
-            };
+            var row = BuildRow(card);
             _rows.Add(row);
             _rowsToCards[row] = card;
         }
@@ -49,6 +45,18 @@ public partial class ReminderWindow : Window
         UpdateIntro();
         ReminderList.ItemsSource = _rows;
         ReminderList.MouseDoubleClick += ReminderList_MouseDoubleClick;
+    }
+
+    private static ReminderRow BuildRow(CardViewModel card)
+    {
+        var isOverdue = card.DueDate!.Value.Date < DateTime.Today;
+        return new ReminderRow
+        {
+            Title = card.Title,
+            ProjectName = card.ProjectName,
+            DueLabel = isOverdue ? $"Overdue since {card.DueDate:MMM d, yyyy}" : "Due today",
+            DueLabelBrush = isOverdue ? OverdueBrush : DueTodayBrush
+        };
     }
 
     private void UpdateIntro()
@@ -72,6 +80,25 @@ public partial class ReminderWindow : Window
 
         // Deliberately left open: the user may want to review or act on other reminders after this one.
         _onOpenTask(card);
+        RefreshRow(row, card);
+    }
+
+    private void RefreshRow(ReminderRow row, CardViewModel card)
+    {
+        if (!_isStillDue(card))
+        {
+            _rowsToCards.Remove(row);
+            _rows.Remove(row);
+            UpdateIntro();
+            return;
+        }
+
+        var updatedRow = BuildRow(card);
+        var index = _rows.IndexOf(row);
+        _rowsToCards.Remove(row);
+        _rows[index] = updatedRow;
+        _rowsToCards[updatedRow] = card;
+        UpdateIntro();
     }
 
     private void MarkDoneCheckBox_Checked(object sender, RoutedEventArgs e)

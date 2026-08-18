@@ -465,6 +465,11 @@ public partial class AddTaskWindow : Window
         RebuildFlagCheckboxes(_viewModel.Flags.FirstOrDefault(f => f.Name == dialog.Value.Trim())?.Id);
     }
 
+    private void TodayDueDate_Click(object sender, RoutedEventArgs e)
+    {
+        DueDatePicker.SelectedDate = DateTime.Today;
+    }
+
     private void ClearDueDate_Click(object sender, RoutedEventArgs e)
     {
         DueDatePicker.SelectedDate = null;

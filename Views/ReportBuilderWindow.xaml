@@ -117,13 +117,17 @@
             <TextBlock Grid.Row="4" Text="Archived date range (applies to archived tasks only)" Style="{StaticResource FieldLabelStyle}"/>
             <StackPanel Grid.Row="5" Orientation="Horizontal">
                 <TextBlock Text="From" VerticalAlignment="Center" Margin="0,0,6,0" Foreground="{DynamicResource PrimaryTextBrush}"/>
-                <DatePicker x:Name="ArchivedFromDatePicker" Padding="4" Width="140" Margin="0,0,16,0"
+                <DatePicker x:Name="ArchivedFromDatePicker" Padding="4" Width="140"
                             Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
                             BorderBrush="{DynamicResource CardBorderBrush}"/>
+                <Button Content="Today" Padding="8,4" Margin="6,0,16,0" Click="TodayArchivedFrom_Click"
+                        Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
                 <TextBlock Text="To" VerticalAlignment="Center" Margin="0,0,6,0" Foreground="{DynamicResource PrimaryTextBrush}"/>
                 <DatePicker x:Name="ArchivedToDatePicker" Padding="4" Width="140"
                             Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
                             BorderBrush="{DynamicResource CardBorderBrush}"/>
+                <Button Content="Today" Padding="8,4" Margin="6,0,0,0" Click="TodayArchivedTo_Click"
+                        Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
             </StackPanel>
 
             <CheckBox Grid.Row="6" x:Name="IncludeNotesCheckBox" Content="Include notes" Margin="0,14,0,4"
