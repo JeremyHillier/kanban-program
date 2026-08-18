@@ -14,17 +14,31 @@
         <SolidColorBrush x:Key="ButtonBackgroundBrush" Color="#FFECECEC"/>
         <SolidColorBrush x:Key="InputBackgroundBrush" Color="White"/>
 
-        <!-- Without this, a ComboBox's dropdown list items fall back to the system default
-             foreground/background (dark-on-white) instead of the app's theme, making them
-             unreadable in dark mode (light text on a light popup). -->
+        <!-- The built-in (Fluent-theme) ComboBoxItem template paints its Highlighted/Selected states
+             from its own internal resources, ignoring plain Background/Foreground setters and triggers,
+             and ignoring SystemColors.Highlight overrides too. A full custom template is the only
+             reliable way to theme it (needed so dropdown items stay readable in dark mode). -->
         <Style TargetType="{x:Type ComboBoxItem}">
-            <Setter Property="Background" Value="{DynamicResource InputBackgroundBrush}"/>
+            <Setter Property="Padding" Value="6,4"/>
             <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
-            <Style.Triggers>
-                <Trigger Property="IsHighlighted" Value="True">
-                    <Setter Property="Background" Value="{DynamicResource ButtonBackgroundBrush}"/>
-                </Trigger>
-            </Style.Triggers>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type ComboBoxItem}">
+                        <Border x:Name="Bd" Background="{DynamicResource InputBackgroundBrush}"
+                                Padding="{TemplateBinding Padding}" SnapsToDevicePixels="True">
+                            <ContentPresenter/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsHighlighted" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource ButtonBackgroundBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource ButtonBackgroundBrush}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
     </Application.Resources>
 </Application>

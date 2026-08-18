@@ -1,6 +1,7 @@
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
+using KanbanApp.Models;
 using KanbanApp.Services;
 using KanbanApp.ViewModels;
 using Microsoft.Win32;
@@ -56,23 +57,36 @@ public partial class ReportBuilderWindow : Window
     private string GetReportTitle() =>
         string.IsNullOrWhiteSpace(ReportTitleTextBox.Text) ? "Kanban Task Report" : ReportTitleTextBox.Text.Trim();
 
-    private List<Models.ReportRow> BuildRows() => ReportService.BuildRows(
-        _viewModel.Columns,
-        GetIncludedColumns(),
-        (string)ProjectFilterComboBox.SelectedItem,
-        (string)PriorityFilterComboBox.SelectedItem,
-        (string)WhoFilterComboBox.SelectedItem,
-        (string)GoalFilterComboBox.SelectedItem,
-        (string)FlagFilterComboBox.SelectedItem,
-        (string)DueFilterComboBox.SelectedItem,
-        IncludeArchivedCheckBox.IsChecked == true ? _viewModel.GetArchivedReportRows() : null);
+    private ReportArchiveScope GetArchiveScope() =>
+        ArchivedOnlyRadio.IsChecked == true ? ReportArchiveScope.ArchivedOnly
+        : BoardAndArchivedRadio.IsChecked == true ? ReportArchiveScope.BoardAndArchived
+        : ReportArchiveScope.BoardOnly;
+
+    private List<Models.ReportRow> BuildRows()
+    {
+        var scope = GetArchiveScope();
+        return ReportService.BuildRows(
+            _viewModel.Columns,
+            GetIncludedColumns(),
+            (string)ProjectFilterComboBox.SelectedItem,
+            (string)PriorityFilterComboBox.SelectedItem,
+            (string)WhoFilterComboBox.SelectedItem,
+            (string)GoalFilterComboBox.SelectedItem,
+            (string)FlagFilterComboBox.SelectedItem,
+            (string)DueFilterComboBox.SelectedItem,
+            scope,
+            scope == ReportArchiveScope.BoardOnly ? null : _viewModel.GetArchivedReportRows(),
+            ArchivedFromDatePicker.SelectedDate,
+            ArchivedToDatePicker.SelectedDate);
+    }
 
     private void Preview_Click(object sender, RoutedEventArgs e)
     {
         var title = GetReportTitle();
         var rows = BuildRows();
         var document = ReportService.BuildFixedDocument(
-            title, rows, GetGroupBy(), IncludeNotesCheckBox.IsChecked == true, IncludeSubTasksCheckBox.IsChecked == true);
+            title, rows, GetGroupBy(), IncludeNotesCheckBox.IsChecked == true, IncludeSubTasksCheckBox.IsChecked == true,
+            IncludeSubTaskSummaryCheckBox.IsChecked == true);
 
         new ReportPreviewWindow(document) { Owner = this }.ShowDialog();
     }
@@ -108,7 +122,8 @@ public partial class ReportBuilderWindow : Window
 
         if (filePath is null) return;
 
-        ReportService.SavePdf(title, rows, GetGroupBy(), IncludeNotesCheckBox.IsChecked == true, IncludeSubTasksCheckBox.IsChecked == true, filePath);
+        ReportService.SavePdf(title, rows, GetGroupBy(), IncludeNotesCheckBox.IsChecked == true, IncludeSubTasksCheckBox.IsChecked == true, filePath,
+            IncludeSubTaskSummaryCheckBox.IsChecked == true);
 
         MessageBox.Show(this, $"Report saved to:\n{filePath}", "Report Saved", MessageBoxButton.OK, MessageBoxImage.Information);
     }

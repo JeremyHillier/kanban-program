@@ -4,7 +4,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         mc:Ignorable="d"
-        Title="Settings" Width="460" SizeToContent="Height"
+        Title="Settings" Width="820" SizeToContent="Height"
         WindowStartupLocation="CenterOwner" ResizeMode="NoResize"
         ShowInTaskbar="False"
         Background="{DynamicResource WindowBackgroundBrush}">
@@ -28,117 +28,129 @@
     </Window.Resources>
     <ScrollViewer VerticalScrollBarVisibility="Auto">
     <StackPanel Margin="16">
-        <TextBlock Text="Layout" Style="{StaticResource SectionHeaderStyle}"/>
-        <CheckBox x:Name="ButtonsOnRightCheckBox" Content="Show the button panel on the right side of the board"
-                  Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,12"
-                  Checked="ButtonsOnRightCheckBox_Changed" Unchecked="ButtonsOnRightCheckBox_Changed"/>
-        <TextBlock Text="Task column width (pixels)" Style="{StaticResource FieldLabelStyle}"/>
-        <TextBox x:Name="ColumnWidthTextBox" Width="100" Padding="6" HorizontalAlignment="Left" Margin="0,0,0,20"
-                 LostFocus="ColumnWidthTextBox_LostFocus"
-                 Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
-                 BorderBrush="{DynamicResource CardBorderBrush}"/>
-
-        <TextBlock Text="Columns" Style="{StaticResource SectionHeaderStyle}"/>
-        <TextBlock Text="Rename any column's label. Its role on the board (e.g. what counts as &quot;done&quot;) doesn't change."
-                   FontSize="11" Margin="0,0,0,8" TextWrapping="Wrap"
-                   Foreground="{DynamicResource SecondaryTextBrush}"/>
-        <StackPanel x:Name="ColumnNamesPanel" Margin="0,0,0,20"/>
-
-        <TextBlock Text="Startup" Style="{StaticResource SectionHeaderStyle}"/>
-        <CheckBox x:Name="ShowSplashCheckBox" Content="Show splash screen on startup"
-                  Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,8"
-                  Checked="ShowSplashCheckBox_Changed" Unchecked="ShowSplashCheckBox_Changed"/>
-        <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-            <TextBlock Text="Splash duration:" VerticalAlignment="Center" Margin="0,0,8,0"
-                       Foreground="{DynamicResource PrimaryTextBrush}"/>
-            <ComboBox x:Name="SplashDelayComboBox" Width="140" Padding="4"
-                      Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
-                      BorderBrush="{DynamicResource CardBorderBrush}"
-                      SelectionChanged="SplashDelayComboBox_SelectionChanged">
-                <ComboBoxItem Content="1 second" Tag="1000"/>
-                <ComboBoxItem Content="2 seconds" Tag="2000"/>
-                <ComboBoxItem Content="3 seconds" Tag="3000"/>
-                <ComboBoxItem Content="4 seconds" Tag="4000"/>
-            </ComboBox>
-        </StackPanel>
-        <CheckBox x:Name="StartFullScreenCheckBox" Content="Start in full screen"
-                  Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,20"
-                  Checked="StartFullScreenCheckBox_Changed" Unchecked="StartFullScreenCheckBox_Changed"/>
-
-        <TextBlock Text="Behavior" Style="{StaticResource SectionHeaderStyle}"/>
-        <CheckBox x:Name="ConfirmDeleteCheckBox" Content="Confirm before deleting a task, project, goal, or flag"
-                  Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,8"
-                  Checked="ConfirmDeleteCheckBox_Changed" Unchecked="ConfirmDeleteCheckBox_Changed"/>
-        <CheckBox x:Name="ConfirmArchiveCheckBox" Content="Confirm before archiving the Done column"
-                  Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,8"
-                  Checked="ConfirmArchiveCheckBox_Changed" Unchecked="ConfirmArchiveCheckBox_Changed"/>
-        <CheckBox x:Name="AddNoteOnCompleteCheckBox" Content="Ask to add a note when a task is marked Done"
-                  Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,8"
-                  Checked="AddNoteOnCompleteCheckBox_Changed" Unchecked="AddNoteOnCompleteCheckBox_Changed"/>
-        <CheckBox x:Name="ShowDueRemindersCheckBox" Content="Show overdue/due-today reminders when the app opens"
-                  Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,8"
-                  Checked="ShowDueRemindersCheckBox_Changed" Unchecked="ShowDueRemindersCheckBox_Changed"/>
-        <CheckBox x:Name="RememberLastViewCheckBox" Content="Remember filters, sort, and search between sessions"
-                  Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,20"
-                  Checked="RememberLastViewCheckBox_Changed" Unchecked="RememberLastViewCheckBox_Changed"/>
-
-        <TextBlock Text="Data Storage" Style="{StaticResource SectionHeaderStyle}"/>
-        <TextBlock Text="The task database is currently stored at:" Margin="0,0,0,4"
-                   Foreground="{DynamicResource PrimaryTextBrush}"/>
-        <TextBox x:Name="DbPathTextBox" IsReadOnly="True" Padding="6" Margin="0,0,0,10"
-                 Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
-                 BorderBrush="{DynamicResource CardBorderBrush}"/>
-
-        <StackPanel VerticalAlignment="Top" Margin="0,0,0,20">
-            <Button Content="Change Location..." Padding="10,6" HorizontalAlignment="Left" Click="ChangeLocation_Click"
-                    Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
-            <TextBlock Text="Changing the location moves the database file, restarts the app, and removes the old file once the new one is confirmed working." FontSize="11" Margin="0,6,0,0"
-                       Foreground="{DynamicResource SecondaryTextBrush}" TextWrapping="Wrap"/>
-            <TextBlock Text="This path itself is remembered outside the database, in a small config file under your local AppData folder — not inside the database file shown above." FontSize="11" Margin="0,4,0,0"
-                       Foreground="{DynamicResource SecondaryTextBrush}" TextWrapping="Wrap"/>
-        </StackPanel>
-
-        <TextBlock Text="Import / Export" Style="{StaticResource SectionHeaderStyle}"/>
-        <TextBlock Text="Default Export Path" Style="{StaticResource FieldLabelStyle}"/>
-        <Grid Margin="0,0,0,10">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
-            </Grid.ColumnDefinitions>
-            <TextBox Grid.Column="0" x:Name="ExportPathTextBox" Padding="6" LostFocus="ExportPathTextBox_LostFocus"
-                     Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
-                     BorderBrush="{DynamicResource CardBorderBrush}"/>
-            <Button Grid.Column="1" Content="Browse..." Style="{StaticResource BrowseButtonStyle}" Click="BrowseExportPath_Click"/>
-        </Grid>
-
-        <TextBlock Text="Default Import Path" Style="{StaticResource FieldLabelStyle}"/>
-        <Grid Margin="0,0,0,20">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
-            </Grid.ColumnDefinitions>
-            <TextBox Grid.Column="0" x:Name="ImportPathTextBox" Padding="6" LostFocus="ImportPathTextBox_LostFocus"
-                     Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
-                     BorderBrush="{DynamicResource CardBorderBrush}"/>
-            <Button Grid.Column="1" Content="Browse..." Style="{StaticResource BrowseButtonStyle}" Click="BrowseImportPath_Click"/>
-        </Grid>
-
-        <TextBlock Text="Linked Files" Style="{StaticResource SectionHeaderStyle}"/>
-        <TextBlock Text="Linked Files Default Path" Style="{StaticResource FieldLabelStyle}"/>
         <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="24"/>
+                <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <TextBox Grid.Column="0" x:Name="LinkedFilesPathTextBox" Padding="6" LostFocus="LinkedFilesPathTextBox_LostFocus"
-                     Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
-                     BorderBrush="{DynamicResource CardBorderBrush}"/>
-            <Button Grid.Column="1" Content="Browse..." Style="{StaticResource BrowseButtonStyle}" Click="BrowseLinkedFilesPath_Click"/>
-        </Grid>
 
-        <TextBlock Text="This folder will be used once file linking support is added."
-                   FontSize="11" Margin="0,8,0,0"
-                   Foreground="{DynamicResource SecondaryTextBrush}" TextWrapping="Wrap"/>
+            <StackPanel Grid.Column="0">
+                <TextBlock Text="Layout" Style="{StaticResource SectionHeaderStyle}"/>
+                <CheckBox x:Name="ButtonsOnRightCheckBox" Content="Show the button panel on the right side of the board"
+                          Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,12"
+                          Checked="ButtonsOnRightCheckBox_Changed" Unchecked="ButtonsOnRightCheckBox_Changed"/>
+                <TextBlock Text="Task column width (pixels)" Style="{StaticResource FieldLabelStyle}"/>
+                <TextBox x:Name="ColumnWidthTextBox" Width="100" Padding="6" HorizontalAlignment="Left" Margin="0,0,0,20"
+                         LostFocus="ColumnWidthTextBox_LostFocus"
+                         Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                         BorderBrush="{DynamicResource CardBorderBrush}"/>
+
+                <TextBlock Text="Columns" Style="{StaticResource SectionHeaderStyle}"/>
+                <TextBlock Text="Rename any column's label. Its role on the board (e.g. what counts as &quot;done&quot;) doesn't change."
+                           FontSize="11" Margin="0,0,0,8" TextWrapping="Wrap"
+                           Foreground="{DynamicResource SecondaryTextBrush}"/>
+                <StackPanel x:Name="ColumnNamesPanel" Margin="0,0,0,20"/>
+
+                <TextBlock Text="Startup" Style="{StaticResource SectionHeaderStyle}"/>
+                <CheckBox x:Name="ShowSplashCheckBox" Content="Show splash screen on startup"
+                          Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,8"
+                          Checked="ShowSplashCheckBox_Changed" Unchecked="ShowSplashCheckBox_Changed"/>
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                    <TextBlock Text="Splash duration:" VerticalAlignment="Center" Margin="0,0,8,0"
+                               Foreground="{DynamicResource PrimaryTextBrush}"/>
+                    <ComboBox x:Name="SplashDelayComboBox" Width="140" Padding="4"
+                              Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                              BorderBrush="{DynamicResource CardBorderBrush}"
+                              SelectionChanged="SplashDelayComboBox_SelectionChanged">
+                        <ComboBoxItem Content="1 second" Tag="1000"/>
+                        <ComboBoxItem Content="2 seconds" Tag="2000"/>
+                        <ComboBoxItem Content="3 seconds" Tag="3000"/>
+                        <ComboBoxItem Content="4 seconds" Tag="4000"/>
+                    </ComboBox>
+                </StackPanel>
+                <CheckBox x:Name="StartFullScreenCheckBox" Content="Start in full screen"
+                          Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,20"
+                          Checked="StartFullScreenCheckBox_Changed" Unchecked="StartFullScreenCheckBox_Changed"/>
+
+                <TextBlock Text="Behavior" Style="{StaticResource SectionHeaderStyle}"/>
+                <CheckBox x:Name="ConfirmDeleteCheckBox" Content="Confirm before deleting a task, project, goal, or flag"
+                          Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,8"
+                          Checked="ConfirmDeleteCheckBox_Changed" Unchecked="ConfirmDeleteCheckBox_Changed"/>
+                <CheckBox x:Name="ConfirmArchiveCheckBox" Content="Confirm before archiving the Done column"
+                          Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,8"
+                          Checked="ConfirmArchiveCheckBox_Changed" Unchecked="ConfirmArchiveCheckBox_Changed"/>
+                <CheckBox x:Name="AddNoteOnCompleteCheckBox" Content="Ask to add a note when a task is marked Done"
+                          Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,8"
+                          Checked="AddNoteOnCompleteCheckBox_Changed" Unchecked="AddNoteOnCompleteCheckBox_Changed"/>
+                <CheckBox x:Name="ShowDueRemindersCheckBox" Content="Show overdue/due-today reminders when the app opens"
+                          Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,8"
+                          Checked="ShowDueRemindersCheckBox_Changed" Unchecked="ShowDueRemindersCheckBox_Changed"/>
+                <CheckBox x:Name="RememberLastViewCheckBox" Content="Remember filters, sort, and search between sessions"
+                          Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,20"
+                          Checked="RememberLastViewCheckBox_Changed" Unchecked="RememberLastViewCheckBox_Changed"/>
+            </StackPanel>
+
+            <StackPanel Grid.Column="2">
+                <TextBlock Text="Data Storage" Style="{StaticResource SectionHeaderStyle}"/>
+                <TextBlock Text="The task database is currently stored at:" Margin="0,0,0,4"
+                           Foreground="{DynamicResource PrimaryTextBrush}"/>
+                <TextBox x:Name="DbPathTextBox" IsReadOnly="True" Padding="6" Margin="0,0,0,10"
+                         Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                         BorderBrush="{DynamicResource CardBorderBrush}"/>
+
+                <StackPanel VerticalAlignment="Top" Margin="0,0,0,20">
+                    <Button Content="Change Location..." Padding="10,6" HorizontalAlignment="Left" Click="ChangeLocation_Click"
+                            Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                    <TextBlock Text="Changing the location moves the database file, restarts the app, and removes the old file once the new one is confirmed working." FontSize="11" Margin="0,6,0,0"
+                               Foreground="{DynamicResource SecondaryTextBrush}" TextWrapping="Wrap"/>
+                    <TextBlock Text="This path itself is remembered outside the database, in a small config file under your local AppData folder — not inside the database file shown above." FontSize="11" Margin="0,4,0,0"
+                               Foreground="{DynamicResource SecondaryTextBrush}" TextWrapping="Wrap"/>
+                </StackPanel>
+
+                <TextBlock Text="Import / Export" Style="{StaticResource SectionHeaderStyle}"/>
+                <TextBlock Text="Default Export Path" Style="{StaticResource FieldLabelStyle}"/>
+                <Grid Margin="0,0,0,10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBox Grid.Column="0" x:Name="ExportPathTextBox" Padding="6" LostFocus="ExportPathTextBox_LostFocus"
+                             Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                             BorderBrush="{DynamicResource CardBorderBrush}"/>
+                    <Button Grid.Column="1" Content="Browse..." Style="{StaticResource BrowseButtonStyle}" Click="BrowseExportPath_Click"/>
+                </Grid>
+
+                <TextBlock Text="Default Import Path" Style="{StaticResource FieldLabelStyle}"/>
+                <Grid Margin="0,0,0,20">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBox Grid.Column="0" x:Name="ImportPathTextBox" Padding="6" LostFocus="ImportPathTextBox_LostFocus"
+                             Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                             BorderBrush="{DynamicResource CardBorderBrush}"/>
+                    <Button Grid.Column="1" Content="Browse..." Style="{StaticResource BrowseButtonStyle}" Click="BrowseImportPath_Click"/>
+                </Grid>
+
+                <TextBlock Text="Linked Files" Style="{StaticResource SectionHeaderStyle}"/>
+                <TextBlock Text="Linked Files Default Path" Style="{StaticResource FieldLabelStyle}"/>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBox Grid.Column="0" x:Name="LinkedFilesPathTextBox" Padding="6" LostFocus="LinkedFilesPathTextBox_LostFocus"
+                             Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                             BorderBrush="{DynamicResource CardBorderBrush}"/>
+                    <Button Grid.Column="1" Content="Browse..." Style="{StaticResource BrowseButtonStyle}" Click="BrowseLinkedFilesPath_Click"/>
+                </Grid>
+
+                <TextBlock Text="This folder will be used once file linking support is added."
+                           FontSize="11" Margin="0,8,0,0"
+                           Foreground="{DynamicResource SecondaryTextBrush}" TextWrapping="Wrap"/>
+            </StackPanel>
+        </Grid>
 
         <Button Content="Save &amp; Close" Width="120" Padding="0,6" Margin="0,16,0,0"
                 HorizontalAlignment="Right" IsCancel="True" IsDefault="True"

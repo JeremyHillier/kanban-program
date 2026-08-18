@@ -57,27 +57,34 @@ public static class ReportService
         IEnumerable<ColumnViewModel> columns,
         HashSet<string> includeColumns,
         string projectFilter, string priorityFilter, string whoFilter, string goalFilter, string flagFilter, string dueFilter,
-        IEnumerable<(CardViewModel Card, string ColumnName)>? archivedCards = null)
+        ReportArchiveScope archiveScope = ReportArchiveScope.BoardOnly,
+        IEnumerable<(CardViewModel Card, string ColumnName)>? archivedCards = null,
+        DateTime? archivedFrom = null, DateTime? archivedTo = null)
     {
         var rows = new List<ReportRow>();
 
-        foreach (var column in columns)
+        if (archiveScope != ReportArchiveScope.ArchivedOnly)
         {
-            if (!includeColumns.Contains(column.Name)) continue;
-
-            foreach (var card in column.Cards)
+            foreach (var column in columns)
             {
-                if (!Matches(card, projectFilter, priorityFilter, whoFilter, goalFilter, flagFilter, dueFilter)) continue;
+                if (!includeColumns.Contains(column.Name)) continue;
 
-                rows.Add(BuildRow(card, column.DisplayName, isArchived: false));
+                foreach (var card in column.Cards)
+                {
+                    if (!Matches(card, projectFilter, priorityFilter, whoFilter, goalFilter, flagFilter, dueFilter)) continue;
+
+                    rows.Add(BuildRow(card, column.DisplayName, isArchived: false));
+                }
             }
         }
 
-        if (archivedCards is not null)
+        if (archiveScope != ReportArchiveScope.BoardOnly && archivedCards is not null)
         {
             foreach (var (card, columnName) in archivedCards)
             {
                 if (!Matches(card, projectFilter, priorityFilter, whoFilter, goalFilter, flagFilter, dueFilter)) continue;
+                if (archivedFrom is not null && (card.ArchivedAt is null || card.ArchivedAt.Value.Date < archivedFrom.Value.Date)) continue;
+                if (archivedTo is not null && (card.ArchivedAt is null || card.ArchivedAt.Value.Date > archivedTo.Value.Date)) continue;
 
                 rows.Add(BuildRow(card, columnName, isArchived: true));
             }
@@ -85,6 +92,20 @@ public static class ReportService
 
         return rows;
     }
+
+    public static List<SubTaskSummaryRow> BuildSubTaskSummary(List<ReportRow> rows) =>
+        rows.SelectMany(r => r.SubTasks.Select(st => (ParentTitle: r.Title, SubTaskTitle: st.Title, st.IsDone)))
+            .GroupBy(x => (x.ParentTitle, x.SubTaskTitle))
+            .Select(g => new SubTaskSummaryRow
+            {
+                ParentTitle = g.Key.ParentTitle,
+                SubTaskTitle = g.Key.SubTaskTitle,
+                CompletedCount = g.Count(x => x.IsDone),
+                TotalCount = g.Count()
+            })
+            .OrderBy(s => s.ParentTitle, StringComparer.OrdinalIgnoreCase)
+            .ThenBy(s => s.SubTaskTitle, StringComparer.OrdinalIgnoreCase)
+            .ToList();
 
     private static ReportRow BuildRow(CardViewModel card, string columnName, bool isArchived) => new()
     {
@@ -98,6 +119,7 @@ public static class ReportService
         Flags = card.Flags.Select(f => f.Name).ToList(),
         SubTasks = card.SubTasks.Select(s => (s.Title, s.IsDone)).ToList(),
         Notes = card.Notes,
+        ArchivedAt = card.ArchivedAt,
         IsArchived = isArchived
     };
 
@@ -190,7 +212,7 @@ public static class ReportService
     private static SolidColorBrush RowBandBrush(int rowIndex, bool isGrouped) =>
         rowIndex % 2 == 0 ? BandEvenBrush : (isGrouped ? BandGroupedOddBrush : BandOddBrush);
 
-    public static FixedDocument BuildFixedDocument(string title, List<ReportRow> rows, string groupBy, bool includeNotes, bool includeSubTasks)
+    public static FixedDocument BuildFixedDocument(string title, List<ReportRow> rows, string groupBy, bool includeNotes, bool includeSubTasks, bool includeSubTaskSummary = false)
     {
         const double pageWidth = 793.92;
         const double pageHeight = 1122.24;
@@ -353,6 +375,38 @@ public static class ReportService
             }
         }
 
+        if (includeSubTaskSummary)
+        {
+            var summary = BuildSubTaskSummary(rows);
+            if (summary.Count > 0)
+            {
+                EnsureSpace(50);
+                y += 6;
+                var divider = new System.Windows.Shapes.Line { X1 = margin - 8, Y1 = y, X2 = pageWidth - margin + 8, Y2 = y, Stroke = BandAccentBrush, StrokeThickness = 1.2 };
+                canvas.Children.Add(divider);
+                y += 16;
+                AddText(canvas, "Sub-task Completion Summary", margin, y, boldTypeface, 16, BandAccentBrush);
+                y += 26;
+
+                string? lastParent = null;
+                foreach (var s in summary)
+                {
+                    EnsureSpace(20);
+                    if (s.ParentTitle != lastParent)
+                    {
+                        if (lastParent is not null) y += 6;
+                        AddText(canvas, s.ParentTitle, margin, y, boldTypeface, 12, Brushes.Black);
+                        y += 18;
+                        lastParent = s.ParentTitle;
+                    }
+                    var pct = s.TotalCount == 0 ? 0 : s.CompletedCount * 100 / s.TotalCount;
+                    AddText(canvas, $"{s.SubTaskTitle}: {s.CompletedCount}/{s.TotalCount} completed ({pct}%)",
+                        margin + 16, y, regularTypeface, 11, Brushes.DimGray);
+                    y += 16;
+                }
+            }
+        }
+
         var fixedDoc = new FixedDocument();
         for (var i = 0; i < canvases.Count; i++)
         {
@@ -384,7 +438,7 @@ public static class ReportService
         return fixedDoc;
     }
 
-    public static void SavePdf(string title, List<ReportRow> rows, string groupBy, bool includeNotes, bool includeSubTasks, string filePath)
+    public static void SavePdf(string title, List<ReportRow> rows, string groupBy, bool includeNotes, bool includeSubTasks, string filePath, bool includeSubTaskSummary = false)
     {
         EnsureFontResolverRegistered();
 
@@ -501,6 +555,37 @@ public static class ReportService
                 }
 
                 y += 10;
+            }
+        }
+
+        if (includeSubTaskSummary)
+        {
+            var summary = BuildSubTaskSummary(rows);
+            if (summary.Count > 0)
+            {
+                NewPageIfNeeded(50);
+                y += 6;
+                gfx.DrawLine(new XPen(XColor.FromArgb(0x1E, 0x3A, 0x5F), 1.2), new XPoint(margin - 8, y), new XPoint(pageWidth - margin + 8, y));
+                y += 16;
+                gfx.DrawString("Sub-task Completion Summary", new XFont("Segoe UI", 16, XFontStyleEx.Bold), accentBrush, new XPoint(margin, y));
+                y += 26;
+
+                string? lastParent = null;
+                foreach (var s in summary)
+                {
+                    NewPageIfNeeded(18);
+                    if (s.ParentTitle != lastParent)
+                    {
+                        if (lastParent is not null) y += 6;
+                        gfx.DrawString(s.ParentTitle, rowTitleFont, XBrushes.Black, new XPoint(margin, y));
+                        y += 18;
+                        lastParent = s.ParentTitle;
+                    }
+                    var pct = s.TotalCount == 0 ? 0 : s.CompletedCount * 100 / s.TotalCount;
+                    gfx.DrawString($"{s.SubTaskTitle}: {s.CompletedCount}/{s.TotalCount} completed ({pct}%)",
+                        metaFont, metaBrush, new XPoint(margin + 16, y));
+                    y += 16;
+                }
             }
         }
 

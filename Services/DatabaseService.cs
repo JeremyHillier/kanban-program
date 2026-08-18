@@ -284,8 +284,11 @@ public class DatabaseService
     {
         using var connection = OpenConnection();
         using var cmd = connection.CreateCommand();
+        var archivedAtColumn = archivedOnly
+            ? ", (SELECT MAX(h.Timestamp) FROM CardHistory h WHERE h.CardId = Cards.Id AND h.EventType = 'Archived')"
+            : "";
         cmd.CommandText = $"""
-            SELECT Id, ColumnId, Title, SortOrder, ProjectId, Priority, DueDate, WhoId, LastUpdated, IsRecurring, RecurrencePattern, GoalId, Notes, IsImported, ForceEditOnComplete
+            SELECT Id, ColumnId, Title, SortOrder, ProjectId, Priority, DueDate, WhoId, LastUpdated, IsRecurring, RecurrencePattern, GoalId, Notes, IsImported, ForceEditOnComplete{archivedAtColumn}
             FROM Cards WHERE IsArchived = {(archivedOnly ? 1 : 0)} AND IsDeleted = 0 ORDER BY SortOrder;
             """;
 
@@ -310,7 +313,8 @@ public class DatabaseService
                     GoalId = reader.IsDBNull(11) ? null : reader.GetInt32(11),
                     Notes = reader.IsDBNull(12) ? null : reader.GetString(12),
                     IsImported = reader.GetInt32(13) != 0,
-                    ForceEditOnComplete = reader.GetInt32(14) != 0
+                    ForceEditOnComplete = reader.GetInt32(14) != 0,
+                    ArchivedAt = archivedOnly && !reader.IsDBNull(15) ? DateTime.Parse(reader.GetString(15)) : null
                 });
             }
         }

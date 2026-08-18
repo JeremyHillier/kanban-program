@@ -9,6 +9,7 @@ public class CardItem
     public int? ProjectId { get; set; }
     public int? GoalId { get; set; }
     public bool IsArchived { get; set; }
+    public DateTime? ArchivedAt { get; set; }
     public string Priority { get; set; } = "Normal";
     public DateTime? DueDate { get; set; }
     public int? WhoId { get; set; }

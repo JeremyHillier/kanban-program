@@ -99,6 +99,17 @@ public class CardViewModel(CardItem model) : ObservableObject
 
     public string DueDateDisplay => DueDate is null ? string.Empty : $"Due {DueDate:MMM d, yyyy}";
 
+    public DateTime? ArchivedAt
+    {
+        get => Model.ArchivedAt;
+        set
+        {
+            if (Model.ArchivedAt == value) return;
+            Model.ArchivedAt = value;
+            OnPropertyChanged();
+        }
+    }
+
     public int? WhoId
     {
         get => Model.WhoId;

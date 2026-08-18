@@ -13,4 +13,5 @@ public class ReportRow
     public List<(string Title, bool IsDone)> SubTasks { get; init; } = [];
     public string? Notes { get; init; }
     public bool IsArchived { get; init; }
+    public DateTime? ArchivedAt { get; init; }
 }
