@@ -2,7 +2,7 @@ using KanbanApp.Models;
 
 namespace KanbanApp.ViewModels;
 
-public class PersonViewModel(Person model) : ObservableObject
+public class PersonViewModel(Person model) : ObservableObject, IManagedItem
 {
     public Person Model { get; } = model;
     public int Id => Model.Id;

@@ -329,10 +329,43 @@ public class MainViewModel : ObservableObject
     public RelayCommand DeleteCardCommand { get; }
     public RelayCommand MoveCardCommand { get; }
 
+    private readonly ManagedList<Project, ProjectViewModel> _projectManager;
+    private readonly ManagedList<Person, PersonViewModel> _personManager;
+    private readonly ManagedList<Goal, GoalViewModel> _goalManager;
+    private readonly ManagedList<Flag, FlagViewModel> _flagManager;
+
     public MainViewModel(DatabaseService db)
     {
         _db = db;
         RememberLastView = _db.GetSetting("RememberLastView") == "True";
+
+        _projectManager = new ManagedList<Project, ProjectViewModel>(
+            Projects, _db.AddProject, _db.RenameProject, _db.DeleteProject, _db.SetProjectActive, m => new ProjectViewModel(m),
+            RefreshProjectFilterOptions, () => OnPropertyChanged(nameof(ActiveProjects)),
+            item => UpdateMatchingCards(c => c.ProjectId == item.Id, c => c.ProjectName = item.Name),
+            item => UpdateMatchingCards(c => c.ProjectId == item.Id, c => { c.ProjectId = null; c.ProjectName = "No Project"; }),
+            item => Columns.SelectMany(c => c.Cards).Count(c => c.ProjectId == item.Id));
+
+        _personManager = new ManagedList<Person, PersonViewModel>(
+            People, _db.AddPerson, _db.RenamePerson, _db.DeletePerson, _db.SetPersonActive, m => new PersonViewModel(m),
+            RefreshWhoFilterOptions, () => OnPropertyChanged(nameof(ActivePeople)),
+            item => UpdateMatchingCards(c => c.WhoId == item.Id, c => c.WhoName = item.Name),
+            item => UpdateMatchingCards(c => c.WhoId == item.Id, c => { c.WhoId = null; c.WhoName = "Unassigned"; }),
+            item => Columns.SelectMany(c => c.Cards).Count(c => c.WhoId == item.Id));
+
+        _goalManager = new ManagedList<Goal, GoalViewModel>(
+            Goals, _db.AddGoal, _db.RenameGoal, _db.DeleteGoal, _db.SetGoalActive, m => new GoalViewModel(m),
+            RefreshGoalFilterOptions, () => OnPropertyChanged(nameof(ActiveGoals)),
+            item => UpdateMatchingCards(c => c.GoalId == item.Id, c => c.GoalName = item.Name),
+            item => UpdateMatchingCards(c => c.GoalId == item.Id, c => { c.GoalId = null; c.GoalName = "No Goal"; }),
+            item => Columns.SelectMany(c => c.Cards).Count(c => c.GoalId == item.Id));
+
+        _flagManager = new ManagedList<Flag, FlagViewModel>(
+            Flags, _db.AddFlag, _db.RenameFlag, _db.DeleteFlag, _db.SetFlagActive, m => new FlagViewModel(m),
+            RefreshFlagFilterOptions, () => OnPropertyChanged(nameof(ActiveFlags)),
+            _ => { }, // Flags are shared object references in each card's Flags list, so a rename needs no per-card sync.
+            item => UpdateMatchingCards(c => c.Flags.Contains(item), c => c.Flags = c.Flags.Where(f => f.Id != item.Id).ToList()),
+            item => Columns.SelectMany(c => c.Cards).Count(c => c.Flags.Contains(item)));
 
         DeleteCardCommand = new RelayCommand(param => DeleteCard(param as CardViewModel));
         MoveCardCommand = new RelayCommand(param =>
@@ -726,15 +759,12 @@ public class MainViewModel : ObservableObject
     private List<FlagViewModel> ResolveFlags(List<int> flagIds) =>
         Flags.Where(f => flagIds.Contains(f.Id)).ToList();
 
-    private static void InsertSortedByName<T>(ObservableCollection<T> collection, T item, Func<T, string> nameSelector)
+    private void UpdateMatchingCards(Func<CardViewModel, bool> predicate, Action<CardViewModel> update)
     {
-        var name = nameSelector(item);
-        var index = 0;
-        while (index < collection.Count && string.Compare(nameSelector(collection[index]), name, StringComparison.OrdinalIgnoreCase) < 0)
+        foreach (var card in Columns.SelectMany(c => c.Cards).Where(predicate))
         {
-            index++;
+            update(card);
         }
-        collection.Insert(index, item);
     }
 
     public CardViewModel AddCard(string title, ColumnViewModel column, ProjectViewModel? project, string priority, DateTime? dueDate, PersonViewModel? who,
@@ -890,210 +920,29 @@ public class MainViewModel : ObservableObject
         }
     }
 
-    public void AddProject(string name)
-    {
-        if (string.IsNullOrWhiteSpace(name)) return;
+    public void AddProject(string name) => _projectManager.Add(name);
+    public void RenameProject(ProjectViewModel project, string newName) => _projectManager.Rename(project, newName);
+    public void DeleteProject(ProjectViewModel project) => _projectManager.Delete(project);
+    public void SetProjectActive(ProjectViewModel project, bool isActive) => _projectManager.SetActive(project, isActive);
+    public int CountTasksUsingProject(ProjectViewModel project) => _projectManager.CountUsage(project);
 
-        var project = _db.AddProject(name.Trim());
-        InsertSortedByName(Projects, new ProjectViewModel(project), p => p.Name);
-        RefreshProjectFilterOptions();
-    }
+    public void AddPerson(string name) => _personManager.Add(name);
+    public void RenamePerson(PersonViewModel person, string newName) => _personManager.Rename(person, newName);
+    public void DeletePerson(PersonViewModel person) => _personManager.Delete(person);
+    public void SetPersonActive(PersonViewModel person, bool isActive) => _personManager.SetActive(person, isActive);
+    public int CountTasksUsingPerson(PersonViewModel person) => _personManager.CountUsage(person);
 
-    public void RenameProject(ProjectViewModel project, string newName)
-    {
-        if (string.IsNullOrWhiteSpace(newName) || project.Name == newName.Trim()) return;
+    public void AddGoal(string name) => _goalManager.Add(name);
+    public void RenameGoal(GoalViewModel goal, string newName) => _goalManager.Rename(goal, newName);
+    public void DeleteGoal(GoalViewModel goal) => _goalManager.Delete(goal);
+    public void SetGoalActive(GoalViewModel goal, bool isActive) => _goalManager.SetActive(goal, isActive);
+    public int CountTasksUsingGoal(GoalViewModel goal) => _goalManager.CountUsage(goal);
 
-        project.Name = newName.Trim();
-        _db.RenameProject(project.Id, project.Name);
-        Projects.Remove(project);
-        InsertSortedByName(Projects, project, p => p.Name);
-
-        foreach (var card in Columns.SelectMany(c => c.Cards).Where(c => c.ProjectId == project.Id))
-        {
-            card.ProjectName = project.Name;
-        }
-
-        RefreshProjectFilterOptions();
-    }
-
-    public void DeleteProject(ProjectViewModel project)
-    {
-        _db.DeleteProject(project.Id);
-        Projects.Remove(project);
-
-        foreach (var card in Columns.SelectMany(c => c.Cards).Where(c => c.ProjectId == project.Id))
-        {
-            card.ProjectId = null;
-            card.ProjectName = "No Project";
-        }
-
-        RefreshProjectFilterOptions();
-    }
-
-    public void SetProjectActive(ProjectViewModel project, bool isActive)
-    {
-        if (project.IsActive == isActive) return;
-
-        project.IsActive = isActive;
-        _db.SetProjectActive(project.Id, isActive);
-        RefreshProjectFilterOptions();
-        OnPropertyChanged(nameof(ActiveProjects));
-    }
-
-    public int CountTasksUsingProject(ProjectViewModel project) =>
-        Columns.SelectMany(c => c.Cards).Count(c => c.ProjectId == project.Id);
-
-    public void AddPerson(string name)
-    {
-        if (string.IsNullOrWhiteSpace(name)) return;
-
-        var person = _db.AddPerson(name.Trim());
-        InsertSortedByName(People, new PersonViewModel(person), p => p.Name);
-        RefreshWhoFilterOptions();
-    }
-
-    public void RenamePerson(PersonViewModel person, string newName)
-    {
-        if (string.IsNullOrWhiteSpace(newName) || person.Name == newName.Trim()) return;
-
-        person.Name = newName.Trim();
-        _db.RenamePerson(person.Id, person.Name);
-        People.Remove(person);
-        InsertSortedByName(People, person, p => p.Name);
-
-        foreach (var card in Columns.SelectMany(c => c.Cards).Where(c => c.WhoId == person.Id))
-        {
-            card.WhoName = person.Name;
-        }
-
-        RefreshWhoFilterOptions();
-    }
-
-    public void DeletePerson(PersonViewModel person)
-    {
-        _db.DeletePerson(person.Id);
-        People.Remove(person);
-
-        foreach (var card in Columns.SelectMany(c => c.Cards).Where(c => c.WhoId == person.Id))
-        {
-            card.WhoId = null;
-            card.WhoName = "Unassigned";
-        }
-
-        RefreshWhoFilterOptions();
-    }
-
-    public void SetPersonActive(PersonViewModel person, bool isActive)
-    {
-        if (person.IsActive == isActive) return;
-
-        person.IsActive = isActive;
-        _db.SetPersonActive(person.Id, isActive);
-        RefreshWhoFilterOptions();
-        OnPropertyChanged(nameof(ActivePeople));
-    }
-
-    public int CountTasksUsingPerson(PersonViewModel person) =>
-        Columns.SelectMany(c => c.Cards).Count(c => c.WhoId == person.Id);
-
-    public void AddGoal(string name)
-    {
-        if (string.IsNullOrWhiteSpace(name)) return;
-
-        var goal = _db.AddGoal(name.Trim());
-        InsertSortedByName(Goals, new GoalViewModel(goal), g => g.Name);
-        RefreshGoalFilterOptions();
-    }
-
-    public void RenameGoal(GoalViewModel goal, string newName)
-    {
-        if (string.IsNullOrWhiteSpace(newName) || goal.Name == newName.Trim()) return;
-
-        goal.Name = newName.Trim();
-        _db.RenameGoal(goal.Id, goal.Name);
-        Goals.Remove(goal);
-        InsertSortedByName(Goals, goal, g => g.Name);
-
-        foreach (var card in Columns.SelectMany(c => c.Cards).Where(c => c.GoalId == goal.Id))
-        {
-            card.GoalName = goal.Name;
-        }
-
-        RefreshGoalFilterOptions();
-    }
-
-    public void DeleteGoal(GoalViewModel goal)
-    {
-        _db.DeleteGoal(goal.Id);
-        Goals.Remove(goal);
-
-        foreach (var card in Columns.SelectMany(c => c.Cards).Where(c => c.GoalId == goal.Id))
-        {
-            card.GoalId = null;
-            card.GoalName = "No Goal";
-        }
-
-        RefreshGoalFilterOptions();
-    }
-
-    public void SetGoalActive(GoalViewModel goal, bool isActive)
-    {
-        if (goal.IsActive == isActive) return;
-
-        goal.IsActive = isActive;
-        _db.SetGoalActive(goal.Id, isActive);
-        RefreshGoalFilterOptions();
-        OnPropertyChanged(nameof(ActiveGoals));
-    }
-
-    public int CountTasksUsingGoal(GoalViewModel goal) =>
-        Columns.SelectMany(c => c.Cards).Count(c => c.GoalId == goal.Id);
-
-    public void AddFlag(string name)
-    {
-        if (string.IsNullOrWhiteSpace(name)) return;
-
-        var flag = _db.AddFlag(name.Trim());
-        InsertSortedByName(Flags, new FlagViewModel(flag), f => f.Name);
-        RefreshFlagFilterOptions();
-    }
-
-    public void RenameFlag(FlagViewModel flag, string newName)
-    {
-        if (string.IsNullOrWhiteSpace(newName) || flag.Name == newName.Trim()) return;
-
-        flag.Name = newName.Trim();
-        _db.RenameFlag(flag.Id, flag.Name);
-        Flags.Remove(flag);
-        InsertSortedByName(Flags, flag, f => f.Name);
-        RefreshFlagFilterOptions();
-    }
-
-    public void DeleteFlag(FlagViewModel flag)
-    {
-        _db.DeleteFlag(flag.Id);
-        Flags.Remove(flag);
-
-        foreach (var card in Columns.SelectMany(c => c.Cards).Where(c => c.Flags.Contains(flag)))
-        {
-            card.Flags = card.Flags.Where(f => f.Id != flag.Id).ToList();
-        }
-
-        RefreshFlagFilterOptions();
-    }
-
-    public void SetFlagActive(FlagViewModel flag, bool isActive)
-    {
-        if (flag.IsActive == isActive) return;
-
-        flag.IsActive = isActive;
-        _db.SetFlagActive(flag.Id, isActive);
-        RefreshFlagFilterOptions();
-        OnPropertyChanged(nameof(ActiveFlags));
-    }
-
-    public int CountTasksUsingFlag(FlagViewModel flag) =>
-        Columns.SelectMany(c => c.Cards).Count(c => c.Flags.Contains(flag));
+    public void AddFlag(string name) => _flagManager.Add(name);
+    public void RenameFlag(FlagViewModel flag, string newName) => _flagManager.Rename(flag, newName);
+    public void DeleteFlag(FlagViewModel flag) => _flagManager.Delete(flag);
+    public void SetFlagActive(FlagViewModel flag, bool isActive) => _flagManager.SetActive(flag, isActive);
+    public int CountTasksUsingFlag(FlagViewModel flag) => _flagManager.CountUsage(flag);
 
     public List<DeletedCardInfo> GetDeletedCards() => _db.GetDeletedCards();
 

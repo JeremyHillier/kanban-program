@@ -2,7 +2,7 @@ using KanbanApp.Models;
 
 namespace KanbanApp.ViewModels;
 
-public class GoalViewModel(Goal model) : ObservableObject
+public class GoalViewModel(Goal model) : ObservableObject, IManagedItem
 {
     public Goal Model { get; } = model;
 

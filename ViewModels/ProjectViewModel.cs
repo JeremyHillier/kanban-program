@@ -2,7 +2,7 @@ using KanbanApp.Models;
 
 namespace KanbanApp.ViewModels;
 
-public class ProjectViewModel(Project model) : ObservableObject
+public class ProjectViewModel(Project model) : ObservableObject, IManagedItem
 {
     public Project Model { get; } = model;
 

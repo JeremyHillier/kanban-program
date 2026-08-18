@@ -2,7 +2,7 @@ using KanbanApp.Models;
 
 namespace KanbanApp.ViewModels;
 
-public class FlagViewModel(Flag model) : ObservableObject
+public class FlagViewModel(Flag model) : ObservableObject, IManagedItem
 {
     public Flag Model { get; } = model;
 
