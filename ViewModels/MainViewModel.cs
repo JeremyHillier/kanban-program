@@ -876,7 +876,7 @@ public class MainViewModel : ObservableObject
 
         card.Priority = priority;
         card.LastUpdated = _db.UpdateCard(card.Id, card.Title, card.ProjectId, priority, card.DueDate, card.WhoId,
-            card.IsRecurring, card.RecurrencePattern, card.GoalId, card.Notes);
+            card.IsRecurring, card.RecurrencePattern, card.GoalId, card.Notes, card.ForceEditOnComplete);
 
         card.IsVisible = MatchesFilters(card);
         ApplySort();
@@ -889,7 +889,7 @@ public class MainViewModel : ObservableObject
 
         card.DueDate = dueDate;
         card.LastUpdated = _db.UpdateCard(card.Id, card.Title, card.ProjectId, card.Priority, dueDate, card.WhoId,
-            card.IsRecurring, card.RecurrencePattern, card.GoalId, card.Notes);
+            card.IsRecurring, card.RecurrencePattern, card.GoalId, card.Notes, card.ForceEditOnComplete);
 
         card.IsVisible = MatchesFilters(card);
         ApplySort();
@@ -903,7 +903,21 @@ public class MainViewModel : ObservableObject
         card.WhoId = who?.Id;
         card.WhoName = who?.Name ?? "Unassigned";
         card.LastUpdated = _db.UpdateCard(card.Id, card.Title, card.ProjectId, card.Priority, card.DueDate, who?.Id,
-            card.IsRecurring, card.RecurrencePattern, card.GoalId, card.Notes);
+            card.IsRecurring, card.RecurrencePattern, card.GoalId, card.Notes, card.ForceEditOnComplete);
+
+        card.IsVisible = MatchesFilters(card);
+        ApplySort();
+        RefreshDashboardStats();
+    }
+
+    public void SetCardProject(CardViewModel card, ProjectViewModel project)
+    {
+        if (card.ProjectId == project.Id) return;
+
+        card.ProjectId = project.Id;
+        card.ProjectName = project.Name;
+        card.LastUpdated = _db.UpdateCard(card.Id, card.Title, project.Id, card.Priority, card.DueDate, card.WhoId,
+            card.IsRecurring, card.RecurrencePattern, card.GoalId, card.Notes, card.ForceEditOnComplete);
 
         card.IsVisible = MatchesFilters(card);
         ApplySort();

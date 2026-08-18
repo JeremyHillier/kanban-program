@@ -581,6 +581,23 @@ public partial class MainWindow : Window
         e.Handled = true;
     }
 
+    private void ProjectName_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+    {
+        if (sender is not FrameworkElement { DataContext: CardViewModel card } element || DataContext is not MainViewModel viewModel) return;
+
+        var menu = new System.Windows.Controls.ContextMenu();
+        foreach (var project in viewModel.Projects.Where(p => p.IsActive))
+        {
+            var menuItem = new System.Windows.Controls.MenuItem { Header = project.Name, IsChecked = card.ProjectId == project.Id };
+            menuItem.Click += (_, _) => Dispatcher.BeginInvoke(new Action(() => viewModel.SetCardProject(card, project)), DispatcherPriority.Background);
+            menu.Items.Add(menuItem);
+        }
+
+        menu.PlacementTarget = element;
+        menu.IsOpen = true;
+        e.Handled = true;
+    }
+
     private void DueDateDisplay_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
     {
         if (sender is not FrameworkElement { DataContext: CardViewModel card } element || DataContext is not MainViewModel viewModel) return;
