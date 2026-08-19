@@ -637,17 +637,26 @@ public partial class MainWindow : Window
         };
 
         // Deferred via BeginInvoke: see the comment in PriorityBadge_MouseLeftButtonDown — mutating the
-        // card collection while this popup is still closing deadlocks WPF's layout engine.
+        // card collection while this popup is still closing deadlocks WPF's layout engine. Closing
+        // the popup itself must be deferred too here: SelectedDateChanged fires from inside the
+        // DatePicker's own nested calendar popup as IT closes, so forcing our outer popup shut
+        // synchronously in that same handler races two nested popup teardowns against each other.
         datePicker.SelectedDateChanged += (_, _) =>
         {
             var newDate = datePicker.SelectedDate;
-            popup.IsOpen = false;
-            Dispatcher.BeginInvoke(new Action(() => viewModel.SetCardDueDate(card, newDate)), DispatcherPriority.Background);
+            Dispatcher.BeginInvoke(new Action(() =>
+            {
+                popup.IsOpen = false;
+                viewModel.SetCardDueDate(card, newDate);
+            }), DispatcherPriority.Background);
         };
         clearButton.Click += (_, _) =>
         {
-            popup.IsOpen = false;
-            Dispatcher.BeginInvoke(new Action(() => viewModel.SetCardDueDate(card, null)), DispatcherPriority.Background);
+            Dispatcher.BeginInvoke(new Action(() =>
+            {
+                popup.IsOpen = false;
+                viewModel.SetCardDueDate(card, null);
+            }), DispatcherPriority.Background);
         };
         panel.PreviewKeyDown += (_, keyArgs) =>
         {
