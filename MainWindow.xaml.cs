@@ -621,11 +621,23 @@ public partial class MainWindow : Window
         panel.Children.Add(datePicker);
         panel.Children.Add(clearButton);
 
+        // StaysOpen="False" (the default for a transient popup) is what actually causes the freeze
+        // reported when picking a date from the calendar, not the collection-mutation timing the
+        // earlier BeginInvoke fixes addressed: DatePicker's own calendar dropdown is itself a nested
+        // Popup, and WPF's automatic "click outside closes it" logic on an outer StaysOpen=False
+        // Popup fires synchronously while that nested popup is still tearing down, racing two popup
+        // closes against each other. Typing a date never opens that nested popup, so it never hit
+        // this. ContextMenu (used by Priority/Who/Project) has its own correct handling of nested
+        // popups and isn't affected. Fix: StaysOpen="True" so WPF's racy auto-dismiss never engages,
+        // and close it ourselves only in response to an explicit action (date picked, Clear clicked,
+        // Escape, or a genuine outside click - detected via the Window's PreviewMouseDown, which a
+        // click inside this popup or its nested calendar popup never reaches, since popups are
+        // separate top-level windows that don't route input through their owner's event handlers).
         var popup = new System.Windows.Controls.Primitives.Popup
         {
             PlacementTarget = element,
             Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom,
-            StaysOpen = false,
+            StaysOpen = true,
             AllowsTransparency = true,
             Child = new System.Windows.Controls.Border
             {
@@ -636,17 +648,26 @@ public partial class MainWindow : Window
             }
         };
 
-        // Deferred via BeginInvoke: see the comment in PriorityBadge_MouseLeftButtonDown — mutating the
-        // card collection while this popup is still closing deadlocks WPF's layout engine. Closing
-        // the popup itself must be deferred too here: SelectedDateChanged fires from inside the
-        // DatePicker's own nested calendar popup as IT closes, so forcing our outer popup shut
-        // synchronously in that same handler races two nested popup teardowns against each other.
+        MouseButtonEventHandler onOutsideClick = null!;
+        onOutsideClick = (_, _) => ClosePopup();
+
+        void ClosePopup()
+        {
+            PreviewMouseDown -= onOutsideClick;
+            Deactivated -= OnDeactivatedClosePopup;
+            popup.IsOpen = false;
+        }
+
+        void OnDeactivatedClosePopup(object? _, EventArgs __) => ClosePopup();
+
+        // Deferred via BeginInvoke: mutating the card collection while this popup is still closing
+        // deadlocks WPF's layout engine (see PriorityBadge_MouseLeftButtonDown for the same pattern).
         datePicker.SelectedDateChanged += (_, _) =>
         {
             var newDate = datePicker.SelectedDate;
             Dispatcher.BeginInvoke(new Action(() =>
             {
-                popup.IsOpen = false;
+                ClosePopup();
                 viewModel.SetCardDueDate(card, newDate);
             }), DispatcherPriority.Background);
         };
@@ -654,17 +675,22 @@ public partial class MainWindow : Window
         {
             Dispatcher.BeginInvoke(new Action(() =>
             {
-                popup.IsOpen = false;
+                ClosePopup();
                 viewModel.SetCardDueDate(card, null);
             }), DispatcherPriority.Background);
         };
         panel.PreviewKeyDown += (_, keyArgs) =>
         {
             if (keyArgs.Key != Key.Escape) return;
-            popup.IsOpen = false;
+            ClosePopup();
             keyArgs.Handled = true;
         };
-        popup.Opened += (_, _) => datePicker.Focus();
+        popup.Opened += (_, _) =>
+        {
+            datePicker.Focus();
+            PreviewMouseDown += onOutsideClick;
+            Deactivated += OnDeactivatedClosePopup;
+        };
 
         popup.IsOpen = true;
         e.Handled = true;
