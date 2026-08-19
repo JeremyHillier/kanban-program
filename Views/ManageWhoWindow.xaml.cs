@@ -1,5 +1,6 @@
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Threading;
 using KanbanApp.ViewModels;
 
 namespace KanbanApp.Views;
@@ -30,7 +31,11 @@ public partial class ManageWhoWindow : Window
     {
         if (sender is not TextBox { DataContext: PersonViewModel person } textBox) return;
 
-        _viewModel.RenamePerson(person, textBox.Text);
+        // Deferred via BeginInvoke: RenamePerson re-sorts the list (Remove+Insert, not Move), which
+        // tears down this very TextBox's row while its own LostFocus event is still dispatching —
+        // the same WPF deadlock documented on the board's quick-edit popups.
+        var newName = textBox.Text;
+        Dispatcher.BeginInvoke(new Action(() => _viewModel.RenamePerson(person, newName)), DispatcherPriority.Background);
     }
 
     private void Active_Changed(object sender, RoutedEventArgs e)
@@ -53,6 +58,8 @@ public partial class ManageWhoWindow : Window
             if (result != MessageBoxResult.Yes) return;
         }
 
-        _viewModel.DeletePerson(person);
+        // Deferred via BeginInvoke: same reason as the rename above — removing the row tears down
+        // this button's own container mid-Click-dispatch.
+        Dispatcher.BeginInvoke(new Action(() => _viewModel.DeletePerson(person)), DispatcherPriority.Background);
     }
 }

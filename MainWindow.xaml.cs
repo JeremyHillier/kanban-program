@@ -706,8 +706,15 @@ public partial class MainWindow : Window
             sender is FrameworkElement { DataContext: ColumnViewModel column } &&
             DataContext is MainViewModel viewModel)
         {
-            viewModel.MoveCardCommand.Execute((card, column));
-            MaybePromptCompletionNote(card, column, viewModel);
+            // Deferred via BeginInvoke: same defensive reasoning as QuickMove_Click — this handler
+            // still runs nested inside DoDragDrop's own message loop (Drop fires before DoDragDrop
+            // returns to Card_MouseMove), so mutating the collection here immediately carries the
+            // same class of risk as mutating it from inside a Click handler.
+            Dispatcher.BeginInvoke(new Action(() =>
+            {
+                viewModel.MoveCardCommand.Execute((card, column));
+                MaybePromptCompletionNote(card, column, viewModel);
+            }), DispatcherPriority.Background);
         }
     }
 

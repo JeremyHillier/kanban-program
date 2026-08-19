@@ -3,6 +3,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Threading;
 using KanbanApp.ViewModels;
 
 namespace KanbanApp.Views;
@@ -115,10 +116,15 @@ public partial class ReminderWindow : Window
     {
         if (sender is not FrameworkElement { DataContext: ReminderRow row } || !_rowsToCards.TryGetValue(row, out var card)) return;
 
-        _onMarkDone(card);
-        _rowsToCards.Remove(row);
-        _rows.Remove(row);
-        UpdateIntro();
+        // Deferred via BeginInvoke: removing the row tears down this checkbox's own container
+        // mid-Checked-dispatch — the same WPF deadlock documented on the board's quick-edit popups.
+        Dispatcher.BeginInvoke(new Action(() =>
+        {
+            _onMarkDone(card);
+            _rowsToCards.Remove(row);
+            _rows.Remove(row);
+            UpdateIntro();
+        }), DispatcherPriority.Background);
     }
 
     private static T? FindAncestor<T>(DependencyObject source) where T : DependencyObject

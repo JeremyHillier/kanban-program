@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using System.Windows;
+using System.Windows.Threading;
 using KanbanApp.Models;
 using KanbanApp.ViewModels;
 
@@ -35,7 +36,10 @@ public partial class ArchivedTasksWindow : Window
     {
         if (ArchivedList.SelectedItem is not ArchivedCardInfo selected) return;
 
-        Reactivate(selected);
+        // Deferred via BeginInvoke: this double-click still bubbles up from the clicked ListBoxItem,
+        // so removing it from the bound list synchronously here tears down that item's own container
+        // mid-dispatch — the same WPF deadlock documented on the board's quick-edit popups.
+        Dispatcher.BeginInvoke(new Action(() => Reactivate(selected)), DispatcherPriority.Background);
     }
 
     private void Reactivate(ArchivedCardInfo selected)
