@@ -53,7 +53,7 @@
             </ItemsControl>
         </ScrollViewer>
 
-        <Button Grid.Row="2" Content="Close" Width="90" Padding="0,6" Margin="0,12,0,0"
+        <Button Grid.Row="2" Content="Save &amp; Close" Width="120" Padding="0,6" Margin="0,12,0,0"
                 HorizontalAlignment="Right" IsCancel="True"
                 Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
     </Grid>

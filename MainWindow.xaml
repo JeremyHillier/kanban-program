@@ -346,6 +346,28 @@
                             </Button>
                         </StackPanel>
 
+                        <Grid Margin="0,0,0,6">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="8"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="From" FontSize="10" Foreground="White" Margin="0,0,0,2"/>
+                                <DatePicker SelectedDate="{Binding DueRangeFrom, Mode=TwoWay}" Padding="3"
+                                            ToolTip="Leave blank to include everything up to 'To'"
+                                            Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                                            BorderBrush="{DynamicResource CardBorderBrush}"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="To" FontSize="10" Foreground="White" Margin="0,0,0,2"/>
+                                <DatePicker SelectedDate="{Binding DueRangeTo, Mode=TwoWay}" Padding="3"
+                                            ToolTip="Leave blank to include everything from 'From' onward"
+                                            Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                                            BorderBrush="{DynamicResource CardBorderBrush}"/>
+                            </StackPanel>
+                        </Grid>
+
                         <TextBlock Text="Keyword" FontWeight="Bold" FontSize="11" Foreground="White" Margin="0,0,0,2"/>
                         <TextBox Text="{Binding KeywordFilter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Padding="4" Margin="0,0,0,8"
                                  ToolTip="Show only cards whose title contains this text"

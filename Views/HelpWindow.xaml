@@ -96,6 +96,7 @@
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• The Filter section narrows the board by Project, Priority, Who, Goal, Flag, Due date range, or a keyword search across titles."/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Who, Goal, and Flag each offer an 'Unassigned' filter option, showing only tasks with none set."/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• The Today / Tomorrow / Within a Week / No Due Date buttons filter by due date; Today and Within a Week both also include overdue tasks. The active one is shown with a highlighted border."/>
+                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Below those, From/To date pickers filter by a custom due-date range instead — leave From blank to include everything up through To, leave To blank to include everything from From onward. Setting a custom range clears the Today/Tomorrow/etc. buttons and vice versa."/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Clear Filters resets every filter back to All."/>
 
                 <TextBlock Text="Archiving and deleting" Style="{StaticResource HelpSectionHeaderStyle}"/>

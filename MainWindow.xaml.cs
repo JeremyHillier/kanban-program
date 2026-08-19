@@ -509,7 +509,9 @@ public partial class MainWindow : Window
             if (result != MessageBoxResult.Yes) return;
         }
 
-        viewModel.DeleteCardCommand.Execute(card);
+        // Deferred via BeginInvoke: same reason as QuickMove_Click — removing the card tears down
+        // this button's own container mid-Click-dispatch.
+        Dispatcher.BeginInvoke(new Action(() => viewModel.DeleteCardCommand.Execute(card)), DispatcherPriority.Background);
     }
 
     private void AddFlagQuickAction_Click(object sender, RoutedEventArgs e)
@@ -679,8 +681,14 @@ public partial class MainWindow : Window
         var targetColumn = viewModel.Columns.FirstOrDefault(c => c.Name == targetColumnName);
         if (targetColumn is null) return;
 
-        viewModel.MoveCardCommand.Execute((card, targetColumn));
-        MaybePromptCompletionNote(card, targetColumn, viewModel);
+        // Deferred via BeginInvoke: moving the card to another column removes it from this button's
+        // own ItemsControl, tearing down the container mid-Click-dispatch — the same deadlock
+        // documented on the Priority/Who/Project/Due Date quick-edits above.
+        Dispatcher.BeginInvoke(new Action(() =>
+        {
+            viewModel.MoveCardCommand.Execute((card, targetColumn));
+            MaybePromptCompletionNote(card, targetColumn, viewModel);
+        }), DispatcherPriority.Background);
     }
 
     private void Column_Drop(object sender, DragEventArgs e)

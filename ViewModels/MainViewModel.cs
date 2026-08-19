@@ -195,6 +195,8 @@ public class MainViewModel : ObservableObject
         _db.SetSetting("LastGoalFilter", SelectedGoalFilter);
         _db.SetSetting("LastFlagFilter", SelectedFlagFilter);
         _db.SetSetting("LastDueFilter", DueFilter);
+        _db.SetSetting("LastDueRangeFrom", DueRangeFrom?.ToString("yyyy-MM-dd") ?? string.Empty);
+        _db.SetSetting("LastDueRangeTo", DueRangeTo?.ToString("yyyy-MM-dd") ?? string.Empty);
         _db.SetSetting("LastKeywordFilter", KeywordFilter);
         _db.SetSetting("LastSortMode", string.Join(",", _sortKeys));
     }
@@ -253,6 +255,7 @@ public class MainViewModel : ObservableObject
         Columns.Where(c => c.Name != "Done").SelectMany(c => c.Cards)
             .Where(c => c.DueDate is not null && c.DueDate.Value.Date <= DateTime.Today)
             .OrderBy(c => c.DueDate)
+            .ThenBy(c => PriorityRank(c.Priority))
             .ThenBy(c => c.Title)
             .ToList();
 
@@ -330,7 +333,50 @@ public class MainViewModel : ObservableObject
     public string DueFilter
     {
         get => _dueFilter;
-        set { if (SetField(ref _dueFilter, value ?? "All")) ApplyFilters(); }
+        set
+        {
+            if (!SetField(ref _dueFilter, value ?? "All")) return;
+            ClearDueRange(notify: true);
+            ApplyFilters();
+        }
+    }
+
+    private DateTime? _dueRangeFrom;
+    public DateTime? DueRangeFrom
+    {
+        get => _dueRangeFrom;
+        set
+        {
+            if (!SetField(ref _dueRangeFrom, value)) return;
+            if (_dueFilter != "All") { _dueFilter = "All"; OnPropertyChanged(nameof(DueFilter)); }
+            ApplyFilters();
+        }
+    }
+
+    private DateTime? _dueRangeTo;
+    public DateTime? DueRangeTo
+    {
+        get => _dueRangeTo;
+        set
+        {
+            if (!SetField(ref _dueRangeTo, value)) return;
+            if (_dueFilter != "All") { _dueFilter = "All"; OnPropertyChanged(nameof(DueFilter)); }
+            ApplyFilters();
+        }
+    }
+
+    private void ClearDueRange(bool notify)
+    {
+        if (_dueRangeFrom is not null)
+        {
+            _dueRangeFrom = null;
+            if (notify) OnPropertyChanged(nameof(DueRangeFrom));
+        }
+        if (_dueRangeTo is not null)
+        {
+            _dueRangeTo = null;
+            if (notify) OnPropertyChanged(nameof(DueRangeTo));
+        }
     }
 
     private string _keywordFilter = string.Empty;
@@ -515,6 +561,8 @@ public class MainViewModel : ObservableObject
             _selectedGoalFilter = _db.GetSetting("LastGoalFilter") ?? "All";
             _selectedFlagFilter = _db.GetSetting("LastFlagFilter") ?? "All";
             _dueFilter = _db.GetSetting("LastDueFilter") ?? "All";
+            _dueRangeFrom = DateTime.TryParse(_db.GetSetting("LastDueRangeFrom"), out var savedFrom) ? savedFrom : null;
+            _dueRangeTo = DateTime.TryParse(_db.GetSetting("LastDueRangeTo"), out var savedTo) ? savedTo : null;
             _keywordFilter = _db.GetSetting("LastKeywordFilter") ?? string.Empty;
             var savedKeys = (_db.GetSetting("LastSortMode") ?? string.Empty)
                 .Split(',', StringSplitOptions.RemoveEmptyEntries)
@@ -740,6 +788,13 @@ public class MainViewModel : ObservableObject
             if (!matchesDue) return false;
         }
 
+        if (DueRangeFrom is not null || DueRangeTo is not null)
+        {
+            if (card.DueDate is null) return false;
+            if (DueRangeFrom is not null && card.DueDate.Value.Date < DueRangeFrom.Value.Date) return false;
+            if (DueRangeTo is not null && card.DueDate.Value.Date > DueRangeTo.Value.Date) return false;
+        }
+
         if (!string.IsNullOrWhiteSpace(KeywordFilter))
         {
             var keyword = KeywordFilter.Trim();
@@ -766,6 +821,7 @@ public class MainViewModel : ObservableObject
         OnPropertyChanged(nameof(SelectedFlagFilter));
         _dueFilter = "All";
         OnPropertyChanged(nameof(DueFilter));
+        ClearDueRange(notify: true);
         _keywordFilter = string.Empty;
         OnPropertyChanged(nameof(KeywordFilter));
 
