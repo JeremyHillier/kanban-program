@@ -733,7 +733,7 @@ public class MainViewModel : ObservableObject
             {
                 "Today" => card.DueDate is not null && card.DueDate.Value.Date <= today,
                 "Tomorrow" => card.DueDate?.Date == today.AddDays(1),
-                "Within a Week" => card.DueDate is not null && card.DueDate.Value.Date >= today && card.DueDate.Value.Date <= today.AddDays(7),
+                "Within a Week" => card.DueDate is not null && card.DueDate.Value.Date <= today.AddDays(7),
                 "No Due Date" => card.DueDate is null,
                 _ => true
             };

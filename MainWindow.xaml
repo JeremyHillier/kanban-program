@@ -493,7 +493,7 @@
                                                                 <ColumnDefinition Width="*"/>
                                                                 <ColumnDefinition Width="Auto"/>
                                                             </Grid.ColumnDefinitions>
-                                                            <TextBlock Grid.Column="0" Text="{Binding ProjectName}" FontSize="12" FontWeight="Bold"
+                                                            <TextBlock Grid.Column="0" Text="{Binding ProjectName}" FontSize="13" FontWeight="Bold"
                                                                        Foreground="{DynamicResource AccentTextBrush}" VerticalAlignment="Center"
                                                                        Cursor="Hand" ToolTip="Click to change project"
                                                                        MouseLeftButtonUp="ProjectName_MouseLeftButtonUp"/>

@@ -39,7 +39,7 @@ public static class ThemeManager
             res["ButtonBackgroundBrush"] = Brush(0xEC, 0xEC, 0xEC);
             res["InputBackgroundBrush"] = Brushes.White;
             res["BoardAreaBrush"] = Brush(0xD4, 0xD4, 0xD8);
-            res["AccentTextBrush"] = Brush(0x1E, 0x3A, 0x5F);
+            res["AccentTextBrush"] = Brush(0x0B, 0x5F, 0xD9);
             res["ColumnHeaderTextBrush"] = Brush(0x1A, 0x1A, 0x1A);
             res["AlternateRowBrush"] = Brush(0xD7, 0xD8, 0xDB);
         }
