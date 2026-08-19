@@ -220,7 +220,7 @@
         </Border>
 
         <DockPanel Grid.Row="1">
-            <Border DockPanel.Dock="{Binding SidebarDock}" Width="250" Margin="6" Padding="12"
+            <Border DockPanel.Dock="{Binding SidebarDock}" Width="280" Margin="6" Padding="12"
                     CornerRadius="6"
                     Background="{StaticResource AccentPanelBrush}"
                     BorderBrush="{StaticResource AccentPanelBorderBrush}" BorderThickness="1">
@@ -381,8 +381,7 @@
 
                         <Separator Margin="0,12,0,0"/>
 
-                        <TextBlock Text="Other" Style="{StaticResource SectionHeaderStyle}"/>
-                        <StackPanel>
+                        <StackPanel Margin="0,14,0,0">
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                                 <Button Style="{StaticResource SquareButtonStyle}" Background="#FF5C6BC0" Foreground="White" Click="ManageProjects_Click"
                                         ToolTip="Add, rename, or delete projects (Alt+P)">
