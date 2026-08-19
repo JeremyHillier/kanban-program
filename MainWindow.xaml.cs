@@ -656,6 +656,19 @@ public partial class MainWindow : Window
             PreviewMouseDown -= onOutsideClick;
             Deactivated -= OnDeactivatedClosePopup;
             popup.IsOpen = false;
+
+            // DatePicker's calendar dropdown sets Win32 mouse capture on its own native popup window
+            // while open. If that window is destroyed (which IsOpen=false above does, for both the
+            // calendar popup and ours) without capture being released first, Windows can leave the
+            // capture "phantom" - pointing at a window that no longer exists - which silently
+            // swallows all further mouse input app-wide until something forces the OS to reset it
+            // (dragging the title bar does, via its own native modal move loop; that's the exact
+            // "only moving the window unfreezes it" symptom this was causing). Mouse.Capture(null) is
+            // the managed-WPF release; NativeMethods.ReleaseCapture() is the Win32-level one, needed
+            // in case the capture was set by native code below WPF that the managed call can't reach.
+            Mouse.Capture(null);
+            NativeMethods.ReleaseCapture();
+            Keyboard.Focus(this);
         }
 
         void OnDeactivatedClosePopup(object? _, EventArgs __) => ClosePopup();
@@ -761,5 +774,11 @@ public partial class MainWindow : Window
         if (result != MessageBoxResult.Yes) return;
 
         EditCard(card, viewModel, focusNotes: true);
+    }
+
+    private static class NativeMethods
+    {
+        [System.Runtime.InteropServices.DllImport("user32.dll")]
+        public static extern bool ReleaseCapture();
     }
 }
