@@ -249,6 +249,18 @@ public partial class MainWindow : Window
 
     private void MainWindow_PreviewKeyDown(object sender, KeyEventArgs e)
     {
+        // Handled at the Window level (tunneling PreviewKeyDown, fires before any focused control's
+        // own Escape handling) so it's a single, reliable "reset the view" regardless of which
+        // filter control happens to have focus — a focused ComboBox's own "just close the dropdown"
+        // Escape behavior otherwise leaves other filters untouched, which read as ESC only clearing
+        // some of them.
+        if (Keyboard.Modifiers == ModifierKeys.None && e.Key == Key.Escape && DataContext is MainViewModel clearViewModel)
+        {
+            clearViewModel.ClearFilters();
+            e.Handled = true;
+            return;
+        }
+
         switch (Keyboard.Modifiers)
         {
             case ModifierKeys.Control:
@@ -298,6 +310,10 @@ public partial class MainWindow : Window
                         break;
                     case Key.S:
                         Settings_Click(sender, e);
+                        e.Handled = true;
+                        break;
+                    case Key.H:
+                        Help_Click(sender, e);
                         e.Handled = true;
                         break;
                 }

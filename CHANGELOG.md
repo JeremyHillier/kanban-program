@@ -6,6 +6,10 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.52.0 — 2026-08-19
+- Esc now clears every filter on the main board, from any focus state (previously nothing was wired up, so some controls' own native Escape handling made it look like it only cleared some filters)
+- Add Alt+H shortcut to open Help
+
 ## 0.51.5 — 2026-08-19
 - Fix due-date popup freeze for real: release stuck mouse capture
 

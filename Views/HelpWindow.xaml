@@ -54,7 +54,8 @@
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Alt+W — manage Who."/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Alt+R — open Reminders."/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Alt+S — open Settings."/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Esc — close the open dialog."/>
+                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Alt+H — open this Help screen."/>
+                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Esc — close the open dialog, or on the main board, clear every filter."/>
 
                 <TextBlock Text="Adding and editing tasks" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Click New Task (Sort &amp; Add section) to create a task."/>
