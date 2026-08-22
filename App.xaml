@@ -58,7 +58,7 @@
                                           IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}">
                                 <ToggleButton.Template>
                                     <ControlTemplate TargetType="{x:Type ToggleButton}">
-                                        <Border Background="{TemplateBinding Background}"
+                                        <Border x:Name="ToggleBorder" Background="{TemplateBinding Background}"
                                                 BorderBrush="{TemplateBinding BorderBrush}"
                                                 BorderThickness="{TemplateBinding BorderThickness}">
                                             <Grid>
@@ -71,6 +71,12 @@
                                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                             </Grid>
                                         </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter TargetName="ToggleBorder" Property="BorderBrush" Value="{DynamicResource AccentTextBrush}"/>
+                                                <Setter TargetName="ToggleBorder" Property="BorderThickness" Value="2"/>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
                                     </ControlTemplate>
                                 </ToggleButton.Template>
                                 <ToggleButton.Background>

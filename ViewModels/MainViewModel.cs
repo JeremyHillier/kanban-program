@@ -800,7 +800,8 @@ public class MainViewModel : ObservableObject
             var keyword = KeywordFilter.Trim();
             var matchesKeyword = card.Title.Contains(keyword, StringComparison.OrdinalIgnoreCase)
                 || card.ProjectName.Contains(keyword, StringComparison.OrdinalIgnoreCase)
-                || card.WhoName.Contains(keyword, StringComparison.OrdinalIgnoreCase);
+                || card.WhoName.Contains(keyword, StringComparison.OrdinalIgnoreCase)
+                || (card.Notes?.Contains(keyword, StringComparison.OrdinalIgnoreCase) ?? false);
             if (!matchesKeyword) return false;
         }
 

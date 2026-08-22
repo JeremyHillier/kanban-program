@@ -386,9 +386,21 @@
 
                         <TextBlock Text="Keyword" FontWeight="Bold" FontSize="11" Foreground="White" Margin="0,0,0,2"/>
                         <TextBox Text="{Binding KeywordFilter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Padding="4" Margin="0,0,0,8"
-                                 ToolTip="Show only cards whose title contains this text"
-                                 Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
-                                 BorderBrush="{DynamicResource CardBorderBrush}"/>
+                                 ToolTip="Show only cards whose title, project, who, or notes contain this text"
+                                 Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}">
+                            <TextBox.Style>
+                                <Style TargetType="TextBox">
+                                    <Setter Property="BorderBrush" Value="{DynamicResource CardBorderBrush}"/>
+                                    <Setter Property="BorderThickness" Value="1"/>
+                                    <Style.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="BorderBrush" Value="{DynamicResource AccentTextBrush}"/>
+                                            <Setter Property="BorderThickness" Value="2"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBox.Style>
+                        </TextBox>
 
                         <Button Style="{StaticResource ClearFiltersButtonStyle}" Content="Clear Filters" HorizontalAlignment="Stretch"
                                 ToolTip="Reset every filter back to All"
