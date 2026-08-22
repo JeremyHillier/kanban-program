@@ -16,13 +16,22 @@ public static class OutlookDragDropHelper
     public static bool HasDroppableFiles(IDataObject data) =>
         data.GetDataPresent(DataFormats.FileDrop) || data.GetDataPresent("FileGroupDescriptorW");
 
-    // Real files (FileDrop) are linked in place, matching "+ File...". Virtual files (e.g. an
-    // Outlook email) have no real path, so their bytes are saved into attachmentsDir first.
+    // Real files (FileDrop) are copied into attachmentsDir, same as virtual files (e.g. an
+    // Outlook email, which has no real path and must be saved there anyway). Copying rather
+    // than linking in place (unlike "+ File...") means a dropped file's lifecycle is fully
+    // owned by the app - it moves with the card into Done/Archived/Deleted and is cleaned up
+    // like any other attachment the app created.
     public static List<(string FilePath, string DisplayName, bool WasSaved)> ExtractDroppedFiles(IDataObject data, string attachmentsDir)
     {
         if (data.GetDataPresent(DataFormats.FileDrop) && data.GetData(DataFormats.FileDrop) is string[] paths)
         {
-            return paths.Select(p => (p, Path.GetFileName(p), false)).ToList();
+            Directory.CreateDirectory(attachmentsDir);
+            return paths.Select(p =>
+            {
+                var destPath = UniquePath(Path.Combine(attachmentsDir, Path.GetFileName(p)));
+                File.Copy(p, destPath);
+                return (destPath, Path.GetFileName(destPath), true);
+            }).ToList();
         }
 
         if (data.GetDataPresent("FileGroupDescriptorW"))
