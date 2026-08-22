@@ -186,7 +186,7 @@
                     <StackPanel>
                         <StackPanel Style="{StaticResource FieldLabelRowStyle}" Margin="0,0,0,4">
                             <TextBlock Text="Attachments" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Center"/>
-                            <Button Content="+ File..." Padding="8,2" Margin="8,0,0,0" Click="AddFile_Click" ToolTip="Link an existing file (the file itself is not copied)"
+                            <Button Content="+ File..." Padding="8,2" Margin="8,0,0,0" Click="AddFile_Click" ToolTip="Choose a file to copy into this task's Attachments folder"
                                     Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
                             <Button Content="📷 Paste Screenshot" Padding="8,2" Margin="6,0,0,0" Click="PasteScreenshot_Click" ToolTip="Paste an image from the clipboard"
                                     Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>

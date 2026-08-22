@@ -70,11 +70,12 @@
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• A done/total (percent) summary is shown both in the dialog and on the card."/>
 
                 <TextBlock Text="Attachments" Style="{StaticResource HelpSectionHeaderStyle}"/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• '+ File...' links an existing file to the task — the task just remembers the path, it isn't copied at first."/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Dragging a file (from Explorer, Outlook, or an email) onto the attachments area or a card copies it into the 'Attachments' folder right away, so it's fully owned by the task from the start."/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• 'Paste Screenshot' adds whatever image is on the clipboard (e.g. after PrtScn or the Snipping Tool), saved as a real file in an 'Attachments' folder next to your database, so it travels with the database if you relocate it later."/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• When a task reaches Done, is archived, or is deleted, its attachments (both linked files and pasted screenshots) are automatically moved into a matching Done/Archived/Deleted subfolder inside that Attachments folder, keeping them organized by status — and moved back if the task returns to the board. A file still linked from another task is left where it is instead of being moved."/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Images show as a small thumbnail; other files show as a filename. Click either to open the file in its default app, or × to remove it from the task (this deletes the saved copy for anything inside the Attachments folder; a linked file that hasn't yet moved there is left untouched)."/>
+                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• '+ File...' picks an existing file and copies it into the task's 'Attachments' folder (next to your database) — the original file is left untouched in its original location."/>
+                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Dragging a file (from Explorer, Outlook, or an email) onto the attachments area or a card copies it into the 'Attachments' folder the same way."/>
+                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• 'Paste Screenshot' adds whatever image is on the clipboard (e.g. after PrtScn or the Snipping Tool), saved as a real file in the 'Attachments' folder too."/>
+                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Because every attachment is its own copy inside the Attachments folder, it travels with your database if you relocate it, and is unaffected by changes to (or deletion of) the original file it was copied from."/>
+                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• When a task reaches Done, is archived, or is deleted, its attachments are automatically moved into a matching Done/Archived/Deleted subfolder inside the Attachments folder, keeping them organized by status — and moved back if the task returns to the board."/>
+                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Images show as a small thumbnail; other files show as a filename. Click either to open the file in its default app, or × to remove it from the task — this deletes the saved copy."/>
 
                 <TextBlock Text="Recurring tasks" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Mark a task Recurring and choose a pattern (Daily, Weekday, Weekly, Bi-Weekly, Monthly, Bi-Monthly, Quarterly, or Annually)."/>
@@ -155,7 +156,7 @@
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Change where the task database file is stored. The old file is automatically removed once the app has restarted at the new location."/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• The chosen location itself is remembered outside the database, in a small config file under your local AppData folder — not inside the database file."/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Set a Default Export Path (used by Report Builder's PDF export) and a Default Import Path (used by Import Tasks, including where the template is saved)."/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Set a Linked Files Default Path — where the '+ File...' picker opens by default when linking a file to a task."/>
+                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Set an Attach File Default Path — where the '+ File...' picker opens by default when attaching a file to a task."/>
             </StackPanel>
         </ScrollViewer>
 

@@ -133,8 +133,8 @@
                     <Button Grid.Column="1" Content="Browse..." Style="{StaticResource BrowseButtonStyle}" Click="BrowseImportPath_Click"/>
                 </Grid>
 
-                <TextBlock Text="Linked Files" Style="{StaticResource SectionHeaderStyle}"/>
-                <TextBlock Text="Linked Files Default Path" Style="{StaticResource FieldLabelStyle}"/>
+                <TextBlock Text="Attachments" Style="{StaticResource SectionHeaderStyle}"/>
+                <TextBlock Text="Attach File Default Path" Style="{StaticResource FieldLabelStyle}"/>
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
@@ -146,7 +146,7 @@
                     <Button Grid.Column="1" Content="Browse..." Style="{StaticResource BrowseButtonStyle}" Click="BrowseLinkedFilesPath_Click"/>
                 </Grid>
 
-                <TextBlock Text="This folder will be used once file linking support is added."
+                <TextBlock Text="Where the '+ File...' picker opens by default when attaching a file to a task. The chosen file is copied into that task's Attachments folder, not linked from here."
                            FontSize="11" Margin="0,8,0,0"
                            Foreground="{DynamicResource SecondaryTextBrush}" TextWrapping="Wrap"/>
             </StackPanel>

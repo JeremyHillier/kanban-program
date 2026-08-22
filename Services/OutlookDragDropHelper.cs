@@ -17,19 +17,17 @@ public static class OutlookDragDropHelper
         data.GetDataPresent(DataFormats.FileDrop) || data.GetDataPresent("FileGroupDescriptorW");
 
     // Real files (FileDrop) are copied into attachmentsDir, same as virtual files (e.g. an
-    // Outlook email, which has no real path and must be saved there anyway). Copying rather
-    // than linking in place (unlike "+ File...") means a dropped file's lifecycle is fully
-    // owned by the app - it moves with the card into Done/Archived/Deleted and is cleaned up
-    // like any other attachment the app created.
+    // Outlook email, which has no real path and must be saved there anyway) and same as a
+    // manually-picked "+ File..." selection. Copying rather than linking to the original
+    // location means an attachment's lifecycle is fully owned by the app - it moves with the
+    // card into Done/Archived/Deleted and is cleaned up like any other attachment it created.
     public static List<(string FilePath, string DisplayName, bool WasSaved)> ExtractDroppedFiles(IDataObject data, string attachmentsDir)
     {
         if (data.GetDataPresent(DataFormats.FileDrop) && data.GetData(DataFormats.FileDrop) is string[] paths)
         {
-            Directory.CreateDirectory(attachmentsDir);
             return paths.Select(p =>
             {
-                var destPath = UniquePath(Path.Combine(attachmentsDir, Path.GetFileName(p)));
-                File.Copy(p, destPath);
+                var destPath = CopyFileIntoAttachmentsDir(p, attachmentsDir);
                 return (destPath, Path.GetFileName(destPath), true);
             }).ToList();
         }
@@ -40,6 +38,16 @@ public static class OutlookDragDropHelper
         }
 
         return [];
+    }
+
+    // Shared by drag-and-drop above and by "+ File..." (AddTaskWindow.AddFile_Click), so a
+    // manually-picked file gets the same "copied and owned by the app" treatment as a dropped one.
+    public static string CopyFileIntoAttachmentsDir(string sourcePath, string attachmentsDir)
+    {
+        Directory.CreateDirectory(attachmentsDir);
+        var destPath = UniquePath(Path.Combine(attachmentsDir, Path.GetFileName(sourcePath)));
+        File.Copy(sourcePath, destPath);
+        return destPath;
     }
 
     private static List<(string, string, bool)> ExtractVirtualFiles(ComDataObject comData, string attachmentsDir)

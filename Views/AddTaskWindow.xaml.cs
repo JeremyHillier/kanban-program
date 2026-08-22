@@ -263,17 +263,30 @@ public partial class AddTaskWindow : Window
     {
         var dialog = new Microsoft.Win32.OpenFileDialog
         {
-            Title = "Choose a File to Link",
+            Title = "Choose a File to Attach",
             Filter = "All Files (*.*)|*.*",
             InitialDirectory = Directory.Exists(_viewModel.LinkedFilesDefaultPath) ? _viewModel.LinkedFilesDefaultPath : null
         };
 
         if (dialog.ShowDialog() != true) return;
 
+        string destPath;
+        try
+        {
+            destPath = OutlookDragDropHelper.CopyFileIntoAttachmentsDir(dialog.FileName, _viewModel.AttachmentsDir);
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(this, $"Couldn't copy the file: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            return;
+        }
+
+        _sessionPastedFilePaths.Add(destPath);
+
         var attachment = new AttachmentViewModel(new CardAttachment
         {
-            FilePath = dialog.FileName,
-            DisplayName = Path.GetFileName(dialog.FileName),
+            FilePath = destPath,
+            DisplayName = Path.GetFileName(destPath),
             AddedDate = DateTime.Now
         });
         AddAttachmentRow(attachment);

@@ -6,6 +6,10 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.57.0 — 2026-08-22
+- '+ File...' now also copies the chosen file into the task's Attachments folder (instead of linking to its original location), matching drag-and-drop — so it moves with the task into Done/Archived/Deleted and is unaffected by later changes to the original file
+- Renamed the "Linked Files Default Path" setting to "Attach File Default Path" and rewrote its Settings/Help wording to describe copying, replacing a stale note left over from before file attachments were fully built out
+
 ## 0.56.0 — 2026-08-22
 - Dragging a file onto the attachments area (or directly onto a card) now copies it into the Attachments folder right away, instead of just linking to its original location — so it's fully owned by the task from the start and actually moves into Done/Archived/Deleted when the task's status changes, matching what already happens for pasted screenshots
 
