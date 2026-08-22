@@ -6,6 +6,9 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.55.1 — 2026-08-22
+- Fix buttons app-wide (including every button in the Add/Edit Task dialog) so hover actually highlights with a visible accent-colored border, not just a barely-noticeable opacity dim
+
 ## 0.55.0 — 2026-08-19
 - Date pickers now highlight on hover too (the sidebar's From/To range and the Add/Edit Task dialog's Due Date), via a central template fix that covers every DatePicker in the app
 - Added a reusable hover style for text fields and applied it to the Add/Edit Task dialog's Task Details, Notes, and sub-task title fields, alongside the sidebar's Keyword box from the last release
