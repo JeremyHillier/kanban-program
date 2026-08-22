@@ -70,9 +70,10 @@
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• A done/total (percent) summary is shown both in the dialog and on the card."/>
 
                 <TextBlock Text="Attachments" Style="{StaticResource HelpSectionHeaderStyle}"/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• '+ File...' links an existing file to the task. The file stays where it is — the task just remembers the path, it isn't copied. If you later move, rename, or delete the original, the link breaks."/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• 'Paste Screenshot' adds whatever image is on the clipboard (e.g. after PrtScn or the Snipping Tool). Unlike linked files, pasted screenshots are saved as real files in an 'Attachments' folder next to your database, so they travel with it if you relocate the database later."/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Images show as a small thumbnail; other files show as a filename. Click either to open the file in its default app, or × to remove it from the task (removing a pasted screenshot also deletes its saved copy; removing a linked file never touches the original)."/>
+                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• '+ File...' links an existing file to the task — the task just remembers the path, it isn't copied at first."/>
+                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• 'Paste Screenshot' adds whatever image is on the clipboard (e.g. after PrtScn or the Snipping Tool), saved as a real file in an 'Attachments' folder next to your database, so it travels with the database if you relocate it later."/>
+                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• When a task reaches Done, is archived, or is deleted, its attachments (both linked files and pasted screenshots) are automatically moved into a matching Done/Archived/Deleted subfolder inside that Attachments folder, keeping them organized by status — and moved back if the task returns to the board. A file still linked from another task is left where it is instead of being moved."/>
+                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Images show as a small thumbnail; other files show as a filename. Click either to open the file in its default app, or × to remove it from the task (this deletes the saved copy for anything inside the Attachments folder; a linked file that hasn't yet moved there is left untouched)."/>
 
                 <TextBlock Text="Recurring tasks" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Mark a task Recurring and choose a pattern (Daily, Weekday, Weekly, Bi-Weekly, Monthly, Bi-Monthly, Quarterly, or Annually)."/>
@@ -153,7 +154,7 @@
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Change where the task database file is stored. The old file is automatically removed once the app has restarted at the new location."/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• The chosen location itself is remembered outside the database, in a small config file under your local AppData folder — not inside the database file."/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Set a Default Export Path (used by Report Builder's PDF export) and a Default Import Path (used by Import Tasks, including where the template is saved)."/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Set a Linked Files Default Path for future use, once file linking support is added."/>
+                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Set a Linked Files Default Path — where the '+ File...' picker opens by default when linking a file to a task."/>
             </StackPanel>
         </ScrollViewer>
 

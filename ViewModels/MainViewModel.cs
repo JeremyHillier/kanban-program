@@ -1014,6 +1014,75 @@ public class MainViewModel : ObservableObject
         RefreshDashboardStats();
     }
 
+    /// <summary>
+    /// Moves a card's attachment files (screenshots and linked files alike) into the Attachments
+    /// folder's Done/Archived/Deleted subfolder to match its current status, or back to the
+    /// Attachments folder root when it's none of those. Skips a file still referenced by another
+    /// card (so that card's link never breaks) and any file that's gone missing on disk.
+    /// </summary>
+    private void ReconcileAttachmentLocations(CardViewModel card, string? statusSubfolder)
+    {
+        if (card.Attachments.Count == 0) return;
+
+        var destinationDir = string.IsNullOrEmpty(statusSubfolder) ? AttachmentsDir : Path.Combine(AttachmentsDir, statusSubfolder);
+        var updated = new List<(string FilePath, string DisplayName, DateTime AddedDate)>();
+        var changed = false;
+
+        foreach (var attachment in card.Attachments)
+        {
+            var currentPath = attachment.FilePath;
+
+            if (!File.Exists(currentPath) || _db.IsAttachmentPathReferencedElsewhere(currentPath, card.Id))
+            {
+                updated.Add((attachment.FilePath, attachment.DisplayName, attachment.AddedDate));
+                continue;
+            }
+
+            try
+            {
+                var newPath = MoveAttachmentFile(currentPath, destinationDir);
+                if (!string.Equals(newPath, currentPath, StringComparison.OrdinalIgnoreCase)) changed = true;
+                updated.Add((newPath, attachment.DisplayName, attachment.AddedDate));
+            }
+            catch
+            {
+                // Best-effort: if the move fails (e.g. file in use), keep the existing reference rather than losing it.
+                updated.Add((attachment.FilePath, attachment.DisplayName, attachment.AddedDate));
+            }
+        }
+
+        if (!changed) return;
+
+        var attachmentItems = _db.SetCardAttachments(card.Id, updated);
+        card.Attachments = attachmentItems.Select(a => new AttachmentViewModel(a)).ToList();
+    }
+
+    private static string MoveAttachmentFile(string currentPath, string destinationDir)
+    {
+        var destPath = Path.Combine(destinationDir, Path.GetFileName(currentPath));
+        if (string.Equals(Path.GetFullPath(currentPath), Path.GetFullPath(destPath), StringComparison.OrdinalIgnoreCase))
+        {
+            return currentPath;
+        }
+
+        Directory.CreateDirectory(destinationDir);
+
+        if (File.Exists(destPath))
+        {
+            var nameOnly = Path.GetFileNameWithoutExtension(destPath);
+            var ext = Path.GetExtension(destPath);
+            var counter = 1;
+            do
+            {
+                destPath = Path.Combine(destinationDir, $"{nameOnly}_{counter}{ext}");
+                counter++;
+            } while (File.Exists(destPath));
+        }
+
+        File.Move(currentPath, destPath);
+        return destPath;
+    }
+
     private void DeleteOrphanedAttachmentFiles(int cardId, List<AttachmentViewModel> previousAttachments, List<AttachmentViewModel> newAttachments)
     {
         var attachmentsDir = Path.GetFullPath(AttachmentsDir);
@@ -1068,6 +1137,9 @@ public class MainViewModel : ObservableObject
         _db.ReactivateCard(cardId, cardTitle);
         Load();
         RefreshDashboardStats();
+
+        var reactivatedCard = Columns.SelectMany(c => c.Cards).FirstOrDefault(c => c.Id == cardId);
+        if (reactivatedCard is not null) ReconcileAttachmentLocations(reactivatedCard, null);
     }
 
     private void DeleteCard(CardViewModel? card)
@@ -1075,6 +1147,7 @@ public class MainViewModel : ObservableObject
         if (card is null) return;
 
         var column = Columns.FirstOrDefault(c => c.Cards.Contains(card));
+        ReconcileAttachmentLocations(card, "Deleted");
         column?.Cards.Remove(card);
         _db.DeleteCard(card.Id, card.Title, column?.Name ?? "Unknown");
         RefreshDashboardStats();
@@ -1090,6 +1163,7 @@ public class MainViewModel : ObservableObject
         targetColumn.Cards.Add(card);
 
         card.LastUpdated = _db.MoveCard(card.Id, targetColumn.Id, card.Title, sourceColumn.Name, targetColumn.Name);
+        ReconcileAttachmentLocations(card, targetColumn.Name == "Done" ? "Done" : null);
 
         if (targetColumn.Name == "Done" && card.IsRecurring && !string.IsNullOrWhiteSpace(card.RecurrencePattern))
         {
@@ -1148,6 +1222,7 @@ public class MainViewModel : ObservableObject
 
         foreach (var card in doneColumn.Cards.ToList())
         {
+            ReconcileAttachmentLocations(card, "Archived");
             _db.ArchiveCard(card.Id, card.Title, doneColumn.Name);
             doneColumn.Cards.Remove(card);
         }

@@ -6,6 +6,10 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.53.0 — 2026-08-19
+- Buttons and cards now highlight on mouse hover, app-wide (several button styles had no hover feedback at all)
+- Attachments (both linked files and pasted screenshots) now auto-organize into Done/Archived/Deleted subfolders of the Attachments folder as a task's status changes, and move back if it returns to the board; a file still shared with another task is left in place
+
 ## 0.52.0 — 2026-08-19
 - Esc now clears every filter on the main board, from any focus state (previously nothing was wired up, so some controls' own native Escape handling made it look like it only cleared some filters)
 - Add Alt+H shortcut to open Help

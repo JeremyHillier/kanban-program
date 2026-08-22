@@ -23,6 +23,14 @@
              Filter cluster, instead of picking up the app-wide rounded Button style. -->
         <Style x:Key="ClearFiltersButtonStyle" TargetType="Button">
             <Setter Property="Padding" Value="0,8"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Opacity" Value="0.85"/>
+                </Trigger>
+                <Trigger Property="IsPressed" Value="True">
+                    <Setter Property="Opacity" Value="0.7"/>
+                </Trigger>
+            </Style.Triggers>
         </Style>
 
         <Style x:Key="QuickActionButtonStyle" BasedOn="{StaticResource {x:Type Button}}" TargetType="Button">
@@ -66,6 +74,14 @@
             <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
             <Setter Property="BorderBrush" Value="{DynamicResource PanelBorderBrush}"/>
             <Setter Property="Cursor" Value="Hand"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Opacity" Value="0.85"/>
+                </Trigger>
+                <Trigger Property="IsPressed" Value="True">
+                    <Setter Property="Opacity" Value="0.7"/>
+                </Trigger>
+            </Style.Triggers>
         </Style>
 
         <Style x:Key="SmallSquareButtonStyle" BasedOn="{StaticResource SquareButtonStyle}" TargetType="Button">
@@ -489,11 +505,22 @@
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate>
                                                 <Border Background="{DynamicResource CardBackgroundBrush}" CornerRadius="4" Padding="8" Margin="0,0,0,6"
-                                                        BorderBrush="{DynamicResource CardOutlineBrush}" BorderThickness="1.5"
                                                         Visibility="{Binding IsVisible, Converter={StaticResource BooleanToVisibilityConverter}}"
                                                         PreviewMouseLeftButtonDown="Card_PreviewMouseLeftButtonDown"
                                                         MouseMove="Card_MouseMove"
                                                         AllowDrop="True" DragOver="Card_DragOver" Drop="Card_Drop">
+                                                    <Border.Style>
+                                                        <Style TargetType="Border">
+                                                            <Setter Property="BorderBrush" Value="{DynamicResource CardOutlineBrush}"/>
+                                                            <Setter Property="BorderThickness" Value="1.5"/>
+                                                            <Style.Triggers>
+                                                                <Trigger Property="IsMouseOver" Value="True">
+                                                                    <Setter Property="BorderBrush" Value="{DynamicResource AccentTextBrush}"/>
+                                                                    <Setter Property="BorderThickness" Value="2"/>
+                                                                </Trigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </Border.Style>
                                                     <StackPanel>
                                                         <TextBlock Text="{Binding Title}" TextWrapping="Wrap" FontSize="13" FontWeight="SemiBold">
                                                             <TextBlock.Style>
