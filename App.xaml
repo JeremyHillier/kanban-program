@@ -137,7 +137,7 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="{x:Type DatePickerTextBox}">
                         <Grid>
-                            <Border Background="{TemplateBinding Background}"
+                            <Border x:Name="DatePickerBorder" Background="{TemplateBinding Background}"
                                     BorderBrush="{TemplateBinding BorderBrush}"
                                     BorderThickness="{TemplateBinding BorderThickness}">
                                 <ScrollViewer x:Name="PART_ContentHost" Focusable="False"
@@ -149,6 +149,10 @@
                                             Foreground="{DynamicResource SecondaryTextBrush}"/>
                         </Grid>
                         <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="DatePickerBorder" Property="BorderBrush" Value="{DynamicResource AccentTextBrush}"/>
+                                <Setter TargetName="DatePickerBorder" Property="BorderThickness" Value="2"/>
+                            </Trigger>
                             <Trigger Property="Text" Value="">
                                 <Setter TargetName="PART_Watermark" Property="Opacity" Value="1"/>
                             </Trigger>
@@ -157,6 +161,22 @@
                 </Setter.Value>
             </Setter>
         </Style>
+
+        <!-- Opt-in (x:Key, not implicit) hover style for TextBox: every TextBox in the app sets its
+             own BorderBrush as a local value, which always outranks a style setter/trigger, so an
+             implicit TargetType-only style here would silently do nothing anywhere. Apply this
+             explicitly and drop the local BorderBrush attribute wherever hover feedback is wanted. -->
+        <Style x:Key="HoverTextBoxStyle" TargetType="{x:Type TextBox}">
+            <Setter Property="BorderBrush" Value="{DynamicResource CardBorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="BorderBrush" Value="{DynamicResource AccentTextBrush}"/>
+                    <Setter Property="BorderThickness" Value="2"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
         <!-- Rounded corners on every button app-wide, except MainWindow's Sort &amp; Add / Filter / Other
              cluster — those use their own named styles (SquareButtonStyle and its derivatives) with an
              explicit Style set, which bypasses this implicit (key-less) style entirely. -->

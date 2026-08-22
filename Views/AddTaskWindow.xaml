@@ -62,8 +62,8 @@
                 <TextBlock Text="Task details" Style="{StaticResource FieldLabelStyle}"/>
                 <TextBox x:Name="DetailsTextBox" Height="54" Padding="6"
                           TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Auto"
-                          Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
-                          BorderBrush="{DynamicResource CardBorderBrush}"/>
+                          Style="{StaticResource HoverTextBoxStyle}"
+                          Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
 
                 <!-- Compact two-column fields -->
                 <Grid>
@@ -160,8 +160,8 @@
                 <TextBlock Text="Notes" Style="{StaticResource FieldLabelStyle}"/>
                 <TextBox x:Name="NotesTextBox" Height="50" Padding="6"
                           TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Auto"
-                          Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
-                          BorderBrush="{DynamicResource CardBorderBrush}"/>
+                          Style="{StaticResource HoverTextBoxStyle}"
+                          Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
 
                 <!-- Flags -->
                 <StackPanel Style="{StaticResource FieldLabelRowStyle}">

@@ -397,9 +397,9 @@ public partial class AddTaskWindow : Window
         {
             Text = title,
             Padding = new Thickness(6),
+            Style = (Style)FindResource("HoverTextBoxStyle"),
             Background = (Brush)FindResource("InputBackgroundBrush"),
-            Foreground = (Brush)FindResource("PrimaryTextBrush"),
-            BorderBrush = (Brush)FindResource("CardBorderBrush")
+            Foreground = (Brush)FindResource("PrimaryTextBrush")
         };
         Grid.SetColumn(textBox, 1);
 
