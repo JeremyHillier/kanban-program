@@ -109,6 +109,8 @@
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Deleting a task never erases it — it's kept out of sight instead."/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Click View Archived to browse archived tasks; double-click the same button to browse deleted tasks."/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Either list lets you select a task and reactivate it back to To Do; in the Archived list, double-clicking a task reactivates it immediately."/>
+                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Both lists have a From/To date range to narrow them down to when a task was archived or deleted."/>
+                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Right-click a task in either list for Permanently Delete — unlike the regular Delete on the board, this erases the task for good (including any attachments still stored with it) after a confirmation prompt. There's no undo."/>
 
                 <TextBlock Text="Importing tasks" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Click Import Tasks to download an Excel template or choose a filled-in .xlsx file to import. Only Task Details is required; Category, Priority, Project, Goal, Due Date, and Who are all optional."/>

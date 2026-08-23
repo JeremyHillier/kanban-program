@@ -6,6 +6,10 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.59.0 — 2026-08-22
+- Add permanent delete to the Archived and Deleted task lists: right-click a task for Permanently Delete, with a confirmation prompt — this actually erases it (and any attachments still stored with it), unlike the regular Delete on the board
+- Add a From/To date range filter to both the Archived and Deleted task lists, filtering by when each task was archived or deleted
+
 ## 0.58.1 — 2026-08-22
 - Extend the previous fix to existing data: recurring tasks that were already completed (in Done or Archived) before that update are now retroactively marked as having already spawned their next occurrence, so reactivating one of them and marking it Done again won't spawn a duplicate either — closes the gap where only completions from that point forward were protected
 

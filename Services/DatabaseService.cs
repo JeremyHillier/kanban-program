@@ -1080,6 +1080,43 @@ public class DatabaseService
         return result;
     }
 
+    public List<string> GetCardAttachmentPaths(int cardId)
+    {
+        using var connection = OpenConnection();
+        using var cmd = connection.CreateCommand();
+        cmd.CommandText = "SELECT FilePath FROM CardAttachments WHERE CardId = $cardId;";
+        cmd.Parameters.AddWithValue("$cardId", cardId);
+
+        var result = new List<string>();
+        using var reader = cmd.ExecuteReader();
+        while (reader.Read())
+        {
+            result.Add(reader.GetString(0));
+        }
+        return result;
+    }
+
+    // Irreversibly removes a card and its child rows (flags, sub-tasks, attachments) - only ever
+    // called from the Archived/Deleted list views, where the card is already off the live board.
+    // CardHistory rows are left in place as an audit trail; nothing else references them by CardId.
+    public void PermanentlyDeleteCard(int cardId, string cardTitle, string sourceListName)
+    {
+        using var connection = OpenConnection();
+        using (var cmd = connection.CreateCommand())
+        {
+            cmd.CommandText = """
+                DELETE FROM CardFlags WHERE CardId = $id;
+                DELETE FROM SubTasks WHERE CardId = $id;
+                DELETE FROM CardAttachments WHERE CardId = $id;
+                DELETE FROM Cards WHERE Id = $id;
+                """;
+            cmd.Parameters.AddWithValue("$id", cardId);
+            cmd.ExecuteNonQuery();
+        }
+
+        LogHistory(connection, cardId, cardTitle, "PermanentlyDeleted", $"Permanently deleted from {sourceListName}");
+    }
+
     public List<DeletedCardInfo> GetDeletedCards()
     {
         using var connection = OpenConnection();

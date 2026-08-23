@@ -11,6 +11,7 @@
     <Grid Margin="16">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
@@ -18,11 +19,20 @@
         <TextBlock Grid.Row="0" Text="Deleted tasks are kept here instead of being erased. Select one to bring it back."
                    TextWrapping="Wrap" FontSize="11" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,0,0,10"/>
 
-        <ListBox x:Name="DeletedList" Grid.Row="1" BorderThickness="0" Background="Transparent"
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,10">
+            <TextBlock Text="Deleted from" VerticalAlignment="Center" Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,6,0"/>
+            <DatePicker x:Name="FromDatePicker" Width="120" SelectedDateChanged="DateRange_Changed"/>
+            <TextBlock Text="to" VerticalAlignment="Center" Foreground="{DynamicResource PrimaryTextBrush}" Margin="10,0,6,0"/>
+            <DatePicker x:Name="ToDatePicker" Width="120" SelectedDateChanged="DateRange_Changed"/>
+        </StackPanel>
+
+        <ListBox x:Name="DeletedList" Grid.Row="2" BorderThickness="0" Background="Transparent"
                  ScrollViewer.VerticalScrollBarVisibility="Auto">
             <ListBox.ItemTemplate>
                 <DataTemplate>
-                    <Border BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="0,0,0,1" Padding="0,8">
+                    <Border BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="0,0,0,1" Padding="0,8"
+                            ToolTip="Right-click for more options"
+                            MouseRightButtonDown="DeletedItem_MouseRightButtonDown">
                         <StackPanel>
                             <TextBlock Text="{Binding Title}" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryTextBrush}"/>
                             <TextBlock FontSize="11" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,2,0,0">
@@ -38,11 +48,11 @@
             </ListBox.ItemTemplate>
         </ListBox>
 
-        <TextBlock x:Name="EmptyStateText" Grid.Row="1" Text="No deleted tasks."
+        <TextBlock x:Name="EmptyStateText" Grid.Row="2" Text="No deleted tasks."
                    Foreground="{DynamicResource SecondaryTextBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"
                    Visibility="Collapsed"/>
 
-        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,12,0,0">
+        <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,12,0,0">
             <Button Content="Reactivate to To Do" Padding="10,6" Click="Reactivate_Click"
                     Background="#FF66BB6A" Foreground="White"/>
             <Button Content="Close" Width="90" Padding="0,6" Margin="8,0,0,0"
