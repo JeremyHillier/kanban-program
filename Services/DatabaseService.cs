@@ -135,6 +135,22 @@ public class DatabaseService
             backfillCmd.ExecuteNonQuery();
         }
 
+        // A recurring card sitting in Done (or already archived) must have already spawned its
+        // next occurrence under the old always-spawn logic, even though NextOccurrenceSpawned - a
+        // brand new column - backfilled to 0 for every pre-existing row. Without this, reactivating
+        // one of those older completed recurring tasks and marking it Done again would still spawn
+        // a duplicate, since nothing recorded that its first spawn already happened. Safe to run
+        // every startup: once a row is flagged, this predicate no longer matches it.
+        using (var recurringBackfillCmd = connection.CreateCommand())
+        {
+            recurringBackfillCmd.CommandText = """
+                UPDATE Cards SET NextOccurrenceSpawned = 1
+                WHERE IsRecurring = 1 AND NextOccurrenceSpawned = 0
+                  AND (IsArchived = 1 OR ColumnId = (SELECT Id FROM Columns WHERE Name = 'Done' LIMIT 1));
+                """;
+            recurringBackfillCmd.ExecuteNonQuery();
+        }
+
         BackfillPeopleFromLegacyWho(connection);
 
         using (var checkCmd = connection.CreateCommand())

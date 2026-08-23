@@ -6,6 +6,9 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.58.1 — 2026-08-22
+- Extend the previous fix to existing data: recurring tasks that were already completed (in Done or Archived) before that update are now retroactively marked as having already spawned their next occurrence, so reactivating one of them and marking it Done again won't spawn a duplicate either — closes the gap where only completions from that point forward were protected
+
 ## 0.58.0 — 2026-08-22
 - Fix a duplicate-task bug: a recurring task that's completed, archived, then reactivated and marked Done again no longer spawns a second copy of its next occurrence — each task now only ever spawns its successor once
 
