@@ -195,6 +195,19 @@ public class CardViewModel(CardItem model) : ObservableObject
 
     public string RecurrenceDisplay => IsRecurring && !string.IsNullOrWhiteSpace(RecurrencePattern) ? $"↻ Repeats {RecurrencePattern}" : string.Empty;
 
+    // True once this specific card has already spawned its next occurrence on completion - prevents
+    // a duplicate spawn if the card is later reactivated (e.g. from Archive) and marked Done again.
+    public bool NextOccurrenceSpawned
+    {
+        get => Model.NextOccurrenceSpawned;
+        set
+        {
+            if (Model.NextOccurrenceSpawned == value) return;
+            Model.NextOccurrenceSpawned = value;
+            OnPropertyChanged();
+        }
+    }
+
     public DateTime? LastUpdated
     {
         get => Model.LastUpdated;

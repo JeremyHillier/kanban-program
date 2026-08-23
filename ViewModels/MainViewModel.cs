@@ -1166,9 +1166,11 @@ public class MainViewModel : ObservableObject
         card.LastUpdated = _db.MoveCard(card.Id, targetColumn.Id, card.Title, sourceColumn.Name, targetColumn.Name);
         ReconcileAttachmentLocations(card, targetColumn.Name == "Done" ? "Done" : null);
 
-        if (targetColumn.Name == "Done" && card.IsRecurring && !string.IsNullOrWhiteSpace(card.RecurrencePattern))
+        if (targetColumn.Name == "Done" && card.IsRecurring && !string.IsNullOrWhiteSpace(card.RecurrencePattern) && !card.NextOccurrenceSpawned)
         {
             SpawnNextOccurrence(card);
+            card.NextOccurrenceSpawned = true;
+            _db.MarkNextOccurrenceSpawned(card.Id);
         }
 
         ApplySort();

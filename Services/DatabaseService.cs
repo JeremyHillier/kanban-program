@@ -123,6 +123,7 @@ public class DatabaseService
         MigrateColumn(connection, "Cards", "IsImported", "INTEGER NOT NULL DEFAULT 0");
         MigrateColumn(connection, "Cards", "WhoId", "INTEGER NULL");
         MigrateColumn(connection, "Cards", "ForceEditOnComplete", "INTEGER NOT NULL DEFAULT 0");
+        MigrateColumn(connection, "Cards", "NextOccurrenceSpawned", "INTEGER NOT NULL DEFAULT 0");
         MigrateColumn(connection, "Projects", "IsActive", "INTEGER NOT NULL DEFAULT 1");
         MigrateColumn(connection, "Goals", "IsActive", "INTEGER NOT NULL DEFAULT 1");
         MigrateColumn(connection, "Flags", "IsActive", "INTEGER NOT NULL DEFAULT 1");
@@ -288,7 +289,7 @@ public class DatabaseService
             ? ", (SELECT MAX(h.Timestamp) FROM CardHistory h WHERE h.CardId = Cards.Id AND h.EventType = 'Archived')"
             : "";
         cmd.CommandText = $"""
-            SELECT Id, ColumnId, Title, SortOrder, ProjectId, Priority, DueDate, WhoId, LastUpdated, IsRecurring, RecurrencePattern, GoalId, Notes, IsImported, ForceEditOnComplete{archivedAtColumn}
+            SELECT Id, ColumnId, Title, SortOrder, ProjectId, Priority, DueDate, WhoId, LastUpdated, IsRecurring, RecurrencePattern, GoalId, Notes, IsImported, ForceEditOnComplete, NextOccurrenceSpawned{archivedAtColumn}
             FROM Cards WHERE IsArchived = {(archivedOnly ? 1 : 0)} AND IsDeleted = 0 ORDER BY SortOrder;
             """;
 
@@ -314,7 +315,8 @@ public class DatabaseService
                     Notes = reader.IsDBNull(12) ? null : reader.GetString(12),
                     IsImported = reader.GetInt32(13) != 0,
                     ForceEditOnComplete = reader.GetInt32(14) != 0,
-                    ArchivedAt = archivedOnly && !reader.IsDBNull(15) ? DateTime.Parse(reader.GetString(15)) : null
+                    NextOccurrenceSpawned = reader.GetInt32(15) != 0,
+                    ArchivedAt = archivedOnly && !reader.IsDBNull(16) ? DateTime.Parse(reader.GetString(16)) : null
                 });
             }
         }
@@ -1005,6 +1007,17 @@ public class DatabaseService
 
         LogHistory(connection, cardId, cardTitle, "Reactivated", "Moved to To Do");
         return DateTime.Parse(now);
+    }
+
+    // Recorded the moment a recurring card spawns its next occurrence, so that reactivating this
+    // same card later (e.g. from Archive) and marking it Done again can't spawn a duplicate.
+    public void MarkNextOccurrenceSpawned(int cardId)
+    {
+        using var connection = OpenConnection();
+        using var cmd = connection.CreateCommand();
+        cmd.CommandText = "UPDATE Cards SET NextOccurrenceSpawned = 1 WHERE Id = $id;";
+        cmd.Parameters.AddWithValue("$id", cardId);
+        cmd.ExecuteNonQuery();
     }
 
     public void ArchiveCard(int cardId, string cardTitle, string columnName)
