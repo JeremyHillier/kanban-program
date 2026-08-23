@@ -20,6 +20,8 @@
             <DatePicker x:Name="FromDatePicker" Width="120" SelectedDateChanged="DateRange_Changed"/>
             <TextBlock Text="to" VerticalAlignment="Center" Foreground="{DynamicResource PrimaryTextBrush}" Margin="10,0,6,0"/>
             <DatePicker x:Name="ToDatePicker" Width="120" SelectedDateChanged="DateRange_Changed"/>
+            <Button Content="Clear Dates" Padding="8,4" Margin="12,0,0,0" Click="ClearDates_Click"
+                    Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
         </StackPanel>
 
         <ListBox x:Name="ArchivedList" Grid.Row="1" BorderThickness="0" Background="Transparent"

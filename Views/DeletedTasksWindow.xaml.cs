@@ -28,6 +28,13 @@ public partial class DeletedTasksWindow : Window
 
     private void DateRange_Changed(object sender, SelectionChangedEventArgs e) => ApplyDateFilter();
 
+    private void ClearDates_Click(object sender, RoutedEventArgs e)
+    {
+        FromDatePicker.SelectedDate = null;
+        ToDatePicker.SelectedDate = null;
+        ApplyDateFilter();
+    }
+
     private void ApplyDateFilter()
     {
         var from = FromDatePicker.SelectedDate;
