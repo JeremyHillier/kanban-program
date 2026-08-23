@@ -48,7 +48,10 @@
             <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
             <Setter Property="Background" Value="{DynamicResource InputBackgroundBrush}"/>
             <Setter Property="BorderBrush" Value="{DynamicResource CardBorderBrush}"/>
-            <Setter Property="BorderThickness" Value="1"/>
+            <!-- 2px at rest (not 1) so the hover trigger below only swaps color, never thickness -
+                 changing thickness on hover would grow the control's layout size and shift everything
+                 around it (visible as a "jump" in SizeToContent dialogs and stacked lists). -->
+            <Setter Property="BorderThickness" Value="2"/>
             <Setter Property="Padding" Value="6,4"/>
             <Setter Property="Template">
                 <Setter.Value>
@@ -74,7 +77,6 @@
                                         <ControlTemplate.Triggers>
                                             <Trigger Property="IsMouseOver" Value="True">
                                                 <Setter TargetName="ToggleBorder" Property="BorderBrush" Value="{DynamicResource AccentTextBrush}"/>
-                                                <Setter TargetName="ToggleBorder" Property="BorderThickness" Value="2"/>
                                             </Trigger>
                                         </ControlTemplate.Triggers>
                                     </ControlTemplate>
@@ -132,7 +134,8 @@
             <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
             <Setter Property="Background" Value="{DynamicResource InputBackgroundBrush}"/>
             <Setter Property="BorderBrush" Value="{DynamicResource CardBorderBrush}"/>
-            <Setter Property="BorderThickness" Value="1"/>
+            <!-- 2px at rest, same reasoning as the ComboBox style above - keeps hover a color-only change. -->
+            <Setter Property="BorderThickness" Value="2"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="{x:Type DatePickerTextBox}">
@@ -151,7 +154,6 @@
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter TargetName="DatePickerBorder" Property="BorderBrush" Value="{DynamicResource AccentTextBrush}"/>
-                                <Setter TargetName="DatePickerBorder" Property="BorderThickness" Value="2"/>
                             </Trigger>
                             <Trigger Property="Text" Value="">
                                 <Setter TargetName="PART_Watermark" Property="Opacity" Value="1"/>
@@ -168,11 +170,11 @@
              explicitly and drop the local BorderBrush attribute wherever hover feedback is wanted. -->
         <Style x:Key="HoverTextBoxStyle" TargetType="{x:Type TextBox}">
             <Setter Property="BorderBrush" Value="{DynamicResource CardBorderBrush}"/>
-            <Setter Property="BorderThickness" Value="1"/>
+            <!-- 2px at rest, same reasoning as the ComboBox style above - keeps hover a color-only change. -->
+            <Setter Property="BorderThickness" Value="2"/>
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
                     <Setter Property="BorderBrush" Value="{DynamicResource AccentTextBrush}"/>
-                    <Setter Property="BorderThickness" Value="2"/>
                 </Trigger>
             </Style.Triggers>
         </Style>
@@ -182,7 +184,8 @@
              explicit Style set, which bypasses this implicit (key-less) style entirely. -->
         <Style TargetType="{x:Type Button}">
             <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="BorderThickness" Value="1"/>
+            <!-- 2px at rest, same reasoning as the ComboBox style above - keeps hover a color-only change. -->
+            <Setter Property="BorderThickness" Value="2"/>
             <Setter Property="Padding" Value="8,4"/>
             <Setter Property="Template">
                 <Setter.Value>
@@ -199,7 +202,6 @@
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter TargetName="Bd" Property="BorderBrush" Value="{DynamicResource AccentTextBrush}"/>
-                                <Setter TargetName="Bd" Property="BorderThickness" Value="2"/>
                                 <Setter TargetName="Bd" Property="Opacity" Value="0.85"/>
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">

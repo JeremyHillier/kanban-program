@@ -6,6 +6,9 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.57.1 — 2026-08-22
+- Fix dialogs/lists jumping slightly when hovering a button, text field, date picker, dropdown, or card: hover now only changes the border's color, never its thickness (the thicker border's space is reserved permanently instead), so nothing around it shifts
+
 ## 0.57.0 — 2026-08-22
 - '+ File...' now also copies the chosen file into the task's Attachments folder (instead of linking to its original location), matching drag-and-drop — so it moves with the task into Done/Archived/Deleted and is unaffected by later changes to the original file
 - Renamed the "Linked Files Default Path" setting to "Attach File Default Path" and rewrote its Settings/Help wording to describe copying, replacing a stale note left over from before file attachments were fully built out
