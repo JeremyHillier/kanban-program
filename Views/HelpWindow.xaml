@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:local="clr-namespace:KanbanApp.Views"
         mc:Ignorable="d"
         Title="Help" Height="640" Width="560"
         WindowStartupLocation="CenterOwner" ResizeMode="NoResize"
@@ -20,10 +21,14 @@
             <Setter Property="Margin" Value="0,0,0,2"/>
             <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
         </Style>
-        <Style x:Key="HelpBulletStyle" TargetType="TextBlock">
-            <Setter Property="TextWrapping" Value="Wrap"/>
+        <Style TargetType="local:BulletItem">
             <Setter Property="Margin" Value="12,2,0,0"/>
-            <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
+        </Style>
+        <Style x:Key="HelpScreenshotStyle" TargetType="Border">
+            <Setter Property="BorderBrush" Value="{DynamicResource CardBorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Margin" Value="12,8,0,8"/>
+            <Setter Property="HorizontalAlignment" Value="Left"/>
         </Style>
     </Window.Resources>
     <Grid Margin="16">
@@ -43,123 +48,139 @@
                     Drag a card to a different column, or use its quick-move buttons.
                 </TextBlock>
 
+                <Border Style="{StaticResource HelpScreenshotStyle}">
+                    <Image Source="/Assets/Help/main-board.png" Width="480" Stretch="Uniform"/>
+                </Border>
+
                 <TextBlock Text="Keyboard shortcuts" Style="{StaticResource HelpSectionHeaderStyle}"/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Ctrl+N — create a new task."/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Ctrl+P — open Report Builder."/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Ctrl+Q — quit the app."/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Alt+A — archive done tasks."/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Alt+P — manage Projects."/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Alt+G — manage Goals."/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Alt+F — manage Flags."/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Alt+W — manage Who."/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Alt+R — open Reminders."/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Alt+S — open Settings."/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Alt+H — open this Help screen."/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Esc — close the open dialog, or on the main board, clear every filter."/>
+                <local:BulletItem Text="Ctrl+N — create a new task."/>
+                <local:BulletItem Text="Ctrl+P — open Report Builder."/>
+                <local:BulletItem Text="Ctrl+Q — quit the app."/>
+                <local:BulletItem Text="Alt+A — archive done tasks."/>
+                <local:BulletItem Text="Alt+P — manage Projects."/>
+                <local:BulletItem Text="Alt+G — manage Goals."/>
+                <local:BulletItem Text="Alt+F — manage Flags."/>
+                <local:BulletItem Text="Alt+W — manage Who."/>
+                <local:BulletItem Text="Alt+R — open Reminders."/>
+                <local:BulletItem Text="Alt+S — open Settings."/>
+                <local:BulletItem Text="Alt+H — open this Help screen."/>
+                <local:BulletItem Text="Esc — close the open dialog, or on the main board, clear every filter."/>
 
                 <TextBlock Text="Adding and editing tasks" Style="{StaticResource HelpSectionHeaderStyle}"/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Click New Task (Sort &amp; Add section) to create a task."/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Double-click a column header (e.g. To Do, In Progress) to create a task already assigned to that column."/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Double-click any card to open it for editing."/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Each task can have a Category, Project, Goal, Priority, Due Date, Who it's assigned to, free-form Notes, Flags, and a checklist of Sub-tasks. Project is required; everything else is optional."/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Use the + and − buttons next to Project, Goal, and Who to add a new one on the fly, or clear the current selection without deleting the record."/>
+                <local:BulletItem Text="Click New Task (Sort &amp; Add section) to create a task."/>
+                <local:BulletItem Text="Double-click a column header (e.g. To Do, In Progress) to create a task already assigned to that column."/>
+                <local:BulletItem Text="Double-click any card to open it for editing."/>
+                <local:BulletItem Text="Each task can have a Category, Project, Goal, Priority, Due Date, Who it's assigned to, free-form Notes, Flags, and a checklist of Sub-tasks. Project is required; everything else is optional."/>
+                <local:BulletItem Text="Use the + and − buttons next to Project, Goal, and Who to add a new one on the fly, or clear the current selection without deleting the record."/>
+
+                <Border Style="{StaticResource HelpScreenshotStyle}">
+                    <Image Source="/Assets/Help/add-task-dialog.png" Width="380" Stretch="Uniform"/>
+                </Border>
 
                 <TextBlock Text="Sub-tasks" Style="{StaticResource HelpSectionHeaderStyle}"/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Add sub-task rows in the task dialog; each has its own checkbox."/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Sub-task checkboxes also appear directly on the card (in large card view) so you can tick them off without opening the dialog."/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• A done/total (percent) summary is shown both in the dialog and on the card."/>
+                <local:BulletItem Text="Add sub-task rows in the task dialog; each has its own checkbox."/>
+                <local:BulletItem Text="Sub-task checkboxes also appear directly on the card (in large card view) so you can tick them off without opening the dialog."/>
+                <local:BulletItem Text="A done/total (percent) summary is shown both in the dialog and on the card."/>
 
                 <TextBlock Text="Attachments" Style="{StaticResource HelpSectionHeaderStyle}"/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• '+ File...' picks an existing file and copies it into the task's 'Attachments' folder (next to your database) — the original file is left untouched in its original location."/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Dragging a file (from Explorer, Outlook, or an email) onto the attachments area or a card copies it into the 'Attachments' folder the same way."/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• 'Paste Screenshot' adds whatever image is on the clipboard (e.g. after PrtScn or the Snipping Tool), saved as a real file in the 'Attachments' folder too."/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Because every attachment is its own copy inside the Attachments folder, it travels with your database if you relocate it, and is unaffected by changes to (or deletion of) the original file it was copied from."/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• When a task reaches Done, is archived, or is deleted, its attachments are automatically moved into a matching Done/Archived/Deleted subfolder inside the Attachments folder, keeping them organized by status — and moved back if the task returns to the board."/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Images show as a small thumbnail; other files show as a filename. Click either to open the file in its default app, or × to remove it from the task — this deletes the saved copy."/>
+                <local:BulletItem Text="'+ File...' picks an existing file and copies it into the task's 'Attachments' folder (next to your database) — the original file is left untouched in its original location."/>
+                <local:BulletItem Text="Dragging a file (from Explorer, Outlook, or an email) onto the attachments area or a card copies it into the 'Attachments' folder the same way."/>
+                <local:BulletItem Text="'Paste Screenshot' adds whatever image is on the clipboard (e.g. after PrtScn or the Snipping Tool), saved as a real file in the 'Attachments' folder too."/>
+                <local:BulletItem Text="Because every attachment is its own copy inside the Attachments folder, it travels with your database if you relocate it, and is unaffected by changes to (or deletion of) the original file it was copied from."/>
+                <local:BulletItem Text="When a task reaches Done, is archived, or is deleted, its attachments are automatically moved into a matching Done/Archived/Deleted subfolder inside the Attachments folder, keeping them organized by status — and moved back if the task returns to the board."/>
+                <local:BulletItem Text="Images show as a small thumbnail; other files show as a filename. Click either to open the file in its default app, or × to remove it from the task — this deletes the saved copy."/>
 
                 <TextBlock Text="Recurring tasks" Style="{StaticResource HelpSectionHeaderStyle}"/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Mark a task Recurring and choose a pattern (Daily, Weekday, Weekly, Bi-Weekly, Monthly, Bi-Monthly, Quarterly, or Annually)."/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• When a recurring task is moved to Done, its next occurrence is created automatically in To Do with the same details and sub-task list — but with every sub-task unchecked."/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Each task only ever spawns its next occurrence once. If a completed recurring task is later reactivated (e.g. from Archived Tasks) and marked Done again, no second copy is created — its next occurrence already exists."/>
+                <local:BulletItem Text="Mark a task Recurring and choose a pattern (Daily, Weekday, Weekly, Bi-Weekly, Monthly, Bi-Monthly, Quarterly, or Annually)."/>
+                <local:BulletItem Text="When a recurring task is moved to Done, its next occurrence is created automatically in To Do with the same details and sub-task list — but with every sub-task unchecked."/>
+                <local:BulletItem Text="Each task only ever spawns its next occurrence once. If a completed recurring task is later reactivated (e.g. from Archived Tasks) and marked Done again, no second copy is created — its next occurrence already exists."/>
 
                 <TextBlock Text="Quick actions on a card" Style="{StaticResource HelpSectionHeaderStyle}"/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• The letter buttons move a card directly to To Do, In Progress, On Hold, or Waiting; the check mark moves it to Done; the X deletes it."/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• The tag icon, beside the task's details, adds an existing flag from a dropdown without opening the task."/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Click a card's Project name, Priority badge, Assigned name, or due date to change any of them directly from the board, without opening the task."/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• A task's title and due date are highlighted yellow once it's past due (and still outside Done)."/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• A card's Project name is shown prominently just below the title, and works on both full and compact cards."/>
+                <local:BulletItem Text="The letter buttons move a card directly to To Do, In Progress, On Hold, or Waiting; the check mark moves it to Done; the X deletes it."/>
+                <local:BulletItem Text="The tag icon, beside the task's details, adds an existing flag from a dropdown without opening the task."/>
+                <local:BulletItem Text="Click a card's Project name, Priority badge, Assigned name, or due date to change any of them directly from the board, without opening the task."/>
+                <local:BulletItem Text="A task's title and due date are highlighted yellow once it's past due (and still outside Done)."/>
+                <local:BulletItem Text="A card's Project name is shown prominently just below the title, and works on both full and compact cards."/>
 
                 <TextBlock Text="Organizing: Projects, Goals, Flags, Who" Style="{StaticResource HelpSectionHeaderStyle}"/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Manage Projects / Manage Goals / Manage Flags / Manage Who let you add, rename, or permanently delete these from the whole board."/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Flags are multi-select tags — a task can carry more than one."/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Projects, Goals, Who, and Flags are always listed alphabetically, everywhere they appear."/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Untick a Project's, Goal's, Flag's, or Who's Active checkbox to retire it: it disappears from filters and from selection on new or edited tasks, but any task already using it keeps showing its name and is unaffected."/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Delete warns you first with the number of tasks currently using that Project, Goal, Flag, or Who, since deleting it removes it from those tasks and cannot be undone."/>
+                <local:BulletItem Text="Manage Projects / Manage Goals / Manage Flags / Manage Who let you add, rename, or permanently delete these from the whole board."/>
+                <local:BulletItem Text="Flags are multi-select tags — a task can carry more than one."/>
+                <local:BulletItem Text="Projects, Goals, Who, and Flags are always listed alphabetically, everywhere they appear."/>
+                <local:BulletItem Text="Untick a Project's, Goal's, Flag's, or Who's Active checkbox to retire it: it disappears from filters and from selection on new or edited tasks, but any task already using it keeps showing its name and is unaffected."/>
+                <local:BulletItem Text="Delete warns you first with the number of tasks currently using that Project, Goal, Flag, or Who, since deleting it removes it from those tasks and cannot be undone."/>
 
                 <TextBlock Text="Sorting and filtering" Style="{StaticResource HelpSectionHeaderStyle}"/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Click a sort button (Project, Due Date, Who, Priority) to sort every column by that alone. Ctrl+click additional sort buttons to combine them - a numbered badge on each active button shows its position in the combined sort (e.g. click Project, then Ctrl+click Due Date, then Ctrl+click Priority, to sort by project first, then due date, then priority). Ctrl+click an active button again to remove it from the combination."/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• The Filter section narrows the board by Project, Priority, Who, Goal, Flag, Due date range, or a keyword search across titles, project, who, and notes."/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Who, Goal, and Flag each offer an 'Unassigned' filter option, showing only tasks with none set."/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• The Today / Tomorrow / Within a Week / No Due Date buttons filter by due date; Today and Within a Week both also include overdue tasks. The active one is shown with a highlighted border."/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Below those, From/To date pickers filter by a custom due-date range instead — leave From blank to include everything up through To, leave To blank to include everything from From onward. Setting a custom range clears the Today/Tomorrow/etc. buttons and vice versa."/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Clear Filters resets every filter back to All."/>
+                <local:BulletItem Text="Click a sort button (Project, Due Date, Who, Priority) to sort every column by that alone. Ctrl+click additional sort buttons to combine them - a numbered badge on each active button shows its position in the combined sort (e.g. click Project, then Ctrl+click Due Date, then Ctrl+click Priority, to sort by project first, then due date, then priority). Ctrl+click an active button again to remove it from the combination."/>
+                <local:BulletItem Text="The Filter section narrows the board by Project, Priority, Who, Goal, Flag, Due date range, or a keyword search across titles, project, who, and notes."/>
+                <local:BulletItem Text="Who, Goal, and Flag each offer an 'Unassigned' filter option, showing only tasks with none set."/>
+                <local:BulletItem Text="The Today / Tomorrow / Within a Week / No Due Date buttons filter by due date; Today and Within a Week both also include overdue tasks. The active one is shown with a highlighted border."/>
+                <local:BulletItem Text="Below those, From/To date pickers filter by a custom due-date range instead — leave From blank to include everything up through To, leave To blank to include everything from From onward. Setting a custom range clears the Today/Tomorrow/etc. buttons and vice versa."/>
+                <local:BulletItem Text="Clear Filters resets every filter back to All."/>
 
                 <TextBlock Text="Archiving and deleting" Style="{StaticResource HelpSectionHeaderStyle}"/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Archive Done moves every task currently in Done out of the board."/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Deleting a task never erases it — it's kept out of sight instead."/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Click View Archived to browse archived tasks; double-click the same button to browse deleted tasks."/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Either list lets you select a task and reactivate it back to To Do; in the Archived list, double-clicking a task reactivates it immediately."/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Both lists have a From/To date range to narrow them down to when a task was archived or deleted; Clear Dates resets it back to showing everything."/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Right-click a task in either list for Permanently Delete — unlike the regular Delete on the board, this erases the task for good (including any attachments still stored with it) after a confirmation prompt. There's no undo."/>
+                <local:BulletItem Text="Archive Done moves every task currently in Done out of the board."/>
+                <local:BulletItem Text="Deleting a task never erases it — it's kept out of sight instead."/>
+                <local:BulletItem Text="Click View Archived to browse archived tasks; double-click the same button to browse deleted tasks."/>
+                <local:BulletItem Text="Either list lets you select a task and reactivate it back to To Do; in the Archived list, double-clicking a task reactivates it immediately."/>
+                <local:BulletItem Text="Both lists have a From/To date range to narrow them down to when a task was archived or deleted; Clear Dates resets it back to showing everything."/>
+                <local:BulletItem Text="Right-click a task in either list for Permanently Delete — unlike the regular Delete on the board, this erases the task for good (including any attachments still stored with it) after a confirmation prompt. There's no undo."/>
 
                 <TextBlock Text="Importing tasks" Style="{StaticResource HelpSectionHeaderStyle}"/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Click Import Tasks to download an Excel template or choose a filled-in .xlsx file to import. Only the Title column is required; Category, Priority, Project, Goal, Due Date, and Who are all optional."/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Category and Priority must be chosen from the template's dropdown. Project, Goal, and Who show a dropdown of existing values but also accept a new one you type in."/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Enter Due Date as MM/DD/YYYY (year optional, defaults to the current year); it's displayed as DD-MMM-YYYY."/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Projects, Goals, and People mentioned in the file that don't already exist are created automatically."/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Right after import you're shown an editable list of the imported tasks to quickly fix up Category, Task Details, Priority, Project, Goal, Due Date, or Who."/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Double-click Import Tasks any time to review every task still flagged as imported. Uncheck Imported and Save to clear that flag once you're done reviewing a task."/>
+                <local:BulletItem Text="Click Import Tasks to download an Excel template or choose a filled-in .xlsx file to import. Only the Title column is required; Category, Priority, Project, Goal, Due Date, and Who are all optional."/>
+                <local:BulletItem Text="Category and Priority must be chosen from the template's dropdown. Project, Goal, and Who show a dropdown of existing values but also accept a new one you type in."/>
+                <local:BulletItem Text="Enter Due Date as MM/DD/YYYY (year optional, defaults to the current year); it's displayed as DD-MMM-YYYY."/>
+                <local:BulletItem Text="Projects, Goals, and People mentioned in the file that don't already exist are created automatically."/>
+                <local:BulletItem Text="Right after import you're shown an editable list of the imported tasks to quickly fix up Category, Task Details, Priority, Project, Goal, Due Date, or Who."/>
+                <local:BulletItem Text="Double-click Import Tasks any time to review every task still flagged as imported. Uncheck Imported and Save to clear that flag once you're done reviewing a task."/>
 
                 <TextBlock Text="Report Builder" Style="{StaticResource HelpSectionHeaderStyle}"/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Click Report Builder to design a custom report: choose which columns to include, filter by Project, Priority, Who, Goal, Flag, or Due date, group the results, and choose whether to include Notes and Sub-tasks."/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Preview opens a print-preview window with distinct pages, zoom, and a print button; each page after the first repeats a running header and shows a 'Page X of Y' footer. PDF saves it as a real PDF file."/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• PDFs are saved to the Default Export Path set in Settings, with a timestamped filename; if no Default Export Path is set, you'll be asked where to save."/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Rows alternate shading for readability; grouped reports use a distinct alternating colour from ungrouped ones."/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Task scope chooses what the report covers: Board tasks (the default), Board tasks + archived, or Archived only — for reporting purely on completed work. Archived tasks are clearly marked (Archived) in the Status line and aren't affected by the Include Columns checkboxes."/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• The archived date range (From/To) filters archived tasks by when they were archived — useful for 'what did I complete this month'. It has no effect on Board tasks, which have no archive date."/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• A summary line under the title breaks down the task count by status (and Archived, if included). Grouped reports also show a count next to each group heading, and each task's sub-task line shows how many are done, e.g. Sub-tasks: 2/5."/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Include sub-task completion summary adds a section counting how many times each sub-task was completed across all matching tasks — useful for a recurring task (e.g. 'Exercise') whose sub-tasks represent repeatable items (e.g. 'Push-ups: 12/15 completed (80%)') within the chosen scope and date range."/>
+                <local:BulletItem Text="Click Report Builder to design a custom report: choose which columns to include, filter by Project, Priority, Who, Goal, Flag, or Due date, group the results, and choose whether to include Notes and Sub-tasks."/>
+                <local:BulletItem Text="Preview opens a print-preview window with distinct pages, zoom, and a print button; each page after the first repeats a running header and shows a 'Page X of Y' footer. PDF saves it as a real PDF file."/>
+                <local:BulletItem Text="PDFs are saved to the Default Export Path set in Settings, with a timestamped filename; if no Default Export Path is set, you'll be asked where to save."/>
+                <local:BulletItem Text="Rows alternate shading for readability; grouped reports use a distinct alternating colour from ungrouped ones."/>
+                <local:BulletItem Text="Task scope chooses what the report covers: Board tasks (the default), Board tasks + archived, or Archived only — for reporting purely on completed work. Archived tasks are clearly marked (Archived) in the Status line and aren't affected by the Include Columns checkboxes."/>
+                <local:BulletItem Text="The archived date range (From/To) filters archived tasks by when they were archived — useful for 'what did I complete this month'. It has no effect on Board tasks, which have no archive date."/>
+                <local:BulletItem Text="A summary line under the title breaks down the task count by status (and Archived, if included). Grouped reports also show a count next to each group heading, and each task's sub-task line shows how many are done, e.g. Sub-tasks: 2/5."/>
+                <local:BulletItem Text="Include sub-task completion summary adds a section counting how many times each sub-task was completed across all matching tasks — useful for a recurring task (e.g. 'Exercise') whose sub-tasks represent repeatable items (e.g. 'Push-ups: 12/15 completed (80%)') within the chosen scope and date range."/>
+
+                <Border Style="{StaticResource HelpScreenshotStyle}">
+                    <Image Source="/Assets/Help/report-builder.png" Width="420" Stretch="Uniform"/>
+                </Border>
 
                 <TextBlock Text="Dashboard" Style="{StaticResource HelpSectionHeaderStyle}"/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• The banner always shows Open, Overdue, Due Today, and Due This Week counts across all non-Done tasks."/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Double-click the banner to open the full Dashboard: five summary tiles (the banner's four, plus In Done), and four charts — Status Distribution by Priority, Due Date Timeline, By Project, and By Who."/>
+                <local:BulletItem Text="The banner always shows Open, Overdue, Due Today, and Due This Week counts across all non-Done tasks."/>
+                <local:BulletItem Text="Double-click the banner to open the full Dashboard: five summary tiles (the banner's four, plus In Done), and four charts — Status Distribution by Priority, Due Date Timeline, By Project, and By Who."/>
+
+                <Border Style="{StaticResource HelpScreenshotStyle}">
+                    <Image Source="/Assets/Help/dashboard.png" Width="480" Stretch="Uniform"/>
+                </Border>
 
                 <TextBlock Text="Reminders" Style="{StaticResource HelpSectionHeaderStyle}"/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• If any task is overdue or due today, a reminder pop-up lists them automatically when the app opens."/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Check a task off in the reminder list to mark it Done, following the same confirmation/notes prompts as marking it Done from the board; the row then disappears from the list."/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Double-click a task to open it for editing — the reminder list stays open behind it so you can keep working through the rest, and Close it yourself when you're done. Once saved, that row refreshes with your changes, or drops off the list if it's no longer overdue or due today."/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Click the Reminders button (Alt+R) any time to bring the same list back up."/>
+                <local:BulletItem Text="If any task is overdue or due today, a reminder pop-up lists them automatically when the app opens."/>
+                <local:BulletItem Text="Check a task off in the reminder list to mark it Done, following the same confirmation/notes prompts as marking it Done from the board; the row then disappears from the list."/>
+                <local:BulletItem Text="Double-click a task to open it for editing — the reminder list stays open behind it so you can keep working through the rest, and Close it yourself when you're done. Once saved, that row refreshes with your changes, or drops off the list if it's no longer overdue or due today."/>
+                <local:BulletItem Text="Click the Reminders button (Alt+R) any time to bring the same list back up."/>
 
                 <TextBlock Text="Display options" Style="{StaticResource HelpSectionHeaderStyle}"/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Dark Mode / Light Mode switches the whole app's theme."/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Large Cards / Compact Cards toggles how much detail each card shows, useful for fitting more on screen at once."/>
+                <local:BulletItem Text="Dark Mode / Light Mode switches the whole app's theme."/>
+                <local:BulletItem Text="Large Cards / Compact Cards toggles how much detail each card shows, useful for fitting more on screen at once."/>
 
                 <TextBlock Text="Settings" Style="{StaticResource HelpSectionHeaderStyle}"/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Rename any column's label (e.g. change &quot;Waiting&quot; to &quot;Blocked&quot;). This only changes what's displayed — the board still treats the same column as the completion column for archiving, reminders, and recurring tasks."/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Move the button panel to the right side of the board."/>
-        <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Set the task column width in pixels (default 310)."/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Turn the startup splash screen on or off and set how long it stays visible."/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Start the app in full screen."/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• The window size and position are remembered automatically between sessions; the full-screen setting still applies on top of that when starting up."/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Require a yes/no confirmation before deleting a task, project, goal, or flag — turn this off to delete immediately without asking."/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Require a yes/no confirmation before Archive Done — turn this off to archive immediately without asking."/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Ask whether to add a note whenever a task is moved to Done; answering yes opens the task with the cursor already in the Notes field."/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Turn off the overdue/due-today reminder pop-up that appears on startup; the Reminders button still works either way."/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Remember filters, sort, and search between sessions — when on, the board reopens showing whatever view you had when you last closed it, instead of resetting to All/unsorted."/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Change where the task database file is stored. The old file is automatically removed once the app has restarted at the new location."/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• The chosen location itself is remembered outside the database, in a small config file under your local AppData folder — not inside the database file."/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Set a Default Export Path (used by Report Builder's PDF export) and a Default Import Path (used by Import Tasks, including where the template is saved)."/>
-                <TextBlock Style="{StaticResource HelpBulletStyle}" Text="• Set an Attach File Default Path — where the '+ File...' picker opens by default when attaching a file to a task."/>
+                <local:BulletItem Text="Rename any column's label (e.g. change &quot;Waiting&quot; to &quot;Blocked&quot;). This only changes what's displayed — the board still treats the same column as the completion column for archiving, reminders, and recurring tasks."/>
+                <local:BulletItem Text="Move the button panel to the right side of the board."/>
+                <local:BulletItem Text="Set the task column width in pixels (default 310)."/>
+                <local:BulletItem Text="Turn the startup splash screen on or off and set how long it stays visible."/>
+                <local:BulletItem Text="Start the app in full screen."/>
+                <local:BulletItem Text="The window size and position are remembered automatically between sessions; the full-screen setting still applies on top of that when starting up."/>
+                <local:BulletItem Text="Require a yes/no confirmation before deleting a task, project, goal, or flag — turn this off to delete immediately without asking."/>
+                <local:BulletItem Text="Require a yes/no confirmation before Archive Done — turn this off to archive immediately without asking."/>
+                <local:BulletItem Text="Ask whether to add a note whenever a task is moved to Done; answering yes opens the task with the cursor already in the Notes field."/>
+                <local:BulletItem Text="Turn off the overdue/due-today reminder pop-up that appears on startup; the Reminders button still works either way."/>
+                <local:BulletItem Text="Remember filters, sort, and search between sessions — when on, the board reopens showing whatever view you had when you last closed it, instead of resetting to All/unsorted."/>
+                <local:BulletItem Text="Change where the task database file is stored. The old file is automatically removed once the app has restarted at the new location."/>
+                <local:BulletItem Text="The chosen location itself is remembered outside the database, in a small config file under your local AppData folder — not inside the database file."/>
+                <local:BulletItem Text="Set a Default Export Path (used by Report Builder's PDF export) and a Default Import Path (used by Import Tasks, including where the template is saved)."/>
+                <local:BulletItem Text="Set an Attach File Default Path — where the '+ File...' picker opens by default when attaching a file to a task."/>
             </StackPanel>
         </ScrollViewer>
 

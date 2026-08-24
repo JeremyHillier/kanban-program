@@ -6,7 +6,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
-    <Version>0.59.5</Version>
+    <Version>0.60.0</Version>
     <ApplicationIcon>Assets\app.ico</ApplicationIcon>
 
     <AppChannel Condition="'$(AppChannel)'==''">Test</AppChannel>
@@ -23,6 +23,7 @@
 
   <ItemGroup>
     <Resource Include="Assets\app.ico" />
+    <Resource Include="Assets\Help\*.png" />
   </ItemGroup>
 
 </Project>
