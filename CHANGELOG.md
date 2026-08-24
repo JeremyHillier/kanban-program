@@ -6,6 +6,9 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.59.5 — 2026-08-22
+- Help screen accuracy pass (audited the whole thing against the current code, no behavior changes): documented the Archived/Deleted lists' Clear Dates button; fixed the Excel import template's required column — it's labeled "Title", not "Task Details" (the review grid afterward does say "Task Details", which was already correct); corrected the Dashboard's chart list to the actual four charts (Status Distribution and Priority Mix are one combined chart, not two) and noted its extra "In Done" summary tile
+
 ## 0.59.4 — 2026-08-22
 - Internal refactor, no functional change: consolidated the four near-identical ContextMenu-building blocks in MainWindow.xaml.cs (the card's Flags/Priority/Who/Project quick-edit popups) into one shared generic helper
 
