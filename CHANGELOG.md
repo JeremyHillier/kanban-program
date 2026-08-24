@@ -6,6 +6,9 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.59.3 — 2026-08-22
+- Internal refactor, no functional change: split the 1149-line DatabaseService.cs into 11 focused partial-class files by entity (Schema, Settings, Columns, Cards, SubTasks, Attachments, Flags, Projects, People, Goals), same treatment as MainViewModel.cs in the last update
+
 ## 0.59.2 — 2026-08-22
 - Internal refactor, no functional change: split the 1339-line MainViewModel.cs into 11 focused partial-class files by concern (Settings, Dashboard, Sorting, Filters, Cards, Attachments, Recurring, ArchiveDelete, ManagedLists, Import) for easier navigation and maintenance going forward
 
