@@ -530,6 +530,28 @@ public partial class MainWindow : Window
         Dispatcher.BeginInvoke(new Action(() => viewModel.DeleteCardCommand.Execute(card)), DispatcherPriority.Background);
     }
 
+    // Shared by every card quick-edit popup below (Flags/Priority/Who/Project): builds a
+    // ContextMenu with one MenuItem per option and opens it anchored to placementTarget.
+    // Each selection is deferred via BeginInvoke - mutating the card collection (e.g. ApplySort)
+    // synchronously from inside a MenuItem.Click handler tears down the popup's PlacementTarget
+    // while it's still closing, which deadlocks WPF's layout engine; running it after the menu has
+    // actually closed avoids that. Always deferring (even where the specific onSelect action
+    // doesn't currently touch the collection, like AddFlagToCard) keeps this helper safe regardless
+    // of what a future onSelect ends up doing.
+    private void ShowQuickEditMenu<T>(FrameworkElement placementTarget, IEnumerable<(string Header, bool IsChecked, T Value)> items, Action<T> onSelect)
+    {
+        var menu = new System.Windows.Controls.ContextMenu();
+        foreach (var (header, isChecked, value) in items)
+        {
+            var menuItem = new System.Windows.Controls.MenuItem { Header = header, IsChecked = isChecked };
+            menuItem.Click += (_, _) => Dispatcher.BeginInvoke(new Action(() => onSelect(value)), DispatcherPriority.Background);
+            menu.Items.Add(menuItem);
+        }
+
+        menu.PlacementTarget = placementTarget;
+        menu.IsOpen = true;
+    }
+
     private void AddFlagQuickAction_Click(object sender, RoutedEventArgs e)
     {
         if (sender is not FrameworkElement { DataContext: CardViewModel card } element || DataContext is not MainViewModel viewModel) return;
@@ -546,35 +568,17 @@ public partial class MainWindow : Window
             return;
         }
 
-        var menu = new System.Windows.Controls.ContextMenu();
-        foreach (var flag in available)
-        {
-            var menuItem = new System.Windows.Controls.MenuItem { Header = flag.Name };
-            menuItem.Click += (_, _) => viewModel.AddFlagToCard(card, flag);
-            menu.Items.Add(menuItem);
-        }
-
-        menu.PlacementTarget = element;
-        menu.IsOpen = true;
+        var items = available.Select(flag => (Header: flag.Name, IsChecked: false, Value: flag));
+        ShowQuickEditMenu(element, items, flag => viewModel.AddFlagToCard(card, flag));
     }
 
     private void PriorityBadge_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
     {
         if (sender is not FrameworkElement { DataContext: CardViewModel card } element || DataContext is not MainViewModel viewModel) return;
 
-        var menu = new System.Windows.Controls.ContextMenu();
-        foreach (var priority in new[] { "High", "Medium", "Normal", "Low" })
-        {
-            var menuItem = new System.Windows.Controls.MenuItem { Header = priority, IsChecked = card.Priority == priority };
-            // Deferred via BeginInvoke: mutating the card collection (ApplySort) synchronously from inside
-            // a MenuItem.Click handler tears down the popup's PlacementTarget while it's still closing,
-            // which deadlocks WPF's layout engine. Running it after the menu has actually closed avoids that.
-            menuItem.Click += (_, _) => Dispatcher.BeginInvoke(new Action(() => viewModel.SetCardPriority(card, priority)), DispatcherPriority.Background);
-            menu.Items.Add(menuItem);
-        }
-
-        menu.PlacementTarget = element;
-        menu.IsOpen = true;
+        var items = new[] { "High", "Medium", "Normal", "Low" }
+            .Select(priority => (Header: priority, IsChecked: card.Priority == priority, Value: priority));
+        ShowQuickEditMenu(element, items, priority => viewModel.SetCardPriority(card, priority));
         e.Handled = true;
     }
 
@@ -582,20 +586,9 @@ public partial class MainWindow : Window
     {
         if (sender is not FrameworkElement { DataContext: CardViewModel card } element || DataContext is not MainViewModel viewModel) return;
 
-        var menu = new System.Windows.Controls.ContextMenu();
-        var unassignedItem = new System.Windows.Controls.MenuItem { Header = "Unassigned", IsChecked = card.WhoId is null };
-        unassignedItem.Click += (_, _) => Dispatcher.BeginInvoke(new Action(() => viewModel.SetCardWho(card, null)), DispatcherPriority.Background);
-        menu.Items.Add(unassignedItem);
-
-        foreach (var person in viewModel.People.Where(p => p.IsActive))
-        {
-            var menuItem = new System.Windows.Controls.MenuItem { Header = person.Name, IsChecked = card.WhoId == person.Id };
-            menuItem.Click += (_, _) => Dispatcher.BeginInvoke(new Action(() => viewModel.SetCardWho(card, person)), DispatcherPriority.Background);
-            menu.Items.Add(menuItem);
-        }
-
-        menu.PlacementTarget = element;
-        menu.IsOpen = true;
+        var items = new List<(string Header, bool IsChecked, PersonViewModel? Value)> { ("Unassigned", card.WhoId is null, null) };
+        items.AddRange(viewModel.People.Where(p => p.IsActive).Select(p => (p.Name, card.WhoId == p.Id, (PersonViewModel?)p)));
+        ShowQuickEditMenu(element, items, who => viewModel.SetCardWho(card, who));
         e.Handled = true;
     }
 
@@ -603,16 +596,9 @@ public partial class MainWindow : Window
     {
         if (sender is not FrameworkElement { DataContext: CardViewModel card } element || DataContext is not MainViewModel viewModel) return;
 
-        var menu = new System.Windows.Controls.ContextMenu();
-        foreach (var project in viewModel.Projects.Where(p => p.IsActive))
-        {
-            var menuItem = new System.Windows.Controls.MenuItem { Header = project.Name, IsChecked = card.ProjectId == project.Id };
-            menuItem.Click += (_, _) => Dispatcher.BeginInvoke(new Action(() => viewModel.SetCardProject(card, project)), DispatcherPriority.Background);
-            menu.Items.Add(menuItem);
-        }
-
-        menu.PlacementTarget = element;
-        menu.IsOpen = true;
+        var items = viewModel.Projects.Where(p => p.IsActive)
+            .Select(project => (Header: project.Name, IsChecked: card.ProjectId == project.Id, Value: project));
+        ShowQuickEditMenu(element, items, project => viewModel.SetCardProject(card, project));
         e.Handled = true;
     }
 

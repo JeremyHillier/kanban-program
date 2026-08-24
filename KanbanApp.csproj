@@ -6,7 +6,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
-    <Version>0.59.3</Version>
+    <Version>0.59.4</Version>
     <ApplicationIcon>Assets\app.ico</ApplicationIcon>
 
     <AppChannel Condition="'$(AppChannel)'==''">Test</AppChannel>
