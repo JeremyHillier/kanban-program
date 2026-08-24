@@ -6,6 +6,9 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.59.2 — 2026-08-22
+- Internal refactor, no functional change: split the 1339-line MainViewModel.cs into 11 focused partial-class files by concern (Settings, Dashboard, Sorting, Filters, Cards, Attachments, Recurring, ArchiveDelete, ManagedLists, Import) for easier navigation and maintenance going forward
+
 ## 0.59.1 — 2026-08-22
 - Add a Clear Dates button next to the Archived and Deleted task lists' From/To date range, to reset the filter back to showing everything
 
