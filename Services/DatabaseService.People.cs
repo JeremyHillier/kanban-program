@@ -11,7 +11,7 @@ public partial class DatabaseService
     {
         using var connection = OpenConnection();
         using var cmd = connection.CreateCommand();
-        cmd.CommandText = "SELECT Id, Name, SortOrder, IsActive FROM People ORDER BY Name COLLATE NOCASE;";
+        cmd.CommandText = "SELECT Id, Name, SortOrder, IsActive, Email FROM People ORDER BY Name COLLATE NOCASE;";
 
         var result = new List<Person>();
         using var reader = cmd.ExecuteReader();
@@ -22,7 +22,8 @@ public partial class DatabaseService
                 Id = reader.GetInt32(0),
                 Name = reader.GetString(1),
                 SortOrder = reader.GetInt32(2),
-                IsActive = reader.GetInt32(3) != 0
+                IsActive = reader.GetInt32(3) != 0,
+                Email = reader.IsDBNull(4) ? null : reader.GetString(4)
             });
         }
         return result;
@@ -58,6 +59,16 @@ public partial class DatabaseService
         using var cmd = connection.CreateCommand();
         cmd.CommandText = "UPDATE People SET Name = $name WHERE Id = $id;";
         cmd.Parameters.AddWithValue("$name", name);
+        cmd.Parameters.AddWithValue("$id", personId);
+        cmd.ExecuteNonQuery();
+    }
+
+    public void SetPersonEmail(int personId, string? email)
+    {
+        using var connection = OpenConnection();
+        using var cmd = connection.CreateCommand();
+        cmd.CommandText = "UPDATE People SET Email = $email WHERE Id = $id;";
+        cmd.Parameters.AddWithValue("$email", (object?)email ?? DBNull.Value);
         cmd.Parameters.AddWithValue("$id", personId);
         cmd.ExecuteNonQuery();
     }

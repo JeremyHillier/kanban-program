@@ -118,6 +118,7 @@ public class CardViewModel(CardItem model) : ObservableObject
             if (Model.WhoId == value) return;
             Model.WhoId = value;
             OnPropertyChanged();
+            OnPropertyChanged(nameof(CanEmailCard));
         }
     }
 
@@ -134,7 +135,22 @@ public class CardViewModel(CardItem model) : ObservableObject
         }
     }
 
+    private string? _whoEmail;
+    public string? WhoEmail
+    {
+        get => _whoEmail;
+        set
+        {
+            if (SetField(ref _whoEmail, value))
+            {
+                OnPropertyChanged(nameof(CanEmailCard));
+            }
+        }
+    }
+
     public string WhoDisplay => string.IsNullOrWhiteSpace(WhoName) || WhoName == "Unassigned" ? string.Empty : $"Assigned: {WhoName}";
+
+    public bool CanEmailCard => WhoId.HasValue && !string.IsNullOrWhiteSpace(WhoEmail);
 
     public string? Notes
     {

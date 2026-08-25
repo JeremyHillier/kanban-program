@@ -38,6 +38,15 @@ public partial class ManageWhoWindow : Window
         Dispatcher.BeginInvoke(new Action(() => _viewModel.RenamePerson(person, newName)), DispatcherPriority.Background);
     }
 
+    private void PersonEmail_LostFocus(object sender, RoutedEventArgs e)
+    {
+        if (sender is not TextBox { DataContext: PersonViewModel person } textBox) return;
+
+        // Doesn't re-sort the list (email isn't a sort key), so unlike PersonName_LostFocus this
+        // is safe to apply synchronously - no risk of tearing down this TextBox's own row mid-dispatch.
+        _viewModel.SetPersonEmail(person, textBox.Text);
+    }
+
     private void Active_Changed(object sender, RoutedEventArgs e)
     {
         if (sender is not CheckBox { DataContext: PersonViewModel person } checkBox) return;

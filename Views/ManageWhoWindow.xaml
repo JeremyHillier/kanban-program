@@ -28,25 +28,33 @@
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
                         <Border BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="0,0,0,1" Padding="0,3">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
-                                <TextBox Grid.Column="0" Padding="6" Margin="0,0,8,0"
-                                         Text="{Binding Name, Mode=OneWay}"
-                                         LostFocus="PersonName_LostFocus"
+                            <StackPanel>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBox Grid.Column="0" Padding="6" Margin="0,0,8,0"
+                                             Text="{Binding Name, Mode=OneWay}"
+                                             LostFocus="PersonName_LostFocus"
+                                             Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                                             BorderBrush="{DynamicResource CardBorderBrush}"/>
+                                    <CheckBox Grid.Column="1" Content="Active" VerticalAlignment="Center" Margin="0,0,8,0"
+                                              IsChecked="{Binding IsActive, Mode=OneWay}"
+                                              Foreground="{DynamicResource PrimaryTextBrush}"
+                                              ToolTip="When off, this person is hidden from filters and from selection on new/edited tasks. Tasks already using it are unaffected."
+                                              Checked="Active_Changed" Unchecked="Active_Changed"/>
+                                    <Button Grid.Column="2" Content="Delete" Padding="10,4" Click="Delete_Click"
+                                            Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                                </Grid>
+                                <TextBox Padding="6" Margin="0,4,0,0"
+                                         Text="{Binding Email, Mode=OneWay}"
+                                         LostFocus="PersonEmail_LostFocus"
+                                         ToolTip="Email address (optional) - lets you email this person's tasks to them directly from a card"
                                          Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
                                          BorderBrush="{DynamicResource CardBorderBrush}"/>
-                                <CheckBox Grid.Column="1" Content="Active" VerticalAlignment="Center" Margin="0,0,8,0"
-                                          IsChecked="{Binding IsActive, Mode=OneWay}"
-                                          Foreground="{DynamicResource PrimaryTextBrush}"
-                                          ToolTip="When off, this person is hidden from filters and from selection on new/edited tasks. Tasks already using it are unaffected."
-                                          Checked="Active_Changed" Unchecked="Active_Changed"/>
-                                <Button Grid.Column="2" Content="Delete" Padding="10,4" Click="Delete_Click"
-                                        Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
-                            </Grid>
+                            </StackPanel>
                         </Border>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>

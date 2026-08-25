@@ -15,6 +15,7 @@ public partial class AddTaskWindow : Window
 {
     private readonly MainViewModel _viewModel;
     private readonly List<string> _sessionPastedFilePaths = [];
+    private CardViewModel? _cardToEdit;
 
     public string TaskDetails { get; private set; } = string.Empty;
     public ColumnViewModel? SelectedColumn { get; private set; }
@@ -64,6 +65,9 @@ public partial class AddTaskWindow : Window
     {
         Title = "Edit Task";
         SubmitButton.Content = "Save";
+
+        _cardToEdit = cardToEdit;
+        EmailButton.Visibility = cardToEdit.CanEmailCard ? Visibility.Visible : Visibility.Collapsed;
 
         DetailsTextBox.Text = cardToEdit.Title;
         CategoryComboBox.SelectedItem = currentColumn;
@@ -257,6 +261,13 @@ public partial class AddTaskWindow : Window
         {
             MessageBox.Show($"Couldn't open the file: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
         }
+    }
+
+    private void Email_Click(object sender, RoutedEventArgs e)
+    {
+        if (_cardToEdit is null) return;
+
+        OutlookEmailHelper.ComposeCardEmail(this, _cardToEdit);
     }
 
     private void AddFile_Click(object sender, RoutedEventArgs e)

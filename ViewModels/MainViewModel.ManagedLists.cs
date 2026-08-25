@@ -22,6 +22,16 @@ public partial class MainViewModel
     public void SetPersonActive(PersonViewModel person, bool isActive) => _personManager.SetActive(person, isActive);
     public int CountTasksUsingPerson(PersonViewModel person) => _personManager.CountUsage(person);
 
+    public void SetPersonEmail(PersonViewModel person, string? email)
+    {
+        var trimmed = string.IsNullOrWhiteSpace(email) ? null : email.Trim();
+        if (person.Email == trimmed) return;
+
+        person.Email = trimmed;
+        _db.SetPersonEmail(person.Id, trimmed);
+        UpdateMatchingCards(c => c.WhoId == person.Id, c => c.WhoEmail = trimmed);
+    }
+
     public void AddGoal(string name) => _goalManager.Add(name);
     public void RenameGoal(GoalViewModel goal, string newName) => _goalManager.Rename(goal, newName);
     public void DeleteGoal(GoalViewModel goal) => _goalManager.Delete(goal);

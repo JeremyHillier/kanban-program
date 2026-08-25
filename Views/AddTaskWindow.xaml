@@ -200,6 +200,9 @@
         </ScrollViewer>
 
         <StackPanel Grid.Row="1" HorizontalAlignment="Right" Orientation="Horizontal" Margin="16,10,16,0">
+            <Button x:Name="EmailButton" Content="&#x2709; Email" Width="90" Padding="0,6" Margin="0,0,8,0" Click="Email_Click"
+                    Visibility="Collapsed" ToolTip="Email this task to the assigned person"
+                    Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
             <Button Content="Cancel" Width="80" Padding="0,6" IsCancel="True"
                     Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
             <Button x:Name="SubmitButton" Content="Add Task" Width="90" Padding="0,6" Margin="8,0,0,0" IsDefault="True" Click="Add_Click"

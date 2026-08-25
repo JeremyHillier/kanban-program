@@ -108,6 +108,7 @@ public partial class DatabaseService
         MigrateColumn(connection, "Goals", "IsActive", "INTEGER NOT NULL DEFAULT 1");
         MigrateColumn(connection, "Flags", "IsActive", "INTEGER NOT NULL DEFAULT 1");
         MigrateColumn(connection, "Columns", "DisplayName", "TEXT");
+        MigrateColumn(connection, "People", "Email", "TEXT NULL");
 
         using (var backfillCmd = connection.CreateCommand())
         {

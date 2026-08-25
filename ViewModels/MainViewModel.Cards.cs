@@ -21,6 +21,7 @@ public partial class MainViewModel
             ProjectName = project?.Name ?? "No Project",
             GoalName = goal?.Name ?? "No Goal",
             WhoName = who?.Name ?? "Unassigned",
+            WhoEmail = who?.Email,
             Flags = flags,
             SubTasks = subTaskItems.Select(s => new SubTaskViewModel(s)).ToList(),
             Attachments = attachmentItems.Select(a => new AttachmentViewModel(a)).ToList(),
@@ -53,6 +54,7 @@ public partial class MainViewModel
         card.DueDate = dueDate;
         card.WhoId = who?.Id;
         card.WhoName = who?.Name ?? "Unassigned";
+        card.WhoEmail = who?.Email;
         card.IsRecurring = isRecurring;
         card.RecurrencePattern = recurrencePattern;
         card.GoalId = goal?.Id;
@@ -140,6 +142,7 @@ public partial class MainViewModel
 
         card.WhoId = who?.Id;
         card.WhoName = who?.Name ?? "Unassigned";
+        card.WhoEmail = who?.Email;
         card.LastUpdated = _db.UpdateCard(card.Id, card.Title, card.ProjectId, card.Priority, card.DueDate, who?.Id,
             card.IsRecurring, card.RecurrencePattern, card.GoalId, card.Notes, card.ForceEditOnComplete);
 

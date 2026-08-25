@@ -572,6 +572,13 @@ public partial class MainWindow : Window
         ShowQuickEditMenu(element, items, flag => viewModel.AddFlagToCard(card, flag));
     }
 
+    private void EmailCardQuickAction_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is not FrameworkElement { DataContext: CardViewModel card }) return;
+
+        OutlookEmailHelper.ComposeCardEmail(this, card);
+    }
+
     private void PriorityBadge_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
     {
         if (sender is not FrameworkElement { DataContext: CardViewModel card } element || DataContext is not MainViewModel viewModel) return;

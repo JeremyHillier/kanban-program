@@ -28,4 +28,15 @@ public class PersonViewModel(Person model) : ObservableObject, IManagedItem
             OnPropertyChanged();
         }
     }
+
+    public string? Email
+    {
+        get => Model.Email;
+        set
+        {
+            if (Model.Email == value) return;
+            Model.Email = value;
+            OnPropertyChanged();
+        }
+    }
 }

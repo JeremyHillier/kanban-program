@@ -156,6 +156,7 @@ public partial class MainViewModel : ObservableObject
                     ProjectName = ResolveProjectName(card.ProjectId),
                     GoalName = ResolveGoalName(card.GoalId),
                     WhoName = ResolveWhoName(card.WhoId),
+                    WhoEmail = ResolveWhoEmail(card.WhoId),
                     Flags = ResolveFlags(card.FlagIds),
                     SubTasks = card.SubTasks.Select(s => new SubTaskViewModel(s)).ToList(),
                     Attachments = card.Attachments.Select(a => new AttachmentViewModel(a)).ToList(),
@@ -217,6 +218,12 @@ public partial class MainViewModel : ObservableObject
     {
         if (whoId is null) return "Unassigned";
         return People.FirstOrDefault(p => p.Id == whoId)?.Name ?? "Unassigned";
+    }
+
+    private string? ResolveWhoEmail(int? whoId)
+    {
+        if (whoId is null) return null;
+        return People.FirstOrDefault(p => p.Id == whoId)?.Email;
     }
 
     private List<FlagViewModel> ResolveFlags(List<int> flagIds) =>
