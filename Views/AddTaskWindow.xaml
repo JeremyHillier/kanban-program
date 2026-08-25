@@ -120,7 +120,7 @@
                                 Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
                     </Grid>
                     <ComboBox Grid.Row="3" Grid.Column="2" x:Name="WhoComboBox" Padding="6" SelectedIndex="-1"
-                              DisplayMemberPath="Name"
+                              DisplayMemberPath="Name" SelectionChanged="WhoComboBox_SelectionChanged"
                               Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
                               BorderBrush="{DynamicResource CardBorderBrush}"/>
 

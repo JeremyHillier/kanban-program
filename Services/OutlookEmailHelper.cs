@@ -12,9 +12,12 @@ namespace KanbanApp.Services;
 // Always opens a compose window for the user to review (Display), never sends automatically.
 public static class OutlookEmailHelper
 {
-    public static void ComposeCardEmail(Window owner, CardViewModel card)
+    // recipientEmail is passed explicitly rather than always reading card.WhoEmail: the Add/Edit
+    // Task dialog needs to email the currently-selected Who in its combo box, which can be a live,
+    // not-yet-saved change that hasn't made it onto the CardViewModel yet.
+    public static void ComposeCardEmail(Window owner, CardViewModel card, string recipientEmail)
     {
-        if (!card.CanEmailCard) return;
+        if (string.IsNullOrWhiteSpace(recipientEmail)) return;
 
         try
         {
@@ -31,7 +34,7 @@ public static class OutlookEmailHelper
             // modern .NET anyway; it was never ported from .NET Framework).
             dynamic app = Activator.CreateInstance(outlookType)!;
             dynamic mailItem = app.CreateItem(0); // olMailItem
-            mailItem.To = card.WhoEmail;
+            mailItem.To = recipientEmail;
             mailItem.Subject = $"Task: {card.Title}";
             mailItem.HTMLBody = BuildHtmlBody(card);
 

@@ -67,7 +67,6 @@ public partial class AddTaskWindow : Window
         SubmitButton.Content = "Save";
 
         _cardToEdit = cardToEdit;
-        EmailButton.Visibility = cardToEdit.CanEmailCard ? Visibility.Visible : Visibility.Collapsed;
 
         DetailsTextBox.Text = cardToEdit.Title;
         CategoryComboBox.SelectedItem = currentColumn;
@@ -263,11 +262,21 @@ public partial class AddTaskWindow : Window
         }
     }
 
+    private void WhoComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        // Reacts to the live selection rather than the card's saved WhoId/Email, so assigning
+        // someone (with an email on file) to a previously-unassigned task lights the button up
+        // immediately, without needing to save and reopen the dialog first.
+        var hasEmail = _cardToEdit is not null && WhoComboBox.SelectedItem is PersonViewModel { Email: { Length: > 0 } };
+        EmailButton.Visibility = hasEmail ? Visibility.Visible : Visibility.Collapsed;
+    }
+
     private void Email_Click(object sender, RoutedEventArgs e)
     {
         if (_cardToEdit is null) return;
+        if (WhoComboBox.SelectedItem is not PersonViewModel { Email: { Length: > 0 } } selected) return;
 
-        OutlookEmailHelper.ComposeCardEmail(this, _cardToEdit);
+        OutlookEmailHelper.ComposeCardEmail(this, _cardToEdit, selected.Email);
     }
 
     private void AddFile_Click(object sender, RoutedEventArgs e)
