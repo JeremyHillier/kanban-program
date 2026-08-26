@@ -6,6 +6,10 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.61.2 — 2026-08-26
+- Fix the Add/Edit Task dialog's Cancel/Add Task buttons becoming unreachable with a long sub-task list: the scrollable form area now has its own height cap, so it gets its own scrollbar instead of just growing the whole window past the screen's bottom edge
+- Tighten sub-task row spacing (less padding per row, smaller remove button) so more fit on screen at once
+
 ## 0.60.0 — 2026-08-24
 - Fix Help screen text wrapping: a bullet's second line now aligns under the first word of its text instead of under the bullet character
 - Add four screenshots to the Help screen (main board, Add/Edit Task dialog, Report Builder, Dashboard) so key screens can be seen at a glance alongside their descriptions

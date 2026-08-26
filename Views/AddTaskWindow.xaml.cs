@@ -36,6 +36,12 @@ public partial class AddTaskWindow : Window
     {
         InitializeComponent();
         MaxHeight = SystemParameters.WorkArea.Height * 0.9;
+        // Constrains the scrollable form area directly, rather than relying on the Grid row it
+        // sits in to propagate the window's MaxHeight down during a SizeToContent="Height" measure
+        // pass (it doesn't, reliably) - this is what actually makes the ScrollViewer's own scrollbar
+        // activate once content (e.g. a long sub-task list) overflows, instead of the window just
+        // growing past the screen's bottom edge and taking the Cancel/Add Task buttons with it.
+        FormScrollViewer.MaxHeight = SystemParameters.WorkArea.Height * 0.75;
         _viewModel = viewModel;
         CategoryComboBox.ItemsSource = viewModel.Columns;
         RebuildProjectItems();
@@ -411,7 +417,7 @@ public partial class AddTaskWindow : Window
 
     private void AddSubTaskRow(string title = "", bool isDone = false)
     {
-        var row = new Grid { Margin = new Thickness(0, 0, 0, 6) };
+        var row = new Grid { Margin = new Thickness(0, 0, 0, 3) };
         row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
         row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
         row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
@@ -420,7 +426,7 @@ public partial class AddTaskWindow : Window
         {
             IsChecked = isDone,
             VerticalAlignment = VerticalAlignment.Center,
-            Margin = new Thickness(0, 0, 8, 0)
+            Margin = new Thickness(0, 0, 6, 0)
         };
         checkBox.Checked += (_, _) => UpdateSubTaskProgressLabel();
         checkBox.Unchecked += (_, _) => UpdateSubTaskProgressLabel();
@@ -429,7 +435,7 @@ public partial class AddTaskWindow : Window
         var textBox = new TextBox
         {
             Text = title,
-            Padding = new Thickness(6),
+            Padding = new Thickness(6, 3, 6, 3),
             Style = (Style)FindResource("HoverTextBoxStyle"),
             Background = (Brush)FindResource("InputBackgroundBrush"),
             Foreground = (Brush)FindResource("PrimaryTextBrush")
@@ -439,9 +445,10 @@ public partial class AddTaskWindow : Window
         var deleteButton = new Button
         {
             Content = "×",
-            Width = 26,
-            Height = 26,
+            Width = 22,
+            Height = 22,
             Margin = new Thickness(6, 0, 0, 0),
+            Padding = new Thickness(0),
             Background = (Brush)FindResource("ButtonBackgroundBrush"),
             Foreground = (Brush)FindResource("PrimaryTextBrush"),
             ToolTip = "Remove sub-task"

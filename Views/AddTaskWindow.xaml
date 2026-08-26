@@ -45,6 +45,12 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
+        <!-- MaxHeight is set explicitly in code-behind (not left to the Window's own MaxHeight +
+             SizeToContent to sort out) - a Grid row's Auto/Star sizing doesn't reliably constrain a
+             child's measure pass under SizeToContent="Height", so without a MaxHeight set directly
+             here the ScrollViewer never activates its own scrollbar and a long sub-task list just
+             grows the window straight past the screen's bottom edge, taking the Cancel/Add Task
+             buttons with it. -->
         <ScrollViewer Grid.Row="0" x:Name="FormScrollViewer" VerticalScrollBarVisibility="Auto">
             <StackPanel Margin="16,0,16,0">
                 <!-- Project -->
