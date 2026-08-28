@@ -183,7 +183,12 @@
                     <TextBlock x:Name="SubTaskProgressLabel" VerticalAlignment="Center" Margin="10,0,0,0" FontSize="11"
                                Foreground="{DynamicResource SecondaryTextBrush}"/>
                 </StackPanel>
-                <StackPanel x:Name="SubTasksPanel" AllowDrop="True" DragOver="SubTasksPanel_DragOver" Drop="SubTasksPanel_Drop"/>
+                <Grid>
+                    <StackPanel x:Name="SubTasksPanel" AllowDrop="True"
+                                DragOver="SubTasksPanel_DragOver" DragLeave="SubTasksPanel_DragLeave" Drop="SubTasksPanel_Drop"/>
+                    <Border x:Name="SubTaskInsertionIndicator" Height="2" Background="{DynamicResource AccentTextBrush}"
+                            VerticalAlignment="Top" HorizontalAlignment="Stretch" Visibility="Collapsed" IsHitTestVisible="False"/>
+                </Grid>
 
                 <!-- Attachments -->
                 <Border AllowDrop="True" DragOver="AttachmentsDropZone_DragOver" Drop="AttachmentsDropZone_Drop"

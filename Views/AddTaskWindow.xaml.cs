@@ -456,6 +456,9 @@ public partial class AddTaskWindow : Window
 
             DragDrop.DoDragDrop(dragHandle, row, DragDropEffects.Move);
             _subTaskDragCandidate = null;
+            // Safety net: DragOver/Drop normally clear this, but a drag that ends outside the panel
+            // (dropped elsewhere, or cancelled with Escape) wouldn't otherwise get a chance to.
+            SubTaskInsertionIndicator.Visibility = Visibility.Collapsed;
         };
 
         var checkBox = new CheckBox
@@ -538,18 +541,34 @@ public partial class AddTaskWindow : Window
 
     private void SubTasksPanel_DragOver(object sender, DragEventArgs e)
     {
-        var canDrop = e.Data.GetDataPresent(typeof(Grid));
-        e.Effects = canDrop ? DragDropEffects.Move : DragDropEffects.None;
         e.Handled = true;
+
+        if (e.Data.GetData(typeof(Grid)) is not Grid draggedRow)
+        {
+            e.Effects = DragDropEffects.None;
+            SubTaskInsertionIndicator.Visibility = Visibility.Collapsed;
+            return;
+        }
+
+        e.Effects = DragDropEffects.Move;
+        var (_, indicatorY) = GetSubTaskDropTarget(e.GetPosition(SubTasksPanel), draggedRow);
+        SubTaskInsertionIndicator.Margin = new Thickness(0, indicatorY, 0, 0);
+        SubTaskInsertionIndicator.Visibility = Visibility.Visible;
+    }
+
+    private void SubTasksPanel_DragLeave(object sender, DragEventArgs e)
+    {
+        SubTaskInsertionIndicator.Visibility = Visibility.Collapsed;
     }
 
     private void SubTasksPanel_Drop(object sender, DragEventArgs e)
     {
         e.Handled = true;
+        SubTaskInsertionIndicator.Visibility = Visibility.Collapsed;
         if (e.Data.GetData(typeof(Grid)) is not Grid draggedRow) return;
 
         var dropPosition = e.GetPosition(SubTasksPanel);
-        var newIndex = GetSubTaskDropIndex(dropPosition, draggedRow);
+        var (newIndex, _) = GetSubTaskDropTarget(dropPosition, draggedRow);
 
         // Deferred via BeginInvoke: same reasoning as SubTaskCheckBox_Changed above - this handler
         // still runs nested inside DoDragDrop's own message loop when Drop fires (Drop fires before
@@ -562,12 +581,16 @@ public partial class AddTaskWindow : Window
             if (oldIndex < 0) return;
 
             children.RemoveAt(oldIndex);
-            if (newIndex > oldIndex) newIndex--;
-            children.Insert(Math.Clamp(newIndex, 0, children.Count), draggedRow);
+            var insertAt = newIndex;
+            if (insertAt > oldIndex) insertAt--;
+            children.Insert(Math.Clamp(insertAt, 0, children.Count), draggedRow);
         }), DispatcherPriority.Background);
     }
 
-    private int GetSubTaskDropIndex(Point positionInPanel, Grid draggedRow)
+    // Returns both where a drop would land (Index, in "before removal" Children-count space - see
+    // the adjustment in SubTasksPanel_Drop above) and the Y position (relative to SubTasksPanel) for
+    // the insertion-line indicator, so DragOver and Drop always agree on the same target.
+    private (int Index, double IndicatorY) GetSubTaskDropTarget(Point positionInPanel, Grid draggedRow)
     {
         var rows = SubTasksPanel.Children.OfType<Grid>().Where(r => !ReferenceEquals(r, draggedRow)).ToList();
         for (var i = 0; i < rows.Count; i++)
@@ -575,10 +598,14 @@ public partial class AddTaskWindow : Window
             var top = rows[i].TranslatePoint(new Point(0, 0), SubTasksPanel).Y;
             if (positionInPanel.Y < top + rows[i].ActualHeight / 2)
             {
-                return SubTasksPanel.Children.IndexOf(rows[i]);
+                return (SubTasksPanel.Children.IndexOf(rows[i]), top);
             }
         }
-        return SubTasksPanel.Children.Count;
+
+        var bottom = rows.Count > 0
+            ? rows[^1].TranslatePoint(new Point(0, 0), SubTasksPanel).Y + rows[^1].ActualHeight
+            : 0;
+        return (SubTasksPanel.Children.Count, bottom);
     }
 
     private void UpdateSubTaskProgressLabel()
