@@ -65,8 +65,8 @@
                           BorderBrush="{DynamicResource CardBorderBrush}"/>
 
                 <!-- Task details -->
-                <TextBlock Text="Task details" Style="{StaticResource FieldLabelStyle}"/>
-                <TextBox x:Name="DetailsTextBox" Height="54" Padding="6"
+                <TextBlock Text="Task" Style="{StaticResource FieldLabelStyle}"/>
+                <TextBox x:Name="DetailsTextBox" Height="54" Padding="6" MaxLength="255"
                           TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Auto"
                           Style="{StaticResource HoverTextBoxStyle}"
                           Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
