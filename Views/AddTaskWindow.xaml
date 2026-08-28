@@ -164,7 +164,7 @@
 
                 <!-- Notes -->
                 <TextBlock Text="Notes" Style="{StaticResource FieldLabelStyle}"/>
-                <TextBox x:Name="NotesTextBox" Height="50" Padding="6"
+                <TextBox x:Name="NotesTextBox" Height="110" Padding="6"
                           TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Auto"
                           Style="{StaticResource HoverTextBoxStyle}"
                           Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
@@ -183,7 +183,7 @@
                     <TextBlock x:Name="SubTaskProgressLabel" VerticalAlignment="Center" Margin="10,0,0,0" FontSize="11"
                                Foreground="{DynamicResource SecondaryTextBrush}"/>
                 </StackPanel>
-                <StackPanel x:Name="SubTasksPanel"/>
+                <StackPanel x:Name="SubTasksPanel" AllowDrop="True" DragOver="SubTasksPanel_DragOver" Drop="SubTasksPanel_Drop"/>
 
                 <!-- Attachments -->
                 <Border AllowDrop="True" DragOver="AttachmentsDropZone_DragOver" Drop="AttachmentsDropZone_Drop"

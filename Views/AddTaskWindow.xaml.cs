@@ -5,6 +5,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Threading;
 using KanbanApp.Models;
 using KanbanApp.Services;
 using KanbanApp.ViewModels;
@@ -16,6 +17,8 @@ public partial class AddTaskWindow : Window
     private readonly MainViewModel _viewModel;
     private readonly List<string> _sessionPastedFilePaths = [];
     private CardViewModel? _cardToEdit;
+    private Point _subTaskDragStartPoint;
+    private Grid? _subTaskDragCandidate;
 
     public string TaskDetails { get; private set; } = string.Empty;
     public ColumnViewModel? SelectedColumn { get; private set; }
@@ -419,8 +422,41 @@ public partial class AddTaskWindow : Window
     {
         var row = new Grid { Margin = new Thickness(0, 0, 0, 3) };
         row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+        row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
         row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
         row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+
+        var dragHandle = new TextBlock
+        {
+            Text = "☰",
+            FontSize = 12,
+            Foreground = (Brush)FindResource("SecondaryTextBrush"),
+            Cursor = Cursors.SizeNS,
+            VerticalAlignment = VerticalAlignment.Center,
+            Margin = new Thickness(0, 0, 6, 0),
+            ToolTip = "Drag to reorder"
+        };
+        Grid.SetColumn(dragHandle, 0);
+        dragHandle.PreviewMouseLeftButtonDown += (_, args) =>
+        {
+            _subTaskDragStartPoint = args.GetPosition(null);
+            _subTaskDragCandidate = row;
+        };
+        dragHandle.MouseMove += (_, args) =>
+        {
+            if (args.LeftButton != MouseButtonState.Pressed || !ReferenceEquals(_subTaskDragCandidate, row)) return;
+
+            var currentPosition = args.GetPosition(null);
+            var diff = _subTaskDragStartPoint - currentPosition;
+            if (Math.Abs(diff.X) < SystemParameters.MinimumHorizontalDragDistance &&
+                Math.Abs(diff.Y) < SystemParameters.MinimumVerticalDragDistance)
+            {
+                return;
+            }
+
+            DragDrop.DoDragDrop(dragHandle, row, DragDropEffects.Move);
+            _subTaskDragCandidate = null;
+        };
 
         var checkBox = new CheckBox
         {
@@ -428,9 +464,9 @@ public partial class AddTaskWindow : Window
             VerticalAlignment = VerticalAlignment.Center,
             Margin = new Thickness(0, 0, 6, 0)
         };
-        checkBox.Checked += (_, _) => UpdateSubTaskProgressLabel();
-        checkBox.Unchecked += (_, _) => UpdateSubTaskProgressLabel();
-        Grid.SetColumn(checkBox, 0);
+        checkBox.Checked += SubTaskCheckBox_Changed;
+        checkBox.Unchecked += SubTaskCheckBox_Changed;
+        Grid.SetColumn(checkBox, 1);
 
         var textBox = new TextBox
         {
@@ -440,7 +476,7 @@ public partial class AddTaskWindow : Window
             Background = (Brush)FindResource("InputBackgroundBrush"),
             Foreground = (Brush)FindResource("PrimaryTextBrush")
         };
-        Grid.SetColumn(textBox, 1);
+        Grid.SetColumn(textBox, 2);
 
         var deleteButton = new Button
         {
@@ -453,13 +489,14 @@ public partial class AddTaskWindow : Window
             Foreground = (Brush)FindResource("PrimaryTextBrush"),
             ToolTip = "Remove sub-task"
         };
-        Grid.SetColumn(deleteButton, 2);
+        Grid.SetColumn(deleteButton, 3);
         deleteButton.Click += (_, _) =>
         {
             SubTasksPanel.Children.Remove(row);
             UpdateSubTaskProgressLabel();
         };
 
+        row.Children.Add(dragHandle);
         row.Children.Add(checkBox);
         row.Children.Add(textBox);
         row.Children.Add(deleteButton);
@@ -473,10 +510,81 @@ public partial class AddTaskWindow : Window
         UpdateSubTaskProgressLabel();
     }
 
+    private void SubTaskCheckBox_Changed(object sender, RoutedEventArgs e)
+    {
+        UpdateSubTaskProgressLabel();
+
+        // Deferred via BeginInvoke: reordering the panel while this CheckBox's own Checked/Unchecked
+        // handler is still dispatching would tear down its row mid-event - the same WPF deadlock
+        // documented throughout this codebase (see ReminderWindow.MarkDoneCheckBox_Checked).
+        Dispatcher.BeginInvoke(new Action(ReorderSubTasksByDoneState), DispatcherPriority.Background);
+    }
+
+    // Stable sort: not-done rows first, done rows last, preserving each group's existing relative
+    // order (LINQ OrderBy is a stable sort) so completed sub-tasks settle at the bottom without
+    // otherwise reshuffling anything - including rows the user just manually dragged into place.
+    private void ReorderSubTasksByDoneState()
+    {
+        var sorted = SubTasksPanel.Children.OfType<Grid>()
+            .OrderBy(row => ((CheckBox)row.Children[1]).IsChecked == true)
+            .ToList();
+
+        SubTasksPanel.Children.Clear();
+        foreach (var row in sorted)
+        {
+            SubTasksPanel.Children.Add(row);
+        }
+    }
+
+    private void SubTasksPanel_DragOver(object sender, DragEventArgs e)
+    {
+        var canDrop = e.Data.GetDataPresent(typeof(Grid));
+        e.Effects = canDrop ? DragDropEffects.Move : DragDropEffects.None;
+        e.Handled = true;
+    }
+
+    private void SubTasksPanel_Drop(object sender, DragEventArgs e)
+    {
+        e.Handled = true;
+        if (e.Data.GetData(typeof(Grid)) is not Grid draggedRow) return;
+
+        var dropPosition = e.GetPosition(SubTasksPanel);
+        var newIndex = GetSubTaskDropIndex(dropPosition, draggedRow);
+
+        // Deferred via BeginInvoke: same reasoning as SubTaskCheckBox_Changed above - this handler
+        // still runs nested inside DoDragDrop's own message loop when Drop fires (Drop fires before
+        // DoDragDrop returns to the drag handle's MouseMove), so mutating SubTasksPanel.Children here
+        // immediately carries the same risk as mutating it from inside a Checked/Click handler.
+        Dispatcher.BeginInvoke(new Action(() =>
+        {
+            var children = SubTasksPanel.Children;
+            var oldIndex = children.IndexOf(draggedRow);
+            if (oldIndex < 0) return;
+
+            children.RemoveAt(oldIndex);
+            if (newIndex > oldIndex) newIndex--;
+            children.Insert(Math.Clamp(newIndex, 0, children.Count), draggedRow);
+        }), DispatcherPriority.Background);
+    }
+
+    private int GetSubTaskDropIndex(Point positionInPanel, Grid draggedRow)
+    {
+        var rows = SubTasksPanel.Children.OfType<Grid>().Where(r => !ReferenceEquals(r, draggedRow)).ToList();
+        for (var i = 0; i < rows.Count; i++)
+        {
+            var top = rows[i].TranslatePoint(new Point(0, 0), SubTasksPanel).Y;
+            if (positionInPanel.Y < top + rows[i].ActualHeight / 2)
+            {
+                return SubTasksPanel.Children.IndexOf(rows[i]);
+            }
+        }
+        return SubTasksPanel.Children.Count;
+    }
+
     private void UpdateSubTaskProgressLabel()
     {
         var checkBoxes = SubTasksPanel.Children.OfType<Grid>()
-            .Select(row => (CheckBox)row.Children[0])
+            .Select(row => (CheckBox)row.Children[1])
             .ToList();
 
         if (checkBoxes.Count == 0)
@@ -599,8 +707,8 @@ public partial class AddTaskWindow : Window
         SelectedSubTasks = SubTasksPanel.Children.OfType<Grid>()
             .Select(row => new
             {
-                Title = ((TextBox)row.Children[1]).Text.Trim(),
-                IsDone = ((CheckBox)row.Children[0]).IsChecked == true
+                Title = ((TextBox)row.Children[2]).Text.Trim(),
+                IsDone = ((CheckBox)row.Children[1]).IsChecked == true
             })
             .Where(s => !string.IsNullOrWhiteSpace(s.Title))
             .Select(s => new SubTaskViewModel(new SubTaskItem { Title = s.Title, IsDone = s.IsDone }))
