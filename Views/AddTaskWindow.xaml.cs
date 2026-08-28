@@ -558,6 +558,18 @@ public partial class AddTaskWindow : Window
 
     private void SubTasksPanel_DragLeave(object sender, DragEventArgs e)
     {
+        // DragLeave fires spuriously whenever the mouse crosses onto a child element that isn't
+        // itself drop-enabled (a row's TextBox/CheckBox/delete button) - the immediate hit-test
+        // target briefly stops being "droppable" even though the mouse is still well within the
+        // panel, which was making the indicator flicker as it tracked the cursor across row content.
+        // Only actually hide it once the mouse has genuinely left the panel's bounds.
+        var position = e.GetPosition(SubTasksPanel);
+        if (position.X >= 0 && position.X <= SubTasksPanel.ActualWidth &&
+            position.Y >= 0 && position.Y <= SubTasksPanel.ActualHeight)
+        {
+            return;
+        }
+
         SubTaskInsertionIndicator.Visibility = Visibility.Collapsed;
     }
 
