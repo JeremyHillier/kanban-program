@@ -165,9 +165,18 @@ public partial class MainViewModel
         RefreshDashboardStats();
     }
 
-    private void DeleteCard(CardViewModel? card)
+    // spawnNextOccurrence lets deleting an incomplete recurring task ("skip today, but keep the
+    // series going") behave like the MoveCard-to-Done completion path below, without requiring the
+    // card to ever actually reach Done. Guarded the same way: only recurring, only if it hasn't
+    // already spawned (so completing then later deleting the same card can't double-spawn).
+    public void DeleteCard(CardViewModel? card, bool spawnNextOccurrence = false)
     {
         if (card is null) return;
+
+        if (spawnNextOccurrence && card.IsRecurring && !string.IsNullOrWhiteSpace(card.RecurrencePattern) && !card.NextOccurrenceSpawned)
+        {
+            SpawnNextOccurrence(card);
+        }
 
         var column = Columns.FirstOrDefault(c => c.Cards.Contains(card));
         ReconcileAttachmentLocations(card, "Deleted");

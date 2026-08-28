@@ -28,7 +28,6 @@ public partial class MainViewModel : ObservableObject
     public ObservableCollection<FlagViewModel> Flags { get; } = [];
     public ObservableCollection<PersonViewModel> People { get; } = [];
 
-    public RelayCommand DeleteCardCommand { get; }
     public RelayCommand MoveCardCommand { get; }
 
     private readonly ManagedList<Project, ProjectViewModel> _projectManager;
@@ -69,7 +68,6 @@ public partial class MainViewModel : ObservableObject
             item => UpdateMatchingCards(c => c.Flags.Contains(item), c => c.Flags = c.Flags.Where(f => f.Id != item.Id).ToList()),
             item => Columns.SelectMany(c => c.Cards).Count(c => c.Flags.Contains(item)));
 
-        DeleteCardCommand = new RelayCommand(param => DeleteCard(param as CardViewModel));
         MoveCardCommand = new RelayCommand(param =>
         {
             if (param is (CardViewModel card, ColumnViewModel targetColumn))

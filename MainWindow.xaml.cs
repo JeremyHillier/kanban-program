@@ -518,7 +518,26 @@ public partial class MainWindow : Window
     {
         if (sender is not FrameworkElement { DataContext: CardViewModel card } || DataContext is not MainViewModel viewModel) return;
 
-        if (viewModel.ConfirmDelete)
+        // A recurring task that hasn't completed yet (so hasn't already spawned its next occurrence)
+        // gets a real three-way choice instead of the plain confirm - deleting it is how you'd "skip"
+        // today's instance, and whether the series should keep going is a decision worth asking for
+        // every time, not something the ConfirmDelete setting should be able to skip past.
+        var offerRecurrenceChoice = card.IsRecurring && !string.IsNullOrWhiteSpace(card.RecurrencePattern) && !card.NextOccurrenceSpawned;
+        var spawnNext = false;
+
+        if (offerRecurrenceChoice)
+        {
+            var result = MessageBox.Show(this,
+                $"\"{card.Title}\" is a recurring task.\n\n" +
+                "Yes — delete this occurrence, but keep the series going (create the next occurrence now)\n" +
+                "No — delete this occurrence and end the recurring series\n" +
+                "Cancel — don't delete",
+                "Delete Recurring Task", MessageBoxButton.YesNoCancel, MessageBoxImage.Question, MessageBoxResult.Cancel);
+
+            if (result == MessageBoxResult.Cancel) return;
+            spawnNext = result == MessageBoxResult.Yes;
+        }
+        else if (viewModel.ConfirmDelete)
         {
             var result = MessageBox.Show(this, $"Delete \"{card.Title}\"?\n\nThis cannot be undone.",
                 "Confirm Delete", MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.Yes);
@@ -527,7 +546,7 @@ public partial class MainWindow : Window
 
         // Deferred via BeginInvoke: same reason as QuickMove_Click — removing the card tears down
         // this button's own container mid-Click-dispatch.
-        Dispatcher.BeginInvoke(new Action(() => viewModel.DeleteCardCommand.Execute(card)), DispatcherPriority.Background);
+        Dispatcher.BeginInvoke(new Action(() => viewModel.DeleteCard(card, spawnNext)), DispatcherPriority.Background);
     }
 
     // Shared by every card quick-edit popup below (Flags/Priority/Who/Project): builds a
