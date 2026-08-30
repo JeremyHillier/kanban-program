@@ -230,23 +230,30 @@ public static class ReportService
 
         List<string> WrapLine(string text, Typeface tf, double size, double maxWidth)
         {
-            var words = text.Split(' ');
+            // Split on embedded newlines first (Title and Notes both come from multi-line text
+            // boxes) - each rendered line is one TextBlock at a fixed height, so an unhandled
+            // newline inside a single "line" made that TextBlock render two physical lines in a
+            // space budgeted for one, overlapping whatever was rendered next.
             var lines = new List<string>();
-            var current = string.Empty;
-            foreach (var word in words)
+            foreach (var paragraph in text.Replace("\r\n", "\n").Split('\n'))
             {
-                var candidate = current.Length == 0 ? word : $"{current} {word}";
-                if (MakeText(candidate, tf, size, Brushes.Black).Width > maxWidth && current.Length > 0)
+                var words = paragraph.Split(' ');
+                var current = string.Empty;
+                foreach (var word in words)
                 {
-                    lines.Add(current);
-                    current = word;
+                    var candidate = current.Length == 0 ? word : $"{current} {word}";
+                    if (MakeText(candidate, tf, size, Brushes.Black).Width > maxWidth && current.Length > 0)
+                    {
+                        lines.Add(current);
+                        current = word;
+                    }
+                    else
+                    {
+                        current = candidate;
+                    }
                 }
-                else
-                {
-                    current = candidate;
-                }
+                lines.Add(current);
             }
-            if (current.Length > 0) lines.Add(current);
             return lines;
         }
 
@@ -345,7 +352,11 @@ public static class ReportService
                     {
                         foreach (var (subTitle, isDone) in row.SubTasks)
                         {
-                            lines.Add(($"{(isDone ? "☑" : "☐")} {subTitle}", regularTypeface, 10, Brushes.Black, 16, 14));
+                            var subTaskText = $"{(isDone ? "☑" : "☐")} {subTitle}";
+                            foreach (var subLine in WrapLine(subTaskText, regularTypeface, 10, contentWidth - 32))
+                            {
+                                lines.Add((subLine, regularTypeface, 10, Brushes.Black, 16, 14));
+                            }
                         }
                     }
 
@@ -533,7 +544,11 @@ public static class ReportService
                 {
                     foreach (var (subTitle, isDone) in row.SubTasks)
                     {
-                        lines.Add(($"{(isDone ? "[x]" : "[ ]")} {subTitle}", subTaskFont, XBrushes.Black, 16, 13));
+                        var subTaskText = $"{(isDone ? "[x]" : "[ ]")} {subTitle}";
+                        foreach (var subLine in WrapText(gfx, subTaskText, subTaskFont, width - 32))
+                        {
+                            lines.Add((subLine, subTaskFont, XBrushes.Black, 16, 13));
+                        }
                     }
                 }
 
@@ -596,25 +611,31 @@ public static class ReportService
 
     private static List<string> WrapText(XGraphics gfx, string text, XFont font, double maxWidth)
     {
-        var words = text.Split(' ');
+        // See the matching comment on the Preview path's local WrapLine - same fix, same reason:
+        // paragraphs must be split on embedded newlines before word-wrapping each one.
         var lines = new List<string>();
-        var current = string.Empty;
-
-        foreach (var word in words)
+        foreach (var paragraph in text.Replace("\r\n", "\n").Split('\n'))
         {
-            var candidate = current.Length == 0 ? word : $"{current} {word}";
-            if (gfx.MeasureString(candidate, font).Width > maxWidth && current.Length > 0)
+            var words = paragraph.Split(' ');
+            var current = string.Empty;
+
+            foreach (var word in words)
             {
-                lines.Add(current);
-                current = word;
+                var candidate = current.Length == 0 ? word : $"{current} {word}";
+                if (gfx.MeasureString(candidate, font).Width > maxWidth && current.Length > 0)
+                {
+                    lines.Add(current);
+                    current = word;
+                }
+                else
+                {
+                    current = candidate;
+                }
             }
-            else
-            {
-                current = candidate;
-            }
+
+            lines.Add(current);
         }
 
-        if (current.Length > 0) lines.Add(current);
         return lines;
     }
 }
