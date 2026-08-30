@@ -665,16 +665,75 @@
                                                         </Grid>
 
                                                         <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
-                                                            <Button Style="{StaticResource QuickActionButtonStyle}" Content="T" Background="#FF42A5F5"
-                                                                    Tag="To Do" ToolTip="Move to To Do" Click="QuickMove_Click"/>
-                                                            <Button Style="{StaticResource QuickActionButtonStyle}" Content="P" Background="#FFF9A825"
-                                                                    Tag="In Progress" ToolTip="Move to In Progress" Click="QuickMove_Click"/>
-                                                            <Button Style="{StaticResource QuickActionButtonStyle}" Content="H" Background="#FFFB8C00"
-                                                                    Tag="On Hold" ToolTip="Move to On Hold" Click="QuickMove_Click"/>
-                                                            <Button Style="{StaticResource QuickActionButtonStyle}" Content="W" Background="#FFAB47BC"
-                                                                    Tag="Waiting" ToolTip="Move to Waiting" Click="QuickMove_Click"/>
-                                                            <Button Style="{StaticResource QuickActionButtonStyle}" Content="&#x2713;" Background="#FF66BB6A"
-                                                                    Tag="Done" ToolTip="Mark Done" Click="QuickMove_Click"/>
+                                                            <!-- Each quick-move button dims and disables itself when the card is already in
+                                                                 that button's target column - clicking it there would be a no-op. The ancestor
+                                                                 ItemsControl is this card's per-column Cards list, whose own DataContext is the
+                                                                 enclosing ColumnViewModel, so its Name is the card's current column. -->
+                                                            <Button Content="T" Background="#FF42A5F5"
+                                                                    Tag="To Do" ToolTip="Move to To Do" Click="QuickMove_Click">
+                                                                <Button.Style>
+                                                                    <Style TargetType="Button" BasedOn="{StaticResource QuickActionButtonStyle}">
+                                                                        <Style.Triggers>
+                                                                            <DataTrigger Binding="{Binding DataContext.Name, RelativeSource={RelativeSource AncestorType=ItemsControl}}" Value="To Do">
+                                                                                <Setter Property="IsEnabled" Value="False"/>
+                                                                                <Setter Property="Opacity" Value="0.35"/>
+                                                                            </DataTrigger>
+                                                                        </Style.Triggers>
+                                                                    </Style>
+                                                                </Button.Style>
+                                                            </Button>
+                                                            <Button Content="P" Background="#FFF9A825"
+                                                                    Tag="In Progress" ToolTip="Move to In Progress" Click="QuickMove_Click">
+                                                                <Button.Style>
+                                                                    <Style TargetType="Button" BasedOn="{StaticResource QuickActionButtonStyle}">
+                                                                        <Style.Triggers>
+                                                                            <DataTrigger Binding="{Binding DataContext.Name, RelativeSource={RelativeSource AncestorType=ItemsControl}}" Value="In Progress">
+                                                                                <Setter Property="IsEnabled" Value="False"/>
+                                                                                <Setter Property="Opacity" Value="0.35"/>
+                                                                            </DataTrigger>
+                                                                        </Style.Triggers>
+                                                                    </Style>
+                                                                </Button.Style>
+                                                            </Button>
+                                                            <Button Content="H" Background="#FFFB8C00"
+                                                                    Tag="On Hold" ToolTip="Move to On Hold" Click="QuickMove_Click">
+                                                                <Button.Style>
+                                                                    <Style TargetType="Button" BasedOn="{StaticResource QuickActionButtonStyle}">
+                                                                        <Style.Triggers>
+                                                                            <DataTrigger Binding="{Binding DataContext.Name, RelativeSource={RelativeSource AncestorType=ItemsControl}}" Value="On Hold">
+                                                                                <Setter Property="IsEnabled" Value="False"/>
+                                                                                <Setter Property="Opacity" Value="0.35"/>
+                                                                            </DataTrigger>
+                                                                        </Style.Triggers>
+                                                                    </Style>
+                                                                </Button.Style>
+                                                            </Button>
+                                                            <Button Content="W" Background="#FFAB47BC"
+                                                                    Tag="Waiting" ToolTip="Move to Waiting" Click="QuickMove_Click">
+                                                                <Button.Style>
+                                                                    <Style TargetType="Button" BasedOn="{StaticResource QuickActionButtonStyle}">
+                                                                        <Style.Triggers>
+                                                                            <DataTrigger Binding="{Binding DataContext.Name, RelativeSource={RelativeSource AncestorType=ItemsControl}}" Value="Waiting">
+                                                                                <Setter Property="IsEnabled" Value="False"/>
+                                                                                <Setter Property="Opacity" Value="0.35"/>
+                                                                            </DataTrigger>
+                                                                        </Style.Triggers>
+                                                                    </Style>
+                                                                </Button.Style>
+                                                            </Button>
+                                                            <Button Content="&#x2713;" Background="#FF66BB6A"
+                                                                    Tag="Done" ToolTip="Mark Done" Click="QuickMove_Click">
+                                                                <Button.Style>
+                                                                    <Style TargetType="Button" BasedOn="{StaticResource QuickActionButtonStyle}">
+                                                                        <Style.Triggers>
+                                                                            <DataTrigger Binding="{Binding DataContext.Name, RelativeSource={RelativeSource AncestorType=ItemsControl}}" Value="Done">
+                                                                                <Setter Property="IsEnabled" Value="False"/>
+                                                                                <Setter Property="Opacity" Value="0.35"/>
+                                                                            </DataTrigger>
+                                                                        </Style.Triggers>
+                                                                    </Style>
+                                                                </Button.Style>
+                                                            </Button>
                                                             <Button Style="{StaticResource QuickActionButtonStyle}" Content="X" Background="#FFEF5350" Margin="0"
                                                                     ToolTip="Delete"
                                                                     Click="DeleteQuickAction_Click"/>

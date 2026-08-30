@@ -6,6 +6,9 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.63.6 — 2026-08-30
+- Dim and disable a card's quick-move button for the column it's already in, since clicking it there was a no-op
+
 ## 0.63.5 — 2026-08-30
 - Rework the Add/Edit Task dialog's field layout: Priority, Category, and Who now sit on one row, and Due Date, Recurring, and Goal are grouped together on the next row
 
