@@ -6,6 +6,11 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.65.0 — 2026-08-30
+- Replace the Help screen's About section with a proper About dialog, opened by a new About button beside Close: app identity and icon, version, company and copyright, what the app does, this installation's channel/database/settings paths and runtime, acknowledgements, plus Copy details and a Website button linking to hillierconsulting.ca
+- Add an optional Website field to each task in the Add/Edit Task dialog, with an Open button that launches the link in your default browser (a link typed without http:// still works); the link is remembered with the task and carried onto a recurring task's next occurrence
+- Cards can now be dragged up and down within their column at any time — no mode to switch on first. Doing so hand-arranges that column and unhighlights every sort button; clicking any sort button takes over again. The Manual Sort button added in 0.64.0 is gone, since dragging now does its job on its own
+
 ## 0.64.0 — 2026-08-30
 - Add manual card sorting: a new Manual Sort button turns off auto-sorting so cards can be dragged up/down within a column into any order, which is then remembered; clicking any other sort button (Project/Due Date/Who/Priority) overrides Manual Sort and turns it back off
 

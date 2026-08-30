@@ -4,10 +4,10 @@ namespace KanbanApp.ViewModels;
 // buttons showing each active key's rank.
 public partial class MainViewModel
 {
-    // Manual isn't a real sort key - it means "stop auto-sorting, keep whatever order the cards
-    // are already in" (drag-to-reorder persists that order). It never combines with a real key:
-    // ToggleSortKey strips it the moment any real key is toggled, and toggling Manual itself
-    // always replaces the whole selection rather than stacking.
+    // Manual isn't a real sort key and has no button of its own - it means "stop auto-sorting, keep
+    // whatever order the cards are already in". Dragging a card within its column switches into it
+    // automatically (see ReorderCardWithinColumn), which unhighlights every real sort button; the
+    // next click on any real sort button drops it again.
     public enum SortKey { Project, DueDate, Who, Priority, Manual }
 
     // Order matters: this is the active multi-key sort, most-significant key first. Never empty -
@@ -18,7 +18,6 @@ public partial class MainViewModel
     public int DueDateSortRank => SortRankOf(SortKey.DueDate);
     public int WhoSortRank => SortRankOf(SortKey.Who);
     public int PrioritySortRank => SortRankOf(SortKey.Priority);
-    public int ManualSortRank => SortRankOf(SortKey.Manual);
     public bool IsManualSort => _sortKeys.Contains(SortKey.Manual);
 
     private int SortRankOf(SortKey key)
@@ -33,26 +32,16 @@ public partial class MainViewModel
         OnPropertyChanged(nameof(DueDateSortRank));
         OnPropertyChanged(nameof(WhoSortRank));
         OnPropertyChanged(nameof(PrioritySortRank));
-        OnPropertyChanged(nameof(ManualSortRank));
         OnPropertyChanged(nameof(IsManualSort));
     }
 
     // Plain click: reset the sort to just this one key. Ctrl+click: toggle this key in/out of the
     // active multi-key sort, appending it at the end when added. Never leaves the sort empty - if
     // toggling off the last key would do that, it falls back to the default (Project alone).
-    // Manual is handled separately (see the SortKey.Manual doc comment above): selecting it always
-    // replaces the selection outright and skips ApplySort so the current card order is preserved;
-    // selecting any real key always drops Manual first, so any other sort button overrides it.
+    // Any real key always drops Manual first, so clicking a sort button re-sorts a board that was
+    // last arranged by hand.
     public void ToggleSortKey(SortKey key, bool additive)
     {
-        if (key == SortKey.Manual)
-        {
-            _sortKeys.Clear();
-            _sortKeys.Add(SortKey.Manual);
-            NotifySortRanksChanged();
-            return;
-        }
-
         _sortKeys.Remove(SortKey.Manual);
 
         if (additive)
@@ -77,9 +66,10 @@ public partial class MainViewModel
         ApplySort();
     }
 
-    // Drag-to-reorder within a column, only meaningful (and only ever called) in manual sort mode -
-    // moves the card to newIndex and persists the whole column's resulting order, the same way
-    // ApplySort does for an auto-sorted column.
+    // Drag-to-reorder within a column: moves the card to newIndex and persists the whole column's
+    // resulting order, the same way ApplySort does for an auto-sorted column. Dragging is always
+    // available, so this also switches the board into manual sort mode first - otherwise the very
+    // next ApplySort (triggered by any routine card mutation) would immediately undo the drag.
     public void ReorderCardWithinColumn(CardViewModel card, ColumnViewModel column, int newIndex)
     {
         var cards = column.Cards;
@@ -93,6 +83,13 @@ public partial class MainViewModel
         if (insertAt != oldIndex)
         {
             cards.Move(oldIndex, insertAt);
+        }
+
+        if (!IsManualSort)
+        {
+            _sortKeys.Clear();
+            _sortKeys.Add(SortKey.Manual);
+            NotifySortRanksChanged();
         }
 
         _db.UpdateSortOrders(cards.Select((c, i) => (c.Id, i)));

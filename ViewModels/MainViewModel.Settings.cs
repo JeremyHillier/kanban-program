@@ -104,14 +104,6 @@ public partial class MainViewModel
         _db.SetSetting("LinkedFilesDefaultPath", value);
     }
 
-    public string WebsiteUrl { get; private set; } = string.Empty;
-
-    public void SetWebsiteUrl(string value)
-    {
-        WebsiteUrl = value;
-        _db.SetSetting("WebsiteUrl", value);
-    }
-
     public bool StartFullScreen { get; private set; }
     public bool ConfirmDelete { get; private set; } = true;
     public bool ConfirmArchive { get; private set; } = true;

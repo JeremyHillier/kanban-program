@@ -164,6 +164,22 @@
                               ToolTip="When on, marking this task Done will automatically open it for editing instead of just moving it."/>
                 </Grid>
 
+                <!-- Website -->
+                <TextBlock Text="Website" Style="{StaticResource FieldLabelStyle}"/>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBox Grid.Column="0" x:Name="WebsiteUrlTextBox" Padding="6"
+                             Style="{StaticResource HoverTextBoxStyle}"
+                             ToolTip="An optional link for this task - paste a URL, then click Open to launch it in your browser"
+                             Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                    <Button Grid.Column="1" Content="Open" Padding="10,4" Margin="6,0,0,0" Click="OpenWebsite_Click"
+                            ToolTip="Open this link in your default browser"
+                            Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                </Grid>
+
                 <!-- Notes -->
                 <TextBlock Text="Notes" Style="{StaticResource FieldLabelStyle}"/>
                 <TextBox x:Name="NotesTextBox" Height="110" Padding="6"

@@ -31,6 +31,7 @@ public partial class AddTaskWindow : Window
     public DateTime? SelectedDueDate { get; private set; }
     public PersonViewModel? SelectedWho { get; private set; }
     public string? Notes { get; private set; }
+    public string? WebsiteUrl { get; private set; }
     public bool IsRecurring { get; private set; }
     public string? RecurrencePattern { get; private set; }
     public bool ForceEditOnComplete { get; private set; }
@@ -94,6 +95,7 @@ public partial class AddTaskWindow : Window
         DueDatePicker.SelectedDate = cardToEdit.DueDate;
         RebuildWhoItems(_viewModel.People.FirstOrDefault(p => p.Id == cardToEdit.WhoId));
         NotesTextBox.Text = cardToEdit.Notes ?? string.Empty;
+        WebsiteUrlTextBox.Text = cardToEdit.WebsiteUrl ?? string.Empty;
         ForceEditOnCompleteCheckBox.IsChecked = cardToEdit.ForceEditOnComplete;
 
         RecurringCheckBox.IsChecked = cardToEdit.IsRecurring;
@@ -707,6 +709,13 @@ public partial class AddTaskWindow : Window
         RecurrenceComboBox.Visibility = RecurringCheckBox.IsChecked == true ? Visibility.Visible : Visibility.Collapsed;
     }
 
+    // Opens whatever is currently typed, not the card's saved value, so a link pasted in during
+    // this edit can be tried out before saving.
+    private void OpenWebsite_Click(object sender, RoutedEventArgs e)
+    {
+        UrlLauncher.Open(WebsiteUrlTextBox.Text, this);
+    }
+
     private void Add_Click(object sender, RoutedEventArgs e)
     {
         var details = DetailsTextBox.Text.Trim();
@@ -731,6 +740,7 @@ public partial class AddTaskWindow : Window
         SelectedDueDate = DueDatePicker.SelectedDate;
         SelectedWho = WhoComboBox.SelectedItem as PersonViewModel;
         Notes = string.IsNullOrWhiteSpace(NotesTextBox.Text) ? null : NotesTextBox.Text.Trim();
+        WebsiteUrl = string.IsNullOrWhiteSpace(WebsiteUrlTextBox.Text) ? null : WebsiteUrlTextBox.Text.Trim();
 
         IsRecurring = RecurringCheckBox.IsChecked == true;
         RecurrencePattern = IsRecurring && RecurrenceComboBox.SelectedItem is ComboBoxItem recurrenceItem

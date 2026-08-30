@@ -163,6 +163,20 @@ public class CardViewModel(CardItem model) : ObservableObject
         }
     }
 
+    public string? WebsiteUrl
+    {
+        get => Model.WebsiteUrl;
+        set
+        {
+            if (Model.WebsiteUrl == value) return;
+            Model.WebsiteUrl = value;
+            OnPropertyChanged();
+            OnPropertyChanged(nameof(HasWebsiteUrl));
+        }
+    }
+
+    public bool HasWebsiteUrl => !string.IsNullOrWhiteSpace(WebsiteUrl);
+
     public bool IsImported
     {
         get => Model.IsImported;

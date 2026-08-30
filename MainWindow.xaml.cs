@@ -190,7 +190,7 @@ public partial class MainWindow : Window
             viewModel.AddCard(dialog.TaskDetails, dialog.SelectedColumn, dialog.SelectedProject,
                 dialog.SelectedPriority, dialog.SelectedDueDate, dialog.SelectedWho, dialog.IsRecurring, dialog.RecurrencePattern,
                 dialog.SelectedGoal, dialog.SelectedFlags, dialog.SelectedSubTasks, dialog.Notes, attachments: dialog.SelectedAttachments,
-                forceEditOnComplete: dialog.ForceEditOnComplete);
+                forceEditOnComplete: dialog.ForceEditOnComplete, websiteUrl: dialog.WebsiteUrl);
         }
     }
 
@@ -206,7 +206,7 @@ public partial class MainWindow : Window
             viewModel.EditCard(card, dialog.TaskDetails, dialog.SelectedColumn, dialog.SelectedProject,
                 dialog.SelectedPriority, dialog.SelectedDueDate, dialog.SelectedWho, dialog.IsRecurring, dialog.RecurrencePattern,
                 dialog.SelectedGoal, dialog.SelectedFlags, dialog.SelectedSubTasks, dialog.Notes, attachments: dialog.SelectedAttachments,
-                forceEditOnComplete: dialog.ForceEditOnComplete);
+                forceEditOnComplete: dialog.ForceEditOnComplete, websiteUrl: dialog.WebsiteUrl);
         }
     }
 
@@ -468,12 +468,6 @@ public partial class MainWindow : Window
     {
         if (DataContext is not MainViewModel viewModel) return;
         viewModel.ToggleSortKey(MainViewModel.SortKey.Priority, Keyboard.Modifiers.HasFlag(ModifierKeys.Control));
-    }
-
-    private void SortByManual_Click(object sender, RoutedEventArgs e)
-    {
-        if (DataContext is not MainViewModel viewModel) return;
-        viewModel.ToggleSortKey(MainViewModel.SortKey.Manual, additive: false);
     }
 
     private void DueToday_Click(object sender, RoutedEventArgs e)
@@ -793,10 +787,11 @@ public partial class MainWindow : Window
         }
     }
 
-    // Positional drag-to-reorder within a column, active only in manual sort mode and only for a
-    // card dragged over its own current column - a drag into a different column always keeps using
-    // Column_Drop's existing append-style move regardless of sort mode, so this deliberately returns
-    // false (leaving the event unhandled, to bubble up to Column_Drop) for every other case.
+    // Positional drag-to-reorder within a column, always available - a card dragged over its own
+    // current column reorders it (and switches the board into manual sort mode, see
+    // MainViewModel.ReorderCardWithinColumn). A drag into a different column keeps using
+    // Column_Drop's existing append-style move, so this deliberately returns false (leaving the
+    // event unhandled, to bubble up to Column_Drop) for every other case.
     private bool TryGetManualReorderContext(object sender, DragEventArgs e,
         out System.Windows.Controls.ItemsControl itemsControl, out ColumnViewModel column, out CardViewModel draggedCard)
     {
@@ -805,7 +800,6 @@ public partial class MainWindow : Window
         draggedCard = null!;
 
         if (sender is not System.Windows.Controls.ScrollViewer { Content: System.Windows.Controls.Grid grid } || grid.DataContext is not ColumnViewModel col) return false;
-        if (DataContext is not MainViewModel viewModel || !viewModel.IsManualSort) return false;
         if (e.Data.GetData(typeof(CardViewModel)) is not CardViewModel card) return false;
         if (!col.Cards.Contains(card)) return false;
 

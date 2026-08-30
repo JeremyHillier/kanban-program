@@ -7,12 +7,13 @@ public partial class MainViewModel
 {
     public CardViewModel AddCard(string title, ColumnViewModel column, ProjectViewModel? project, string priority, DateTime? dueDate, PersonViewModel? who,
         bool isRecurring, string? recurrencePattern, GoalViewModel? goal, List<FlagViewModel>? flags = null, List<SubTaskViewModel>? subTasks = null,
-        string? notes = null, bool isImported = false, List<AttachmentViewModel>? attachments = null, bool forceEditOnComplete = false)
+        string? notes = null, bool isImported = false, List<AttachmentViewModel>? attachments = null, bool forceEditOnComplete = false,
+        string? websiteUrl = null)
     {
         flags ??= [];
         subTasks ??= [];
         attachments ??= [];
-        var card = _db.AddCard(column.Id, title.Trim(), project?.Id, column.Name, priority, dueDate, who?.Id, isRecurring, recurrencePattern, goal?.Id, notes, isImported, forceEditOnComplete);
+        var card = _db.AddCard(column.Id, title.Trim(), project?.Id, column.Name, priority, dueDate, who?.Id, isRecurring, recurrencePattern, goal?.Id, notes, isImported, forceEditOnComplete, websiteUrl);
         _db.SetCardFlags(card.Id, flags.Select(f => f.Id));
         var subTaskItems = _db.SetCardSubTasks(card.Id, subTasks.Select(s => (s.Title, s.IsDone)).ToList());
         var attachmentItems = _db.SetCardAttachments(card.Id, attachments.Select(a => (a.FilePath, a.DisplayName, a.AddedDate)).ToList());
@@ -38,7 +39,8 @@ public partial class MainViewModel
 
     public void EditCard(CardViewModel card, string title, ColumnViewModel newColumn, ProjectViewModel? project, string priority, DateTime? dueDate, PersonViewModel? who,
         bool isRecurring, string? recurrencePattern, GoalViewModel? goal, List<FlagViewModel>? flags = null, List<SubTaskViewModel>? subTasks = null,
-        string? notes = null, List<AttachmentViewModel>? attachments = null, bool forceEditOnComplete = false)
+        string? notes = null, List<AttachmentViewModel>? attachments = null, bool forceEditOnComplete = false,
+        string? websiteUrl = null)
     {
         if (string.IsNullOrWhiteSpace(title)) return;
 
@@ -62,8 +64,9 @@ public partial class MainViewModel
         card.Flags = flags;
         card.Notes = notes;
         card.ForceEditOnComplete = forceEditOnComplete;
+        card.WebsiteUrl = websiteUrl;
 
-        card.LastUpdated = _db.UpdateCard(card.Id, card.Title, project?.Id, priority, dueDate, who?.Id, isRecurring, recurrencePattern, goal?.Id, notes, forceEditOnComplete);
+        card.LastUpdated = _db.UpdateCard(card.Id, card.Title, project?.Id, priority, dueDate, who?.Id, isRecurring, recurrencePattern, goal?.Id, notes, forceEditOnComplete, websiteUrl);
         _db.SetCardFlags(card.Id, flags.Select(f => f.Id));
         var subTaskItems = _db.SetCardSubTasks(card.Id, subTasks.Select(s => (s.Title, s.IsDone)).ToList());
         card.SubTasks = subTaskItems.Select(s => new SubTaskViewModel(s)).ToList();
@@ -92,7 +95,7 @@ public partial class MainViewModel
         var attachmentItems = _db.SetCardAttachments(card.Id, updatedAttachments);
         card.Attachments = attachmentItems.Select(a => new AttachmentViewModel(a)).ToList();
         card.LastUpdated = _db.UpdateCard(card.Id, card.Title, card.ProjectId, card.Priority, card.DueDate, card.WhoId,
-            card.IsRecurring, card.RecurrencePattern, card.GoalId, card.Notes, card.ForceEditOnComplete);
+            card.IsRecurring, card.RecurrencePattern, card.GoalId, card.Notes, card.ForceEditOnComplete, card.WebsiteUrl);
     }
 
     public void SetSubTaskDone(CardViewModel card, SubTaskViewModel subTask, bool isDone)
@@ -116,7 +119,7 @@ public partial class MainViewModel
 
         card.Priority = priority;
         card.LastUpdated = _db.UpdateCard(card.Id, card.Title, card.ProjectId, priority, card.DueDate, card.WhoId,
-            card.IsRecurring, card.RecurrencePattern, card.GoalId, card.Notes, card.ForceEditOnComplete);
+            card.IsRecurring, card.RecurrencePattern, card.GoalId, card.Notes, card.ForceEditOnComplete, card.WebsiteUrl);
 
         card.IsVisible = MatchesFilters(card);
         ApplySort();
@@ -129,7 +132,7 @@ public partial class MainViewModel
 
         card.DueDate = dueDate;
         card.LastUpdated = _db.UpdateCard(card.Id, card.Title, card.ProjectId, card.Priority, dueDate, card.WhoId,
-            card.IsRecurring, card.RecurrencePattern, card.GoalId, card.Notes, card.ForceEditOnComplete);
+            card.IsRecurring, card.RecurrencePattern, card.GoalId, card.Notes, card.ForceEditOnComplete, card.WebsiteUrl);
 
         card.IsVisible = MatchesFilters(card);
         ApplySort();
@@ -144,7 +147,7 @@ public partial class MainViewModel
         card.WhoName = who?.Name ?? "Unassigned";
         card.WhoEmail = who?.Email;
         card.LastUpdated = _db.UpdateCard(card.Id, card.Title, card.ProjectId, card.Priority, card.DueDate, who?.Id,
-            card.IsRecurring, card.RecurrencePattern, card.GoalId, card.Notes, card.ForceEditOnComplete);
+            card.IsRecurring, card.RecurrencePattern, card.GoalId, card.Notes, card.ForceEditOnComplete, card.WebsiteUrl);
 
         card.IsVisible = MatchesFilters(card);
         ApplySort();
@@ -158,7 +161,7 @@ public partial class MainViewModel
         card.ProjectId = project.Id;
         card.ProjectName = project.Name;
         card.LastUpdated = _db.UpdateCard(card.Id, card.Title, project.Id, card.Priority, card.DueDate, card.WhoId,
-            card.IsRecurring, card.RecurrencePattern, card.GoalId, card.Notes, card.ForceEditOnComplete);
+            card.IsRecurring, card.RecurrencePattern, card.GoalId, card.Notes, card.ForceEditOnComplete, card.WebsiteUrl);
 
         card.IsVisible = MatchesFilters(card);
         ApplySort();

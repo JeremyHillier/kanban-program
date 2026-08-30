@@ -21,6 +21,7 @@ public class CardItem
     public bool IsImported { get; set; }
     public bool ForceEditOnComplete { get; set; }
     public string? Notes { get; set; }
+    public string? WebsiteUrl { get; set; }
     public List<int> FlagIds { get; set; } = [];
     public List<SubTaskItem> SubTasks { get; set; } = [];
     public List<CardAttachment> Attachments { get; set; } = [];

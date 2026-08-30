@@ -72,6 +72,7 @@
                 <local:BulletItem Text="Double-click any card to open it for editing."/>
                 <local:BulletItem Text="Each task can have a Category, Project, Goal, Priority, Due Date, Who it's assigned to, free-form Notes, Flags, and a checklist of Sub-tasks. Project is required; everything else is optional."/>
                 <local:BulletItem Text="Use the + and − buttons next to Project, Goal, and Who to add a new one on the fly, or clear the current selection without deleting the record."/>
+                <local:BulletItem Text="Each task also has an optional Website field — paste a link related to the task and click Open beside it to launch it in your default browser. A link typed without http:// still works."/>
 
                 <Border Style="{StaticResource HelpScreenshotStyle}">
                     <Image Source="/Assets/Help/add-task-dialog.png" Width="380" Stretch="Uniform"/>
@@ -111,7 +112,7 @@
 
                 <TextBlock Text="Sorting and filtering" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <local:BulletItem Text="Click a sort button (Project, Due Date, Who, Priority) to sort every column by that alone. Ctrl+click additional sort buttons to combine them - a numbered badge on each active button shows its position in the combined sort (e.g. click Project, then Ctrl+click Due Date, then Ctrl+click Priority, to sort by project first, then due date, then priority). Ctrl+click an active button again to remove it from the combination."/>
-                <local:BulletItem Text="Manual Sort turns off auto-sorting so you can drag cards up and down within a column to put them in whatever order you like; that order is remembered. Clicking any other sort button turns Manual Sort back off."/>
+                <local:BulletItem Text="Drag a card up or down within its own column at any time to put it exactly where you want. Doing so switches the board to a hand-arranged order (every sort button unhighlights) and remembers it; clicking any sort button re-sorts and takes over again."/>
                 <local:BulletItem Text="The Filter section narrows the board by Project, Priority, Who, Goal, Flag, Due date range, or a keyword search across titles, project, who, and notes."/>
                 <local:BulletItem Text="Who, Goal, and Flag each offer an 'Unassigned' filter option, showing only tasks with none set."/>
                 <local:BulletItem Text="The Today / Tomorrow / Within a Week / No Due Date buttons filter by due date; Today and Within a Week both also include overdue tasks. The active one is shown with a highlighted border."/>
@@ -182,27 +183,15 @@
                 <local:BulletItem Text="The chosen location itself is remembered outside the database, in a small config file under your local AppData folder — not inside the database file."/>
                 <local:BulletItem Text="Set a Default Export Path (used by Report Builder's PDF export) and a Default Import Path (used by Import Tasks, including where the template is saved)."/>
                 <local:BulletItem Text="Set an Attach File Default Path — where the '+ File...' picker opens by default when attaching a file to a task."/>
-
-                <TextBlock Text="About" Style="{StaticResource HelpSectionHeaderStyle}"/>
-                <TextBlock Text="Kanban Task Board" FontWeight="Bold" FontSize="13" Margin="12,2,0,0" Foreground="{DynamicResource PrimaryTextBrush}"/>
-                <TextBlock Margin="12,2,0,0" Foreground="{DynamicResource SecondaryTextBrush}">
-                    <Run Text="{Binding AppVersion, Mode=OneWay}"/>
-                    <Run Text=" — "/>
-                    <Run Text="{Binding CopyrightText, Mode=OneWay}"/>
-                </TextBlock>
-                <StackPanel Orientation="Horizontal" Margin="12,8,0,0">
-                    <TextBlock Text="Website" VerticalAlignment="Center" Margin="0,0,8,0" Foreground="{DynamicResource PrimaryTextBrush}"/>
-                    <TextBox x:Name="WebsiteUrlTextBox" Width="280" Padding="6" LostFocus="WebsiteUrlTextBox_LostFocus"
-                             Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
-                             BorderBrush="{DynamicResource CardBorderBrush}"/>
-                    <Button Content="Open" Padding="10,4" Margin="6,0,0,0" Click="OpenWebsite_Click"
-                            Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
-                </StackPanel>
             </StackPanel>
         </ScrollViewer>
 
-        <Button Grid.Row="2" Content="Close" Width="90" Padding="0,6"
-                HorizontalAlignment="Right" IsCancel="True" IsDefault="True"
-                Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button Content="About" Width="90" Padding="0,6" Margin="0,0,8,0" Click="About_Click"
+                    ToolTip="Version, ownership, and where this installation keeps its files"
+                    Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+            <Button Content="Close" Width="90" Padding="0,6" IsCancel="True" IsDefault="True"
+                    Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+        </StackPanel>
     </Grid>
 </Window>

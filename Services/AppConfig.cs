@@ -12,6 +12,10 @@ public class AppConfig
 
     public static string DefaultDbPath => Path.Combine(ConfigDir, "kanban.db");
 
+    // Where the database location itself is remembered - surfaced read-only by the About dialog,
+    // since it lives outside the database and is otherwise invisible to the user.
+    public static string SettingsFilePath => ConfigPath;
+
     public string DbPath { get; set; } = DefaultDbPath;
 
     public string? PendingCleanupPath { get; set; }
