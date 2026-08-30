@@ -15,13 +15,37 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 ## 0.63.4 — 2026-08-30
 - Fix Report Builder: a long task title now wraps across multiple lines instead of running off the edge of the page/preview, matching how the meta line and notes already wrapped
 
+## 0.63.3 — 2026-08-28
+- Rename "Task details" to "Task" in the Add/Edit Task dialog, and cap it at 255 characters
+
+## 0.63.2 — 2026-08-28
+- Fix a flickering sub-task drag indicator: DragLeave was firing spuriously whenever the mouse crossed over a row's textbox/checkbox/delete button, toggling the drop-position line hidden and shown as it tracked across the row
+
+## 0.63.1 — 2026-08-28
+- Show an insertion-line indicator at the exact spot a dragged sub-task would land, tracking the mouse as you drag it to reorder
+
+## 0.63.0 — 2026-08-28
+- Let deleting a recurring task optionally keep the series going: the board's delete button now offers a three-way choice for eligible recurring cards — delete and spawn the next occurrence, delete and end the series, or cancel — instead of always ending it
+
+## 0.62.0 — 2026-08-28
+- Add sub-task drag-reordering via a drag handle on each row; checking a sub-task off now also auto-sorts completed sub-tasks to the bottom
+- Expand the Notes box from 50px to 110px tall
+
 ## 0.61.2 — 2026-08-26
 - Fix the Add/Edit Task dialog's Cancel/Add Task buttons becoming unreachable with a long sub-task list: the scrollable form area now has its own height cap, so it gets its own scrollbar instead of just growing the whole window past the screen's bottom edge
 - Tighten sub-task row spacing (less padding per row, smaller remove button) so more fit on screen at once
 
+## 0.61.1 — 2026-08-25
+- The Edit Task dialog's Email button now reacts live to the Who selection instead of only reflecting the card's already-saved assignee — picking someone with an email on file shows the button immediately, no save/reopen needed
+
+## 0.61.0 — 2026-08-25
+- Add emailing a task card via Outlook: people can now have an email address on file (Manage Who), and any card assigned to someone with one gets an Email quick-action — both directly on the card and in the Add/Edit Task dialog — that opens a pre-filled Outlook compose window for review before sending
+
 ## 0.60.0 — 2026-08-24
 - Fix Help screen text wrapping: a bullet's second line now aligns under the first word of its text instead of under the bullet character
 - Add four screenshots to the Help screen (main board, Add/Edit Task dialog, Report Builder, Dashboard) so key screens can be seen at a glance alongside their descriptions
+- Add MSIX packaging for Microsoft Store submission (build tooling only — not yet installed/run in packaged form, since Store submission still needs a signing cert or dev-mode sideload)
+- Add a README.md documenting the repo's folder structure, for browsing on GitHub or locally
 
 ## 0.59.5 — 2026-08-22
 - Help screen accuracy pass (audited the whole thing against the current code, no behavior changes): documented the Archived/Deleted lists' Clear Dates button; fixed the Excel import template's required column — it's labeled "Title", not "Task Details" (the review grid afterward does say "Task Details", which was already correct); corrected the Dashboard's chart list to the actual four charts (Status Distribution and Priority Mix are one combined chart, not two) and noted its extra "In Done" summary tile
