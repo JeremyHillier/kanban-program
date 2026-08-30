@@ -31,6 +31,10 @@ public partial class App : Application
             return;
         }
 
+        // Must run before any window loads - it works by class handler, so it only affects windows
+        // whose Loaded fires after this point.
+        Theming.DialogCopyright.Register();
+
         var db = new DatabaseService();
         CleanUpOldDbFileAfterMove(db.DbPath);
 

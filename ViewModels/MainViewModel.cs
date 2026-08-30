@@ -15,7 +15,7 @@ public partial class MainViewModel : ObservableObject
     private readonly DatabaseService _db;
 
     public string AppVersion { get; } = $"v{Assembly.GetExecutingAssembly().GetName().Version?.ToString(3)}";
-    public string CopyrightText { get; } = "© Jeremy Hillier Consulting Inc";
+    public string CopyrightText { get; } = AppInfo.Copyright;
     public bool IsTestChannel => AppChannel.IsTest;
     public string WindowTitle => AppChannel.DisplayName;
 

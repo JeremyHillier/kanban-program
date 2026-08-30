@@ -45,7 +45,7 @@
                     <TextBlock Text="A visual task board for tracking work across projects, people, and goals."
                                FontSize="12" Foreground="#FFC0CBDA" TextWrapping="Wrap" Margin="0,2,0,0"/>
                     <TextBlock x:Name="VersionText" FontSize="13" Foreground="White" Margin="0,12,0,0"/>
-                    <TextBlock Text="Jeremy Hillier Consulting Inc" FontSize="12" Foreground="#FFC0CBDA" Margin="0,6,0,0"/>
+                    <TextBlock x:Name="CompanyText" FontSize="12" Foreground="#FFC0CBDA" Margin="0,6,0,0"/>
                     <TextBlock x:Name="CopyrightText" FontSize="12" Foreground="#FFC0CBDA" Margin="0,2,0,0"/>
                 </StackPanel>
             </Grid>

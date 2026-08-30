@@ -6,6 +6,9 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.65.1 — 2026-08-30
+- Show a subtle copyright line in the bottom-right corner of every dialog. The main board, splash screen, and About dialog are left alone, since each already displays it as part of its own design
+
 ## 0.65.0 — 2026-08-30
 - Replace the Help screen's About section with a proper About dialog, opened by a new About button beside Close: app identity and icon, version, company and copyright, what the app does, this installation's channel/database/settings paths and runtime, acknowledgements, plus Copy details and a Website button linking to hillierconsulting.ca
 - Add an optional Website field to each task in the Add/Edit Task dialog, with an Open button that launches the link in your default browser (a link typed without http:// still works); the link is remembered with the task and carried onto a recurring task's next occurrence

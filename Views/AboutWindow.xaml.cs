@@ -16,6 +16,7 @@ public partial class AboutWindow : Window
         _viewModel = viewModel;
 
         VersionText.Text = $"Version {viewModel.AppVersion.TrimStart('v')}";
+        CompanyText.Text = AppInfo.Company;
         CopyrightText.Text = $"{viewModel.CopyrightText}. All rights reserved.";
         ChannelText.Text = AppChannel.Name;
         DbPathText.Text = viewModel.CurrentDbPath;
