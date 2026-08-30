@@ -329,10 +329,11 @@ public static class ReportService
                     var band = RowBandBrush(rowIndex, isGrouped);
                     rowIndex++;
 
-                    var lines = new List<(string Text, Typeface Typeface, double Size, Brush Brush, double XOffset, double LineHeight)>
+                    var lines = new List<(string Text, Typeface Typeface, double Size, Brush Brush, double XOffset, double LineHeight)>();
+                    foreach (var titleLine in WrapLine(row.Title, boldTypeface, 13, contentWidth - 16))
                     {
-                        (row.Title, boldTypeface, 13, Brushes.Black, 0, 18)
-                    };
+                        lines.Add((titleLine, boldTypeface, 13, Brushes.Black, 0, 18));
+                    }
 
                     var metaLine = string.Join("   •   ", BuildMetaParts(row));
                     foreach (var line in WrapLine(metaLine, regularTypeface, 10, contentWidth - 16))
@@ -516,10 +517,11 @@ public static class ReportService
                 var band = rowIndex % 2 == 0 ? bandEvenBrush : (isGrouped ? bandGroupedOddBrush : bandOddBrush);
                 rowIndex++;
 
-                var lines = new List<(string Text, XFont Font, XBrush Brush, double XOffset, double LineHeight)>
+                var lines = new List<(string Text, XFont Font, XBrush Brush, double XOffset, double LineHeight)>();
+                foreach (var titleLine in WrapText(gfx, row.Title, rowTitleFont, width - 16))
                 {
-                    (row.Title, rowTitleFont, XBrushes.Black, 0, 18)
-                };
+                    lines.Add((titleLine, rowTitleFont, XBrushes.Black, 0, 18));
+                }
 
                 var metaLine = string.Join("   •   ", BuildMetaParts(row));
                 foreach (var line in WrapText(gfx, metaLine, metaFont, width - 16))
