@@ -1,5 +1,8 @@
-# Builds self-contained publishes for both channels and compiles both installers.
+# Builds a self-contained publish and compiles an installer for each requested channel.
 # Run from anywhere; paths are resolved relative to this script's location.
+# Defaults to Production only; pass -Channels Production,Test to also build the Test installer.
+
+param([string[]]$Channels = @("Production"))
 
 $ErrorActionPreference = "Stop"
 
@@ -29,7 +32,7 @@ if (-not $iscc) {
 }
 Write-Output "ISCC: $iscc"
 
-$channels = @("Production", "Test")
+$channels = $Channels
 
 foreach ($channel in $channels) {
     $publishDir = Join-Path $repoRoot "publish\$channel"

@@ -115,10 +115,6 @@
 
                     <!-- Due Date | Recurring | Goal -->
                     <TextBlock Grid.Row="2" Grid.Column="0" Text="Due Date" Style="{StaticResource FieldLabelStyle}"/>
-                    <CheckBox Grid.Row="2" Grid.Column="2" x:Name="RecurringCheckBox" Content="Recurring task"
-                              VerticalAlignment="Bottom" Margin="0,12,0,4"
-                              Foreground="{DynamicResource PrimaryTextBrush}"
-                              Checked="RecurringCheckBox_Changed" Unchecked="RecurringCheckBox_Changed"/>
                     <StackPanel Grid.Row="2" Grid.Column="4" Style="{StaticResource FieldLabelRowStyle}">
                         <TextBlock Text="Goal" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Center"/>
                         <Button Content="+" Style="{StaticResource NewLinkButtonStyle}" ToolTip="Add new goal" Click="NewGoal_Click"/>
@@ -138,24 +134,32 @@
                         <Button Grid.Column="2" Content="Clear" Padding="8,4" Margin="6,0,0,0" Click="ClearDueDate_Click"
                                 Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
                     </Grid>
-                    <ComboBox Grid.Row="3" Grid.Column="2" x:Name="RecurrenceComboBox" Padding="6" SelectedIndex="0" Visibility="Collapsed"
-                              Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
-                              BorderBrush="{DynamicResource CardBorderBrush}">
-                        <ComboBoxItem Content="Daily"/>
-                        <ComboBoxItem Content="Weekday"/>
-                        <ComboBoxItem Content="Weekly"/>
-                        <ComboBoxItem Content="Bi-Weekly"/>
-                        <ComboBoxItem Content="Monthly"/>
-                        <ComboBoxItem Content="Bi-Monthly"/>
-                        <ComboBoxItem Content="Quarterly"/>
-                        <ComboBoxItem Content="Annually"/>
-                    </ComboBox>
+                    <!-- Same row as the Due Date input (not the label row above) so the checkbox lines
+                         up vertically centered with it, instead of floating up near the labels. -->
+                    <StackPanel Grid.Row="3" Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                        <CheckBox x:Name="RecurringCheckBox" Content="Recurring task" VerticalAlignment="Center"
+                                  Foreground="{DynamicResource PrimaryTextBrush}"
+                                  Checked="RecurringCheckBox_Changed" Unchecked="RecurringCheckBox_Changed"/>
+                        <ComboBox x:Name="RecurrenceComboBox" Padding="6" SelectedIndex="0" Visibility="Collapsed"
+                                  VerticalAlignment="Center" Margin="8,0,0,0"
+                                  Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                                  BorderBrush="{DynamicResource CardBorderBrush}">
+                            <ComboBoxItem Content="Daily"/>
+                            <ComboBoxItem Content="Weekday"/>
+                            <ComboBoxItem Content="Weekly"/>
+                            <ComboBoxItem Content="Bi-Weekly"/>
+                            <ComboBoxItem Content="Monthly"/>
+                            <ComboBoxItem Content="Bi-Monthly"/>
+                            <ComboBoxItem Content="Quarterly"/>
+                            <ComboBoxItem Content="Annually"/>
+                        </ComboBox>
+                    </StackPanel>
                     <ComboBox Grid.Row="3" Grid.Column="4" x:Name="GoalComboBox" Padding="6" SelectedIndex="-1"
                               DisplayMemberPath="Name"
                               Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
                               BorderBrush="{DynamicResource CardBorderBrush}"/>
 
-                    <CheckBox Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="5" x:Name="ForceEditOnCompleteCheckBox" Content="Force edit upon completion" Margin="0,12,0,4"
+                    <CheckBox Grid.Row="4" Grid.Column="4" x:Name="ForceEditOnCompleteCheckBox" Content="Force edit upon completion" Margin="0,12,0,4"
                               Foreground="{DynamicResource PrimaryTextBrush}"
                               ToolTip="When on, marking this task Done will automatically open it for editing instead of just moving it."/>
                 </Grid>

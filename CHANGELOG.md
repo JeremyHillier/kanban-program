@@ -6,6 +6,9 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.63.8 — 2026-08-30
+- Add/Edit Task dialog: the Recurring task checkbox now sits centered on the same row as the Due Date input instead of floating up near the labels above it, and Force edit upon completion moved from spanning the full row to sitting directly under the Goal dropdown
+
 ## 0.63.7 — 2026-08-30
 - Fix Report Builder text overlapping: a Title or Notes with an embedded line break (both fields allow multi-line input) was rendering as one TextBlock spanning two physical lines in a space budgeted for one, overlapping whatever came after it — each line is now measured and placed on its own
 - Wrap long sub-task titles in the report, which previously ran off the page edge unwrapped like the row Title used to
