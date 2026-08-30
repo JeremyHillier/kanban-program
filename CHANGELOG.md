@@ -6,6 +6,9 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.65.2 — 2026-08-30
+- Darken each dialog's bottom-right copyright line, which was faded to near-invisible against a light background
+
 ## 0.65.1 — 2026-08-30
 - Show a subtle copyright line in the bottom-right corner of every dialog. The main board, splash screen, and About dialog are left alone, since each already displays it as part of its own design
 

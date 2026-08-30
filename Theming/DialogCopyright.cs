@@ -54,7 +54,8 @@ public static class DialogCopyright
         {
             Text = AppInfo.Copyright,
             FontSize = 9,
-            Opacity = 0.5,
+            // No opacity multiplier: SecondaryTextBrush is already a muted grey, and fading it
+            // further washed the line out to near-invisible against a light background.
             HorizontalAlignment = HorizontalAlignment.Right,
             VerticalAlignment = VerticalAlignment.Bottom,
             Margin = new Thickness(0, 2, 10, 6),
