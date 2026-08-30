@@ -331,7 +331,9 @@ public partial class MainWindow : Window
 
     private void Help_Click(object sender, RoutedEventArgs e)
     {
-        var dialog = new HelpWindow { Owner = this };
+        if (DataContext is not MainViewModel viewModel) return;
+
+        var dialog = new HelpWindow(viewModel) { Owner = this };
         dialog.ShowDialog();
     }
 

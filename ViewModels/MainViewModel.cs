@@ -93,6 +93,7 @@ public partial class MainViewModel : ObservableObject
         DefaultExportPath = _db.GetSetting("DefaultExportPath") ?? string.Empty;
         DefaultImportPath = _db.GetSetting("DefaultImportPath") ?? string.Empty;
         LinkedFilesDefaultPath = _db.GetSetting("LinkedFilesDefaultPath") ?? string.Empty;
+        WebsiteUrl = _db.GetSetting("WebsiteUrl") ?? string.Empty;
 
         StartFullScreen = _db.GetSetting("StartFullScreen") == "True";
         ConfirmDelete = _db.GetSetting("ConfirmDelete") != "False";

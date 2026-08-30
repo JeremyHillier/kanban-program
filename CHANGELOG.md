@@ -6,6 +6,9 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.63.9 — 2026-08-30
+- Add an About section to the Help screen: app name, version, copyright, and an editable Website field with an Open button that launches it in your default browser
+
 ## 0.63.8 — 2026-08-30
 - Add/Edit Task dialog: the Recurring task checkbox now sits centered on the same row as the Due Date input instead of floating up near the labels above it, and Force edit upon completion moved from spanning the full row to sitting directly under the Goal dropdown
 

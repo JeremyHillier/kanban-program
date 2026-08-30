@@ -181,6 +181,22 @@
                 <local:BulletItem Text="The chosen location itself is remembered outside the database, in a small config file under your local AppData folder — not inside the database file."/>
                 <local:BulletItem Text="Set a Default Export Path (used by Report Builder's PDF export) and a Default Import Path (used by Import Tasks, including where the template is saved)."/>
                 <local:BulletItem Text="Set an Attach File Default Path — where the '+ File...' picker opens by default when attaching a file to a task."/>
+
+                <TextBlock Text="About" Style="{StaticResource HelpSectionHeaderStyle}"/>
+                <TextBlock Text="Kanban Task Board" FontWeight="Bold" FontSize="13" Margin="12,2,0,0" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                <TextBlock Margin="12,2,0,0" Foreground="{DynamicResource SecondaryTextBrush}">
+                    <Run Text="{Binding AppVersion, Mode=OneWay}"/>
+                    <Run Text=" — "/>
+                    <Run Text="{Binding CopyrightText, Mode=OneWay}"/>
+                </TextBlock>
+                <StackPanel Orientation="Horizontal" Margin="12,8,0,0">
+                    <TextBlock Text="Website" VerticalAlignment="Center" Margin="0,0,8,0" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                    <TextBox x:Name="WebsiteUrlTextBox" Width="280" Padding="6" LostFocus="WebsiteUrlTextBox_LostFocus"
+                             Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                             BorderBrush="{DynamicResource CardBorderBrush}"/>
+                    <Button Content="Open" Padding="10,4" Margin="6,0,0,0" Click="OpenWebsite_Click"
+                            Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                </StackPanel>
             </StackPanel>
         </ScrollViewer>
 
