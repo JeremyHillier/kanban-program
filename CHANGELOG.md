@@ -6,6 +6,9 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.64.0 — 2026-08-30
+- Add manual card sorting: a new Manual Sort button turns off auto-sorting so cards can be dragged up/down within a column into any order, which is then remembered; clicking any other sort button (Project/Due Date/Who/Priority) overrides Manual Sort and turns it back off
+
 ## 0.63.9 — 2026-08-30
 - Add an About section to the Help screen: app name, version, copyright, and an editable Website field with an Open button that launches it in your default browser
 

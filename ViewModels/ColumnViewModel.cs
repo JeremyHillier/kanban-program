@@ -40,4 +40,21 @@ public class ColumnViewModel(KanbanColumn model, Brush background) : ObservableO
     }
 
     public ObservableCollection<CardViewModel> Cards { get; } = [];
+
+    // Manual-sort drag-reorder insertion indicator (see MainWindow.xaml.cs's CardsScrollViewer_*
+    // handlers) - bound directly rather than named-element lookup, since this DataTemplate repeats
+    // once per column.
+    private bool _isDropIndicatorVisible;
+    public bool IsDropIndicatorVisible
+    {
+        get => _isDropIndicatorVisible;
+        set => SetField(ref _isDropIndicatorVisible, value);
+    }
+
+    private double _dropIndicatorY;
+    public double DropIndicatorY
+    {
+        get => _dropIndicatorY;
+        set => SetField(ref _dropIndicatorY, value);
+    }
 }

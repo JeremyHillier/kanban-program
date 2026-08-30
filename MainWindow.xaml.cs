@@ -470,6 +470,12 @@ public partial class MainWindow : Window
         viewModel.ToggleSortKey(MainViewModel.SortKey.Priority, Keyboard.Modifiers.HasFlag(ModifierKeys.Control));
     }
 
+    private void SortByManual_Click(object sender, RoutedEventArgs e)
+    {
+        if (DataContext is not MainViewModel viewModel) return;
+        viewModel.ToggleSortKey(MainViewModel.SortKey.Manual, additive: false);
+    }
+
     private void DueToday_Click(object sender, RoutedEventArgs e)
     {
         if (DataContext is not MainViewModel viewModel) return;
@@ -785,6 +791,106 @@ public partial class MainWindow : Window
                 MaybePromptCompletionNote(card, column, viewModel);
             }), DispatcherPriority.Background);
         }
+    }
+
+    // Positional drag-to-reorder within a column, active only in manual sort mode and only for a
+    // card dragged over its own current column - a drag into a different column always keeps using
+    // Column_Drop's existing append-style move regardless of sort mode, so this deliberately returns
+    // false (leaving the event unhandled, to bubble up to Column_Drop) for every other case.
+    private bool TryGetManualReorderContext(object sender, DragEventArgs e,
+        out System.Windows.Controls.ItemsControl itemsControl, out ColumnViewModel column, out CardViewModel draggedCard)
+    {
+        itemsControl = null!;
+        column = null!;
+        draggedCard = null!;
+
+        if (sender is not System.Windows.Controls.ScrollViewer { Content: System.Windows.Controls.Grid grid } || grid.DataContext is not ColumnViewModel col) return false;
+        if (DataContext is not MainViewModel viewModel || !viewModel.IsManualSort) return false;
+        if (e.Data.GetData(typeof(CardViewModel)) is not CardViewModel card) return false;
+        if (!col.Cards.Contains(card)) return false;
+
+        var ic = grid.Children.OfType<System.Windows.Controls.ItemsControl>().FirstOrDefault();
+        if (ic is null) return false;
+
+        itemsControl = ic;
+        column = col;
+        draggedCard = card;
+        return true;
+    }
+
+    private void CardsScrollViewer_DragOver(object sender, DragEventArgs e)
+    {
+        if (!TryGetManualReorderContext(sender, e, out var itemsControl, out var column, out var draggedCard)) return;
+
+        e.Handled = true;
+        e.Effects = DragDropEffects.Move;
+
+        var (_, indicatorY) = GetCardDropTarget(itemsControl, column, e.GetPosition(itemsControl), draggedCard);
+        column.DropIndicatorY = indicatorY;
+        column.IsDropIndicatorVisible = true;
+    }
+
+    private void CardsScrollViewer_DragLeave(object sender, DragEventArgs e)
+    {
+        if (sender is not System.Windows.Controls.ScrollViewer { Content: System.Windows.Controls.Grid grid } scrollViewer || grid.DataContext is not ColumnViewModel column) return;
+
+        // Same spurious-DragLeave guard as the sub-task drag indicator (AddTaskWindow.xaml.cs):
+        // only actually hide once the mouse has genuinely left the ScrollViewer's bounds, not just
+        // crossed onto a child card that isn't itself drop-enabled.
+        var position = e.GetPosition(scrollViewer);
+        if (position.X >= 0 && position.X <= scrollViewer.ActualWidth &&
+            position.Y >= 0 && position.Y <= scrollViewer.ActualHeight)
+        {
+            return;
+        }
+
+        column.IsDropIndicatorVisible = false;
+    }
+
+    private void CardsScrollViewer_Drop(object sender, DragEventArgs e)
+    {
+        if (!TryGetManualReorderContext(sender, e, out var itemsControl, out var column, out var draggedCard)) return;
+
+        e.Handled = true;
+        column.IsDropIndicatorVisible = false;
+        if (DataContext is not MainViewModel viewModel) return;
+
+        var (newIndex, _) = GetCardDropTarget(itemsControl, column, e.GetPosition(itemsControl), draggedCard);
+
+        // Deferred via BeginInvoke: same reasoning as Column_Drop/QuickMove_Click above - this
+        // handler still runs nested inside DoDragDrop's own message loop, so mutating the Cards
+        // collection here immediately carries the same class of risk as mutating it from inside a
+        // Click handler.
+        Dispatcher.BeginInvoke(new Action(() =>
+        {
+            viewModel.ReorderCardWithinColumn(draggedCard, column, newIndex);
+        }), DispatcherPriority.Background);
+    }
+
+    // Returns both where a drop would land (Index, in "before removal" Cards-count space - matching
+    // MainViewModel.ReorderCardWithinColumn's own before/after index adjustment) and the Y position
+    // (relative to itemsControl) for the insertion-line indicator, so DragOver and Drop always agree.
+    private static (int Index, double IndicatorY) GetCardDropTarget(System.Windows.Controls.ItemsControl itemsControl, ColumnViewModel column, Point positionInItemsControl, CardViewModel draggedCard)
+    {
+        for (var i = 0; i < column.Cards.Count; i++)
+        {
+            if (ReferenceEquals(column.Cards[i], draggedCard)) continue;
+            if (itemsControl.ItemContainerGenerator.ContainerFromIndex(i) is not FrameworkElement container) continue;
+
+            var top = container.TranslatePoint(new Point(0, 0), itemsControl).Y;
+            if (positionInItemsControl.Y < top + container.ActualHeight / 2)
+            {
+                return (i, top);
+            }
+        }
+
+        if (column.Cards.Count > 0 && itemsControl.ItemContainerGenerator.ContainerFromIndex(column.Cards.Count - 1) is FrameworkElement lastContainer)
+        {
+            var bottom = lastContainer.TranslatePoint(new Point(0, 0), itemsControl).Y + lastContainer.ActualHeight;
+            return (column.Cards.Count, bottom);
+        }
+
+        return (0, 0);
     }
 
     private void MaybePromptCompletionNote(CardViewModel card, ColumnViewModel targetColumn, MainViewModel viewModel)

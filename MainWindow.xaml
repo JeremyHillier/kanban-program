@@ -132,6 +132,16 @@
                 </DataTrigger>
             </Style.Triggers>
         </Style>
+        <Style x:Key="SortButtonManual" BasedOn="{StaticResource SmallSquareButtonStyle}" TargetType="Button">
+            <Setter Property="BorderThickness" Value="1"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsManualSort}" Value="True">
+                    <Setter Property="BorderBrush" Value="White"/>
+                    <Setter Property="BorderThickness" Value="3"/>
+                    <Setter Property="FontWeight" Value="Bold"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
 
         <Style x:Key="DueFilterButtonToday" BasedOn="{StaticResource SmallSquareButtonStyle}" TargetType="Button">
             <Setter Property="BorderThickness" Value="1"/>
@@ -289,6 +299,18 @@
                                                 HorizontalAlignment="Right" VerticalAlignment="Top"
                                                 Visibility="{Binding PrioritySortRank, Converter={StaticResource GreaterThanZeroToVisibilityConverter}}">
                                             <TextBlock Text="{Binding PrioritySortRank}" FontSize="9" FontWeight="Bold" Foreground="#FF1A1A1A"
+                                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </Border>
+                                    </Grid>
+                                </Button>
+                                <Button Style="{StaticResource SortButtonManual}" Background="#FF607D8B" Foreground="White" Click="SortByManual_Click"
+                                        ToolTip="Drag cards to reorder them by hand within a column. Any other sort button turns this off.">
+                                    <Grid>
+                                        <TextBlock Text="Manual Sort" TextWrapping="Wrap" TextAlignment="Center"/>
+                                        <Border Background="White" CornerRadius="7" Width="14" Height="14" Margin="0,-4,-4,0"
+                                                HorizontalAlignment="Right" VerticalAlignment="Top"
+                                                Visibility="{Binding ManualSortRank, Converter={StaticResource GreaterThanZeroToVisibilityConverter}}">
+                                            <TextBlock Text="{Binding ManualSortRank}" FontSize="9" FontWeight="Bold" Foreground="#FF1A1A1A"
                                                        HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                         </Border>
                                     </Grid>
@@ -500,7 +522,9 @@
                                                Background="Transparent" Cursor="Hand" ToolTip="Double-click to add a new task in this column"
                                                MouseLeftButtonDown="ColumnHeader_MouseLeftButtonDown"/>
 
-                                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
+                                                  AllowDrop="True" DragOver="CardsScrollViewer_DragOver" DragLeave="CardsScrollViewer_DragLeave" Drop="CardsScrollViewer_Drop">
+                                    <Grid>
                                     <ItemsControl ItemsSource="{Binding Cards}">
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate>
@@ -743,6 +767,14 @@
                                             </DataTemplate>
                                         </ItemsControl.ItemTemplate>
                                     </ItemsControl>
+                                    <Border Height="2" Background="{DynamicResource AccentTextBrush}"
+                                            VerticalAlignment="Top" HorizontalAlignment="Stretch" IsHitTestVisible="False"
+                                            Visibility="{Binding IsDropIndicatorVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                        <Border.RenderTransform>
+                                            <TranslateTransform Y="{Binding DropIndicatorY}"/>
+                                        </Border.RenderTransform>
+                                    </Border>
+                                    </Grid>
                                     </ScrollViewer>
                                 </Grid>
                             </Border>
