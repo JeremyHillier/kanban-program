@@ -17,7 +17,7 @@ WPF (.NET, `net10.0-windows`) desktop kanban app, SQLite-backed via `Microsoft.D
 
 ## Installers
 
-`installer/build-installers.ps1` defaults to `-Channels Production` only now — pass `-Channels Production,Test` explicitly to build both (this default changed at some point; previously it always built both with no param needed).
+`installer/build-installers.ps1` defaults to `-Channels Production` only, and that's the desired behavior now — the user no longer needs the Test channel installer built as a matter of course. Just run it with no `-Channels` arg. Only pass `-Channels Test` or `-Channels Production,Test` if the user explicitly asks for a Test build for some specific reason.
 
 ## Architecture
 
@@ -30,7 +30,7 @@ Standard MVVM:
 
 ### Key conventions
 
-- **Managed lists** (Project/Goal/Person/Flag): each own table with `Id, Name, SortOrder, IsActive`. Soft-toggle via `SetXActive`; hard `DeleteX` only allowed from UI when nothing references it. Cards reference by FK (`ProjectId`/`GoalId`/`WhoId`/`CardFlags` join table). The four CRUD blocks in `MainViewModel` are near-identical copy-paste — a refactor candidate if a fifth list ever gets added.
+- **Managed lists** (Project/Goal/Person/Flag): each own table with `Id, Name, SortOrder, IsActive`. Soft-toggle via `SetXActive`; hard `DeleteX` only allowed from UI when nothing references it. Cards reference by FK (`ProjectId`/`GoalId`/`WhoId`/`CardFlags` join table). CRUD for all four is deduped through `ManagedList<TModel, TViewModel>` (`ViewModels/ManagedList.cs`) — each entity wires up its own DB delegates in `MainViewModel`'s constructor rather than repeating Add/Rename/Delete/SetActive logic per list.
 - **Task soft-delete/archive**: `Cards.IsArchived` and `Cards.IsDeleted` are independent flags. Every lifecycle transition writes to `CardHistory`, which also backs the archived/deleted list's "when" display via `MAX(Timestamp)` — there's no dedicated timestamp column for that.
 - **Settings**: in-app preferences live in the SQLite `Settings` key/value table (`GetSetting`/`SetSetting`), read once into `MainViewModel` at `Load()`. `AppConfig`'s JSON file is only for bootstrap info needed before the DB is even open.
 - **`Who` legacy column**: `Cards.Who` (free text) still exists alongside `WhoId` (FK to `People`), kept only for the one-time `BackfillPeopleFromLegacyWho` migration. Don't write to `Who` in new code.
