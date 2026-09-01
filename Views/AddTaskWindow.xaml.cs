@@ -47,6 +47,7 @@ public partial class AddTaskWindow : Window
         // growing past the screen's bottom edge and taking the Cancel/Add Task buttons with it.
         FormScrollViewer.MaxHeight = SystemParameters.WorkArea.Height * 0.75;
         _viewModel = viewModel;
+        CalendarWheelSupport.Attach(DueDatePicker);
         CategoryComboBox.ItemsSource = viewModel.Columns;
         RebuildProjectItems();
         RebuildGoalItems();

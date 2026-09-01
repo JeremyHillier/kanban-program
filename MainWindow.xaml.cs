@@ -640,6 +640,7 @@ public partial class MainWindow : Window
             Width = 160,
             Margin = new Thickness(8, 8, 8, 4)
         };
+        CalendarWheelSupport.Attach(datePicker);
         var clearButton = new System.Windows.Controls.Button
         {
             Content = "Clear Due Date",
