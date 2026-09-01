@@ -102,7 +102,7 @@
                                               BorderBrush="{DynamicResource CardBorderBrush}"/>
 
                                     <DatePicker Grid.Column="5" Style="{StaticResource CellMargin}" Padding="4,2"
-                                                SelectedDate="{Binding DueDate, Mode=TwoWay}"
+                                                SelectedDate="{Binding DueDate, Mode=TwoWay}" Loaded="DatePicker_Loaded"
                                                 Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
                                                 BorderBrush="{DynamicResource CardBorderBrush}"/>
 

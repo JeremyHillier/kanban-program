@@ -740,6 +740,15 @@ public partial class MainWindow : Window
         e.Handled = true;
     }
 
+    // Shared by every XAML-declared DatePicker in this window (the due-date range filter's From/To
+    // pickers) - the board's own due-date quick-edit popup above builds its DatePicker in code and
+    // wires CalendarWheelSupport.Attach directly instead, since it has no XAML element to hang a
+    // Loaded handler off of.
+    private void DatePicker_Loaded(object sender, RoutedEventArgs e)
+    {
+        CalendarWheelSupport.Attach((System.Windows.Controls.DatePicker)sender);
+    }
+
     private void SubTaskCheckBox_Changed(object sender, RoutedEventArgs e)
     {
         if (sender is not System.Windows.Controls.CheckBox { DataContext: SubTaskViewModel subTask, Tag: CardViewModel card } checkBox) return;

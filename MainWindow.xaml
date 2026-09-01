@@ -370,14 +370,14 @@
                             </Grid.ColumnDefinitions>
                             <StackPanel Grid.Column="0">
                                 <TextBlock Text="From" FontSize="10" Foreground="White" Margin="0,0,0,2"/>
-                                <DatePicker SelectedDate="{Binding DueRangeFrom, Mode=TwoWay}" Padding="3"
+                                <DatePicker SelectedDate="{Binding DueRangeFrom, Mode=TwoWay}" Padding="3" Loaded="DatePicker_Loaded"
                                             ToolTip="Leave blank to include everything up to 'To'"
                                             Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
                                             BorderBrush="{DynamicResource CardBorderBrush}"/>
                             </StackPanel>
                             <StackPanel Grid.Column="2">
                                 <TextBlock Text="To" FontSize="10" Foreground="White" Margin="0,0,0,2"/>
-                                <DatePicker SelectedDate="{Binding DueRangeTo, Mode=TwoWay}" Padding="3"
+                                <DatePicker SelectedDate="{Binding DueRangeTo, Mode=TwoWay}" Padding="3" Loaded="DatePicker_Loaded"
                                             ToolTip="Leave blank to include everything from 'From' onward"
                                             Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
                                             BorderBrush="{DynamicResource CardBorderBrush}"/>

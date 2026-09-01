@@ -5,6 +5,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Threading;
 using KanbanApp.Models;
+using KanbanApp.Services;
 using KanbanApp.ViewModels;
 
 namespace KanbanApp.Views;
@@ -27,6 +28,8 @@ public partial class DeletedTasksWindow : Window
     }
 
     private void DateRange_Changed(object sender, SelectionChangedEventArgs e) => ApplyDateFilter();
+
+    private void DatePicker_Loaded(object sender, RoutedEventArgs e) => CalendarWheelSupport.Attach((DatePicker)sender);
 
     private void ClearDates_Click(object sender, RoutedEventArgs e)
     {

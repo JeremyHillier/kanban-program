@@ -1,5 +1,7 @@
 using System.Collections.ObjectModel;
 using System.Windows;
+using System.Windows.Controls;
+using KanbanApp.Services;
 using KanbanApp.ViewModels;
 
 namespace KanbanApp.Views;
@@ -20,6 +22,8 @@ public partial class ImportedTasksWindow : Window
         RowsList.ItemsSource = _rows;
         EmptyStateText.Visibility = _rows.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
     }
+
+    private void DatePicker_Loaded(object sender, RoutedEventArgs e) => CalendarWheelSupport.Attach((DatePicker)sender);
 
     private void SaveChanges_Click(object sender, RoutedEventArgs e)
     {
