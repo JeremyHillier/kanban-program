@@ -264,5 +264,12 @@
                 </Setter.Value>
             </Setter>
         </Style>
+
+        <!-- Lets the mouse wheel page through months on any Calendar (the popup calendar inside a
+             DatePicker, e.g. the board's due-date quick-edit and the Add/Edit Task dialog's Due
+             Date field) - not built into WPF's Calendar control by default. -->
+        <Style TargetType="{x:Type Calendar}">
+            <EventSetter Event="PreviewMouseWheel" Handler="Calendar_PreviewMouseWheel"/>
+        </Style>
     </Application.Resources>
 </Application>

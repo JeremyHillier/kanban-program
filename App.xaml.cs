@@ -1,6 +1,8 @@
 using System.IO;
 using System.Threading;
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Threading;
 using KanbanApp.Services;
 using KanbanApp.Views;
@@ -76,6 +78,16 @@ public partial class App : Application
             splash.Close();
         };
         timer.Start();
+    }
+
+    private void Calendar_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
+    {
+        if (sender is not Calendar calendar) return;
+
+        // Scroll up (away from you) -> previous month; scroll down -> next month, matching how
+        // scrolling up a page moves toward earlier content.
+        calendar.DisplayDate = calendar.DisplayDate.AddMonths(e.Delta > 0 ? -1 : 1);
+        e.Handled = true;
     }
 
     private static void LogCrash(string dbPath, Exception ex)

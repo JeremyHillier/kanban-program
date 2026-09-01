@@ -140,8 +140,8 @@
                         <CheckBox x:Name="RecurringCheckBox" Content="Recurring task" VerticalAlignment="Center"
                                   Foreground="{DynamicResource PrimaryTextBrush}"
                                   Checked="RecurringCheckBox_Changed" Unchecked="RecurringCheckBox_Changed"/>
-                        <ComboBox x:Name="RecurrenceComboBox" Padding="6" SelectedIndex="0" Visibility="Collapsed"
-                                  VerticalAlignment="Center" Margin="8,0,0,0"
+                        <ComboBox x:Name="RecurrenceComboBox" Padding="8,4" MinWidth="110" SelectedIndex="0" Visibility="Collapsed"
+                                  VerticalAlignment="Center" Margin="16,0,0,0"
                                   Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
                                   BorderBrush="{DynamicResource CardBorderBrush}">
                             <ComboBoxItem Content="Daily"/>

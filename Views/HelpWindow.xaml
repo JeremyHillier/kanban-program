@@ -24,12 +24,6 @@
         <Style TargetType="local:BulletItem">
             <Setter Property="Margin" Value="12,2,0,0"/>
         </Style>
-        <Style x:Key="HelpScreenshotStyle" TargetType="Border">
-            <Setter Property="BorderBrush" Value="{DynamicResource CardBorderBrush}"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Margin" Value="12,8,0,8"/>
-            <Setter Property="HorizontalAlignment" Value="Left"/>
-        </Style>
     </Window.Resources>
     <Grid Margin="16">
         <Grid.RowDefinitions>
@@ -47,10 +41,6 @@
                     This board tracks tasks across five columns: To Do, In Progress, On Hold, Waiting, and Done.
                     Drag a card to a different column, or use its quick-move buttons.
                 </TextBlock>
-
-                <Border Style="{StaticResource HelpScreenshotStyle}">
-                    <Image Source="/Assets/Help/main-board.png" Width="480" Stretch="Uniform"/>
-                </Border>
 
                 <TextBlock Text="Keyboard shortcuts" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <local:BulletItem Text="Ctrl+N — create a new task."/>
@@ -73,10 +63,6 @@
                 <local:BulletItem Text="Each task can have a Category, Project, Goal, Priority, Due Date, Who it's assigned to, free-form Notes, Flags, and a checklist of Sub-tasks. Project is required; everything else is optional."/>
                 <local:BulletItem Text="Use the + and − buttons next to Project, Goal, and Who to add a new one on the fly, or clear the current selection without deleting the record."/>
                 <local:BulletItem Text="Each task also has an optional Website field — paste a link related to the task and click Open beside it to launch it in your default browser. A link typed without http:// still works."/>
-
-                <Border Style="{StaticResource HelpScreenshotStyle}">
-                    <Image Source="/Assets/Help/add-task-dialog.png" Width="380" Stretch="Uniform"/>
-                </Border>
 
                 <TextBlock Text="Sub-tasks" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <local:BulletItem Text="Add sub-task rows in the task dialog; each has its own checkbox."/>
@@ -145,17 +131,9 @@
                 <local:BulletItem Text="A summary line under the title breaks down the task count by status (and Archived, if included). Grouped reports also show a count next to each group heading, and each task's sub-task line shows how many are done, e.g. Sub-tasks: 2/5."/>
                 <local:BulletItem Text="Include sub-task completion summary adds a section counting how many times each sub-task was completed across all matching tasks — useful for a recurring task (e.g. 'Exercise') whose sub-tasks represent repeatable items (e.g. 'Push-ups: 12/15 completed (80%)') within the chosen scope and date range."/>
 
-                <Border Style="{StaticResource HelpScreenshotStyle}">
-                    <Image Source="/Assets/Help/report-builder.png" Width="420" Stretch="Uniform"/>
-                </Border>
-
                 <TextBlock Text="Dashboard" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <local:BulletItem Text="The banner always shows Open, Overdue, Due Today, and Due This Week counts across all non-Done tasks."/>
                 <local:BulletItem Text="Double-click the banner to open the full Dashboard: five summary tiles (the banner's four, plus In Done), and four charts — Status Distribution by Priority, Due Date Timeline, By Project, and By Who."/>
-
-                <Border Style="{StaticResource HelpScreenshotStyle}">
-                    <Image Source="/Assets/Help/dashboard.png" Width="480" Stretch="Uniform"/>
-                </Border>
 
                 <TextBlock Text="Reminders" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <local:BulletItem Text="If any task is overdue or due today, a reminder pop-up lists them automatically when the app opens."/>
