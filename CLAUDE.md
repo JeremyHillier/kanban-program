@@ -15,6 +15,10 @@ WPF (.NET, `net10.0-windows`) desktop kanban app, SQLite-backed via `Microsoft.D
 
 `dotnet build` from the project root. No special setup beyond the SDK.
 
+## Installers
+
+`installer/build-installers.ps1` defaults to `-Channels Production` only now — pass `-Channels Production,Test` explicitly to build both (this default changed at some point; previously it always built both with no param needed).
+
 ## Architecture
 
 Standard MVVM:
