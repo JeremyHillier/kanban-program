@@ -6,6 +6,9 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.70.2 — 2026-09-02
+- Timeline: double-click a task block to open it in the same task dialog the board uses, with any change saved and the Timeline refreshed on close
+
 ## 0.70.1 — 2026-09-02
 - Timeline: add a Day view alongside the default Week view — zoom in to see 21 daily columns (each labelled with weekday and date) instead of 12 weekly ones, then zoom back out. Prev/Next paging adjusts to match (1 week at a time in Day view, 4 weeks in Week view)
 

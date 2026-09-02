@@ -1,5 +1,6 @@
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media;
 using KanbanApp.ViewModels;
 
@@ -63,6 +64,27 @@ public partial class TimelineWindow : Window
     private void ZoomLevel_Changed(object sender, RoutedEventArgs e)
     {
         if (_initializing) return;
+        BuildGrid();
+    }
+
+    // Mirrors MainWindow's own EditCard - opens the same task dialog the board uses, then saves
+    // through the same MainViewModel.EditCard call so the change is identical either way. Rebuilds
+    // the grid afterward regardless of Save/Cancel, since that's cheap and picks up anything that
+    // moved the task out of view (a new due date, project, or column).
+    private void OpenCardForEdit(CardViewModel card)
+    {
+        var currentColumn = _viewModel.Columns.FirstOrDefault(c => c.Cards.Contains(card));
+        if (currentColumn is null) return;
+
+        var dialog = new AddTaskWindow(_viewModel, card, currentColumn) { Owner = this };
+        if (dialog.ShowDialog() == true && dialog.SelectedColumn is not null)
+        {
+            _viewModel.EditCard(card, dialog.TaskDetails, dialog.SelectedColumn, dialog.SelectedProject,
+                dialog.SelectedPriority, dialog.SelectedDueDate, dialog.SelectedWho, dialog.IsRecurring, dialog.RecurrencePattern,
+                dialog.SelectedGoal, dialog.SelectedFlags, dialog.SelectedSubTasks, dialog.Notes, attachments: dialog.SelectedAttachments,
+                forceEditOnComplete: dialog.ForceEditOnComplete, websiteUrl: dialog.WebsiteUrl);
+        }
+
         BuildGrid();
     }
 
@@ -194,12 +216,18 @@ public partial class TimelineWindow : Window
                             CornerRadius = new CornerRadius(3),
                             Padding = new Thickness(5, 3, 5, 3),
                             Margin = new Thickness(0, 0, 0, 3),
+                            Cursor = Cursors.Hand,
                             Child = new TextBlock
                             {
                                 Text = string.Join(" - ", parts), Foreground = brush,
                                 FontSize = 11, TextWrapping = TextWrapping.Wrap,
-                                ToolTip = $"{task.Title}\n{(task.WhoName != "Unassigned" ? $"Who: {task.WhoName}\n" : "")}Due: {task.DueDate:MMM d, yyyy}"
+                                ToolTip = $"{task.Title}\n{(task.WhoName != "Unassigned" ? $"Who: {task.WhoName}\n" : "")}Due: {task.DueDate:MMM d, yyyy}\n\nDouble-click to open"
                             }
+                        };
+                        block.MouseLeftButtonDown += (_, args) =>
+                        {
+                            if (args.ClickCount != 2) return;
+                            OpenCardForEdit(task);
                         };
                         cellPanel.Children.Add(block);
                     }
