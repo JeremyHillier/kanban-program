@@ -54,6 +54,7 @@
                 <local:BulletItem Text="Alt+R — open Reminders."/>
                 <local:BulletItem Text="Alt+S — open Settings."/>
                 <local:BulletItem Text="Alt+H — open this Help screen."/>
+                <local:BulletItem Text="Alt+T — show just what's due today (and anything overdue), clearing every other filter first."/>
                 <local:BulletItem Text="Esc — close the open dialog, or on the main board, clear every filter."/>
 
                 <TextBlock Text="Adding and editing tasks" Style="{StaticResource HelpSectionHeaderStyle}"/>

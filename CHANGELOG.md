@@ -6,6 +6,23 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.67.2 — 2026-09-01
+- Add an Alt+T shortcut that shows just what's due today (and anything overdue), clearing every other filter first so it's the whole board's today, not today within whatever was already narrowed down
+
+## 0.67.1 — 2026-09-01
+- Extend calendar mouse-wheel month navigation to every remaining date picker: the board's due-date range filter, the Archived and Deleted lists' date ranges, Report Builder's archived date range, and the imported-tasks review grid's per-row due date
+
+## 0.67.0 — 2026-09-01
+- Add spell checking (red squiggly underlines, right-click suggestions) to the Task and Notes fields in the Add/Edit Task dialog
+
+## 0.66.1 — 2026-09-01
+- Fix calendar mouse-wheel scrolling, which didn't actually work in the previous version: the theme gives a date picker's internal calendar its own style, so the app-wide style meant to carry the handler never applied to it
+
+## 0.66.0 — 2026-09-01
+- Scroll the mouse wheel over an open calendar to move a month at a time (up for earlier, down for later)
+- Remove the four screenshots from the Help screen
+- Widen the gap between the Recurring task checkbox and its pattern dropdown, and give the dropdown a minimum width so the longer options aren't cramped
+
 ## 0.65.2 — 2026-08-30
 - Darken each dialog's bottom-right copyright line, which was faded to near-invisible against a light background
 

@@ -243,6 +243,15 @@ public partial class MainViewModel
         return true;
     }
 
+    // Alt+T's one-key "just show me today". Every other filter is reset first, so the result is
+    // always the whole board's due-today (and overdue) work rather than today's slice of whatever
+    // narrowing happened to be applied already.
+    public void ShowTodayOnly()
+    {
+        ClearFilters();
+        DueFilter = "Today";
+    }
+
     public void ClearFilters()
     {
         _selectedProjectFilter = "All";

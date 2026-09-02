@@ -316,6 +316,10 @@ public partial class MainWindow : Window
                         Help_Click(sender, e);
                         e.Handled = true;
                         break;
+                    case Key.T:
+                        if (DataContext is MainViewModel todayViewModel) todayViewModel.ShowTodayOnly();
+                        e.Handled = true;
+                        break;
                 }
                 break;
         }
