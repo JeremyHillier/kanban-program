@@ -53,14 +53,26 @@ public static class ReportService
         }
     }
 
+    // unionFilters, when non-empty, REPLACES the six discrete filter params entirely for matching
+    // purposes: a card is included if it matches ANY one of the selected saved custom filters (an
+    // OR/union across filters, not an AND on top of the dropdowns above) - each captured slot's own
+    // Due/DueFrom/DueTo is used as-is, independent of dueRangeFrom/dueRangeTo/includeNoDueDate below
+    // (those are specific to this report's own due-date-range fields, not to the saved filters).
     public static List<ReportRow> BuildRows(
         IEnumerable<ColumnViewModel> columns,
         HashSet<string> includeColumns,
         string projectFilter, string priorityFilter, string whoFilter, string goalFilter, string flagFilter, string dueFilter,
+        DateTime? dueRangeFrom, DateTime? dueRangeTo, bool includeNoDueDate,
+        List<CustomFilter>? unionFilters,
+        string sortLevel1, string sortLevel2, string sortLevel3,
         ReportArchiveScope archiveScope = ReportArchiveScope.BoardOnly,
         IEnumerable<(CardViewModel Card, string ColumnName)>? archivedCards = null,
         DateTime? archivedFrom = null, DateTime? archivedTo = null)
     {
+        bool CardMatches(CardViewModel card) => unionFilters is { Count: > 0 }
+            ? unionFilters.Any(f => Matches(card, f))
+            : Matches(card, projectFilter, priorityFilter, whoFilter, goalFilter, flagFilter, dueFilter, dueRangeFrom, dueRangeTo, includeNoDueDate);
+
         var rows = new List<ReportRow>();
 
         if (archiveScope != ReportArchiveScope.ArchivedOnly)
@@ -71,7 +83,7 @@ public static class ReportService
 
                 foreach (var card in column.Cards)
                 {
-                    if (!Matches(card, projectFilter, priorityFilter, whoFilter, goalFilter, flagFilter, dueFilter)) continue;
+                    if (!CardMatches(card)) continue;
 
                     rows.Add(BuildRow(card, column.DisplayName, isArchived: false));
                 }
@@ -82,7 +94,7 @@ public static class ReportService
         {
             foreach (var (card, columnName) in archivedCards)
             {
-                if (!Matches(card, projectFilter, priorityFilter, whoFilter, goalFilter, flagFilter, dueFilter)) continue;
+                if (!CardMatches(card)) continue;
                 if (archivedFrom is not null && (card.ArchivedAt is null || card.ArchivedAt.Value.Date < archivedFrom.Value.Date)) continue;
                 if (archivedTo is not null && (card.ArchivedAt is null || card.ArchivedAt.Value.Date > archivedTo.Value.Date)) continue;
 
@@ -90,7 +102,10 @@ public static class ReportService
             }
         }
 
-        return rows;
+        // Sorted here (not in BuildFixedDocument/SavePdf) so both rendering paths get the same order
+        // for free: LINQ's GroupBy preserves input order within each group, so pre-sorting the flat
+        // list before it's grouped downstream naturally orders rows within whatever group they land in.
+        return SortRows(rows, sortLevel1, sortLevel2, sortLevel3);
     }
 
     public static List<SubTaskSummaryRow> BuildSubTaskSummary(List<ReportRow> rows) =>
@@ -124,7 +139,7 @@ public static class ReportService
     };
 
     private static bool Matches(CardViewModel card, string projectFilter, string priorityFilter, string whoFilter,
-        string goalFilter, string flagFilter, string dueFilter)
+        string goalFilter, string flagFilter, string dueFilter, DateTime? dueRangeFrom = null, DateTime? dueRangeTo = null, bool includeNoDueDate = false)
     {
         if (projectFilter != "All" && card.ProjectName != projectFilter) return false;
         if (priorityFilter != "All" && card.Priority != priorityFilter) return false;
@@ -147,7 +162,17 @@ public static class ReportService
         }
         else if (flagFilter != "All" && card.Flags.All(f => f.Name != flagFilter)) return false;
 
-        if (dueFilter != "All")
+        // A due-date range (set on the report itself, not part of a saved custom filter) takes
+        // priority over the preset Due bucket when both happen to be present.
+        if (dueRangeFrom is not null || dueRangeTo is not null)
+        {
+            var inRange = card.DueDate is not null
+                && (dueRangeFrom is null || card.DueDate.Value.Date >= dueRangeFrom.Value.Date)
+                && (dueRangeTo is null || card.DueDate.Value.Date <= dueRangeTo.Value.Date);
+            var noDueDateOk = includeNoDueDate && card.DueDate is null;
+            if (!inRange && !noDueDateOk) return false;
+        }
+        else if (dueFilter != "All")
         {
             var today = DateTime.Today;
             var matchesDue = dueFilter switch
@@ -163,6 +188,60 @@ public static class ReportService
 
         return true;
     }
+
+    private static bool Matches(CardViewModel card, CustomFilter filter) =>
+        Matches(card, filter.Project, filter.Priority, filter.Who, filter.Goal, filter.Flag, filter.Due,
+            ParseDate(filter.DueFrom), ParseDate(filter.DueTo));
+
+    private static DateTime? ParseDate(string? value) => DateTime.TryParse(value, out var parsed) ? parsed : null;
+
+    private static int PriorityRank(string priority) => priority switch
+    {
+        "High" => 0,
+        "Medium" => 1,
+        "Normal" => 2,
+        "Low" => 3,
+        _ => 2
+    };
+
+    // Sorts the flat row list by up to three keys before it's grouped downstream ("None" entries are
+    // skipped). Category maps to the same ColumnName field GroupBy calls "Status" - the Add/Edit Task
+    // dialog calls the column-selection field "Category", so this reuses that naming for consistency
+    // in the UI even though the underlying model field is ColumnName.
+    private static List<ReportRow> SortRows(List<ReportRow> rows, string sortLevel1, string sortLevel2, string sortLevel3)
+    {
+        var keys = new[] { sortLevel1, sortLevel2, sortLevel3 }.Where(k => !string.IsNullOrEmpty(k) && k != "None").ToList();
+        if (keys.Count == 0) return rows;
+
+        var ordered = ApplyOrderBy(rows, keys[0]);
+        for (var i = 1; i < keys.Count; i++)
+        {
+            ordered = ApplyThenBy(ordered, keys[i]);
+        }
+        return ordered.ToList();
+    }
+
+    private static IOrderedEnumerable<ReportRow> ApplyOrderBy(IEnumerable<ReportRow> rows, string key) => key switch
+    {
+        "Category" => rows.OrderBy(r => r.ColumnName, StringComparer.OrdinalIgnoreCase),
+        "Priority" => rows.OrderBy(r => PriorityRank(r.Priority)),
+        "Who" => rows.OrderBy(r => string.IsNullOrWhiteSpace(r.Who) ? "Unassigned" : r.Who, StringComparer.OrdinalIgnoreCase),
+        "Due Date" => rows.OrderBy(r => r.DueDate ?? DateTime.MaxValue),
+        "Project" => rows.OrderBy(r => r.ProjectName, StringComparer.OrdinalIgnoreCase),
+        "Goal" => rows.OrderBy(r => r.GoalName, StringComparer.OrdinalIgnoreCase),
+        _ => rows.OrderBy(_ => 0)
+    };
+
+    private static IOrderedEnumerable<ReportRow> ApplyThenBy(IOrderedEnumerable<ReportRow> rows, string key) => key switch
+    {
+        "Category" => rows.ThenBy(r => r.ColumnName, StringComparer.OrdinalIgnoreCase),
+        "Priority" => rows.ThenBy(r => PriorityRank(r.Priority)),
+        "Who" => rows.ThenBy(r => string.IsNullOrWhiteSpace(r.Who) ? "Unassigned" : r.Who, StringComparer.OrdinalIgnoreCase),
+        "Due Date" => rows.ThenBy(r => r.DueDate ?? DateTime.MaxValue),
+        "Project" => rows.ThenBy(r => r.ProjectName, StringComparer.OrdinalIgnoreCase),
+        "Goal" => rows.ThenBy(r => r.GoalName, StringComparer.OrdinalIgnoreCase),
+        _ => rows
+    };
 
     private static List<IGrouping<string, ReportRow>> GroupRows(List<ReportRow> rows, string groupBy) => groupBy switch
     {

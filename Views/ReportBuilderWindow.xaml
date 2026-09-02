@@ -40,6 +40,10 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
         <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Text="Report title" Style="{StaticResource FieldLabelStyle}" Margin="0,0,0,4"/>
@@ -79,8 +83,29 @@
                   Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
                   BorderBrush="{DynamicResource CardBorderBrush}"/>
 
-        <Grid Grid.Row="11" Grid.Column="0" Grid.ColumnSpan="3">
+        <TextBlock Grid.Row="11" Grid.Column="0" Grid.ColumnSpan="3" Text="Due date range (this report only)" Style="{StaticResource SectionHeaderStyle}"/>
+        <StackPanel Grid.Row="12" Grid.Column="0" Grid.ColumnSpan="3" Orientation="Horizontal">
+            <TextBlock Text="From" VerticalAlignment="Center" Margin="0,0,6,0" Foreground="{DynamicResource PrimaryTextBrush}"/>
+            <DatePicker x:Name="DueFromDatePicker" Padding="4" Width="140" Loaded="DatePicker_Loaded"
+                        Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                        BorderBrush="{DynamicResource CardBorderBrush}"/>
+            <TextBlock Text="To" VerticalAlignment="Center" Margin="16,0,6,0" Foreground="{DynamicResource PrimaryTextBrush}"/>
+            <DatePicker x:Name="DueToDatePicker" Padding="4" Width="140" Loaded="DatePicker_Loaded"
+                        Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                        BorderBrush="{DynamicResource CardBorderBrush}"/>
+            <CheckBox x:Name="IncludeNoDueDateCheckBox" Content="Include tasks with no due date" VerticalAlignment="Center"
+                      Margin="20,0,0,0" Foreground="{DynamicResource PrimaryTextBrush}"/>
+        </StackPanel>
+
+        <TextBlock Grid.Row="13" Grid.Column="0" Grid.ColumnSpan="3" Text="Custom filters (select one or more to override the filters above)"
+                   Style="{StaticResource SectionHeaderStyle}"/>
+        <WrapPanel Grid.Row="14" Grid.Column="0" Grid.ColumnSpan="3" x:Name="CustomFiltersPanel"/>
+
+        <Grid Grid.Row="15" Grid.Column="0" Grid.ColumnSpan="3">
             <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
@@ -94,6 +119,7 @@
 
             <TextBlock Grid.Row="0" Text="Group by" Style="{StaticResource FieldLabelStyle}"/>
             <ComboBox Grid.Row="1" x:Name="GroupByComboBox" Padding="6" HorizontalAlignment="Left" Width="200" SelectedIndex="0"
+                      SelectionChanged="GroupByComboBox_SelectionChanged"
                       Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
                       BorderBrush="{DynamicResource CardBorderBrush}">
                 <ComboBoxItem Content="None" Tag="None"/>
@@ -104,8 +130,54 @@
                 <ComboBoxItem Content="Goal" Tag="Goal"/>
             </ComboBox>
 
-            <TextBlock Grid.Row="2" Text="Task scope" Style="{StaticResource FieldLabelStyle}"/>
+            <TextBlock Grid.Row="2" Text="Sort order" Style="{StaticResource FieldLabelStyle}"/>
             <StackPanel Grid.Row="3" Orientation="Horizontal">
+                <StackPanel Orientation="Vertical" Margin="0,0,16,0">
+                    <TextBlock Text="1st" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,0,0,2"/>
+                    <ComboBox x:Name="SortLevel1ComboBox" Padding="6" Width="140" SelectedIndex="0" SelectionChanged="SortLevelComboBox_SelectionChanged"
+                              Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                              BorderBrush="{DynamicResource CardBorderBrush}">
+                        <ComboBoxItem Content="None" Tag="None"/>
+                        <ComboBoxItem Content="Category" Tag="Category"/>
+                        <ComboBoxItem Content="Priority" Tag="Priority"/>
+                        <ComboBoxItem Content="Who" Tag="Who"/>
+                        <ComboBoxItem Content="Due Date" Tag="Due Date"/>
+                        <ComboBoxItem Content="Project" Tag="Project"/>
+                        <ComboBoxItem Content="Goal" Tag="Goal"/>
+                    </ComboBox>
+                </StackPanel>
+                <StackPanel Orientation="Vertical" Margin="0,0,16,0">
+                    <TextBlock Text="2nd" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,0,0,2"/>
+                    <ComboBox x:Name="SortLevel2ComboBox" Padding="6" Width="140" SelectedIndex="0" SelectionChanged="SortLevelComboBox_SelectionChanged"
+                              Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                              BorderBrush="{DynamicResource CardBorderBrush}">
+                        <ComboBoxItem Content="None" Tag="None"/>
+                        <ComboBoxItem Content="Category" Tag="Category"/>
+                        <ComboBoxItem Content="Priority" Tag="Priority"/>
+                        <ComboBoxItem Content="Who" Tag="Who"/>
+                        <ComboBoxItem Content="Due Date" Tag="Due Date"/>
+                        <ComboBoxItem Content="Project" Tag="Project"/>
+                        <ComboBoxItem Content="Goal" Tag="Goal"/>
+                    </ComboBox>
+                </StackPanel>
+                <StackPanel Orientation="Vertical">
+                    <TextBlock Text="3rd" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,0,0,2"/>
+                    <ComboBox x:Name="SortLevel3ComboBox" Padding="6" Width="140" SelectedIndex="0" SelectionChanged="SortLevelComboBox_SelectionChanged"
+                              Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                              BorderBrush="{DynamicResource CardBorderBrush}">
+                        <ComboBoxItem Content="None" Tag="None"/>
+                        <ComboBoxItem Content="Category" Tag="Category"/>
+                        <ComboBoxItem Content="Priority" Tag="Priority"/>
+                        <ComboBoxItem Content="Who" Tag="Who"/>
+                        <ComboBoxItem Content="Due Date" Tag="Due Date"/>
+                        <ComboBoxItem Content="Project" Tag="Project"/>
+                        <ComboBoxItem Content="Goal" Tag="Goal"/>
+                    </ComboBox>
+                </StackPanel>
+            </StackPanel>
+
+            <TextBlock Grid.Row="4" Text="Task scope" Style="{StaticResource FieldLabelStyle}"/>
+            <StackPanel Grid.Row="5" Orientation="Horizontal">
                 <RadioButton x:Name="BoardOnlyRadio" Content="Board tasks" GroupName="ArchiveScope" IsChecked="True" Margin="0,0,20,0"
                              Foreground="{DynamicResource PrimaryTextBrush}"/>
                 <RadioButton x:Name="BoardAndArchivedRadio" Content="Board tasks + archived" GroupName="ArchiveScope" Margin="0,0,20,0"
@@ -114,8 +186,8 @@
                              Foreground="{DynamicResource PrimaryTextBrush}"/>
             </StackPanel>
 
-            <TextBlock Grid.Row="4" Text="Archived date range (applies to archived tasks only)" Style="{StaticResource FieldLabelStyle}"/>
-            <StackPanel Grid.Row="5" Orientation="Horizontal">
+            <TextBlock Grid.Row="6" Text="Archived date range (applies to archived tasks only)" Style="{StaticResource FieldLabelStyle}"/>
+            <StackPanel Grid.Row="7" Orientation="Horizontal">
                 <TextBlock Text="From" VerticalAlignment="Center" Margin="0,0,6,0" Foreground="{DynamicResource PrimaryTextBrush}"/>
                 <DatePicker x:Name="ArchivedFromDatePicker" Padding="4" Width="140" Loaded="DatePicker_Loaded"
                             Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
@@ -130,15 +202,15 @@
                         Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
             </StackPanel>
 
-            <CheckBox Grid.Row="6" x:Name="IncludeNotesCheckBox" Content="Include notes" Margin="0,14,0,4"
+            <CheckBox Grid.Row="8" x:Name="IncludeNotesCheckBox" Content="Include notes" Margin="0,14,0,4"
                       Foreground="{DynamicResource PrimaryTextBrush}"/>
-            <CheckBox Grid.Row="7" x:Name="IncludeSubTasksCheckBox" Content="Include sub-tasks" Margin="0,0,0,4"
+            <CheckBox Grid.Row="9" x:Name="IncludeSubTasksCheckBox" Content="Include sub-tasks" Margin="0,0,0,4"
                       Foreground="{DynamicResource PrimaryTextBrush}"/>
-            <CheckBox Grid.Row="8" x:Name="IncludeSubTaskSummaryCheckBox"
+            <CheckBox Grid.Row="10" x:Name="IncludeSubTaskSummaryCheckBox"
                       Content="Include sub-task completion summary (e.g. how many times a sub task was completed)" Margin="0,0,0,4"
                       Foreground="{DynamicResource PrimaryTextBrush}"/>
 
-            <StackPanel Grid.Row="9" HorizontalAlignment="Right" Orientation="Horizontal" Margin="0,18,0,0">
+            <StackPanel Grid.Row="11" HorizontalAlignment="Right" Orientation="Horizontal" Margin="0,18,0,0">
                 <Button Content="Close" Width="80" Padding="0,6" IsCancel="True"
                         Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
                 <Button Content="Preview" Width="90" Padding="0,6" Margin="8,0,0,0" Click="Preview_Click"

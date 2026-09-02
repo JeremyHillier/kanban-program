@@ -6,6 +6,11 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.69.0 — 2026-09-02
+- Report Builder: add a due-date range filter (From/To) with a checkbox to also include tasks that have no due date at all
+- Report Builder: add a Custom Filters section listing your saved Alt+0-9 filter slots as checkboxes — check one or more and the report includes any task matching at least one of them, in place of the filters above
+- Report Builder: add three Sort Order levels (1st/2nd/3rd — Category, Priority, Who, Due Date, Project, Goal) to control row order within each group; an option already used as Group By or an earlier sort level is grayed out to prevent picking it twice
+
 ## 0.68.0 — 2026-09-01
 - Add a What's New screen that appears the first time you open a newly updated version, listing everything added across the last five updates. It can be turned off in Settings, where a Show What's New button also brings it up any time
 - Add ten custom filter slots on Alt+0 to Alt+9. Set the board's filters how you like, then save the whole combination — project, priority, who, goal, flag, due date or range, and keyword — to a slot under a name of your choosing, and recall it with one keystroke. A Custom Filters button beside Clear Filters manages the slots

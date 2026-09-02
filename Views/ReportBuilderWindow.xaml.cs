@@ -12,6 +12,8 @@ public partial class ReportBuilderWindow : Window
 {
     private readonly MainViewModel _viewModel;
     private readonly List<CheckBox> _columnCheckBoxes = [];
+    private readonly List<CheckBox> _customFilterCheckBoxes = [];
+    private bool _initializing = true;
 
     public ReportBuilderWindow(MainViewModel viewModel)
     {
@@ -48,6 +50,26 @@ public partial class ReportBuilderWindow : Window
 
         IncludeNotesCheckBox.IsChecked = true;
         IncludeSubTasksCheckBox.IsChecked = true;
+
+        foreach (var filter in _viewModel.CustomFilters.Where(f => f.IsDefined))
+        {
+            var checkBox = new CheckBox
+            {
+                Content = filter.Name,
+                Tag = filter,
+                Margin = new Thickness(0, 0, 16, 6),
+                Foreground = (System.Windows.Media.Brush)FindResource("PrimaryTextBrush")
+            };
+            _customFilterCheckBoxes.Add(checkBox);
+            CustomFiltersPanel.Children.Add(checkBox);
+        }
+
+        SortLevel1ComboBox.SelectedIndex = 0;
+        SortLevel2ComboBox.SelectedIndex = 0;
+        SortLevel3ComboBox.SelectedIndex = 0;
+
+        _initializing = false;
+        UpdateSortLevelAvailability();
     }
 
     private void DatePicker_Loaded(object sender, RoutedEventArgs e) => CalendarWheelSupport.Attach((DatePicker)sender);
@@ -55,6 +77,39 @@ public partial class ReportBuilderWindow : Window
     private void TodayArchivedFrom_Click(object sender, RoutedEventArgs e) => ArchivedFromDatePicker.SelectedDate = DateTime.Today;
 
     private void TodayArchivedTo_Click(object sender, RoutedEventArgs e) => ArchivedToDatePicker.SelectedDate = DateTime.Today;
+
+    private void GroupByComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e) => UpdateSortLevelAvailability();
+
+    private void SortLevelComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e) => UpdateSortLevelAvailability();
+
+    // Sort level ComboBoxItems are declared statically in XAML (not via ItemsSource), so their
+    // containers exist immediately - no need to wait on ItemContainerGenerator. "Gray out" is done
+    // via IsEnabled rather than removing the item, so an already-picked level stays visible and
+    // selectable while the user changes the other two.
+    private void UpdateSortLevelAvailability()
+    {
+        if (_initializing) return;
+
+        var groupBy = GetGroupBy();
+        var groupByLabel = groupBy switch { "Status" => "Category", "None" => null, _ => groupBy };
+
+        var combos = new[] { SortLevel1ComboBox, SortLevel2ComboBox, SortLevel3ComboBox };
+        for (var i = 0; i < combos.Length; i++)
+        {
+            var combo = combos[i];
+            var selectedTag = (string)((ComboBoxItem)combo.SelectedItem).Tag;
+            var usedElsewhere = combos.Where((_, idx) => idx != i).Select(c => (string)((ComboBoxItem)c.SelectedItem).Tag)
+                .Concat([groupByLabel])
+                .Where(v => v is not null && v != "None")
+                .ToHashSet();
+
+            foreach (ComboBoxItem item in combo.Items)
+            {
+                var value = (string)item.Tag;
+                item.IsEnabled = value == "None" || value == selectedTag || !usedElsewhere.Contains(value);
+            }
+        }
+    }
 
     private HashSet<string> GetIncludedColumns() =>
         _columnCheckBoxes.Where(c => c.IsChecked == true).Select(c => (string)c.Tag).ToHashSet();
@@ -72,6 +127,8 @@ public partial class ReportBuilderWindow : Window
     private List<Models.ReportRow> BuildRows()
     {
         var scope = GetArchiveScope();
+        var unionFilters = _customFilterCheckBoxes.Where(c => c.IsChecked == true).Select(c => (CustomFilter)c.Tag).ToList();
+
         return ReportService.BuildRows(
             _viewModel.Columns,
             GetIncludedColumns(),
@@ -81,6 +138,13 @@ public partial class ReportBuilderWindow : Window
             (string)GoalFilterComboBox.SelectedItem,
             (string)FlagFilterComboBox.SelectedItem,
             (string)DueFilterComboBox.SelectedItem,
+            DueFromDatePicker.SelectedDate,
+            DueToDatePicker.SelectedDate,
+            IncludeNoDueDateCheckBox.IsChecked == true,
+            unionFilters.Count > 0 ? unionFilters : null,
+            (string)((ComboBoxItem)SortLevel1ComboBox.SelectedItem).Tag,
+            (string)((ComboBoxItem)SortLevel2ComboBox.SelectedItem).Tag,
+            (string)((ComboBoxItem)SortLevel3ComboBox.SelectedItem).Tag,
             scope,
             scope == ReportArchiveScope.BoardOnly ? null : _viewModel.GetArchivedReportRows(),
             ArchivedFromDatePicker.SelectedDate,
