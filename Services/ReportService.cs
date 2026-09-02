@@ -305,7 +305,7 @@ public static class ReportService
     private static SolidColorBrush RowBandBrush(int rowIndex, bool isGrouped) =>
         rowIndex % 2 == 0 ? BandEvenBrush : (isGrouped ? BandGroupedOddBrush : BandOddBrush);
 
-    public static FixedDocument BuildFixedDocument(string title, List<ReportRow> rows, string groupBy, bool includeNotes, bool includeSubTasks, bool includeSubTaskSummary = false, bool isLandscape = false)
+    public static FixedDocument BuildFixedDocument(string title, List<ReportRow> rows, string groupBy, bool includeNotes, bool includeSubTasks, bool includeSubTaskSummary = false, bool isLandscape = false, string? parameterSummary = null)
     {
         const double a4Width = 793.92;
         const double a4Height = 1122.24;
@@ -396,6 +396,16 @@ public static class ReportService
         AddText(canvas, $"Generated {DateTime.Now:MMM d, yyyy h:mm tt}  —  {rows.Count} task{(rows.Count == 1 ? "" : "s")}",
             margin, 46, regularTypeface, 10, new SolidColorBrush(Color.FromRgb(0xC0, 0xCB, 0xDA)));
         y = bandHeight + 24;
+
+        if (!string.IsNullOrEmpty(parameterSummary))
+        {
+            foreach (var line in WrapLine(parameterSummary, italicTypeface, 9, contentWidth))
+            {
+                AddText(canvas, line, margin, y, italicTypeface, 9, Brushes.Gray);
+                y += 13;
+            }
+            y += 8;
+        }
 
         if (rows.Count == 0)
         {
@@ -545,7 +555,7 @@ public static class ReportService
         return fixedDoc;
     }
 
-    public static void SavePdf(string title, List<ReportRow> rows, string groupBy, bool includeNotes, bool includeSubTasks, string filePath, bool includeSubTaskSummary = false, bool isLandscape = false)
+    public static void SavePdf(string title, List<ReportRow> rows, string groupBy, bool includeNotes, bool includeSubTasks, string filePath, bool includeSubTaskSummary = false, bool isLandscape = false, string? parameterSummary = null)
     {
         EnsureFontResolverRegistered();
 
@@ -591,6 +601,19 @@ public static class ReportService
             subtitleFont, subtitleBrush, new XPoint(margin, 56));
         y = bandHeight + 24;
 
+        var metaBrush = new XSolidBrush(XColor.FromArgb(0x69, 0x69, 0x69));
+        var grayBrush = new XSolidBrush(XColor.FromArgb(0x80, 0x80, 0x80));
+
+        if (!string.IsNullOrEmpty(parameterSummary))
+        {
+            foreach (var line in WrapText(gfx, parameterSummary, noteFont, width))
+            {
+                gfx.DrawString(line, noteFont, grayBrush, new XPoint(margin, y));
+                y += 12;
+            }
+            y += 8;
+        }
+
         if (rows.Count == 0)
         {
             gfx.DrawString("No tasks match the selected filters.", metaFont, XBrushes.Black, new XPoint(margin, y));
@@ -598,7 +621,6 @@ public static class ReportService
             return;
         }
 
-        var metaBrush = new XSolidBrush(XColor.FromArgb(0x69, 0x69, 0x69));
         foreach (var line in WrapText(gfx, BuildStatusSummary(rows), metaFont, width))
         {
             gfx.DrawString(line, metaFont, metaBrush, new XPoint(margin, y));

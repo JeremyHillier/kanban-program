@@ -163,6 +163,72 @@ public partial class ReportBuilderWindow : Window
         : BoardAndArchivedRadio.IsChecked == true ? ReportArchiveScope.BoardAndArchived
         : ReportArchiveScope.BoardOnly;
 
+    // Summarizes every filter/scope/sort choice the report was built with, so a printed or saved
+    // report is self-describing without the reader having to remember what was picked in this
+    // window. Only non-default selections are mentioned, to keep the common case (few or no
+    // filters) short.
+    private string GetParameterSummary()
+    {
+        var parts = new List<string>();
+
+        var includedCount = _columnCheckBoxes.Count(c => c.IsChecked == true);
+        if (includedCount < _columnCheckBoxes.Count)
+        {
+            var names = _columnCheckBoxes.Where(c => c.IsChecked == true).Select(c => c.Content.ToString());
+            parts.Add($"Columns: {string.Join(", ", names)}");
+        }
+
+        var unionFilters = _customFilterCheckBoxes.Where(c => c.IsChecked == true).Select(c => (CustomFilter)c.Tag).ToList();
+        if (unionFilters.Count > 0)
+        {
+            parts.Add($"Custom filters (any of): {string.Join(", ", unionFilters.Select(f => f.Name))}");
+        }
+        else
+        {
+            var filterParts = new List<string>();
+            void AddIfSet(string label, ComboBox combo) { if ((string)combo.SelectedItem != "All") filterParts.Add($"{label}: {combo.SelectedItem}"); }
+            AddIfSet("Project", ProjectFilterComboBox);
+            AddIfSet("Priority", PriorityFilterComboBox);
+            AddIfSet("Who", WhoFilterComboBox);
+            AddIfSet("Goal", GoalFilterComboBox);
+            AddIfSet("Flag", FlagFilterComboBox);
+            AddIfSet("Due", DueFilterComboBox);
+            if (filterParts.Count > 0) parts.Add("Filters: " + string.Join(", ", filterParts));
+        }
+
+        if (DueFromDatePicker.SelectedDate is not null || DueToDatePicker.SelectedDate is not null || IncludeNoDueDateCheckBox.IsChecked == true)
+        {
+            var from = DueFromDatePicker.SelectedDate?.ToString("MMM d, yyyy") ?? "any";
+            var to = DueToDatePicker.SelectedDate?.ToString("MMM d, yyyy") ?? "any";
+            var noDue = IncludeNoDueDateCheckBox.IsChecked == true ? " + tasks with no due date" : "";
+            parts.Add($"Due date range: {from} to {to}{noDue}");
+        }
+
+        var sortLevels = new[] { SortLevel1ComboBox, SortLevel2ComboBox, SortLevel3ComboBox }
+            .Select(c => (string)((ComboBoxItem)c.SelectedItem).Tag)
+            .Where(v => v != "None")
+            .ToList();
+        if (sortLevels.Count > 0) parts.Add("Sort order: " + string.Join(" then ", sortLevels));
+
+        var groupBy = GetGroupBy();
+        if (groupBy != "None") parts.Add($"Grouped by: {(groupBy == "Status" ? "Category" : groupBy)}");
+
+        var scope = GetArchiveScope();
+        if (scope != ReportArchiveScope.BoardOnly)
+        {
+            var scopeText = scope == ReportArchiveScope.ArchivedOnly ? "Archived only" : "Board tasks + archived";
+            if (ArchivedFromDatePicker.SelectedDate is not null || ArchivedToDatePicker.SelectedDate is not null)
+            {
+                var aFrom = ArchivedFromDatePicker.SelectedDate?.ToString("MMM d, yyyy") ?? "any";
+                var aTo = ArchivedToDatePicker.SelectedDate?.ToString("MMM d, yyyy") ?? "any";
+                scopeText += $" (archived {aFrom} to {aTo})";
+            }
+            parts.Add($"Scope: {scopeText}");
+        }
+
+        return parts.Count == 0 ? "No filters applied" : "Parameters: " + string.Join("   |   ", parts);
+    }
+
     private List<Models.ReportRow> BuildRows()
     {
         var scope = GetArchiveScope();
@@ -196,7 +262,7 @@ public partial class ReportBuilderWindow : Window
         var rows = BuildRows();
         var document = ReportService.BuildFixedDocument(
             title, rows, GetGroupBy(), IncludeNotesCheckBox.IsChecked == true, IncludeSubTasksCheckBox.IsChecked == true,
-            IncludeSubTaskSummaryCheckBox.IsChecked == true, LandscapeRadio.IsChecked == true);
+            IncludeSubTaskSummaryCheckBox.IsChecked == true, LandscapeRadio.IsChecked == true, GetParameterSummary());
 
         new ReportPreviewWindow(document) { Owner = this }.ShowDialog();
     }
@@ -233,7 +299,7 @@ public partial class ReportBuilderWindow : Window
         if (filePath is null) return;
 
         ReportService.SavePdf(title, rows, GetGroupBy(), IncludeNotesCheckBox.IsChecked == true, IncludeSubTasksCheckBox.IsChecked == true, filePath,
-            IncludeSubTaskSummaryCheckBox.IsChecked == true, LandscapeRadio.IsChecked == true);
+            IncludeSubTaskSummaryCheckBox.IsChecked == true, LandscapeRadio.IsChecked == true, GetParameterSummary());
 
         MessageBox.Show(this, $"Report saved to:\n{filePath}", "Report Saved", MessageBoxButton.OK, MessageBoxImage.Information);
     }

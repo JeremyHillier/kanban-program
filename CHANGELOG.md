@@ -6,6 +6,9 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.69.3 — 2026-09-02
+- Report Builder: print and preview now show a "Parameters" line under the header summarizing every filter, due-date range, custom filter, sort order, group-by, and scope choice the report was built with, so a saved or printed report is self-describing
+
 ## 0.69.2 — 2026-09-02
 - Report Builder: add a Portrait/Landscape page orientation option for the PDF export and preview
 
