@@ -124,6 +124,8 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
             <TextBlock Grid.Row="0" Text="Group by" Style="{StaticResource FieldLabelStyle}"/>
@@ -195,8 +197,16 @@
                              Foreground="{DynamicResource PrimaryTextBrush}"/>
             </StackPanel>
 
-            <TextBlock Grid.Row="6" Text="Archived date range (applies to archived tasks only)" Style="{StaticResource FieldLabelStyle}"/>
+            <TextBlock Grid.Row="6" Text="Page orientation (PDF)" Style="{StaticResource FieldLabelStyle}"/>
             <StackPanel Grid.Row="7" Orientation="Horizontal">
+                <RadioButton x:Name="PortraitRadio" Content="Portrait" GroupName="PageOrientation" IsChecked="True" Margin="0,0,20,0"
+                             Foreground="{DynamicResource PrimaryTextBrush}"/>
+                <RadioButton x:Name="LandscapeRadio" Content="Landscape" GroupName="PageOrientation"
+                             Foreground="{DynamicResource PrimaryTextBrush}"/>
+            </StackPanel>
+
+            <TextBlock Grid.Row="8" Text="Archived date range (applies to archived tasks only)" Style="{StaticResource FieldLabelStyle}"/>
+            <StackPanel Grid.Row="9" Orientation="Horizontal">
                 <TextBlock Text="From" VerticalAlignment="Center" Margin="0,0,6,0" Foreground="{DynamicResource PrimaryTextBrush}"/>
                 <DatePicker x:Name="ArchivedFromDatePicker" Padding="4" Width="140" Loaded="DatePicker_Loaded"
                             Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
@@ -215,15 +225,15 @@
                         Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
             </StackPanel>
 
-            <CheckBox Grid.Row="8" x:Name="IncludeNotesCheckBox" Content="Include notes" Margin="0,14,0,4"
+            <CheckBox Grid.Row="10" x:Name="IncludeNotesCheckBox" Content="Include notes" Margin="0,14,0,4"
                       Foreground="{DynamicResource PrimaryTextBrush}"/>
-            <CheckBox Grid.Row="9" x:Name="IncludeSubTasksCheckBox" Content="Include sub-tasks" Margin="0,0,0,4"
+            <CheckBox Grid.Row="11" x:Name="IncludeSubTasksCheckBox" Content="Include sub-tasks" Margin="0,0,0,4"
                       Foreground="{DynamicResource PrimaryTextBrush}"/>
-            <CheckBox Grid.Row="10" x:Name="IncludeSubTaskSummaryCheckBox"
+            <CheckBox Grid.Row="12" x:Name="IncludeSubTaskSummaryCheckBox"
                       Content="Include sub-task completion summary (e.g. how many times a sub task was completed)" Margin="0,0,0,4"
                       Foreground="{DynamicResource PrimaryTextBrush}"/>
 
-            <Grid Grid.Row="11" Margin="0,18,0,0">
+            <Grid Grid.Row="13" Margin="0,18,0,0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>

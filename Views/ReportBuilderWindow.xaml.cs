@@ -86,6 +86,7 @@ public partial class ReportBuilderWindow : Window
         SortLevel3ComboBox.SelectedIndex = 0;
 
         BoardOnlyRadio.IsChecked = true;
+        PortraitRadio.IsChecked = true;
         ArchivedFromDatePicker.SelectedDate = null;
         ArchivedToDatePicker.SelectedDate = null;
 
@@ -195,7 +196,7 @@ public partial class ReportBuilderWindow : Window
         var rows = BuildRows();
         var document = ReportService.BuildFixedDocument(
             title, rows, GetGroupBy(), IncludeNotesCheckBox.IsChecked == true, IncludeSubTasksCheckBox.IsChecked == true,
-            IncludeSubTaskSummaryCheckBox.IsChecked == true);
+            IncludeSubTaskSummaryCheckBox.IsChecked == true, LandscapeRadio.IsChecked == true);
 
         new ReportPreviewWindow(document) { Owner = this }.ShowDialog();
     }
@@ -232,7 +233,7 @@ public partial class ReportBuilderWindow : Window
         if (filePath is null) return;
 
         ReportService.SavePdf(title, rows, GetGroupBy(), IncludeNotesCheckBox.IsChecked == true, IncludeSubTasksCheckBox.IsChecked == true, filePath,
-            IncludeSubTaskSummaryCheckBox.IsChecked == true);
+            IncludeSubTaskSummaryCheckBox.IsChecked == true, LandscapeRadio.IsChecked == true);
 
         MessageBox.Show(this, $"Report saved to:\n{filePath}", "Report Saved", MessageBoxButton.OK, MessageBoxImage.Information);
     }

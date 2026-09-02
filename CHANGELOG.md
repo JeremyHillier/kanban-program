@@ -6,6 +6,9 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.69.2 — 2026-09-02
+- Report Builder: add a Portrait/Landscape page orientation option for the PDF export and preview
+
 ## 0.69.1 — 2026-09-02
 - Report Builder: sort the Category level (and Group By) by the board's own column order (To Do, In Progress, On Hold, Waiting, Done) instead of alphabetically; archived rows always sort last
 - Report Builder: add Today and Clear buttons beside the due-date range fields, and Clear buttons beside the archived date range fields

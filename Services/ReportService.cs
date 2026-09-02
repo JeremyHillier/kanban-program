@@ -305,14 +305,16 @@ public static class ReportService
     private static SolidColorBrush RowBandBrush(int rowIndex, bool isGrouped) =>
         rowIndex % 2 == 0 ? BandEvenBrush : (isGrouped ? BandGroupedOddBrush : BandOddBrush);
 
-    public static FixedDocument BuildFixedDocument(string title, List<ReportRow> rows, string groupBy, bool includeNotes, bool includeSubTasks, bool includeSubTaskSummary = false)
+    public static FixedDocument BuildFixedDocument(string title, List<ReportRow> rows, string groupBy, bool includeNotes, bool includeSubTasks, bool includeSubTaskSummary = false, bool isLandscape = false)
     {
-        const double pageWidth = 793.92;
-        const double pageHeight = 1122.24;
+        const double a4Width = 793.92;
+        const double a4Height = 1122.24;
+        var pageWidth = isLandscape ? a4Height : a4Width;
+        var pageHeight = isLandscape ? a4Width : a4Height;
         const double margin = 40;
-        const double contentWidth = pageWidth - 2 * margin;
+        var contentWidth = pageWidth - 2 * margin;
         const double topContentY = 40;
-        const double bottomLimitY = pageHeight - 40;
+        var bottomLimitY = pageHeight - 40;
 
         var regularTypeface = new Typeface(new FontFamily("Segoe UI"), FontStyles.Normal, FontWeights.Normal, FontStretches.Normal);
         var boldTypeface = new Typeface(new FontFamily("Segoe UI"), FontStyles.Normal, FontWeights.Bold, FontStretches.Normal);
@@ -543,13 +545,14 @@ public static class ReportService
         return fixedDoc;
     }
 
-    public static void SavePdf(string title, List<ReportRow> rows, string groupBy, bool includeNotes, bool includeSubTasks, string filePath, bool includeSubTaskSummary = false)
+    public static void SavePdf(string title, List<ReportRow> rows, string groupBy, bool includeNotes, bool includeSubTasks, string filePath, bool includeSubTaskSummary = false, bool isLandscape = false)
     {
         EnsureFontResolverRegistered();
 
         var doc = new PdfDocument();
         var page = doc.AddPage();
         page.Size = PdfSharp.PageSize.A4;
+        page.Orientation = isLandscape ? PdfSharp.PageOrientation.Landscape : PdfSharp.PageOrientation.Portrait;
         var gfx = XGraphics.FromPdfPage(page);
 
         const double margin = 40;
@@ -576,6 +579,7 @@ public static class ReportService
             if (y + neededHeight <= page.Height.Point - margin) return;
             page = doc.AddPage();
             page.Size = PdfSharp.PageSize.A4;
+            page.Orientation = isLandscape ? PdfSharp.PageOrientation.Landscape : PdfSharp.PageOrientation.Portrait;
             gfx = XGraphics.FromPdfPage(page);
             y = margin;
         }
