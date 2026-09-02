@@ -6,6 +6,9 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.70.1 — 2026-09-02
+- Timeline: add a Day view alongside the default Week view — zoom in to see 21 daily columns (each labelled with weekday and date) instead of 12 weekly ones, then zoom back out. Prev/Next paging adjusts to match (1 week at a time in Day view, 4 weeks in Week view)
+
 ## 0.70.0 — 2026-09-02
 - Add a Timeline view (Alt+L): projects down the left, weekly date columns across the top, and each task with a due date shown as a block in the week it falls due, labelled with its title, who it's assigned to, and its due date. Shows 12 weeks at a time with ◀ 4 Weeks / Today / 4 Weeks ▶ navigation; Done tasks are left out unless you check Include Done tasks
 

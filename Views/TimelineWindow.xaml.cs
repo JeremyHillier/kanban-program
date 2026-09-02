@@ -7,18 +7,32 @@ namespace KanbanApp.Views;
 
 public partial class TimelineWindow : Window
 {
-    private const int WeeksToShow = 12;
+    // Week view: 12 weekly columns, paged 4 weeks (28 days) at a time. Day view: 21 daily columns
+    // (three weeks), paged 1 week (7 days) at a time. Both step sizes are multiples of 7, so
+    // _windowStart stays Monday-aligned regardless of which view is active or how much the user has
+    // paged - switching views mid-navigation never needs to re-snap the range.
+    private const int WeekViewUnits = 12;
+    private const int DayViewUnits = 21;
+    private const int WeekViewStepDays = 28;
+    private const int DayViewStepDays = 7;
 
     private readonly MainViewModel _viewModel;
     private DateTime _windowStart;
+    private bool _initializing = true;
 
     public TimelineWindow(MainViewModel viewModel)
     {
         InitializeComponent();
         _viewModel = viewModel;
         _windowStart = MondayOf(DateTime.Today);
+        _initializing = false;
         BuildGrid();
     }
+
+    private bool IsDayView => DayViewRadio.IsChecked == true;
+    private int UnitDays => IsDayView ? 1 : 7;
+    private int UnitsToShow => IsDayView ? DayViewUnits : WeekViewUnits;
+    private int StepDays => IsDayView ? DayViewStepDays : WeekViewStepDays;
 
     private static DateTime MondayOf(DateTime date)
     {
@@ -28,13 +42,13 @@ public partial class TimelineWindow : Window
 
     private void Prev_Click(object sender, RoutedEventArgs e)
     {
-        _windowStart = _windowStart.AddDays(-28);
+        _windowStart = _windowStart.AddDays(-StepDays);
         BuildGrid();
     }
 
     private void Next_Click(object sender, RoutedEventArgs e)
     {
-        _windowStart = _windowStart.AddDays(28);
+        _windowStart = _windowStart.AddDays(StepDays);
         BuildGrid();
     }
 
@@ -45,6 +59,12 @@ public partial class TimelineWindow : Window
     }
 
     private void IncludeDoneCheckBox_Changed(object sender, RoutedEventArgs e) => BuildGrid();
+
+    private void ZoomLevel_Changed(object sender, RoutedEventArgs e)
+    {
+        if (_initializing) return;
+        BuildGrid();
+    }
 
     // Rebuilds the grid from scratch on every navigation/toggle rather than trying to update it in
     // place - the row/column count changes with the data (only projects with a due task in the
@@ -58,7 +78,13 @@ public partial class TimelineWindow : Window
         var cardBrush = (Brush)FindResource("CardBackgroundBrush");
         var panelBrush = (Brush)FindResource("PanelBackgroundBrush");
 
-        var rangeEnd = _windowStart.AddDays(WeeksToShow * 7);
+        var unitDays = UnitDays;
+        var unitsToShow = UnitsToShow;
+        var stepLabel = IsDayView ? "1 Week" : "4 Weeks";
+        PrevButton.Content = $"◀ {stepLabel}";
+        NextButton.Content = $"{stepLabel} ▶";
+
+        var rangeEnd = _windowStart.AddDays(unitsToShow * unitDays);
         RangeLabel.Text = $"{_windowStart:MMM d} – {rangeEnd.AddDays(-1):MMM d, yyyy}";
 
         var includeDone = IncludeDoneCheckBox.IsChecked == true;
@@ -78,12 +104,12 @@ public partial class TimelineWindow : Window
         TimelineGrid.ColumnDefinitions.Clear();
 
         const double projectColWidth = 150;
-        const double weekColWidth = 150;
+        var unitColWidth = IsDayView ? 90 : 150;
 
         TimelineGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(projectColWidth) });
-        for (var w = 0; w < WeeksToShow; w++)
+        for (var w = 0; w < unitsToShow; w++)
         {
-            TimelineGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(weekColWidth) });
+            TimelineGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(unitColWidth) });
         }
 
         TimelineGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
@@ -112,14 +138,15 @@ public partial class TimelineWindow : Window
             Margin = new Thickness(6), VerticalAlignment = VerticalAlignment.Center
         }, panelBrush);
 
-        for (var w = 0; w < WeeksToShow; w++)
+        for (var w = 0; w < unitsToShow; w++)
         {
-            var weekStart = _windowStart.AddDays(w * 7);
+            var unitStart = _windowStart.AddDays(w * unitDays);
+            var headerText = IsDayView ? unitStart.ToString("ddd\nd-MMM") : unitStart.ToString("d-MMM");
             AddCell(0, w + 1, new TextBlock
             {
-                Text = weekStart.ToString("d-MMM"), FontWeight = FontWeights.Bold, Foreground = brush,
-                Margin = new Thickness(6), VerticalAlignment = VerticalAlignment.Center,
-                HorizontalAlignment = HorizontalAlignment.Center
+                Text = headerText, FontWeight = FontWeights.Bold, Foreground = brush,
+                Margin = new Thickness(4, 6, 4, 6), VerticalAlignment = VerticalAlignment.Center,
+                HorizontalAlignment = HorizontalAlignment.Center, TextAlignment = TextAlignment.Center
             }, panelBrush);
         }
 
@@ -130,7 +157,7 @@ public partial class TimelineWindow : Window
                 Text = "No tasks with a due date in this range.", Foreground = secondaryBrush,
                 FontStyle = FontStyles.Italic, Margin = new Thickness(6)
             });
-            for (var w = 0; w < WeeksToShow; w++) AddCell(1, w + 1, new Border());
+            for (var w = 0; w < unitsToShow; w++) AddCell(1, w + 1, new Border());
             TimelineGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto, MinHeight = 50 });
             return;
         }
@@ -144,14 +171,14 @@ public partial class TimelineWindow : Window
                 Margin = new Thickness(6), VerticalAlignment = VerticalAlignment.Center, TextWrapping = TextWrapping.Wrap
             });
 
-            var tasksByWeek = byProject[projectName]
-                .GroupBy(c => (c.DueDate!.Value.Date - _windowStart).Days / 7)
+            var tasksByUnit = byProject[projectName]
+                .GroupBy(c => (c.DueDate!.Value.Date - _windowStart).Days / unitDays)
                 .ToDictionary(g => g.Key, g => g.OrderBy(c => c.DueDate).ToList());
 
-            for (var w = 0; w < WeeksToShow; w++)
+            for (var w = 0; w < unitsToShow; w++)
             {
                 var cellPanel = new StackPanel { Margin = new Thickness(3) };
-                if (tasksByWeek.TryGetValue(w, out var tasks))
+                if (tasksByUnit.TryGetValue(w, out var tasks))
                 {
                     foreach (var task in tasks)
                     {

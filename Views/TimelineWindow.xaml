@@ -20,14 +20,22 @@
                    Foreground="{DynamicResource PrimaryTextBrush}"/>
 
         <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,10">
-            <Button Content="◀ 4 Weeks" Padding="10,6" Click="Prev_Click"
+            <Button x:Name="PrevButton" Padding="10,6" Click="Prev_Click"
                     Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
             <Button Content="Today" Padding="10,6" Margin="6,0,0,0" Click="Today_Click"
                     Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
-            <Button Content="4 Weeks ▶" Padding="10,6" Margin="6,0,0,0" Click="Next_Click"
+            <Button x:Name="NextButton" Padding="10,6" Margin="6,0,0,0" Click="Next_Click"
                     Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
             <TextBlock x:Name="RangeLabel" VerticalAlignment="Center" Margin="16,0,0,0" FontWeight="SemiBold"
                        Foreground="{DynamicResource PrimaryTextBrush}"/>
+
+            <StackPanel Orientation="Horizontal" Margin="24,0,0,0">
+                <RadioButton x:Name="WeekViewRadio" Content="Week view" GroupName="ZoomLevel" IsChecked="True" VerticalAlignment="Center" Margin="0,0,12,0"
+                             Checked="ZoomLevel_Changed" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                <RadioButton x:Name="DayViewRadio" Content="Day view" GroupName="ZoomLevel" VerticalAlignment="Center"
+                             Checked="ZoomLevel_Changed" Foreground="{DynamicResource PrimaryTextBrush}"/>
+            </StackPanel>
+
             <CheckBox x:Name="IncludeDoneCheckBox" Content="Include Done tasks" VerticalAlignment="Center"
                       Margin="24,0,0,0" Checked="IncludeDoneCheckBox_Changed" Unchecked="IncludeDoneCheckBox_Changed"
                       Foreground="{DynamicResource PrimaryTextBrush}"/>
