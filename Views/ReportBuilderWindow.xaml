@@ -44,6 +44,7 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
         <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Text="Report title" Style="{StaticResource FieldLabelStyle}" Margin="0,0,0,4"/>
@@ -89,19 +90,27 @@
             <DatePicker x:Name="DueFromDatePicker" Padding="4" Width="140" Loaded="DatePicker_Loaded"
                         Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
                         BorderBrush="{DynamicResource CardBorderBrush}"/>
+            <Button Content="Today" Padding="8,4" Margin="6,0,0,0" Click="TodayDueFrom_Click"
+                    Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+            <Button Content="Clear" Padding="8,4" Margin="6,0,0,0" Click="ClearDueFrom_Click"
+                    Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
             <TextBlock Text="To" VerticalAlignment="Center" Margin="16,0,6,0" Foreground="{DynamicResource PrimaryTextBrush}"/>
             <DatePicker x:Name="DueToDatePicker" Padding="4" Width="140" Loaded="DatePicker_Loaded"
                         Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
                         BorderBrush="{DynamicResource CardBorderBrush}"/>
-            <CheckBox x:Name="IncludeNoDueDateCheckBox" Content="Include tasks with no due date" VerticalAlignment="Center"
-                      Margin="20,0,0,0" Foreground="{DynamicResource PrimaryTextBrush}"/>
+            <Button Content="Today" Padding="8,4" Margin="6,0,0,0" Click="TodayDueTo_Click"
+                    Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+            <Button Content="Clear" Padding="8,4" Margin="6,0,0,0" Click="ClearDueTo_Click"
+                    Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
         </StackPanel>
+        <CheckBox Grid.Row="13" Grid.Column="0" Grid.ColumnSpan="3" x:Name="IncludeNoDueDateCheckBox" Content="Include tasks with no due date"
+                  Margin="0,6,0,0" Foreground="{DynamicResource PrimaryTextBrush}"/>
 
-        <TextBlock Grid.Row="13" Grid.Column="0" Grid.ColumnSpan="3" Text="Custom filters (select one or more to override the filters above)"
+        <TextBlock Grid.Row="14" Grid.Column="0" Grid.ColumnSpan="3" Text="Custom filters (select one or more to override the filters above)"
                    Style="{StaticResource SectionHeaderStyle}"/>
-        <WrapPanel Grid.Row="14" Grid.Column="0" Grid.ColumnSpan="3" x:Name="CustomFiltersPanel"/>
+        <WrapPanel Grid.Row="15" Grid.Column="0" Grid.ColumnSpan="3" x:Name="CustomFiltersPanel"/>
 
-        <Grid Grid.Row="15" Grid.Column="0" Grid.ColumnSpan="3">
+        <Grid Grid.Row="16" Grid.Column="0" Grid.ColumnSpan="3">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
@@ -192,13 +201,17 @@
                 <DatePicker x:Name="ArchivedFromDatePicker" Padding="4" Width="140" Loaded="DatePicker_Loaded"
                             Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
                             BorderBrush="{DynamicResource CardBorderBrush}"/>
-                <Button Content="Today" Padding="8,4" Margin="6,0,16,0" Click="TodayArchivedFrom_Click"
+                <Button Content="Today" Padding="8,4" Margin="6,0,0,0" Click="TodayArchivedFrom_Click"
                         Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
-                <TextBlock Text="To" VerticalAlignment="Center" Margin="0,0,6,0" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                <Button Content="Clear" Padding="8,4" Margin="6,0,0,0" Click="ClearArchivedFrom_Click"
+                        Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                <TextBlock Text="To" VerticalAlignment="Center" Margin="16,0,6,0" Foreground="{DynamicResource PrimaryTextBrush}"/>
                 <DatePicker x:Name="ArchivedToDatePicker" Padding="4" Width="140" Loaded="DatePicker_Loaded"
                             Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
                             BorderBrush="{DynamicResource CardBorderBrush}"/>
                 <Button Content="Today" Padding="8,4" Margin="6,0,0,0" Click="TodayArchivedTo_Click"
+                        Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                <Button Content="Clear" Padding="8,4" Margin="6,0,0,0" Click="ClearArchivedTo_Click"
                         Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
             </StackPanel>
 
@@ -210,14 +223,22 @@
                       Content="Include sub-task completion summary (e.g. how many times a sub task was completed)" Margin="0,0,0,4"
                       Foreground="{DynamicResource PrimaryTextBrush}"/>
 
-            <StackPanel Grid.Row="11" HorizontalAlignment="Right" Orientation="Horizontal" Margin="0,18,0,0">
-                <Button Content="Close" Width="80" Padding="0,6" IsCancel="True"
+            <Grid Grid.Row="11" Margin="0,18,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <Button Grid.Column="0" Content="Reset all fields" Width="120" Padding="0,6" HorizontalAlignment="Left" Click="Reset_Click"
                         Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
-                <Button Content="Preview" Width="90" Padding="0,6" Margin="8,0,0,0" Click="Preview_Click"
-                        Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
-                <Button Content="PDF" Width="90" Padding="0,6" Margin="8,0,0,0" IsDefault="True" Click="Pdf_Click"
-                        Background="#FF66BB6A" Foreground="White"/>
-            </StackPanel>
+                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                    <Button Content="Close" Width="80" Padding="0,6" IsCancel="True"
+                            Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                    <Button Content="Preview" Width="90" Padding="0,6" Margin="8,0,0,0" Click="Preview_Click"
+                            Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                    <Button Content="PDF" Width="90" Padding="0,6" Margin="8,0,0,0" IsDefault="True" Click="Pdf_Click"
+                            Background="#FF66BB6A" Foreground="White"/>
+                </StackPanel>
+            </Grid>
         </Grid>
     </Grid>
 </Window>

@@ -73,11 +73,14 @@ public static class ReportService
             ? unionFilters.Any(f => Matches(card, f))
             : Matches(card, projectFilter, priorityFilter, whoFilter, goalFilter, flagFilter, dueFilter, dueRangeFrom, dueRangeTo, includeNoDueDate);
 
+        var columnList = columns.ToList();
+        var categoryOrder = columnList.Select(c => c.DisplayName).ToList();
+
         var rows = new List<ReportRow>();
 
         if (archiveScope != ReportArchiveScope.ArchivedOnly)
         {
-            foreach (var column in columns)
+            foreach (var column in columnList)
             {
                 if (!includeColumns.Contains(column.Name)) continue;
 
@@ -105,7 +108,7 @@ public static class ReportService
         // Sorted here (not in BuildFixedDocument/SavePdf) so both rendering paths get the same order
         // for free: LINQ's GroupBy preserves input order within each group, so pre-sorting the flat
         // list before it's grouped downstream naturally orders rows within whatever group they land in.
-        return SortRows(rows, sortLevel1, sortLevel2, sortLevel3);
+        return SortRows(rows, sortLevel1, sortLevel2, sortLevel3, categoryOrder);
     }
 
     public static List<SubTaskSummaryRow> BuildSubTaskSummary(List<ReportRow> rows) =>
@@ -204,26 +207,37 @@ public static class ReportService
         _ => 2
     };
 
+    // Ranks by the board's own column order (categoryOrder, taken from the Columns passed into
+    // BuildRows - already in SortOrder) rather than alphabetically, so the default To Do/In
+    // Progress/On Hold/Waiting/Done ordering falls out for free. Archived rows carry whatever
+    // column they were archived from, but are always ranked last, as their own "Archived" tier.
+    private static int CategoryRank(ReportRow row, List<string> categoryOrder)
+    {
+        if (row.IsArchived) return categoryOrder.Count + 1;
+        var index = categoryOrder.IndexOf(row.ColumnName);
+        return index < 0 ? categoryOrder.Count : index;
+    }
+
     // Sorts the flat row list by up to three keys before it's grouped downstream ("None" entries are
     // skipped). Category maps to the same ColumnName field GroupBy calls "Status" - the Add/Edit Task
     // dialog calls the column-selection field "Category", so this reuses that naming for consistency
     // in the UI even though the underlying model field is ColumnName.
-    private static List<ReportRow> SortRows(List<ReportRow> rows, string sortLevel1, string sortLevel2, string sortLevel3)
+    private static List<ReportRow> SortRows(List<ReportRow> rows, string sortLevel1, string sortLevel2, string sortLevel3, List<string> categoryOrder)
     {
         var keys = new[] { sortLevel1, sortLevel2, sortLevel3 }.Where(k => !string.IsNullOrEmpty(k) && k != "None").ToList();
         if (keys.Count == 0) return rows;
 
-        var ordered = ApplyOrderBy(rows, keys[0]);
+        var ordered = ApplyOrderBy(rows, keys[0], categoryOrder);
         for (var i = 1; i < keys.Count; i++)
         {
-            ordered = ApplyThenBy(ordered, keys[i]);
+            ordered = ApplyThenBy(ordered, keys[i], categoryOrder);
         }
         return ordered.ToList();
     }
 
-    private static IOrderedEnumerable<ReportRow> ApplyOrderBy(IEnumerable<ReportRow> rows, string key) => key switch
+    private static IOrderedEnumerable<ReportRow> ApplyOrderBy(IEnumerable<ReportRow> rows, string key, List<string> categoryOrder) => key switch
     {
-        "Category" => rows.OrderBy(r => r.ColumnName, StringComparer.OrdinalIgnoreCase),
+        "Category" => rows.OrderBy(r => CategoryRank(r, categoryOrder)),
         "Priority" => rows.OrderBy(r => PriorityRank(r.Priority)),
         "Who" => rows.OrderBy(r => string.IsNullOrWhiteSpace(r.Who) ? "Unassigned" : r.Who, StringComparer.OrdinalIgnoreCase),
         "Due Date" => rows.OrderBy(r => r.DueDate ?? DateTime.MaxValue),
@@ -232,9 +246,9 @@ public static class ReportService
         _ => rows.OrderBy(_ => 0)
     };
 
-    private static IOrderedEnumerable<ReportRow> ApplyThenBy(IOrderedEnumerable<ReportRow> rows, string key) => key switch
+    private static IOrderedEnumerable<ReportRow> ApplyThenBy(IOrderedEnumerable<ReportRow> rows, string key, List<string> categoryOrder) => key switch
     {
-        "Category" => rows.ThenBy(r => r.ColumnName, StringComparer.OrdinalIgnoreCase),
+        "Category" => rows.ThenBy(r => CategoryRank(r, categoryOrder)),
         "Priority" => rows.ThenBy(r => PriorityRank(r.Priority)),
         "Who" => rows.ThenBy(r => string.IsNullOrWhiteSpace(r.Who) ? "Unassigned" : r.Who, StringComparer.OrdinalIgnoreCase),
         "Due Date" => rows.ThenBy(r => r.DueDate ?? DateTime.MaxValue),

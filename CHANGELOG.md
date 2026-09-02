@@ -6,6 +6,11 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.69.1 — 2026-09-02
+- Report Builder: sort the Category level (and Group By) by the board's own column order (To Do, In Progress, On Hold, Waiting, Done) instead of alphabetically; archived rows always sort last
+- Report Builder: add Today and Clear buttons beside the due-date range fields, and Clear buttons beside the archived date range fields
+- Report Builder: add a "Reset all fields" button that restores every filter, date range, checkbox, and sort/group selection to its opening default
+
 ## 0.69.0 — 2026-09-02
 - Report Builder: add a due-date range filter (From/To) with a checkbox to also include tasks that have no due date at all
 - Report Builder: add a Custom Filters section listing your saved Alt+0-9 filter slots as checkboxes — check one or more and the report includes any task matching at least one of them, in place of the filters above

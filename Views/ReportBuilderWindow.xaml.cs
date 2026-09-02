@@ -41,16 +41,6 @@ public partial class ReportBuilderWindow : Window
         FlagFilterComboBox.ItemsSource = _viewModel.FlagFilterOptions;
         DueFilterComboBox.ItemsSource = _viewModel.DueFilterOptions;
 
-        ProjectFilterComboBox.SelectedIndex = 0;
-        PriorityFilterComboBox.SelectedIndex = 0;
-        WhoFilterComboBox.SelectedIndex = 0;
-        GoalFilterComboBox.SelectedIndex = 0;
-        FlagFilterComboBox.SelectedIndex = 0;
-        DueFilterComboBox.SelectedIndex = 0;
-
-        IncludeNotesCheckBox.IsChecked = true;
-        IncludeSubTasksCheckBox.IsChecked = true;
-
         foreach (var filter in _viewModel.CustomFilters.Where(f => f.IsDefined))
         {
             var checkBox = new CheckBox
@@ -64,19 +54,67 @@ public partial class ReportBuilderWindow : Window
             CustomFiltersPanel.Children.Add(checkBox);
         }
 
-        SortLevel1ComboBox.SelectedIndex = 0;
-        SortLevel2ComboBox.SelectedIndex = 0;
-        SortLevel3ComboBox.SelectedIndex = 0;
+        ResetFields();
 
         _initializing = false;
         UpdateSortLevelAvailability();
     }
 
+    // Shared by the constructor and the Reset button, so both restore exactly the same defaults.
+    private void ResetFields()
+    {
+        ReportTitleTextBox.Text = "Kanban Task Report";
+
+        foreach (var checkBox in _columnCheckBoxes) checkBox.IsChecked = true;
+
+        ProjectFilterComboBox.SelectedIndex = 0;
+        PriorityFilterComboBox.SelectedIndex = 0;
+        WhoFilterComboBox.SelectedIndex = 0;
+        GoalFilterComboBox.SelectedIndex = 0;
+        FlagFilterComboBox.SelectedIndex = 0;
+        DueFilterComboBox.SelectedIndex = 0;
+
+        DueFromDatePicker.SelectedDate = null;
+        DueToDatePicker.SelectedDate = null;
+        IncludeNoDueDateCheckBox.IsChecked = false;
+
+        foreach (var checkBox in _customFilterCheckBoxes) checkBox.IsChecked = false;
+
+        GroupByComboBox.SelectedIndex = 0;
+        SortLevel1ComboBox.SelectedIndex = 0;
+        SortLevel2ComboBox.SelectedIndex = 0;
+        SortLevel3ComboBox.SelectedIndex = 0;
+
+        BoardOnlyRadio.IsChecked = true;
+        ArchivedFromDatePicker.SelectedDate = null;
+        ArchivedToDatePicker.SelectedDate = null;
+
+        IncludeNotesCheckBox.IsChecked = true;
+        IncludeSubTasksCheckBox.IsChecked = true;
+        IncludeSubTaskSummaryCheckBox.IsChecked = false;
+
+        UpdateSortLevelAvailability();
+    }
+
+    private void Reset_Click(object sender, RoutedEventArgs e) => ResetFields();
+
     private void DatePicker_Loaded(object sender, RoutedEventArgs e) => CalendarWheelSupport.Attach((DatePicker)sender);
+
+    private void TodayDueFrom_Click(object sender, RoutedEventArgs e) => DueFromDatePicker.SelectedDate = DateTime.Today;
+
+    private void TodayDueTo_Click(object sender, RoutedEventArgs e) => DueToDatePicker.SelectedDate = DateTime.Today;
+
+    private void ClearDueFrom_Click(object sender, RoutedEventArgs e) => DueFromDatePicker.SelectedDate = null;
+
+    private void ClearDueTo_Click(object sender, RoutedEventArgs e) => DueToDatePicker.SelectedDate = null;
 
     private void TodayArchivedFrom_Click(object sender, RoutedEventArgs e) => ArchivedFromDatePicker.SelectedDate = DateTime.Today;
 
     private void TodayArchivedTo_Click(object sender, RoutedEventArgs e) => ArchivedToDatePicker.SelectedDate = DateTime.Today;
+
+    private void ClearArchivedFrom_Click(object sender, RoutedEventArgs e) => ArchivedFromDatePicker.SelectedDate = null;
+
+    private void ClearArchivedTo_Click(object sender, RoutedEventArgs e) => ArchivedToDatePicker.SelectedDate = null;
 
     private void GroupByComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e) => UpdateSortLevelAvailability();
 
