@@ -6,6 +6,9 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.70.0 — 2026-09-02
+- Add a Timeline view (Alt+L): projects down the left, weekly date columns across the top, and each task with a due date shown as a block in the week it falls due, labelled with its title, who it's assigned to, and its due date. Shows 12 weeks at a time with ◀ 4 Weeks / Today / 4 Weeks ▶ navigation; Done tasks are left out unless you check Include Done tasks
+
 ## 0.69.3 — 2026-09-02
 - Report Builder: print and preview now show a "Parameters" line under the header summarizing every filter, due-date range, custom filter, sort order, group-by, and scope choice the report was built with, so a saved or printed report is self-describing
 

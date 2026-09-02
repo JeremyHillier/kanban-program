@@ -54,6 +54,7 @@
                 <local:BulletItem Text="Alt+R — open Reminders."/>
                 <local:BulletItem Text="Alt+S — open Settings."/>
                 <local:BulletItem Text="Alt+H — open this Help screen."/>
+                <local:BulletItem Text="Alt+L — open the Timeline."/>
                 <local:BulletItem Text="Alt+T — show just what's due today (and anything overdue), clearing every other filter first."/>
                 <local:BulletItem Text="Alt+0 to Alt+9 — apply the custom filter saved in that slot (see Custom filters below). An unassigned slot does nothing."/>
                 <local:BulletItem Text="Esc — close the open dialog, or on the main board, clear every filter."/>
@@ -141,6 +142,11 @@
                 <TextBlock Text="Dashboard" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <local:BulletItem Text="The banner always shows Open, Overdue, Due Today, and Due This Week counts across all non-Done tasks."/>
                 <local:BulletItem Text="Double-click the banner to open the full Dashboard: five summary tiles (the banner's four, plus In Done), and four charts — Status Distribution by Priority, Due Date Timeline, By Project, and By Who."/>
+
+                <TextBlock Text="Timeline" Style="{StaticResource HelpSectionHeaderStyle}"/>
+                <local:BulletItem Text="Click Timeline (Alt+L) for a calendar view of tasks with a due date: projects down the left, weekly date columns across the top, and each task shown as a block in the week it falls due, labelled with its title, who it's assigned to, and its due date."/>
+                <local:BulletItem Text="Shows 12 weeks at a time starting from the current week; use ◀ 4 Weeks / 4 Weeks ▶ to page through time, or Today to jump back to the current week."/>
+                <local:BulletItem Text="Done tasks are left out by default — check Include Done tasks to bring them back in."/>
 
                 <TextBlock Text="Reminders" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <local:BulletItem Text="If any task is overdue or due today, a reminder pop-up lists them automatically when the app opens."/>

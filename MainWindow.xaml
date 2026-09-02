@@ -461,6 +461,10 @@
                                         ToolTip="Build a custom report and preview it or save it as a PDF (Ctrl+P)">
                                     <TextBlock Text="Report Builder" TextWrapping="Wrap" TextAlignment="Center"/>
                                 </Button>
+                                <Button Style="{StaticResource SquareButtonStyle}" Background="#FF7E57C2" Foreground="White" Click="Timeline_Click"
+                                        ToolTip="Show a timeline of tasks by due date, grouped by project (Alt+L)">
+                                    <TextBlock Text="Timeline" TextWrapping="Wrap" TextAlignment="Center"/>
+                                </Button>
                             </StackPanel>
                         </StackPanel>
 

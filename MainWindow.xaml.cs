@@ -342,6 +342,10 @@ public partial class MainWindow : Window
                         Help_Click(sender, e);
                         e.Handled = true;
                         break;
+                    case Key.L:
+                        Timeline_Click(sender, e);
+                        e.Handled = true;
+                        break;
                     case Key.T:
                         if (DataContext is MainViewModel todayViewModel) todayViewModel.ShowTodayOnly();
                         e.Handled = true;
@@ -397,6 +401,14 @@ public partial class MainWindow : Window
         if (DataContext is not MainViewModel viewModel) return;
 
         var dialog = new ReportBuilderWindow(viewModel) { Owner = this };
+        dialog.ShowDialog();
+    }
+
+    private void Timeline_Click(object sender, RoutedEventArgs e)
+    {
+        if (DataContext is not MainViewModel viewModel) return;
+
+        var dialog = new TimelineWindow(viewModel) { Owner = this };
         dialog.ShowDialog();
     }
 
