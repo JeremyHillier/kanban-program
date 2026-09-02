@@ -30,14 +30,32 @@ public partial class MainWindow : Window
 
     private void MainWindow_Loaded(object sender, RoutedEventArgs e)
     {
-        if (DataContext is not MainViewModel viewModel || !viewModel.ShowDueReminders) return;
+        if (DataContext is not MainViewModel viewModel) return;
+
+        // Both of these are deferred for the same reason: showing a modal dialog synchronously here
+        // would block before the splash screen (still on screen at this point) gets a chance to
+        // close. Queued in order, so What's New is dealt with before the reminder list appears.
+        if (viewModel.ShouldShowWhatsNewOnStartup())
+        {
+            Dispatcher.BeginInvoke(() => ShowWhatsNew(viewModel), DispatcherPriority.ApplicationIdle);
+        }
+
+        if (!viewModel.ShowDueReminders) return;
 
         var dueCards = viewModel.GetDueReminders();
         if (dueCards.Count == 0) return;
 
-        // Deferred: showing the modal reminder dialog synchronously here would block before the
-        // splash screen (still on screen at this point) gets a chance to close.
         Dispatcher.BeginInvoke(() => ShowReminders(dueCards, viewModel), DispatcherPriority.ApplicationIdle);
+    }
+
+    private void ShowWhatsNew(MainViewModel viewModel)
+    {
+        var dialog = new WhatsNewWindow(viewModel) { Owner = this };
+        dialog.ShowDialog();
+
+        // Recorded even if the user turns the screen off from inside it, so switching it back on
+        // later doesn't immediately re-show notes they've already read.
+        viewModel.MarkWhatsNewSeen();
     }
 
     private void ShowReminders(List<CardViewModel> dueCards, MainViewModel viewModel)
@@ -210,6 +228,14 @@ public partial class MainWindow : Window
         }
     }
 
+    private void ManageCustomFilters_Click(object sender, RoutedEventArgs e)
+    {
+        if (DataContext is not MainViewModel viewModel) return;
+
+        var dialog = new ManageCustomFiltersWindow(viewModel) { Owner = this };
+        dialog.ShowDialog();
+    }
+
     private void ManageProjects_Click(object sender, RoutedEventArgs e)
     {
         if (DataContext is not MainViewModel viewModel) return;
@@ -320,8 +346,33 @@ public partial class MainWindow : Window
                         if (DataContext is MainViewModel todayViewModel) todayViewModel.ShowTodayOnly();
                         e.Handled = true;
                         break;
+                    default:
+                        ApplyCustomFilterShortcut(e);
+                        break;
                 }
                 break;
+        }
+    }
+
+    // Alt+0 - Alt+9 apply that slot's saved filter. Both the number row (D0-D9) and the numeric
+    // keypad (NumPad0-9) map to the same slot. An unassigned slot is left unhandled so the key does
+    // nothing at all, rather than appearing to work and silently clearing the board's filters.
+    private void ApplyCustomFilterShortcut(KeyEventArgs e)
+    {
+        var key = e.Key == Key.System ? e.SystemKey : e.Key;
+
+        var slot = key switch
+        {
+            >= Key.D0 and <= Key.D9 => key - Key.D0,
+            >= Key.NumPad0 and <= Key.NumPad9 => key - Key.NumPad0,
+            _ => -1
+        };
+
+        if (slot < 0 || DataContext is not MainViewModel viewModel) return;
+
+        if (viewModel.ApplyCustomFilter(slot))
+        {
+            e.Handled = true;
         }
     }
 

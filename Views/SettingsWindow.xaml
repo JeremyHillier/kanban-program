@@ -70,8 +70,15 @@
                     </ComboBox>
                 </StackPanel>
                 <CheckBox x:Name="StartFullScreenCheckBox" Content="Start in full screen"
-                          Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,20"
+                          Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,8"
                           Checked="StartFullScreenCheckBox_Changed" Unchecked="StartFullScreenCheckBox_Changed"/>
+                <CheckBox x:Name="ShowWhatsNewCheckBox" Content="Show what's new after an update"
+                          Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,8"
+                          Checked="ShowWhatsNewCheckBox_Changed" Unchecked="ShowWhatsNewCheckBox_Changed"/>
+                <Button Content="Show What's New" Padding="10,4" HorizontalAlignment="Left" Margin="0,0,0,20"
+                        Click="ShowWhatsNew_Click"
+                        ToolTip="See what changed in the last few updates"
+                        Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
 
                 <TextBlock Text="Behavior" Style="{StaticResource SectionHeaderStyle}"/>
                 <CheckBox x:Name="ConfirmDeleteCheckBox" Content="Confirm before deleting a task, project, goal, or flag"

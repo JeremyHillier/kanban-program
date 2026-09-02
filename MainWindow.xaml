@@ -395,6 +395,12 @@
                                 Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
                                 Click="ClearFilters_Click"/>
 
+                        <Button Style="{StaticResource ClearFiltersButtonStyle}" Content="Custom Filters..." HorizontalAlignment="Stretch"
+                                Margin="0,6,0,0"
+                                ToolTip="Save the current filters to Alt+0 - Alt+9 and manage those slots"
+                                Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                                Click="ManageCustomFilters_Click"/>
+
                         <Separator Margin="0,12,0,0"/>
 
                         <StackPanel Margin="0,14,0,0">

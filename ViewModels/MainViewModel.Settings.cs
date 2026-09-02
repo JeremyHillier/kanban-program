@@ -147,6 +147,37 @@ public partial class MainViewModel
         _db.SetSetting("RememberLastView", value ? "True" : "False");
     }
 
+    // How many past releases the What's New screen lists.
+    public const int WhatsNewVersionCount = 5;
+
+    public bool ShowWhatsNew { get; private set; } = true;
+
+    public void SetShowWhatsNew(bool value)
+    {
+        ShowWhatsNew = value;
+        _db.SetSetting("ShowWhatsNew", value ? "True" : "False");
+    }
+
+    // True when this build differs from the one last acknowledged, i.e. the app has just been
+    // updated. A brand-new install is deliberately excluded: with no cards on the board there's
+    // nothing to have "updated" from, and a changelog is a poor first thing to greet someone with.
+    // An existing user upgrading into this feature has no stored version yet but does have cards,
+    // so they still get the screen the first time.
+    public bool ShouldShowWhatsNewOnStartup()
+    {
+        if (!ShowWhatsNew) return false;
+
+        var lastSeen = _db.GetSetting("LastSeenVersion");
+        if (string.IsNullOrEmpty(lastSeen)) return Columns.Any(c => c.Cards.Count > 0);
+
+        return lastSeen != AppVersion;
+    }
+
+    public void MarkWhatsNewSeen()
+    {
+        _db.SetSetting("LastSeenVersion", AppVersion);
+    }
+
     public void SaveLastViewState()
     {
         if (!RememberLastView) return;

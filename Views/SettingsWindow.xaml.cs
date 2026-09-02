@@ -67,6 +67,21 @@ public partial class SettingsWindow : Window
         AddNoteOnCompleteCheckBox.IsChecked = viewModel.AddNoteOnComplete;
         ShowDueRemindersCheckBox.IsChecked = viewModel.ShowDueReminders;
         RememberLastViewCheckBox.IsChecked = viewModel.RememberLastView;
+        ShowWhatsNewCheckBox.IsChecked = viewModel.ShowWhatsNew;
+    }
+
+    private void ShowWhatsNewCheckBox_Changed(object sender, RoutedEventArgs e)
+    {
+        _viewModel.SetShowWhatsNew(ShowWhatsNewCheckBox.IsChecked == true);
+    }
+
+    private void ShowWhatsNew_Click(object sender, RoutedEventArgs e)
+    {
+        var dialog = new WhatsNewWindow(_viewModel) { Owner = this };
+        dialog.ShowDialog();
+
+        // The dialog has its own "show after every update" checkbox, so mirror any change back.
+        ShowWhatsNewCheckBox.IsChecked = _viewModel.ShowWhatsNew;
     }
 
     private void ColumnDisplayNameTextBox_LostFocus(object sender, RoutedEventArgs e)

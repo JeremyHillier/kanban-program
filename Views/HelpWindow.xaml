@@ -55,6 +55,7 @@
                 <local:BulletItem Text="Alt+S — open Settings."/>
                 <local:BulletItem Text="Alt+H — open this Help screen."/>
                 <local:BulletItem Text="Alt+T — show just what's due today (and anything overdue), clearing every other filter first."/>
+                <local:BulletItem Text="Alt+0 to Alt+9 — apply the custom filter saved in that slot (see Custom filters below). An unassigned slot does nothing."/>
                 <local:BulletItem Text="Esc — close the open dialog, or on the main board, clear every filter."/>
 
                 <TextBlock Text="Adding and editing tasks" Style="{StaticResource HelpSectionHeaderStyle}"/>
@@ -105,6 +106,11 @@
                 <local:BulletItem Text="The Today / Tomorrow / Within a Week / No Due Date buttons filter by due date; Today and Within a Week both also include overdue tasks. The active one is shown with a highlighted border."/>
                 <local:BulletItem Text="Below those, From/To date pickers filter by a custom due-date range instead — leave From blank to include everything up through To, leave To blank to include everything from From onward. Setting a custom range clears the Today/Tomorrow/etc. buttons and vice versa."/>
                 <local:BulletItem Text="Clear Filters resets every filter back to All."/>
+
+                <TextBlock Text="Custom filters (Alt+0 to Alt+9)" Style="{StaticResource HelpSectionHeaderStyle}"/>
+                <local:BulletItem Text="Ten slots hold filter combinations you use often. Set the board's filters how you want them, click Custom Filters..., pick a slot, and Save current filters here — everything currently set (project, priority, who, goal, flag, due date or range, and keyword) is stored together under a name you choose."/>
+                <local:BulletItem Text="Press that slot's Alt key from the board at any time to apply the whole combination at once. Both the number row and the numeric keypad work."/>
+                <local:BulletItem Text="The Custom Filters window also lets you rename a slot, apply one without leaving the keyboard, or clear a slot you no longer want. Pressing an unassigned slot's key does nothing, so a half-set-up shortcut can't wipe your current filters by accident."/>
 
                 <TextBlock Text="Archiving and deleting" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <local:BulletItem Text="Archive Done moves every task currently in Done out of the board."/>
@@ -162,6 +168,7 @@
                 <local:BulletItem Text="The chosen location itself is remembered outside the database, in a small config file under your local AppData folder — not inside the database file."/>
                 <local:BulletItem Text="Set a Default Export Path (used by Report Builder's PDF export) and a Default Import Path (used by Import Tasks, including where the template is saved)."/>
                 <local:BulletItem Text="Set an Attach File Default Path — where the '+ File...' picker opens by default when attaching a file to a task."/>
+                <local:BulletItem Text="Turn off the What's New screen that appears the first time you open a newly updated version, or click Show What's New to read it any time. It lists everything added across the last five updates."/>
             </StackPanel>
         </ScrollViewer>
 

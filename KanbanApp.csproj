@@ -6,7 +6,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
-    <Version>0.67.3</Version>
+    <Version>0.68.0</Version>
     <ApplicationIcon>Assets\app.ico</ApplicationIcon>
 
     <AppChannel Condition="'$(AppChannel)'==''">Test</AppChannel>
@@ -23,6 +23,10 @@
 
   <ItemGroup>
     <Resource Include="Assets\app.ico" />
+    <!-- Ships inside the exe so the What's New screen can read it at runtime: the installer
+         packages only the published binary, so a loose CHANGELOG.md wouldn't be there. Keeping it
+         as the single source avoids maintaining a second copy of the release notes in code. -->
+    <Resource Include="CHANGELOG.md" />
   </ItemGroup>
 
 </Project>

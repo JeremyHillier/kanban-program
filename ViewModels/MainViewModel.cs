@@ -99,6 +99,8 @@ public partial class MainViewModel : ObservableObject
         ConfirmArchive = _db.GetSetting("ConfirmArchive") != "False";
         AddNoteOnComplete = _db.GetSetting("AddNoteOnComplete") == "True";
         ShowDueReminders = _db.GetSetting("ShowDueReminders") != "False";
+        ShowWhatsNew = _db.GetSetting("ShowWhatsNew") != "False";
+        LoadCustomFilters();
     }
 
     public void RenameColumnDisplayName(ColumnViewModel column, string newDisplayName)

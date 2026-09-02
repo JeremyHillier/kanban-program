@@ -6,6 +6,10 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.68.0 — 2026-09-01
+- Add a What's New screen that appears the first time you open a newly updated version, listing everything added across the last five updates. It can be turned off in Settings, where a Show What's New button also brings it up any time
+- Add ten custom filter slots on Alt+0 to Alt+9. Set the board's filters how you like, then save the whole combination — project, priority, who, goal, flag, due date or range, and keyword — to a slot under a name of your choosing, and recall it with one keystroke. A Custom Filters button beside Clear Filters manages the slots
+
 ## 0.67.3 — 2026-09-01
 - Darken the category, who, and project lettering on each row of the startup Task Reminders window, which was washed out against the light background
 - Add spell checking to the sub-task fields, matching the Task and Notes fields

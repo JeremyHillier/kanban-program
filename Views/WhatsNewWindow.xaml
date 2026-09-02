@@ -1,0 +1,60 @@
+<Window x:Class="KanbanApp.Views.WhatsNewWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:local="clr-namespace:KanbanApp.Views"
+        mc:Ignorable="d"
+        Title="What's New" Width="620" Height="560"
+        WindowStartupLocation="CenterOwner" ResizeMode="NoResize"
+        ShowInTaskbar="False"
+        Background="{DynamicResource WindowBackgroundBrush}">
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Margin="0,0,0,8">
+            <TextBlock x:Name="HeadlineText" FontWeight="Bold" FontSize="18"
+                       Foreground="{DynamicResource PrimaryTextBrush}"/>
+            <TextBlock x:Name="SubheadText" FontSize="11" Margin="0,2,0,0" TextWrapping="Wrap"
+                       Foreground="{DynamicResource SecondaryTextStrongBrush}"/>
+        </StackPanel>
+
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <ItemsControl x:Name="ReleaseList">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Margin="0,0,0,14">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="{Binding Version}" FontWeight="Bold" FontSize="14"
+                                           Foreground="{DynamicResource AccentTextBrush}"/>
+                                <TextBlock Text="{Binding Date}" FontSize="11" Margin="10,3,0,0"
+                                           Foreground="{DynamicResource SecondaryTextStrongBrush}"/>
+                            </StackPanel>
+                            <ItemsControl ItemsSource="{Binding Items}" Margin="0,4,0,0">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <local:BulletItem Text="{Binding}"/>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+
+        <Grid Grid.Row="2" Margin="0,12,0,0">
+            <CheckBox x:Name="ShowAgainCheckBox" Content="Show this after every update"
+                      VerticalAlignment="Center" HorizontalAlignment="Left"
+                      Foreground="{DynamicResource PrimaryTextBrush}"
+                      Checked="ShowAgainCheckBox_Changed" Unchecked="ShowAgainCheckBox_Changed"/>
+            <Button Content="Close" Width="90" Padding="0,6" HorizontalAlignment="Right"
+                    IsCancel="True" IsDefault="True"
+                    Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+        </Grid>
+    </Grid>
+</Window>
