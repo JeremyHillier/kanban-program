@@ -41,9 +41,26 @@
                       Foreground="{DynamicResource PrimaryTextBrush}"/>
         </StackPanel>
 
-        <ScrollViewer Grid.Row="2" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
-            <Grid x:Name="TimelineGrid"/>
-        </ScrollViewer>
+        <Grid Grid.Row="2">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- Frozen date-header row: its own ScrollViewer with no visible scrollbars, driven
+                 programmatically to track the body's horizontal offset (see BodyScrollViewer_ScrollChanged)
+                 so the header columns stay lined up with the body's while only the body scrolls vertically. -->
+            <ScrollViewer x:Name="HeaderScrollViewer" Grid.Row="0"
+                          HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Disabled">
+                <Grid x:Name="HeaderGrid"/>
+            </ScrollViewer>
+
+            <ScrollViewer x:Name="BodyScrollViewer" Grid.Row="1"
+                          HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto"
+                          ScrollChanged="BodyScrollViewer_ScrollChanged">
+                <Grid x:Name="TimelineGrid"/>
+            </ScrollViewer>
+        </Grid>
 
         <Button Grid.Row="3" Content="Close" Width="90" Padding="0,6" Margin="0,16,0,0"
                 HorizontalAlignment="Right" IsCancel="True" IsDefault="True"

@@ -236,7 +236,7 @@
         </Border>
 
         <DockPanel Grid.Row="1">
-            <Border DockPanel.Dock="{Binding SidebarDock}" Width="280" Margin="6" Padding="12"
+            <Border DockPanel.Dock="{Binding SidebarDock}" Width="320" Margin="6" Padding="12"
                     CornerRadius="6"
                     Background="{StaticResource AccentPanelBrush}"
                     BorderBrush="{StaticResource AccentPanelBorderBrush}" BorderThickness="1">

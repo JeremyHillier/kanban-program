@@ -6,6 +6,10 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.70.3 — 2026-09-02
+- Widen the sidebar button panel (280px to 320px) so the Settings/Help/Report Builder/Timeline row fits its fourth button without overflowing
+- Timeline: freeze the date-header row so it stays visible while scrolling through project rows, and add alternating row shading to make each project's row easier to track across the columns
+
 ## 0.70.2 — 2026-09-02
 - Timeline: double-click a task block to open it in the same task dialog the board uses, with any change saved and the Timeline refreshed on close
 

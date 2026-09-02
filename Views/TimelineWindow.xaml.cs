@@ -61,6 +61,14 @@ public partial class TimelineWindow : Window
 
     private void IncludeDoneCheckBox_Changed(object sender, RoutedEventArgs e) => BuildGrid();
 
+    // The header row lives in its own ScrollViewer (frozen vertically, no scrollbar of its own) so
+    // it stays visible while the body scrolls; this keeps its horizontal offset locked to the
+    // body's so the header columns stay lined up with the body's as the user scrolls sideways.
+    private void BodyScrollViewer_ScrollChanged(object sender, ScrollChangedEventArgs e)
+    {
+        if (e.HorizontalChange != 0) HeaderScrollViewer.ScrollToHorizontalOffset(e.HorizontalOffset);
+    }
+
     private void ZoomLevel_Changed(object sender, RoutedEventArgs e)
     {
         if (_initializing) return;
@@ -88,10 +96,12 @@ public partial class TimelineWindow : Window
         BuildGrid();
     }
 
-    // Rebuilds the grid from scratch on every navigation/toggle rather than trying to update it in
-    // place - the row/column count changes with the data (only projects with a due task in the
+    // Rebuilds both grids from scratch on every navigation/toggle rather than trying to update them
+    // in place - the row/column count changes with the data (only projects with a due task in the
     // visible window get a row), so an incremental update would need the same "figure out which
-    // rows/columns are needed" logic anyway.
+    // rows/columns are needed" logic anyway. The header row lives in HeaderGrid (its own frozen
+    // ScrollViewer) and the project rows live in TimelineGrid (the scrollable body) - both get
+    // identical column definitions built by AddColumns so their cells stay lined up.
     private void BuildGrid()
     {
         var brush = (Brush)FindResource("PrimaryTextBrush");
@@ -99,6 +109,7 @@ public partial class TimelineWindow : Window
         var borderBrush = (Brush)FindResource("CardBorderBrush");
         var cardBrush = (Brush)FindResource("CardBackgroundBrush");
         var panelBrush = (Brush)FindResource("PanelBackgroundBrush");
+        var alternateRowBrush = (Brush)FindResource("AlternateRowBrush");
 
         var unitDays = UnitDays;
         var unitsToShow = UnitsToShow;
@@ -121,6 +132,10 @@ public partial class TimelineWindow : Window
         var rowProjects = _viewModel.Projects.Select(p => p.Name).Where(byProject.ContainsKey).ToList();
         if (byProject.ContainsKey("No Project")) rowProjects.Add("No Project");
 
+        HeaderGrid.Children.Clear();
+        HeaderGrid.RowDefinitions.Clear();
+        HeaderGrid.ColumnDefinitions.Clear();
+
         TimelineGrid.Children.Clear();
         TimelineGrid.RowDefinitions.Clear();
         TimelineGrid.ColumnDefinitions.Clear();
@@ -128,19 +143,20 @@ public partial class TimelineWindow : Window
         const double projectColWidth = 150;
         var unitColWidth = IsDayView ? 90 : 150;
 
-        TimelineGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(projectColWidth) });
-        for (var w = 0; w < unitsToShow; w++)
+        void AddColumns(Grid grid)
         {
-            TimelineGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(unitColWidth) });
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(projectColWidth) });
+            for (var w = 0; w < unitsToShow; w++)
+            {
+                grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(unitColWidth) });
+            }
         }
+        AddColumns(HeaderGrid);
+        AddColumns(TimelineGrid);
 
-        TimelineGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-        for (var r = 0; r < rowProjects.Count; r++)
-        {
-            TimelineGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto, MinHeight = 50 });
-        }
+        HeaderGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
 
-        void AddCell(int row, int col, UIElement content, Brush? background = null)
+        void AddCell(Grid grid, int row, int col, UIElement content, Brush? background = null)
         {
             var border = new Border
             {
@@ -151,10 +167,10 @@ public partial class TimelineWindow : Window
             };
             Grid.SetRow(border, row);
             Grid.SetColumn(border, col);
-            TimelineGrid.Children.Add(border);
+            grid.Children.Add(border);
         }
 
-        AddCell(0, 0, new TextBlock
+        AddCell(HeaderGrid, 0, 0, new TextBlock
         {
             Text = "Projects", FontWeight = FontWeights.Bold, Foreground = brush,
             Margin = new Thickness(6), VerticalAlignment = VerticalAlignment.Center
@@ -164,7 +180,7 @@ public partial class TimelineWindow : Window
         {
             var unitStart = _windowStart.AddDays(w * unitDays);
             var headerText = IsDayView ? unitStart.ToString("ddd\nd-MMM") : unitStart.ToString("d-MMM");
-            AddCell(0, w + 1, new TextBlock
+            AddCell(HeaderGrid, 0, w + 1, new TextBlock
             {
                 Text = headerText, FontWeight = FontWeights.Bold, Foreground = brush,
                 Margin = new Thickness(4, 6, 4, 6), VerticalAlignment = VerticalAlignment.Center,
@@ -174,24 +190,29 @@ public partial class TimelineWindow : Window
 
         if (rowProjects.Count == 0)
         {
-            AddCell(1, 0, new TextBlock
+            TimelineGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto, MinHeight = 50 });
+            AddCell(TimelineGrid, 0, 0, new TextBlock
             {
                 Text = "No tasks with a due date in this range.", Foreground = secondaryBrush,
                 FontStyle = FontStyles.Italic, Margin = new Thickness(6)
             });
-            for (var w = 0; w < unitsToShow; w++) AddCell(1, w + 1, new Border());
-            TimelineGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto, MinHeight = 50 });
+            for (var w = 0; w < unitsToShow; w++) AddCell(TimelineGrid, 0, w + 1, new Border());
             return;
         }
 
         for (var r = 0; r < rowProjects.Count; r++)
         {
+            TimelineGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto, MinHeight = 50 });
+
+            // Alternating shading, matching the app's existing AlternateRowBrush convention.
+            var rowBackground = r % 2 == 1 ? alternateRowBrush : null;
+
             var projectName = rowProjects[r];
-            AddCell(r + 1, 0, new TextBlock
+            AddCell(TimelineGrid, r, 0, new TextBlock
             {
                 Text = projectName, FontWeight = FontWeights.SemiBold, Foreground = brush,
                 Margin = new Thickness(6), VerticalAlignment = VerticalAlignment.Center, TextWrapping = TextWrapping.Wrap
-            });
+            }, rowBackground);
 
             var tasksByUnit = byProject[projectName]
                 .GroupBy(c => (c.DueDate!.Value.Date - _windowStart).Days / unitDays)
@@ -232,7 +253,7 @@ public partial class TimelineWindow : Window
                         cellPanel.Children.Add(block);
                     }
                 }
-                AddCell(r + 1, w + 1, cellPanel);
+                AddCell(TimelineGrid, r, w + 1, cellPanel, rowBackground);
             }
         }
     }
