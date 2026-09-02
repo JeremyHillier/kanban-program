@@ -480,8 +480,12 @@ public partial class AddTaskWindow : Window
             Padding = new Thickness(6, 3, 6, 3),
             Style = (Style)FindResource("HoverTextBoxStyle"),
             Background = (Brush)FindResource("InputBackgroundBrush"),
-            Foreground = (Brush)FindResource("PrimaryTextBrush")
+            Foreground = (Brush)FindResource("PrimaryTextBrush"),
+            // Matches the Task and Notes fields' SpellCheck.IsEnabled="True" Language="en-US".
+            // Set here rather than in XAML because these rows are built in code, one per sub-task.
+            Language = System.Windows.Markup.XmlLanguage.GetLanguage("en-US")
         };
+        SpellCheck.SetIsEnabled(textBox, true);
         Grid.SetColumn(textBox, 2);
 
         var deleteButton = new Button

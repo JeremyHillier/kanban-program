@@ -17,6 +17,10 @@ public static class ThemeManager
             res["CardOutlineBrush"] = Brush(0x6E, 0x6E, 0x76);
             res["PrimaryTextBrush"] = Brush(0xF0, 0xF0, 0xF0);
             res["SecondaryTextBrush"] = Brush(0xAA, 0xAA, 0xAA);
+            // Half a step from SecondaryTextBrush toward the background's opposite - i.e. toward
+            // white here, toward black in the light theme - for secondary text that was reading as
+            // too washed out. "Darker" literally would mean *less* contrast on a dark background.
+            res["SecondaryTextStrongBrush"] = Brush(0xD5, 0xD5, 0xD5);
             res["PanelBackgroundBrush"] = Brush(0x25, 0x25, 0x26);
             res["PanelBorderBrush"] = Brush(0x6E, 0x6E, 0x6E);
             res["ButtonBackgroundBrush"] = Brush(0x3F, 0x3F, 0x46);
@@ -34,6 +38,7 @@ public static class ThemeManager
             res["CardOutlineBrush"] = Brush(0x9E, 0x9E, 0x9E);
             res["PrimaryTextBrush"] = Brush(0x1A, 0x1A, 0x1A);
             res["SecondaryTextBrush"] = Brush(0x88, 0x88, 0x88);
+            res["SecondaryTextStrongBrush"] = Brush(0x44, 0x44, 0x44); // 0x88 halved: 50% darker.
             res["PanelBackgroundBrush"] = Brush(0xFA, 0xFA, 0xFA);
             res["PanelBorderBrush"] = Brush(0x33, 0x33, 0x33);
             res["ButtonBackgroundBrush"] = Brush(0xEC, 0xEC, 0xEC);

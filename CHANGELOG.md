@@ -6,6 +6,10 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.67.3 — 2026-09-01
+- Darken the category, who, and project lettering on each row of the startup Task Reminders window, which was washed out against the light background
+- Add spell checking to the sub-task fields, matching the Task and Notes fields
+
 ## 0.67.2 — 2026-09-01
 - Add an Alt+T shortcut that shows just what's due today (and anything overdue), clearing every other filter first so it's the whole board's today, not today within whatever was already narrowed down
 
