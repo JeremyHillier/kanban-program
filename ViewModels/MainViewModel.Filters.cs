@@ -183,45 +183,79 @@ public partial class MainViewModel
         }
     }
 
+    // The active filter state, resolved once per pass. Previously each of the three multi-selects
+    // was re-scanned into a fresh List for every card tested, so a board of N cards allocated 3N
+    // lists on every keystroke in the Keyword box. HashSet also turns the membership test from a
+    // linear scan into a lookup; it uses the default ordinal comparer, exactly like List.Contains
+    // did, so which cards match is unchanged.
+    private readonly record struct FilterCriteria(
+        HashSet<string> Projects,
+        HashSet<string> Priorities,
+        HashSet<string> Whos,
+        string Goal,
+        string Flag,
+        string Due,
+        DateTime Today,
+        DateTime? RangeFrom,
+        DateTime? RangeTo,
+        string? Keyword);
+
+    private FilterCriteria BuildFilterCriteria() => new(
+        ProjectFilterOptions.Where(o => o.IsSelected).Select(o => o.Name).ToHashSet(),
+        PriorityFilterOptions.Where(o => o.IsSelected).Select(o => o.Name).ToHashSet(),
+        WhoFilterOptions.Where(o => o.IsSelected).Select(o => o.Name).ToHashSet(),
+        SelectedGoalFilter,
+        SelectedFlagFilter,
+        DueFilter,
+        DateTime.Today,
+        DueRangeFrom,
+        DueRangeTo,
+        string.IsNullOrWhiteSpace(KeywordFilter) ? null : KeywordFilter.Trim());
+
     public void ApplyFilters()
     {
-        foreach (var card in Columns.SelectMany(c => c.Cards))
+        var criteria = BuildFilterCriteria();
+        foreach (var column in Columns)
         {
-            card.IsVisible = MatchesFilters(card);
+            foreach (var card in column.Cards)
+            {
+                card.IsVisible = Matches(card, criteria);
+            }
         }
     }
 
-    private bool MatchesFilters(CardViewModel card)
+    private bool MatchesFilters(CardViewModel card) => Matches(card, BuildFilterCriteria());
+
+    private static bool Matches(CardViewModel card, in FilterCriteria criteria)
     {
-        var selectedProjects = ProjectFilterOptions.Where(o => o.IsSelected).Select(o => o.Name).ToList();
-        if (selectedProjects.Count > 0 && !selectedProjects.Contains(card.ProjectName)) return false;
+        if (criteria.Projects.Count > 0 && !criteria.Projects.Contains(card.ProjectName)) return false;
 
-        var selectedPriorities = PriorityFilterOptions.Where(o => o.IsSelected).Select(o => o.Name).ToList();
-        if (selectedPriorities.Count > 0 && !selectedPriorities.Contains(card.Priority)) return false;
+        if (criteria.Priorities.Count > 0 && !criteria.Priorities.Contains(card.Priority)) return false;
 
-        var selectedWhos = WhoFilterOptions.Where(o => o.IsSelected).Select(o => o.Name).ToList();
-        if (selectedWhos.Count > 0)
+        if (criteria.Whos.Count > 0)
         {
             var whoKey = card.WhoId is null ? "Unassigned" : card.WhoName;
-            if (!selectedWhos.Contains(whoKey)) return false;
+            if (!criteria.Whos.Contains(whoKey)) return false;
         }
 
-        if (SelectedGoalFilter == "Unassigned")
+        if (criteria.Goal == "Unassigned")
         {
             if (card.GoalId is not null) return false;
         }
-        else if (SelectedGoalFilter != "All" && card.GoalName != SelectedGoalFilter) return false;
+        else if (criteria.Goal != "All" && card.GoalName != criteria.Goal) return false;
 
-        if (SelectedFlagFilter == "Unassigned")
+        // Copied to a local because an `in` parameter can't be captured by the lambda below.
+        var flag = criteria.Flag;
+        if (flag == "Unassigned")
         {
             if (card.Flags.Count > 0) return false;
         }
-        else if (SelectedFlagFilter != "All" && card.Flags.All(f => f.Name != SelectedFlagFilter)) return false;
+        else if (flag != "All" && card.Flags.All(f => f.Name != flag)) return false;
 
-        if (DueFilter != "All")
+        if (criteria.Due != "All")
         {
-            var today = DateTime.Today;
-            var matchesDue = DueFilter switch
+            var today = criteria.Today;
+            var matchesDue = criteria.Due switch
             {
                 "Today" => card.DueDate is not null && card.DueDate.Value.Date <= today,
                 "Tomorrow" => card.DueDate?.Date == today.AddDays(1),
@@ -232,16 +266,15 @@ public partial class MainViewModel
             if (!matchesDue) return false;
         }
 
-        if (DueRangeFrom is not null || DueRangeTo is not null)
+        if (criteria.RangeFrom is not null || criteria.RangeTo is not null)
         {
             if (card.DueDate is null) return false;
-            if (DueRangeFrom is not null && card.DueDate.Value.Date < DueRangeFrom.Value.Date) return false;
-            if (DueRangeTo is not null && card.DueDate.Value.Date > DueRangeTo.Value.Date) return false;
+            if (criteria.RangeFrom is not null && card.DueDate.Value.Date < criteria.RangeFrom.Value.Date) return false;
+            if (criteria.RangeTo is not null && card.DueDate.Value.Date > criteria.RangeTo.Value.Date) return false;
         }
 
-        if (!string.IsNullOrWhiteSpace(KeywordFilter))
+        if (criteria.Keyword is { } keyword)
         {
-            var keyword = KeywordFilter.Trim();
             var matchesKeyword = card.Title.Contains(keyword, StringComparison.OrdinalIgnoreCase)
                 || card.ProjectName.Contains(keyword, StringComparison.OrdinalIgnoreCase)
                 || card.WhoName.Contains(keyword, StringComparison.OrdinalIgnoreCase)

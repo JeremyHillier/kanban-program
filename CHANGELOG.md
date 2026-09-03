@@ -6,6 +6,12 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.71.5 — 2026-09-02
+- Internal review and refactor, no functional change: saving a task's flags, sub-tasks, and attachments now writes each set in a single transaction with one reused statement instead of committing every row separately, which was the main cost of saving a task
+- Filtering the board no longer rebuilds the selected Project/Priority/Who lists once per card, so typing in the Keyword box no longer allocates thousands of throwaway lists per keystroke
+- Editing a card no longer rewrites the sort order of every card on the board when nothing actually moved
+- Removed the repeated twelve-argument save call and the repeated post-change refresh from every card operation, so a newly added field can no longer be missed on one path
+
 ## 0.71.4 — 2026-09-02
 - Give the From/To due-date range the same colour-filled label boxes as the rest of the filters, moving their labels off their own line and reclaiming another row
 - Colour the Clear Filters (orange) and Custom Filters (indigo) buttons instead of leaving them plain grey

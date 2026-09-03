@@ -30,9 +30,7 @@ public partial class MainViewModel
         };
         column.Cards.Add(cardVm);
 
-        cardVm.IsVisible = MatchesFilters(cardVm);
-        ApplySort();
-        RefreshDashboardStats();
+        RefreshAfterCardChange(cardVm);
 
         return cardVm;
     }
@@ -66,7 +64,7 @@ public partial class MainViewModel
         card.ForceEditOnComplete = forceEditOnComplete;
         card.WebsiteUrl = websiteUrl;
 
-        card.LastUpdated = _db.UpdateCard(card.Id, card.Title, project?.Id, priority, dueDate, who?.Id, isRecurring, recurrencePattern, goal?.Id, notes, forceEditOnComplete, websiteUrl);
+        PersistCard(card);
         _db.SetCardFlags(card.Id, flags.Select(f => f.Id));
         var subTaskItems = _db.SetCardSubTasks(card.Id, subTasks.Select(s => (s.Title, s.IsDone)).ToList());
         card.SubTasks = subTaskItems.Select(s => new SubTaskViewModel(s)).ToList();
@@ -80,9 +78,7 @@ public partial class MainViewModel
             MoveCard(card, newColumn);
         }
 
-        card.IsVisible = MatchesFilters(card);
-        ApplySort();
-        RefreshDashboardStats();
+        RefreshAfterCardChange(card);
     }
 
     public void AddAttachmentToCard(CardViewModel card, string filePath, string displayName)
@@ -94,8 +90,7 @@ public partial class MainViewModel
 
         var attachmentItems = _db.SetCardAttachments(card.Id, updatedAttachments);
         card.Attachments = attachmentItems.Select(a => new AttachmentViewModel(a)).ToList();
-        card.LastUpdated = _db.UpdateCard(card.Id, card.Title, card.ProjectId, card.Priority, card.DueDate, card.WhoId,
-            card.IsRecurring, card.RecurrencePattern, card.GoalId, card.Notes, card.ForceEditOnComplete, card.WebsiteUrl);
+        PersistCard(card);
     }
 
     public void SetSubTaskDone(CardViewModel card, SubTaskViewModel subTask, bool isDone)
@@ -113,17 +108,33 @@ public partial class MainViewModel
         _db.SetCardFlags(card.Id, card.Flags.Select(f => f.Id));
     }
 
+    // Writes the card's current state back to the database. Every caller below had previously spelled
+    // out the same twelve-argument UpdateCard call, each assigning the changed property to the card
+    // first and then passing that same value through again - which is how a newly added column can
+    // silently get dropped from one path but not the others. Reading straight off the card removes
+    // that whole failure mode: a new field is added in one place.
+    private void PersistCard(CardViewModel card)
+    {
+        card.LastUpdated = _db.UpdateCard(card.Id, card.Title, card.ProjectId, card.Priority, card.DueDate, card.WhoId,
+            card.IsRecurring, card.RecurrencePattern, card.GoalId, card.Notes, card.ForceEditOnComplete, card.WebsiteUrl);
+    }
+
+    // The follow-up every card change shares: re-test the changed card against the active filters,
+    // re-apply the sort, and refresh the dashboard counts and overdue highlighting.
+    private void RefreshAfterCardChange(CardViewModel? changed = null)
+    {
+        if (changed is not null) changed.IsVisible = MatchesFilters(changed);
+        ApplySort();
+        RefreshDashboardStats();
+    }
+
     public void SetCardPriority(CardViewModel card, string priority)
     {
         if (card.Priority == priority) return;
 
         card.Priority = priority;
-        card.LastUpdated = _db.UpdateCard(card.Id, card.Title, card.ProjectId, priority, card.DueDate, card.WhoId,
-            card.IsRecurring, card.RecurrencePattern, card.GoalId, card.Notes, card.ForceEditOnComplete, card.WebsiteUrl);
-
-        card.IsVisible = MatchesFilters(card);
-        ApplySort();
-        RefreshDashboardStats();
+        PersistCard(card);
+        RefreshAfterCardChange(card);
     }
 
     public void SetCardDueDate(CardViewModel card, DateTime? dueDate)
@@ -131,12 +142,8 @@ public partial class MainViewModel
         if (card.DueDate == dueDate) return;
 
         card.DueDate = dueDate;
-        card.LastUpdated = _db.UpdateCard(card.Id, card.Title, card.ProjectId, card.Priority, dueDate, card.WhoId,
-            card.IsRecurring, card.RecurrencePattern, card.GoalId, card.Notes, card.ForceEditOnComplete, card.WebsiteUrl);
-
-        card.IsVisible = MatchesFilters(card);
-        ApplySort();
-        RefreshDashboardStats();
+        PersistCard(card);
+        RefreshAfterCardChange(card);
     }
 
     public void SetCardWho(CardViewModel card, PersonViewModel? who)
@@ -146,12 +153,8 @@ public partial class MainViewModel
         card.WhoId = who?.Id;
         card.WhoName = who?.Name ?? "Unassigned";
         card.WhoEmail = who?.Email;
-        card.LastUpdated = _db.UpdateCard(card.Id, card.Title, card.ProjectId, card.Priority, card.DueDate, who?.Id,
-            card.IsRecurring, card.RecurrencePattern, card.GoalId, card.Notes, card.ForceEditOnComplete, card.WebsiteUrl);
-
-        card.IsVisible = MatchesFilters(card);
-        ApplySort();
-        RefreshDashboardStats();
+        PersistCard(card);
+        RefreshAfterCardChange(card);
     }
 
     public void SetCardProject(CardViewModel card, ProjectViewModel project)
@@ -160,12 +163,8 @@ public partial class MainViewModel
 
         card.ProjectId = project.Id;
         card.ProjectName = project.Name;
-        card.LastUpdated = _db.UpdateCard(card.Id, card.Title, project.Id, card.Priority, card.DueDate, card.WhoId,
-            card.IsRecurring, card.RecurrencePattern, card.GoalId, card.Notes, card.ForceEditOnComplete, card.WebsiteUrl);
-
-        card.IsVisible = MatchesFilters(card);
-        ApplySort();
-        RefreshDashboardStats();
+        PersistCard(card);
+        RefreshAfterCardChange(card);
     }
 
     // spawnNextOccurrence lets deleting an incomplete recurring task ("skip today, but keep the
@@ -207,7 +206,8 @@ public partial class MainViewModel
             _db.MarkNextOccurrenceSpawned(card.Id);
         }
 
-        ApplySort();
-        RefreshDashboardStats();
+        // No card passed: moving between columns can't change whether a card matches the filters
+        // (none of them look at the column), so re-testing it would be wasted work.
+        RefreshAfterCardChange();
     }
 }

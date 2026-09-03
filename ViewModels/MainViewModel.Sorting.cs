@@ -128,6 +128,7 @@ public partial class MainViewModel
         if (IsManualSort) return;
 
         var updates = new List<(int, int)>();
+        var anyMoved = false;
 
         foreach (var column in Columns)
         {
@@ -147,11 +148,21 @@ public partial class MainViewModel
                 if (currentIndex != i)
                 {
                     column.Cards.Move(currentIndex, i);
+                    anyMoved = true;
                 }
                 updates.Add((sorted[i].Id, i));
             }
         }
 
-        _db.UpdateSortOrders(updates);
+        // Every routine card mutation (add, edit, quick-edit, move) calls ApplySort afterwards, and
+        // this used to rewrite SortOrder for every card on the board each time - even when editing
+        // a field the active sort doesn't depend on, which is the common case. When nothing actually
+        // moved, the stored order already equals the on-screen order, so the write is a no-op worth
+        // skipping. When anything moved, all rows are still written, so the "stored SortOrder ==
+        // index" invariant that makes this safe is preserved exactly as before.
+        if (anyMoved)
+        {
+            _db.UpdateSortOrders(updates);
+        }
     }
 }

@@ -1,5 +1,4 @@
 using System.IO;
-using System.Threading;
 using System.Windows;
 using System.Windows.Threading;
 using KanbanApp.Services;
@@ -9,6 +8,9 @@ namespace KanbanApp;
 
 public partial class App : Application
 {
+    // Never read, and deliberately so: this holds the single-instance mutex alive for the life of
+    // the process. Dropping it because it "looks unused" would let the GC collect the mutex and
+    // silently break the guard that stops two copies writing to the same database.
     private static Mutex? _instanceMutex;
 
     protected override void OnStartup(StartupEventArgs e)
