@@ -75,6 +75,13 @@
         <Style x:Key="FilterLabelFlatBoxStyle" BasedOn="{StaticResource FilterLabelBoxStyle}" TargetType="Border">
             <Setter Property="Width" Value="56"/>
         </Style>
+        <!-- From/To share one row, so each only gets half the sidebar's width. Their labels are
+             short enough to fit a narrower box, which leaves the date pickers wide enough to still
+             show a full date rather than clipping it. -->
+        <Style x:Key="FilterLabelSmallBoxStyle" BasedOn="{StaticResource FilterLabelBoxStyle}" TargetType="Border">
+            <Setter Property="Width" Value="34"/>
+            <Setter Property="Margin" Value="0,0,4,0"/>
+        </Style>
 
         <!-- Explicit no-op style (no Template setter) so this stays square like the rest of the
              Filter cluster, instead of picking up the app-wide rounded Button style. -->
@@ -395,20 +402,32 @@
                                 <ColumnDefinition Width="8"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
-                            <StackPanel Grid.Column="0">
-                                <TextBlock Text="From" FontSize="10" Foreground="White" Margin="0,0,0,2"/>
-                                <DatePicker SelectedDate="{Binding DueRangeFrom, Mode=TwoWay}" Padding="3" Loaded="DatePicker_Loaded"
+                            <Grid Grid.Column="0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Border Grid.Column="0" Background="#FF5C6BC0" Style="{StaticResource FilterLabelSmallBoxStyle}">
+                                    <TextBlock Text="From" Style="{StaticResource FilterLabelTextStyle}"/>
+                                </Border>
+                                <DatePicker Grid.Column="1" SelectedDate="{Binding DueRangeFrom, Mode=TwoWay}" Padding="3" Loaded="DatePicker_Loaded"
                                             ToolTip="Leave blank to include everything up to 'To'"
                                             Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
                                             BorderBrush="{DynamicResource CardBorderBrush}"/>
-                            </StackPanel>
-                            <StackPanel Grid.Column="2">
-                                <TextBlock Text="To" FontSize="10" Foreground="White" Margin="0,0,0,2"/>
-                                <DatePicker SelectedDate="{Binding DueRangeTo, Mode=TwoWay}" Padding="3" Loaded="DatePicker_Loaded"
+                            </Grid>
+                            <Grid Grid.Column="2">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Border Grid.Column="0" Background="#FF5C6BC0" Style="{StaticResource FilterLabelSmallBoxStyle}">
+                                    <TextBlock Text="To" Style="{StaticResource FilterLabelTextStyle}"/>
+                                </Border>
+                                <DatePicker Grid.Column="1" SelectedDate="{Binding DueRangeTo, Mode=TwoWay}" Padding="3" Loaded="DatePicker_Loaded"
                                             ToolTip="Leave blank to include everything from 'From' onward"
                                             Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
                                             BorderBrush="{DynamicResource CardBorderBrush}"/>
-                            </StackPanel>
+                            </Grid>
                         </Grid>
 
                         <Grid Margin="0,0,0,6">
@@ -516,13 +535,13 @@
                             </Grid.ColumnDefinitions>
                             <Button Grid.Column="0" Style="{StaticResource ClearFiltersButtonStyle}" HorizontalAlignment="Stretch"
                                     ToolTip="Reset every filter back to All"
-                                    Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                                    Background="#FFFB8C00" Foreground="White"
                                     Click="ClearFilters_Click">
                                 <TextBlock Text="Clear Filters" TextWrapping="Wrap" TextAlignment="Center"/>
                             </Button>
                             <Button Grid.Column="2" Style="{StaticResource ClearFiltersButtonStyle}" HorizontalAlignment="Stretch"
                                     ToolTip="Save the current filters to Alt+0 - Alt+9 and manage those slots"
-                                    Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                                    Background="#FF5C6BC0" Foreground="White"
                                     Click="ManageCustomFilters_Click">
                                 <TextBlock Text="Custom Filters..." TextWrapping="Wrap" TextAlignment="Center"/>
                             </Button>

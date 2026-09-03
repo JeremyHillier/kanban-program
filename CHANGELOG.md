@@ -6,6 +6,10 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.71.4 — 2026-09-02
+- Give the From/To due-date range the same colour-filled label boxes as the rest of the filters, moving their labels off their own line and reclaiming another row
+- Colour the Clear Filters (orange) and Custom Filters (indigo) buttons instead of leaving them plain grey
+
 ## 0.71.3 — 2026-09-02
 - Tighten the sidebar's filter block: each filter's label now sits in a colour-filled box beside its control instead of on its own line above it, reclaiming six rows of vertical space. Project, Priority, and Who are rotated into a narrow spine alongside their lists; Goal, Flag, and Keyword stay horizontal
 
