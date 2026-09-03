@@ -6,6 +6,9 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.71.3 — 2026-09-02
+- Tighten the sidebar's filter block: each filter's label now sits in a colour-filled box beside its control instead of on its own line above it, reclaiming six rows of vertical space. Project, Priority, and Who are rotated into a narrow spine alongside their lists; Goal, Flag, and Keyword stay horizontal
+
 ## 0.71.2 — 2026-09-02
 - Widen the sidebar buttons (66px to 72px, sidebar 344px) so Manage Projects and Reminders stop looking squished
 - Remove the "Sort & Add", "Filter", and "Due" section labels from the sidebar — self-evident from the buttons themselves — and tighten the spacing now that they're gone

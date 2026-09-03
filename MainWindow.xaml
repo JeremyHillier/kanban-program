@@ -48,6 +48,34 @@
             </Setter>
         </Style>
 
+        <!-- Filter labels sit in a colour-filled box beside their control rather than on their own
+             line above it, which is what buys back the sidebar's vertical space. The tall
+             multi-select lists get the label rotated (a narrow 24px spine); the short single-line
+             controls keep theirs horizontal, sized to fit the longest of them ("Keyword"). Each
+             group aligns internally - matching the two groups to one shared width would either
+             clip "Keyword" or waste ~30px on every rotated row. -->
+        <Style x:Key="FilterLabelBoxStyle" TargetType="Border">
+            <Setter Property="CornerRadius" Value="3"/>
+            <Setter Property="Margin" Value="0,0,6,0"/>
+            <Setter Property="VerticalAlignment" Value="Stretch"/>
+        </Style>
+        <Style x:Key="FilterLabelTextStyle" TargetType="TextBlock">
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+        <!-- LayoutTransform, not RenderTransform: the column has to measure the text's rotated
+             footprint, otherwise the box reserves the unrotated width and the control is pushed
+             right by the length of the word. -->
+        <Style x:Key="FilterLabelRotatedBoxStyle" BasedOn="{StaticResource FilterLabelBoxStyle}" TargetType="Border">
+            <Setter Property="Width" Value="24"/>
+        </Style>
+        <Style x:Key="FilterLabelFlatBoxStyle" BasedOn="{StaticResource FilterLabelBoxStyle}" TargetType="Border">
+            <Setter Property="Width" Value="56"/>
+        </Style>
+
         <!-- Explicit no-op style (no Template setter) so this stays square like the rest of the
              Filter cluster, instead of picking up the app-wide rounded Button style. -->
         <Style x:Key="ClearFiltersButtonStyle" TargetType="Button">
@@ -383,38 +411,102 @@
                             </StackPanel>
                         </Grid>
 
-                        <TextBlock Text="Project" FontWeight="Bold" FontSize="11" Foreground="White" Margin="0,0,0,2"/>
-                        <ListBox Style="{StaticResource MultiSelectFilterListBoxStyle}" ItemsSource="{Binding ProjectFilterOptions}"
-                                 ToolTip="Show only cards belonging to the selected project(s)"
-                                 SelectionChanged="ProjectFilterListBox_SelectionChanged"/>
+                        <Grid Margin="0,0,0,6">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Border Grid.Column="0" Background="#FF42A5F5" Style="{StaticResource FilterLabelRotatedBoxStyle}">
+                                <TextBlock Text="Project" Style="{StaticResource FilterLabelTextStyle}">
+                                    <TextBlock.LayoutTransform>
+                                        <RotateTransform Angle="-90"/>
+                                    </TextBlock.LayoutTransform>
+                                </TextBlock>
+                            </Border>
+                            <ListBox Grid.Column="1" Margin="0" Style="{StaticResource MultiSelectFilterListBoxStyle}"
+                                     ItemsSource="{Binding ProjectFilterOptions}"
+                                     ToolTip="Show only cards belonging to the selected project(s)"
+                                     SelectionChanged="ProjectFilterListBox_SelectionChanged"/>
+                        </Grid>
 
-                        <TextBlock Text="Priority" FontWeight="Bold" FontSize="11" Foreground="White" Margin="0,0,0,2"/>
-                        <ListBox Style="{StaticResource MultiSelectFilterListBoxStyle}" ItemsSource="{Binding PriorityFilterOptions}" Height="70"
-                                 ToolTip="Show only cards with the selected priorities"
-                                 SelectionChanged="PriorityFilterListBox_SelectionChanged"/>
+                        <Grid Margin="0,0,0,6">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Border Grid.Column="0" Background="#FFEF5350" Style="{StaticResource FilterLabelRotatedBoxStyle}">
+                                <TextBlock Text="Priority" Style="{StaticResource FilterLabelTextStyle}">
+                                    <TextBlock.LayoutTransform>
+                                        <RotateTransform Angle="-90"/>
+                                    </TextBlock.LayoutTransform>
+                                </TextBlock>
+                            </Border>
+                            <ListBox Grid.Column="1" Margin="0" Style="{StaticResource MultiSelectFilterListBoxStyle}"
+                                     ItemsSource="{Binding PriorityFilterOptions}" Height="70"
+                                     ToolTip="Show only cards with the selected priorities"
+                                     SelectionChanged="PriorityFilterListBox_SelectionChanged"/>
+                        </Grid>
 
-                        <TextBlock Text="Who" FontWeight="Bold" FontSize="11" Foreground="White" Margin="0,0,0,2"/>
-                        <ListBox Style="{StaticResource MultiSelectFilterListBoxStyle}" ItemsSource="{Binding WhoFilterOptions}"
-                                 ToolTip="Show only cards assigned to the selected people"
-                                 SelectionChanged="WhoFilterListBox_SelectionChanged"/>
+                        <Grid Margin="0,0,0,6">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Border Grid.Column="0" Background="#FF7E57C2" Style="{StaticResource FilterLabelRotatedBoxStyle}">
+                                <TextBlock Text="Who" Style="{StaticResource FilterLabelTextStyle}">
+                                    <TextBlock.LayoutTransform>
+                                        <RotateTransform Angle="-90"/>
+                                    </TextBlock.LayoutTransform>
+                                </TextBlock>
+                            </Border>
+                            <ListBox Grid.Column="1" Margin="0" Style="{StaticResource MultiSelectFilterListBoxStyle}"
+                                     ItemsSource="{Binding WhoFilterOptions}"
+                                     ToolTip="Show only cards assigned to the selected people"
+                                     SelectionChanged="WhoFilterListBox_SelectionChanged"/>
+                        </Grid>
 
-                        <TextBlock Text="Goal" FontWeight="Bold" FontSize="11" Foreground="White" Margin="0,0,0,2"/>
-                        <ComboBox ItemsSource="{Binding GoalFilterOptions}" SelectedItem="{Binding SelectedGoalFilter, Mode=TwoWay}"
-                                  Padding="4" Margin="0,0,0,6" ToolTip="Show only cards linked to this goal"
-                                  Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
-                                  BorderBrush="{DynamicResource CardBorderBrush}"/>
+                        <Grid Margin="0,0,0,6">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Border Grid.Column="0" Background="#FF26A69A" Style="{StaticResource FilterLabelFlatBoxStyle}">
+                                <TextBlock Text="Goal" Style="{StaticResource FilterLabelTextStyle}"/>
+                            </Border>
+                            <ComboBox Grid.Column="1" ItemsSource="{Binding GoalFilterOptions}" SelectedItem="{Binding SelectedGoalFilter, Mode=TwoWay}"
+                                      Padding="4" Margin="0" ToolTip="Show only cards linked to this goal"
+                                      Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                                      BorderBrush="{DynamicResource CardBorderBrush}"/>
+                        </Grid>
 
-                        <TextBlock Text="Flag" FontWeight="Bold" FontSize="11" Foreground="White" Margin="0,0,0,2"/>
-                        <ComboBox ItemsSource="{Binding FlagFilterOptions}" SelectedItem="{Binding SelectedFlagFilter, Mode=TwoWay}"
-                                  Padding="4" Margin="0,0,0,6" ToolTip="Show only cards carrying this flag"
-                                  Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
-                                  BorderBrush="{DynamicResource CardBorderBrush}"/>
+                        <Grid Margin="0,0,0,6">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Border Grid.Column="0" Background="#FF8D6E63" Style="{StaticResource FilterLabelFlatBoxStyle}">
+                                <TextBlock Text="Flag" Style="{StaticResource FilterLabelTextStyle}"/>
+                            </Border>
+                            <ComboBox Grid.Column="1" ItemsSource="{Binding FlagFilterOptions}" SelectedItem="{Binding SelectedFlagFilter, Mode=TwoWay}"
+                                      Padding="4" Margin="0" ToolTip="Show only cards carrying this flag"
+                                      Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                                      BorderBrush="{DynamicResource CardBorderBrush}"/>
+                        </Grid>
 
-                        <TextBlock Text="Keyword" FontWeight="Bold" FontSize="11" Foreground="White" Margin="0,0,0,2"/>
-                        <TextBox Text="{Binding KeywordFilter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Padding="4" Margin="0,0,0,8"
-                                 ToolTip="Show only cards whose title, project, who, or notes contain this text"
-                                 Style="{StaticResource HoverTextBoxStyle}"
-                                 Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                        <Grid Margin="0,0,0,8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Border Grid.Column="0" Background="#FF607D8B" Style="{StaticResource FilterLabelFlatBoxStyle}">
+                                <TextBlock Text="Keyword" Style="{StaticResource FilterLabelTextStyle}"/>
+                            </Border>
+                            <TextBox Grid.Column="1" Text="{Binding KeywordFilter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                     Padding="4" Margin="0"
+                                     ToolTip="Show only cards whose title, project, who, or notes contain this text"
+                                     Style="{StaticResource HoverTextBoxStyle}"
+                                     Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                        </Grid>
 
                         <Grid>
                             <Grid.ColumnDefinitions>
