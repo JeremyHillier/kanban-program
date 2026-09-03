@@ -6,6 +6,12 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.71.2 — 2026-09-02
+- Widen the sidebar buttons (66px to 72px, sidebar 344px) so Manage Projects and Reminders stop looking squished
+- Remove the "Sort & Add", "Filter", and "Due" section labels from the sidebar — self-evident from the buttons themselves — and tighten the spacing now that they're gone
+- Drop the "(Ctrl/Shift-click for multiple)" wording from the board's Project/Priority/Who filter labels and tooltips
+- Move the version number and copyright line from the bottom of the sidebar to the top-right of the header, under the Test Build badge
+
 ## 0.71.1 — 2026-09-02
 - Move the Due quick-filter buttons and date range to the top of the sidebar Filter section, above Project
 - Move Settings and Help into the same row as Close, and Reminders and dark/light mode toggle into the same row as Report Builder and Timeline
