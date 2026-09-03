@@ -182,9 +182,9 @@ public partial class MainViewModel
     {
         if (!RememberLastView) return;
 
-        _db.SetSetting("LastProjectFilter", SelectedProjectFilter);
-        _db.SetSetting("LastPriorityFilter", SelectedPriorityFilter);
-        _db.SetSetting("LastWhoFilter", SelectedWhoFilter);
+        _db.SetSetting("LastProjectFilter", string.Join(",", ProjectFilterOptions.Where(o => o.IsSelected).Select(o => o.Name)));
+        _db.SetSetting("LastPriorityFilter", string.Join(",", PriorityFilterOptions.Where(o => o.IsSelected).Select(o => o.Name)));
+        _db.SetSetting("LastWhoFilter", string.Join(",", WhoFilterOptions.Where(o => o.IsSelected).Select(o => o.Name)));
         _db.SetSetting("LastGoalFilter", SelectedGoalFilter);
         _db.SetSetting("LastFlagFilter", SelectedFlagFilter);
         _db.SetSetting("LastDueFilter", DueFilter);

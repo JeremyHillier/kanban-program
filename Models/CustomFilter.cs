@@ -1,3 +1,4 @@
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace KanbanApp.Models;
@@ -7,9 +8,14 @@ namespace KanbanApp.Models;
 public class CustomFilter
 {
     public string Name { get; set; } = string.Empty;
-    public string Project { get; set; } = "All";
-    public string Priority { get; set; } = "All";
-    public string Who { get; set; } = "All";
+
+    [JsonConverter(typeof(StringOrStringListConverter))]
+    public List<string> Project { get; set; } = [];
+    [JsonConverter(typeof(StringOrStringListConverter))]
+    public List<string> Priority { get; set; } = [];
+    [JsonConverter(typeof(StringOrStringListConverter))]
+    public List<string> Who { get; set; } = [];
+
     public string Goal { get; set; } = "All";
     public string Flag { get; set; } = "All";
     public string Due { get; set; } = "All";
@@ -32,9 +38,9 @@ public class CustomFilter
             if (!IsDefined) return "Empty - not assigned";
 
             var parts = new List<string>();
-            if (Project != "All") parts.Add($"Project: {Project}");
-            if (Priority != "All") parts.Add($"Priority: {Priority}");
-            if (Who != "All") parts.Add($"Who: {Who}");
+            if (Project.Count > 0) parts.Add($"Project: {string.Join(", ", Project)}");
+            if (Priority.Count > 0) parts.Add($"Priority: {string.Join(", ", Priority)}");
+            if (Who.Count > 0) parts.Add($"Who: {string.Join(", ", Who)}");
             if (Goal != "All") parts.Add($"Goal: {Goal}");
             if (Flag != "All") parts.Add($"Flag: {Flag}");
             if (Due != "All") parts.Add($"Due: {Due}");
@@ -44,5 +50,38 @@ public class CustomFilter
 
             return parts.Count == 0 ? "Everything (no filters applied)" : string.Join("   •   ", parts);
         }
+    }
+}
+
+// Project/Priority/Who moved from a single string ("All", "Unassigned", or one name) to a
+// multi-select list. Reads either shape so slots saved before that change keep working: a bare
+// JSON string becomes a single-item list ("All" becomes empty, meaning no restriction - matching
+// what "All" always meant), while a JSON array (the current form) is read as-is.
+public class StringOrStringListConverter : JsonConverter<List<string>>
+{
+    public override List<string> Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    {
+        if (reader.TokenType == JsonTokenType.String)
+        {
+            var value = reader.GetString();
+            return string.IsNullOrEmpty(value) || value == "All" ? [] : [value];
+        }
+
+        var list = new List<string>();
+        if (reader.TokenType != JsonTokenType.StartArray) return list;
+
+        while (reader.Read() && reader.TokenType != JsonTokenType.EndArray)
+        {
+            var item = reader.GetString();
+            if (!string.IsNullOrEmpty(item) && item != "All") list.Add(item);
+        }
+        return list;
+    }
+
+    public override void Write(Utf8JsonWriter writer, List<string> value, JsonSerializerOptions options)
+    {
+        writer.WriteStartArray();
+        foreach (var item in value) writer.WriteStringValue(item);
+        writer.WriteEndArray();
     }
 }

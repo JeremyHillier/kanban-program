@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Threading;
 using KanbanApp.Services;
@@ -511,6 +512,24 @@ public partial class MainWindow : Window
 
         var dialog = new DashboardWindow(viewModel) { Owner = this };
         dialog.ShowDialog();
+    }
+
+    // FilterOptionViewModel.IsSelected is bound TwoWay to each ListBoxItem, so the Ctrl/Shift-click
+    // selection itself is already applied to the view model by the time this fires - it only needs
+    // to trigger the actual re-filter pass.
+    private void ProjectFilterListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (DataContext is MainViewModel viewModel) viewModel.ApplyFilters();
+    }
+
+    private void PriorityFilterListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (DataContext is MainViewModel viewModel) viewModel.ApplyFilters();
+    }
+
+    private void WhoFilterListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (DataContext is MainViewModel viewModel) viewModel.ApplyFilters();
     }
 
     private void SortByProject_Click(object sender, RoutedEventArgs e)

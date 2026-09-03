@@ -19,6 +19,35 @@
         <SolidColorBrush x:Key="AccentPanelBrush" Color="#FF1E3A5F"/>
         <SolidColorBrush x:Key="AccentPanelBorderBrush" Color="#FF3E6491"/>
 
+        <!-- Project/Priority/Who filter lists: each ListBoxItem's IsSelected binds TwoWay to the
+             underlying FilterOptionViewModel.IsSelected, so Ctrl/Shift-click multi-select falls out
+             of ListBox's own built-in selection handling with no extra code, in either direction. -->
+        <Style x:Key="MultiSelectFilterListBoxStyle" TargetType="ListBox">
+            <Setter Property="SelectionMode" Value="Extended"/>
+            <Setter Property="Height" Value="84"/>
+            <Setter Property="Padding" Value="2"/>
+            <Setter Property="Margin" Value="0,0,0,6"/>
+            <Setter Property="Background" Value="{DynamicResource InputBackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource CardBorderBrush}"/>
+            <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto"/>
+            <Setter Property="ItemContainerStyle">
+                <Setter.Value>
+                    <Style TargetType="ListBoxItem">
+                        <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}"/>
+                        <Setter Property="Padding" Value="4,1"/>
+                    </Style>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="ItemTemplate">
+                <Setter.Value>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding Name}" FontSize="11"/>
+                    </DataTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
         <!-- Explicit no-op style (no Template setter) so this stays square like the rest of the
              Filter cluster, instead of picking up the app-wide rounded Button style. -->
         <Style x:Key="ClearFiltersButtonStyle" TargetType="Button">
@@ -310,23 +339,20 @@
 
                         <TextBlock Text="Filter" Style="{StaticResource SectionHeaderStyle}" Margin="0,10,0,4"/>
 
-                        <TextBlock Text="Project" FontWeight="Bold" FontSize="11" Foreground="White" Margin="0,0,0,2"/>
-                        <ComboBox ItemsSource="{Binding ProjectFilterOptions}" SelectedItem="{Binding SelectedProjectFilter, Mode=TwoWay}"
-                                  Padding="4" Margin="0,0,0,6" ToolTip="Show only cards belonging to this project"
-                                  Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
-                                  BorderBrush="{DynamicResource CardBorderBrush}"/>
+                        <TextBlock Text="Project (Ctrl/Shift-click for multiple)" FontWeight="Bold" FontSize="11" Foreground="White" Margin="0,0,0,2"/>
+                        <ListBox Style="{StaticResource MultiSelectFilterListBoxStyle}" ItemsSource="{Binding ProjectFilterOptions}"
+                                 ToolTip="Show only cards belonging to the selected project(s) - Ctrl/Shift-click to select more than one"
+                                 SelectionChanged="ProjectFilterListBox_SelectionChanged"/>
 
-                        <TextBlock Text="Priority" FontWeight="Bold" FontSize="11" Foreground="White" Margin="0,0,0,2"/>
-                        <ComboBox ItemsSource="{Binding PriorityFilterOptions}" SelectedItem="{Binding SelectedPriorityFilter, Mode=TwoWay}"
-                                  Padding="4" Margin="0,0,0,6" ToolTip="Show only cards with this priority"
-                                  Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
-                                  BorderBrush="{DynamicResource CardBorderBrush}"/>
+                        <TextBlock Text="Priority (Ctrl/Shift-click for multiple)" FontWeight="Bold" FontSize="11" Foreground="White" Margin="0,0,0,2"/>
+                        <ListBox Style="{StaticResource MultiSelectFilterListBoxStyle}" ItemsSource="{Binding PriorityFilterOptions}" Height="70"
+                                 ToolTip="Show only cards with the selected priorities - Ctrl/Shift-click to select more than one"
+                                 SelectionChanged="PriorityFilterListBox_SelectionChanged"/>
 
-                        <TextBlock Text="Who" FontWeight="Bold" FontSize="11" Foreground="White" Margin="0,0,0,2"/>
-                        <ComboBox ItemsSource="{Binding WhoFilterOptions}" SelectedItem="{Binding SelectedWhoFilter, Mode=TwoWay}"
-                                  Padding="4" Margin="0,0,0,6" ToolTip="Show only cards assigned to this person"
-                                  Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
-                                  BorderBrush="{DynamicResource CardBorderBrush}"/>
+                        <TextBlock Text="Who (Ctrl/Shift-click for multiple)" FontWeight="Bold" FontSize="11" Foreground="White" Margin="0,0,0,2"/>
+                        <ListBox Style="{StaticResource MultiSelectFilterListBoxStyle}" ItemsSource="{Binding WhoFilterOptions}"
+                                 ToolTip="Show only cards assigned to the selected people - Ctrl/Shift-click to select more than one"
+                                 SelectionChanged="WhoFilterListBox_SelectionChanged"/>
 
                         <TextBlock Text="Goal" FontWeight="Bold" FontSize="11" Foreground="White" Margin="0,0,0,2"/>
                         <ComboBox ItemsSource="{Binding GoalFilterOptions}" SelectedItem="{Binding SelectedGoalFilter, Mode=TwoWay}"
@@ -417,12 +443,12 @@
                                         ToolTip="Add, rename, or delete flags (Alt+F)">
                                     <TextBlock Text="Manage Flags" TextWrapping="Wrap" TextAlignment="Center"/>
                                 </Button>
-                            </StackPanel>
-                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                                 <Button Style="{StaticResource SquareButtonStyle}" Background="#FF5C6BC0" Foreground="White" Click="ManageWho_Click"
                                         ToolTip="Add, rename, or delete people (Alt+W)">
                                     <TextBlock Text="Manage Who" TextWrapping="Wrap" TextAlignment="Center"/>
                                 </Button>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                                 <Button Style="{StaticResource SquareButtonStyle}" Background="#FFEF5350" Foreground="White" Click="Reminders_Click"
                                         ToolTip="Show tasks that are overdue or due today (Alt+R)">
                                     <TextBlock Text="Reminders" TextWrapping="Wrap" TextAlignment="Center"/>

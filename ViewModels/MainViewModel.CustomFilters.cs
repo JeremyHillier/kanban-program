@@ -56,9 +56,9 @@ public partial class MainViewModel
         CustomFilters[slot] = new CustomFilter
         {
             Name = name.Trim(),
-            Project = SelectedProjectFilter,
-            Priority = SelectedPriorityFilter,
-            Who = SelectedWhoFilter,
+            Project = ProjectFilterOptions.Where(o => o.IsSelected).Select(o => o.Name).ToList(),
+            Priority = PriorityFilterOptions.Where(o => o.IsSelected).Select(o => o.Name).ToList(),
+            Who = WhoFilterOptions.Where(o => o.IsSelected).Select(o => o.Name).ToList(),
             Goal = SelectedGoalFilter,
             Flag = SelectedFlagFilter,
             Due = DueFilter,
@@ -98,13 +98,16 @@ public partial class MainViewModel
         var filter = CustomFilters[slot];
         if (!filter.IsDefined) return false;
 
-        // Backing fields are set directly and the change notifications raised by hand, so the whole
-        // slot lands as one atomic change with a single ApplyFilters pass at the end - going through
-        // the public setters would re-filter the board eight times and, worse, let the DueFilter and
-        // DueRange setters clear each other on the way through.
-        _selectedProjectFilter = filter.Project;
-        _selectedPriorityFilter = filter.Priority;
-        _selectedWhoFilter = filter.Who;
+        // Project/Priority/Who selection is set directly on the (already-live) FilterOptionViewModel
+        // instances, which notify their own bound ListBoxItems. The rest of the backing fields are
+        // set directly and the change notifications raised by hand, so the whole slot lands as one
+        // atomic change with a single ApplyFilters pass at the end - going through the public setters
+        // would re-filter the board repeatedly and, worse, let the DueFilter and DueRange setters
+        // clear each other on the way through.
+        ApplySelection(ProjectFilterOptions, filter.Project);
+        ApplySelection(PriorityFilterOptions, filter.Priority);
+        ApplySelection(WhoFilterOptions, filter.Who);
+
         _selectedGoalFilter = filter.Goal;
         _selectedFlagFilter = filter.Flag;
         _dueFilter = filter.Due;
@@ -112,9 +115,6 @@ public partial class MainViewModel
         _dueRangeTo = ParseDate(filter.DueTo);
         _keywordFilter = filter.Keyword;
 
-        OnPropertyChanged(nameof(SelectedProjectFilter));
-        OnPropertyChanged(nameof(SelectedPriorityFilter));
-        OnPropertyChanged(nameof(SelectedWhoFilter));
         OnPropertyChanged(nameof(SelectedGoalFilter));
         OnPropertyChanged(nameof(SelectedFlagFilter));
         OnPropertyChanged(nameof(DueFilter));

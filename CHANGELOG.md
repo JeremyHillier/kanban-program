@@ -6,6 +6,11 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.71.0 — 2026-09-02
+- Align the four Manage buttons (Projects/Goals/Flags/Who) into a single row
+- Add printing to the Timeline: a Print button opens the same preview/print window Report Builder uses, rendering the currently visible range and zoom level as a paginated landscape document
+- Project, Priority, and Who filters — on both the board and Report Builder — are now multi-select: Ctrl-click or Shift-click to pick more than one, matching any of the selected values. Saved Alt+0-9 custom filter slots and the remembered last-session filters upgrade automatically; older single-value slots keep working
+
 ## 0.70.3 — 2026-09-02
 - Widen the sidebar button panel (280px to 320px) so the Settings/Help/Report Builder/Timeline row fits its fourth button without overflowing
 - Timeline: freeze the date-header row so it stays visible while scrolling through project rows, and add alternating row shading to make each project's row easier to track across the columns

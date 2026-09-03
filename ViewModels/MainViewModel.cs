@@ -167,11 +167,15 @@ public partial class MainViewModel : ObservableObject
             Columns.Add(columnVm);
         }
 
+        List<string>? savedProjectFilter = null;
+        List<string>? savedPriorityFilter = null;
+        List<string>? savedWhoFilter = null;
+
         if (RememberLastView)
         {
-            _selectedProjectFilter = _db.GetSetting("LastProjectFilter") ?? "All";
-            _selectedPriorityFilter = _db.GetSetting("LastPriorityFilter") ?? "All";
-            _selectedWhoFilter = _db.GetSetting("LastWhoFilter") ?? "All";
+            savedProjectFilter = SplitFilterNames(_db.GetSetting("LastProjectFilter"));
+            savedPriorityFilter = SplitFilterNames(_db.GetSetting("LastPriorityFilter"));
+            savedWhoFilter = SplitFilterNames(_db.GetSetting("LastWhoFilter"));
             _selectedGoalFilter = _db.GetSetting("LastGoalFilter") ?? "All";
             _selectedFlagFilter = _db.GetSetting("LastFlagFilter") ?? "All";
             _dueFilter = _db.GetSetting("LastDueFilter") ?? "All";
@@ -197,10 +201,22 @@ public partial class MainViewModel : ObservableObject
         RefreshWhoFilterOptions();
         RefreshGoalFilterOptions();
         RefreshFlagFilterOptions();
+
+        // Applied after the options lists are populated, since restoring a selection means setting
+        // IsSelected on the actual FilterOptionViewModel instances, not a bare string. A saved name
+        // ("All" from before multi-select existed included) that isn't an option name is dropped -
+        // "All" split alone naturally selects nothing, which is exactly what it always meant.
+        if (savedProjectFilter is not null) ApplySelection(ProjectFilterOptions, savedProjectFilter);
+        if (savedPriorityFilter is not null) ApplySelection(PriorityFilterOptions, savedPriorityFilter);
+        if (savedWhoFilter is not null) ApplySelection(WhoFilterOptions, savedWhoFilter);
+
         ApplyFilters();
         ApplySort();
         RefreshDashboardStats();
     }
+
+    private static List<string> SplitFilterNames(string? raw) =>
+        string.IsNullOrEmpty(raw) ? [] : raw.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList();
 
     private string ResolveProjectName(int? projectId)
     {

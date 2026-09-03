@@ -20,6 +20,33 @@
             <Setter Property="Margin" Value="0,16,0,6"/>
             <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
         </Style>
+
+        <!-- Same TwoWay-IsSelected pattern as the board's own filter lists: each ListBoxItem binds to
+             its FilterOptionViewModel.IsSelected, so Ctrl/Shift-click multi-select needs no extra code. -->
+        <Style x:Key="MultiSelectFilterListBoxStyle" TargetType="ListBox">
+            <Setter Property="SelectionMode" Value="Extended"/>
+            <Setter Property="Height" Value="72"/>
+            <Setter Property="Padding" Value="2"/>
+            <Setter Property="Background" Value="{DynamicResource InputBackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource CardBorderBrush}"/>
+            <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto"/>
+            <Setter Property="ItemContainerStyle">
+                <Setter.Value>
+                    <Style TargetType="ListBoxItem">
+                        <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}"/>
+                        <Setter Property="Padding" Value="4,1"/>
+                    </Style>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="ItemTemplate">
+                <Setter.Value>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding Name}" FontSize="11"/>
+                    </DataTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </Window.Resources>
     <Grid Margin="16">
         <Grid.ColumnDefinitions>
@@ -57,21 +84,15 @@
 
         <TextBlock Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="3" Text="Filters" Style="{StaticResource SectionHeaderStyle}"/>
 
-        <TextBlock Grid.Row="5" Grid.Column="0" Text="Project" Style="{StaticResource FieldLabelStyle}"/>
-        <TextBlock Grid.Row="5" Grid.Column="2" Text="Priority" Style="{StaticResource FieldLabelStyle}"/>
-        <ComboBox Grid.Row="6" Grid.Column="0" x:Name="ProjectFilterComboBox" Padding="6"
-                  Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
-                  BorderBrush="{DynamicResource CardBorderBrush}"/>
-        <ComboBox Grid.Row="6" Grid.Column="2" x:Name="PriorityFilterComboBox" Padding="6"
-                  Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
-                  BorderBrush="{DynamicResource CardBorderBrush}"/>
+        <TextBlock Grid.Row="5" Grid.Column="0" Text="Project (Ctrl/Shift-click for multiple)" Style="{StaticResource FieldLabelStyle}"/>
+        <TextBlock Grid.Row="5" Grid.Column="2" Text="Priority (Ctrl/Shift-click for multiple)" Style="{StaticResource FieldLabelStyle}"/>
+        <ListBox Grid.Row="6" Grid.Column="0" x:Name="ProjectFilterListBox" Style="{StaticResource MultiSelectFilterListBoxStyle}"/>
+        <ListBox Grid.Row="6" Grid.Column="2" x:Name="PriorityFilterListBox" Style="{StaticResource MultiSelectFilterListBoxStyle}"/>
 
-        <TextBlock Grid.Row="7" Grid.Column="0" Text="Who" Style="{StaticResource FieldLabelStyle}"/>
+        <TextBlock Grid.Row="7" Grid.Column="0" Text="Who (Ctrl/Shift-click for multiple)" Style="{StaticResource FieldLabelStyle}"/>
         <TextBlock Grid.Row="7" Grid.Column="2" Text="Goal" Style="{StaticResource FieldLabelStyle}"/>
-        <ComboBox Grid.Row="8" Grid.Column="0" x:Name="WhoFilterComboBox" Padding="6"
-                  Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
-                  BorderBrush="{DynamicResource CardBorderBrush}"/>
-        <ComboBox Grid.Row="8" Grid.Column="2" x:Name="GoalFilterComboBox" Padding="6"
+        <ListBox Grid.Row="8" Grid.Column="0" x:Name="WhoFilterListBox" Style="{StaticResource MultiSelectFilterListBoxStyle}"/>
+        <ComboBox Grid.Row="8" Grid.Column="2" x:Name="GoalFilterComboBox" Padding="6" VerticalAlignment="Top"
                   Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
                   BorderBrush="{DynamicResource CardBorderBrush}"/>
 

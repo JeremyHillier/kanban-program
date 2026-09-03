@@ -13,6 +13,11 @@ public partial class ReportBuilderWindow : Window
     private readonly MainViewModel _viewModel;
     private readonly List<CheckBox> _columnCheckBoxes = [];
     private readonly List<CheckBox> _customFilterCheckBoxes = [];
+    // Independent of the board's own Project/Priority/Who selection - fresh FilterOptionViewModel
+    // instances carrying just the option names, so checking one here never touches the board's filter.
+    private readonly List<FilterOptionViewModel> _projectOptions = [];
+    private readonly List<FilterOptionViewModel> _priorityOptions = [];
+    private readonly List<FilterOptionViewModel> _whoOptions = [];
     private bool _initializing = true;
 
     public ReportBuilderWindow(MainViewModel viewModel)
@@ -34,9 +39,13 @@ public partial class ReportBuilderWindow : Window
             ColumnsPanel.Children.Add(checkBox);
         }
 
-        ProjectFilterComboBox.ItemsSource = _viewModel.ProjectFilterOptions;
-        PriorityFilterComboBox.ItemsSource = _viewModel.PriorityFilterOptions;
-        WhoFilterComboBox.ItemsSource = _viewModel.WhoFilterOptions;
+        _projectOptions.AddRange(_viewModel.ProjectFilterOptions.Select(o => new FilterOptionViewModel(o.Name)));
+        _priorityOptions.AddRange(_viewModel.PriorityFilterOptions.Select(o => new FilterOptionViewModel(o.Name)));
+        _whoOptions.AddRange(_viewModel.WhoFilterOptions.Select(o => new FilterOptionViewModel(o.Name)));
+        ProjectFilterListBox.ItemsSource = _projectOptions;
+        PriorityFilterListBox.ItemsSource = _priorityOptions;
+        WhoFilterListBox.ItemsSource = _whoOptions;
+
         GoalFilterComboBox.ItemsSource = _viewModel.GoalFilterOptions;
         FlagFilterComboBox.ItemsSource = _viewModel.FlagFilterOptions;
         DueFilterComboBox.ItemsSource = _viewModel.DueFilterOptions;
@@ -67,9 +76,9 @@ public partial class ReportBuilderWindow : Window
 
         foreach (var checkBox in _columnCheckBoxes) checkBox.IsChecked = true;
 
-        ProjectFilterComboBox.SelectedIndex = 0;
-        PriorityFilterComboBox.SelectedIndex = 0;
-        WhoFilterComboBox.SelectedIndex = 0;
+        foreach (var option in _projectOptions) option.IsSelected = false;
+        foreach (var option in _priorityOptions) option.IsSelected = false;
+        foreach (var option in _whoOptions) option.IsSelected = false;
         GoalFilterComboBox.SelectedIndex = 0;
         FlagFilterComboBox.SelectedIndex = 0;
         DueFilterComboBox.SelectedIndex = 0;
@@ -186,10 +195,15 @@ public partial class ReportBuilderWindow : Window
         else
         {
             var filterParts = new List<string>();
+            void AddIfAnySelected(string label, List<FilterOptionViewModel> options)
+            {
+                var selected = options.Where(o => o.IsSelected).Select(o => o.Name).ToList();
+                if (selected.Count > 0) filterParts.Add($"{label}: {string.Join(", ", selected)}");
+            }
             void AddIfSet(string label, ComboBox combo) { if ((string)combo.SelectedItem != "All") filterParts.Add($"{label}: {combo.SelectedItem}"); }
-            AddIfSet("Project", ProjectFilterComboBox);
-            AddIfSet("Priority", PriorityFilterComboBox);
-            AddIfSet("Who", WhoFilterComboBox);
+            AddIfAnySelected("Project", _projectOptions);
+            AddIfAnySelected("Priority", _priorityOptions);
+            AddIfAnySelected("Who", _whoOptions);
             AddIfSet("Goal", GoalFilterComboBox);
             AddIfSet("Flag", FlagFilterComboBox);
             AddIfSet("Due", DueFilterComboBox);
@@ -237,9 +251,9 @@ public partial class ReportBuilderWindow : Window
         return ReportService.BuildRows(
             _viewModel.Columns,
             GetIncludedColumns(),
-            (string)ProjectFilterComboBox.SelectedItem,
-            (string)PriorityFilterComboBox.SelectedItem,
-            (string)WhoFilterComboBox.SelectedItem,
+            _projectOptions.Where(o => o.IsSelected).Select(o => o.Name).ToList(),
+            _priorityOptions.Where(o => o.IsSelected).Select(o => o.Name).ToList(),
+            _whoOptions.Where(o => o.IsSelected).Select(o => o.Name).ToList(),
             (string)GoalFilterComboBox.SelectedItem,
             (string)FlagFilterComboBox.SelectedItem,
             (string)DueFilterComboBox.SelectedItem,

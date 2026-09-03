@@ -61,7 +61,7 @@ public static class ReportService
     public static List<ReportRow> BuildRows(
         IEnumerable<ColumnViewModel> columns,
         HashSet<string> includeColumns,
-        string projectFilter, string priorityFilter, string whoFilter, string goalFilter, string flagFilter, string dueFilter,
+        List<string> projectFilter, List<string> priorityFilter, List<string> whoFilter, string goalFilter, string flagFilter, string dueFilter,
         DateTime? dueRangeFrom, DateTime? dueRangeTo, bool includeNoDueDate,
         List<CustomFilter>? unionFilters,
         string sortLevel1, string sortLevel2, string sortLevel3,
@@ -141,17 +141,17 @@ public static class ReportService
         IsArchived = isArchived
     };
 
-    private static bool Matches(CardViewModel card, string projectFilter, string priorityFilter, string whoFilter,
+    private static bool Matches(CardViewModel card, List<string> projectFilter, List<string> priorityFilter, List<string> whoFilter,
         string goalFilter, string flagFilter, string dueFilter, DateTime? dueRangeFrom = null, DateTime? dueRangeTo = null, bool includeNoDueDate = false)
     {
-        if (projectFilter != "All" && card.ProjectName != projectFilter) return false;
-        if (priorityFilter != "All" && card.Priority != priorityFilter) return false;
+        if (projectFilter.Count > 0 && !projectFilter.Contains(card.ProjectName)) return false;
+        if (priorityFilter.Count > 0 && !priorityFilter.Contains(card.Priority)) return false;
 
-        if (whoFilter == "Unassigned")
+        if (whoFilter.Count > 0)
         {
-            if (card.WhoId is not null) return false;
+            var whoKey = card.WhoId is null ? "Unassigned" : card.WhoName;
+            if (!whoFilter.Contains(whoKey)) return false;
         }
-        else if (whoFilter != "All" && card.WhoName != whoFilter) return false;
 
         if (goalFilter == "Unassigned")
         {

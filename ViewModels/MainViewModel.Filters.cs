@@ -6,33 +6,17 @@ namespace KanbanApp.ViewModels;
 // the MatchesFilters predicate that drives each card's IsVisible.
 public partial class MainViewModel
 {
-    public ObservableCollection<string> ProjectFilterOptions { get; } = ["All"];
-    public ObservableCollection<string> PriorityFilterOptions { get; } = ["All", "High", "Medium", "Normal", "Low"];
-    public ObservableCollection<string> WhoFilterOptions { get; } = ["All"];
+    // Project/Priority/Who are multi-select (Ctrl/Shift-click, via FilterOptionViewModel.IsSelected
+    // bound to each ListBoxItem) - no selection means no restriction on that field, same meaning
+    // "All" had as a single-select value. Goal/Flag/Due stay single-select ComboBoxes.
+    public ObservableCollection<FilterOptionViewModel> ProjectFilterOptions { get; } = [];
+    public ObservableCollection<FilterOptionViewModel> PriorityFilterOptions { get; } =
+        [new("High"), new("Medium"), new("Normal"), new("Low")];
+    public ObservableCollection<FilterOptionViewModel> WhoFilterOptions { get; } = [];
+
     public ObservableCollection<string> GoalFilterOptions { get; } = ["All"];
     public ObservableCollection<string> FlagFilterOptions { get; } = ["All"];
     public ObservableCollection<string> DueFilterOptions { get; } = ["All", "Today", "Tomorrow", "Within a Week", "No Due Date"];
-
-    private string _selectedProjectFilter = "All";
-    public string SelectedProjectFilter
-    {
-        get => _selectedProjectFilter;
-        set { if (SetField(ref _selectedProjectFilter, value ?? "All")) ApplyFilters(); }
-    }
-
-    private string _selectedPriorityFilter = "All";
-    public string SelectedPriorityFilter
-    {
-        get => _selectedPriorityFilter;
-        set { if (SetField(ref _selectedPriorityFilter, value ?? "All")) ApplyFilters(); }
-    }
-
-    private string _selectedWhoFilter = "All";
-    public string SelectedWhoFilter
-    {
-        get => _selectedWhoFilter;
-        set { if (SetField(ref _selectedWhoFilter, value ?? "All")) ApplyFilters(); }
-    }
 
     private string _selectedGoalFilter = "All";
     public string SelectedGoalFilter
@@ -130,28 +114,49 @@ public partial class MainViewModel
         }
     }
 
+    // Same reorder-in-place approach as ReplaceFilterOptions, but for the multi-select lists: a
+    // surviving option's IsSelected state (and the FilterOptionViewModel instance itself, since
+    // that's what ListBox.SelectedItems tracks) carries over across a refresh; a name that's gone
+    // (project renamed away, person deactivated) just drops out along with whatever selection it had.
+    private static void SyncFilterOptions(ObservableCollection<FilterOptionViewModel> options, List<string> desired)
+    {
+        for (var i = options.Count - 1; i >= 0; i--)
+        {
+            if (!desired.Contains(options[i].Name)) options.RemoveAt(i);
+        }
+
+        for (var i = 0; i < desired.Count; i++)
+        {
+            if (i < options.Count && options[i].Name == desired[i]) continue;
+
+            var existingIndex = -1;
+            for (var j = 0; j < options.Count; j++)
+            {
+                if (options[j].Name == desired[i]) { existingIndex = j; break; }
+            }
+
+            if (existingIndex >= 0)
+            {
+                options.Move(existingIndex, i);
+            }
+            else
+            {
+                options.Insert(i, new FilterOptionViewModel(desired[i]));
+            }
+        }
+    }
+
     private void RefreshProjectFilterOptions()
     {
-        var desired = new List<string> { "All" };
-        desired.AddRange(Projects.Where(p => p.IsActive).OrderBy(p => p.Name).Select(p => p.Name));
-        ReplaceFilterOptions(ProjectFilterOptions, desired);
-
-        if (!ProjectFilterOptions.Contains(SelectedProjectFilter))
-        {
-            SelectedProjectFilter = "All";
-        }
+        var desired = Projects.Where(p => p.IsActive).OrderBy(p => p.Name).Select(p => p.Name).ToList();
+        SyncFilterOptions(ProjectFilterOptions, desired);
     }
 
     private void RefreshWhoFilterOptions()
     {
-        var desired = new List<string> { "All", "Unassigned" };
+        var desired = new List<string> { "Unassigned" };
         desired.AddRange(People.Where(p => p.IsActive).OrderBy(p => p.Name).Select(p => p.Name));
-        ReplaceFilterOptions(WhoFilterOptions, desired);
-
-        if (!WhoFilterOptions.Contains(SelectedWhoFilter))
-        {
-            SelectedWhoFilter = "All";
-        }
+        SyncFilterOptions(WhoFilterOptions, desired);
     }
 
     private void RefreshGoalFilterOptions()
@@ -188,14 +193,18 @@ public partial class MainViewModel
 
     private bool MatchesFilters(CardViewModel card)
     {
-        if (SelectedProjectFilter != "All" && card.ProjectName != SelectedProjectFilter) return false;
-        if (SelectedPriorityFilter != "All" && card.Priority != SelectedPriorityFilter) return false;
+        var selectedProjects = ProjectFilterOptions.Where(o => o.IsSelected).Select(o => o.Name).ToList();
+        if (selectedProjects.Count > 0 && !selectedProjects.Contains(card.ProjectName)) return false;
 
-        if (SelectedWhoFilter == "Unassigned")
+        var selectedPriorities = PriorityFilterOptions.Where(o => o.IsSelected).Select(o => o.Name).ToList();
+        if (selectedPriorities.Count > 0 && !selectedPriorities.Contains(card.Priority)) return false;
+
+        var selectedWhos = WhoFilterOptions.Where(o => o.IsSelected).Select(o => o.Name).ToList();
+        if (selectedWhos.Count > 0)
         {
-            if (card.WhoId is not null) return false;
+            var whoKey = card.WhoId is null ? "Unassigned" : card.WhoName;
+            if (!selectedWhos.Contains(whoKey)) return false;
         }
-        else if (SelectedWhoFilter != "All" && card.WhoName != SelectedWhoFilter) return false;
 
         if (SelectedGoalFilter == "Unassigned")
         {
@@ -243,6 +252,16 @@ public partial class MainViewModel
         return true;
     }
 
+    // Sets IsSelected on whichever options match the given names (used to restore a saved
+    // selection - a custom filter slot, or the remembered last-view state - onto a freshly
+    // refreshed options list). A saved name that no longer exists as an option is silently
+    // dropped, the same as an invalid single-select value used to fall back to "All".
+    private static void ApplySelection(IEnumerable<FilterOptionViewModel> options, IEnumerable<string> selectedNames)
+    {
+        var names = selectedNames as ICollection<string> ?? selectedNames.ToList();
+        foreach (var option in options) option.IsSelected = names.Contains(option.Name);
+    }
+
     // Alt+T's one-key "just show me today". Every other filter is reset first, so the result is
     // always the whole board's due-today (and overdue) work rather than today's slice of whatever
     // narrowing happened to be applied already.
@@ -254,12 +273,10 @@ public partial class MainViewModel
 
     public void ClearFilters()
     {
-        _selectedProjectFilter = "All";
-        OnPropertyChanged(nameof(SelectedProjectFilter));
-        _selectedPriorityFilter = "All";
-        OnPropertyChanged(nameof(SelectedPriorityFilter));
-        _selectedWhoFilter = "All";
-        OnPropertyChanged(nameof(SelectedWhoFilter));
+        foreach (var option in ProjectFilterOptions) option.IsSelected = false;
+        foreach (var option in PriorityFilterOptions) option.IsSelected = false;
+        foreach (var option in WhoFilterOptions) option.IsSelected = false;
+
         _selectedGoalFilter = "All";
         OnPropertyChanged(nameof(SelectedGoalFilter));
         _selectedFlagFilter = "All";
