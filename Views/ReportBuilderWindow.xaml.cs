@@ -31,7 +31,9 @@ public partial class ReportBuilderWindow : Window
             {
                 Content = column.DisplayName,
                 Tag = column.Name,
-                IsChecked = true,
+                // Done is left unchecked by default - most reports are about what's still open,
+                // and completed work already has its own Archive Done workflow.
+                IsChecked = column.Name != "Done",
                 Margin = new Thickness(0, 0, 16, 6),
                 Foreground = (System.Windows.Media.Brush)FindResource("PrimaryTextBrush")
             };
@@ -63,6 +65,8 @@ public partial class ReportBuilderWindow : Window
             CustomFiltersPanel.Children.Add(checkBox);
         }
 
+        SavedViewsComboBox.ItemsSource = _viewModel.SavedReportViews;
+
         ResetFields();
 
         _initializing = false;
@@ -74,7 +78,7 @@ public partial class ReportBuilderWindow : Window
     {
         ReportTitleTextBox.Text = "Kanban Task Report";
 
-        foreach (var checkBox in _columnCheckBoxes) checkBox.IsChecked = true;
+        foreach (var checkBox in _columnCheckBoxes) checkBox.IsChecked = (string)checkBox.Tag != "Done";
 
         foreach (var option in _projectOptions) option.IsSelected = false;
         foreach (var option in _priorityOptions) option.IsSelected = false;
@@ -107,6 +111,139 @@ public partial class ReportBuilderWindow : Window
     }
 
     private void Reset_Click(object sender, RoutedEventArgs e) => ResetFields();
+
+    private void LoadReportView_Click(object sender, RoutedEventArgs e)
+    {
+        if (SavedViewsComboBox.SelectedItem is not SavedReportView view) return;
+        ApplyReportView(view);
+    }
+
+    private void SaveReportView_Click(object sender, RoutedEventArgs e)
+    {
+        var prompt = new PromptWindow("Save Report View", "Name for this view:") { Owner = this };
+        if (prompt.ShowDialog() != true) return;
+
+        var name = prompt.Value.Trim();
+        if (string.IsNullOrWhiteSpace(name)) return;
+
+        if (_viewModel.SavedReportViews.Any(v => string.Equals(v.Name, name, StringComparison.OrdinalIgnoreCase)))
+        {
+            var overwrite = MessageBox.Show(this, $"A saved view named \"{name}\" already exists. Overwrite it?",
+                "Overwrite View", MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No);
+            if (overwrite != MessageBoxResult.Yes) return;
+        }
+
+        _viewModel.SaveReportView(CaptureCurrentAsView(name));
+        SavedViewsComboBox.SelectedItem = _viewModel.SavedReportViews.FirstOrDefault(v => v.Name == name);
+    }
+
+    private void DeleteReportView_Click(object sender, RoutedEventArgs e)
+    {
+        if (SavedViewsComboBox.SelectedItem is not SavedReportView view) return;
+
+        var result = MessageBox.Show(this, $"Delete the saved view \"{view.Name}\"?",
+            "Delete View", MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No);
+        if (result != MessageBoxResult.Yes) return;
+
+        _viewModel.DeleteReportView(view.Name);
+    }
+
+    // Captures every field this window exposes - broader than GetParameterSummary, which only
+    // describes the filter/scope/sort choices that affect which rows match, not layout choices
+    // like columns, orientation, or the Notes/Sub-tasks toggles.
+    private SavedReportView CaptureCurrentAsView(string name) => new()
+    {
+        Name = name,
+        Title = GetReportTitle(),
+        IncludedColumns = GetIncludedColumns().ToList(),
+        Project = _projectOptions.Where(o => o.IsSelected).Select(o => o.Name).ToList(),
+        Priority = _priorityOptions.Where(o => o.IsSelected).Select(o => o.Name).ToList(),
+        Who = _whoOptions.Where(o => o.IsSelected).Select(o => o.Name).ToList(),
+        Goal = (string)GoalFilterComboBox.SelectedItem,
+        Flag = (string)FlagFilterComboBox.SelectedItem,
+        Due = (string)DueFilterComboBox.SelectedItem,
+        DueFrom = DueFromDatePicker.SelectedDate?.ToString("yyyy-MM-dd"),
+        DueTo = DueToDatePicker.SelectedDate?.ToString("yyyy-MM-dd"),
+        IncludeNoDueDate = IncludeNoDueDateCheckBox.IsChecked == true,
+        CustomFilterNames = _customFilterCheckBoxes.Where(c => c.IsChecked == true).Select(c => ((CustomFilter)c.Tag).Name).ToList(),
+        SortLevel1 = (string)((ComboBoxItem)SortLevel1ComboBox.SelectedItem).Tag,
+        SortLevel2 = (string)((ComboBoxItem)SortLevel2ComboBox.SelectedItem).Tag,
+        SortLevel3 = (string)((ComboBoxItem)SortLevel3ComboBox.SelectedItem).Tag,
+        GroupBy = GetGroupBy(),
+        ArchiveScope = GetArchiveScope().ToString(),
+        ArchivedFrom = ArchivedFromDatePicker.SelectedDate?.ToString("yyyy-MM-dd"),
+        ArchivedTo = ArchivedToDatePicker.SelectedDate?.ToString("yyyy-MM-dd"),
+        IsLandscape = LandscapeRadio.IsChecked == true,
+        IncludeNotes = IncludeNotesCheckBox.IsChecked == true,
+        IncludeSubTasks = IncludeSubTasksCheckBox.IsChecked == true,
+        IncludeSubTaskSummary = IncludeSubTaskSummaryCheckBox.IsChecked == true
+    };
+
+    private void ApplyReportView(SavedReportView view)
+    {
+        ReportTitleTextBox.Text = view.Title;
+
+        foreach (var checkBox in _columnCheckBoxes) checkBox.IsChecked = view.IncludedColumns.Contains((string)checkBox.Tag);
+
+        foreach (var option in _projectOptions) option.IsSelected = view.Project.Contains(option.Name);
+        foreach (var option in _priorityOptions) option.IsSelected = view.Priority.Contains(option.Name);
+        foreach (var option in _whoOptions) option.IsSelected = view.Who.Contains(option.Name);
+
+        SelectComboItem(GoalFilterComboBox, view.Goal);
+        SelectComboItem(FlagFilterComboBox, view.Flag);
+        SelectComboItem(DueFilterComboBox, view.Due);
+
+        DueFromDatePicker.SelectedDate = ParseDate(view.DueFrom);
+        DueToDatePicker.SelectedDate = ParseDate(view.DueTo);
+        IncludeNoDueDateCheckBox.IsChecked = view.IncludeNoDueDate;
+
+        // A custom filter slot renamed or deleted since this view was saved just drops out here,
+        // the same as a gone Project/Who/Goal name silently falling out of the lists above.
+        foreach (var checkBox in _customFilterCheckBoxes)
+        {
+            checkBox.IsChecked = view.CustomFilterNames.Contains(((CustomFilter)checkBox.Tag).Name);
+        }
+
+        SelectComboItemByTag(GroupByComboBox, view.GroupBy);
+        SelectComboItemByTag(SortLevel1ComboBox, view.SortLevel1);
+        SelectComboItemByTag(SortLevel2ComboBox, view.SortLevel2);
+        SelectComboItemByTag(SortLevel3ComboBox, view.SortLevel3);
+
+        BoardOnlyRadio.IsChecked = view.ArchiveScope == nameof(ReportArchiveScope.BoardOnly);
+        BoardAndArchivedRadio.IsChecked = view.ArchiveScope == nameof(ReportArchiveScope.BoardAndArchived);
+        ArchivedOnlyRadio.IsChecked = view.ArchiveScope == nameof(ReportArchiveScope.ArchivedOnly);
+
+        ArchivedFromDatePicker.SelectedDate = ParseDate(view.ArchivedFrom);
+        ArchivedToDatePicker.SelectedDate = ParseDate(view.ArchivedTo);
+
+        LandscapeRadio.IsChecked = view.IsLandscape;
+        PortraitRadio.IsChecked = !view.IsLandscape;
+
+        IncludeNotesCheckBox.IsChecked = view.IncludeNotes;
+        IncludeSubTasksCheckBox.IsChecked = view.IncludeSubTasks;
+        IncludeSubTaskSummaryCheckBox.IsChecked = view.IncludeSubTaskSummary;
+
+        UpdateSortLevelAvailability();
+    }
+
+    private static void SelectComboItem(ComboBox combo, string value)
+    {
+        if (combo.Items.Contains(value)) combo.SelectedItem = value;
+    }
+
+    private static void SelectComboItemByTag(ComboBox combo, string tag)
+    {
+        foreach (var item in combo.Items)
+        {
+            if (item is ComboBoxItem comboBoxItem && (string)comboBoxItem.Tag == tag)
+            {
+                combo.SelectedItem = comboBoxItem;
+                return;
+            }
+        }
+    }
+
+    private static DateTime? ParseDate(string? value) => DateTime.TryParse(value, out var parsed) ? parsed : null;
 
     private void DatePicker_Loaded(object sender, RoutedEventArgs e) => CalendarWheelSupport.Attach((DatePicker)sender);
 

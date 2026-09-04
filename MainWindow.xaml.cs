@@ -237,6 +237,23 @@ public partial class MainWindow : Window
         dialog.ShowDialog();
     }
 
+    // Rebuilt fresh on every hover rather than cached, so a slot saved or renamed a moment ago
+    // (via the Manage Custom Filters dialog, or Alt+0-9 capture) always shows up-to-date without
+    // needing an explicit refresh hook.
+    private void CustomFiltersButton_ToolTipOpening(object sender, ToolTipEventArgs e)
+    {
+        if (DataContext is not MainViewModel viewModel) return;
+
+        var defined = viewModel.CustomFilters
+            .Select((filter, slot) => (filter, slot))
+            .Where(x => x.filter.IsDefined)
+            .ToList();
+
+        CustomFiltersButton.ToolTip = defined.Count == 0
+            ? "No custom filters saved yet. Set the board's filters how you like, then click here to save the combination to Alt+0 - Alt+9."
+            : "Saved custom filters:\n" + string.Join("\n", defined.Select(x => $"Alt+{x.slot}: {x.filter.Name} — {x.filter.Summary}"));
+    }
+
     private void ManageProjects_Click(object sender, RoutedEventArgs e)
     {
         if (DataContext is not MainViewModel viewModel) return;

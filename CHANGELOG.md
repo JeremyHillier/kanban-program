@@ -6,6 +6,12 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.72.0 — 2026-09-03
+- Add saved report views to Report Builder: name and save the full set of fields (columns, filters, sort/group, scope, orientation, Notes/Sub-tasks toggles) and reload it later from a dropdown next to Load/Save View/Delete View
+- Report Builder: the Done column is now unchecked by default when opening the window
+- Report Builder: the Parameters summary moves into the header band, right-aligned and level with "Generated...", in a larger font, instead of a separate line below it
+- Hover the sidebar's Custom Filters button to preview every saved Alt+0-9 slot (name and summary) without opening the manage dialog
+
 ## 0.71.5 — 2026-09-02
 - Internal review and refactor, no functional change: saving a task's flags, sub-tasks, and attachments now writes each set in a single transaction with one reused statement instead of committing every row separately, which was the main cost of saving a task
 - Filtering the board no longer rebuilds the selected Project/Priority/Who lists once per card, so typing in the Keyword box no longer allocates thousands of throwaway lists per keystroke

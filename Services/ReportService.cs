@@ -368,6 +368,13 @@ public static class ReportService
             targetCanvas.Children.Add(block);
         }
 
+        // Right edge is pinned at rightX; the line's own measured width determines where it starts.
+        void AddTextRight(Canvas targetCanvas, string text, double rightX, double top, Typeface tf, double size, Brush brush)
+        {
+            var width = MakeText(text, tf, size, brush).Width;
+            AddText(targetCanvas, text, rightX - width, top, tf, size, brush);
+        }
+
         var canvases = new List<Canvas>();
         Canvas canvas = null!;
         double y = 0;
@@ -387,25 +394,36 @@ public static class ReportService
 
         NewPage();
 
-        const double bandHeight = 70;
+        var subtitleBrush = new SolidColorBrush(Color.FromRgb(0xC0, 0xCB, 0xDA));
+        const double paramFontSize = 12;
+        const double paramLineHeight = 16;
+        const double bandMinHeight = 70;
+
+        // Parameters sits to the right of Title/Generated, right-aligned, its first line level with
+        // Generated - so it reads as a second column in the band rather than a separate block below
+        // it. Wrapped to a bit over half the content width to keep clear of a long title on the left;
+        // the band grows past its 70px minimum if that produces more lines than Title/Generated need.
+        var paramLines = string.IsNullOrEmpty(parameterSummary)
+            ? []
+            : WrapLine(parameterSummary, regularTypeface, paramFontSize, contentWidth * 0.55);
+        var bandHeight = Math.Max(bandMinHeight, 46 + paramLines.Count * paramLineHeight + 14);
+
         var titleBand = new System.Windows.Shapes.Rectangle { Width = pageWidth, Height = bandHeight, Fill = BandAccentBrush };
         Canvas.SetLeft(titleBand, 0);
         Canvas.SetTop(titleBand, 0);
         canvas.Children.Add(titleBand);
         AddText(canvas, title, margin, 18, boldTypeface, 20, Brushes.White);
         AddText(canvas, $"Generated {DateTime.Now:MMM d, yyyy h:mm tt}  —  {rows.Count} task{(rows.Count == 1 ? "" : "s")}",
-            margin, 46, regularTypeface, 10, new SolidColorBrush(Color.FromRgb(0xC0, 0xCB, 0xDA)));
-        y = bandHeight + 24;
+            margin, 46, regularTypeface, 10, subtitleBrush);
 
-        if (!string.IsNullOrEmpty(parameterSummary))
+        var paramY = 46.0;
+        foreach (var line in paramLines)
         {
-            foreach (var line in WrapLine(parameterSummary, italicTypeface, 9, contentWidth))
-            {
-                AddText(canvas, line, margin, y, italicTypeface, 9, Brushes.Gray);
-                y += 13;
-            }
-            y += 8;
+            AddTextRight(canvas, line, pageWidth - margin, paramY, regularTypeface, paramFontSize, subtitleBrush);
+            paramY += paramLineHeight;
         }
+
+        y = bandHeight + 24;
 
         if (rows.Count == 0)
         {
@@ -594,25 +612,33 @@ public static class ReportService
             y = margin;
         }
 
-        const double bandHeight = 70;
+        var paramFont = new XFont("Segoe UI", 12, XFontStyleEx.Regular);
+        const double paramLineHeight = 16;
+        const double bandMinHeight = 70;
+
+        // Same "second column in the band, right-aligned, level with Generated" layout as the
+        // WPF preview path - see BuildFixedDocument's matching comment.
+        var paramLines = string.IsNullOrEmpty(parameterSummary)
+            ? []
+            : WrapText(gfx, parameterSummary, paramFont, width * 0.55);
+        var bandHeight = Math.Max(bandMinHeight, 46 + paramLines.Count * paramLineHeight + 14);
+
         gfx.DrawRectangle(accentBrush, 0, 0, pageWidth, bandHeight);
         gfx.DrawString(title, titleFont, XBrushes.White, new XPoint(margin, 30));
         gfx.DrawString($"Generated {DateTime.Now:MMM d, yyyy h:mm tt}  —  {rows.Count} task{(rows.Count == 1 ? "" : "s")}",
             subtitleFont, subtitleBrush, new XPoint(margin, 56));
+
+        var paramY = 56.0;
+        foreach (var line in paramLines)
+        {
+            var lineWidth = gfx.MeasureString(line, paramFont).Width;
+            gfx.DrawString(line, paramFont, subtitleBrush, new XPoint(pageWidth - margin - lineWidth, paramY));
+            paramY += paramLineHeight;
+        }
+
         y = bandHeight + 24;
 
         var metaBrush = new XSolidBrush(XColor.FromArgb(0x69, 0x69, 0x69));
-        var grayBrush = new XSolidBrush(XColor.FromArgb(0x80, 0x80, 0x80));
-
-        if (!string.IsNullOrEmpty(parameterSummary))
-        {
-            foreach (var line in WrapText(gfx, parameterSummary, noteFont, width))
-            {
-                gfx.DrawString(line, noteFont, grayBrush, new XPoint(margin, y));
-                y += 12;
-            }
-            y += 8;
-        }
 
         if (rows.Count == 0)
         {

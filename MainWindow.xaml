@@ -539,10 +539,10 @@
                                     Click="ClearFilters_Click">
                                 <TextBlock Text="Clear Filters" TextWrapping="Wrap" TextAlignment="Center"/>
                             </Button>
-                            <Button Grid.Column="2" Style="{StaticResource ClearFiltersButtonStyle}" HorizontalAlignment="Stretch"
-                                    ToolTip="Save the current filters to Alt+0 - Alt+9 and manage those slots"
+                            <Button Grid.Column="2" x:Name="CustomFiltersButton" Style="{StaticResource ClearFiltersButtonStyle}" HorizontalAlignment="Stretch"
+                                    ToolTip="Custom filters"
                                     Background="#FF5C6BC0" Foreground="White"
-                                    Click="ManageCustomFilters_Click">
+                                    Click="ManageCustomFilters_Click" ToolTipOpening="CustomFiltersButton_ToolTipOpening">
                                 <TextBlock Text="Custom Filters..." TextWrapping="Wrap" TextAlignment="Center"/>
                             </Button>
                         </Grid>

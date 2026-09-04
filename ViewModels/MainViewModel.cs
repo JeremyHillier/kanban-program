@@ -101,6 +101,7 @@ public partial class MainViewModel : ObservableObject
         ShowDueReminders = _db.GetSetting("ShowDueReminders") != "False";
         ShowWhatsNew = _db.GetSetting("ShowWhatsNew") != "False";
         LoadCustomFilters();
+        LoadSavedReportViews();
     }
 
     public void RenameColumnDisplayName(ColumnViewModel column, string newDisplayName)

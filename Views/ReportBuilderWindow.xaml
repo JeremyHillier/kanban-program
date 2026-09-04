@@ -48,7 +48,27 @@
             </Setter>
         </Style>
     </Window.Resources>
-    <Grid Margin="16">
+    <DockPanel Margin="16">
+        <Grid DockPanel.Dock="Top" Margin="0,0,0,12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <ComboBox Grid.Column="0" x:Name="SavedViewsComboBox" Padding="6" Margin="0,0,8,0"
+                      DisplayMemberPath="Name"
+                      ToolTip="Saved report views - Load applies every field below, Save View captures them"
+                      Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                      BorderBrush="{DynamicResource CardBorderBrush}"/>
+            <Button Grid.Column="1" Content="Load" Width="70" Padding="0,6" Margin="0,0,8,0" Click="LoadReportView_Click"
+                    Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+            <Button Grid.Column="2" Content="Save View..." Width="90" Padding="0,6" Margin="0,0,8,0" Click="SaveReportView_Click"
+                    Background="#FF66BB6A" Foreground="White"/>
+            <Button Grid.Column="3" Content="Delete View" Width="90" Padding="0,6" Click="DeleteReportView_Click"
+                    Background="#FFE57373" Foreground="White"/>
+        </Grid>
+        <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="16"/>
@@ -271,5 +291,6 @@
                 </StackPanel>
             </Grid>
         </Grid>
-    </Grid>
+        </Grid>
+    </DockPanel>
 </Window>
