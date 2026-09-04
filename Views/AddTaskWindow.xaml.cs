@@ -46,6 +46,14 @@ public partial class AddTaskWindow : Window
         // activate once content (e.g. a long sub-task list) overflows, instead of the window just
         // growing past the screen's bottom edge and taking the Cancel/Add Task buttons with it.
         FormScrollViewer.MaxHeight = SystemParameters.WorkArea.Height * 0.75;
+
+        // Base spell-check language is en-CA (set in XAML); this custom dictionary adds American
+        // spelling variants (color, favorite, traveled, ...) on top so both are accepted instead of
+        // one dialect flagging the other as misspelled.
+        var americanVariantsDictionary = new Uri("pack://application:,,,/Assets/AmericanSpellingVariants.lex", UriKind.Absolute);
+        SpellCheck.GetCustomDictionaries(DetailsTextBox).Add(americanVariantsDictionary);
+        SpellCheck.GetCustomDictionaries(NotesTextBox).Add(americanVariantsDictionary);
+
         _viewModel = viewModel;
         CalendarWheelSupport.Attach(DueDatePicker);
         CategoryComboBox.ItemsSource = viewModel.Columns;

@@ -6,6 +6,9 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.75.0 — 2026-09-04
+- Task Details/Notes spell check now accepts both Canadian and American spellings (colour/color, centre/center, travelled/traveled, etc.) instead of flagging one dialect as misspelled
+
 ## 0.74.0 — 2026-09-04
 - Task Details/Notes spell check now uses Canadian English (was US English)
 - Timeline print now draws light vertical lines dividing the date/week columns
