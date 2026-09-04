@@ -6,6 +6,10 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.74.0 — 2026-09-04
+- Task Details/Notes spell check now uses Canadian English (was US English)
+- Timeline print now draws light vertical lines dividing the date/week columns
+
 ## 0.73.0 — 2026-09-03
 - Email This Task now signs off with Outlook's own default signature when one is configured (captured by displaying the compose window before setting the body, then splicing our content in ahead of it), falling back to a simple signature built from new Name/Title/Email/Phone fields under Settings > Your Details when Outlook has none. Any of the four fields can be left blank
 

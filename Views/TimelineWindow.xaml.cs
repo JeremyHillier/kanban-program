@@ -343,10 +343,23 @@ public partial class TimelineWindow : Window
         var bandOddBrush = new SolidColorBrush(Color.FromRgb(0xF2, 0xF2, 0xF2));
         var chipBrush = new SolidColorBrush(Color.FromRgb(0xE3, 0xF2, 0xFD));
         var chipBorderBrush = new SolidColorBrush(Color.FromRgb(0x90, 0xCA, 0xF9));
+        var columnLineBrush = new SolidColorBrush(Color.FromRgb(0xDD, 0xDD, 0xDD));
 
         var canvases = new List<Canvas>();
         Canvas canvas = null!;
         double y = 0;
+
+        void DrawColumnLines(double top, double height)
+        {
+            void VLine(double x)
+            {
+                var line = new Line { X1 = x, Y1 = top, X2 = x, Y2 = top + height, Stroke = columnLineBrush, StrokeThickness = 0.5 };
+                canvas.Children.Add(line);
+            }
+            VLine(margin + projectColWidth);
+            for (var w = 1; w < unitsToShow; w++)
+                VLine(margin + projectColWidth + w * unitColWidth);
+        }
 
         void DrawHeaderBand()
         {
@@ -426,6 +439,7 @@ public partial class TimelineWindow : Window
             Canvas.SetLeft(rowBand, margin);
             Canvas.SetTop(rowBand, y);
             canvas.Children.Add(rowBand);
+            DrawColumnLines(y, rowHeight);
 
             var rowTop = y;
             var labelY = rowTop + 4;

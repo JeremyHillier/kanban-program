@@ -68,7 +68,7 @@
                 <TextBlock Text="Task" Style="{StaticResource FieldLabelStyle}"/>
                 <TextBox x:Name="DetailsTextBox" Height="54" Padding="6" MaxLength="255"
                           TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Auto"
-                          SpellCheck.IsEnabled="True" Language="en-US"
+                          SpellCheck.IsEnabled="True" Language="en-CA"
                           Style="{StaticResource HoverTextBoxStyle}"
                           Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
 
@@ -185,7 +185,7 @@
                 <TextBlock Text="Notes" Style="{StaticResource FieldLabelStyle}"/>
                 <TextBox x:Name="NotesTextBox" Height="110" Padding="6"
                           TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Auto"
-                          SpellCheck.IsEnabled="True" Language="en-US"
+                          SpellCheck.IsEnabled="True" Language="en-CA"
                           Style="{StaticResource HoverTextBoxStyle}"
                           Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
 
