@@ -6,6 +6,9 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.73.0 — 2026-09-03
+- Email This Task now signs off with Outlook's own default signature when one is configured (captured by displaying the compose window before setting the body, then splicing our content in ahead of it), falling back to a simple signature built from new Name/Title/Email/Phone fields under Settings > Your Details when Outlook has none. Any of the four fields can be left blank
+
 ## 0.72.0 — 2026-09-03
 - Add saved report views to Report Builder: name and save the full set of fields (columns, filters, sort/group, scope, orientation, Notes/Sub-tasks toggles) and reload it later from a dropdown next to Load/Save View/Delete View
 - Report Builder: the Done column is now unchecked by default when opening the window

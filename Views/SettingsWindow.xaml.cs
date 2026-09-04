@@ -61,6 +61,11 @@ public partial class SettingsWindow : Window
         ImportPathTextBox.Text = viewModel.DefaultImportPath;
         LinkedFilesPathTextBox.Text = viewModel.LinkedFilesDefaultPath;
 
+        UserNameTextBox.Text = viewModel.UserName;
+        UserTitleTextBox.Text = viewModel.UserTitle;
+        UserEmailTextBox.Text = viewModel.UserEmail;
+        UserPhoneTextBox.Text = viewModel.UserPhone;
+
         StartFullScreenCheckBox.IsChecked = viewModel.StartFullScreen;
         ConfirmDeleteCheckBox.IsChecked = viewModel.ConfirmDelete;
         ConfirmArchiveCheckBox.IsChecked = viewModel.ConfirmArchive;
@@ -167,6 +172,14 @@ public partial class SettingsWindow : Window
     {
         _viewModel.SetDefaultExportPath(ExportPathTextBox.Text.Trim());
     }
+
+    private void UserNameTextBox_LostFocus(object sender, RoutedEventArgs e) => _viewModel.SetUserName(UserNameTextBox.Text);
+
+    private void UserTitleTextBox_LostFocus(object sender, RoutedEventArgs e) => _viewModel.SetUserTitle(UserTitleTextBox.Text);
+
+    private void UserEmailTextBox_LostFocus(object sender, RoutedEventArgs e) => _viewModel.SetUserEmail(UserEmailTextBox.Text);
+
+    private void UserPhoneTextBox_LostFocus(object sender, RoutedEventArgs e) => _viewModel.SetUserPhone(UserPhoneTextBox.Text);
 
     private void ImportPathTextBox_LostFocus(object sender, RoutedEventArgs e)
     {

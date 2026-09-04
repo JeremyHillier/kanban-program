@@ -94,6 +94,11 @@ public partial class MainViewModel : ObservableObject
         DefaultImportPath = _db.GetSetting("DefaultImportPath") ?? string.Empty;
         LinkedFilesDefaultPath = _db.GetSetting("LinkedFilesDefaultPath") ?? string.Empty;
 
+        UserName = _db.GetSetting("UserName") ?? string.Empty;
+        UserTitle = _db.GetSetting("UserTitle") ?? string.Empty;
+        UserEmail = _db.GetSetting("UserEmail") ?? string.Empty;
+        UserPhone = _db.GetSetting("UserPhone") ?? string.Empty;
+
         StartFullScreen = _db.GetSetting("StartFullScreen") == "True";
         ConfirmDelete = _db.GetSetting("ConfirmDelete") != "False";
         ConfirmArchive = _db.GetSetting("ConfirmArchive") != "False";

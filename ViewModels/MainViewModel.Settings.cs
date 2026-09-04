@@ -104,6 +104,37 @@ public partial class MainViewModel
         _db.SetSetting("LinkedFilesDefaultPath", value);
     }
 
+    // Used to build a fallback email signature (Email This Task) when Outlook has no default
+    // signature of its own configured. All optional - an empty one is simply left out of the block.
+    public string UserName { get; private set; } = string.Empty;
+    public string UserTitle { get; private set; } = string.Empty;
+    public string UserEmail { get; private set; } = string.Empty;
+    public string UserPhone { get; private set; } = string.Empty;
+
+    public void SetUserName(string value)
+    {
+        UserName = value.Trim();
+        _db.SetSetting("UserName", UserName);
+    }
+
+    public void SetUserTitle(string value)
+    {
+        UserTitle = value.Trim();
+        _db.SetSetting("UserTitle", UserTitle);
+    }
+
+    public void SetUserEmail(string value)
+    {
+        UserEmail = value.Trim();
+        _db.SetSetting("UserEmail", UserEmail);
+    }
+
+    public void SetUserPhone(string value)
+    {
+        UserPhone = value.Trim();
+        _db.SetSetting("UserPhone", UserPhone);
+    }
+
     public bool StartFullScreen { get; private set; }
     public bool ConfirmDelete { get; private set; } = true;
     public bool ConfirmArchive { get; private set; } = true;

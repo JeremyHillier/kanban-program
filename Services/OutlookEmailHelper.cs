@@ -1,6 +1,7 @@
 using System.IO;
 using System.Net;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Windows;
 using KanbanApp.ViewModels;
 
@@ -15,7 +16,7 @@ public static class OutlookEmailHelper
     // recipientEmail is passed explicitly rather than always reading card.WhoEmail: the Add/Edit
     // Task dialog needs to email the currently-selected Who in its combo box, which can be a live,
     // not-yet-saved change that hasn't made it onto the CardViewModel yet.
-    public static void ComposeCardEmail(Window owner, CardViewModel card, string recipientEmail)
+    public static void ComposeCardEmail(Window owner, CardViewModel card, string recipientEmail, MainViewModel viewModel)
     {
         if (string.IsNullOrWhiteSpace(recipientEmail)) return;
 
@@ -36,7 +37,26 @@ public static class OutlookEmailHelper
             dynamic mailItem = app.CreateItem(0); // olMailItem
             mailItem.To = recipientEmail;
             mailItem.Subject = $"Task: {card.Title}";
-            mailItem.HTMLBody = BuildHtmlBody(card);
+
+            // Display before setting HTMLBody (rather than after, as a naive version would) so
+            // Outlook gets a chance to insert the user's own default "new message" signature the
+            // normal way it would for a message composed by hand - reading HTMLBody back afterward
+            // captures whatever it inserted (a full HTML document, empty body if no signature is
+            // configured). Our own content is then spliced in right after <body...>, ahead of
+            // whatever Outlook put there, instead of overwriting it outright.
+            mailItem.Display(false);
+            string outlookHtml = mailItem.HTMLBody ?? string.Empty;
+
+            var content = BuildHtmlBody(card);
+            if (!HasVisibleContent(outlookHtml))
+            {
+                // No default signature came back from Outlook - fall back to one built from the
+                // user's own details in Settings, if any are filled in.
+                var fallbackSignature = BuildFallbackSignature(viewModel);
+                if (fallbackSignature is not null) content += fallbackSignature;
+            }
+
+            mailItem.HTMLBody = InsertAfterBodyTag(outlookHtml, content);
 
             foreach (var attachment in card.Attachments)
             {
@@ -45,13 +65,45 @@ public static class OutlookEmailHelper
                     mailItem.Attachments.Add(attachment.FilePath);
                 }
             }
-
-            mailItem.Display(false);
         }
         catch (Exception ex)
         {
             MessageBox.Show(owner, $"Couldn't create the email: {ex.Message}", "Email", MessageBoxButton.OK, MessageBoxImage.Error);
         }
+    }
+
+    // Outlook still returns a full (if empty) HTML document even with no signature configured, so
+    // "is there a signature" means "is there any rendered text inside <body>", not "is HTMLBody non-empty".
+    private static bool HasVisibleContent(string html)
+    {
+        var bodyMatch = Regex.Match(html, "<body[^>]*>(.*)</body>", RegexOptions.IgnoreCase | RegexOptions.Singleline);
+        var bodyInner = bodyMatch.Success ? bodyMatch.Groups[1].Value : html;
+        return Regex.Replace(bodyInner, "<[^>]+>", "").Trim().Length > 0;
+    }
+
+    private static string InsertAfterBodyTag(string html, string contentHtml)
+    {
+        if (string.IsNullOrWhiteSpace(html)) return $"<html><body>{contentHtml}</body></html>";
+
+        var bodyTagMatch = Regex.Match(html, "<body[^>]*>", RegexOptions.IgnoreCase);
+        if (!bodyTagMatch.Success) return contentHtml + html;
+
+        var insertAt = bodyTagMatch.Index + bodyTagMatch.Length;
+        return html.Insert(insertAt, contentHtml);
+    }
+
+    private static string? BuildFallbackSignature(MainViewModel viewModel)
+    {
+        var lines = new List<string>();
+        if (!string.IsNullOrWhiteSpace(viewModel.UserName)) lines.Add($"<b>{WebUtility.HtmlEncode(viewModel.UserName)}</b>");
+        if (!string.IsNullOrWhiteSpace(viewModel.UserTitle)) lines.Add(WebUtility.HtmlEncode(viewModel.UserTitle));
+        if (!string.IsNullOrWhiteSpace(viewModel.UserEmail)) lines.Add(WebUtility.HtmlEncode(viewModel.UserEmail));
+        if (!string.IsNullOrWhiteSpace(viewModel.UserPhone)) lines.Add(WebUtility.HtmlEncode(viewModel.UserPhone));
+
+        if (lines.Count == 0) return null;
+
+        return "<p style=\"margin-top:20px;font-family:'Segoe UI',sans-serif;font-size:11pt;color:#333;\">" +
+            string.Join("<br/>", lines) + "</p>";
     }
 
     private static string BuildHtmlBody(CardViewModel card)

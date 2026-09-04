@@ -699,8 +699,9 @@ public partial class MainWindow : Window
     private void EmailCardQuickAction_Click(object sender, RoutedEventArgs e)
     {
         if (sender is not FrameworkElement { DataContext: CardViewModel card } || !card.CanEmailCard) return;
+        if (DataContext is not MainViewModel viewModel) return;
 
-        OutlookEmailHelper.ComposeCardEmail(this, card, card.WhoEmail!);
+        OutlookEmailHelper.ComposeCardEmail(this, card, card.WhoEmail!, viewModel);
     }
 
     private void PriorityBadge_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)

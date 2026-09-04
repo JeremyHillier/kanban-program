@@ -156,6 +156,49 @@
                 <TextBlock Text="Where the '+ File...' picker opens by default when attaching a file to a task. The chosen file is copied into that task's Attachments folder, not linked from here."
                            FontSize="11" Margin="0,8,0,0"
                            Foreground="{DynamicResource SecondaryTextBrush}" TextWrapping="Wrap"/>
+
+                <TextBlock Text="Your Details" Style="{StaticResource SectionHeaderStyle}"/>
+                <Grid Margin="0,0,0,10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="12"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Text="Name" Style="{StaticResource FieldLabelStyle}"/>
+                        <TextBox x:Name="UserNameTextBox" Padding="6" LostFocus="UserNameTextBox_LostFocus"
+                                 Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                                 BorderBrush="{DynamicResource CardBorderBrush}"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="2">
+                        <TextBlock Text="Title" Style="{StaticResource FieldLabelStyle}"/>
+                        <TextBox x:Name="UserTitleTextBox" Padding="6" LostFocus="UserTitleTextBox_LostFocus"
+                                 Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                                 BorderBrush="{DynamicResource CardBorderBrush}"/>
+                    </StackPanel>
+                </Grid>
+                <Grid Margin="0,0,0,10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="12"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Text="Email" Style="{StaticResource FieldLabelStyle}"/>
+                        <TextBox x:Name="UserEmailTextBox" Padding="6" LostFocus="UserEmailTextBox_LostFocus"
+                                 Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                                 BorderBrush="{DynamicResource CardBorderBrush}"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="2">
+                        <TextBlock Text="Phone" Style="{StaticResource FieldLabelStyle}"/>
+                        <TextBox x:Name="UserPhoneTextBox" Padding="6" LostFocus="UserPhoneTextBox_LostFocus"
+                                 Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                                 BorderBrush="{DynamicResource CardBorderBrush}"/>
+                    </StackPanel>
+                </Grid>
+                <TextBlock Text="Used to sign off Email This Task when Outlook has no default signature of its own configured - filled-in fields only, so leave any of these blank to leave them out."
+                           FontSize="11" Margin="0,0,0,0"
+                           Foreground="{DynamicResource SecondaryTextBrush}" TextWrapping="Wrap"/>
             </StackPanel>
         </Grid>
 

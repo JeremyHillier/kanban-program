@@ -288,7 +288,7 @@ public partial class AddTaskWindow : Window
         if (_cardToEdit is null) return;
         if (WhoComboBox.SelectedItem is not PersonViewModel { Email: { Length: > 0 } } selected) return;
 
-        OutlookEmailHelper.ComposeCardEmail(this, _cardToEdit, selected.Email);
+        OutlookEmailHelper.ComposeCardEmail(this, _cardToEdit, selected.Email, _viewModel);
     }
 
     private void AddFile_Click(object sender, RoutedEventArgs e)
