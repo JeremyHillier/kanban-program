@@ -1,4 +1,5 @@
 using System.Windows;
+using KanbanApp.Services;
 
 namespace KanbanApp.Views;
 
@@ -12,6 +13,18 @@ public partial class PromptWindow : Window
         Title = title;
         PromptLabel.Text = label;
         ValueTextBox.Focus();
+    }
+
+    // The box starts empty, so anything typed into it is the unsaved work.
+    protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
+    {
+        base.OnClosing(e);
+        if (e.Cancel || DialogResult == true || string.IsNullOrWhiteSpace(ValueTextBox.Text)) return;
+
+        if (!UnsavedChangesGuard.ConfirmDiscard(this))
+        {
+            e.Cancel = true;
+        }
     }
 
     private void Add_Click(object sender, RoutedEventArgs e)

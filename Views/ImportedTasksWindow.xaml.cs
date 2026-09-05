@@ -11,6 +11,11 @@ public partial class ImportedTasksWindow : Window
     private readonly MainViewModel _viewModel;
     private readonly ObservableCollection<ImportedRowEditViewModel> _rows;
 
+    // The grid's contents as last saved (or as first loaded), so Close can tell whether there are
+    // edits to lose. Unlike the task dialog this window stays open after saving, so it's re-taken
+    // on every successful save rather than only once.
+    private string _savedSignature;
+
     public ImportedTasksWindow(MainViewModel viewModel)
     {
         InitializeComponent();
@@ -21,6 +26,22 @@ public partial class ImportedTasksWindow : Window
             viewModel.GetImportedCards().Select(c => new ImportedRowEditViewModel(c, viewModel)));
         RowsList.ItemsSource = _rows;
         EmptyStateText.Visibility = _rows.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+
+        _savedSignature = BuildSignature();
+    }
+
+    private string BuildSignature() => string.Join("|", _rows.Select(r =>
+        $"{r.Card.Id}{r.Title}{r.ColumnId}{r.ProjectId}{r.GoalId}{r.WhoId}{r.Priority}{r.DueDate:yyyy-MM-dd}{r.IsImported}"));
+
+    protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
+    {
+        base.OnClosing(e);
+        if (e.Cancel || BuildSignature() == _savedSignature) return;
+
+        if (!UnsavedChangesGuard.ConfirmDiscard(this))
+        {
+            e.Cancel = true;
+        }
     }
 
     private void DatePicker_Loaded(object sender, RoutedEventArgs e) => CalendarWheelSupport.Attach((DatePicker)sender);
@@ -59,6 +80,11 @@ public partial class ImportedTasksWindow : Window
         }
 
         EmptyStateText.Visibility = _rows.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+
+        // Re-baseline so closing straight after a save doesn't claim there's unsaved work. Only
+        // reached once every row has been written - the blank-title path returns before this.
+        _savedSignature = BuildSignature();
+
         MessageBox.Show(this, "Changes saved.", "Imported Tasks", MessageBoxButton.OK, MessageBoxImage.Information);
     }
 }

@@ -20,6 +20,11 @@ public partial class AddTaskWindow : Window
     private Point _subTaskDragStartPoint;
     private Grid? _subTaskDragCandidate;
 
+    // What the form looked like once it finished being populated. Captured on Loaded rather than at
+    // the end of the constructor because callers still set things up afterwards (PreselectColumn),
+    // and those programmatic changes must not count as the user having typed something.
+    private string? _openingSignature;
+
     public string TaskDetails { get; private set; } = string.Empty;
     public ColumnViewModel? SelectedColumn { get; private set; }
     public ProjectViewModel? SelectedProject { get; private set; }
@@ -64,6 +69,55 @@ public partial class AddTaskWindow : Window
         UpdateSubTaskProgressLabel();
 
         ProjectComboBox.Focus();
+
+        Loaded += (_, _) => _openingSignature = BuildSignature();
+    }
+
+    // Everything the form would save, rendered as one comparable string. Built from the same
+    // controls Add_Click reads, so a field can't be added to the save path and silently left out of
+    // the unsaved-changes check.
+    private string BuildSignature()
+    {
+        var flags = string.Join("|", FlagsPanel.Children.OfType<CheckBox>()
+            .Where(cb => cb.IsChecked == true)
+            .Select(cb => ((FlagViewModel)cb.Tag).Id));
+
+        var subTasks = string.Join("|", SubTasksPanel.Children.OfType<Grid>()
+            .Select(row => $"{((TextBox)row.Children[2]).Text}{((CheckBox)row.Children[1]).IsChecked == true}"));
+
+        var attachments = string.Join("|", AttachmentsPanel.Children.OfType<Grid>()
+            .Select(row => ((AttachmentViewModel)row.Tag).FilePath));
+
+        return string.Join("",
+            DetailsTextBox.Text,
+            (ProjectComboBox.SelectedItem as ProjectViewModel)?.Id.ToString() ?? "-",
+            (CategoryComboBox.SelectedItem as ColumnViewModel)?.Id.ToString() ?? "-",
+            (PriorityComboBox.SelectedItem as ComboBoxItem)?.Content as string ?? "-",
+            DueDatePicker.SelectedDate?.ToString("yyyy-MM-dd") ?? "-",
+            (WhoComboBox.SelectedItem as PersonViewModel)?.Id.ToString() ?? "-",
+            (GoalComboBox.SelectedItem as GoalViewModel)?.Id.ToString() ?? "-",
+            RecurringCheckBox.IsChecked == true,
+            (RecurrenceComboBox.SelectedItem as ComboBoxItem)?.Content as string ?? "-",
+            ForceEditOnCompleteCheckBox.IsChecked == true,
+            NotesTextBox.Text,
+            WebsiteUrlTextBox.Text,
+            flags, subTasks, attachments);
+    }
+
+    private bool HasUnsavedChanges() => _openingSignature is not null && BuildSignature() != _openingSignature;
+
+    // Covers every way of abandoning the dialog - Escape (the Cancel button is IsCancel), the Cancel
+    // button itself, and the title bar's X. DialogResult is true only when Add/Save actually ran, so
+    // a successful save never prompts.
+    protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
+    {
+        base.OnClosing(e);
+        if (e.Cancel || DialogResult == true || !HasUnsavedChanges()) return;
+
+        if (!UnsavedChangesGuard.ConfirmDiscard(this))
+        {
+            e.Cancel = true;
+        }
     }
 
     public void PreselectColumn(ColumnViewModel column)

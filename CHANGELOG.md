@@ -6,6 +6,10 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.76.0 — 2026-09-05
+- Pressing Escape (or Cancel, or the window's X) after entering or changing anything in the Add/Edit Task dialog now asks to confirm before discarding it, instead of closing silently. Closing an untouched dialog, or one you've just saved, still closes straight away
+- The same confirmation now guards the imported-tasks review grid, where Close previously discarded any edits made since the last Save Changes, and the small "add a new project/goal/flag/person" name prompt
+
 ## 0.75.0 — 2026-09-04
 - Task Details/Notes spell check now accepts both Canadian and American spellings (colour/color, centre/center, travelled/traveled, etc.) instead of flagging one dialect as misspelled
 
