@@ -573,28 +573,30 @@ public partial class MainWindow : Window
         viewModel.ToggleSortKey(MainViewModel.SortKey.Priority, Keyboard.Modifiers.HasFlag(ModifierKeys.Control));
     }
 
+    // Each of these clears every other filter before applying its own - see
+    // MainViewModel.ShowDueFilterOnly for why they deliberately aren't cumulative.
     private void DueToday_Click(object sender, RoutedEventArgs e)
     {
         if (DataContext is not MainViewModel viewModel) return;
-        viewModel.DueFilter = "Today";
+        viewModel.ShowDueFilterOnly("Today");
     }
 
     private void DueTomorrow_Click(object sender, RoutedEventArgs e)
     {
         if (DataContext is not MainViewModel viewModel) return;
-        viewModel.DueFilter = "Tomorrow";
+        viewModel.ShowDueFilterOnly("Tomorrow");
     }
 
     private void DueWithinWeek_Click(object sender, RoutedEventArgs e)
     {
         if (DataContext is not MainViewModel viewModel) return;
-        viewModel.DueFilter = "Within a Week";
+        viewModel.ShowDueFilterOnly("Within a Week");
     }
 
     private void DueNone_Click(object sender, RoutedEventArgs e)
     {
         if (DataContext is not MainViewModel viewModel) return;
-        viewModel.DueFilter = "No Due Date";
+        viewModel.ShowDueFilterOnly("No Due Date");
     }
 
     private void ClearFilters_Click(object sender, RoutedEventArgs e)

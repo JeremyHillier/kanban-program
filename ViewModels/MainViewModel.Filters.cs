@@ -295,14 +295,17 @@ public partial class MainViewModel
         foreach (var option in options) option.IsSelected = names.Contains(option.Name);
     }
 
-    // Alt+T's one-key "just show me today". Every other filter is reset first, so the result is
-    // always the whole board's due-today (and overdue) work rather than today's slice of whatever
-    // narrowing happened to be applied already.
-    public void ShowTodayOnly()
+    // The Today / Tomorrow / Within a Week / No Due Date shortcuts, and Alt+T. These aren't meant to
+    // stack on whatever narrowing is already applied - "Today" should answer "what's due today
+    // across the whole board", not "what's due today within the project and priority I happened to
+    // have selected". So every other filter is reset first and only the due filter is left set.
+    public void ShowDueFilterOnly(string dueFilter)
     {
         ClearFilters();
-        DueFilter = "Today";
+        DueFilter = dueFilter;
     }
+
+    public void ShowTodayOnly() => ShowDueFilterOnly("Today");
 
     public void ClearFilters()
     {

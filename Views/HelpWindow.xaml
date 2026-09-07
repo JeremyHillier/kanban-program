@@ -105,6 +105,7 @@
                 <local:BulletItem Text="The Filter section narrows the board by Project, Priority, Who, Goal, Flag, Due date range, or a keyword search across titles, project, who, and notes."/>
                 <local:BulletItem Text="Who, Goal, and Flag each offer an 'Unassigned' filter option, showing only tasks with none set."/>
                 <local:BulletItem Text="The Today / Tomorrow / Within a Week / No Due Date buttons filter by due date; Today and Within a Week both also include overdue tasks. The active one is shown with a highlighted border."/>
+                <local:BulletItem Text="These four are shortcuts, not extra filters: clicking one clears every other filter first, so you always see that due date across the whole board rather than within whatever you had narrowed down. Use the Due date range or the individual filters instead to combine a due date with a project, priority, and so on."/>
                 <local:BulletItem Text="Below those, From/To date pickers filter by a custom due-date range instead — leave From blank to include everything up through To, leave To blank to include everything from From onward. Setting a custom range clears the Today/Tomorrow/etc. buttons and vice versa."/>
                 <local:BulletItem Text="Clear Filters resets every filter back to All."/>
 

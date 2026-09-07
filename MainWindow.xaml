@@ -377,21 +377,21 @@
 
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,6">
                             <Button Style="{StaticResource DueFilterButtonToday}" Background="#FF42A5F5" Foreground="White" Click="DueToday_Click"
-                                    ToolTip="Show only cards due today or earlier (overdue)">
+                                    ToolTip="Show only cards due today or earlier (overdue). Clears every other filter first.">
                                 <TextBlock Text="Today" TextWrapping="Wrap" TextAlignment="Center"/>
                             </Button>
                             <Button Style="{StaticResource DueFilterButtonTomorrow}" Background="#FF26A69A" Foreground="White" Click="DueTomorrow_Click"
-                                    ToolTip="Show only cards due tomorrow">
+                                    ToolTip="Show only cards due tomorrow. Clears every other filter first.">
                                 <Viewbox Stretch="Uniform" StretchDirection="DownOnly">
                                     <TextBlock Text="Tomorrow" TextAlignment="Center"/>
                                 </Viewbox>
                             </Button>
                             <Button Style="{StaticResource DueFilterButtonWithinWeek}" Background="#FF7E57C2" Foreground="White" Click="DueWithinWeek_Click"
-                                    ToolTip="Show only cards due within a week">
+                                    ToolTip="Show only cards due within a week. Clears every other filter first.">
                                 <TextBlock Text="Within a Week" TextWrapping="Wrap" TextAlignment="Center"/>
                             </Button>
                             <Button Style="{StaticResource DueFilterButtonNone}" Background="#FF607D8B" Foreground="White" Click="DueNone_Click"
-                                    ToolTip="Show only cards with no due date">
+                                    ToolTip="Show only cards with no due date. Clears every other filter first.">
                                 <TextBlock Text="No Due Date" TextWrapping="Wrap" TextAlignment="Center"/>
                             </Button>
                         </StackPanel>
