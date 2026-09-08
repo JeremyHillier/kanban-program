@@ -6,6 +6,9 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.77.0 — 2026-09-08
+- Email This Task now also attaches a one-row Excel file with the task's fields, so a recipient who runs Kanban Task Board can pull it straight into their own board via Import Tasks instead of retyping it
+
 ## 0.76.1 — 2026-09-07
 - The Today / Tomorrow / Within a Week / No Due Date buttons are no longer cumulative: each now clears every other filter first — including a saved Alt+0-9 filter that was applied — so you always get that due date across the whole board rather than within whatever was already narrowed down. Alt+T already worked this way and is unchanged
 

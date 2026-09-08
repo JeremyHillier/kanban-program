@@ -82,6 +82,40 @@ public static class ImportService
         }
     }
 
+    // Single-row version of the import template, used to attach one task to an email so the
+    // recipient can pull it into their own board via the same Import Tasks feature - just the
+    // headers ReadTasks looks for plus one data row, no instructions banner or dropdown validation
+    // (the recipient's Category/Project/Goal/Who lists won't match the sender's anyway).
+    public static void SaveSingleTaskFile(string filePath, ImportedTaskRow row)
+    {
+        using var workbook = new XLWorkbook();
+        var sheet = workbook.AddWorksheet("Tasks");
+
+        for (var i = 0; i < Headers.Length; i++)
+        {
+            var cell = sheet.Cell(1, i + 1);
+            cell.Value = Headers[i];
+            cell.Style.Font.Bold = true;
+            cell.Style.Fill.BackgroundColor = XLColor.FromArgb(0xE3, 0xE8, 0xEF);
+        }
+
+        sheet.Cell(2, 1).Value = row.Title;
+        sheet.Cell(2, 2).Value = row.Category ?? string.Empty;
+        sheet.Cell(2, 3).Value = row.Priority ?? string.Empty;
+        sheet.Cell(2, 4).Value = row.Project ?? string.Empty;
+        sheet.Cell(2, 5).Value = row.Goal ?? string.Empty;
+        if (row.DueDate.HasValue)
+        {
+            sheet.Cell(2, 6).Value = row.DueDate.Value;
+            sheet.Cell(2, 6).Style.DateFormat.Format = "dd-mmm-yyyy";
+        }
+        sheet.Cell(2, 7).Value = row.Who ?? string.Empty;
+
+        sheet.Columns().AdjustToContents();
+
+        workbook.SaveAs(filePath);
+    }
+
     public static List<ImportedTaskRow> ReadTasks(string filePath)
     {
         using var workbook = new XLWorkbook(filePath);

@@ -3,6 +3,7 @@ using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows;
+using KanbanApp.Models;
 using KanbanApp.ViewModels;
 
 namespace KanbanApp.Services;
@@ -65,6 +66,8 @@ public static class OutlookEmailHelper
                     mailItem.Attachments.Add(attachment.FilePath);
                 }
             }
+
+            AttachImportFile(mailItem, card, viewModel);
         }
         catch (Exception ex)
         {
@@ -90,6 +93,42 @@ public static class OutlookEmailHelper
 
         var insertAt = bodyTagMatch.Index + bodyTagMatch.Length;
         return html.Insert(insertAt, contentHtml);
+    }
+
+    // Attaches a one-row Excel file (same headers ImportService.ReadTasks looks for) so the
+    // recipient can pull this task straight into their own board via Import Tasks, instead of
+    // retyping it from the email body. Written to a temp file and deleted right after attaching -
+    // Outlook copies attachment content into the message on Add, so the source no longer needs to
+    // exist once that call returns.
+    private static void AttachImportFile(dynamic mailItem, CardViewModel card, MainViewModel viewModel)
+    {
+        var tempPath = Path.Combine(Path.GetTempPath(), $"KanbanTask_{SanitizeFileName(card.Title)}.xlsx");
+        try
+        {
+            var categoryName = viewModel.Columns.FirstOrDefault(c => c.Id == card.ColumnId)?.DisplayName;
+            ImportService.SaveSingleTaskFile(tempPath, new ImportedTaskRow
+            {
+                Title = card.Title,
+                Category = categoryName,
+                Priority = card.Priority,
+                Project = card.ProjectName,
+                Goal = card.GoalName == "No Goal" ? null : card.GoalName,
+                DueDate = card.DueDate,
+                Who = card.WhoName == "Unassigned" ? null : card.WhoName
+            });
+            mailItem.Attachments.Add(tempPath);
+        }
+        finally
+        {
+            if (File.Exists(tempPath)) File.Delete(tempPath);
+        }
+    }
+
+    private static string SanitizeFileName(string name)
+    {
+        var invalid = Path.GetInvalidFileNameChars();
+        var cleaned = new string(name.Select(c => invalid.Contains(c) ? '_' : c).ToArray()).Trim();
+        return cleaned.Length > 60 ? cleaned[..60] : cleaned;
     }
 
     private static string? BuildFallbackSignature(MainViewModel viewModel)
@@ -140,6 +179,9 @@ public static class OutlookEmailHelper
         {
             sb.Append($"<p style=\"color: #777;\">{card.Attachments.Count} attachment(s) included.</p>");
         }
+
+        sb.Append("<p style=\"color: #777;\">This task is also attached as an Excel file - if you use Kanban Task Board, "
+            + "click Import Tasks and select it to add this task to your own board directly.</p>");
 
         sb.Append("</div>");
         return sb.ToString();
