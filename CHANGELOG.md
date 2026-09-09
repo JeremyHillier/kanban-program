@@ -6,6 +6,9 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.80.0 — 2026-09-09
+- The app now automatically backs up your task file each time it closes, keeping the most recent 20 by default. New Settings > Backups section: turn it off, change how many to keep, back up on demand, or open the backups folder directly
+
 ## 0.79.0 — 2026-09-09
 - Settings > Data Storage can now open or switch to a different task file entirely - like separate company files in accounting software, each is a fully independent board with its own tasks, columns, and settings. Open Existing File... or New File... to pick one, or quick-switch from a remembered list of recent files. Switching restarts the app; nothing about the file you're leaving is touched or deleted
 

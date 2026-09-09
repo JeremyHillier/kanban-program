@@ -99,6 +99,9 @@ public partial class MainViewModel : ObservableObject
         UserEmail = _db.GetSetting("UserEmail") ?? string.Empty;
         UserPhone = _db.GetSetting("UserPhone") ?? string.Empty;
 
+        AutoBackupEnabled = _db.GetSetting("AutoBackupEnabled") != "False";
+        BackupRetentionCount = int.TryParse(_db.GetSetting("BackupRetentionCount"), out var retention) ? retention : 20;
+
         StartFullScreen = _db.GetSetting("StartFullScreen") == "True";
         ConfirmDelete = _db.GetSetting("ConfirmDelete") != "False";
         ConfirmArchive = _db.GetSetting("ConfirmArchive") != "False";

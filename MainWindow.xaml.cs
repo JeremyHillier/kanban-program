@@ -24,7 +24,13 @@ public partial class MainWindow : Window
         Closing += (_, _) =>
         {
             SaveWindowBounds();
-            (DataContext as MainViewModel)?.SaveLastViewState();
+            var viewModel = DataContext as MainViewModel;
+            viewModel?.SaveLastViewState();
+
+            if (viewModel is { AutoBackupEnabled: true })
+            {
+                BackupService.CreateBackup(_db.DbPath, viewModel.BackupRetentionCount);
+            }
         };
         Loaded += MainWindow_Loaded;
     }

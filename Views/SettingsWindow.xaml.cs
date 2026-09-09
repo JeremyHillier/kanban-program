@@ -49,6 +49,10 @@ public partial class SettingsWindow : Window
         DbPathTextBox.Text = viewModel.CurrentDbPath;
         RefreshRecentFilesList();
 
+        AutoBackupCheckBox.IsChecked = viewModel.AutoBackupEnabled;
+        BackupRetentionTextBox.Text = viewModel.BackupRetentionCount.ToString();
+        BackupsPathTextBox.Text = BackupService.GetBackupsDir(viewModel.CurrentDbPath);
+
         ShowSplashCheckBox.IsChecked = viewModel.ShowSplash;
         foreach (System.Windows.Controls.ComboBoxItem item in SplashDelayComboBox.Items)
         {
@@ -155,6 +159,36 @@ public partial class SettingsWindow : Window
 
         _viewModel.SetColumnWidth(width);
         ColumnWidthTextBox.Text = _viewModel.ColumnWidth.ToString();
+    }
+
+    private void AutoBackupCheckBox_Changed(object sender, RoutedEventArgs e)
+    {
+        _viewModel.SetAutoBackupEnabled(AutoBackupCheckBox.IsChecked == true);
+    }
+
+    private void BackupRetentionTextBox_LostFocus(object sender, RoutedEventArgs e)
+    {
+        if (!int.TryParse(BackupRetentionTextBox.Text.Trim(), out var count))
+        {
+            BackupRetentionTextBox.Text = _viewModel.BackupRetentionCount.ToString();
+            return;
+        }
+
+        _viewModel.SetBackupRetentionCount(count);
+        BackupRetentionTextBox.Text = _viewModel.BackupRetentionCount.ToString();
+    }
+
+    private void BackupNow_Click(object sender, RoutedEventArgs e)
+    {
+        BackupService.CreateBackup(_viewModel.CurrentDbPath, _viewModel.BackupRetentionCount);
+        MessageBox.Show(this, "Backup created.", "Backup", MessageBoxButton.OK, MessageBoxImage.Information);
+    }
+
+    private void OpenBackupsFolder_Click(object sender, RoutedEventArgs e)
+    {
+        var backupsDir = BackupService.GetBackupsDir(_viewModel.CurrentDbPath);
+        Directory.CreateDirectory(backupsDir);
+        Process.Start(new ProcessStartInfo(backupsDir) { UseShellExecute = true });
     }
 
     private void ShowSplashCheckBox_Changed(object sender, RoutedEventArgs e)

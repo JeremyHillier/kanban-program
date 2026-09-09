@@ -143,6 +143,28 @@
                             Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
                 </StackPanel>
 
+                <TextBlock Text="Backups" Style="{StaticResource SectionHeaderStyle}"/>
+                <CheckBox x:Name="AutoBackupCheckBox" Content="Automatically back up when the app closes"
+                          Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,8"
+                          Checked="AutoBackupCheckBox_Changed" Unchecked="AutoBackupCheckBox_Changed"/>
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                    <TextBlock Text="Keep last" VerticalAlignment="Center" Margin="0,0,6,0" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                    <TextBox x:Name="BackupRetentionTextBox" Width="50" Padding="6" LostFocus="BackupRetentionTextBox_LostFocus"
+                             Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                             BorderBrush="{DynamicResource CardBorderBrush}"/>
+                    <TextBlock Text="backups" VerticalAlignment="Center" Margin="6,0,0,0" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                </StackPanel>
+                <TextBlock Text="Backups are stored at:" Margin="0,0,0,4" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                <TextBox x:Name="BackupsPathTextBox" IsReadOnly="True" Padding="6" Margin="0,0,0,10"
+                         Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                         BorderBrush="{DynamicResource CardBorderBrush}"/>
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,20">
+                    <Button Content="Back Up Now" Padding="10,6" Margin="0,0,8,0" Click="BackupNow_Click"
+                            Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                    <Button Content="Open Backups Folder" Padding="10,6" Click="OpenBackupsFolder_Click"
+                            Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                </StackPanel>
+
                 <TextBlock Text="Import / Export" Style="{StaticResource SectionHeaderStyle}"/>
                 <TextBlock Text="Default Export Path" Style="{StaticResource FieldLabelStyle}"/>
                 <Grid Margin="0,0,0,10">

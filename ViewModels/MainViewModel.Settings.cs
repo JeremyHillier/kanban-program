@@ -135,6 +135,23 @@ public partial class MainViewModel
         _db.SetSetting("UserPhone", UserPhone);
     }
 
+    // A backup copy of the database is written each time the app closes (see BackupService),
+    // pruned down to the most recent BackupRetentionCount afterward.
+    public bool AutoBackupEnabled { get; private set; } = true;
+    public int BackupRetentionCount { get; private set; } = 20;
+
+    public void SetAutoBackupEnabled(bool value)
+    {
+        AutoBackupEnabled = value;
+        _db.SetSetting("AutoBackupEnabled", value ? "True" : "False");
+    }
+
+    public void SetBackupRetentionCount(int value)
+    {
+        BackupRetentionCount = Math.Clamp(value, 1, 200);
+        _db.SetSetting("BackupRetentionCount", BackupRetentionCount.ToString());
+    }
+
     public bool StartFullScreen { get; private set; }
     public bool ConfirmDelete { get; private set; } = true;
     public bool ConfirmArchive { get; private set; } = true;
