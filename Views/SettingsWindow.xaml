@@ -115,6 +115,34 @@
                                Foreground="{DynamicResource SecondaryTextBrush}" TextWrapping="Wrap"/>
                 </StackPanel>
 
+                <TextBlock Text="Open or switch to a different task file — like separate company files in accounting software, each one is a fully independent board with its own tasks, columns, and settings." FontSize="11" Margin="0,0,0,8"
+                           Foreground="{DynamicResource SecondaryTextBrush}" TextWrapping="Wrap"/>
+                <ListBox x:Name="RecentFilesListBox" Height="90" Margin="0,0,0,8"
+                         Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                         BorderBrush="{DynamicResource CardBorderBrush}"
+                         MouseDoubleClick="RecentFilesListBox_MouseDoubleClick">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Margin="2">
+                                <TextBlock Text="{Binding FileName}" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                                <TextBlock Text="{Binding FullPath}" FontSize="10" Foreground="{DynamicResource SecondaryTextBrush}" TextTrimming="CharacterEllipsis"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                    <Button Content="Switch to Selected" Padding="10,6" Margin="0,0,8,0" Click="SwitchToSelected_Click"
+                            Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                    <Button Content="Remove from List" Padding="10,6" Click="RemoveFromRecent_Click"
+                            Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,20">
+                    <Button Content="Open Existing File..." Padding="10,6" Margin="0,0,8,0" Click="OpenExistingFile_Click"
+                            Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                    <Button Content="New File..." Padding="10,6" Click="NewFile_Click"
+                            Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                </StackPanel>
+
                 <TextBlock Text="Import / Export" Style="{StaticResource SectionHeaderStyle}"/>
                 <TextBlock Text="Default Export Path" Style="{StaticResource FieldLabelStyle}"/>
                 <Grid Margin="0,0,0,10">

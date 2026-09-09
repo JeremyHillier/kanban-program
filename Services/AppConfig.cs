@@ -1,4 +1,5 @@
 using System.IO;
+using System.Linq;
 using System.Text.Json;
 
 namespace KanbanApp.Services;
@@ -19,6 +20,36 @@ public class AppConfig
     public string DbPath { get; set; } = DefaultDbPath;
 
     public string? PendingCleanupPath { get; set; }
+
+    // Other task files the user has switched away from (most-recently-used first) - lets Settings
+    // offer a quick-switch list, similar to recent company files in accounting software. Capped so
+    // it doesn't grow unbounded across years of switching.
+    public List<string> RecentDbPaths { get; set; } = [];
+
+    private const int MaxRecentDbPaths = 8;
+
+    public static bool ArePathsEqual(string a, string b) =>
+        string.Equals(Path.GetFullPath(a), Path.GetFullPath(b), StringComparison.OrdinalIgnoreCase);
+
+    // Repoints DbPath at a different file - unlike moving/renaming the current file (see
+    // SettingsWindow's Change Location), this never touches anything on disk: the old file is left
+    // exactly where it is and just gets remembered in RecentDbPaths for switching back later.
+    public void SwitchTo(string newPath)
+    {
+        if (!string.IsNullOrWhiteSpace(DbPath) && !ArePathsEqual(DbPath, newPath))
+        {
+            RecentDbPaths.RemoveAll(p => ArePathsEqual(p, DbPath));
+            RecentDbPaths.Insert(0, DbPath);
+        }
+
+        RecentDbPaths.RemoveAll(p => ArePathsEqual(p, newPath));
+        if (RecentDbPaths.Count > MaxRecentDbPaths)
+        {
+            RecentDbPaths = RecentDbPaths.Take(MaxRecentDbPaths).ToList();
+        }
+
+        DbPath = newPath;
+    }
 
     public static bool ConfigFileExists() => File.Exists(ConfigPath);
 

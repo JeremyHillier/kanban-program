@@ -1,7 +1,9 @@
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using KanbanApp.Services;
 using KanbanApp.ViewModels;
 
@@ -45,6 +47,7 @@ public partial class SettingsWindow : Window
         ButtonsOnRightCheckBox.IsChecked = viewModel.IsButtonsOnRight;
         ColumnWidthTextBox.Text = viewModel.ColumnWidth.ToString();
         DbPathTextBox.Text = viewModel.CurrentDbPath;
+        RefreshRecentFilesList();
 
         ShowSplashCheckBox.IsChecked = viewModel.ShowSplash;
         foreach (System.Windows.Controls.ComboBoxItem item in SplashDelayComboBox.Items)
@@ -306,6 +309,122 @@ public partial class SettingsWindow : Window
         foreach (var subDir in Directory.GetDirectories(sourceDir))
         {
             CopyDirectoryRecursive(subDir, Path.Combine(destDir, Path.GetFileName(subDir)));
+        }
+    }
+
+    private record RecentFileEntry(string Path)
+    {
+        public string FileName => System.IO.Path.GetFileNameWithoutExtension(Path);
+        public string FullPath => Path;
+    }
+
+    private void RefreshRecentFilesList()
+    {
+        var config = AppConfig.Load();
+        RecentFilesListBox.ItemsSource = config.RecentDbPaths.Select(p => new RecentFileEntry(p)).ToList();
+    }
+
+    private void RecentFilesListBox_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+    {
+        if (RecentFilesListBox.SelectedItem is RecentFileEntry entry) SwitchToFile(entry.Path, expectExisting: true);
+    }
+
+    private void SwitchToSelected_Click(object sender, RoutedEventArgs e)
+    {
+        if (RecentFilesListBox.SelectedItem is not RecentFileEntry entry)
+        {
+            MessageBox.Show(this, "Select a file from the list first.", "Switch File", MessageBoxButton.OK, MessageBoxImage.Information);
+            return;
+        }
+
+        SwitchToFile(entry.Path, expectExisting: true);
+    }
+
+    private void RemoveFromRecent_Click(object sender, RoutedEventArgs e)
+    {
+        if (RecentFilesListBox.SelectedItem is not RecentFileEntry entry) return;
+
+        var config = AppConfig.Load();
+        config.RecentDbPaths.RemoveAll(p => AppConfig.ArePathsEqual(p, entry.Path));
+        config.Save();
+        RefreshRecentFilesList();
+    }
+
+    private void OpenExistingFile_Click(object sender, RoutedEventArgs e)
+    {
+        var dialog = new Microsoft.Win32.OpenFileDialog
+        {
+            Title = "Open Task File",
+            Filter = "SQLite Database (*.db)|*.db|All Files (*.*)|*.*",
+            InitialDirectory = Path.GetDirectoryName(_viewModel.CurrentDbPath)
+        };
+
+        if (dialog.ShowDialog() != true) return;
+
+        SwitchToFile(dialog.FileName, expectExisting: true);
+    }
+
+    private void NewFile_Click(object sender, RoutedEventArgs e)
+    {
+        var dialog = new Microsoft.Win32.SaveFileDialog
+        {
+            Title = "Create New Task File",
+            DefaultExt = ".db",
+            Filter = "SQLite Database (*.db)|*.db|All Files (*.*)|*.*",
+            InitialDirectory = Path.GetDirectoryName(_viewModel.CurrentDbPath),
+            OverwritePrompt = false
+        };
+
+        if (dialog.ShowDialog() != true) return;
+
+        if (File.Exists(dialog.FileName))
+        {
+            MessageBox.Show(this,
+                "A file already exists at that location. Choose a different name for the new file, or use \"Open Existing File...\" to open that one instead.",
+                "New File", MessageBoxButton.OK, MessageBoxImage.Warning);
+            return;
+        }
+
+        SwitchToFile(dialog.FileName, expectExisting: false);
+    }
+
+    // expectExisting distinguishes "open/switch to a file that should already be there" (Recent
+    // list, Open Existing) from "New File", where non-existence is exactly what's wanted - a stale
+    // recent path or a mistyped Open path would otherwise silently start a brand new empty file
+    // instead of the one the user meant to reopen.
+    private void SwitchToFile(string newPath, bool expectExisting)
+    {
+        if (AppConfig.ArePathsEqual(newPath, _viewModel.CurrentDbPath))
+        {
+            MessageBox.Show(this, "That's already the current file.", "Switch File", MessageBoxButton.OK, MessageBoxImage.Information);
+            return;
+        }
+
+        if (expectExisting && !File.Exists(newPath))
+        {
+            var proceed = MessageBox.Show(this,
+                $"No file was found at:\n{newPath}\n\nContinuing will start a brand new, empty file there. Continue?",
+                "File Not Found", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+            if (proceed != MessageBoxResult.Yes) return;
+        }
+
+        var config = AppConfig.Load();
+        config.SwitchTo(newPath);
+        config.Save();
+
+        var result = MessageBox.Show(this,
+            $"Switched to:\n{newPath}\n\nThe app needs to restart to open this file. Restart now?",
+            "Restart Required", MessageBoxButton.YesNo, MessageBoxImage.Information);
+
+        if (result == MessageBoxResult.Yes)
+        {
+            Process.Start(Environment.ProcessPath!);
+            Application.Current.Shutdown();
+        }
+        else
+        {
+            DbPathTextBox.Text = newPath;
+            RefreshRecentFilesList();
         }
     }
 }

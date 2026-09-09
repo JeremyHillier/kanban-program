@@ -6,6 +6,9 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.79.0 — 2026-09-09
+- Settings > Data Storage can now open or switch to a different task file entirely - like separate company files in accounting software, each is a fully independent board with its own tasks, columns, and settings. Open Existing File... or New File... to pick one, or quick-switch from a remembered list of recent files. Switching restarts the app; nothing about the file you're leaving is touched or deleted
+
 ## 0.78.0 — 2026-09-09
 - New Semi-Monthly recurring option, for tasks that repeat twice a month. It holds two fixed dates rather than repeating every 15 days, so it doesn't drift through the calendar the way Bi-Weekly does: a task due on the 3rd repeats on the 3rd and the 18th, one due on the 20th repeats on the 5th and the 20th
 - Due dates from the 13th to the 15th and from the 28th to the 31st settle onto the 15th and the last day of the month — the conventional twice-monthly pairing, and the only one that holds its dates through February. Dates from the 1st to the 12th keep their own pair permanently
