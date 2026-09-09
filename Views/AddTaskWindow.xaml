@@ -149,6 +149,7 @@
                             <ComboBoxItem Content="Weekday"/>
                             <ComboBoxItem Content="Weekly"/>
                             <ComboBoxItem Content="Bi-Weekly"/>
+                            <ComboBoxItem Content="Semi-Monthly" ToolTip="Twice a month, on two fixed days taken from the due date - a task due on the 3rd repeats on the 3rd and the 18th. Due dates from the 13th on pair the 15th with the last day of the month."/>
                             <ComboBoxItem Content="Monthly"/>
                             <ComboBoxItem Content="Bi-Monthly"/>
                             <ComboBoxItem Content="Quarterly"/>

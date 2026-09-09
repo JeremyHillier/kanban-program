@@ -6,6 +6,10 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.78.0 — 2026-09-09
+- New Semi-Monthly recurring option, for tasks that repeat twice a month. It holds two fixed dates rather than repeating every 15 days, so it doesn't drift through the calendar the way Bi-Weekly does: a task due on the 3rd repeats on the 3rd and the 18th, one due on the 20th repeats on the 5th and the 20th
+- Due dates from the 13th to the 15th and from the 28th to the 31st settle onto the 15th and the last day of the month — the conventional twice-monthly pairing, and the only one that holds its dates through February. Dates from the 1st to the 12th keep their own pair permanently
+
 ## 0.77.0 — 2026-09-08
 - Email This Task now also attaches a one-row Excel file with the task's fields, so a recipient who runs Kanban Task Board can pull it straight into their own board via Import Tasks instead of retyping it
 
