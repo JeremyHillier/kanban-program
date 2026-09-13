@@ -6,6 +6,10 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.82.1 — 2026-09-13
+- Rebalanced Settings: moved Backups to the left column (alongside Behavior) so both columns run about the same length instead of the right column towering over the left
+- Fixed Help buttons to scroll their topic to the top of the Help screen instead of just barely into view at the bottom
+
 ## 0.82.0 — 2026-09-13
 - Timeline task boxes are now colour-coded by priority (High/Medium/Normal/Low), both on screen and when printed, using the same colours as the priority badge on the board
 - Add/Edit Task, Report Builder, Timeline, and Settings each now have a Help (?) button that opens Help scrolled straight to that topic

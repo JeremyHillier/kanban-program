@@ -18,11 +18,16 @@ public partial class HelpWindow : Window
 
         if (scrollToSection is not null)
         {
+            // BringIntoView only scrolls the minimum distance needed to make the target visible,
+            // which for a section past the first screenful lands it at the bottom of the viewport
+            // instead of the top - scrolling to its exact offset within the content puts the
+            // section header flush at the top instead, however far down the topic sits.
             Loaded += (_, _) =>
             {
                 if (FindName(scrollToSection) is FrameworkElement target)
                 {
-                    target.BringIntoView();
+                    var offset = target.TranslatePoint(new Point(0, 0), ContentPanel).Y;
+                    ContentScrollViewer.ScrollToVerticalOffset(offset);
                 }
             };
         }

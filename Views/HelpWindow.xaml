@@ -35,8 +35,8 @@
         <TextBlock Grid.Row="0" Text="Kanban Task Board — Help" FontWeight="Bold" FontSize="18" Margin="0,0,0,4"
                    Foreground="{DynamicResource PrimaryTextBrush}"/>
 
-        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Margin="0,4,0,8">
-            <StackPanel>
+        <ScrollViewer x:Name="ContentScrollViewer" Grid.Row="1" VerticalScrollBarVisibility="Auto" Margin="0,4,0,8">
+            <StackPanel x:Name="ContentPanel">
                 <TextBlock Style="{StaticResource HelpBodyStyle}" TextWrapping="Wrap">
                     This board tracks tasks across five columns: To Do, In Progress, On Hold, Waiting, and Done.
                     Drag a card to a different column, or use its quick-move buttons.
