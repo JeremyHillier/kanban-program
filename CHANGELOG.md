@@ -6,6 +6,11 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.81.0 — 2026-09-13
+- The "delete a recurring task" prompt now shows plain, clearly labeled buttons (Delete This Occurrence, Keep Series Going / Delete This Occurrence, End Series / Cancel) instead of a generic Yes/No/Cancel dialog whose meaning wasn't obvious
+- Settings now has an About button at the bottom, next to Save & Close
+- Fixed a stray blue drag-and-drop insertion line sometimes staying visible on the board after finishing a drag
+
 ## 0.80.0 — 2026-09-09
 - The app now automatically backs up your task file each time it closes, keeping the most recent 20 by default. New Settings > Backups section: turn it off, change how many to keep, back up on demand, or open the backups folder directly
 

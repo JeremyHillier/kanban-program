@@ -155,6 +155,19 @@ public partial class MainWindow : Window
         if (sender is FrameworkElement { DataContext: CardViewModel card } element)
         {
             DragDrop.DoDragDrop(element, card, DragDropEffects.Move);
+
+            // DoDragDrop blocks until the drag ends, however it ends (drop, Esc-cancel, focus loss).
+            // Clearing every column's insertion-line indicator here, unconditionally, guarantees none
+            // are left stuck visible even when a DragLeave/Drop never fired for whichever column last
+            // showed one - e.g. a drop landing on Column_Drop's cross-column move instead of the
+            // ScrollViewer's own manual-reorder Drop, which was the only path resetting it before.
+            if (DataContext is MainViewModel viewModel)
+            {
+                foreach (var col in viewModel.Columns)
+                {
+                    col.IsDropIndicatorVisible = false;
+                }
+            }
         }
     }
 
@@ -640,15 +653,9 @@ public partial class MainWindow : Window
 
         if (offerRecurrenceChoice)
         {
-            var result = MessageBox.Show(this,
-                $"\"{card.Title}\" is a recurring task.\n\n" +
-                "Yes — delete this occurrence, but keep the series going (create the next occurrence now)\n" +
-                "No — delete this occurrence and end the recurring series\n" +
-                "Cancel — don't delete",
-                "Delete Recurring Task", MessageBoxButton.YesNoCancel, MessageBoxImage.Question, MessageBoxResult.Cancel);
-
-            if (result == MessageBoxResult.Cancel) return;
-            spawnNext = result == MessageBoxResult.Yes;
+            var dialog = new DeleteRecurringTaskWindow(card.Title) { Owner = this };
+            if (dialog.ShowDialog() != true || dialog.SpawnNext is null) return;
+            spawnNext = dialog.SpawnNext.Value;
         }
         else if (viewModel.ConfirmDelete)
         {

@@ -161,6 +161,12 @@ public partial class SettingsWindow : Window
         ColumnWidthTextBox.Text = _viewModel.ColumnWidth.ToString();
     }
 
+    private void About_Click(object sender, RoutedEventArgs e)
+    {
+        var dialog = new AboutWindow(_viewModel) { Owner = this };
+        dialog.ShowDialog();
+    }
+
     private void AutoBackupCheckBox_Changed(object sender, RoutedEventArgs e)
     {
         _viewModel.SetAutoBackupEnabled(AutoBackupCheckBox.IsChecked == true);
