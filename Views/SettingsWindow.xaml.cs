@@ -78,6 +78,7 @@ public partial class SettingsWindow : Window
         ConfirmArchiveCheckBox.IsChecked = viewModel.ConfirmArchive;
         AddNoteOnCompleteCheckBox.IsChecked = viewModel.AddNoteOnComplete;
         ShowDueRemindersCheckBox.IsChecked = viewModel.ShowDueReminders;
+        ShowTimeAlertsCheckBox.IsChecked = viewModel.ShowTimeAlerts;
         RememberLastViewCheckBox.IsChecked = viewModel.RememberLastView;
         ShowWhatsNewCheckBox.IsChecked = viewModel.ShowWhatsNew;
     }
@@ -133,6 +134,11 @@ public partial class SettingsWindow : Window
     private void ShowDueRemindersCheckBox_Changed(object sender, RoutedEventArgs e)
     {
         _viewModel.SetShowDueReminders(ShowDueRemindersCheckBox.IsChecked == true);
+    }
+
+    private void ShowTimeAlertsCheckBox_Changed(object sender, RoutedEventArgs e)
+    {
+        _viewModel.SetShowTimeAlerts(ShowTimeAlertsCheckBox.IsChecked == true);
     }
 
     private void RememberLastViewCheckBox_Changed(object sender, RoutedEventArgs e)

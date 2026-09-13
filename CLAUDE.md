@@ -35,6 +35,7 @@ Standard MVVM:
 - **Settings**: in-app preferences live in the SQLite `Settings` key/value table (`GetSetting`/`SetSetting`), read once into `MainViewModel` at `Load()`. `AppConfig`'s JSON file is only for bootstrap info needed before the DB is even open.
 - **`Who` legacy column**: `Cards.Who` (free text) still exists alongside `WhoId` (FK to `People`), kept only for the one-time `BackfillPeopleFromLegacyWho` migration. Don't write to `Who` in new code.
 - **Recurrence**: `SpawnNextOccurrence` creates the next task when a recurring one completes — check this if adding new completion-adjacent behavior.
+- **Due time / time alerts**: `Cards.DueTime` is an optional `"HH:mm"` string alongside the date-only `DueDate`; `CardViewModel.DueDateTime` combines them. `MainWindow` owns the app's only periodic timer (`_dueTimeTimer`, 15s), which diffs `GetCardsPastDueTime()` against a session-only set of `(CardId, DueAt)` already announced and raises `ReminderWindow` in `isTimeAlert` mode. Anything already past when the window opens is pre-seeded into that set, so times missed while the app was closed never pop — they're covered by the startup reminder list instead.
 
 ## Known rough edges
 

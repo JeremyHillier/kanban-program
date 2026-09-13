@@ -14,15 +14,31 @@ public partial class MainWindow : Window
     private Point _dragStartPoint;
     private readonly DatabaseService _db;
 
+    // Keyed on the due moment as well as the card, so moving a task's time later lets it alert
+    // again at the new time without any hook into the edit path - an unchanged time still matches.
+    private readonly HashSet<(int CardId, DateTime DueAt)> _timeAlertsShown = [];
+    private readonly DispatcherTimer _dueTimeTimer = new() { Interval = TimeSpan.FromSeconds(15) };
+
     public MainWindow(DatabaseService db)
     {
         InitializeComponent();
         _db = db;
-        DataContext = new MainViewModel(db);
+        var mainViewModel = new MainViewModel(db);
+        DataContext = mainViewModel;
+
+        // Anything whose time had already passed before the app opened is left to the startup
+        // reminder list rather than also popping a time alert on the first tick.
+        foreach (var card in mainViewModel.GetCardsPastDueTime())
+        {
+            _timeAlertsShown.Add((card.Id, card.DueDateTime!.Value));
+        }
+        _dueTimeTimer.Tick += DueTimeTimer_Tick;
+        _dueTimeTimer.Start();
 
         RestoreWindowBounds();
         Closing += (_, _) =>
         {
+            _dueTimeTimer.Stop();
             SaveWindowBounds();
             var viewModel = DataContext as MainViewModel;
             viewModel?.SaveLastViewState();
@@ -70,6 +86,41 @@ public partial class MainWindow : Window
         var dialog = new ReminderWindow(dueCards, viewModel.Columns, card => EditCard(card, viewModel), card => MarkCardDone(card, viewModel),
             card => viewModel.GetDueReminders().Contains(card)) { Owner = this };
         dialog.ShowDialog();
+    }
+
+    private void DueTimeTimer_Tick(object? sender, EventArgs e)
+    {
+        if (DataContext is not MainViewModel viewModel) return;
+
+        var newlyDue = new List<CardViewModel>();
+        foreach (var card in viewModel.GetCardsPastDueTime())
+        {
+            if (_timeAlertsShown.Add((card.Id, card.DueDateTime!.Value))) newlyDue.Add(card);
+        }
+
+        // Still recorded as shown while alerts are switched off, so turning them back on later
+        // doesn't dump every time that passed in the meantime.
+        if (newlyDue.Count == 0 || !viewModel.ShowTimeAlerts) return;
+
+        ShowTimeAlert(newlyDue, viewModel);
+    }
+
+    // Non-modal and not owned by the board, so it still surfaces when the board is minimised or
+    // behind another app; the Topmost flip brings it to the front once without pinning it there.
+    private void ShowTimeAlert(List<CardViewModel> dueCards, MainViewModel viewModel)
+    {
+        var alert = new ReminderWindow(dueCards, viewModel.Columns, card => EditCard(card, viewModel), card => MarkCardDone(card, viewModel),
+            card => viewModel.GetCardsPastDueTime().Contains(card), isTimeAlert: true)
+        {
+            ShowInTaskbar = true,
+            WindowStartupLocation = WindowStartupLocation.CenterScreen,
+            Topmost = true
+        };
+
+        System.Media.SystemSounds.Exclamation.Play();
+        alert.Show();
+        alert.Activate();
+        alert.Topmost = false;
     }
 
     private void MarkCardDone(CardViewModel card, MainViewModel viewModel)
@@ -228,7 +279,7 @@ public partial class MainWindow : Window
             viewModel.AddCard(dialog.TaskDetails, dialog.SelectedColumn, dialog.SelectedProject,
                 dialog.SelectedPriority, dialog.SelectedDueDate, dialog.SelectedWho, dialog.IsRecurring, dialog.RecurrencePattern,
                 dialog.SelectedGoal, dialog.SelectedFlags, dialog.SelectedSubTasks, dialog.Notes, attachments: dialog.SelectedAttachments,
-                forceEditOnComplete: dialog.ForceEditOnComplete, websiteUrl: dialog.WebsiteUrl);
+                forceEditOnComplete: dialog.ForceEditOnComplete, websiteUrl: dialog.WebsiteUrl, dueTime: dialog.SelectedDueTime);
         }
     }
 
@@ -244,7 +295,7 @@ public partial class MainWindow : Window
             viewModel.EditCard(card, dialog.TaskDetails, dialog.SelectedColumn, dialog.SelectedProject,
                 dialog.SelectedPriority, dialog.SelectedDueDate, dialog.SelectedWho, dialog.IsRecurring, dialog.RecurrencePattern,
                 dialog.SelectedGoal, dialog.SelectedFlags, dialog.SelectedSubTasks, dialog.Notes, attachments: dialog.SelectedAttachments,
-                forceEditOnComplete: dialog.ForceEditOnComplete, websiteUrl: dialog.WebsiteUrl);
+                forceEditOnComplete: dialog.ForceEditOnComplete, websiteUrl: dialog.WebsiteUrl, dueTime: dialog.SelectedDueTime);
         }
     }
 

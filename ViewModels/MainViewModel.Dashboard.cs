@@ -44,6 +44,16 @@ public partial class MainViewModel
             .ThenBy(c => c.Title)
             .ToList();
 
+    // Open tasks with a due time whose moment has already arrived - the time-alert timer in
+    // MainWindow diffs this against what it has already announced to find the newly due ones.
+    public List<CardViewModel> GetCardsPastDueTime() =>
+        Columns.Where(c => c.Name != "Done").SelectMany(c => c.Cards)
+            .Where(c => c.DueDateTime is { } dueAt && dueAt <= DateTime.Now)
+            .OrderBy(c => c.DueDateTime)
+            .ThenBy(c => PriorityRank(c.Priority))
+            .ThenBy(c => c.Title)
+            .ToList();
+
     private void RefreshDashboardStats()
     {
         OnPropertyChanged(nameof(OpenTaskCount));

@@ -16,6 +16,7 @@ public partial class ReminderWindow : Window
     private readonly Action<CardViewModel> _onOpenTask;
     private readonly Action<CardViewModel> _onMarkDone;
     private readonly Func<CardViewModel, bool> _isStillDue;
+    private readonly bool _isTimeAlert;
     private readonly List<ColumnViewModel> _columns;
     private readonly Dictionary<ReminderRow, CardViewModel> _rowsToCards = [];
     private readonly ObservableCollection<ReminderRow> _rows = [];
@@ -31,15 +32,19 @@ public partial class ReminderWindow : Window
         public required Brush DueLabelBrush { get; init; }
     }
 
+    // isTimeAlert: the same list, raised mid-session by the due-time timer for tasks whose time has
+    // just arrived, rather than the startup/on-demand overdue-and-due-today roundup.
     public ReminderWindow(List<CardViewModel> dueCards, IEnumerable<ColumnViewModel> columns, Action<CardViewModel> onOpenTask,
-        Action<CardViewModel> onMarkDone, Func<CardViewModel, bool> isStillDue)
+        Action<CardViewModel> onMarkDone, Func<CardViewModel, bool> isStillDue, bool isTimeAlert = false)
     {
         InitializeComponent();
         MaxHeight = SystemParameters.WorkArea.Height * 0.9;
         _onOpenTask = onOpenTask;
         _onMarkDone = onMarkDone;
         _isStillDue = isStillDue;
+        _isTimeAlert = isTimeAlert;
         _columns = columns.ToList();
+        if (isTimeAlert) Title = "Task Due Now";
 
         foreach (var card in dueCards)
         {
@@ -56,6 +61,7 @@ public partial class ReminderWindow : Window
     private ReminderRow BuildRow(CardViewModel card)
     {
         var isOverdue = card.DueDate!.Value.Date < DateTime.Today;
+        var dueTodayLabel = card.DueDateTime is { } dueAt ? $"Due today at {dueAt:h:mm tt}" : "Due today";
         return new ReminderRow
         {
             Title = card.Title,
@@ -63,13 +69,21 @@ public partial class ReminderWindow : Window
             WhoName = card.WhoName,
             Priority = card.Priority,
             CategoryName = _columns.FirstOrDefault(c => c.Cards.Contains(card))?.DisplayName ?? string.Empty,
-            DueLabel = isOverdue ? $"Overdue since {card.DueDate:MMM d, yyyy}" : "Due today",
-            DueLabelBrush = isOverdue ? OverdueBrush : DueTodayBrush
+            DueLabel = isOverdue ? $"Overdue since {card.DueDateTime?.ToString("MMM d, yyyy h:mm tt") ?? card.DueDate.Value.ToString("MMM d, yyyy")}" : dueTodayLabel,
+            DueLabelBrush = isOverdue || _isTimeAlert ? OverdueBrush : DueTodayBrush
         };
     }
 
     private void UpdateIntro()
     {
+        if (_isTimeAlert)
+        {
+            IntroText.Text = _rows.Count == 0
+                ? "All caught up."
+                : $"{(_rows.Count == 1 ? "This task's" : $"These {_rows.Count} tasks'")} due time has arrived. Check a task off to mark it Done, or double-click to open it.";
+            return;
+        }
+
         var overdueCount = _rows.Count(r => ReferenceEquals(r.DueLabelBrush, OverdueBrush));
         var todayCount = _rows.Count - overdueCount;
 

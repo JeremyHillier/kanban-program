@@ -64,6 +64,7 @@
                 <local:BulletItem Text="Double-click a column header (e.g. To Do, In Progress) to create a task already assigned to that column."/>
                 <local:BulletItem Text="Double-click any card to open it for editing."/>
                 <local:BulletItem Text="Each task can have a Category, Project, Goal, Priority, Due Date, Who it's assigned to, free-form Notes, Flags, and a checklist of Sub-tasks. Project is required; everything else is optional."/>
+                <local:BulletItem Text="An optional Time can go with the Due Date, typed like 2:30 PM, 2pm, or 14:30. A time needs a date; clearing the date clears the time too. Recurring tasks carry their time forward to each new occurrence."/>
                 <local:BulletItem Text="Use the + and − buttons next to Project, Goal, and Who to add a new one on the fly, or clear the current selection without deleting the record."/>
                 <local:BulletItem Text="Each task also has an optional Website field — paste a link related to the task and click Open beside it to launch it in your default browser. A link typed without http:// still works."/>
 
@@ -156,6 +157,8 @@
                 <local:BulletItem Text="Check a task off in the reminder list to mark it Done, following the same confirmation/notes prompts as marking it Done from the board; the row then disappears from the list."/>
                 <local:BulletItem Text="Double-click a task to open it for editing — the reminder list stays open behind it so you can keep working through the rest, and Close it yourself when you're done. Once saved, that row refreshes with your changes, or drops off the list if it's no longer overdue or due today."/>
                 <local:BulletItem Text="Click the Reminders button (Alt+R) any time to bring the same list back up."/>
+                <local:BulletItem Text="Give a task a Time as well as a Due Date (e.g. 2:30 PM or 14:30) and, while the app is running, a Task Due Now alert pops up with a sound when that time arrives — even if the board is minimised. It works like the reminder list: check the task off to mark it Done, or double-click to open it."/>
+                <local:BulletItem Text="Each task alerts once for its time. Move the time later and it alerts again at the new time. Times that passed while the app was closed aren't replayed as alerts; those tasks show up in the startup reminder list instead."/>
 
                 <TextBlock Text="Display options" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <local:BulletItem Text="Dark Mode / Light Mode switches the whole app's theme."/>
@@ -172,6 +175,7 @@
                 <local:BulletItem Text="Require a yes/no confirmation before Archive Done — turn this off to archive immediately without asking."/>
                 <local:BulletItem Text="Ask whether to add a note whenever a task is moved to Done; answering yes opens the task with the cursor already in the Notes field."/>
                 <local:BulletItem Text="Turn off the overdue/due-today reminder pop-up that appears on startup; the Reminders button still works either way."/>
+                <local:BulletItem Text="Turn off the Task Due Now alerts for tasks with a due time. Times that pass while they're off aren't replayed when you turn them back on."/>
                 <local:BulletItem Text="Remember filters, sort, and search between sessions — when on, the board reopens showing whatever view you had when you last closed it, instead of resetting to All/unsorted."/>
                 <local:BulletItem Text="Change where the task database file is stored. The old file is automatically removed once the app has restarted at the new location."/>
                 <local:BulletItem Text="The chosen location itself is remembered outside the database, in a small config file under your local AppData folder — not inside the database file."/>

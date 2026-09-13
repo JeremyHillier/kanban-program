@@ -94,10 +94,29 @@ public class CardViewModel(CardItem model) : ObservableObject
             Model.DueDate = value;
             OnPropertyChanged();
             OnPropertyChanged(nameof(DueDateDisplay));
+            OnPropertyChanged(nameof(DueDateTime));
         }
     }
 
-    public string DueDateDisplay => DueDate is null ? string.Empty : $"Due {DueDate:MMM d, yyyy}";
+    public string? DueTime
+    {
+        get => Model.DueTime;
+        set
+        {
+            if (Model.DueTime == value) return;
+            Model.DueTime = value;
+            OnPropertyChanged();
+            OnPropertyChanged(nameof(DueDateDisplay));
+            OnPropertyChanged(nameof(DueDateTime));
+        }
+    }
+
+    // The exact moment a timed task comes due - null unless both a date and a time are set.
+    public DateTime? DueDateTime =>
+        DueDate is not null && TimeSpan.TryParse(DueTime, out var time) ? DueDate.Value.Date + time : null;
+
+    public string DueDateDisplay => DueDate is null ? string.Empty
+        : DueDateTime is { } at ? $"Due {at:MMM d, yyyy h:mm tt}" : $"Due {DueDate:MMM d, yyyy}";
 
     public DateTime? ArchivedAt
     {

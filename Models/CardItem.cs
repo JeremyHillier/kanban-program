@@ -12,6 +12,8 @@ public class CardItem
     public DateTime? ArchivedAt { get; set; }
     public string Priority { get; set; } = "Normal";
     public DateTime? DueDate { get; set; }
+    // Optional time of day ("HH:mm", 24-hour) on top of DueDate - drives the while-running time alert.
+    public string? DueTime { get; set; }
     public int? WhoId { get; set; }
     public DateTime? LastUpdated { get; set; }
     public bool IsRecurring { get; set; }

@@ -157,6 +157,7 @@ public partial class MainViewModel
     public bool ConfirmArchive { get; private set; } = true;
     public bool AddNoteOnComplete { get; private set; }
     public bool ShowDueReminders { get; private set; } = true;
+    public bool ShowTimeAlerts { get; private set; } = true;
     public bool RememberLastView { get; private set; }
 
     public void SetStartFullScreen(bool value)
@@ -187,6 +188,12 @@ public partial class MainViewModel
     {
         ShowDueReminders = value;
         _db.SetSetting("ShowDueReminders", value ? "True" : "False");
+    }
+
+    public void SetShowTimeAlerts(bool value)
+    {
+        ShowTimeAlerts = value;
+        _db.SetSetting("ShowTimeAlerts", value ? "True" : "False");
     }
 
     public void SetRememberLastView(bool value)

@@ -93,6 +93,10 @@
                 <CheckBox x:Name="ShowDueRemindersCheckBox" Content="Show overdue/due-today reminders when the app opens"
                           Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,8"
                           Checked="ShowDueRemindersCheckBox_Changed" Unchecked="ShowDueRemindersCheckBox_Changed"/>
+                <CheckBox x:Name="ShowTimeAlertsCheckBox" Content="Alert me when a task's due time arrives"
+                          ToolTip="For tasks with a due time set: while the app is running, a reminder pops up the moment that time is reached."
+                          Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,8"
+                          Checked="ShowTimeAlertsCheckBox_Changed" Unchecked="ShowTimeAlertsCheckBox_Changed"/>
                 <CheckBox x:Name="RememberLastViewCheckBox" Content="Remember filters, sort, and search between sessions"
                           Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,20"
                           Checked="RememberLastViewCheckBox_Changed" Unchecked="RememberLastViewCheckBox_Changed"/>

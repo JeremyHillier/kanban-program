@@ -107,6 +107,7 @@ public partial class MainViewModel : ObservableObject
         ConfirmArchive = _db.GetSetting("ConfirmArchive") != "False";
         AddNoteOnComplete = _db.GetSetting("AddNoteOnComplete") == "True";
         ShowDueReminders = _db.GetSetting("ShowDueReminders") != "False";
+        ShowTimeAlerts = _db.GetSetting("ShowTimeAlerts") != "False";
         ShowWhatsNew = _db.GetSetting("ShowWhatsNew") != "False";
         LoadCustomFilters();
         LoadSavedReportViews();

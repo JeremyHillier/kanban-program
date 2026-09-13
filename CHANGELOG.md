@@ -6,6 +6,12 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.83.0 — 2026-09-13
+- Tasks can now have an optional due Time alongside the Due Date (typed like 2:30 PM, 2pm, or 14:30), shown on the card
+- While the app is running, a Task Due Now alert pops up with a sound when a task's due time arrives, even if the board is minimised. Check the task off to mark it Done, or double-click to open it
+- Each task alerts once for its time; moving the time later makes it alert again. Recurring tasks carry their time forward
+- New Settings option to turn the due-time alerts off
+
 ## 0.82.1 — 2026-09-13
 - Rebalanced Settings: moved Backups to the left column (alongside Behavior) so both columns run about the same length instead of the right column towering over the left
 - Fixed Help buttons to scroll their topic to the top of the Help screen instead of just barely into view at the bottom

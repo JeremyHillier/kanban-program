@@ -34,6 +34,7 @@ public partial class AddTaskWindow : Window
     public List<AttachmentViewModel> SelectedAttachments { get; private set; } = [];
     public string SelectedPriority { get; private set; } = "Normal";
     public DateTime? SelectedDueDate { get; private set; }
+    public string? SelectedDueTime { get; private set; }
     public PersonViewModel? SelectedWho { get; private set; }
     public string? Notes { get; private set; }
     public string? WebsiteUrl { get; private set; }
@@ -94,6 +95,7 @@ public partial class AddTaskWindow : Window
             (CategoryComboBox.SelectedItem as ColumnViewModel)?.Id.ToString() ?? "-",
             (PriorityComboBox.SelectedItem as ComboBoxItem)?.Content as string ?? "-",
             DueDatePicker.SelectedDate?.ToString("yyyy-MM-dd") ?? "-",
+            ParseDueTime(DueTimeTextBox.Text) ?? DueTimeTextBox.Text.Trim(),
             (WhoComboBox.SelectedItem as PersonViewModel)?.Id.ToString() ?? "-",
             (GoalComboBox.SelectedItem as GoalViewModel)?.Id.ToString() ?? "-",
             RecurringCheckBox.IsChecked == true,
@@ -161,6 +163,7 @@ public partial class AddTaskWindow : Window
         }
 
         DueDatePicker.SelectedDate = cardToEdit.DueDate;
+        DueTimeTextBox.Text = FormatDueTime(cardToEdit.DueTime);
         RebuildWhoItems(_viewModel.People.FirstOrDefault(p => p.Id == cardToEdit.WhoId));
         NotesTextBox.Text = cardToEdit.Notes ?? string.Empty;
         WebsiteUrlTextBox.Text = cardToEdit.WebsiteUrl ?? string.Empty;
@@ -774,7 +777,39 @@ public partial class AddTaskWindow : Window
     private void ClearDueDate_Click(object sender, RoutedEventArgs e)
     {
         DueDatePicker.SelectedDate = null;
+        DueTimeTextBox.Text = string.Empty;
     }
+
+    private void DueTimeTextBox_LostFocus(object sender, RoutedEventArgs e)
+    {
+        if (ParseDueTime(DueTimeTextBox.Text) is { } parsed) DueTimeTextBox.Text = FormatDueTime(parsed);
+    }
+
+    private static readonly string[] DueTimeFormats =
+        ["h:mm tt", "h:mmtt", "h tt", "htt", "H:mm", "HH:mm", "Hmm", "HHmm", "%H"]; // "%H", not "H": a lone letter is read as a standard format and throws
+
+    // Returns the time as "HH:mm" (24-hour, the stored form), or null if blank or unrecognised.
+    private static string? ParseDueTime(string? text)
+    {
+        var trimmed = text?.Trim() ?? string.Empty;
+        if (trimmed.Length == 0) return null;
+        // "930" - digit-only parsing is greedy and would read "93" as the hour, so pad to "0930".
+        if (trimmed.Length == 3 && trimmed.All(char.IsDigit)) trimmed = "0" + trimmed;
+
+        if (DateTime.TryParseExact(trimmed, DueTimeFormats, System.Globalization.CultureInfo.InvariantCulture,
+                System.Globalization.DateTimeStyles.None, out var exact))
+        {
+            return exact.ToString("HH:mm");
+        }
+
+        return DateTime.TryParse(trimmed, System.Globalization.CultureInfo.CurrentCulture,
+            System.Globalization.DateTimeStyles.NoCurrentDateDefault, out var loose) && loose.Date == DateTime.MinValue.Date
+            ? loose.ToString("HH:mm")
+            : null;
+    }
+
+    private static string FormatDueTime(string? storedTime) =>
+        TimeSpan.TryParse(storedTime, out var time) ? DateTime.Today.Add(time).ToString("h:mm tt") : string.Empty;
 
     private void RecurringCheckBox_Changed(object sender, RoutedEventArgs e)
     {
@@ -804,7 +839,24 @@ public partial class AddTaskWindow : Window
             return;
         }
 
+        var dueTime = ParseDueTime(DueTimeTextBox.Text);
+        if (dueTime is null && !string.IsNullOrWhiteSpace(DueTimeTextBox.Text))
+        {
+            MessageBox.Show(this, "The time isn't recognised. Enter it like 2:30 PM or 14:30, or leave it blank.",
+                "Invalid Time", MessageBoxButton.OK, MessageBoxImage.Warning);
+            DueTimeTextBox.Focus();
+            return;
+        }
+        if (dueTime is not null && DueDatePicker.SelectedDate is null)
+        {
+            MessageBox.Show(this, "A time needs a due date to go with it. Pick a due date, or clear the time.",
+                "Due Date Required", MessageBoxButton.OK, MessageBoxImage.Warning);
+            DueDatePicker.Focus();
+            return;
+        }
+
         TaskDetails = details;
+        SelectedDueTime = dueTime;
         SelectedColumn = column;
         SelectedProject = project;
         SelectedGoal = GoalComboBox.SelectedItem as GoalViewModel;

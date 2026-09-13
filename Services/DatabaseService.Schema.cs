@@ -105,6 +105,7 @@ public partial class DatabaseService
         MigrateColumn(connection, "Cards", "ForceEditOnComplete", "INTEGER NOT NULL DEFAULT 0");
         MigrateColumn(connection, "Cards", "NextOccurrenceSpawned", "INTEGER NOT NULL DEFAULT 0");
         MigrateColumn(connection, "Cards", "WebsiteUrl", "TEXT NULL");
+        MigrateColumn(connection, "Cards", "DueTime", "TEXT NULL");
         MigrateColumn(connection, "Projects", "IsActive", "INTEGER NOT NULL DEFAULT 1");
         MigrateColumn(connection, "Goals", "IsActive", "INTEGER NOT NULL DEFAULT 1");
         MigrateColumn(connection, "Flags", "IsActive", "INTEGER NOT NULL DEFAULT 1");
