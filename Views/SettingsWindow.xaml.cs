@@ -167,6 +167,11 @@ public partial class SettingsWindow : Window
         dialog.ShowDialog();
     }
 
+    private void Help_Click(object sender, RoutedEventArgs e)
+    {
+        new HelpWindow(_viewModel, "HelpSection_Settings") { Owner = this }.ShowDialog();
+    }
+
     private void AutoBackupCheckBox_Changed(object sender, RoutedEventArgs e)
     {
         _viewModel.SetAutoBackupEnabled(AutoBackupCheckBox.IsChecked == true);

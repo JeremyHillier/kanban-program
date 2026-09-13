@@ -112,6 +112,11 @@ public partial class ReportBuilderWindow : Window
 
     private void Reset_Click(object sender, RoutedEventArgs e) => ResetFields();
 
+    private void Help_Click(object sender, RoutedEventArgs e)
+    {
+        new HelpWindow(_viewModel, "HelpSection_ReportBuilder") { Owner = this }.ShowDialog();
+    }
+
     private void LoadReportView_Click(object sender, RoutedEventArgs e)
     {
         if (SavedViewsComboBox.SelectedItem is not SavedReportView view) return;

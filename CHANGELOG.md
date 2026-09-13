@@ -6,6 +6,10 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.82.0 — 2026-09-13
+- Timeline task boxes are now colour-coded by priority (High/Medium/Normal/Low), both on screen and when printed, using the same colours as the priority badge on the board
+- Add/Edit Task, Report Builder, Timeline, and Settings each now have a Help (?) button that opens Help scrolled straight to that topic
+
 ## 0.81.0 — 2026-09-13
 - The "delete a recurring task" prompt now shows plain, clearly labeled buttons (Delete This Occurrence, Keep Series Going / Delete This Occurrence, End Series / Cancel) instead of a generic Yes/No/Cancel dialog whose meaning wasn't obvious
 - Settings now has an About button at the bottom, next to Save & Close

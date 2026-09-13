@@ -59,7 +59,7 @@
                 <local:BulletItem Text="Alt+0 to Alt+9 — apply the custom filter saved in that slot (see Custom filters below). An unassigned slot does nothing."/>
                 <local:BulletItem Text="Esc — close the open dialog, or on the main board, clear every filter."/>
 
-                <TextBlock Text="Adding and editing tasks" Style="{StaticResource HelpSectionHeaderStyle}"/>
+                <TextBlock x:Name="HelpSection_AddEditTask" Text="Adding and editing tasks" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <local:BulletItem Text="Click New Task (Sort &amp; Add section) to create a task."/>
                 <local:BulletItem Text="Double-click a column header (e.g. To Do, In Progress) to create a task already assigned to that column."/>
                 <local:BulletItem Text="Double-click any card to open it for editing."/>
@@ -132,7 +132,7 @@
                 <local:BulletItem Text="Right after import you're shown an editable list of the imported tasks to quickly fix up Category, Task Details, Priority, Project, Goal, Due Date, or Who."/>
                 <local:BulletItem Text="Double-click Import Tasks any time to review every task still flagged as imported. Uncheck Imported and Save to clear that flag once you're done reviewing a task."/>
 
-                <TextBlock Text="Report Builder" Style="{StaticResource HelpSectionHeaderStyle}"/>
+                <TextBlock x:Name="HelpSection_ReportBuilder" Text="Report Builder" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <local:BulletItem Text="Click Report Builder to design a custom report: choose which columns to include, filter by Project, Priority, Who, Goal, Flag, or Due date, group the results, and choose whether to include Notes and Sub-tasks."/>
                 <local:BulletItem Text="Preview opens a print-preview window with distinct pages, zoom, and a print button; each page after the first repeats a running header and shows a 'Page X of Y' footer. PDF saves it as a real PDF file."/>
                 <local:BulletItem Text="PDFs are saved to the Default Export Path set in Settings, with a timestamped filename; if no Default Export Path is set, you'll be asked where to save."/>
@@ -146,7 +146,7 @@
                 <local:BulletItem Text="The banner always shows Open, Overdue, Due Today, and Due This Week counts across all non-Done tasks."/>
                 <local:BulletItem Text="Double-click the banner to open the full Dashboard: five summary tiles (the banner's four, plus In Done), and four charts — Status Distribution by Priority, Due Date Timeline, By Project, and By Who."/>
 
-                <TextBlock Text="Timeline" Style="{StaticResource HelpSectionHeaderStyle}"/>
+                <TextBlock x:Name="HelpSection_Timeline" Text="Timeline" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <local:BulletItem Text="Click Timeline (Alt+L) for a calendar view of tasks with a due date: projects down the left, weekly date columns across the top, and each task shown as a block in the week it falls due, labelled with its title, who it's assigned to, and its due date."/>
                 <local:BulletItem Text="Shows 12 weeks at a time starting from the current week; use ◀ 4 Weeks / 4 Weeks ▶ to page through time, or Today to jump back to the current week."/>
                 <local:BulletItem Text="Done tasks are left out by default — check Include Done tasks to bring them back in."/>
@@ -161,7 +161,7 @@
                 <local:BulletItem Text="Dark Mode / Light Mode switches the whole app's theme."/>
                 <local:BulletItem Text="Large Cards / Compact Cards toggles how much detail each card shows, useful for fitting more on screen at once."/>
 
-                <TextBlock Text="Settings" Style="{StaticResource HelpSectionHeaderStyle}"/>
+                <TextBlock x:Name="HelpSection_Settings" Text="Settings" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <local:BulletItem Text="Rename any column's label (e.g. change &quot;Waiting&quot; to &quot;Blocked&quot;). This only changes what's displayed — the board still treats the same column as the completion column for archiving, reminders, and recurring tasks."/>
                 <local:BulletItem Text="Move the button panel to the right side of the board."/>
                 <local:BulletItem Text="Set the task column width in pixels (default 310)."/>

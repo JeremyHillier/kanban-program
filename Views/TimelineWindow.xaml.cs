@@ -5,6 +5,7 @@ using System.Windows.Input;
 using System.Windows.Markup;
 using System.Windows.Media;
 using System.Windows.Shapes;
+using KanbanApp.Converters;
 using KanbanApp.ViewModels;
 
 namespace KanbanApp.Views;
@@ -24,6 +25,21 @@ public partial class TimelineWindow : Window
     private DateTime _windowStart;
     private bool _initializing = true;
 
+    // Reuses the exact same priority palette as the main board's priority badge (see
+    // PriorityToBrushConverter) rather than defining a second one here, so "what color means High"
+    // stays consistent across the whole app.
+    private static readonly PriorityToBrushConverter PriorityBrushConverter = new();
+
+    private static Brush GetPriorityBrush(string priority) =>
+        (Brush)PriorityBrushConverter.Convert(priority, typeof(Brush), null, System.Globalization.CultureInfo.InvariantCulture)!;
+
+    private static Color GetPriorityColor(string priority) => ((SolidColorBrush)GetPriorityBrush(priority)).Color;
+
+    private static Color LightenColor(Color color, double whiteAmount) => Color.FromRgb(
+        (byte)(color.R + (255 - color.R) * whiteAmount),
+        (byte)(color.G + (255 - color.G) * whiteAmount),
+        (byte)(color.B + (255 - color.B) * whiteAmount));
+
     public TimelineWindow(MainViewModel viewModel)
     {
         InitializeComponent();
@@ -42,6 +58,11 @@ public partial class TimelineWindow : Window
     {
         var diff = (7 + (date.DayOfWeek - DayOfWeek.Monday)) % 7;
         return date.Date.AddDays(-diff);
+    }
+
+    private void Help_Click(object sender, RoutedEventArgs e)
+    {
+        new HelpWindow(_viewModel, "HelpSection_Timeline") { Owner = this }.ShowDialog();
     }
 
     private void Prev_Click(object sender, RoutedEventArgs e)
@@ -133,7 +154,6 @@ public partial class TimelineWindow : Window
         var brush = (Brush)FindResource("PrimaryTextBrush");
         var secondaryBrush = (Brush)FindResource("SecondaryTextBrush");
         var borderBrush = (Brush)FindResource("CardBorderBrush");
-        var cardBrush = (Brush)FindResource("CardBackgroundBrush");
         var panelBrush = (Brush)FindResource("PanelBackgroundBrush");
         var alternateRowBrush = (Brush)FindResource("AlternateRowBrush");
 
@@ -241,10 +261,11 @@ public partial class TimelineWindow : Window
                         if (!string.IsNullOrWhiteSpace(task.WhoName) && task.WhoName != "Unassigned") parts.Add(task.WhoName);
                         parts.Add(task.DueDate!.Value.ToString("MMM d"));
 
+                        var priorityBrush = GetPriorityBrush(task.Priority);
                         var block = new Border
                         {
-                            Background = cardBrush,
-                            BorderBrush = borderBrush,
+                            Background = priorityBrush,
+                            BorderBrush = priorityBrush,
                             BorderThickness = new Thickness(1),
                             CornerRadius = new CornerRadius(3),
                             Padding = new Thickness(5, 3, 5, 3),
@@ -252,9 +273,9 @@ public partial class TimelineWindow : Window
                             Cursor = Cursors.Hand,
                             Child = new TextBlock
                             {
-                                Text = string.Join(" - ", parts), Foreground = brush,
+                                Text = string.Join(" - ", parts), Foreground = Brushes.White,
                                 FontSize = 11, TextWrapping = TextWrapping.Wrap,
-                                ToolTip = $"{task.Title}\n{(task.WhoName != "Unassigned" ? $"Who: {task.WhoName}\n" : "")}Due: {task.DueDate:MMM d, yyyy}\n\nDouble-click to open"
+                                ToolTip = $"{task.Title}\nPriority: {task.Priority}\n{(task.WhoName != "Unassigned" ? $"Who: {task.WhoName}\n" : "")}Due: {task.DueDate:MMM d, yyyy}\n\nDouble-click to open"
                             }
                         };
                         block.MouseLeftButtonDown += (_, args) =>
@@ -341,8 +362,6 @@ public partial class TimelineWindow : Window
         var accentBrush = new SolidColorBrush(Color.FromRgb(0x1E, 0x3A, 0x5F));
         var subtitleBrush = new SolidColorBrush(Color.FromRgb(0xC0, 0xCB, 0xDA));
         var bandOddBrush = new SolidColorBrush(Color.FromRgb(0xF2, 0xF2, 0xF2));
-        var chipBrush = new SolidColorBrush(Color.FromRgb(0xE3, 0xF2, 0xFD));
-        var chipBorderBrush = new SolidColorBrush(Color.FromRgb(0x90, 0xCA, 0xF9));
         var columnLineBrush = new SolidColorBrush(Color.FromRgb(0xDD, 0xDD, 0xDD));
 
         var canvases = new List<Canvas>();
@@ -452,17 +471,20 @@ public partial class TimelineWindow : Window
             for (var w = 0; w < unitsToShow; w++)
             {
                 if (!cellLines.TryGetValue(w, out var linesPerTask)) continue;
+                var tasksInCell = tasksByUnit[w];
                 var chipY = rowTop + 2;
                 var chipX = margin + projectColWidth + w * unitColWidth + 1;
                 var chipWidth = unitColWidth - 2;
 
-                foreach (var lines in linesPerTask)
+                for (var t = 0; t < linesPerTask.Count; t++)
                 {
+                    var lines = linesPerTask[t];
+                    var priorityColor = GetPriorityColor(tasksInCell[t].Priority);
                     var chipHeight = lines.Count * lineHeight + 2 * chipPadding;
                     var chip = new Rectangle
                     {
-                        Width = chipWidth, Height = chipHeight, Fill = chipBrush,
-                        Stroke = chipBorderBrush, StrokeThickness = 0.75, RadiusX = 2, RadiusY = 2
+                        Width = chipWidth, Height = chipHeight, Fill = new SolidColorBrush(LightenColor(priorityColor, 0.85)),
+                        Stroke = new SolidColorBrush(priorityColor), StrokeThickness = 0.75, RadiusX = 2, RadiusY = 2
                     };
                     Canvas.SetLeft(chip, chipX);
                     Canvas.SetTop(chip, chipY);

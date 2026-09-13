@@ -120,6 +120,11 @@ public partial class AddTaskWindow : Window
         }
     }
 
+    private void Help_Click(object sender, RoutedEventArgs e)
+    {
+        new HelpWindow(_viewModel, "HelpSection_AddEditTask") { Owner = this }.ShowDialog();
+    }
+
     public void PreselectColumn(ColumnViewModel column)
     {
         CategoryComboBox.SelectedItem = column;
