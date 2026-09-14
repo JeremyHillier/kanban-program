@@ -6,6 +6,9 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.83.1 — 2026-09-14
+- The Time field in Add/Edit Task now shows a grey "e.g. 2:30 PM" hint while it's empty, like the date picker's "Select a date"
+
 ## 0.83.0 — 2026-09-13
 - Tasks can now have an optional due Time alongside the Due Date (typed like 2:30 PM, 2pm, or 14:30), shown on the card
 - While the app is running, a Task Due Now alert pops up with a sound when a task's due time arrives, even if the board is minimised. Check the task off to mark it Done, or double-click to open it

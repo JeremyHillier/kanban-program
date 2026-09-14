@@ -164,10 +164,25 @@
                     <StackPanel Grid.Row="4" Grid.Column="0" Orientation="Horizontal" Margin="0,12,0,4">
                         <TextBlock Text="Time" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,8,0"
                                    Foreground="{DynamicResource PrimaryTextBrush}"/>
-                        <TextBox x:Name="DueTimeTextBox" Width="90" Padding="6" LostFocus="DueTimeTextBox_LostFocus"
-                                 Style="{StaticResource HoverTextBoxStyle}"
-                                 ToolTip="Optional time on the due date, e.g. 2:30 PM or 14:30. While the app is running, you'll get an alert when that time arrives."
-                                 Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                        <Grid Width="100">
+                            <TextBox x:Name="DueTimeTextBox" Padding="6" LostFocus="DueTimeTextBox_LostFocus"
+                                     Style="{StaticResource HoverTextBoxStyle}"
+                                     ToolTip="Optional time on the due date, e.g. 2:30 PM or 14:30. While the app is running, you'll get an alert when that time arrives."
+                                     Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                            <TextBlock Text="e.g. 2:30 PM" IsHitTestVisible="False" Margin="10,0,0,0" VerticalAlignment="Center"
+                                       Foreground="{DynamicResource SecondaryTextBrush}">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding Text, ElementName=DueTimeTextBox}" Value="">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </Grid>
                     </StackPanel>
 
                     <CheckBox Grid.Row="4" Grid.Column="4" x:Name="ForceEditOnCompleteCheckBox" Content="Force edit upon completion" Margin="0,12,0,4"
