@@ -15,10 +15,14 @@ public partial class DatabaseService
 
     public string DbPath { get; }
 
-    public DatabaseService()
+    public DatabaseService() : this(AppConfig.Load().DbPath)
     {
-        var config = AppConfig.Load();
-        DbPath = config.DbPath;
+    }
+
+    // Explicit path, used by tests to work against a throwaway task file instead of the real one.
+    public DatabaseService(string dbPath)
+    {
+        DbPath = dbPath;
         Directory.CreateDirectory(Path.GetDirectoryName(DbPath)!);
         _connectionString = $"Data Source={DbPath}";
 

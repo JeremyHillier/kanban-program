@@ -24,7 +24,7 @@ public partial class MainViewModel
             forceEditOnComplete: completedCard.ForceEditOnComplete, websiteUrl: completedCard.WebsiteUrl, dueTime: completedCard.DueTime);
     }
 
-    private static DateTime CalculateNextDueDate(DateTime anchor, string pattern) => pattern switch
+    internal static DateTime CalculateNextDueDate(DateTime anchor, string pattern) => pattern switch
     {
         "Daily" => anchor.AddDays(1),
         "Weekday" => NextWeekday(anchor),

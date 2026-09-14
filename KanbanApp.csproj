@@ -16,6 +16,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <!-- The test project lives inside this folder, so keep the SDK's default globs from pulling its
+         files into the app itself. -->
+    <Compile Remove="tests\**" />
+    <None Remove="tests\**" />
+    <Page Remove="tests\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="ClosedXML" Version="0.105.1" />
     <PackageReference Include="Microsoft.Data.Sqlite" Version="10.0.11" />
     <PackageReference Include="PDFsharp" Version="6.2.4" />

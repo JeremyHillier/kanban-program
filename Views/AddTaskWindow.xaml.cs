@@ -163,7 +163,7 @@ public partial class AddTaskWindow : Window
         }
 
         DueDatePicker.SelectedDate = cardToEdit.DueDate;
-        DueTimeTextBox.Text = FormatDueTime(cardToEdit.DueTime);
+        DueTimeTextBox.Text = DueTimeParser.Format(cardToEdit.DueTime);
         RebuildWhoItems(_viewModel.People.FirstOrDefault(p => p.Id == cardToEdit.WhoId));
         NotesTextBox.Text = cardToEdit.Notes ?? string.Empty;
         WebsiteUrlTextBox.Text = cardToEdit.WebsiteUrl ?? string.Empty;
@@ -782,18 +782,18 @@ public partial class AddTaskWindow : Window
         UpdateMeridiemButtons();
     }
 
-    // Set only by clicking AM/PM. Null means neither has been clicked, so ParseDueTime guesses.
+    // Set only by clicking AM/PM. Null means neither has been clicked, so DueTimeParser guesses.
     private bool? _chosenPm;
 
     private static readonly Brush MeridiemSelectedBrush = new SolidColorBrush(Color.FromRgb(0x0B, 0x5F, 0xD9));
 
-    private string? CurrentDueTime() => ParseDueTime(DueTimeTextBox.Text, _chosenPm);
+    private string? CurrentDueTime() => DueTimeParser.Parse(DueTimeTextBox.Text, _chosenPm);
 
     private void DueTimeTextBox_TextChanged(object sender, TextChangedEventArgs e) => UpdateMeridiemButtons();
 
     private void DueTimeTextBox_LostFocus(object sender, RoutedEventArgs e)
     {
-        if (CurrentDueTime() is { } parsed) DueTimeTextBox.Text = FormatDueTime(parsed);
+        if (CurrentDueTime() is { } parsed) DueTimeTextBox.Text = DueTimeParser.Format(parsed);
     }
 
     // With a time already in the box it's switched in place (2:30 PM -> 2:30 AM); with the box
@@ -805,7 +805,7 @@ public partial class AddTaskWindow : Window
         {
             var time = TimeSpan.Parse(parsed);
             var hour = time.Hours % 12 + (_chosenPm == true ? 12 : 0);
-            DueTimeTextBox.Text = FormatDueTime($"{hour:00}:{time.Minutes:00}");
+            DueTimeTextBox.Text = DueTimeParser.Format($"{hour:00}:{time.Minutes:00}");
         }
         UpdateMeridiemButtons();
     }
@@ -833,45 +833,6 @@ public partial class AddTaskWindow : Window
         }
     }
 
-    private static readonly string[] DueTimeFormats =
-        ["h:mm tt", "h:mmtt", "h tt", "htt", "H:mm", "HH:mm", "Hmm", "HHmm", "%H"]; // "%H", not "H": a lone letter is read as a standard format and throws
-
-    // Returns the time as "HH:mm" (24-hour, the stored form), or null if blank or unrecognised.
-    // A 1-12 hour typed without AM/PM is ambiguous: preferPm (the AM/PM buttons) settles it, or if
-    // neither was clicked, a working-hours guess (7-11 AM, 12-6 PM). A leading zero ("06:00") is
-    // read as 24-hour notation and taken literally.
-    private static string? ParseDueTime(string? text, bool? preferPm)
-    {
-        var trimmed = (text ?? string.Empty).Replace(".", "").Trim();
-        if (trimmed.Length == 0) return null;
-        if (trimmed[^1] is 'a' or 'A' or 'p' or 'P') trimmed += "m"; // "2:30p" / "2p"
-
-        var hasMeridiem = trimmed.EndsWith("am", StringComparison.OrdinalIgnoreCase) ||
-                          trimmed.EndsWith("pm", StringComparison.OrdinalIgnoreCase);
-        var leadingZero = trimmed.Length >= 2 && trimmed[0] == '0' && char.IsDigit(trimmed[1]);
-        // "930" - digit-only parsing is greedy and would read "93" as the hour, so pad to "0930".
-        if (trimmed.Length == 3 && trimmed.All(char.IsDigit)) trimmed = "0" + trimmed;
-
-        if (!DateTime.TryParseExact(trimmed, DueTimeFormats, System.Globalization.CultureInfo.InvariantCulture,
-                System.Globalization.DateTimeStyles.None, out var parsed) &&
-            !(DateTime.TryParse(trimmed, System.Globalization.CultureInfo.CurrentCulture,
-                System.Globalization.DateTimeStyles.NoCurrentDateDefault, out parsed) && parsed.Date == DateTime.MinValue.Date))
-        {
-            return null;
-        }
-
-        var hour = parsed.Hour;
-        if (!hasMeridiem && !leadingZero && hour is >= 1 and <= 12)
-        {
-            var pm = preferPm ?? hour is 12 or <= 6;
-            hour = pm ? (hour == 12 ? 12 : hour + 12) : (hour == 12 ? 0 : hour);
-        }
-
-        return $"{hour:00}:{parsed.Minute:00}";
-    }
-
-    private static string FormatDueTime(string? storedTime) =>
-        TimeSpan.TryParse(storedTime, out var time) ? DateTime.Today.Add(time).ToString("h:mm tt") : string.Empty;
 
     private void RecurringCheckBox_Changed(object sender, RoutedEventArgs e)
     {

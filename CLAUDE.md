@@ -15,6 +15,14 @@ WPF (.NET, `net10.0-windows`) desktop kanban app, SQLite-backed via `Microsoft.D
 
 `dotnet build` from the project root. No special setup beyond the SDK.
 
+## Tests
+
+`dotnet test tests/KanbanApp.Tests` (xUnit, references the app project; `KanbanApp.csproj` excludes `tests\**` from its own globs). Run it before committing. Tests never touch the real task file: they use `new DatabaseService(path)` against a `TempFolder`. Anything needing `MainViewModel` goes in `[Collection(WpfCollection.Name)]` and wraps its body in `wpf.Run(...)`, because the view model applies its theme through `Application.Current` and WPF objects are thread-bound. Internals are visible to the test assembly (`AssemblyInfo.cs`), so pure helpers can be `internal static` rather than public.
+
+## Changelog
+
+`CHANGELOG.md` is embedded in the exe and its last five versions are shown to users on the What's New screen. Write entries for customers: what changed for them, in plain words, as short bullets. Implementation detail belongs in the commit message, not here. Older entries from before this rule contain developer wording; they no longer appear in What's New.
+
 ## Installers
 
 `installer/build-installers.ps1` defaults to `-Channels Production` only, and that's the desired behavior now — the user no longer needs the Test channel installer built as a matter of course. Just run it with no `-Channels` arg. Only pass `-Channels Test` or `-Channels Production,Test` if the user explicitly asks for a Test build for some specific reason.
@@ -35,6 +43,7 @@ Standard MVVM:
 - **Settings**: in-app preferences live in the SQLite `Settings` key/value table (`GetSetting`/`SetSetting`), read once into `MainViewModel` at `Load()`. `AppConfig`'s JSON file is only for bootstrap info needed before the DB is even open.
 - **`Who` legacy column**: `Cards.Who` (free text) still exists alongside `WhoId` (FK to `People`), kept only for the one-time `BackfillPeopleFromLegacyWho` migration. Don't write to `Who` in new code.
 - **Recurrence**: `SpawnNextOccurrence` creates the next task when a recurring one completes — check this if adding new completion-adjacent behavior.
+- **Email This Task** (`OutlookEmailHelper`): classic Outlook is driven by late-bound COM and gets attachments plus the user's signature. If COM can't open a compose window (the new Outlook has no COM, or no Outlook is installed), it falls back to a `mailto:` link in the default mail app (capped at `MaxMailtoLength`) and opens a temp folder with the task's import `.xlsx` and attachment copies to drag in. Only fall back before the Outlook window is showing, otherwise the user gets two emails.
 - **Due time / time alerts**: `Cards.DueTime` is an optional `"HH:mm"` string alongside the date-only `DueDate`; `CardViewModel.DueDateTime` combines them. `MainWindow` owns the app's only periodic timer (`_dueTimeTimer`, 15s), which diffs `GetCardsPastDueTime()` against a session-only set of `(CardId, DueAt)` already announced and raises `ReminderWindow` in `isTimeAlert` mode. Anything already past when the window opens is pre-seeded into that set, so times missed while the app was closed never pop — they're covered by the startup reminder list instead.
 
 ## Known rough edges
@@ -42,3 +51,4 @@ Standard MVVM:
 - Dashboard / Report / Print bypass MVVM (logic in code-behind) — inconsistent with the rest of the app, not urgent to fix but don't copy the pattern forward.
 - No DB migration versioning — fine at current scale, but there's no rollback story if a migration ever needs undoing.
 - PDF export's font resolver isn't bundling fonts — could break on a machine without Segoe UI at the expected path.
+- `ImportService.ReadTasks` only finds the header row if column A says "Title", so a customer's own spreadsheet with "Task" in A, or Title in another column, imports nothing. The "Task"/"Task Details" aliases in `ColumnFor` never get a chance to match.
