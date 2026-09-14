@@ -6,6 +6,11 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.84.0 — 2026-09-14
+- Email This Task now works without classic Outlook. With the new Outlook, another email app, or no Outlook at all, the email opens in your default email app, and a folder with the task's Excel file and attachments opens beside it so you can drag them in
+- Task emails now include the due time, not just the date
+- Help has new topics for emailing tasks, keeping separate task files, and backups, and now covers Timeline's Day view, colours and printing, and Report Builder's saved views, sorting and page orientation
+
 ## 0.83.2 — 2026-09-14
 - AM and PM buttons beside the due Time. The highlighted one shows how the time will be saved; click to switch
 - A time typed without AM or PM (e.g. 2:30) now follows the button you clicked, or if you haven't clicked one, is read as a working hour (7 to 11 AM, 12 to 6 PM) instead of always being AM

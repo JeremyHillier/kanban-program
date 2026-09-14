@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Text;
@@ -8,12 +9,21 @@ using KanbanApp.ViewModels;
 
 namespace KanbanApp.Services;
 
-// Composes an Outlook email for a card via late-bound COM automation (no Microsoft.Office.Interop.Outlook
-// reference, so this doesn't require Outlook to be installed on the machine that builds the app - only
-// on the machine that runs it). Classic desktop Outlook only, same caveat as OutlookDragDropHelper.
-// Always opens a compose window for the user to review (Display), never sends automatically.
+// Composes an email for a card. Classic desktop Outlook is driven through late-bound COM automation
+// (no Office interop reference, so building the app doesn't need Outlook) and gets the full treatment:
+// the user's own signature and the task's files attached. The new Outlook for Windows, other mail apps,
+// and PCs without Outlook have no automation to drive, so they get a mailto: link opened in the default
+// email app instead, with the files that can't be attached that way put in a folder to drag in.
+// Either way a compose window opens for the user to review - nothing is ever sent automatically.
 public static class OutlookEmailHelper
 {
+    // Mail apps and Windows itself cut off, or refuse to open, very long mailto: links.
+    internal const int MaxMailtoLength = 2000;
+
+    private static readonly string AttachmentFoldersRoot = Path.Combine(Path.GetTempPath(), "Kanban Task Board Email");
+
+    private static bool _defaultMailAppNoticeShown;
+
     // recipientEmail is passed explicitly rather than always reading card.WhoEmail: the Add/Edit
     // Task dialog needs to email the currently-selected Who in its combo box, which can be a live,
     // not-yet-saved change that hasn't made it onto the CardViewModel yet.
@@ -21,38 +31,45 @@ public static class OutlookEmailHelper
     {
         if (string.IsNullOrWhiteSpace(recipientEmail)) return;
 
+        if (TryComposeInClassicOutlook(owner, card, recipientEmail, viewModel)) return;
+        ComposeInDefaultMailApp(owner, card, recipientEmail.Trim(), viewModel);
+    }
+
+    // False only when Outlook couldn't open a compose window at all, so the caller can fall back. A
+    // failure after the window is already showing is reported here instead - falling back at that
+    // point would open a second, duplicate email.
+    private static bool TryComposeInClassicOutlook(Window owner, CardViewModel card, string recipientEmail, MainViewModel viewModel)
+    {
+        dynamic mailItem;
         try
         {
             var outlookType = Type.GetTypeFromProgID("Outlook.Application");
-            if (outlookType is null)
-            {
-                MessageBox.Show(owner, "Outlook doesn't appear to be installed on this machine.", "Email", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
+            if (outlookType is null) return false;
 
             // Outlook enforces single-instance at the OS level, so CreateInstance attaches to an
-            // already-running instance rather than launching a duplicate - no need to separately
-            // check the Running Object Table first (Marshal.GetActiveObject isn't available on
-            // modern .NET anyway; it was never ported from .NET Framework).
+            // already-running instance rather than launching a duplicate.
             dynamic app = Activator.CreateInstance(outlookType)!;
-            dynamic mailItem = app.CreateItem(0); // olMailItem
+            mailItem = app.CreateItem(0); // olMailItem
             mailItem.To = recipientEmail;
-            mailItem.Subject = $"Task: {card.Title}";
+            mailItem.Subject = EmailSubject(card);
 
-            // Display before setting HTMLBody (rather than after, as a naive version would) so
-            // Outlook gets a chance to insert the user's own default "new message" signature the
-            // normal way it would for a message composed by hand - reading HTMLBody back afterward
-            // captures whatever it inserted (a full HTML document, empty body if no signature is
-            // configured). Our own content is then spliced in right after <body...>, ahead of
-            // whatever Outlook put there, instead of overwriting it outright.
+            // Display before setting HTMLBody so Outlook inserts the user's own default "new message"
+            // signature the way it would for a message composed by hand; reading HTMLBody back then
+            // captures it, and our content goes in ahead of it rather than overwriting it.
             mailItem.Display(false);
+        }
+        catch
+        {
+            return false;
+        }
+
+        try
+        {
             string outlookHtml = mailItem.HTMLBody ?? string.Empty;
 
             var content = BuildHtmlBody(card);
             if (!HasVisibleContent(outlookHtml))
             {
-                // No default signature came back from Outlook - fall back to one built from the
-                // user's own details in Settings, if any are filled in.
                 var fallbackSignature = BuildFallbackSignature(viewModel);
                 if (fallbackSignature is not null) content += fallbackSignature;
             }
@@ -71,8 +88,142 @@ public static class OutlookEmailHelper
         }
         catch (Exception ex)
         {
-            MessageBox.Show(owner, $"Couldn't create the email: {ex.Message}", "Email", MessageBoxButton.OK, MessageBoxImage.Error);
+            MessageBox.Show(owner, $"The email opened, but couldn't be fully filled in: {ex.Message}", "Email", MessageBoxButton.OK, MessageBoxImage.Error);
         }
+
+        return true;
+    }
+
+    private static void ComposeInDefaultMailApp(Window owner, CardViewModel card, string recipientEmail, MainViewModel viewModel)
+    {
+        var attachmentPaths = card.Attachments.Select(a => a.FilePath).Where(File.Exists).ToList();
+
+        // Once per run: after the first time the user knows why a folder opens alongside the email.
+        if (!_defaultMailAppNoticeShown)
+        {
+            _defaultMailAppNoticeShown = true;
+            var files = attachmentPaths.Count == 0
+                ? "this task's Excel file"
+                : $"this task's Excel file and its {attachmentPaths.Count} attachment{(attachmentPaths.Count == 1 ? "" : "s")}";
+            MessageBox.Show(owner,
+                "Classic Outlook isn't available on this PC, so this email will open in your default email app instead.\n\n" +
+                $"Files can't be attached for you that way, so a folder with {files} will open too. Drag them into the email.",
+                "Email This Task", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+
+        // Opened before the email so the compose window ends up in front of it.
+        try
+        {
+            var folder = PrepareAttachmentFolder(AttachmentFoldersRoot, card.Title, BuildImportRow(card, viewModel), attachmentPaths);
+            Process.Start(new ProcessStartInfo(folder) { UseShellExecute = true });
+        }
+        catch
+        {
+            // The folder is a convenience; the email itself can still go ahead without it.
+        }
+
+        var subject = EmailSubject(card);
+        var body = BuildPlainTextBody(card, BuildPlainTextSignature(viewModel));
+        try
+        {
+            Process.Start(new ProcessStartInfo(BuildMailtoUri(recipientEmail, subject, body)) { UseShellExecute = true });
+        }
+        catch
+        {
+            try
+            {
+                Clipboard.SetText($"To: {recipientEmail}\r\nSubject: {subject}\r\n\r\n{body}");
+            }
+            catch
+            {
+                // Clipboard busy - the message below still tells them what happened.
+            }
+
+            MessageBox.Show(owner,
+                "No email app is set up to open email links on this PC.\n\n" +
+                $"The email has been copied to the clipboard instead. Paste it into a new message to {recipientEmail}.",
+                "Email This Task", MessageBoxButton.OK, MessageBoxImage.Warning);
+        }
+    }
+
+    internal static string EmailSubject(CardViewModel card) => $"Task: {card.Title}";
+
+    // A long body is shortened to fit, ending in an ellipsis, rather than the link failing to open.
+    internal static string BuildMailtoUri(string recipient, string subject, string body)
+    {
+        var to = Uri.EscapeDataString(recipient).Replace("%40", "@");
+        string Build(string text) => $"mailto:{to}?subject={Uri.EscapeDataString(subject)}&body={Uri.EscapeDataString(text)}";
+
+        var uri = Build(body);
+        var keep = body.Length;
+        while (uri.Length > MaxMailtoLength && keep > 0)
+        {
+            keep = (int)(keep * 0.9);
+            if (keep > 0 && char.IsHighSurrogate(body[keep - 1])) keep--;
+            uri = Build(body[..keep].TrimEnd() + "\r\n…");
+        }
+
+        return uri;
+    }
+
+    // Recreated each time, so files from an earlier email of the same task never linger alongside.
+    internal static string PrepareAttachmentFolder(string rootDir, string taskTitle, ImportedTaskRow importRow, IEnumerable<string> attachmentPaths)
+    {
+        var folder = Path.Combine(rootDir, SanitizeFileName(taskTitle));
+        if (Directory.Exists(folder)) Directory.Delete(folder, recursive: true);
+        Directory.CreateDirectory(folder);
+
+        ImportService.SaveSingleTaskFile(Path.Combine(folder, ImportFileName(taskTitle)), importRow);
+
+        foreach (var path in attachmentPaths.Where(File.Exists))
+        {
+            var destination = Path.Combine(folder, Path.GetFileName(path));
+            for (var n = 2; File.Exists(destination); n++)
+            {
+                destination = Path.Combine(folder, $"{Path.GetFileNameWithoutExtension(path)} ({n}){Path.GetExtension(path)}");
+            }
+            File.Copy(path, destination);
+        }
+
+        return folder;
+    }
+
+    internal static string BuildPlainTextBody(CardViewModel card, string? signature)
+    {
+        var sb = new StringBuilder();
+        sb.Append(card.Title).Append("\r\n\r\n");
+        sb.Append("Project: ").Append(card.ProjectName).Append("\r\n");
+        sb.Append("Priority: ").Append(card.Priority).Append("\r\n");
+        if (card.DueDate.HasValue) sb.Append("Due: ").Append(FormatDue(card)).Append("\r\n");
+        if (HasGoal(card)) sb.Append("Goal: ").Append(card.GoalName).Append("\r\n");
+        if (card.Flags.Count > 0) sb.Append("Flags: ").Append(string.Join(", ", card.Flags.Select(f => f.Name))).Append("\r\n");
+
+        if (!string.IsNullOrWhiteSpace(card.Notes))
+        {
+            sb.Append("\r\nNotes:\r\n").Append(card.Notes.Replace("\r\n", "\n").Replace("\n", "\r\n")).Append("\r\n");
+        }
+
+        if (card.SubTasks.Count > 0)
+        {
+            sb.Append("\r\nSub-tasks:\r\n");
+            foreach (var subTask in card.SubTasks)
+            {
+                sb.Append(subTask.IsDone ? "[x] " : "[ ] ").Append(subTask.Title).Append("\r\n");
+            }
+        }
+
+        sb.Append("\r\nIf an Excel file is attached, open Kanban Task Board and click Import Tasks to add this task to your own board.\r\n");
+
+        if (signature is not null) sb.Append("\r\n").Append(signature);
+        return sb.ToString().TrimEnd();
+    }
+
+    private static string? BuildPlainTextSignature(MainViewModel viewModel)
+    {
+        var lines = new[] { viewModel.UserName, viewModel.UserTitle, viewModel.UserEmail, viewModel.UserPhone }
+            .Where(line => !string.IsNullOrWhiteSpace(line))
+            .ToList();
+        return lines.Count == 0 ? null : string.Join("\r\n", lines);
     }
 
     // Outlook still returns a full (if empty) HTML document even with no signature configured, so
@@ -102,20 +253,10 @@ public static class OutlookEmailHelper
     // exist once that call returns.
     private static void AttachImportFile(dynamic mailItem, CardViewModel card, MainViewModel viewModel)
     {
-        var tempPath = Path.Combine(Path.GetTempPath(), $"KanbanTask_{SanitizeFileName(card.Title)}.xlsx");
+        var tempPath = Path.Combine(Path.GetTempPath(), ImportFileName(card.Title));
         try
         {
-            var categoryName = viewModel.Columns.FirstOrDefault(c => c.Id == card.ColumnId)?.DisplayName;
-            ImportService.SaveSingleTaskFile(tempPath, new ImportedTaskRow
-            {
-                Title = card.Title,
-                Category = categoryName,
-                Priority = card.Priority,
-                Project = card.ProjectName,
-                Goal = card.GoalName == "No Goal" ? null : card.GoalName,
-                DueDate = card.DueDate,
-                Who = card.WhoName == "Unassigned" ? null : card.WhoName
-            });
+            ImportService.SaveSingleTaskFile(tempPath, BuildImportRow(card, viewModel));
             mailItem.Attachments.Add(tempPath);
         }
         finally
@@ -124,12 +265,34 @@ public static class OutlookEmailHelper
         }
     }
 
-    private static string SanitizeFileName(string name)
+    private static ImportedTaskRow BuildImportRow(CardViewModel card, MainViewModel viewModel) => new()
+    {
+        Title = card.Title,
+        Category = viewModel.Columns.FirstOrDefault(c => c.Id == card.ColumnId)?.DisplayName,
+        Priority = card.Priority,
+        Project = card.ProjectName,
+        Goal = HasGoal(card) ? card.GoalName : null,
+        DueDate = card.DueDate,
+        Who = card.WhoName == "Unassigned" ? null : card.WhoName
+    };
+
+    private static string ImportFileName(string taskTitle) => $"KanbanTask_{SanitizeFileName(taskTitle)}.xlsx";
+
+    // Also used as a folder name, so it must never come back empty - Path.Combine(root, "") is root
+    // itself, which PrepareAttachmentFolder would then delete.
+    internal static string SanitizeFileName(string name)
     {
         var invalid = Path.GetInvalidFileNameChars();
         var cleaned = new string(name.Select(c => invalid.Contains(c) ? '_' : c).ToArray()).Trim();
-        return cleaned.Length > 60 ? cleaned[..60] : cleaned;
+        if (cleaned.Length > 60) cleaned = cleaned[..60];
+        cleaned = cleaned.TrimEnd('.', ' '); // Windows silently drops trailing dots and spaces from names
+        return cleaned.Length == 0 ? "Task" : cleaned;
     }
+
+    private static bool HasGoal(CardViewModel card) => !string.IsNullOrWhiteSpace(card.GoalName) && card.GoalName != "No Goal";
+
+    private static string FormatDue(CardViewModel card) =>
+        card.DueDateTime is { } dueAt ? dueAt.ToString("dd-MMM-yyyy h:mm tt") : card.DueDate!.Value.ToString("dd-MMM-yyyy");
 
     private static string? BuildFallbackSignature(MainViewModel viewModel)
     {
@@ -154,8 +317,8 @@ public static class OutlookEmailHelper
         sb.Append("<table style=\"border-collapse: collapse;\">");
         AppendRow(sb, "Project", card.ProjectName);
         AppendRow(sb, "Priority", card.Priority);
-        if (card.DueDate.HasValue) AppendRow(sb, "Due", card.DueDate.Value.ToString("dd-MMM-yyyy"));
-        if (!string.IsNullOrWhiteSpace(card.GoalName) && card.GoalName != "No Goal") AppendRow(sb, "Goal", card.GoalName);
+        if (card.DueDate.HasValue) AppendRow(sb, "Due", FormatDue(card));
+        if (HasGoal(card)) AppendRow(sb, "Goal", card.GoalName);
         if (card.Flags.Count > 0) AppendRow(sb, "Flags", string.Join(", ", card.Flags.Select(f => f.Name)));
         sb.Append("</table>");
 

@@ -250,7 +250,7 @@
                                  BorderBrush="{DynamicResource CardBorderBrush}"/>
                     </StackPanel>
                 </Grid>
-                <TextBlock Text="Used to sign off Email This Task when Outlook has no default signature of its own configured - filled-in fields only, so leave any of these blank to leave them out."
+                <TextBlock Text="Used to sign off Email This Task when classic Outlook has no default signature of its own, or when the email opens in another email app. Only filled-in fields are used, so leave any blank to leave them out."
                            FontSize="11" Margin="0,0,0,0"
                            Foreground="{DynamicResource SecondaryTextBrush}" TextWrapping="Wrap"/>
             </StackPanel>
