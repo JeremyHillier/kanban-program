@@ -165,9 +165,9 @@
                         <TextBlock Text="Time" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,8,0"
                                    Foreground="{DynamicResource PrimaryTextBrush}"/>
                         <Grid Width="100">
-                            <TextBox x:Name="DueTimeTextBox" Padding="6" LostFocus="DueTimeTextBox_LostFocus"
+                            <TextBox x:Name="DueTimeTextBox" Padding="6" LostFocus="DueTimeTextBox_LostFocus" TextChanged="DueTimeTextBox_TextChanged"
                                      Style="{StaticResource HoverTextBoxStyle}"
-                                     ToolTip="Optional time on the due date, e.g. 2:30 PM or 14:30. While the app is running, you'll get an alert when that time arrives."
+                                     ToolTip="Optional time on the due date, e.g. 2:30 PM or 14:30. Use AM / PM to pick the half of the day. While the app is running, you'll get an alert when that time arrives."
                                      Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
                             <TextBlock Text="e.g. 2:30 PM" IsHitTestVisible="False" Margin="10,0,0,0" VerticalAlignment="Center"
                                        Foreground="{DynamicResource SecondaryTextBrush}">
@@ -183,6 +183,12 @@
                                 </TextBlock.Style>
                             </TextBlock>
                         </Grid>
+                        <Button x:Name="AmButton" Content="AM" Width="38" Margin="6,0,0,0" Click="Meridiem_Click" IsTabStop="False"
+                                ToolTip="Morning - a time typed without AM or PM is read as AM"
+                                Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                        <Button x:Name="PmButton" Content="PM" Width="38" Margin="4,0,0,0" Click="Meridiem_Click" IsTabStop="False"
+                                ToolTip="Afternoon / evening - a time typed without AM or PM is read as PM"
+                                Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
                     </StackPanel>
 
                     <CheckBox Grid.Row="4" Grid.Column="4" x:Name="ForceEditOnCompleteCheckBox" Content="Force edit upon completion" Margin="0,12,0,4"

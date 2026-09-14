@@ -65,6 +65,7 @@
                 <local:BulletItem Text="Double-click any card to open it for editing."/>
                 <local:BulletItem Text="Each task can have a Category, Project, Goal, Priority, Due Date, Who it's assigned to, free-form Notes, Flags, and a checklist of Sub-tasks. Project is required; everything else is optional."/>
                 <local:BulletItem Text="An optional Time can go with the Due Date, typed like 2:30 PM, 2pm, or 14:30. A time needs a date; clearing the date clears the time too. Recurring tasks carry their time forward to each new occurrence."/>
+                <local:BulletItem Text="The AM and PM buttons beside the Time pick the half of the day, and the highlighted one shows how the time will be saved. Click one to switch a time you've already typed, or click it first and then type. If you type a time like 2:30 without AM or PM and don't click either button, it's read as a working hour (7 to 11 as AM, 12 to 6 as PM). Typing am/pm yourself, or a 24-hour time like 14:30 or 06:00, is always taken as written."/>
                 <local:BulletItem Text="Use the + and − buttons next to Project, Goal, and Who to add a new one on the fly, or clear the current selection without deleting the record."/>
                 <local:BulletItem Text="Each task also has an optional Website field — paste a link related to the task and click Open beside it to launch it in your default browser. A link typed without http:// still works."/>
 

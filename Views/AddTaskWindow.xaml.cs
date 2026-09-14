@@ -95,7 +95,7 @@ public partial class AddTaskWindow : Window
             (CategoryComboBox.SelectedItem as ColumnViewModel)?.Id.ToString() ?? "-",
             (PriorityComboBox.SelectedItem as ComboBoxItem)?.Content as string ?? "-",
             DueDatePicker.SelectedDate?.ToString("yyyy-MM-dd") ?? "-",
-            ParseDueTime(DueTimeTextBox.Text) ?? DueTimeTextBox.Text.Trim(),
+            CurrentDueTime() ?? DueTimeTextBox.Text.Trim(),
             (WhoComboBox.SelectedItem as PersonViewModel)?.Id.ToString() ?? "-",
             (GoalComboBox.SelectedItem as GoalViewModel)?.Id.ToString() ?? "-",
             RecurringCheckBox.IsChecked == true,
@@ -777,35 +777,97 @@ public partial class AddTaskWindow : Window
     private void ClearDueDate_Click(object sender, RoutedEventArgs e)
     {
         DueDatePicker.SelectedDate = null;
+        _chosenPm = null;
         DueTimeTextBox.Text = string.Empty;
+        UpdateMeridiemButtons();
     }
+
+    // Set only by clicking AM/PM. Null means neither has been clicked, so ParseDueTime guesses.
+    private bool? _chosenPm;
+
+    private static readonly Brush MeridiemSelectedBrush = new SolidColorBrush(Color.FromRgb(0x0B, 0x5F, 0xD9));
+
+    private string? CurrentDueTime() => ParseDueTime(DueTimeTextBox.Text, _chosenPm);
+
+    private void DueTimeTextBox_TextChanged(object sender, TextChangedEventArgs e) => UpdateMeridiemButtons();
 
     private void DueTimeTextBox_LostFocus(object sender, RoutedEventArgs e)
     {
-        if (ParseDueTime(DueTimeTextBox.Text) is { } parsed) DueTimeTextBox.Text = FormatDueTime(parsed);
+        if (CurrentDueTime() is { } parsed) DueTimeTextBox.Text = FormatDueTime(parsed);
+    }
+
+    // With a time already in the box it's switched in place (2:30 PM -> 2:30 AM); with the box
+    // empty or unreadable, the choice is kept for whatever gets typed next.
+    private void Meridiem_Click(object sender, RoutedEventArgs e)
+    {
+        _chosenPm = sender == PmButton;
+        if (CurrentDueTime() is { } parsed)
+        {
+            var time = TimeSpan.Parse(parsed);
+            var hour = time.Hours % 12 + (_chosenPm == true ? 12 : 0);
+            DueTimeTextBox.Text = FormatDueTime($"{hour:00}:{time.Minutes:00}");
+        }
+        UpdateMeridiemButtons();
+    }
+
+    // Highlights the half of the day the typed time will actually save as (so a guess is visible
+    // while typing), falling back to the clicked button when there's no readable time yet.
+    private void UpdateMeridiemButtons()
+    {
+        bool? pm = CurrentDueTime() is { } time ? TimeSpan.Parse(time).Hours >= 12 : _chosenPm;
+        StyleMeridiemButton(AmButton, pm == false);
+        StyleMeridiemButton(PmButton, pm == true);
+    }
+
+    private static void StyleMeridiemButton(Button button, bool selected)
+    {
+        if (selected)
+        {
+            button.Background = MeridiemSelectedBrush;
+            button.Foreground = Brushes.White;
+        }
+        else
+        {
+            button.SetResourceReference(BackgroundProperty, "ButtonBackgroundBrush");
+            button.SetResourceReference(ForegroundProperty, "PrimaryTextBrush");
+        }
     }
 
     private static readonly string[] DueTimeFormats =
         ["h:mm tt", "h:mmtt", "h tt", "htt", "H:mm", "HH:mm", "Hmm", "HHmm", "%H"]; // "%H", not "H": a lone letter is read as a standard format and throws
 
     // Returns the time as "HH:mm" (24-hour, the stored form), or null if blank or unrecognised.
-    private static string? ParseDueTime(string? text)
+    // A 1-12 hour typed without AM/PM is ambiguous: preferPm (the AM/PM buttons) settles it, or if
+    // neither was clicked, a working-hours guess (7-11 AM, 12-6 PM). A leading zero ("06:00") is
+    // read as 24-hour notation and taken literally.
+    private static string? ParseDueTime(string? text, bool? preferPm)
     {
-        var trimmed = text?.Trim() ?? string.Empty;
+        var trimmed = (text ?? string.Empty).Replace(".", "").Trim();
         if (trimmed.Length == 0) return null;
+        if (trimmed[^1] is 'a' or 'A' or 'p' or 'P') trimmed += "m"; // "2:30p" / "2p"
+
+        var hasMeridiem = trimmed.EndsWith("am", StringComparison.OrdinalIgnoreCase) ||
+                          trimmed.EndsWith("pm", StringComparison.OrdinalIgnoreCase);
+        var leadingZero = trimmed.Length >= 2 && trimmed[0] == '0' && char.IsDigit(trimmed[1]);
         // "930" - digit-only parsing is greedy and would read "93" as the hour, so pad to "0930".
         if (trimmed.Length == 3 && trimmed.All(char.IsDigit)) trimmed = "0" + trimmed;
 
-        if (DateTime.TryParseExact(trimmed, DueTimeFormats, System.Globalization.CultureInfo.InvariantCulture,
-                System.Globalization.DateTimeStyles.None, out var exact))
+        if (!DateTime.TryParseExact(trimmed, DueTimeFormats, System.Globalization.CultureInfo.InvariantCulture,
+                System.Globalization.DateTimeStyles.None, out var parsed) &&
+            !(DateTime.TryParse(trimmed, System.Globalization.CultureInfo.CurrentCulture,
+                System.Globalization.DateTimeStyles.NoCurrentDateDefault, out parsed) && parsed.Date == DateTime.MinValue.Date))
         {
-            return exact.ToString("HH:mm");
+            return null;
         }
 
-        return DateTime.TryParse(trimmed, System.Globalization.CultureInfo.CurrentCulture,
-            System.Globalization.DateTimeStyles.NoCurrentDateDefault, out var loose) && loose.Date == DateTime.MinValue.Date
-            ? loose.ToString("HH:mm")
-            : null;
+        var hour = parsed.Hour;
+        if (!hasMeridiem && !leadingZero && hour is >= 1 and <= 12)
+        {
+            var pm = preferPm ?? hour is 12 or <= 6;
+            hour = pm ? (hour == 12 ? 12 : hour + 12) : (hour == 12 ? 0 : hour);
+        }
+
+        return $"{hour:00}:{parsed.Minute:00}";
     }
 
     private static string FormatDueTime(string? storedTime) =>
@@ -839,7 +901,7 @@ public partial class AddTaskWindow : Window
             return;
         }
 
-        var dueTime = ParseDueTime(DueTimeTextBox.Text);
+        var dueTime = CurrentDueTime();
         if (dueTime is null && !string.IsNullOrWhiteSpace(DueTimeTextBox.Text))
         {
             MessageBox.Show(this, "The time isn't recognised. Enter it like 2:30 PM or 14:30, or leave it blank.",

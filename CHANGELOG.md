@@ -6,6 +6,11 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.83.2 — 2026-09-14
+- AM and PM buttons beside the due Time. The highlighted one shows how the time will be saved; click to switch
+- A time typed without AM or PM (e.g. 2:30) now follows the button you clicked, or if you haven't clicked one, is read as a working hour (7 to 11 AM, 12 to 6 PM) instead of always being AM
+- The Time box also accepts 2:30p, 7a, and p.m.
+
 ## 0.83.1 — 2026-09-14
 - The Time field in Add/Edit Task now shows a grey "e.g. 2:30 PM" hint while it's empty, like the date picker's "Select a date"
 
