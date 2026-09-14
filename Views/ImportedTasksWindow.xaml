@@ -5,7 +5,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:vm="clr-namespace:KanbanApp.ViewModels"
         mc:Ignorable="d"
-        Title="Imported Tasks" Height="620" Width="1400" MinWidth="1150" MinHeight="400"
+        Title="Imported Tasks" Height="620" Width="1400" MinWidth="1180" MinHeight="400"
         WindowStartupLocation="CenterOwner"
         ShowInTaskbar="False"
         Background="{DynamicResource WindowBackgroundBrush}">
@@ -16,11 +16,14 @@
             <Setter Property="Margin" Value="4,0,4,4"/>
             <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
         </Style>
+        <!-- Top-aligned so a row made taller by a wrapped task description doesn't stretch its
+             dropdowns and date picker to match. -->
         <Style x:Key="CellMargin" TargetType="FrameworkElement">
             <Setter Property="Margin" Value="4,1"/>
+            <Setter Property="VerticalAlignment" Value="Top"/>
         </Style>
     </Window.Resources>
-    <Grid Margin="16" IsSharedSizeScope="True">
+    <Grid Margin="16">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -34,17 +37,21 @@
                    Text="Uncheck Imported and Save to remove a task from this review list."
                    FontSize="11" Foreground="{DynamicResource SecondaryTextBrush}"/>
 
-        <!-- Header row -->
-        <Grid Grid.Row="1" Margin="0,10,0,4">
+        <!-- Header row. Its columns must match the row template's below exactly. They used to share
+             sizes through SharedSizeGroup, but WPF treats shared columns as Auto, so Task Details
+             grew to fit the longest description and pushed the Imported checkboxes off-screen.
+             Instead the small columns are fixed and Task Details takes whatever width is left
+             and wraps. The right margin is widened in code to match the rows' scrollbar. -->
+        <Grid x:Name="HeaderGrid" Grid.Row="1" Margin="1,10,1,4">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="2*" MinWidth="280" SharedSizeGroup="Title"/>
-                <ColumnDefinition Width="*" MinWidth="140" SharedSizeGroup="Category"/>
-                <ColumnDefinition Width="*" MinWidth="110" SharedSizeGroup="Priority"/>
-                <ColumnDefinition Width="*" MinWidth="160" SharedSizeGroup="Project"/>
-                <ColumnDefinition Width="*" MinWidth="160" SharedSizeGroup="Goal"/>
-                <ColumnDefinition Width="*" MinWidth="130" SharedSizeGroup="DueDate"/>
-                <ColumnDefinition Width="*" MinWidth="120" SharedSizeGroup="Who"/>
-                <ColumnDefinition Width="Auto" MinWidth="90" SharedSizeGroup="Imported"/>
+                <ColumnDefinition Width="*" MinWidth="200"/>
+                <ColumnDefinition Width="130"/>
+                <ColumnDefinition Width="100"/>
+                <ColumnDefinition Width="150"/>
+                <ColumnDefinition Width="140"/>
+                <ColumnDefinition Width="130"/>
+                <ColumnDefinition Width="120"/>
+                <ColumnDefinition Width="70"/>
             </Grid.ColumnDefinitions>
             <TextBlock Grid.Column="0" Text="Task Details" Style="{StaticResource ColHeaderStyle}"/>
             <TextBlock Grid.Column="1" Text="Category" Style="{StaticResource ColHeaderStyle}"/>
@@ -57,24 +64,26 @@
         </Grid>
 
         <Border Grid.Row="2" BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="1" CornerRadius="4">
-            <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <ScrollViewer x:Name="RowsScrollViewer" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
+                          ScrollChanged="RowsScrollViewer_ScrollChanged">
                 <ItemsControl x:Name="RowsList">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate DataType="{x:Type vm:ImportedRowEditViewModel}">
                             <Border BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="0,0,0,1" Padding="0,1">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="2*" SharedSizeGroup="Title"/>
-                                        <ColumnDefinition Width="*" SharedSizeGroup="Category"/>
-                                        <ColumnDefinition Width="*" SharedSizeGroup="Priority"/>
-                                        <ColumnDefinition Width="*" SharedSizeGroup="Project"/>
-                                        <ColumnDefinition Width="*" SharedSizeGroup="Goal"/>
-                                        <ColumnDefinition Width="*" SharedSizeGroup="DueDate"/>
-                                        <ColumnDefinition Width="*" SharedSizeGroup="Who"/>
-                                        <ColumnDefinition Width="Auto" SharedSizeGroup="Imported"/>
+                                        <ColumnDefinition Width="*" MinWidth="200"/>
+                                        <ColumnDefinition Width="130"/>
+                                        <ColumnDefinition Width="100"/>
+                                        <ColumnDefinition Width="150"/>
+                                        <ColumnDefinition Width="140"/>
+                                        <ColumnDefinition Width="130"/>
+                                        <ColumnDefinition Width="120"/>
+                                        <ColumnDefinition Width="70"/>
                                     </Grid.ColumnDefinitions>
 
                                     <TextBox Grid.Column="0" Style="{StaticResource CellMargin}" Text="{Binding Title, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                             TextWrapping="Wrap" MaxLength="255"
                                              Padding="4,2" Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
                                              BorderBrush="{DynamicResource CardBorderBrush}"/>
 
@@ -113,7 +122,7 @@
                                               BorderBrush="{DynamicResource CardBorderBrush}"/>
 
                                     <CheckBox Grid.Column="7" Style="{StaticResource CellMargin}" IsChecked="{Binding IsImported, Mode=TwoWay}"
-                                              HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                              HorizontalAlignment="Center" Margin="4,5,4,1"/>
                                 </Grid>
                             </Border>
                         </DataTemplate>

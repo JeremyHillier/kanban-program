@@ -36,10 +36,12 @@ public partial class MainViewModel
         return cardVm;
     }
 
+    // Deliberately no default values: every field is overwritten, so a caller that left one out
+    // would silently clear it on save. Without defaults, forgetting a field is a compile error.
     public void EditCard(CardViewModel card, string title, ColumnViewModel newColumn, ProjectViewModel? project, string priority, DateTime? dueDate, PersonViewModel? who,
-        bool isRecurring, string? recurrencePattern, GoalViewModel? goal, List<FlagViewModel>? flags = null, List<SubTaskViewModel>? subTasks = null,
-        string? notes = null, List<AttachmentViewModel>? attachments = null, bool forceEditOnComplete = false,
-        string? websiteUrl = null, string? dueTime = null)
+        bool isRecurring, string? recurrencePattern, GoalViewModel? goal, List<FlagViewModel>? flags, List<SubTaskViewModel>? subTasks,
+        string? notes, List<AttachmentViewModel>? attachments, bool forceEditOnComplete,
+        string? websiteUrl, string? dueTime)
     {
         if (string.IsNullOrWhiteSpace(title)) return;
 

@@ -19,6 +19,7 @@ public partial class ImportedTasksWindow : Window
     public ImportedTasksWindow(MainViewModel viewModel)
     {
         InitializeComponent();
+        Width = Math.Min(Width, SystemParameters.WorkArea.Width * 0.95);
         _viewModel = viewModel;
         DataContext = viewModel;
 
@@ -46,6 +47,14 @@ public partial class ImportedTasksWindow : Window
 
     private void DatePicker_Loaded(object sender, RoutedEventArgs e) => CalendarWheelSupport.Attach((DatePicker)sender);
 
+    // The rows lose width to the vertical scrollbar whenever there are enough of them to scroll, so
+    // the header gives up the same width on its right to keep its columns over the right cells.
+    private void RowsScrollViewer_ScrollChanged(object sender, ScrollChangedEventArgs e)
+    {
+        var scrollBarWidth = Math.Max(0, RowsScrollViewer.ActualWidth - RowsScrollViewer.ViewportWidth);
+        HeaderGrid.Margin = new Thickness(1, 10, 1 + scrollBarWidth, 4);
+    }
+
     private void SaveChanges_Click(object sender, RoutedEventArgs e)
     {
         var toRemove = new List<ImportedRowEditViewModel>();
@@ -68,7 +77,8 @@ public partial class ImportedTasksWindow : Window
 
             _viewModel.EditCard(row.Card, row.Title, column, project, row.Priority, row.DueDate, who,
                 row.Card.IsRecurring, row.Card.RecurrencePattern, goal, row.Card.Flags, row.Card.SubTasks, row.Card.Notes,
-                attachments: row.Card.Attachments);
+                attachments: row.Card.Attachments, forceEditOnComplete: row.Card.ForceEditOnComplete,
+                websiteUrl: row.Card.WebsiteUrl, dueTime: row.Card.DueTime);
 
             _viewModel.SetCardImported(row.Card, row.IsImported);
             if (!row.IsImported) toRemove.Add(row);
