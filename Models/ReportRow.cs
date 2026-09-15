@@ -14,4 +14,5 @@ public class ReportRow
     public string? Notes { get; init; }
     public bool IsArchived { get; init; }
     public DateTime? ArchivedAt { get; init; }
+    public DateTime? CompletedAt { get; init; }
 }

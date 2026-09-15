@@ -106,6 +106,7 @@ public partial class DatabaseService
         MigrateColumn(connection, "Cards", "NextOccurrenceSpawned", "INTEGER NOT NULL DEFAULT 0");
         MigrateColumn(connection, "Cards", "WebsiteUrl", "TEXT NULL");
         MigrateColumn(connection, "Cards", "DueTime", "TEXT NULL");
+        MigrateColumn(connection, "Cards", "CompletedAt", "TEXT NULL");
         MigrateColumn(connection, "Projects", "IsActive", "INTEGER NOT NULL DEFAULT 1");
         MigrateColumn(connection, "Goals", "IsActive", "INTEGER NOT NULL DEFAULT 1");
         MigrateColumn(connection, "Flags", "IsActive", "INTEGER NOT NULL DEFAULT 1");
@@ -132,6 +133,25 @@ public partial class DatabaseService
                   AND (IsArchived = 1 OR ColumnId = (SELECT Id FROM Columns WHERE Name = 'Done' LIMIT 1));
                 """;
             recurringBackfillCmd.ExecuteNonQuery();
+        }
+
+        // Tasks completed before CompletedAt existed: take the latest time the history log shows
+        // them arriving in Done (moved there, or created there), then the archive time, then
+        // LastUpdated as a last resort. Archiving doesn't change a card's column, so the Done-column
+        // test covers archived tasks too. Safe to run every startup: new code always sets
+        // CompletedAt on the way into Done, so only never-backfilled rows still match.
+        using (var completedBackfillCmd = connection.CreateCommand())
+        {
+            completedBackfillCmd.CommandText = """
+                UPDATE Cards SET CompletedAt = COALESCE(
+                    (SELECT MAX(h.Timestamp) FROM CardHistory h WHERE h.CardId = Cards.Id
+                        AND ((h.EventType = 'Moved' AND h.Details LIKE '% to Done') OR (h.EventType = 'Created' AND h.Details = 'Added to Done'))),
+                    (SELECT MAX(h.Timestamp) FROM CardHistory h WHERE h.CardId = Cards.Id AND h.EventType = 'Archived'),
+                    LastUpdated)
+                WHERE CompletedAt IS NULL
+                  AND ColumnId = (SELECT Id FROM Columns WHERE Name = 'Done' LIMIT 1);
+                """;
+            completedBackfillCmd.ExecuteNonQuery();
         }
 
         BackfillPeopleFromLegacyWho(connection);

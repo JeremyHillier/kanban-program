@@ -744,7 +744,7 @@
                                                                     </StackPanel>
                                                                     <TextBlock Text="{Binding RecurrenceDisplay}" FontSize="10" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,1,0,0"
                                                                                Visibility="{Binding RecurrenceDisplay, Converter={StaticResource EmptyStringToVisibilityConverter}}"/>
-                                                                    <TextBlock Text="{Binding LastUpdatedDisplay}" FontSize="9" FontStyle="Italic"
+                                                                    <TextBlock Text="{Binding StatusStampDisplay}" FontSize="9" FontStyle="Italic"
                                                                                Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,3,0,0"/>
 
                                                                     <TextBlock Text="{Binding AttachmentsCountDisplay}" FontSize="10"

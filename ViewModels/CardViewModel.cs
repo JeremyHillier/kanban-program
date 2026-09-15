@@ -266,10 +266,30 @@ public class CardViewModel(CardItem model) : ObservableObject
             Model.LastUpdated = value;
             OnPropertyChanged();
             OnPropertyChanged(nameof(LastUpdatedDisplay));
+            OnPropertyChanged(nameof(StatusStampDisplay));
         }
     }
 
     public string LastUpdatedDisplay => LastUpdated is null ? "Updated: unknown" : $"Updated {LastUpdated:MMM d, h:mm tt}";
+
+    public DateTime? CompletedAt
+    {
+        get => Model.CompletedAt;
+        set
+        {
+            if (Model.CompletedAt == value) return;
+            Model.CompletedAt = value;
+            OnPropertyChanged();
+            OnPropertyChanged(nameof(StatusStampDisplay));
+        }
+    }
+
+    // The small stamp on the card: when it was finished once it's Done (editing it afterwards
+    // doesn't move this), otherwise when it was last touched. The year is added only when it isn't
+    // this year, since a finished task can sit in Done for a long time before being archived.
+    public string StatusStampDisplay => CompletedAt is { } completed
+        ? $"Completed {completed.ToString(completed.Year == DateTime.Today.Year ? "MMM d, h:mm tt" : "MMM d, yyyy, h:mm tt")}"
+        : LastUpdatedDisplay;
 
     private bool _isVisible = true;
     public bool IsVisible

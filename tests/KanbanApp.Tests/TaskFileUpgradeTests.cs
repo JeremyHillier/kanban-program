@@ -78,7 +78,7 @@ public sealed class TaskFileUpgradeTests : IDisposable
         _ = new DatabaseService(path);
 
         var cardColumns = ColumnNames(path, "Cards");
-        foreach (var expected in new[] { "IsArchived", "Priority", "DueDate", "DueTime", "WhoId", "GoalId", "IsRecurring",
+        foreach (var expected in new[] { "IsArchived", "Priority", "DueDate", "DueTime", "CompletedAt", "WhoId", "GoalId", "IsRecurring",
                      "RecurrencePattern", "NextOccurrenceSpawned", "IsDeleted", "Notes", "IsImported", "ForceEditOnComplete", "WebsiteUrl" })
         {
             Assert.Contains(expected, cardColumns);
@@ -127,6 +127,59 @@ public sealed class TaskFileUpgradeTests : IDisposable
         var cards = db.GetCards().ToDictionary(c => c.Title);
         Assert.Equal(person.Id, cards["A"].WhoId);
         Assert.Null(cards["C"].WhoId);
+    }
+
+    [Fact]
+    public void TasksAlreadyDone_GetTheirCompletionTimeFromHistory()
+    {
+        var path = _temp.File("history.db");
+        using (var connection = new SqliteConnection($"Data Source={path}"))
+        {
+            connection.Open();
+            using var cmd = connection.CreateCommand();
+            cmd.CommandText = """
+                CREATE TABLE Columns (Id INTEGER PRIMARY KEY AUTOINCREMENT, Name TEXT NOT NULL, SortOrder INTEGER NOT NULL);
+                CREATE TABLE Cards (Id INTEGER PRIMARY KEY AUTOINCREMENT, ColumnId INTEGER NOT NULL, Title TEXT NOT NULL,
+                    SortOrder INTEGER NOT NULL, IsArchived INTEGER NOT NULL DEFAULT 0, LastUpdated TEXT NULL);
+                CREATE TABLE CardHistory (Id INTEGER PRIMARY KEY AUTOINCREMENT, CardId INTEGER NOT NULL, CardTitle TEXT NOT NULL,
+                    EventType TEXT NOT NULL, Details TEXT NOT NULL, Timestamp TEXT NOT NULL);
+                INSERT INTO Columns (Name, SortOrder) VALUES ('To Do', 0), ('Done', 1);
+
+                -- 1: finished twice (reopened in between) and then edited: the latest arrival in Done counts, not the edit.
+                INSERT INTO Cards (ColumnId, Title, SortOrder, LastUpdated) VALUES (2, 'Done twice', 0, '2026-03-09 17:00:00');
+                INSERT INTO CardHistory (CardId, CardTitle, EventType, Details, Timestamp) VALUES
+                    (1, 'Done twice', 'Moved', 'Moved from To Do to Done', '2026-03-01 09:00:00'),
+                    (1, 'Done twice', 'Moved', 'Moved from Done to To Do', '2026-03-02 09:00:00'),
+                    (1, 'Done twice', 'Moved', 'Moved from To Do to Done', '2026-03-05 14:30:00'),
+                    (1, 'Done twice', 'Edited', 'Task details updated', '2026-03-09 17:00:00');
+                -- 2: created straight into Done, then archived.
+                INSERT INTO Cards (ColumnId, Title, SortOrder, IsArchived, LastUpdated) VALUES (2, 'Created done', 1, 1, '2026-04-02 08:00:00');
+                INSERT INTO CardHistory (CardId, CardTitle, EventType, Details, Timestamp) VALUES
+                    (2, 'Created done', 'Created', 'Added to Done', '2026-04-01 10:15:00'),
+                    (2, 'Created done', 'Archived', 'Archived from Done', '2026-04-02 08:00:00');
+                -- 3: archived, with no record of arriving in Done: falls back to the archive time.
+                INSERT INTO Cards (ColumnId, Title, SortOrder, IsArchived, LastUpdated) VALUES (2, 'No arrival record', 2, 1, '2026-05-10 12:00:00');
+                INSERT INTO CardHistory (CardId, CardTitle, EventType, Details, Timestamp) VALUES
+                    (3, 'No arrival record', 'Archived', 'Archived from Done', '2026-05-03 11:00:00');
+                -- 4: in Done with no history at all: last updated is the best available.
+                INSERT INTO Cards (ColumnId, Title, SortOrder, LastUpdated) VALUES (2, 'No history', 3, '2026-06-06 06:06:00');
+                -- 5: not finished: stays empty even though it once passed through Done.
+                INSERT INTO Cards (ColumnId, Title, SortOrder, LastUpdated) VALUES (1, 'Reopened', 0, '2026-07-01 00:00:00');
+                INSERT INTO CardHistory (CardId, CardTitle, EventType, Details, Timestamp) VALUES
+                    (5, 'Reopened', 'Moved', 'Moved from To Do to Done', '2026-06-20 10:00:00'),
+                    (5, 'Reopened', 'Moved', 'Moved from Done to To Do', '2026-06-21 10:00:00');
+                """;
+            cmd.ExecuteNonQuery();
+        }
+
+        var db = new DatabaseService(path);
+
+        var board = db.GetCards().Concat(db.GetCards(archivedOnly: true)).ToDictionary(c => c.Title, c => c.CompletedAt);
+        Assert.Equal(new DateTime(2026, 3, 5, 14, 30, 0), board["Done twice"]);
+        Assert.Equal(new DateTime(2026, 4, 1, 10, 15, 0), board["Created done"]);
+        Assert.Equal(new DateTime(2026, 5, 3, 11, 0, 0), board["No arrival record"]);
+        Assert.Equal(new DateTime(2026, 6, 6, 6, 6, 0), board["No history"]);
+        Assert.Null(board["Reopened"]);
     }
 
     [Fact]

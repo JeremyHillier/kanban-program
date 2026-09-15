@@ -104,6 +104,7 @@
                 <local:BulletItem Text="The tag icon, beside the task's details, adds an existing flag from a dropdown without opening the task."/>
                 <local:BulletItem Text="Click a card's Project name, Priority badge, Assigned name, or due date to change any of them directly from the board, without opening the task."/>
                 <local:BulletItem Text="A task's title and due date are highlighted yellow once it's past due (and still outside Done)."/>
+                <local:BulletItem Text="The small stamp at the bottom of a card shows when it was last updated, or once it's in Done, when it was completed. Editing a finished task doesn't change its completion time; moving it back out of Done clears it."/>
                 <local:BulletItem Text="A card's Project name is shown prominently just below the title, and works on both full and compact cards."/>
 
                 <TextBlock Text="Organizing: Projects, Goals, Flags, Who" Style="{StaticResource HelpSectionHeaderStyle}"/>
@@ -135,6 +136,7 @@
                 <local:BulletItem Text="Deleting a task never erases it — it's kept out of sight instead."/>
                 <local:BulletItem Text="Click View Archived to browse archived tasks; double-click the same button to browse deleted tasks."/>
                 <local:BulletItem Text="Either list lets you select a task and reactivate it back to To Do; in the Archived list, double-clicking a task reactivates it immediately."/>
+                <local:BulletItem Text="The Archived list shows when each task was completed as well as when it was archived."/>
                 <local:BulletItem Text="Both lists have a From/To date range to narrow them down to when a task was archived or deleted; Clear Dates resets it back to showing everything."/>
                 <local:BulletItem Text="Right-click a task in either list for Permanently Delete — unlike the regular Delete on the board, this erases the task for good (including any attachments still stored with it) after a confirmation prompt. There's no undo."/>
 
@@ -158,6 +160,7 @@
                 <local:BulletItem Text="Project, Priority, and Who accept several choices at once (Ctrl-click or Shift-click). The Due date range (From/To) limits the report by due date, with an option to also include tasks that have no due date."/>
                 <local:BulletItem Text="Custom Filters lists your saved Alt+0 to Alt+9 filters. Tick one or more and the report includes any task matching at least one of them, instead of using the filters above."/>
                 <local:BulletItem Text="Sort order takes up to three levels (1st, 2nd, 3rd). Page orientation switches the PDF and preview between Portrait and Landscape."/>
+                <local:BulletItem Text="Finished tasks show when they were completed. Sort by Completed Date to list them in the order they were done, with unfinished tasks last."/>
                 <local:BulletItem Text="The header of every report lists the filters, sort, grouping, and scope it was built with, so a printed report explains itself."/>
                 <local:BulletItem Text="Save View... stores every choice on the screen under a name; pick it from the list and click Load to rebuild the same report later, or Delete View to remove it. Reset all fields puts everything back to its defaults."/>
 

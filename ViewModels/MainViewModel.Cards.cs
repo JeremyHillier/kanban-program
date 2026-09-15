@@ -202,6 +202,7 @@ public partial class MainViewModel
         targetColumn.Cards.Add(card);
 
         card.LastUpdated = _db.MoveCard(card.Id, targetColumn.Id, card.Title, sourceColumn.Name, targetColumn.Name);
+        card.CompletedAt = targetColumn.Name == "Done" ? card.LastUpdated : null;
         ReconcileAttachmentLocations(card, targetColumn.Name == "Done" ? "Done" : null);
 
         if (targetColumn.Name == "Done" && card.IsRecurring && !string.IsNullOrWhiteSpace(card.RecurrencePattern) && !card.NextOccurrenceSpawned)

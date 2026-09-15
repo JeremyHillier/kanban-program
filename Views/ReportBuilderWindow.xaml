@@ -194,6 +194,7 @@
                         <ComboBoxItem Content="Priority" Tag="Priority"/>
                         <ComboBoxItem Content="Who" Tag="Who"/>
                         <ComboBoxItem Content="Due Date" Tag="Due Date"/>
+                        <ComboBoxItem Content="Completed Date" Tag="Completed Date"/>
                         <ComboBoxItem Content="Project" Tag="Project"/>
                         <ComboBoxItem Content="Goal" Tag="Goal"/>
                     </ComboBox>
@@ -208,6 +209,7 @@
                         <ComboBoxItem Content="Priority" Tag="Priority"/>
                         <ComboBoxItem Content="Who" Tag="Who"/>
                         <ComboBoxItem Content="Due Date" Tag="Due Date"/>
+                        <ComboBoxItem Content="Completed Date" Tag="Completed Date"/>
                         <ComboBoxItem Content="Project" Tag="Project"/>
                         <ComboBoxItem Content="Goal" Tag="Goal"/>
                     </ComboBox>
@@ -222,6 +224,7 @@
                         <ComboBoxItem Content="Priority" Tag="Priority"/>
                         <ComboBoxItem Content="Who" Tag="Who"/>
                         <ComboBoxItem Content="Due Date" Tag="Due Date"/>
+                        <ComboBoxItem Content="Completed Date" Tag="Completed Date"/>
                         <ComboBoxItem Content="Project" Tag="Project"/>
                         <ComboBoxItem Content="Goal" Tag="Goal"/>
                     </ComboBox>

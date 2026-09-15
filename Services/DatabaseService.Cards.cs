@@ -14,7 +14,7 @@ public partial class DatabaseService
             ? ", (SELECT MAX(h.Timestamp) FROM CardHistory h WHERE h.CardId = Cards.Id AND h.EventType = 'Archived')"
             : "";
         cmd.CommandText = $"""
-            SELECT Id, ColumnId, Title, SortOrder, ProjectId, Priority, DueDate, WhoId, LastUpdated, IsRecurring, RecurrencePattern, GoalId, Notes, IsImported, ForceEditOnComplete, NextOccurrenceSpawned, WebsiteUrl, DueTime{archivedAtColumn}
+            SELECT Id, ColumnId, Title, SortOrder, ProjectId, Priority, DueDate, WhoId, LastUpdated, IsRecurring, RecurrencePattern, GoalId, Notes, IsImported, ForceEditOnComplete, NextOccurrenceSpawned, WebsiteUrl, DueTime, CompletedAt{archivedAtColumn}
             FROM Cards WHERE IsArchived = {(archivedOnly ? 1 : 0)} AND IsDeleted = 0 ORDER BY SortOrder;
             """;
 
@@ -43,7 +43,8 @@ public partial class DatabaseService
                     NextOccurrenceSpawned = reader.GetInt32(15) != 0,
                     WebsiteUrl = reader.IsDBNull(16) ? null : reader.GetString(16),
                     DueTime = reader.IsDBNull(17) ? null : reader.GetString(17),
-                    ArchivedAt = archivedOnly && !reader.IsDBNull(18) ? DateTime.Parse(reader.GetString(18)) : null
+                    CompletedAt = reader.IsDBNull(18) ? null : DateTime.Parse(reader.GetString(18)),
+                    ArchivedAt = archivedOnly && !reader.IsDBNull(19) ? DateTime.Parse(reader.GetString(19)) : null
                 });
             }
         }
@@ -122,12 +123,14 @@ public partial class DatabaseService
         var sortOrder = (long)maxCmd.ExecuteScalar()!;
 
         var now = NowStamp();
+        var completedAt = columnName == "Done" ? now : null; // created straight into Done counts as completed
         using var insertCmd = connection.CreateCommand();
         insertCmd.CommandText = """
-            INSERT INTO Cards (ColumnId, Title, SortOrder, ProjectId, Priority, DueDate, WhoId, LastUpdated, IsRecurring, RecurrencePattern, GoalId, Notes, IsImported, ForceEditOnComplete, WebsiteUrl, DueTime)
-            VALUES ($columnId, $title, $sortOrder, $projectId, $priority, $dueDate, $whoId, $lastUpdated, $isRecurring, $recurrencePattern, $goalId, $notes, $isImported, $forceEditOnComplete, $websiteUrl, $dueTime);
+            INSERT INTO Cards (ColumnId, Title, SortOrder, ProjectId, Priority, DueDate, WhoId, LastUpdated, IsRecurring, RecurrencePattern, GoalId, Notes, IsImported, ForceEditOnComplete, WebsiteUrl, DueTime, CompletedAt)
+            VALUES ($columnId, $title, $sortOrder, $projectId, $priority, $dueDate, $whoId, $lastUpdated, $isRecurring, $recurrencePattern, $goalId, $notes, $isImported, $forceEditOnComplete, $websiteUrl, $dueTime, $completedAt);
             SELECT last_insert_rowid();
             """;
+        insertCmd.Parameters.AddWithValue("$completedAt", (object?)completedAt ?? DBNull.Value);
         insertCmd.Parameters.AddWithValue("$columnId", columnId);
         insertCmd.Parameters.AddWithValue("$title", title);
         insertCmd.Parameters.AddWithValue("$sortOrder", sortOrder);
@@ -153,7 +156,8 @@ public partial class DatabaseService
             Id = (int)id, ColumnId = columnId, Title = title, SortOrder = (int)sortOrder, ProjectId = projectId,
             Priority = priority, DueDate = dueDate, WhoId = whoId, LastUpdated = DateTime.Parse(now),
             IsRecurring = isRecurring, RecurrencePattern = recurrencePattern, GoalId = goalId, Notes = notes, IsImported = isImported,
-            ForceEditOnComplete = forceEditOnComplete, WebsiteUrl = websiteUrl, DueTime = dueTime
+            ForceEditOnComplete = forceEditOnComplete, WebsiteUrl = websiteUrl, DueTime = dueTime,
+            CompletedAt = completedAt is null ? null : DateTime.Parse(completedAt)
         };
     }
 
@@ -239,11 +243,14 @@ public partial class DatabaseService
         maxCmd.Parameters.AddWithValue("$columnId", newColumnId);
         var sortOrder = (long)maxCmd.ExecuteScalar()!;
 
+        // Stamped on the way into Done and cleared on the way out, so it always means "finished, and
+        // still counted as finished". The caller mirrors this onto the card from the returned time.
         using var updateCmd = connection.CreateCommand();
-        updateCmd.CommandText = "UPDATE Cards SET ColumnId = $columnId, SortOrder = $sortOrder, LastUpdated = $lastUpdated WHERE Id = $id;";
+        updateCmd.CommandText = "UPDATE Cards SET ColumnId = $columnId, SortOrder = $sortOrder, LastUpdated = $lastUpdated, CompletedAt = $completedAt WHERE Id = $id;";
         updateCmd.Parameters.AddWithValue("$columnId", newColumnId);
         updateCmd.Parameters.AddWithValue("$sortOrder", sortOrder);
         updateCmd.Parameters.AddWithValue("$lastUpdated", now);
+        updateCmd.Parameters.AddWithValue("$completedAt", toColumnName == "Done" ? now : DBNull.Value);
         updateCmd.Parameters.AddWithValue("$id", cardId);
         updateCmd.ExecuteNonQuery();
 
@@ -283,7 +290,8 @@ public partial class DatabaseService
         using (var cmd = connection.CreateCommand())
         {
             cmd.CommandText = """
-                UPDATE Cards SET IsArchived = 0, IsDeleted = 0, ColumnId = $columnId, SortOrder = $sortOrder, LastUpdated = $lastUpdated
+                UPDATE Cards SET IsArchived = 0, IsDeleted = 0, ColumnId = $columnId, SortOrder = $sortOrder, LastUpdated = $lastUpdated,
+                    CompletedAt = NULL
                 WHERE Id = $id;
                 """;
             cmd.Parameters.AddWithValue("$columnId", toDoColumnId);
@@ -328,7 +336,8 @@ public partial class DatabaseService
         using var cmd = connection.CreateCommand();
         cmd.CommandText = """
             SELECT c.Id, c.Title, col.Name, COALESCE(p.Name, 'No Project'),
-                (SELECT MAX(h.Timestamp) FROM CardHistory h WHERE h.CardId = c.Id AND h.EventType = 'Archived')
+                (SELECT MAX(h.Timestamp) FROM CardHistory h WHERE h.CardId = c.Id AND h.EventType = 'Archived'),
+                c.CompletedAt
             FROM Cards c
             JOIN Columns col ON col.Id = c.ColumnId
             LEFT JOIN Projects p ON p.Id = c.ProjectId
@@ -346,7 +355,8 @@ public partial class DatabaseService
                 Title = reader.GetString(1),
                 ColumnName = reader.GetString(2),
                 ProjectName = reader.GetString(3),
-                ArchivedAt = reader.IsDBNull(4) ? "Unknown" : reader.GetString(4)
+                ArchivedAt = reader.IsDBNull(4) ? "Unknown" : reader.GetString(4),
+                CompletedAt = reader.IsDBNull(5) ? null : DateTime.Parse(reader.GetString(5))
             });
         }
         return result;

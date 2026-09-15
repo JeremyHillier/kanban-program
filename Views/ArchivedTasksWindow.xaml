@@ -49,9 +49,8 @@
                                 <Run Text="{Binding ColumnName, Mode=OneWay}"/>
                                 <Run Text=" • "/>
                                 <Run Text="{Binding ProjectName, Mode=OneWay}"/>
-                                <Run Text=" • archived "/>
-                                <Run Text="{Binding ArchivedAt, Mode=OneWay}"/>
                             </TextBlock>
+                            <TextBlock Text="{Binding StampsDisplay, Mode=OneWay}" FontSize="11" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,1,0,0"/>
                         </StackPanel>
                     </Border>
                 </DataTemplate>

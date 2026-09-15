@@ -138,6 +138,7 @@ public static class ReportService
         SubTasks = card.SubTasks.Select(s => (s.Title, s.IsDone)).ToList(),
         Notes = card.Notes,
         ArchivedAt = card.ArchivedAt,
+        CompletedAt = card.CompletedAt,
         IsArchived = isArchived
     };
 
@@ -241,6 +242,7 @@ public static class ReportService
         "Priority" => rows.OrderBy(r => PriorityRank(r.Priority)),
         "Who" => rows.OrderBy(r => string.IsNullOrWhiteSpace(r.Who) ? "Unassigned" : r.Who, StringComparer.OrdinalIgnoreCase),
         "Due Date" => rows.OrderBy(r => r.DueDate ?? DateTime.MaxValue),
+        "Completed Date" => rows.OrderBy(r => r.CompletedAt ?? DateTime.MaxValue), // unfinished tasks last
         "Project" => rows.OrderBy(r => r.ProjectName, StringComparer.OrdinalIgnoreCase),
         "Goal" => rows.OrderBy(r => r.GoalName, StringComparer.OrdinalIgnoreCase),
         _ => rows.OrderBy(_ => 0)
@@ -252,6 +254,7 @@ public static class ReportService
         "Priority" => rows.ThenBy(r => PriorityRank(r.Priority)),
         "Who" => rows.ThenBy(r => string.IsNullOrWhiteSpace(r.Who) ? "Unassigned" : r.Who, StringComparer.OrdinalIgnoreCase),
         "Due Date" => rows.ThenBy(r => r.DueDate ?? DateTime.MaxValue),
+        "Completed Date" => rows.ThenBy(r => r.CompletedAt ?? DateTime.MaxValue),
         "Project" => rows.ThenBy(r => r.ProjectName, StringComparer.OrdinalIgnoreCase),
         "Goal" => rows.ThenBy(r => r.GoalName, StringComparer.OrdinalIgnoreCase),
         _ => rows
@@ -267,7 +270,7 @@ public static class ReportService
         _ => rows.GroupBy(_ => string.Empty).ToList()
     };
 
-    private static List<string> BuildMetaParts(ReportRow row)
+    internal static List<string> BuildMetaParts(ReportRow row)
     {
         var parts = new List<string>
         {
@@ -277,6 +280,7 @@ public static class ReportService
         };
 
         if (row.DueDate is not null) parts.Add($"Due {row.DueDate:MMM d, yyyy}");
+        if (row.CompletedAt is not null) parts.Add($"Completed {row.CompletedAt:MMM d, yyyy h:mm tt}");
         parts.Add(string.IsNullOrWhiteSpace(row.Who) ? "Unassigned" : $"Who: {row.Who}");
         if (row.GoalName != "No Goal") parts.Add($"Goal: {row.GoalName}");
         if (row.Flags.Count > 0) parts.Add($"Flags: {string.Join(", ", row.Flags)}");

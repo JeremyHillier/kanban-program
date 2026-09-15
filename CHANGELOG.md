@@ -6,6 +6,12 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.86.0 — 2026-09-15
+- Tasks now record when they were completed. Cards in Done show "Completed" with the date and time instead of "Updated", and editing a finished task no longer changes it
+- The Archived list shows when each task was completed as well as when it was archived
+- Report Builder shows the completion date on finished tasks and can sort by Completed Date
+- Tasks you'd already finished get their completion time filled in from their history
+
 ## 0.85.0 — 2026-09-15
 - Task Due Now alerts have a Snooze button: be reminded again in 15 minutes, 1 hour, 2 hours, 4 hours, or 1 day
 - Fixed the Close button (and Esc) doing nothing on a Task Due Now alert
