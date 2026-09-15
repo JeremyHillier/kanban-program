@@ -6,6 +6,10 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.85.0 — 2026-09-15
+- Task Due Now alerts have a Snooze button: be reminded again in 15 minutes, 1 hour, 2 hours, 4 hours, or 1 day
+- Fixed the Close button (and Esc) doing nothing on a Task Due Now alert
+
 ## 0.84.1 — 2026-09-14
 - The Imported Tasks review window now wraps long task descriptions instead of stretching past the edge of the screen, so the Imported checkboxes are always visible
 - Fixed Save Changes in Imported Tasks clearing each task's due time, website link, and "force edit upon completion" setting

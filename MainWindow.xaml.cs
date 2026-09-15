@@ -14,9 +14,7 @@ public partial class MainWindow : Window
     private Point _dragStartPoint;
     private readonly DatabaseService _db;
 
-    // Keyed on the due moment as well as the card, so moving a task's time later lets it alert
-    // again at the new time without any hook into the edit path - an unchanged time still matches.
-    private readonly HashSet<(int CardId, DateTime DueAt)> _timeAlertsShown = [];
+    private readonly TimeAlertTracker _timeAlerts = new();
     private readonly DispatcherTimer _dueTimeTimer = new() { Interval = TimeSpan.FromSeconds(15) };
 
     public MainWindow(DatabaseService db)
@@ -28,10 +26,7 @@ public partial class MainWindow : Window
 
         // Anything whose time had already passed before the app opened is left to the startup
         // reminder list rather than also popping a time alert on the first tick.
-        foreach (var card in mainViewModel.GetCardsPastDueTime())
-        {
-            _timeAlertsShown.Add((card.Id, card.DueDateTime!.Value));
-        }
+        _timeAlerts.MarkAnnounced(mainViewModel.GetCardsPastDueTime());
         _dueTimeTimer.Tick += DueTimeTimer_Tick;
         _dueTimeTimer.Start();
 
@@ -92,13 +87,9 @@ public partial class MainWindow : Window
     {
         if (DataContext is not MainViewModel viewModel) return;
 
-        var newlyDue = new List<CardViewModel>();
-        foreach (var card in viewModel.GetCardsPastDueTime())
-        {
-            if (_timeAlertsShown.Add((card.Id, card.DueDateTime!.Value))) newlyDue.Add(card);
-        }
+        var newlyDue = _timeAlerts.TakeCardsToAlert(viewModel.GetCardsPastDueTime(), DateTime.Now);
 
-        // Still recorded as shown while alerts are switched off, so turning them back on later
+        // Still recorded as announced while alerts are switched off, so turning them back on later
         // doesn't dump every time that passed in the meantime.
         if (newlyDue.Count == 0 || !viewModel.ShowTimeAlerts) return;
 
@@ -110,7 +101,8 @@ public partial class MainWindow : Window
     private void ShowTimeAlert(List<CardViewModel> dueCards, MainViewModel viewModel)
     {
         var alert = new ReminderWindow(dueCards, viewModel.Columns, card => EditCard(card, viewModel), card => MarkCardDone(card, viewModel),
-            card => viewModel.GetCardsPastDueTime().Contains(card), isTimeAlert: true)
+            card => viewModel.GetCardsPastDueTime().Contains(card), isTimeAlert: true,
+            onSnooze: (cards, duration) => _timeAlerts.Snooze(cards, DateTime.Now + duration))
         {
             ShowInTaskbar = true,
             WindowStartupLocation = WindowStartupLocation.CenterScreen,

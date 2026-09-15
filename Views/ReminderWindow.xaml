@@ -72,8 +72,17 @@
             </ListBox.ItemTemplate>
         </ListBox>
 
-        <Button Grid.Row="2" Content="Close" Width="90" Padding="0,6" Margin="0,12,0,0"
-                HorizontalAlignment="Right" IsCancel="True" IsDefault="True"
-                Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+        <Grid Grid.Row="2" Margin="0,12,0,0">
+            <!-- Time alerts only. Its menu is filled in code from TimeAlertTracker.SnoozeOptions. -->
+            <Button x:Name="SnoozeButton" Content="Snooze ▾" Width="90" Padding="0,6" HorizontalAlignment="Left"
+                    Visibility="Collapsed" Click="Snooze_Click"
+                    ToolTip="Remind me about the tasks still listed here again later"
+                    Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+            <!-- IsCancel alone only closes a window opened with ShowDialog; the time alert is opened with
+                 Show so it doesn't block the board, so Close needs its own Click handler. -->
+            <Button Content="Close" Width="90" Padding="0,6" HorizontalAlignment="Right" IsCancel="True" IsDefault="True"
+                    Click="Close_Click"
+                    Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+        </Grid>
     </Grid>
 </Window>

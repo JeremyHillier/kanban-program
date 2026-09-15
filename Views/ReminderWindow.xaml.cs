@@ -17,6 +17,7 @@ public partial class ReminderWindow : Window
     private readonly Action<CardViewModel> _onMarkDone;
     private readonly Func<CardViewModel, bool> _isStillDue;
     private readonly bool _isTimeAlert;
+    private readonly Action<List<CardViewModel>, TimeSpan>? _onSnooze;
     private readonly List<ColumnViewModel> _columns;
     private readonly Dictionary<ReminderRow, CardViewModel> _rowsToCards = [];
     private readonly ObservableCollection<ReminderRow> _rows = [];
@@ -34,8 +35,10 @@ public partial class ReminderWindow : Window
 
     // isTimeAlert: the same list, raised mid-session by the due-time timer for tasks whose time has
     // just arrived, rather than the startup/on-demand overdue-and-due-today roundup.
+    // onSnooze: given only for time alerts; receives the tasks still listed and the chosen duration.
     public ReminderWindow(List<CardViewModel> dueCards, IEnumerable<ColumnViewModel> columns, Action<CardViewModel> onOpenTask,
-        Action<CardViewModel> onMarkDone, Func<CardViewModel, bool> isStillDue, bool isTimeAlert = false)
+        Action<CardViewModel> onMarkDone, Func<CardViewModel, bool> isStillDue, bool isTimeAlert = false,
+        Action<List<CardViewModel>, TimeSpan>? onSnooze = null)
     {
         InitializeComponent();
         MaxHeight = SystemParameters.WorkArea.Height * 0.9;
@@ -43,8 +46,22 @@ public partial class ReminderWindow : Window
         _onMarkDone = onMarkDone;
         _isStillDue = isStillDue;
         _isTimeAlert = isTimeAlert;
+        _onSnooze = onSnooze;
         _columns = columns.ToList();
         if (isTimeAlert) Title = "Task Due Now";
+
+        if (onSnooze is not null)
+        {
+            SnoozeButton.Visibility = Visibility.Visible;
+            var menu = new ContextMenu { PlacementTarget = SnoozeButton, Placement = System.Windows.Controls.Primitives.PlacementMode.Top };
+            foreach (var (label, duration) in TimeAlertTracker.SnoozeOptions)
+            {
+                var item = new MenuItem { Header = label, Tag = duration };
+                item.Click += SnoozeOption_Click;
+                menu.Items.Add(item);
+            }
+            SnoozeButton.ContextMenu = menu;
+        }
 
         foreach (var card in dueCards)
         {
@@ -78,9 +95,10 @@ public partial class ReminderWindow : Window
     {
         if (_isTimeAlert)
         {
+            SnoozeButton.IsEnabled = _rows.Count > 0;
             IntroText.Text = _rows.Count == 0
                 ? "All caught up."
-                : $"{(_rows.Count == 1 ? "This task's" : $"These {_rows.Count} tasks'")} due time has arrived. Check a task off to mark it Done, or double-click to open it.";
+                : $"{(_rows.Count == 1 ? "This task's" : $"These {_rows.Count} tasks'")} due time has arrived. Check a task off to mark it Done, double-click to open it, or Snooze to be reminded again later.";
             return;
         }
 
@@ -138,6 +156,25 @@ public partial class ReminderWindow : Window
             _rowsToCards.Remove(row);
             _rows.Remove(row);
             UpdateIntro();
+        }), DispatcherPriority.Background);
+    }
+
+    private void Close_Click(object sender, RoutedEventArgs e) => Close();
+
+    private void Snooze_Click(object sender, RoutedEventArgs e) => SnoozeButton.ContextMenu!.IsOpen = true;
+
+    private void SnoozeOption_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is not MenuItem { Tag: TimeSpan duration } || _onSnooze is null) return;
+
+        var cards = _rows.Select(row => _rowsToCards[row]).ToList();
+
+        // Deferred via BeginInvoke: closing the window from inside the menu's own Click, while that
+        // menu is still closing, is the same re-entrancy the board's quick-edit menus steer around.
+        Dispatcher.BeginInvoke(new Action(() =>
+        {
+            _onSnooze(cards, duration);
+            Close();
         }), DispatcherPriority.Background);
     }
 

@@ -181,6 +181,8 @@
                 <local:BulletItem Text="Click the Reminders button (Alt+R) any time to bring the same list back up."/>
                 <local:BulletItem Text="Give a task a Time as well as a Due Date (e.g. 2:30 PM or 14:30) and, while the app is running, a Task Due Now alert pops up with a sound when that time arrives — even if the board is minimised. It works like the reminder list: check the task off to mark it Done, or double-click to open it."/>
                 <local:BulletItem Text="Each task alerts once for its time. Move the time later and it alerts again at the new time. Times that passed while the app was closed aren't replayed as alerts; those tasks show up in the startup reminder list instead."/>
+                <local:BulletItem Text="Click Snooze on the alert to be reminded again in 15 minutes, 1 hour, 2 hours, 4 hours, or 1 day. It snoozes every task still listed, so tick off anything you've finished first. Completing or rescheduling a snoozed task cancels its snooze."/>
+                <local:BulletItem Text="Snoozes last only while the app stays open. If you close the app before a snooze ends, the task appears in the startup reminder list next time instead (if it's overdue or due that day)."/>
 
                 <TextBlock Text="Display options" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <local:BulletItem Text="Dark Mode / Light Mode switches the whole app's theme."/>
