@@ -6,6 +6,10 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.87.0 — 2026-09-16
+- The Edit Task dialog now shows when the task was completed and when it was last updated, beside the ? button at the bottom
+- The Help screen has a What's New button, next to About, for seeing what changed in recent updates
+
 ## 0.86.0 — 2026-09-15
 - Tasks now record when they were completed. Cards in Done show "Completed" with the date and time instead of "Updated", and editing a finished task no longer changes it
 - The Archived list shows when each task was completed as well as when it was archived

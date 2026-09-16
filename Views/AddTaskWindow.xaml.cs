@@ -148,6 +148,14 @@ public partial class AddTaskWindow : Window
 
         _cardToEdit = cardToEdit;
 
+        TaskStampPanel.Visibility = Visibility.Visible;
+        UpdatedStampText.Text = cardToEdit.UpdatedFullDisplay;
+        if (cardToEdit.CompletedFullDisplay is { } completed)
+        {
+            CompletedStampText.Text = completed;
+            CompletedStampText.Visibility = Visibility.Visible;
+        }
+
         DetailsTextBox.Text = cardToEdit.Title;
         CategoryComboBox.SelectedItem = currentColumn;
         RebuildProjectItems(_viewModel.Projects.FirstOrDefault(p => p.Id == cardToEdit.ProjectId));

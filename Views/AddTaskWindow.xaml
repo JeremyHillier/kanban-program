@@ -262,8 +262,17 @@
         </ScrollViewer>
 
         <Grid Grid.Row="1" Margin="16,10,16,0">
-            <Button Content="?" Width="32" Padding="0,6" HorizontalAlignment="Left" Click="Help_Click" ToolTip="Help"
-                    Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                <Button Content="?" Width="32" Padding="0,6" Click="Help_Click" ToolTip="Help"
+                        Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                <!-- Edit mode only: when the task was finished (if it has been) and last changed. -->
+                <StackPanel x:Name="TaskStampPanel" Margin="10,0,0,0" VerticalAlignment="Center" Visibility="Collapsed">
+                    <TextBlock x:Name="CompletedStampText" FontSize="11" FontWeight="SemiBold" Visibility="Collapsed"
+                               Foreground="{DynamicResource SecondaryTextStrongBrush}"/>
+                    <TextBlock x:Name="UpdatedStampText" FontSize="11"
+                               Foreground="{DynamicResource SecondaryTextStrongBrush}"/>
+                </StackPanel>
+            </StackPanel>
             <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
                 <Button x:Name="EmailButton" Content="&#x2709; Email" Width="90" Padding="0,6" Margin="0,0,8,0" Click="Email_Click"
                         Visibility="Collapsed" ToolTip="Email this task to the assigned person"

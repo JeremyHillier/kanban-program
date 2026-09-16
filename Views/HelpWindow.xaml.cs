@@ -38,4 +38,10 @@ public partial class HelpWindow : Window
         var dialog = new AboutWindow(_viewModel) { Owner = this };
         dialog.ShowDialog();
     }
+
+    private void WhatsNew_Click(object sender, RoutedEventArgs e)
+    {
+        var dialog = new WhatsNewWindow(_viewModel) { Owner = this };
+        dialog.ShowDialog();
+    }
 }

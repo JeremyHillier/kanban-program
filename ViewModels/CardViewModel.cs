@@ -291,6 +291,11 @@ public class CardViewModel(CardItem model) : ObservableObject
         ? $"Completed {completed.ToString(completed.Year == DateTime.Today.Year ? "MMM d, h:mm tt" : "MMM d, yyyy, h:mm tt")}"
         : LastUpdatedDisplay;
 
+    // The fuller stamps shown beside the Help button in the Edit Task dialog, where there's room for
+    // the year and both times can be seen at once.
+    public string? CompletedFullDisplay => CompletedAt is { } completed ? $"Completed {completed:MMM d, yyyy, h:mm tt}" : null;
+    public string UpdatedFullDisplay => LastUpdated is { } updated ? $"Last updated {updated:MMM d, yyyy, h:mm tt}" : "Last updated: unknown";
+
     private bool _isVisible = true;
     public bool IsVisible
     {

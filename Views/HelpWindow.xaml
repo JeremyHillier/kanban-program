@@ -211,7 +211,7 @@
                 <local:BulletItem Text="Set an Attach File Default Path — where the '+ File...' picker opens by default when attaching a file to a task."/>
                 <local:BulletItem Text="Your Details (name, title, email, phone) sign off emails sent with Email This Task when there's no Outlook signature to use."/>
                 <local:BulletItem Text="Turn off the What's New screen that appears the first time you open a newly updated version, or click Show What's New to read it any time. It lists everything added across the last five updates."/>
-                <local:BulletItem Text="The About button shows the version and where this installation keeps its files."/>
+                <local:BulletItem Text="The About button shows the version and where this installation keeps its files. What's New, beside it at the bottom of this Help screen, lists what changed in the last five updates."/>
 
                 <TextBlock Text="Task files" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <local:BulletItem Text="You can keep separate, fully independent boards in different task files, each with its own tasks, columns, projects, and settings. This is handy for keeping work and personal tasks apart."/>
@@ -230,6 +230,9 @@
         </ScrollViewer>
 
         <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button Content="What's New" Width="100" Padding="0,6" Margin="0,0,8,0" Click="WhatsNew_Click"
+                    ToolTip="What changed in the last five updates"
+                    Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
             <Button Content="About" Width="90" Padding="0,6" Margin="0,0,8,0" Click="About_Click"
                     ToolTip="Version, ownership, and where this installation keeps its files"
                     Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>

@@ -134,6 +134,23 @@ public sealed class CompletionTests(WpfDispatcherFixture wpf) : IDisposable
     });
 
     [Fact]
+    public void EditDialogStamps_ShowCompletedOnlyOnceFinished_AndAlwaysTheLastUpdate() => wpf.Run(() =>
+    {
+        var board = OpenBoard();
+        var card = Add(board, "Write report");
+        card.LastUpdated = new DateTime(2026, 9, 14, 8, 15, 0);
+        Assert.Null(card.CompletedFullDisplay);
+        Assert.Equal("Last updated Sep 14, 2026, 8:15 AM", card.UpdatedFullDisplay);
+
+        card.CompletedAt = new DateTime(2026, 9, 15, 15, 25, 0);
+        Assert.Equal("Completed Sep 15, 2026, 3:25 PM", card.CompletedFullDisplay);
+        Assert.Equal("Last updated Sep 14, 2026, 8:15 AM", card.UpdatedFullDisplay);
+
+        card.LastUpdated = null;
+        Assert.Equal("Last updated: unknown", card.UpdatedFullDisplay);
+    });
+
+    [Fact]
     public void Reports_ShowTheCompletionTime_AndCanSortByIt() => wpf.Run(() =>
     {
         var board = OpenBoard();
