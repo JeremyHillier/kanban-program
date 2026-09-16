@@ -658,6 +658,7 @@
                                                 <Border Background="{DynamicResource CardBackgroundBrush}" CornerRadius="4" Padding="8" Margin="0,0,0,6"
                                                         Visibility="{Binding IsVisible, Converter={StaticResource BooleanToVisibilityConverter}}"
                                                         PreviewMouseLeftButtonDown="Card_PreviewMouseLeftButtonDown"
+                                                        PreviewMouseRightButtonUp="Card_PreviewMouseRightButtonUp"
                                                         MouseMove="Card_MouseMove"
                                                         AllowDrop="True" DragOver="Card_DragOver" Drop="Card_Drop">
                                                     <Border.Style>

@@ -6,6 +6,11 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.88.0 — 2026-09-16
+- Right-click a task on the board for a menu of everything you can do with it: Edit, Copy as Text, Copy Title, Duplicate, Move To, Priority, Assign To, Add Flag, Open Website, Email Task, and Delete
+- Copy as Text puts the whole task on the clipboard — status, project, priority, due date, who it's assigned to, goal, flags, notes, and sub-tasks — ready to paste anywhere
+- Duplicate makes a copy of a task in the same column with all its details and its sub-tasks unticked (attached files aren't copied)
+
 ## 0.87.0 — 2026-09-16
 - The Edit Task dialog now shows when the task was completed and when it was last updated, beside the ? button at the bottom
 - The Help screen has a What's New button, next to About, for seeing what changed in recent updates

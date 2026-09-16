@@ -103,6 +103,8 @@
                 <local:BulletItem Text="The letter buttons move a card directly to To Do, In Progress, On Hold, or Waiting; the check mark moves it to Done; the X deletes it."/>
                 <local:BulletItem Text="The tag icon, beside the task's details, adds an existing flag from a dropdown without opening the task."/>
                 <local:BulletItem Text="Click a card's Project name, Priority badge, Assigned name, or due date to change any of them directly from the board, without opening the task."/>
+                <local:BulletItem Text="Right-click a card for a menu of everything you can do with it: Edit, Copy as Text (the whole task, ready to paste into a chat, document, or email), Copy Title, Duplicate, Move To, Priority, Assign To, Add Flag, Open Website, Email Task, and Delete."/>
+                <local:BulletItem Text="Duplicate makes a copy in the same column with every detail carried over and its sub-tasks unticked. Attached files aren't copied, since each file belongs to one task."/>
                 <local:BulletItem Text="A task's title and due date are highlighted yellow once it's past due (and still outside Done)."/>
                 <local:BulletItem Text="The small stamp at the bottom of a card shows when it was last updated, or once it's in Done, when it was completed. Editing a finished task doesn't change its completion time; moving it back out of Done clears it."/>
                 <local:BulletItem Text="A card's Project name is shown prominently just below the title, and works on both full and compact cards."/>

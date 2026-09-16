@@ -686,7 +686,12 @@ public partial class MainWindow : Window
     private void DeleteQuickAction_Click(object sender, RoutedEventArgs e)
     {
         if (sender is not FrameworkElement { DataContext: CardViewModel card } || DataContext is not MainViewModel viewModel) return;
+        DeleteCardWithConfirm(card, viewModel);
+    }
 
+    // Shared by the card's X button and its right-click Delete.
+    private void DeleteCardWithConfirm(CardViewModel card, MainViewModel viewModel)
+    {
         // A recurring task that hasn't completed yet (so hasn't already spawned its next occurrence)
         // gets a real three-way choice instead of the plain confirm - deleting it is how you'd "skip"
         // today's instance, and whether the series should keep going is a decision worth asking for
@@ -710,6 +715,103 @@ public partial class MainWindow : Window
         // Deferred via BeginInvoke: same reason as QuickMove_Click — removing the card tears down
         // this button's own container mid-Click-dispatch.
         Dispatcher.BeginInvoke(new Action(() => viewModel.DeleteCard(card, spawnNext)), DispatcherPriority.Background);
+    }
+
+    // The card's right-click menu. Built fresh on every open so it reflects the card as it is now
+    // (its column, priority, assignee, remaining flags, whether it has a website or an email).
+    // Every entry reuses the path its button or quick-edit already takes, so a right-click Delete
+    // or Move behaves exactly like the X or quick-move button, prompts included.
+    private void Card_PreviewMouseRightButtonUp(object sender, MouseButtonEventArgs e)
+    {
+        if (sender is not FrameworkElement { DataContext: CardViewModel card } element || DataContext is not MainViewModel viewModel) return;
+        e.Handled = true;
+
+        var currentColumn = viewModel.Columns.FirstOrDefault(c => c.Cards.Contains(card));
+        var menu = new System.Windows.Controls.ContextMenu
+        {
+            PlacementTarget = element,
+            Placement = System.Windows.Controls.Primitives.PlacementMode.MousePoint
+        };
+
+        // Every action runs after the menu has closed - see ShowQuickEditMenu for why.
+        System.Windows.Controls.MenuItem Item(System.Windows.Controls.ItemsControl parent, string header, Action action,
+            bool isEnabled = true, bool isChecked = false, string? gesture = null)
+        {
+            var item = new System.Windows.Controls.MenuItem { Header = header, IsEnabled = isEnabled, IsChecked = isChecked, InputGestureText = gesture ?? string.Empty };
+            item.Click += (_, _) => Dispatcher.BeginInvoke(action, DispatcherPriority.Background);
+            parent.Items.Add(item);
+            return item;
+        }
+
+        System.Windows.Controls.MenuItem Submenu(string header)
+        {
+            var item = new System.Windows.Controls.MenuItem { Header = header };
+            menu.Items.Add(item);
+            return item;
+        }
+
+        void Separator() => menu.Items.Add(new System.Windows.Controls.Separator());
+
+        Item(menu, "_Edit Task...", () => EditCard(card, viewModel), gesture: "Double-click");
+        Item(menu, "_Copy as Text", () => CopyToClipboard(CardTextFormatter.Format(card, currentColumn?.DisplayName ?? string.Empty)));
+        Item(menu, "Copy _Title", () => CopyToClipboard(card.Title));
+        Item(menu, "D_uplicate", () => viewModel.DuplicateCard(card));
+        Separator();
+
+        var moveTo = Submenu("_Move To");
+        foreach (var column in viewModel.Columns)
+        {
+            var isCurrent = column == currentColumn;
+            Item(moveTo, column.DisplayName, () => MoveCardDeferred(card, column, viewModel), isEnabled: !isCurrent, isChecked: isCurrent);
+        }
+
+        var priority = Submenu("_Priority");
+        foreach (var level in new[] { "High", "Medium", "Normal", "Low" })
+        {
+            Item(priority, level, () => viewModel.SetCardPriority(card, level), isChecked: card.Priority == level);
+        }
+
+        var assign = Submenu("_Assign To");
+        Item(assign, "Unassigned", () => viewModel.SetCardWho(card, null), isChecked: card.WhoId is null);
+        foreach (var person in viewModel.People.Where(p => p.IsActive))
+        {
+            Item(assign, person.Name, () => viewModel.SetCardWho(card, person), isChecked: card.WhoId == person.Id);
+        }
+
+        var availableFlags = viewModel.Flags
+            .Where(f => f.IsActive && card.Flags.All(cf => cf.Id != f.Id))
+            .OrderBy(f => f.Name)
+            .ToList();
+        var addFlag = Submenu("Add _Flag");
+        addFlag.IsEnabled = availableFlags.Count > 0;
+        foreach (var flag in availableFlags)
+        {
+            Item(addFlag, flag.Name, () => viewModel.AddFlagToCard(card, flag));
+        }
+
+        Separator();
+        Item(menu, "Open _Website", () => UrlLauncher.Open(card.WebsiteUrl, this), isEnabled: !string.IsNullOrWhiteSpace(card.WebsiteUrl));
+        Item(menu, "E_mail Task...", () => OutlookEmailHelper.ComposeCardEmail(this, card, card.WhoEmail!, viewModel), isEnabled: card.CanEmailCard);
+        Separator();
+        Item(menu, "_Delete...", () => DeleteCardWithConfirm(card, viewModel));
+
+        menu.IsOpen = true;
+    }
+
+    private void CopyToClipboard(string text)
+    {
+        // Another program (a clipboard manager, a remote-desktop session) can briefly hold the
+        // clipboard open, which makes SetText throw. Say so rather than letting it reach the crash
+        // handler, so the user knows to just try again.
+        try
+        {
+            Clipboard.SetText(text);
+        }
+        catch (System.Runtime.InteropServices.COMException)
+        {
+            MessageBox.Show(this, "The clipboard is being used by another program. Please try again.",
+                "Couldn't Copy", MessageBoxButton.OK, MessageBoxImage.Warning);
+        }
     }
 
     // Shared by every card quick-edit popup below (Flags/Priority/Who/Project): builds a
@@ -931,9 +1033,15 @@ public partial class MainWindow : Window
         var targetColumn = viewModel.Columns.FirstOrDefault(c => c.Name == targetColumnName);
         if (targetColumn is null) return;
 
-        // Deferred via BeginInvoke: moving the card to another column removes it from this button's
-        // own ItemsControl, tearing down the container mid-Click-dispatch — the same deadlock
-        // documented on the Priority/Who/Project/Due Date quick-edits above.
+        MoveCardDeferred(card, targetColumn, viewModel);
+    }
+
+    // Shared by the card's quick-move buttons and its right-click Move To.
+    // Deferred via BeginInvoke: moving the card to another column removes it from the clicked
+    // button's own ItemsControl, tearing down the container mid-Click-dispatch — the same deadlock
+    // documented on the Priority/Who/Project/Due Date quick-edits above.
+    private void MoveCardDeferred(CardViewModel card, ColumnViewModel targetColumn, MainViewModel viewModel)
+    {
         Dispatcher.BeginInvoke(new Action(() =>
         {
             viewModel.MoveCardCommand.Execute((card, targetColumn));

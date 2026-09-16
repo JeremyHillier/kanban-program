@@ -1,3 +1,5 @@
+using KanbanApp.Models;
+
 namespace KanbanApp.ViewModels;
 
 // Core card CRUD: create, full edit, the board's quick-edit setters (priority/due date/who/
@@ -190,6 +192,26 @@ public partial class MainViewModel
         column?.Cards.Remove(card);
         _db.DeleteCard(card.Id, card.Title, column?.Name ?? "Unknown");
         RefreshDashboardStats();
+    }
+
+    // A copy of the card in the same column with every field carried over, for starting a similar
+    // task without retyping it. Sub-tasks come across unticked, since the copy is new work. Attached
+    // files don't: each file lives in its own task's folder and is moved or removed along with that
+    // task, so two tasks sharing one would lose it when either was archived or deleted.
+    public CardViewModel? DuplicateCard(CardViewModel card)
+    {
+        var column = Columns.FirstOrDefault(c => c.Cards.Contains(card));
+        if (column is null) return null;
+
+        var freshSubTasks = card.SubTasks
+            .Select(s => new SubTaskViewModel(new SubTaskItem { Title = s.Title, IsDone = false }))
+            .ToList();
+
+        return AddCard($"{card.Title} (copy)", column,
+            Projects.FirstOrDefault(p => p.Id == card.ProjectId), card.Priority, card.DueDate,
+            People.FirstOrDefault(p => p.Id == card.WhoId), card.IsRecurring, card.RecurrencePattern,
+            Goals.FirstOrDefault(g => g.Id == card.GoalId), [.. card.Flags], freshSubTasks, card.Notes,
+            forceEditOnComplete: card.ForceEditOnComplete, websiteUrl: card.WebsiteUrl, dueTime: card.DueTime);
     }
 
     private void MoveCard(CardViewModel card, ColumnViewModel targetColumn)

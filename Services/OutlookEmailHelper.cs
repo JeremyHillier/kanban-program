@@ -289,9 +289,9 @@ public static class OutlookEmailHelper
         return cleaned.Length == 0 ? "Task" : cleaned;
     }
 
-    private static bool HasGoal(CardViewModel card) => !string.IsNullOrWhiteSpace(card.GoalName) && card.GoalName != "No Goal";
+    internal static bool HasGoal(CardViewModel card) => !string.IsNullOrWhiteSpace(card.GoalName) && card.GoalName != "No Goal";
 
-    private static string FormatDue(CardViewModel card) =>
+    internal static string FormatDue(CardViewModel card) =>
         card.DueDateTime is { } dueAt ? dueAt.ToString("dd-MMM-yyyy h:mm tt") : card.DueDate!.Value.ToString("dd-MMM-yyyy");
 
     private static string? BuildFallbackSignature(MainViewModel viewModel)
