@@ -91,6 +91,9 @@
             <Button Content="Copy details" Width="110" Padding="0,6" Margin="0,0,8,0" Click="CopyDetails_Click"
                     ToolTip="Copy the version and installation details to the clipboard"
                     Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+            <Button Content="Report a Problem" Width="130" Padding="0,6" Margin="0,0,8,0" Click="ReportProblem_Click"
+                    ToolTip="Open an email to support with the app's error log attached"
+                    Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
             <Button Content="Website" Width="90" Padding="0,6" Margin="0,0,8,0" Click="Website_Click"
                     ToolTip="Open hillierconsulting.ca in your browser"
                     Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>

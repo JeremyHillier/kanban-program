@@ -146,6 +146,108 @@ public static class OutlookEmailHelper
         }
     }
 
+    // A plain email with files attached, for anything that isn't a task (the problem report). Same
+    // rules as a task email: classic Outlook attaches the files; otherwise the default mail app opens
+    // with the text and a folder holding the files opens alongside it to drag in.
+    internal static void ComposeEmailWithFiles(Window? owner, string recipient, string subject, string body,
+        IReadOnlyList<string> filePaths, string folderName, string dialogTitle)
+    {
+        if (TryComposePlainInClassicOutlook(owner, recipient, subject, body, filePaths, dialogTitle)) return;
+
+        var existing = filePaths.Where(File.Exists).ToList();
+        if (existing.Count > 0)
+        {
+            ShowMessage(owner,
+                "Classic Outlook isn't available on this PC, so this email will open in your default email app instead.\n\n" +
+                "Files can't be attached for you that way, so a folder with them will open too. Drag them into the email.",
+                dialogTitle, MessageBoxImage.Information);
+            try
+            {
+                var folder = Path.Combine(AttachmentFoldersRoot, SanitizeFileName(folderName));
+                if (Directory.Exists(folder)) Directory.Delete(folder, recursive: true);
+                Directory.CreateDirectory(folder);
+                foreach (var path in existing) File.Copy(path, Path.Combine(folder, Path.GetFileName(path)));
+                Process.Start(new ProcessStartInfo(folder) { UseShellExecute = true });
+            }
+            catch
+            {
+                // The folder is a convenience; the email itself can still go ahead without it.
+            }
+        }
+
+        try
+        {
+            Process.Start(new ProcessStartInfo(BuildMailtoUri(recipient, subject, body)) { UseShellExecute = true });
+        }
+        catch
+        {
+            try
+            {
+                Clipboard.SetText($"To: {recipient}\r\nSubject: {subject}\r\n\r\n{body}");
+            }
+            catch
+            {
+                // Clipboard busy - the message below still tells them what happened.
+            }
+
+            ShowMessage(owner,
+                "No email app is set up to open email links on this PC.\n\n" +
+                $"The email has been copied to the clipboard instead. Paste it into a new message to {recipient}.",
+                dialogTitle, MessageBoxImage.Warning);
+        }
+    }
+
+    private static bool TryComposePlainInClassicOutlook(Window? owner, string recipient, string subject, string body,
+        IReadOnlyList<string> filePaths, string dialogTitle)
+    {
+        dynamic mailItem;
+        try
+        {
+            var outlookType = Type.GetTypeFromProgID("Outlook.Application");
+            if (outlookType is null) return false;
+
+            dynamic app = Activator.CreateInstance(outlookType)!;
+            mailItem = app.CreateItem(0); // olMailItem
+            mailItem.To = recipient;
+            mailItem.Subject = subject;
+            mailItem.Display(false);
+        }
+        catch
+        {
+            return false;
+        }
+
+        try
+        {
+            var html = "<div style=\"font-family: Segoe UI, sans-serif; font-size: 11pt;\">" +
+                WebUtility.HtmlEncode(body).Replace("\r\n", "\n").Replace("\n", "<br/>") + "</div>";
+            mailItem.HTMLBody = InsertAfterBodyTag((string)(mailItem.HTMLBody ?? string.Empty), html);
+
+            foreach (var path in filePaths.Where(File.Exists))
+            {
+                mailItem.Attachments.Add(path);
+            }
+        }
+        catch (Exception ex)
+        {
+            ShowMessage(owner, $"The email opened, but couldn't be fully filled in: {ex.Message}", dialogTitle, MessageBoxImage.Error);
+        }
+
+        return true;
+    }
+
+    private static void ShowMessage(Window? owner, string message, string title, MessageBoxImage icon)
+    {
+        if (owner is not null)
+        {
+            MessageBox.Show(owner, message, title, MessageBoxButton.OK, icon);
+        }
+        else
+        {
+            MessageBox.Show(message, title, MessageBoxButton.OK, icon);
+        }
+    }
+
     internal static string EmailSubject(CardViewModel card) => $"Task: {card.Title}";
 
     // A long body is shortened to fit, ending in an ellipsis, rather than the link failing to open.

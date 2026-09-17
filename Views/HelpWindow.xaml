@@ -68,6 +68,7 @@
                 <local:BulletItem Text="The AM and PM buttons beside the Time pick the half of the day, and the highlighted one shows how the time will be saved. Click one to switch a time you've already typed, or click it first and then type. If you type a time like 2:30 without AM or PM and don't click either button, it's read as a working hour (7 to 11 as AM, 12 to 6 as PM). Typing am/pm yourself, or a 24-hour time like 14:30 or 06:00, is always taken as written."/>
                 <local:BulletItem Text="Use the + and − buttons next to Project, Goal, and Who to add a new one on the fly, or clear the current selection without deleting the record."/>
                 <local:BulletItem Text="Each task also has an optional Website field — paste a link related to the task and click Open beside it to launch it in your default browser. A link typed without http:// still works."/>
+                <local:BulletItem Text="The Website field takes web links and email addresses only (an email address opens a new email). For your safety, links to files, folders, or programs are refused, including in task files you get from someone else."/>
                 <local:BulletItem Text="If you close the dialog (Cancel, Esc, or the window's X) after changing anything, you're asked before the changes are thrown away."/>
                 <local:BulletItem Text="Spell check in Task and Notes accepts both Canadian and American spellings."/>
 
@@ -231,10 +232,15 @@
 
                 <TextBlock Text="Getting help" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <local:BulletItem Text="The ? button in Add/Edit Task, Report Builder, Timeline, and Settings opens this Help screen at the matching topic."/>
+                <local:BulletItem Text="If something goes wrong, click Report a Problem at the bottom of this screen (or in About). It opens an email to support with the app's error log attached. Add a few words about what you were doing, then send it. Nothing is sent until you click Send."/>
+                <local:BulletItem Text="When the app hits an unexpected error, it also offers to open that email for you."/>
             </StackPanel>
         </ScrollViewer>
 
         <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button Content="Report a Problem" Width="130" Padding="0,6" Margin="0,0,8,0" Click="ReportProblem_Click"
+                    ToolTip="Open an email to support with the app's error log attached"
+                    Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
             <Button Content="What's New" Width="100" Padding="0,6" Margin="0,0,8,0" Click="WhatsNew_Click"
                     ToolTip="What changed in the last five updates"
                     Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>

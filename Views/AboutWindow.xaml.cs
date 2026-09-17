@@ -29,6 +29,11 @@ public partial class AboutWindow : Window
         UrlLauncher.Open(CompanyWebsite, this);
     }
 
+    private void ReportProblem_Click(object sender, RoutedEventArgs e)
+    {
+        ProblemReport.Compose(this, _viewModel.CurrentDbPath);
+    }
+
     private void CopyDetails_Click(object sender, RoutedEventArgs e)
     {
         var details = string.Join(Environment.NewLine,

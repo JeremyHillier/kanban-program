@@ -7,4 +7,7 @@ public static class AppInfo
 {
     public const string Company = "Jeremy Hillier Consulting Inc";
     public const string Copyright = $"© {Company}";
+
+    // Where Report a Problem sends its email. Customers see this address.
+    public const string SupportEmail = "jeremy.hillier@gmail.com";
 }

@@ -6,6 +6,13 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.91.0 — 2026-09-17
+- New Report a Problem button in Help and About: it opens an email to support with the app's error log attached, so you can tell us what went wrong. Nothing is sent until you click Send
+- When the app hits an unexpected error, it now offers to open that problem report for you
+- For your safety, a task's Website field now accepts only web links and email addresses. Links to files, folders or programs are refused, including in task files shared by someone else
+- An email address in the Website field now opens a new email
+- The Project filter list is now the same height as Priority and Who, and the Goal and Flag filters match the Keyword box
+
 ## 0.90.0 — 2026-09-17
 - Move several tasks at once: Ctrl+click (or Shift+click for a range) to pick them, then drag any one of them to another column, or to a new spot in their own column
 - Selected tasks are highlighted, the number picked shows at the top of the board, and Esc clears the selection

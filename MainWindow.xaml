@@ -450,13 +450,14 @@
                                 </TextBlock>
                             </Border>
                             <ListBox Grid.Column="1" Margin="0" Style="{StaticResource MultiSelectFilterListBoxStyle}"
-                                     ItemsSource="{Binding ProjectFilterOptions}" Height="168"
+                                     ItemsSource="{Binding ProjectFilterOptions}" Height="140"
                                      ToolTip="Show only cards belonging to the selected project(s)"
                                      SelectionChanged="ProjectFilterListBox_SelectionChanged"/>
                         </Grid>
 
                         <!-- Priority and Who share one row, each twice the height Priority used to have,
-                             so both lists show more at once without the sidebar getting any wider. -->
+                             so both lists show more at once without the sidebar getting any wider.
+                             Project above matches their height. -->
                         <Grid Margin="0,0,0,6">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto"/>
@@ -498,7 +499,7 @@
                                 <TextBlock Text="Goal" Style="{StaticResource FilterLabelTextStyle}"/>
                             </Border>
                             <ComboBox Grid.Column="1" ItemsSource="{Binding GoalFilterOptions}" SelectedItem="{Binding SelectedGoalFilter, Mode=TwoWay}"
-                                      Padding="4" Margin="0" ToolTip="Show only cards linked to this goal"
+                                      Padding="4,0" Margin="0" Height="26" VerticalContentAlignment="Center" ToolTip="Show only cards linked to this goal"
                                       Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
                                       BorderBrush="{DynamicResource CardBorderBrush}"/>
                         </Grid>
@@ -512,7 +513,7 @@
                                 <TextBlock Text="Flag" Style="{StaticResource FilterLabelTextStyle}"/>
                             </Border>
                             <ComboBox Grid.Column="1" ItemsSource="{Binding FlagFilterOptions}" SelectedItem="{Binding SelectedFlagFilter, Mode=TwoWay}"
-                                      Padding="4" Margin="0" ToolTip="Show only cards carrying this flag"
+                                      Padding="4,0" Margin="0" Height="26" VerticalContentAlignment="Center" ToolTip="Show only cards carrying this flag"
                                       Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
                                       BorderBrush="{DynamicResource CardBorderBrush}"/>
                         </Grid>
@@ -525,8 +526,10 @@
                             <Border Grid.Column="0" Background="#FF607D8B" Style="{StaticResource FilterLabelFlatBoxStyle}">
                                 <TextBlock Text="Keyword" Style="{StaticResource FilterLabelTextStyle}"/>
                             </Border>
+                            <!-- Goal, Flag and Keyword share a fixed 26px height: a ComboBox and a TextBox
+                                 with the same padding still render a few pixels apart. -->
                             <TextBox Grid.Column="1" Text="{Binding KeywordFilter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                     Padding="4" Margin="0"
+                                     Padding="4,0" Margin="0" Height="26" VerticalContentAlignment="Center"
                                      ToolTip="Show only cards whose title, project, who, or notes contain this text"
                                      Style="{StaticResource HoverTextBoxStyle}"
                                      Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>

@@ -43,10 +43,22 @@ public partial class App : Application
         DispatcherUnhandledException += (_, ex) =>
         {
             LogCrash(db.DbPath, ex.Exception);
-            MessageBox.Show(
-                "Something went wrong, but the app will stay open. Details were written to crash.log next to your data file.\n\n" + ex.Exception.Message,
-                "Unexpected Error", MessageBoxButton.OK, MessageBoxImage.Warning);
             ex.Handled = true;
+            var answer = MessageBox.Show(
+                "Something went wrong, but the app will stay open.\n\n" + ex.Exception.Message +
+                "\n\nWould you like to email a problem report? You'll see the email before anything is sent.",
+                "Unexpected Error", MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No);
+            if (answer != MessageBoxResult.Yes) return;
+
+            try
+            {
+                ProblemReport.Compose(MainWindow is { IsLoaded: true } owner ? owner : null, db.DbPath);
+            }
+            catch (Exception reportEx)
+            {
+                // Never let the report itself raise another unexpected-error prompt.
+                LogCrash(db.DbPath, reportEx);
+            }
         };
 
         var showSplash = db.GetSetting("ShowSplash") != "False";
@@ -84,8 +96,7 @@ public partial class App : Application
     {
         try
         {
-            var logPath = Path.Combine(Path.GetDirectoryName(dbPath) ?? Path.GetTempPath(), "crash.log");
-            File.AppendAllText(logPath, $"{DateTime.Now:yyyy-MM-dd HH:mm:ss}\n{ex}\n\n");
+            File.AppendAllText(ProblemReport.CrashLogPath(dbPath), $"{DateTime.Now:yyyy-MM-dd HH:mm:ss}\n{ex}\n\n");
         }
         catch
         {

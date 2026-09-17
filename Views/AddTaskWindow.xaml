@@ -205,7 +205,7 @@
                     </Grid.ColumnDefinitions>
                     <TextBox Grid.Column="0" x:Name="WebsiteUrlTextBox" Padding="6"
                              Style="{StaticResource HoverTextBoxStyle}"
-                             ToolTip="An optional link for this task - paste a URL, then click Open to launch it in your browser"
+                             ToolTip="An optional web link or email address for this task - paste it, then click Open to launch it"
                              Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
                     <Button Grid.Column="1" Content="Open" Padding="10,4" Margin="6,0,0,0" Click="OpenWebsite_Click"
                             ToolTip="Open this link in your default browser"

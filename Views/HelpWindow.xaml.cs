@@ -33,6 +33,11 @@ public partial class HelpWindow : Window
         }
     }
 
+    private void ReportProblem_Click(object sender, RoutedEventArgs e)
+    {
+        Services.ProblemReport.Compose(this, _viewModel.CurrentDbPath);
+    }
+
     private void About_Click(object sender, RoutedEventArgs e)
     {
         var dialog = new AboutWindow(_viewModel) { Owner = this };

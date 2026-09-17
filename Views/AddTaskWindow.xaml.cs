@@ -885,6 +885,14 @@ public partial class AddTaskWindow : Window
             DueDatePicker.Focus();
             return;
         }
+        if (!string.IsNullOrWhiteSpace(WebsiteUrlTextBox.Text) && !UrlLauncher.TryNormalize(WebsiteUrlTextBox.Text, out _))
+        {
+            MessageBox.Show(this, UrlLauncher.AllowedLinksMessage + "\n\nFix the Website field, or clear it.",
+                "Website Not Allowed", MessageBoxButton.OK, MessageBoxImage.Warning);
+            WebsiteUrlTextBox.Focus();
+            WebsiteUrlTextBox.SelectAll();
+            return;
+        }
 
         TaskDetails = details;
         SelectedDueTime = dueTime;
