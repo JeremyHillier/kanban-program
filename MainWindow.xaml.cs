@@ -203,7 +203,7 @@ public partial class MainWindow : Window
             // Clearing every column's insertion-line indicator here, unconditionally, guarantees none
             // are left stuck visible even when a DragLeave/Drop never fired for whichever column last
             // showed one - e.g. a drop landing on Column_Drop's cross-column move instead of the
-            // ScrollViewer's own manual-reorder Drop, which was the only path resetting it before.
+            // card area's own manual-reorder Drop, which was the only path resetting it before.
             if (DataContext is MainViewModel viewModel)
             {
                 foreach (var col in viewModel.Columns)
@@ -1072,14 +1072,15 @@ public partial class MainWindow : Window
     // MainViewModel.ReorderCardWithinColumn). A drag into a different column keeps using
     // Column_Drop's existing append-style move, so this deliberately returns false (leaving the
     // event unhandled, to bubble up to Column_Drop) for every other case.
-    private bool TryGetManualReorderContext(object sender, DragEventArgs e,
+    // The sender is the Grid wrapping each column's card list and its insertion line.
+    private static bool TryGetManualReorderContext(object sender, DragEventArgs e,
         out System.Windows.Controls.ItemsControl itemsControl, out ColumnViewModel column, out CardViewModel draggedCard)
     {
         itemsControl = null!;
         column = null!;
         draggedCard = null!;
 
-        if (sender is not System.Windows.Controls.ScrollViewer { Content: System.Windows.Controls.Grid grid } || grid.DataContext is not ColumnViewModel col) return false;
+        if (sender is not System.Windows.Controls.Grid { DataContext: ColumnViewModel col } grid) return false;
         if (e.Data.GetData(typeof(CardViewModel)) is not CardViewModel card) return false;
         if (!col.Cards.Contains(card)) return false;
 
@@ -1092,7 +1093,7 @@ public partial class MainWindow : Window
         return true;
     }
 
-    private void CardsScrollViewer_DragOver(object sender, DragEventArgs e)
+    private void CardsArea_DragOver(object sender, DragEventArgs e)
     {
         if (!TryGetManualReorderContext(sender, e, out var itemsControl, out var column, out var draggedCard)) return;
 
@@ -1104,16 +1105,16 @@ public partial class MainWindow : Window
         column.IsDropIndicatorVisible = true;
     }
 
-    private void CardsScrollViewer_DragLeave(object sender, DragEventArgs e)
+    private void CardsArea_DragLeave(object sender, DragEventArgs e)
     {
-        if (sender is not System.Windows.Controls.ScrollViewer { Content: System.Windows.Controls.Grid grid } scrollViewer || grid.DataContext is not ColumnViewModel column) return;
+        if (sender is not System.Windows.Controls.Grid { DataContext: ColumnViewModel column } area) return;
 
         // Same spurious-DragLeave guard as the sub-task drag indicator (AddTaskWindow.xaml.cs):
-        // only actually hide once the mouse has genuinely left the ScrollViewer's bounds, not just
+        // only actually hide once the mouse has genuinely left the card area's bounds, not just
         // crossed onto a child card that isn't itself drop-enabled.
-        var position = e.GetPosition(scrollViewer);
-        if (position.X >= 0 && position.X <= scrollViewer.ActualWidth &&
-            position.Y >= 0 && position.Y <= scrollViewer.ActualHeight)
+        var position = e.GetPosition(area);
+        if (position.X >= 0 && position.X <= area.ActualWidth &&
+            position.Y >= 0 && position.Y <= area.ActualHeight)
         {
             return;
         }
@@ -1121,7 +1122,7 @@ public partial class MainWindow : Window
         column.IsDropIndicatorVisible = false;
     }
 
-    private void CardsScrollViewer_Drop(object sender, DragEventArgs e)
+    private void CardsArea_Drop(object sender, DragEventArgs e)
     {
         if (!TryGetManualReorderContext(sender, e, out var itemsControl, out var column, out var draggedCard)) return;
 
@@ -1143,28 +1144,45 @@ public partial class MainWindow : Window
 
     // Returns both where a drop would land (Index, in "before removal" Cards-count space - matching
     // MainViewModel.ReorderCardWithinColumn's own before/after index adjustment) and the Y position
-    // (relative to itemsControl) for the insertion-line indicator, so DragOver and Drop always agree.
-    private static (int Index, double IndicatorY) GetCardDropTarget(System.Windows.Controls.ItemsControl itemsControl, ColumnViewModel column, Point positionInItemsControl, CardViewModel draggedCard)
+    // (relative to itemsControl, i.e. on screen) for the insertion-line indicator, so DragOver and
+    // Drop always agree.
+    //
+    // The list is virtualized and filtered, so this walks the list's own items (the visible cards)
+    // and only the ones that currently have an on-screen element, then maps the matched card back
+    // to its position in the full column. Cards without an element are all either above or below
+    // the visible area, and the mouse is inside it, so skipping them can't change the answer.
+    internal static (int Index, double IndicatorY) GetCardDropTarget(System.Windows.Controls.ItemsControl itemsControl, ColumnViewModel column, Point positionInItemsControl, CardViewModel draggedCard)
     {
-        for (var i = 0; i < column.Cards.Count; i++)
-        {
-            if (ReferenceEquals(column.Cards[i], draggedCard)) continue;
-            if (itemsControl.ItemContainerGenerator.ContainerFromIndex(i) is not FrameworkElement container) continue;
+        var items = itemsControl.Items;
+        var generator = itemsControl.ItemContainerGenerator;
+        CardViewModel? lastCard = null;
+        var lastIndex = -1;
+        var lastBottom = 0.0;
 
+        for (var i = 0; i < items.Count; i++)
+        {
+            if (generator.ContainerFromIndex(i) is not FrameworkElement container) continue;
+
+            var card = (CardViewModel)items[i];
             var top = container.TranslatePoint(new Point(0, 0), itemsControl).Y;
-            if (positionInItemsControl.Y < top + container.ActualHeight / 2)
+            if (!ReferenceEquals(card, draggedCard) && positionInItemsControl.Y < top + container.ActualHeight / 2)
             {
-                return (i, top);
+                return (column.Cards.IndexOf(card), top);
             }
+
+            lastCard = card;
+            lastIndex = i;
+            lastBottom = top + container.ActualHeight;
         }
 
-        if (column.Cards.Count > 0 && itemsControl.ItemContainerGenerator.ContainerFromIndex(column.Cards.Count - 1) is FrameworkElement lastContainer)
-        {
-            var bottom = lastContainer.TranslatePoint(new Point(0, 0), itemsControl).Y + lastContainer.ActualHeight;
-            return (column.Cards.Count, bottom);
-        }
+        if (lastCard is null) return (0, 0);
 
-        return (0, 0);
+        // Below every card that has an element: after the last visible card in the list means the
+        // very end of the column (past any hidden ones too, as before); otherwise straight after
+        // the last card on screen.
+        return lastIndex == items.Count - 1
+            ? (column.Cards.Count, lastBottom)
+            : (column.Cards.IndexOf(lastCard) + 1, lastBottom);
     }
 
     private void MaybePromptCompletionNote(CardViewModel card, ColumnViewModel targetColumn, MainViewModel viewModel)

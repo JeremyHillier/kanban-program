@@ -6,6 +6,12 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.89.0 — 2026-09-17
+- Much faster on big boards: the board now only draws the tasks you can see, so with thousands of tasks it opens in under a second instead of 20+ seconds and uses a fraction of the memory
+- Filtering, sorting and resizing the window stay quick however many tasks you have
+- Fixed a long one-time freeze on big boards the first time another window (such as the Timeline) was opened
+- Dragging tasks to reorder them works as before, including while a filter is on
+
 ## 0.88.1 — 2026-09-17
 - The Archived Tasks list, and reports that include archived tasks, open in a fraction of a second on large boards — with 6,000 archived tasks they previously took about 16 seconds
 

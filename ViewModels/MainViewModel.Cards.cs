@@ -129,6 +129,7 @@ public partial class MainViewModel
     // re-apply the sort, and refresh the dashboard counts and overdue highlighting.
     private void RefreshAfterCardChange(CardViewModel? changed = null)
     {
+        // The column's live list picks the change up by itself (see ColumnViewModel.CardsView).
         if (changed is not null) changed.IsVisible = MatchesFilters(changed);
         ApplySort();
         RefreshDashboardStats();

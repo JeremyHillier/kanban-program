@@ -217,10 +217,19 @@ public partial class MainViewModel
         var criteria = BuildFilterCriteria();
         foreach (var column in Columns)
         {
+            // Worked out before anything is changed, so a column where many cards flip can be
+            // switched to one bulk rebuild first (see ColumnViewModel.BeginBulkChange). A few flips
+            // are left to the column's live list, and a column the change doesn't touch is left alone.
+            var flips = new List<(CardViewModel Card, bool Visible)>();
             foreach (var card in column.Cards)
             {
-                card.IsVisible = Matches(card, criteria);
+                var visible = Matches(card, criteria);
+                if (card.IsVisible != visible) flips.Add((card, visible));
             }
+            if (flips.Count == 0) continue;
+
+            using var bulk = flips.Count > ColumnViewModel.BulkChangeThreshold ? column.BeginBulkChange() : null;
+            foreach (var (card, visible) in flips) card.IsVisible = visible;
         }
     }
 

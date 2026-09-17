@@ -142,6 +142,18 @@ public partial class MainViewModel
             // Reorder in place with Move() rather than Clear()+Add(): the latter tears down and
             // recreates every card's visual container, which can orphan an in-flight drag capture
             // or a still-closing popup anchored to one of those cards and appear to freeze the app.
+            // A routine edit moves at most a card or two, so those moves stay incremental. Only a
+            // real re-sort (a sort button, or renaming a project many cards share) moves enough
+            // cards to matter, and there the board gets a freshly built list once at the end
+            // instead of re-processing each of thousands of moves - nothing is being dragged or
+            // has a popup open at that point.
+            var outOfPlace = 0;
+            for (var i = 0; i < sorted.Count; i++)
+            {
+                if (!ReferenceEquals(sorted[i], column.Cards[i])) outOfPlace++;
+            }
+            using var bulk = outOfPlace > ColumnViewModel.BulkChangeThreshold ? column.BeginBulkChange() : null;
+
             for (var i = 0; i < sorted.Count; i++)
             {
                 var currentIndex = column.Cards.IndexOf(sorted[i]);

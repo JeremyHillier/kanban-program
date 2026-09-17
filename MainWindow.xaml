@@ -649,10 +649,34 @@
                                                Background="Transparent" Cursor="Hand" ToolTip="Double-click to add a new task in this column"
                                                MouseLeftButtonDown="ColumnHeader_MouseLeftButtonDown"/>
 
-                                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
-                                                  AllowDrop="True" DragOver="CardsScrollViewer_DragOver" DragLeave="CardsScrollViewer_DragLeave" Drop="CardsScrollViewer_Drop">
-                                    <Grid>
-                                    <ItemsControl ItemsSource="{Binding Cards}">
+                                    <!-- The drop area for drag-reordering within the column. It sits around the
+                                         list rather than inside its scroller, so the insertion line below and
+                                         GetCardDropTarget both work in the list's on-screen coordinates.
+                                         Transparent (not null) so a drop below the last card still lands here. -->
+                                    <Grid Grid.Row="1" Background="Transparent" ClipToBounds="True"
+                                          AllowDrop="True" DragOver="CardsArea_DragOver" DragLeave="CardsArea_DragLeave" Drop="CardsArea_Drop">
+                                    <!-- Virtualized: only the cards on screen (plus a page either side) are built.
+                                         That needs the scroller inside the list's own template and a
+                                         VirtualizingStackPanel; pixel scrolling keeps the same smooth scroll the
+                                         board always had. Bound to CardsView, which leaves filtered-out cards out
+                                         entirely - see ColumnViewModel.CardsView for why. -->
+                                    <ItemsControl ItemsSource="{Binding CardsView}"
+                                                  VirtualizingPanel.IsVirtualizing="True"
+                                                  VirtualizingPanel.VirtualizationMode="Standard"
+                                                  VirtualizingPanel.ScrollUnit="Pixel">
+                                        <ItemsControl.Template>
+                                            <ControlTemplate TargetType="ItemsControl">
+                                                <ScrollViewer CanContentScroll="True" Focusable="False"
+                                                              VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                                                    <ItemsPresenter/>
+                                                </ScrollViewer>
+                                            </ControlTemplate>
+                                        </ItemsControl.Template>
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <VirtualizingStackPanel/>
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate>
                                                 <Border Background="{DynamicResource CardBackgroundBrush}" CornerRadius="4" Padding="8" Margin="0,0,0,6"
@@ -903,7 +927,6 @@
                                         </Border.RenderTransform>
                                     </Border>
                                     </Grid>
-                                    </ScrollViewer>
                                 </Grid>
                             </Border>
                         </DataTemplate>
