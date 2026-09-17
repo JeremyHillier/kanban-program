@@ -86,6 +86,8 @@ public partial class MainViewModel : ObservableObject
 
         _isCompactCards = _db.GetSetting("CardSize") == "Compact";
         _columnWidth = int.TryParse(_db.GetSetting("ColumnWidth"), out var columnWidth) ? columnWidth : 310;
+        _projectFilterListHeight = LoadFilterListHeight(_db.GetSetting("ProjectFilterListHeight"));
+        _priorityWhoFilterListHeight = LoadFilterListHeight(_db.GetSetting("PriorityWhoFilterListHeight"));
 
         ShowSplash = _db.GetSetting("ShowSplash") != "False";
         SplashDelayMs = int.TryParse(_db.GetSetting("SplashDelayMs"), out var delay) ? delay : 1800;

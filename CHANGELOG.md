@@ -6,6 +6,10 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.92.0 — 2026-09-17
+- Resize the filter lists: drag the small bar under the Project list, or under Priority and Who, to make them taller or shorter. Priority and Who resize together
+- Double-click a bar to put its list back to the standard height. The app remembers the heights you choose
+
 ## 0.91.0 — 2026-09-17
 - New Report a Problem button in Help and About: it opens an email to support with the app's error log attached, so you can tell us what went wrong. Nothing is sent until you click Send
 - When the app hits an unexpected error, it now offers to open that problem report for you

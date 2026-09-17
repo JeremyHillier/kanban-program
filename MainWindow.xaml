@@ -48,6 +48,35 @@
             </Setter>
         </Style>
 
+        <!-- Drag grip under the Project list and under the Priority/Who row: drag to change the
+             list height, double-click to reset it. It takes the place of the gap below the list. -->
+        <Style x:Key="FilterResizeGripStyle" TargetType="Thumb">
+            <Setter Property="Height" Value="10"/>
+            <Setter Property="Cursor" Value="SizeNS"/>
+            <Setter Property="ToolTip" Value="Drag to change the list height. Double-click to reset it."/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Thumb">
+                        <Border Background="Transparent">
+                            <Border x:Name="Bar" Width="36" Height="3" CornerRadius="1.5" Opacity="0.45"
+                                    Background="{DynamicResource CardBorderBrush}"
+                                    HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bar" Property="Opacity" Value="1"/>
+                                <Setter TargetName="Bar" Property="Width" Value="60"/>
+                            </Trigger>
+                            <Trigger Property="IsDragging" Value="True">
+                                <Setter TargetName="Bar" Property="Opacity" Value="1"/>
+                                <Setter TargetName="Bar" Property="Width" Value="60"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
         <!-- Filter labels sit in a colour-filled box beside their control rather than on their own
              line above it, which is what buys back the sidebar's vertical space. The tall
              multi-select lists get the label rotated (a narrow 24px spine); the short single-line
@@ -437,11 +466,18 @@
                             </Grid>
                         </Grid>
 
-                        <Grid Margin="0,0,0,6">
+                        <Grid Margin="0,0,0,2">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <Thumb Grid.Row="1" Grid.ColumnSpan="2" Tag="Project" Style="{StaticResource FilterResizeGripStyle}"
+                                   DragDelta="FilterResizeGrip_DragDelta" DragCompleted="FilterResizeGrip_DragCompleted"
+                                   MouseDoubleClick="FilterResizeGrip_MouseDoubleClick"/>
                             <Border Grid.Column="0" Background="#FF42A5F5" Style="{StaticResource FilterLabelRotatedBoxStyle}">
                                 <TextBlock Text="Project" Style="{StaticResource FilterLabelTextStyle}">
                                     <TextBlock.LayoutTransform>
@@ -450,15 +486,15 @@
                                 </TextBlock>
                             </Border>
                             <ListBox Grid.Column="1" Margin="0" Style="{StaticResource MultiSelectFilterListBoxStyle}"
-                                     ItemsSource="{Binding ProjectFilterOptions}" Height="140"
+                                     ItemsSource="{Binding ProjectFilterOptions}" Height="{Binding ProjectFilterListHeight}"
                                      ToolTip="Show only cards belonging to the selected project(s)"
                                      SelectionChanged="ProjectFilterListBox_SelectionChanged"/>
                         </Grid>
 
                         <!-- Priority and Who share one row, each twice the height Priority used to have,
                              so both lists show more at once without the sidebar getting any wider.
-                             Project above matches their height. -->
-                        <Grid Margin="0,0,0,6">
+                             Both lists share one height, set by the grip beneath them. -->
+                        <Grid Margin="0,0,0,2">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto"/>
                                 <ColumnDefinition Width="*"/>
@@ -466,6 +502,13 @@
                                 <ColumnDefinition Width="Auto"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <Thumb Grid.Row="1" Grid.ColumnSpan="5" Tag="PriorityWho" Style="{StaticResource FilterResizeGripStyle}"
+                                   DragDelta="FilterResizeGrip_DragDelta" DragCompleted="FilterResizeGrip_DragCompleted"
+                                   MouseDoubleClick="FilterResizeGrip_MouseDoubleClick"/>
                             <Border Grid.Column="0" Background="#FFEF5350" Style="{StaticResource FilterLabelRotatedBoxStyle}">
                                 <TextBlock Text="Priority" Style="{StaticResource FilterLabelTextStyle}">
                                     <TextBlock.LayoutTransform>
@@ -474,7 +517,7 @@
                                 </TextBlock>
                             </Border>
                             <ListBox Grid.Column="1" Margin="0" Style="{StaticResource MultiSelectFilterListBoxStyle}"
-                                     ItemsSource="{Binding PriorityFilterOptions}" Height="140"
+                                     ItemsSource="{Binding PriorityFilterOptions}" Height="{Binding PriorityWhoFilterListHeight}"
                                      ToolTip="Show only cards with the selected priorities"
                                      SelectionChanged="PriorityFilterListBox_SelectionChanged"/>
                             <Border Grid.Column="3" Background="#FF7E57C2" Style="{StaticResource FilterLabelRotatedBoxStyle}">
@@ -485,7 +528,7 @@
                                 </TextBlock>
                             </Border>
                             <ListBox Grid.Column="4" Margin="0" Style="{StaticResource MultiSelectFilterListBoxStyle}"
-                                     ItemsSource="{Binding WhoFilterOptions}" Height="140"
+                                     ItemsSource="{Binding WhoFilterOptions}" Height="{Binding PriorityWhoFilterListHeight}"
                                      ToolTip="Show only cards assigned to the selected people"
                                      SelectionChanged="WhoFilterListBox_SelectionChanged"/>
                         </Grid>

@@ -67,6 +67,43 @@ public partial class MainViewModel
         _db.SetSetting("ColumnWidth", ColumnWidth.ToString());
     }
 
+    // Heights of the sidebar's multi-select filter lists, adjusted by dragging the grip under each.
+    // Priority and Who share a row, so they share one height.
+    public const double DefaultFilterListHeight = 140;
+    public const double MinFilterListHeight = 50;
+    public const double MaxFilterListHeight = 600;
+
+    private double _projectFilterListHeight = DefaultFilterListHeight;
+    public double ProjectFilterListHeight
+    {
+        get => _projectFilterListHeight;
+        set => SetField(ref _projectFilterListHeight, ClampFilterListHeight(value));
+    }
+
+    private double _priorityWhoFilterListHeight = DefaultFilterListHeight;
+    public double PriorityWhoFilterListHeight
+    {
+        get => _priorityWhoFilterListHeight;
+        set => SetField(ref _priorityWhoFilterListHeight, ClampFilterListHeight(value));
+    }
+
+    // No rounding here: drags arrive in fractional steps on scaled displays, and rounding each one
+    // away would leave the grip stuck.
+    internal static double ClampFilterListHeight(double value) =>
+        double.IsFinite(value) ? Math.Clamp(value, MinFilterListHeight, MaxFilterListHeight) : DefaultFilterListHeight;
+
+    // Called when a drag ends (not on every mouse move), so the database isn't written per pixel.
+    public void SaveFilterListHeights()
+    {
+        _db.SetSetting("ProjectFilterListHeight", ProjectFilterListHeight.ToString(System.Globalization.CultureInfo.InvariantCulture));
+        _db.SetSetting("PriorityWhoFilterListHeight", PriorityWhoFilterListHeight.ToString(System.Globalization.CultureInfo.InvariantCulture));
+    }
+
+    private static double LoadFilterListHeight(string? stored) =>
+        double.TryParse(stored, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var height)
+            ? ClampFilterListHeight(height)
+            : DefaultFilterListHeight;
+
     public bool ShowSplash { get; private set; }
     public int SplashDelayMs { get; private set; }
 

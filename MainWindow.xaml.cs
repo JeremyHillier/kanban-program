@@ -732,6 +732,43 @@ public partial class MainWindow : Window
         viewModel.ShowDueFilterOnly("No Due Date");
     }
 
+    // The grip sits right under the list it resizes and moves with it, so each DragDelta is the
+    // distance moved since the previous one and can simply be added on.
+    private void FilterResizeGrip_DragDelta(object sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)
+    {
+        if (DataContext is not MainViewModel viewModel || sender is not FrameworkElement grip) return;
+
+        if ((string)grip.Tag == "Project")
+        {
+            viewModel.ProjectFilterListHeight += e.VerticalChange;
+        }
+        else
+        {
+            viewModel.PriorityWhoFilterListHeight += e.VerticalChange;
+        }
+    }
+
+    private void FilterResizeGrip_DragCompleted(object sender, System.Windows.Controls.Primitives.DragCompletedEventArgs e)
+    {
+        (DataContext as MainViewModel)?.SaveFilterListHeights();
+    }
+
+    private void FilterResizeGrip_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+    {
+        if (DataContext is not MainViewModel viewModel || sender is not FrameworkElement grip) return;
+
+        if ((string)grip.Tag == "Project")
+        {
+            viewModel.ProjectFilterListHeight = MainViewModel.DefaultFilterListHeight;
+        }
+        else
+        {
+            viewModel.PriorityWhoFilterListHeight = MainViewModel.DefaultFilterListHeight;
+        }
+        viewModel.SaveFilterListHeights();
+        e.Handled = true;
+    }
+
     private void ClearFilters_Click(object sender, RoutedEventArgs e)
     {
         if (DataContext is MainViewModel viewModel)
