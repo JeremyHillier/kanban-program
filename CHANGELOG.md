@@ -6,6 +6,9 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.88.1 — 2026-09-17
+- The Archived Tasks list, and reports that include archived tasks, open in a fraction of a second on large boards — with 6,000 archived tasks they previously took about 16 seconds
+
 ## 0.88.0 — 2026-09-16
 - Right-click a task on the board for a menu of everything you can do with it: Edit, Copy as Text, Copy Title, Duplicate, Move To, Priority, Assign To, Add Flag, Open Website, Email Task, and Delete
 - Copy as Text puts the whole task on the clipboard — status, project, priority, due date, who it's assigned to, goal, flags, notes, and sub-tasks — ready to paste anywhere

@@ -191,4 +191,45 @@ public sealed class TaskFileUpgradeTests : IDisposable
         Assert.Equal("General", Assert.Single(db.GetProjects()).Name);
         Assert.Empty(db.GetCards());
     }
+
+    private static string QueryPlan(string dbPath, string sql)
+    {
+        using var connection = new SqliteConnection($"Data Source={dbPath}");
+        connection.Open();
+        using var cmd = connection.CreateCommand();
+        cmd.CommandText = "EXPLAIN QUERY PLAN " + sql;
+        using var reader = cmd.ExecuteReader();
+        var steps = new List<string>();
+        while (reader.Read()) steps.Add(reader.GetString(3));
+        return string.Join(" | ", steps);
+    }
+
+    [Fact]
+    public void OldTaskFile_GetsTheHistoryIndex_AndTheArchivedLookupUsesIt()
+    {
+        var path = CreateOldFormatTaskFile();
+
+        _ = new DatabaseService(path);
+
+        // The per-card "latest archive time" lookup used by the Archived list and reports must be
+        // answered from the index, not by scanning all of CardHistory once per card.
+        var plan = QueryPlan(path,
+            "SELECT (SELECT MAX(h.Timestamp) FROM CardHistory h WHERE h.CardId = c.Id AND h.EventType = 'Archived') FROM Cards c;");
+        Assert.Contains("IX_CardHistory_Card_Event_Time", plan);
+        Assert.DoesNotContain("SCAN h", plan);
+    }
+
+    [Fact]
+    public void ArchivedTasks_StillReportTheirLatestArchiveTime()
+    {
+        var db = new DatabaseService(_temp.File("board.db"));
+        var done = db.GetColumns().Single(c => c.Name == "Done");
+        var card = db.AddCard(done.Id, "Finished", null, "Done", "Normal", null, null, false, null, null);
+
+        db.ArchiveCard(card.Id, card.Title, "Done");
+
+        var archived = Assert.Single(db.GetCards(archivedOnly: true));
+        Assert.NotNull(archived.ArchivedAt);
+        Assert.Equal(card.Id, Assert.Single(db.GetArchivedCards()).Id);
+    }
 }

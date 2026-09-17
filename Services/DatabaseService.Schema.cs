@@ -119,6 +119,17 @@ public partial class DatabaseService
             backfillCmd.ExecuteNonQuery();
         }
 
+        // CardHistory gains a row on every add, edit, move and archive, and the archived/deleted
+        // lists, reports that include archived tasks, and the CompletedAt backfill below all look up
+        // "the latest event of type X for this card" once per card. Without an index each lookup
+        // scanned the whole table, so those screens slowed quadratically - about 16 s at 6,000
+        // archived tasks. Created before the backfills so they use it too.
+        using (var indexCmd = connection.CreateCommand())
+        {
+            indexCmd.CommandText = "CREATE INDEX IF NOT EXISTS IX_CardHistory_Card_Event_Time ON CardHistory (CardId, EventType, Timestamp);";
+            indexCmd.ExecuteNonQuery();
+        }
+
         // A recurring card sitting in Done (or already archived) must have already spawned its
         // next occurrence under the old always-spawn logic, even though NextOccurrenceSpawned - a
         // brand new column - backfilled to 0 for every pre-existing row. Without this, reactivating
