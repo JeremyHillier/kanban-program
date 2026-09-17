@@ -13,6 +13,7 @@ public static class ThemeManager
         {
             res["WindowBackgroundBrush"] = Brush(0x16, 0x16, 0x16);
             res["CardBackgroundBrush"] = Brush(0x2D, 0x2D, 0x30);
+            res["SelectedCardBackgroundBrush"] = Brush(0x1F, 0x3A, 0x5C);
             res["CardBorderBrush"] = Brush(0x3F, 0x3F, 0x46);
             res["CardOutlineBrush"] = Brush(0x6E, 0x6E, 0x76);
             res["PrimaryTextBrush"] = Brush(0xF0, 0xF0, 0xF0);
@@ -34,6 +35,7 @@ public static class ThemeManager
         {
             res["WindowBackgroundBrush"] = Brush(0xE3, 0xE4, 0xE7);
             res["CardBackgroundBrush"] = Brushes.White;
+            res["SelectedCardBackgroundBrush"] = Brush(0xDC, 0xEB, 0xFD);
             res["CardBorderBrush"] = Brush(0xD0, 0xD0, 0xD0);
             res["CardOutlineBrush"] = Brush(0x9E, 0x9E, 0x9E);
             res["PrimaryTextBrush"] = Brush(0x1A, 0x1A, 0x1A);

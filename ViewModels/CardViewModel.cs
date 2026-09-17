@@ -303,6 +303,14 @@ public class CardViewModel(CardItem model) : ObservableObject
         set => SetField(ref _isVisible, value);
     }
 
+    // Picked for a multi-card drag (Ctrl/Shift+click). Screen state only, never saved.
+    private bool _isSelected;
+    public bool IsSelected
+    {
+        get => _isSelected;
+        set => SetField(ref _isSelected, value);
+    }
+
     private bool _isOverdue;
     public bool IsOverdue
     {

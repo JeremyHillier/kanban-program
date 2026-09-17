@@ -168,6 +168,11 @@ public partial class MainWindow : Window
         _db.SetSetting("WindowTop", bounds.Top.ToString(CultureInfo.InvariantCulture));
     }
 
+    // Set when a plain click lands on a card that's part of a multi-selection: the selection is
+    // only cleared if the button comes back up without a drag, since the press may be the start of
+    // dragging the whole group.
+    private bool _clearSelectionOnMouseUp;
+
     private void Card_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
     {
         if (e.ClickCount == 2)
@@ -181,6 +186,66 @@ public partial class MainWindow : Window
         }
 
         _dragStartPoint = e.GetPosition(null);
+        _clearSelectionOnMouseUp = false;
+
+        // Clicks on a card's own buttons (quick-move, flag, email, delete) act on that card only and
+        // leave the selection alone.
+        if (IsInsideButton(e.OriginalSource as DependencyObject)) return;
+        if (sender is not FrameworkElement { DataContext: CardViewModel clicked } || DataContext is not MainViewModel board) return;
+
+        switch (Keyboard.Modifiers)
+        {
+            case ModifierKeys.Control:
+                board.ToggleCardSelection(clicked);
+                e.Handled = true;
+                break;
+            case ModifierKeys.Shift:
+                board.SelectCardRange(clicked);
+                e.Handled = true;
+                break;
+            case ModifierKeys.None when clicked.IsSelected:
+                _clearSelectionOnMouseUp = true;
+                break;
+            case ModifierKeys.None when board.SelectedCardCount > 0:
+                board.ClearCardSelection();
+                break;
+        }
+    }
+
+    private void Card_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+    {
+        if (!_clearSelectionOnMouseUp) return;
+        _clearSelectionOnMouseUp = false;
+        if (DataContext is MainViewModel board) board.ClearCardSelection();
+    }
+
+    private static bool IsInsideButton(DependencyObject? element)
+    {
+        for (var current = element; current is not null; current = current is System.Windows.Media.Visual
+                 ? System.Windows.Media.VisualTreeHelper.GetParent(current)
+                 : LogicalTreeHelper.GetParent(current))
+        {
+            if (current is System.Windows.Controls.Primitives.ButtonBase) return true;
+            if (current is System.Windows.Controls.ContentPresenter { Content: CardViewModel }) return false; // reached the card
+        }
+        return false;
+    }
+
+    // What a card drag carries: the grabbed card (the single-card format every handler already
+    // understands), plus, when it's part of a multi-selection, the whole group in board order.
+    private const string CardGroupFormat = "KanbanApp.CardGroup";
+
+    internal static DataObject CreateCardDragData(CardViewModel grabbed, IReadOnlyList<CardViewModel> selected)
+    {
+        var data = new DataObject(typeof(CardViewModel), grabbed);
+        if (selected.Count > 1 && selected.Contains(grabbed)) data.SetData(CardGroupFormat, selected.ToList());
+        return data;
+    }
+
+    internal static List<CardViewModel> GetDraggedCards(IDataObject data)
+    {
+        if (data.GetDataPresent(CardGroupFormat) && data.GetData(CardGroupFormat) is List<CardViewModel> group) return group;
+        return data.GetData(typeof(CardViewModel)) is CardViewModel card ? [card] : [];
     }
 
     private void Card_MouseMove(object sender, MouseEventArgs e)
@@ -195,21 +260,25 @@ public partial class MainWindow : Window
             return;
         }
 
-        if (sender is FrameworkElement { DataContext: CardViewModel card } element)
+        if (sender is FrameworkElement { DataContext: CardViewModel card } element && DataContext is MainViewModel viewModel)
         {
-            DragDrop.DoDragDrop(element, card, DragDropEffects.Move);
+            // A drag, not a click, so the mouse-up mustn't clear the selection being dragged.
+            _clearSelectionOnMouseUp = false;
+
+            // Dragging a card that isn't selected drags just that card, and drops the selection so
+            // what's highlighted always matches what the next group drag would carry.
+            if (!card.IsSelected && viewModel.SelectedCardCount > 0) viewModel.ClearCardSelection();
+
+            DragDrop.DoDragDrop(element, CreateCardDragData(card, viewModel.SelectedCards), DragDropEffects.Move);
 
             // DoDragDrop blocks until the drag ends, however it ends (drop, Esc-cancel, focus loss).
             // Clearing every column's insertion-line indicator here, unconditionally, guarantees none
             // are left stuck visible even when a DragLeave/Drop never fired for whichever column last
             // showed one - e.g. a drop landing on Column_Drop's cross-column move instead of the
             // card area's own manual-reorder Drop, which was the only path resetting it before.
-            if (DataContext is MainViewModel viewModel)
+            foreach (var col in viewModel.Columns)
             {
-                foreach (var col in viewModel.Columns)
-                {
-                    col.IsDropIndicatorVisible = false;
-                }
+                col.IsDropIndicatorVisible = false;
             }
         }
     }
@@ -362,7 +431,9 @@ public partial class MainWindow : Window
         // some of them.
         if (Keyboard.Modifiers == ModifierKeys.None && e.Key == Key.Escape && DataContext is MainViewModel clearViewModel)
         {
-            clearViewModel.ClearFilters();
+            // Two steps: a multi-card selection is cleared first, then the next Esc clears filters.
+            if (clearViewModel.SelectedCardCount > 0) clearViewModel.ClearCardSelection();
+            else clearViewModel.ClearFilters();
             e.Handled = true;
             return;
         }
@@ -1051,7 +1122,8 @@ public partial class MainWindow : Window
 
     private void Column_Drop(object sender, DragEventArgs e)
     {
-        if (e.Data.GetData(typeof(CardViewModel)) is CardViewModel card &&
+        var dragged = GetDraggedCards(e.Data);
+        if (dragged.Count > 0 &&
             sender is FrameworkElement { DataContext: ColumnViewModel column } &&
             DataContext is MainViewModel viewModel)
         {
@@ -1061,46 +1133,51 @@ public partial class MainWindow : Window
             // same class of risk as mutating it from inside a Click handler.
             Dispatcher.BeginInvoke(new Action(() =>
             {
-                viewModel.MoveCardCommand.Execute((card, column));
-                MaybePromptCompletionNote(card, column, viewModel);
+                var moved = viewModel.MoveCards(dragged, column);
+
+                // One card gets the usual completion prompt. A group moved into Done skips the
+                // optional "add a note?" question rather than asking once per card, but a task set
+                // to force an edit on completion still opens, since that is the task's own setting.
+                var askForNote = dragged.Count == 1;
+                foreach (var card in moved) MaybePromptCompletionNote(card, column, viewModel, askForNote);
             }), DispatcherPriority.Background);
         }
     }
 
-    // Positional drag-to-reorder within a column, always available - a card dragged over its own
-    // current column reorders it (and switches the board into manual sort mode, see
-    // MainViewModel.ReorderCardWithinColumn). A drag into a different column keeps using
-    // Column_Drop's existing append-style move, so this deliberately returns false (leaving the
-    // event unhandled, to bubble up to Column_Drop) for every other case.
+    // Positional drag-to-reorder within a column, always available - a card (or a selected group
+    // of cards) dragged over its own current column is reordered there, and the board switches into
+    // manual sort mode (see MainViewModel.ReorderCardsWithinColumn). A drag that includes any card
+    // from a different column keeps using Column_Drop's move, so this deliberately returns false
+    // (leaving the event unhandled, to bubble up to Column_Drop) for every other case.
     // The sender is the Grid wrapping each column's card list and its insertion line.
     private static bool TryGetManualReorderContext(object sender, DragEventArgs e,
-        out System.Windows.Controls.ItemsControl itemsControl, out ColumnViewModel column, out CardViewModel draggedCard)
+        out System.Windows.Controls.ItemsControl itemsControl, out ColumnViewModel column, out List<CardViewModel> draggedCards)
     {
         itemsControl = null!;
         column = null!;
-        draggedCard = null!;
+        draggedCards = null!;
 
         if (sender is not System.Windows.Controls.Grid { DataContext: ColumnViewModel col } grid) return false;
-        if (e.Data.GetData(typeof(CardViewModel)) is not CardViewModel card) return false;
-        if (!col.Cards.Contains(card)) return false;
+        var cards = GetDraggedCards(e.Data);
+        if (cards.Count == 0 || !cards.All(col.Cards.Contains)) return false;
 
         var ic = grid.Children.OfType<System.Windows.Controls.ItemsControl>().FirstOrDefault();
         if (ic is null) return false;
 
         itemsControl = ic;
         column = col;
-        draggedCard = card;
+        draggedCards = cards;
         return true;
     }
 
     private void CardsArea_DragOver(object sender, DragEventArgs e)
     {
-        if (!TryGetManualReorderContext(sender, e, out var itemsControl, out var column, out var draggedCard)) return;
+        if (!TryGetManualReorderContext(sender, e, out var itemsControl, out var column, out var draggedCards)) return;
 
         e.Handled = true;
         e.Effects = DragDropEffects.Move;
 
-        var (_, indicatorY) = GetCardDropTarget(itemsControl, column, e.GetPosition(itemsControl), draggedCard);
+        var (_, indicatorY) = GetCardDropTarget(itemsControl, column, e.GetPosition(itemsControl), draggedCards);
         column.DropIndicatorY = indicatorY;
         column.IsDropIndicatorVisible = true;
     }
@@ -1124,13 +1201,13 @@ public partial class MainWindow : Window
 
     private void CardsArea_Drop(object sender, DragEventArgs e)
     {
-        if (!TryGetManualReorderContext(sender, e, out var itemsControl, out var column, out var draggedCard)) return;
+        if (!TryGetManualReorderContext(sender, e, out var itemsControl, out var column, out var draggedCards)) return;
 
         e.Handled = true;
         column.IsDropIndicatorVisible = false;
         if (DataContext is not MainViewModel viewModel) return;
 
-        var (newIndex, _) = GetCardDropTarget(itemsControl, column, e.GetPosition(itemsControl), draggedCard);
+        var (newIndex, _) = GetCardDropTarget(itemsControl, column, e.GetPosition(itemsControl), draggedCards);
 
         // Deferred via BeginInvoke: same reasoning as Column_Drop/QuickMove_Click above - this
         // handler still runs nested inside DoDragDrop's own message loop, so mutating the Cards
@@ -1138,20 +1215,21 @@ public partial class MainWindow : Window
         // Click handler.
         Dispatcher.BeginInvoke(new Action(() =>
         {
-            viewModel.ReorderCardWithinColumn(draggedCard, column, newIndex);
+            viewModel.ReorderCardsWithinColumn(draggedCards, column, newIndex);
         }), DispatcherPriority.Background);
     }
 
-    // Returns both where a drop would land (Index, in "before removal" Cards-count space - matching
-    // MainViewModel.ReorderCardWithinColumn's own before/after index adjustment) and the Y position
-    // (relative to itemsControl, i.e. on screen) for the insertion-line indicator, so DragOver and
-    // Drop always agree.
+    // Returns both where a drop would land (Index, in "before anything moves" Cards-count space -
+    // matching MainViewModel.ReorderCardsWithinColumn) and the Y position (relative to itemsControl,
+    // i.e. on screen) for the insertion-line indicator, so DragOver and Drop always agree. The
+    // dragged cards themselves are never a target.
     //
     // The list is virtualized and filtered, so this walks the list's own items (the visible cards)
     // and only the ones that currently have an on-screen element, then maps the matched card back
     // to its position in the full column. Cards without an element are all either above or below
     // the visible area, and the mouse is inside it, so skipping them can't change the answer.
-    internal static (int Index, double IndicatorY) GetCardDropTarget(System.Windows.Controls.ItemsControl itemsControl, ColumnViewModel column, Point positionInItemsControl, CardViewModel draggedCard)
+    internal static (int Index, double IndicatorY) GetCardDropTarget(System.Windows.Controls.ItemsControl itemsControl, ColumnViewModel column,
+        Point positionInItemsControl, IReadOnlyCollection<CardViewModel> draggedCards)
     {
         var items = itemsControl.Items;
         var generator = itemsControl.ItemContainerGenerator;
@@ -1165,7 +1243,7 @@ public partial class MainWindow : Window
 
             var card = (CardViewModel)items[i];
             var top = container.TranslatePoint(new Point(0, 0), itemsControl).Y;
-            if (!ReferenceEquals(card, draggedCard) && positionInItemsControl.Y < top + container.ActualHeight / 2)
+            if (!draggedCards.Contains(card) && positionInItemsControl.Y < top + container.ActualHeight / 2)
             {
                 return (column.Cards.IndexOf(card), top);
             }
@@ -1185,7 +1263,7 @@ public partial class MainWindow : Window
             : (column.Cards.IndexOf(lastCard) + 1, lastBottom);
     }
 
-    private void MaybePromptCompletionNote(CardViewModel card, ColumnViewModel targetColumn, MainViewModel viewModel)
+    private void MaybePromptCompletionNote(CardViewModel card, ColumnViewModel targetColumn, MainViewModel viewModel, bool askForNote = true)
     {
         if (targetColumn.Name != "Done") return;
 
@@ -1195,7 +1273,7 @@ public partial class MainWindow : Window
             return;
         }
 
-        if (!viewModel.AddNoteOnComplete) return;
+        if (!askForNote || !viewModel.AddNoteOnComplete) return;
 
         var result = MessageBox.Show(this, $"Add a completion note to \"{card.Title}\"?\n\nYou can jot down any final details before it's marked Done.",
             "Task Complete", MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.Yes);

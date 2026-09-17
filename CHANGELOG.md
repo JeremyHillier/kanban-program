@@ -6,6 +6,11 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.90.0 — 2026-09-17
+- Move several tasks at once: Ctrl+click (or Shift+click for a range) to pick them, then drag any one of them to another column, or to a new spot in their own column
+- Selected tasks are highlighted, the number picked shows at the top of the board, and Esc clears the selection
+- The Project filter list is twice as tall, and Priority and Who now sit side by side, each twice as tall as before, so you can see more of each without scrolling
+
 ## 0.89.0 — 2026-09-17
 - Much faster on big boards: the board now only draws the tasks you can see, so with thousands of tasks it opens in under a second instead of 20+ seconds and uses a fraction of the memory
 - Filtering, sorting and resizing the window stay quick however many tasks you have

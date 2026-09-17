@@ -287,6 +287,13 @@
                         <TextBlock Text="{Binding DueThisWeekCount}" Style="{StaticResource StatNumberStyle}" Foreground="#FFFFEE58"/>
                         <TextBlock Text="Due This Week" Style="{StaticResource StatLabelStyle}"/>
                     </StackPanel>
+                    <!-- Only while cards are picked for a multi-card drag. -->
+                    <StackPanel Style="{StaticResource StatChipStyle}" Background="Transparent"
+                                Visibility="{Binding SelectedCardCount, Converter={StaticResource GreaterThanZeroToVisibilityConverter}}"
+                                ToolTip="Cards picked with Ctrl+click or Shift+click. Drag any of them to move them all together. Esc clears the selection.">
+                        <TextBlock Text="{Binding SelectedCardCount}" Style="{StaticResource StatNumberStyle}" Foreground="#FF90CAF9"/>
+                        <TextBlock Text="Selected" Style="{StaticResource StatLabelStyle}"/>
+                    </StackPanel>
                 </StackPanel>
                 <TextBlock Text="KANBAN TASK BOARD" FontSize="36" FontWeight="Bold" Foreground="White"
                            HorizontalAlignment="Center" VerticalAlignment="Center"
@@ -443,13 +450,18 @@
                                 </TextBlock>
                             </Border>
                             <ListBox Grid.Column="1" Margin="0" Style="{StaticResource MultiSelectFilterListBoxStyle}"
-                                     ItemsSource="{Binding ProjectFilterOptions}"
+                                     ItemsSource="{Binding ProjectFilterOptions}" Height="168"
                                      ToolTip="Show only cards belonging to the selected project(s)"
                                      SelectionChanged="ProjectFilterListBox_SelectionChanged"/>
                         </Grid>
 
+                        <!-- Priority and Who share one row, each twice the height Priority used to have,
+                             so both lists show more at once without the sidebar getting any wider. -->
                         <Grid Margin="0,0,0,6">
                             <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="4"/>
                                 <ColumnDefinition Width="Auto"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
@@ -461,25 +473,18 @@
                                 </TextBlock>
                             </Border>
                             <ListBox Grid.Column="1" Margin="0" Style="{StaticResource MultiSelectFilterListBoxStyle}"
-                                     ItemsSource="{Binding PriorityFilterOptions}" Height="70"
+                                     ItemsSource="{Binding PriorityFilterOptions}" Height="140"
                                      ToolTip="Show only cards with the selected priorities"
                                      SelectionChanged="PriorityFilterListBox_SelectionChanged"/>
-                        </Grid>
-
-                        <Grid Margin="0,0,0,6">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <Border Grid.Column="0" Background="#FF7E57C2" Style="{StaticResource FilterLabelRotatedBoxStyle}">
+                            <Border Grid.Column="3" Background="#FF7E57C2" Style="{StaticResource FilterLabelRotatedBoxStyle}">
                                 <TextBlock Text="Who" Style="{StaticResource FilterLabelTextStyle}">
                                     <TextBlock.LayoutTransform>
                                         <RotateTransform Angle="-90"/>
                                     </TextBlock.LayoutTransform>
                                 </TextBlock>
                             </Border>
-                            <ListBox Grid.Column="1" Margin="0" Style="{StaticResource MultiSelectFilterListBoxStyle}"
-                                     ItemsSource="{Binding WhoFilterOptions}"
+                            <ListBox Grid.Column="4" Margin="0" Style="{StaticResource MultiSelectFilterListBoxStyle}"
+                                     ItemsSource="{Binding WhoFilterOptions}" Height="140"
                                      ToolTip="Show only cards assigned to the selected people"
                                      SelectionChanged="WhoFilterListBox_SelectionChanged"/>
                         </Grid>
@@ -679,14 +684,16 @@
                                         </ItemsControl.ItemsPanel>
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate>
-                                                <Border Background="{DynamicResource CardBackgroundBrush}" CornerRadius="4" Padding="8" Margin="0,0,0,6"
+                                                <Border CornerRadius="4" Padding="8" Margin="0,0,0,6"
                                                         Visibility="{Binding IsVisible, Converter={StaticResource BooleanToVisibilityConverter}}"
                                                         PreviewMouseLeftButtonDown="Card_PreviewMouseLeftButtonDown"
                                                         PreviewMouseRightButtonUp="Card_PreviewMouseRightButtonUp"
                                                         MouseMove="Card_MouseMove"
+                                                        MouseLeftButtonUp="Card_MouseLeftButtonUp"
                                                         AllowDrop="True" DragOver="Card_DragOver" Drop="Card_Drop">
                                                     <Border.Style>
                                                         <Style TargetType="Border">
+                                                            <Setter Property="Background" Value="{DynamicResource CardBackgroundBrush}"/>
                                                             <Setter Property="BorderBrush" Value="{DynamicResource CardOutlineBrush}"/>
                                                             <!-- 2px at rest (not 1.5) so hover only swaps color - changing thickness on hover
                                                                  shifts every card below it in the column by a fraction of a pixel. -->
@@ -695,6 +702,11 @@
                                                                 <Trigger Property="IsMouseOver" Value="True">
                                                                     <Setter Property="BorderBrush" Value="{DynamicResource AccentTextBrush}"/>
                                                                 </Trigger>
+                                                                <!-- Picked for a multi-card drag (Ctrl/Shift+click). Colour only, same 2px border, so nothing shifts. -->
+                                                                <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                                                                    <Setter Property="Background" Value="{DynamicResource SelectedCardBackgroundBrush}"/>
+                                                                    <Setter Property="BorderBrush" Value="{DynamicResource AccentTextBrush}"/>
+                                                                </DataTrigger>
                                                             </Style.Triggers>
                                                         </Style>
                                                     </Border.Style>

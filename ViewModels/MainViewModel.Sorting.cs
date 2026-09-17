@@ -66,34 +66,10 @@ public partial class MainViewModel
         ApplySort();
     }
 
-    // Drag-to-reorder within a column: moves the card to newIndex and persists the whole column's
-    // resulting order, the same way ApplySort does for an auto-sorted column. Dragging is always
-    // available, so this also switches the board into manual sort mode first - otherwise the very
-    // next ApplySort (triggered by any routine card mutation) would immediately undo the drag.
-    public void ReorderCardWithinColumn(CardViewModel card, ColumnViewModel column, int newIndex)
-    {
-        var cards = column.Cards;
-        var oldIndex = cards.IndexOf(card);
-        if (oldIndex < 0) return;
-
-        var insertAt = newIndex;
-        if (insertAt > oldIndex) insertAt--;
-        insertAt = Math.Clamp(insertAt, 0, cards.Count - 1);
-
-        if (insertAt != oldIndex)
-        {
-            cards.Move(oldIndex, insertAt);
-        }
-
-        if (!IsManualSort)
-        {
-            _sortKeys.Clear();
-            _sortKeys.Add(SortKey.Manual);
-            NotifySortRanksChanged();
-        }
-
-        _db.UpdateSortOrders(cards.Select((c, i) => (c.Id, i)));
-    }
+    // Drag-to-reorder a single card within its column - see ReorderCardsWithinColumn, which also
+    // handles a dragged group and switches the board into manual sort.
+    public void ReorderCardWithinColumn(CardViewModel card, ColumnViewModel column, int newIndex) =>
+        ReorderCardsWithinColumn([card], column, newIndex);
 
     private static int PriorityRank(string priority) => priority switch
     {

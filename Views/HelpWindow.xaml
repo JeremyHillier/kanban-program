@@ -57,7 +57,7 @@
                 <local:BulletItem Text="Alt+L — open the Timeline."/>
                 <local:BulletItem Text="Alt+T — show just what's due today (and anything overdue), clearing every other filter first."/>
                 <local:BulletItem Text="Alt+0 to Alt+9 — apply the custom filter saved in that slot (see Custom filters below). An unassigned slot does nothing."/>
-                <local:BulletItem Text="Esc — close the open dialog, or on the main board, clear every filter."/>
+                <local:BulletItem Text="Esc — close the open dialog. On the main board, the first Esc clears any selected cards, and the next clears every filter."/>
 
                 <TextBlock x:Name="HelpSection_AddEditTask" Text="Adding and editing tasks" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <local:BulletItem Text="Click New Task in the button panel (or press Ctrl+N) to create a task."/>
@@ -119,6 +119,9 @@
                 <TextBlock Text="Sorting and filtering" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <local:BulletItem Text="Click a sort button (Project, Due Date, Who, Priority) to sort every column by that alone. Ctrl+click additional sort buttons to combine them - a numbered badge on each active button shows its position in the combined sort (e.g. click Project, then Ctrl+click Due Date, then Ctrl+click Priority, to sort by project first, then due date, then priority). Ctrl+click an active button again to remove it from the combination."/>
                 <local:BulletItem Text="Drag a card up or down within its own column at any time to put it exactly where you want. Doing so switches the board to a hand-arranged order (every sort button unhighlights) and remembers it; clicking any sort button re-sorts and takes over again."/>
+                <local:BulletItem Text="To move several cards at once, Ctrl+click each one (or click one and Shift+click another in the same column to pick everything between them). Selected cards are highlighted and the number picked shows at the top of the board."/>
+                <local:BulletItem Text="Drag any selected card to move them all: onto another column to move them there, or up or down their own column to place them together at the line, in the order they were in. Ctrl+click a card again to unpick it; a plain click on another card, or Esc, clears the selection."/>
+                <local:BulletItem Text="Moving several cards to Done at once skips the optional &quot;add a completion note?&quot; question, but a task set to open for editing when completed still opens."/>
                 <local:BulletItem Text="The filters in the button panel narrow the board by Project, Priority, Who, Goal, Flag, Due date range, or a keyword search across titles, project, who, and notes."/>
                 <local:BulletItem Text="Project, Priority, and Who allow more than one choice: Ctrl-click or Shift-click to select several, and the board shows tasks matching any of them."/>
                 <local:BulletItem Text="Who, Goal, and Flag each offer an 'Unassigned' filter option, showing only tasks with none set."/>

@@ -60,6 +60,7 @@ public partial class MainViewModel
         OnPropertyChanged(nameof(OverdueCount));
         OnPropertyChanged(nameof(DueTodayCount));
         OnPropertyChanged(nameof(DueThisWeekCount));
+        NotifySelectionChanged(); // a deleted, archived or moved card may have been selected
 
         foreach (var column in Columns)
         {

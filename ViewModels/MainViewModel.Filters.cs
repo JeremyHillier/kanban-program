@@ -229,8 +229,19 @@ public partial class MainViewModel
             if (flips.Count == 0) continue;
 
             using var bulk = flips.Count > ColumnViewModel.BulkChangeThreshold ? column.BeginBulkChange() : null;
-            foreach (var (card, visible) in flips) card.IsVisible = visible;
+            foreach (var (card, visible) in flips) SetCardVisible(card, visible);
         }
+    }
+
+    // A card the filters hide is also deselected, so a later multi-card drag can never carry along
+    // something the user can't see.
+    private void SetCardVisible(CardViewModel card, bool visible)
+    {
+        card.IsVisible = visible;
+        if (visible || !card.IsSelected) return;
+
+        card.IsSelected = false;
+        NotifySelectionChanged();
     }
 
     private bool MatchesFilters(CardViewModel card) => Matches(card, BuildFilterCriteria());
