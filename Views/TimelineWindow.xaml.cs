@@ -6,6 +6,7 @@ using System.Windows.Markup;
 using System.Windows.Media;
 using System.Windows.Shapes;
 using KanbanApp.Converters;
+using KanbanApp.Services;
 using KanbanApp.ViewModels;
 
 namespace KanbanApp.Views;
@@ -133,7 +134,7 @@ public partial class TimelineWindow : Window
         var cards = _viewModel.Columns
             .Where(c => includeDone || c.Name != "Done")
             .SelectMany(c => c.Cards)
-            .Where(c => c.DueDate is not null && c.DueDate.Value.Date >= _windowStart && c.DueDate.Value.Date < rangeEnd)
+            .Where(c => TimelineLayout.IsInWindow(c, _windowStart, rangeEnd))
             .ToList();
 
         var byProject = cards.GroupBy(c => c.ProjectName).ToDictionary(g => g.Key, g => g.ToList());
@@ -226,7 +227,7 @@ public partial class TimelineWindow : Window
             TimelineGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto, MinHeight = 50 });
             AddCell(TimelineGrid, 0, 0, new TextBlock
             {
-                Text = "No tasks with a due date in this range.", Foreground = secondaryBrush,
+                Text = "No tasks with a due or start date in this range.", Foreground = secondaryBrush,
                 FontStyle = FontStyles.Italic, Margin = new Thickness(6)
             });
             for (var w = 0; w < unitsToShow; w++) AddCell(TimelineGrid, 0, w + 1, new Border());
@@ -247,49 +248,104 @@ public partial class TimelineWindow : Window
                 Margin = new Thickness(6), VerticalAlignment = VerticalAlignment.Center, TextWrapping = TextWrapping.Wrap
             }, rowBackground);
 
-            var tasksByUnit = byProject[projectName]
-                .GroupBy(c => (c.DueDate!.Value.Date - _windowStart).Days / unitDays)
-                .ToDictionary(g => g.Key, g => g.OrderBy(c => c.DueDate).ToList());
+            // The row's date cells are just the background and grid lines now; the tasks sit in a
+            // lane grid laid over them (same column widths, one auto-height row per lane), because
+            // an arrow has to run across several columns.
+            for (var w = 0; w < unitsToShow; w++) AddCell(TimelineGrid, r, w + 1, new Border(), rowBackground);
 
-            for (var w = 0; w < unitsToShow; w++)
+            var items = TimelineLayout.Place(byProject[projectName], _windowStart, unitDays, unitsToShow);
+            var laneGrid = new Grid { Margin = new Thickness(0, 3, 0, 0), VerticalAlignment = VerticalAlignment.Top };
+            for (var w = 0; w < unitsToShow; w++) laneGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(unitColWidth) });
+            for (var lane = 0; lane <= items.Max(i => i.Lane); lane++) laneGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+            Grid.SetRow(laneGrid, r);
+            Grid.SetColumn(laneGrid, 1);
+            Grid.SetColumnSpan(laneGrid, unitsToShow);
+            TimelineGrid.Children.Add(laneGrid);
+
+            foreach (var item in items)
             {
-                var cellPanel = new StackPanel { Margin = new Thickness(3) };
-                if (tasksByUnit.TryGetValue(w, out var tasks))
+                var task = item.Card;
+                if (item.HasArrow)
                 {
-                    foreach (var task in tasks)
-                    {
-                        var parts = new List<string> { task.Title };
-                        if (!string.IsNullOrWhiteSpace(task.WhoName) && task.WhoName != "Unassigned") parts.Add(task.WhoName);
-                        parts.Add(DateLabel(task));
-
-                        var priorityBrush = GetPriorityBrush(task.Priority);
-                        var block = new Border
-                        {
-                            Background = priorityBrush,
-                            BorderBrush = priorityBrush,
-                            BorderThickness = new Thickness(1),
-                            CornerRadius = new CornerRadius(3),
-                            Padding = new Thickness(5, 3, 5, 3),
-                            Margin = new Thickness(0, 0, 0, 3),
-                            Cursor = Cursors.Hand,
-                            Child = new TextBlock
-                            {
-                                Text = string.Join(" - ", parts), Foreground = Brushes.White,
-                                FontSize = 11, TextWrapping = TextWrapping.Wrap,
-                                ToolTip = $"{task.Title}\nPriority: {task.Priority}\n{(task.WhoName != "Unassigned" ? $"Who: {task.WhoName}\n" : "")}Due: {task.DueDate:MMM d, yyyy}\n\nDouble-click to open"
-                            }
-                        };
-                        block.MouseLeftButtonDown += (_, args) =>
-                        {
-                            if (args.ClickCount != 2) return;
-                            OpenCardForEdit(task);
-                        };
-                        cellPanel.Children.Add(block);
-                    }
+                    var arrow = BuildArrow(item, unitColWidth, brush);
+                    Grid.SetRow(arrow, item.Lane);
+                    Grid.SetColumn(arrow, item.ArrowFirstUnit);
+                    Grid.SetColumnSpan(arrow, item.ArrowLastUnit - item.ArrowFirstUnit + 1);
+                    laneGrid.Children.Add(arrow);
                 }
-                AddCell(TimelineGrid, r, w + 1, cellPanel, rowBackground);
+
+                var parts = new List<string> { task.Title };
+                if (!string.IsNullOrWhiteSpace(task.WhoName) && task.WhoName != "Unassigned") parts.Add(task.WhoName);
+                parts.Add(item.DueAfterWindow ? $"due {task.DueDate:MMM d}" : TimelineLayout.DateLabel(task));
+
+                var priorityBrush = GetPriorityBrush(task.Priority);
+                var tooltip = $"{task.Title}\nPriority: {task.Priority}\n{(task.WhoName != "Unassigned" ? $"Who: {task.WhoName}\n" : "")}"
+                    + $"{(task.StartDate is not null ? $"Start: {task.StartDate:MMM d, yyyy}\n" : "")}"
+                    + $"{(task.DueDate is not null ? $"Due: {task.DueDate:MMM d, yyyy}\n" : "")}\nDouble-click to open";
+
+                // Due past the right edge: the box can't sit at its due date, so it is drawn
+                // hollow and dashed at the left of what's showing, with the arrow running on from it.
+                FrameworkElement block = item.DueAfterWindow
+                    ? new Grid
+                    {
+                        Children =
+                        {
+                            new Rectangle { Stroke = priorityBrush, StrokeThickness = 1.5, StrokeDashArray = [3, 2], RadiusX = 3, RadiusY = 3, Fill = panelBrush },
+                            new TextBlock { Text = string.Join(" - ", parts), Foreground = brush, FontSize = 11, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(5, 3, 5, 3) }
+                        }
+                    }
+                    : new Border
+                    {
+                        Background = priorityBrush,
+                        CornerRadius = new CornerRadius(3),
+                        Padding = new Thickness(5, 3, 5, 3),
+                        Child = new TextBlock { Text = string.Join(" - ", parts), Foreground = Brushes.White, FontSize = 11, TextWrapping = TextWrapping.Wrap }
+                    };
+                block.Margin = new Thickness(3, 0, 3, 3);
+                block.Cursor = Cursors.Hand;
+                block.ToolTip = tooltip;
+                block.VerticalAlignment = VerticalAlignment.Top;
+                block.MouseLeftButtonDown += (_, args) =>
+                {
+                    if (args.ClickCount != 2) return;
+                    OpenCardForEdit(task);
+                };
+                Grid.SetRow(block, item.Lane);
+                Grid.SetColumn(block, item.BoxUnit);
+                laneGrid.Children.Add(block);
             }
         }
+    }
+
+    // The arrow from a task's start date to its box: a dot where it starts (left off when the start
+    // is before the visible range, so the line simply comes in from the edge), a line, and a head
+    // pointing at the box - or off the right edge when the due date is beyond it. Drawn in the text
+    // colour, so it is black on the light theme and light on the dark one. It sits level with the
+    // first line of text in the box.
+    private static FrameworkElement BuildArrow(TimelineItem item, double unitColWidth, Brush stroke)
+    {
+        const double arrowTop = 6;
+        var panel = new DockPanel
+        {
+            Height = 10, VerticalAlignment = VerticalAlignment.Top, LastChildFill = true, IsHitTestVisible = false,
+            // Starts in the middle of the start column (not applicable when it comes in from the
+            // edge, or when it starts at the dashed box's right-hand side).
+            Margin = new Thickness(item.StartsBeforeWindow || item.DueAfterWindow ? 0 : unitColWidth / 2, arrowTop, 0, 0)
+        };
+
+        if (!item.StartsBeforeWindow && !item.DueAfterWindow)
+        {
+            var dot = new Ellipse { Width = 8, Height = 8, Fill = stroke, VerticalAlignment = VerticalAlignment.Center };
+            DockPanel.SetDock(dot, Dock.Left);
+            panel.Children.Add(dot);
+        }
+
+        var head = new Polygon { Points = [new Point(0, 0), new Point(9, 5), new Point(0, 10)], Fill = stroke, VerticalAlignment = VerticalAlignment.Center };
+        DockPanel.SetDock(head, Dock.Right);
+        panel.Children.Add(head);
+
+        panel.Children.Add(new Rectangle { Height = 2, Fill = stroke, VerticalAlignment = VerticalAlignment.Center });
+        return panel;
     }
 
     private void Print_Click(object sender, RoutedEventArgs e) =>
@@ -421,37 +477,31 @@ public partial class TimelineWindow : Window
 
         if (rowProjects.Count == 0)
         {
-            AddText(canvas, "No tasks with a due date in this range.", margin, y, regularTypeface, 11, Brushes.Gray);
+            AddText(canvas, "No tasks with a due or start date in this range.", margin, y, regularTypeface, 11, Brushes.Gray);
         }
 
         for (var r = 0; r < rowProjects.Count; r++)
         {
             var projectName = rowProjects[r];
-            var tasksByUnit = byProject[projectName]
-                .GroupBy(c => (c.DueDate!.Value.Date - _windowStart).Days / unitDays)
-                .ToDictionary(g => g.Key, g => g.OrderBy(c => c.DueDate).ToList());
+            var items = TimelineLayout.Place(byProject[projectName], _windowStart, unitDays, unitsToShow);
 
-            // Precompute each column's wrapped lines so the row height (the tallest column) is
-            // known before anything is drawn, and so a row that doesn't fit can trigger a new page
-            // (with the header redrawn) before any of its content is committed to the current one.
-            var cellLines = new Dictionary<int, List<List<string>>>();
-            var rowHeight = rowMinHeight;
-            for (var w = 0; w < unitsToShow; w++)
+            // Wrap every box's text and work out each lane's height (its tallest box) before
+            // anything is drawn, so the row height is known and a row that doesn't fit can start a
+            // new page (with the header redrawn) before any of it is committed to the current one.
+            var boxLines = new Dictionary<TimelineItem, List<string>>();
+            var laneHeights = new double[items.Max(i => i.Lane) + 1];
+            foreach (var item in items)
             {
-                if (!tasksByUnit.TryGetValue(w, out var tasks)) continue;
-                var linesPerTask = new List<List<string>>();
-                foreach (var task in tasks)
-                {
-                    var parts = new List<string> { task.Title };
-                    if (!string.IsNullOrWhiteSpace(task.WhoName) && task.WhoName != "Unassigned") parts.Add(task.WhoName);
-                    parts.Add(DateLabel(task));
-                    linesPerTask.Add(WrapWords(string.Join(" - ", parts), regularTypeface, 7.5, unitColWidth - 2 * chipPadding - 4));
-                }
-                cellLines[w] = linesPerTask;
-                var cellHeight = linesPerTask.Sum(lines => lines.Count * lineHeight + 2 * chipPadding + chipGap);
-                rowHeight = Math.Max(rowHeight, cellHeight);
+                var task = item.Card;
+                var parts = new List<string> { task.Title };
+                if (!string.IsNullOrWhiteSpace(task.WhoName) && task.WhoName != "Unassigned") parts.Add(task.WhoName);
+                parts.Add(item.DueAfterWindow ? $"due {task.DueDate:MMM d}" : TimelineLayout.DateLabel(task));
+
+                var lines = WrapWords(string.Join(" - ", parts), regularTypeface, 7.5, unitColWidth - 2 * chipPadding - 4);
+                boxLines[item] = lines;
+                laneHeights[item.Lane] = Math.Max(laneHeights[item.Lane], lines.Count * lineHeight + 2 * chipPadding + chipGap);
             }
-            rowHeight += 4;
+            var rowHeight = Math.Max(rowMinHeight, laneHeights.Sum()) + 4;
 
             if (y + rowHeight > bottomLimit) NewPage();
 
@@ -469,35 +519,57 @@ public partial class TimelineWindow : Window
                 labelY += lineHeight;
             }
 
-            for (var w = 0; w < unitsToShow; w++)
+            double UnitLeft(int unit) => margin + projectColWidth + unit * unitColWidth;
+
+            foreach (var item in items)
             {
-                if (!cellLines.TryGetValue(w, out var linesPerTask)) continue;
-                var tasksInCell = tasksByUnit[w];
-                var chipY = rowTop + 2;
-                var chipX = margin + projectColWidth + w * unitColWidth + 1;
-                var chipWidth = unitColWidth - 2;
+                var laneTop = rowTop + 2 + laneHeights.Take(item.Lane).Sum();
+                var lines = boxLines[item];
+                var priorityColor = GetPriorityColor(item.Card.Priority);
 
-                for (var t = 0; t < linesPerTask.Count; t++)
+                if (item.HasArrow)
                 {
-                    var lines = linesPerTask[t];
-                    var priorityColor = GetPriorityColor(tasksInCell[t].Priority);
-                    var chipHeight = lines.Count * lineHeight + 2 * chipPadding;
-                    var chip = new Rectangle
-                    {
-                        Width = chipWidth, Height = chipHeight, Fill = new SolidColorBrush(LightenColor(priorityColor, 0.85)),
-                        Stroke = new SolidColorBrush(priorityColor), StrokeThickness = 0.75, RadiusX = 2, RadiusY = 2
-                    };
-                    Canvas.SetLeft(chip, chipX);
-                    Canvas.SetTop(chip, chipY);
-                    canvas.Children.Add(chip);
+                    // Same arrow as on screen: dot at the start (unless it comes in from the left
+                    // edge or starts at the dashed box), line, head pointing at the box or off the
+                    // right edge. Level with the first line of text.
+                    var arrowY = laneTop + chipPadding + lineHeight / 2;
+                    var hasDot = !item.StartsBeforeWindow && !item.DueAfterWindow;
+                    var x1 = UnitLeft(item.ArrowFirstUnit) + (hasDot ? unitColWidth / 2 : 0);
+                    var x2 = UnitLeft(item.ArrowLastUnit + 1) - 1;
 
-                    var textY = chipY + chipPadding;
-                    foreach (var line in lines)
+                    canvas.Children.Add(new Line { X1 = x1, Y1 = arrowY, X2 = x2 - 5, Y2 = arrowY, Stroke = Brushes.Black, StrokeThickness = 1.25 });
+                    canvas.Children.Add(new Polygon
                     {
-                        AddText(canvas, line, chipX + 3, textY, regularTypeface, 7.5, Brushes.Black);
-                        textY += lineHeight;
+                        Points = [new Point(x2 - 6, arrowY - 3.5), new Point(x2, arrowY), new Point(x2 - 6, arrowY + 3.5)], Fill = Brushes.Black
+                    });
+                    if (hasDot)
+                    {
+                        var dot = new Ellipse { Width = 5, Height = 5, Fill = Brushes.Black };
+                        Canvas.SetLeft(dot, x1 - 2.5);
+                        Canvas.SetTop(dot, arrowY - 2.5);
+                        canvas.Children.Add(dot);
                     }
-                    chipY += chipHeight + chipGap;
+                }
+
+                var chipHeight = lines.Count * lineHeight + 2 * chipPadding;
+                var chipX = UnitLeft(item.BoxUnit) + 1;
+                var chip = new Rectangle
+                {
+                    Width = unitColWidth - 2, Height = chipHeight, RadiusX = 2, RadiusY = 2,
+                    Stroke = new SolidColorBrush(priorityColor), StrokeThickness = 0.75,
+                    // Dashed and unfilled when the due date is past the right edge - see TimelineItem.
+                    Fill = item.DueAfterWindow ? Brushes.White : new SolidColorBrush(LightenColor(priorityColor, 0.85))
+                };
+                if (item.DueAfterWindow) chip.StrokeDashArray = [3, 2];
+                Canvas.SetLeft(chip, chipX);
+                Canvas.SetTop(chip, laneTop);
+                canvas.Children.Add(chip);
+
+                var textY = laneTop + chipPadding;
+                foreach (var line in lines)
+                {
+                    AddText(canvas, line, chipX + 3, textY, regularTypeface, 7.5, Brushes.Black);
+                    textY += lineHeight;
                 }
             }
 
@@ -521,10 +593,4 @@ public partial class TimelineWindow : Window
 
         return fixedDoc;
     }
-
-    // "Oct 20", or "Oct 3 to Oct 20" for a task with a start date. The task still sits in the
-    // column of its due date.
-    private static string DateLabel(CardViewModel task) => task.StartDate is { } start
-        ? $"{start:MMM d} to {task.DueDate!.Value:MMM d}"
-        : task.DueDate!.Value.ToString("MMM d");
 }

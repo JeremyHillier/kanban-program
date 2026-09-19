@@ -189,6 +189,9 @@
 
                 <TextBlock x:Name="HelpSection_Timeline" Text="Timeline" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <local:BulletItem Text="Click Timeline (Alt+L) for a calendar view of tasks with a due date: projects down the left, weekly date columns across the top, and each task shown as a block in the week it falls due, labelled with its title, who it's assigned to, and its due date."/>
+                <local:BulletItem Text="A task with a Start date gets an arrow running along its row from the start date to its box, so you can see how long it has and what overlaps. A dot marks where it starts. If it started before the dates showing, the arrow comes in from the left edge."/>
+                <local:BulletItem Text="If a task is due after the dates showing, its box is drawn with a dashed outline where it starts instead, says when it is due, and its arrow runs off the right-hand side. Page forward to reach the due date."/>
+                <local:BulletItem Text="A task with a Start date but no Due Date shows as a box at its start date."/>
                 <local:BulletItem Text="Shows 12 weeks at a time starting from the current week; use ◀ 4 Weeks / 4 Weeks ▶ to page through time, or Today to jump back to the current week."/>
                 <local:BulletItem Text="Done tasks are left out by default — check Include Done tasks to bring them back in."/>
                 <local:BulletItem Text="Switch to Day view for 21 daily columns instead of 12 weekly ones; paging then moves a week at a time."/>
