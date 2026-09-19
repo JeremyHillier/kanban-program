@@ -6,7 +6,7 @@ namespace KanbanApp.Services;
 
 public static class ImportService
 {
-    private static readonly string[] Headers = ["Title", "Category", "Priority", "Project", "Goal", "Due Date", "Who", "Start Date"];
+    private static readonly string[] Headers = ["Title", "Category", "Priority", "Project", "Goal", "Due Date", "Who", "Start Date", "Waiting On"];
     private static readonly string[] Priorities = ["High", "Medium", "Normal", "Low"];
 
     public static void SaveTemplate(string filePath, IEnumerable<string> categories, IEnumerable<string> projects, IEnumerable<string> goals, IEnumerable<string> people)
@@ -39,6 +39,7 @@ public static class ImportService
         sheet.Column(6).Width = 14;
         sheet.Column(7).Width = 14;
         sheet.Column(8).Width = 14;
+        sheet.Column(9).Width = 24;
 
         const int maxDataRow = 500;
         sheet.Range(3, 6, maxDataRow, 6).Style.DateFormat.Format = "dd-mmm-yyyy";
@@ -118,6 +119,7 @@ public static class ImportService
             sheet.Cell(2, 8).Value = row.StartDate.Value;
             sheet.Cell(2, 8).Style.DateFormat.Format = "dd-mmm-yyyy";
         }
+        sheet.Cell(2, 9).Value = row.WaitingOn ?? string.Empty;
 
         sheet.Columns().AdjustToContents();
 
@@ -134,9 +136,10 @@ public static class ImportService
     private static readonly string[] DueDateHeadings = ["Due Date", "Due"];
     private static readonly string[] WhoHeadings = ["Who", "Assigned To", "Assignee"];
     private static readonly string[] StartDateHeadings = ["Start Date", "Start", "Not Before"];
+    private static readonly string[] WaitingOnHeadings = ["Waiting On", "Waiting For", "Blocked By"];
 
     private static readonly string[][] OtherHeadings =
-        [CategoryHeadings, PriorityHeadings, ProjectHeadings, GoalHeadings, DueDateHeadings, WhoHeadings, StartDateHeadings];
+        [CategoryHeadings, PriorityHeadings, ProjectHeadings, GoalHeadings, DueDateHeadings, WhoHeadings, StartDateHeadings, WaitingOnHeadings];
 
     private static bool IsHeading(IXLCell cell, string[] headings) =>
         headings.Contains(cell.GetString().Trim(), StringComparer.OrdinalIgnoreCase);
@@ -193,6 +196,7 @@ public static class ImportService
         var dueDateCol = ColumnFor(DueDateHeadings);
         var whoCol = ColumnFor(WhoHeadings);
         var startDateCol = ColumnFor(StartDateHeadings);
+        var waitingOnCol = ColumnFor(WaitingOnHeadings);
 
         var results = new List<ImportedTaskRow>();
         foreach (var row in sheet.RowsUsed().Where(r => r.RowNumber() > headerRow.RowNumber()))
@@ -223,6 +227,7 @@ public static class ImportService
                 Goal = goalCol is not null ? row.Cell(goalCol.Value).GetString().Trim() : null,
                 DueDate = dueDate,
                 StartDate = startDateCol is not null ? ReadDate(row.Cell(startDateCol.Value)) : null,
+                WaitingOn = waitingOnCol is not null ? row.Cell(waitingOnCol.Value).GetString().Trim() : null,
                 Who = whoCol is not null ? row.Cell(whoCol.Value).GetString().Trim() : null
             });
         }

@@ -236,20 +236,46 @@
                               ToolTip="When on, marking this task Done will automatically open it for editing instead of just moving it."/>
                 </Grid>
 
-                <!-- Website -->
-                <TextBlock Text="Website" Style="{StaticResource FieldLabelStyle}"/>
+                <!-- Website | Waiting On -->
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="16"/>
+                        <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <TextBox Grid.Column="0" x:Name="WebsiteUrlTextBox" Padding="6"
-                             Style="{StaticResource HoverTextBoxStyle}"
-                             ToolTip="An optional web link or email address for this task - paste it, then click Open to launch it"
-                             Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
-                    <Button Grid.Column="1" Content="Open" Padding="10,4" Margin="6,0,0,0" Click="OpenWebsite_Click"
-                            ToolTip="Open this link in your default browser"
-                            Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Website" Style="{StaticResource FieldLabelStyle}"/>
+                    <Grid Grid.Row="1" Grid.Column="0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBox Grid.Column="0" x:Name="WebsiteUrlTextBox" Padding="6"
+                                 Style="{StaticResource HoverTextBoxStyle}"
+                                 ToolTip="An optional web link or email address for this task - paste it, then click Open to launch it"
+                                 Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                        <Button Grid.Column="1" Content="Open" Padding="10,4" Margin="6,0,0,0" Click="OpenWebsite_Click"
+                                ToolTip="Open this link in your default browser"
+                                Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                    </Grid>
+
+                    <TextBlock Grid.Row="0" Grid.Column="2" Text="Waiting On" Style="{StaticResource FieldLabelStyle}"
+                               ToolTip="Who or what is holding this task up. Leave it empty if nothing is."/>
+                    <Grid Grid.Row="1" Grid.Column="2">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBox Grid.Column="0" x:Name="WaitingOnTextBox" Padding="6" MaxLength="200"
+                                 Style="{StaticResource HoverTextBoxStyle}"
+                                 ToolTip="Who or what is holding this task up, e.g. Sam's quote, or the client's sign-off. Leave it empty if nothing is. The card shows it, and the Waiting On button on the main screen lists every task that has one. It is cleared when the task is finished."
+                                 Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                        <Button Grid.Column="1" Content="Clear" Padding="10,4" Margin="6,0,0,0" Click="ClearWaitingOn_Click" IsTabStop="False"
+                                Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                    </Grid>
                 </Grid>
 
                 <!-- Notes -->

@@ -6,6 +6,16 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.99.0 — 2026-09-19
+- New: Waiting On. When a task is held up, say who or what by (for example "Sam's quote") in the new Waiting On box on the task screen
+- The card shows it in a highlighted line. Click the line to change it, or save it empty to clear it
+- New Waiting On button beside No Due Date: shows every task that is waiting, across all columns, with a count
+- Right-click a task, or a selection of tasks, and choose Waiting On to set or clear it without opening the task
+- Moving a task into the Waiting column asks what it is waiting on (once, and only if it doesn't already say)
+- Finishing a task clears what it was waiting on
+- The Keyword filter searches it, and it is included in Copy as Text, task emails, reports, and Excel import and export. The import template has a new Waiting On column at the end; Waiting For or Blocked By work as headings too
+- Undo covers it
+
 ## 0.98.1 — 2026-09-19
 - Timeline: a task's box now sits at its start date, on the left, with the arrow running right to its due date. A task that started before the dates showing gets a dashed box in the first column
 - The Today, Tomorrow and Within a Week buttons also show tasks that start on those days, even if they aren't due for a while. Tomorrow and Within a Week show them even while Hide Future is on

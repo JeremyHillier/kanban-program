@@ -32,11 +32,11 @@ public sealed class StartDateTests(WpfDispatcherFixture wpf) : IDisposable
         Assert.Equal(new DateTime(2026, 10, 3), Assert.Single(Column(OpenBoard(), "To Do").Cards).StartDate);
 
         board.EditCard(card, card.Title, Column(board, "To Do"), board.Projects.First(), "Normal", card.DueDate, null, false, null, null,
-            card.Flags, card.SubTasks, null, card.Attachments, false, null, null, new DateTime(2026, 10, 10));
+            card.Flags, card.SubTasks, null, card.Attachments, false, null, null, new DateTime(2026, 10, 10), null);
         Assert.Equal(new DateTime(2026, 10, 10), Assert.Single(Column(OpenBoard(), "To Do").Cards).StartDate);
 
         board.EditCard(card, card.Title, Column(board, "To Do"), board.Projects.First(), "Normal", card.DueDate, null, false, null, null,
-            card.Flags, card.SubTasks, null, card.Attachments, false, null, null, null);
+            card.Flags, card.SubTasks, null, card.Attachments, false, null, null, null, null);
         Assert.Null(Assert.Single(Column(OpenBoard(), "To Do").Cards).StartDate);
     });
 
@@ -103,7 +103,7 @@ public sealed class StartDateTests(WpfDispatcherFixture wpf) : IDisposable
         Assert.True(card.IsVisible);
 
         board.EditCard(card, card.Title, Column(board, "To Do"), board.Projects.First(), "Normal", null, null, false, null, null,
-            card.Flags, card.SubTasks, null, card.Attachments, false, null, null, Tomorrow);
+            card.Flags, card.SubTasks, null, card.Attachments, false, null, null, Tomorrow, null);
         Assert.False(card.IsVisible);
         Assert.False(Add(board, "Later", Tomorrow).IsVisible);
         Assert.Equal("Show Future (2)", board.HideFutureButtonLabel);
@@ -185,8 +185,7 @@ public sealed class StartDateTests(WpfDispatcherFixture wpf) : IDisposable
 
         using var workbook = new XLWorkbook(path);
         var headings = workbook.Worksheet(1).Row(2).CellsUsed().Select(c => c.GetString()).ToList();
-        Assert.Equal("Start Date", headings.Last());
-        Assert.Equal("Who", headings[^2]); // existing columns stay where they were
+        Assert.Equal(["Who", "Start Date", "Waiting On"], headings.TakeLast(3)); // new columns go on the end; existing ones stay put
     });
 
     [Fact]

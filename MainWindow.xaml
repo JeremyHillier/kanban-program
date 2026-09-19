@@ -313,6 +313,16 @@
                 </DataTrigger>
             </Style.Triggers>
         </Style>
+        <Style x:Key="DueFilterButtonWaitingOn" BasedOn="{StaticResource SmallSquareButtonStyle}" TargetType="Button">
+            <Setter Property="BorderThickness" Value="1"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding DueFilter, Converter={StaticResource StringEqualsConverter}, ConverterParameter='Waiting On'}" Value="True">
+                    <Setter Property="BorderBrush" Value="White"/>
+                    <Setter Property="BorderThickness" Value="3"/>
+                    <Setter Property="FontWeight" Value="Bold"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
 
         <Style x:Key="SectionHeaderStyle" TargetType="TextBlock">
             <Setter Property="FontWeight" Value="Bold"/>
@@ -484,6 +494,10 @@
                             <Button Style="{StaticResource DueFilterButtonNone}" Background="#FF537187" Foreground="White" Click="DueNone_Click"
                                     ToolTip="Show only cards with no due date. Clears every other filter first.">
                                 <TextBlock Text="No Due Date" TextWrapping="Wrap" TextAlignment="Center"/>
+                            </Button>
+                            <Button Style="{StaticResource DueFilterButtonWaitingOn}" Background="#FFBF7C26" Foreground="White" Click="WaitingOn_Click"
+                                    ToolTip="Show only tasks that are waiting on someone or something. Clears every other filter first.">
+                                <TextBlock Text="{Binding WaitingOnButtonLabel}" TextWrapping="Wrap" TextAlignment="Center"/>
                             </Button>
                         </StackPanel>
 
@@ -884,6 +898,11 @@
                                                                                    MouseLeftButtonUp="WhoDisplay_MouseLeftButtonUp"
                                                                                    Visibility="{Binding WhoDisplay, Converter={StaticResource EmptyStringToVisibilityConverter}}"/>
                                                                     </StackPanel>
+                                                                    <TextBlock Text="{Binding WaitingOnDisplay}" FontSize="10" FontWeight="SemiBold" TextWrapping="Wrap"
+                                                                               Background="#FFFFE0B2" Foreground="#FF4E342E" Padding="3,1" Margin="0,3,0,0" HorizontalAlignment="Left"
+                                                                               Cursor="Hand" ToolTip="Click to change or clear what this task is waiting on"
+                                                                               MouseLeftButtonUp="WaitingOnDisplay_MouseLeftButtonUp"
+                                                                               Visibility="{Binding WaitingOnDisplay, Converter={StaticResource EmptyStringToVisibilityConverter}}"/>
                                                                     <TextBlock Text="{Binding StartDateDisplay}" FontSize="10" FontStyle="Italic"
                                                                                Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,1,0,0"
                                                                                ToolTip="This task can't be started before this date"

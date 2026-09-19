@@ -39,6 +39,7 @@ public partial class AddTaskWindow : Window
     public PersonViewModel? SelectedWho { get; private set; }
     public string? Notes { get; private set; }
     public string? WebsiteUrl { get; private set; }
+    public string? WaitingOn { get; private set; }
     public bool IsRecurring { get; private set; }
     public string? RecurrencePattern { get; private set; }
     public bool ForceEditOnComplete { get; private set; }
@@ -106,6 +107,7 @@ public partial class AddTaskWindow : Window
             ForceEditOnCompleteCheckBox.IsChecked == true,
             NotesTextBox.Text,
             WebsiteUrlTextBox.Text,
+            WaitingOnTextBox.Text,
             flags, subTasks, attachments);
     }
 
@@ -179,6 +181,7 @@ public partial class AddTaskWindow : Window
         RebuildWhoItems(_viewModel.People.FirstOrDefault(p => p.Id == cardToEdit.WhoId));
         NotesTextBox.Text = cardToEdit.Notes ?? string.Empty;
         WebsiteUrlTextBox.Text = cardToEdit.WebsiteUrl ?? string.Empty;
+        WaitingOnTextBox.Text = cardToEdit.WaitingOn ?? string.Empty;
         ForceEditOnCompleteCheckBox.IsChecked = cardToEdit.ForceEditOnComplete;
 
         RecurringCheckBox.IsChecked = cardToEdit.IsRecurring;
@@ -788,6 +791,8 @@ public partial class AddTaskWindow : Window
 
     private void ClearStartDate_Click(object sender, RoutedEventArgs e) => StartDatePicker.SelectedDate = null;
 
+    private void ClearWaitingOn_Click(object sender, RoutedEventArgs e) => WaitingOnTextBox.Text = string.Empty;
+
     private void ClearDueDate_Click(object sender, RoutedEventArgs e)
     {
         DueDatePicker.SelectedDate = null;
@@ -918,6 +923,7 @@ public partial class AddTaskWindow : Window
         SelectedWho = WhoComboBox.SelectedItem as PersonViewModel;
         Notes = string.IsNullOrWhiteSpace(NotesTextBox.Text) ? null : NotesTextBox.Text.Trim();
         WebsiteUrl = string.IsNullOrWhiteSpace(WebsiteUrlTextBox.Text) ? null : WebsiteUrlTextBox.Text.Trim();
+        WaitingOn = string.IsNullOrWhiteSpace(WaitingOnTextBox.Text) ? null : WaitingOnTextBox.Text.Trim();
 
         IsRecurring = RecurringCheckBox.IsChecked == true;
         RecurrencePattern = IsRecurring && RecurrenceComboBox.SelectedItem is ComboBoxItem recurrenceItem

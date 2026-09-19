@@ -84,7 +84,8 @@ public partial class MainViewModel
             }
 
             var cardVm = AddCard(row.Title.Trim(), column, project, priority, row.DueDate, who,
-                false, null, goal, isImported: true, startDate: StartNoLaterThanDue(row.StartDate, row.DueDate));
+                false, null, goal, isImported: true, startDate: StartNoLaterThanDue(row.StartDate, row.DueDate),
+                waitingOn: row.WaitingOn);
             created.Add(cardVm);
         }
 

@@ -116,7 +116,7 @@ public partial class TimelineWindow : Window
                 dialog.SelectedPriority, dialog.SelectedDueDate, dialog.SelectedWho, dialog.IsRecurring, dialog.RecurrencePattern,
                 dialog.SelectedGoal, dialog.SelectedFlags, dialog.SelectedSubTasks, dialog.Notes, attachments: dialog.SelectedAttachments,
                 forceEditOnComplete: dialog.ForceEditOnComplete, websiteUrl: dialog.WebsiteUrl, dueTime: dialog.SelectedDueTime,
-                startDate: dialog.SelectedStartDate);
+                startDate: dialog.SelectedStartDate, waitingOn: dialog.WaitingOn);
         }
 
         BuildGrid();

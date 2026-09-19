@@ -149,6 +149,13 @@ public partial class MainViewModel
             c.ProjectName = project.Name;
         });
 
+
+    public void SetCardsWaitingOn(IEnumerable<CardViewModel> cards, string? waitingOn)
+    {
+        var cleaned = string.IsNullOrWhiteSpace(waitingOn) ? null : waitingOn.Trim();
+        ChangeCards(cleaned is null ? "Clear waiting-on of" : "Set waiting-on of", cards, c => c.WaitingOn != cleaned, c => c.WaitingOn = cleaned);
+    }
+
     public void AddFlagToCards(IEnumerable<CardViewModel> cards, FlagViewModel flag)
     {
         var flagging = cards.Where(c => c.Flags.All(f => f.Id != flag.Id)).ToList();

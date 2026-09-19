@@ -106,11 +106,19 @@
                 <local:BulletItem Text="The letter buttons move a card directly to To Do, In Progress, On Hold, or Waiting; the check mark moves it to Done; the X deletes it."/>
                 <local:BulletItem Text="The tag icon, beside the task's details, adds an existing flag from a dropdown without opening the task."/>
                 <local:BulletItem Text="Click a card's Project name, Priority badge, Assigned name, or due date to change any of them directly from the board, without opening the task."/>
-                <local:BulletItem Text="Right-click a card for a menu of everything you can do with it: Edit, Copy as Text (the whole task, ready to paste into a chat, document, or email), Copy Title, Duplicate, Move To, Priority, Assign To, Project, Add Flag, Open Website, Email Task, and Delete."/>
+                <local:BulletItem Text="Right-click a card for a menu of everything you can do with it: Edit, Copy as Text (the whole task, ready to paste into a chat, document, or email), Copy Title, Duplicate, Move To, Priority, Assign To, Project, Waiting On, Add Flag, Open Website, Email Task, and Delete."/>
                 <local:BulletItem Text="Duplicate makes a copy in the same column with every detail carried over and its sub-tasks unticked. Attached files aren't copied, since each file belongs to one task."/>
                 <local:BulletItem Text="A task's title and due date are highlighted yellow once it's past due (and still outside Done)."/>
                 <local:BulletItem Text="The small stamp at the bottom of a card shows when it was last updated, or once it's in Done, when it was completed. Editing a finished task doesn't change its completion time; moving it back out of Done clears it."/>
                 <local:BulletItem Text="A card's Project name is shown prominently just below the title, and works on both full and compact cards."/>
+
+                <TextBlock Text="Waiting On" Style="{StaticResource HelpSectionHeaderStyle}"/>
+                <local:BulletItem Text="When a task is held up, say who or what by in the Waiting On box on the task screen, for example Sam's quote or the client's sign-off. Leave it empty when nothing is holding it up."/>
+                <local:BulletItem Text="The card then shows Waiting on and your words in a highlighted line. Click that line to change it; saving it empty clears it. Right-click a card (or a selection of cards) and choose Waiting On to set or clear it without opening the task."/>
+                <local:BulletItem Text="The Waiting On button beside No Due Date shows every task that is waiting, across all columns, and says how many there are. It clears the other filters first, like the Today button."/>
+                <local:BulletItem Text="Moving a task into the Waiting column asks what it is waiting on, once, unless it already says. Cancel leaves it blank."/>
+                <local:BulletItem Text="Finishing a task clears what it was waiting on. A recurring task's next occurrence starts out not waiting."/>
+                <local:BulletItem Text="The Keyword filter searches it, and it is included in Copy as Text, task emails, reports, and Excel import and export (a Waiting On column; Waiting For or Blocked By work too)."/>
 
                 <TextBlock Text="Undo" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <local:BulletItem Text="Press Ctrl+Z, or click Undo beside New Task, to take back the last thing you did to a task. Hover over the Undo button to see what it will take back. A short note at the foot of the board confirms what was undone."/>
@@ -159,7 +167,7 @@
                 <local:BulletItem Text="Right-click a task in either list for Permanently Delete — unlike the regular Delete on the board, this erases the task for good (including any attachments still stored with it) after a confirmation prompt. There's no undo."/>
 
                 <TextBlock Text="Importing tasks" Style="{StaticResource HelpSectionHeaderStyle}"/>
-                <local:BulletItem Text="Click Import Tasks to download an Excel template or choose a filled-in .xlsx file to import. Only the Title column is required; Category, Priority, Project, Goal, Due Date, Who, and Start Date are all optional."/>
+                <local:BulletItem Text="Click Import Tasks to download an Excel template or choose a filled-in .xlsx file to import. Only the Title column is required; Category, Priority, Project, Goal, Due Date, Who, Start Date, and Waiting On are all optional."/>
                 <local:BulletItem Text="Your own spreadsheet works too: the headings can be on any row and in any order, and the task column can be headed Title, Task, or Task Details. Status or Column works for Category, Due for Due Date, Assigned To or Assignee for Who, and Start or Not Before for Start Date."/>
                 <local:BulletItem Text="Category and Priority must be chosen from the template's dropdown. Project, Goal, and Who show a dropdown of existing values but also accept a new one you type in."/>
                 <local:BulletItem Text="Enter Due Date and Start Date as MM/DD/YYYY (year optional, defaults to the current year); it's displayed as DD-MMM-YYYY."/>

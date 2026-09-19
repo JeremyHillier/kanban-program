@@ -137,6 +137,26 @@ public class CardViewModel(CardItem model) : ObservableObject
         OnPropertyChanged(nameof(StartDateDisplay));
     }
 
+    // Who or what the task is blocked by, free text. Anything non-blank means the task is waiting:
+    // the card says so, and the Waiting On button shows just those tasks.
+    public string? WaitingOn
+    {
+        get => Model.WaitingOn;
+        set
+        {
+            var cleaned = string.IsNullOrWhiteSpace(value) ? null : value.Trim();
+            if (Model.WaitingOn == cleaned) return;
+            Model.WaitingOn = cleaned;
+            OnPropertyChanged();
+            OnPropertyChanged(nameof(IsWaiting));
+            OnPropertyChanged(nameof(WaitingOnDisplay));
+        }
+    }
+
+    public bool IsWaiting => !string.IsNullOrWhiteSpace(WaitingOn);
+
+    public string WaitingOnDisplay => IsWaiting ? $"Waiting on: {WaitingOn}" : string.Empty;
+
     // The exact moment a timed task comes due - null unless both a date and a time are set.
     public DateTime? DueDateTime =>
         DueDate is not null && TimeSpan.TryParse(DueTime, out var time) ? DueDate.Value.Date + time : null;
@@ -422,6 +442,7 @@ public class CardViewModel(CardItem model) : ObservableObject
         DueDate = other.DueDate;
         DueTime = other.DueTime;
         StartDate = other.StartDate;
+        WaitingOn = other.WaitingOn;
         WhoId = other.WhoId;
         WhoName = other.WhoName;
         WhoEmail = other.WhoEmail;

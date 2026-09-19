@@ -304,6 +304,7 @@ public partial class MainViewModel
                 "Tomorrow" => card.DueDate?.Date == today.AddDays(1) || StartsBetween(card, today.AddDays(1), today.AddDays(1)),
                 "Within a Week" => (card.DueDate is not null && card.DueDate.Value.Date <= today.AddDays(7)) || StartsBetween(card, today, today.AddDays(7)),
                 "No Due Date" => card.DueDate is null,
+                WaitingOnFilter => card.IsWaiting,
                 _ => true
             };
             if (!matchesDue) return false;
@@ -321,7 +322,8 @@ public partial class MainViewModel
             var matchesKeyword = card.Title.Contains(keyword, StringComparison.OrdinalIgnoreCase)
                 || card.ProjectName.Contains(keyword, StringComparison.OrdinalIgnoreCase)
                 || card.WhoName.Contains(keyword, StringComparison.OrdinalIgnoreCase)
-                || (card.Notes?.Contains(keyword, StringComparison.OrdinalIgnoreCase) ?? false);
+                || (card.Notes?.Contains(keyword, StringComparison.OrdinalIgnoreCase) ?? false)
+                || (card.WaitingOn?.Contains(keyword, StringComparison.OrdinalIgnoreCase) ?? false);
             if (!matchesKeyword) return false;
         }
 
@@ -349,6 +351,16 @@ public partial class MainViewModel
     }
 
     public void ShowTodayOnly() => ShowDueFilterOnly("Today");
+
+    // "Waiting On" sits in the same button row as Today / Tomorrow / ... and behaves the same way
+    // (one click, replaces the other filters, outlined while active), so it rides on DueFilter
+    // rather than being a filter of its own - that also gets it remembered between sessions and
+    // saved in custom filters for free. It is the one DueFilter value that isn't about a date.
+    public const string WaitingOnFilter = "Waiting On";
+
+    public int WaitingOnCount => Columns.SelectMany(c => c.Cards).Count(c => c.IsWaiting);
+
+    public string WaitingOnButtonLabel => WaitingOnCount > 0 ? $"Waiting On ({WaitingOnCount})" : "Waiting On";
 
     public void ClearFilters()
     {

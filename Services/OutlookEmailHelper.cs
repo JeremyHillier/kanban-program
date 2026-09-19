@@ -296,6 +296,7 @@ public static class OutlookEmailHelper
         sb.Append(card.Title).Append("\r\n\r\n");
         sb.Append("Project: ").Append(card.ProjectName).Append("\r\n");
         sb.Append("Priority: ").Append(card.Priority).Append("\r\n");
+        if (card.IsWaiting) sb.Append("Waiting on: ").Append(card.WaitingOn).Append("\r\n");
         if (card.StartDate.HasValue) sb.Append("Start: ").Append(FormatStart(card)).Append("\r\n");
         if (card.DueDate.HasValue) sb.Append("Due: ").Append(FormatDue(card)).Append("\r\n");
         if (HasGoal(card)) sb.Append("Goal: ").Append(card.GoalName).Append("\r\n");
@@ -377,6 +378,7 @@ public static class OutlookEmailHelper
         Goal = HasGoal(card) ? card.GoalName : null,
         DueDate = card.DueDate,
         StartDate = card.StartDate,
+        WaitingOn = card.WaitingOn,
         Who = card.WhoName == "Unassigned" ? null : card.WhoName
     };
 
@@ -423,6 +425,7 @@ public static class OutlookEmailHelper
         sb.Append("<table style=\"border-collapse: collapse;\">");
         AppendRow(sb, "Project", card.ProjectName);
         AppendRow(sb, "Priority", card.Priority);
+        if (card.IsWaiting) AppendRow(sb, "Waiting on", card.WaitingOn!);
         if (card.StartDate.HasValue) AppendRow(sb, "Start", FormatStart(card));
         if (card.DueDate.HasValue) AppendRow(sb, "Due", FormatDue(card));
         if (HasGoal(card)) AppendRow(sb, "Goal", card.GoalName);

@@ -343,7 +343,7 @@ public partial class MainWindow : Window
                 dialog.SelectedPriority, dialog.SelectedDueDate, dialog.SelectedWho, dialog.IsRecurring, dialog.RecurrencePattern,
                 dialog.SelectedGoal, dialog.SelectedFlags, dialog.SelectedSubTasks, dialog.Notes, attachments: dialog.SelectedAttachments,
                 forceEditOnComplete: dialog.ForceEditOnComplete, websiteUrl: dialog.WebsiteUrl, dueTime: dialog.SelectedDueTime,
-                startDate: dialog.SelectedStartDate);
+                startDate: dialog.SelectedStartDate, waitingOn: dialog.WaitingOn);
         }
     }
 
@@ -360,7 +360,7 @@ public partial class MainWindow : Window
                 dialog.SelectedPriority, dialog.SelectedDueDate, dialog.SelectedWho, dialog.IsRecurring, dialog.RecurrencePattern,
                 dialog.SelectedGoal, dialog.SelectedFlags, dialog.SelectedSubTasks, dialog.Notes, attachments: dialog.SelectedAttachments,
                 forceEditOnComplete: dialog.ForceEditOnComplete, websiteUrl: dialog.WebsiteUrl, dueTime: dialog.SelectedDueTime,
-                startDate: dialog.SelectedStartDate);
+                startDate: dialog.SelectedStartDate, waitingOn: dialog.WaitingOn);
         }
     }
 
@@ -437,6 +437,42 @@ public partial class MainWindow : Window
     }
 
     private DispatcherTimer? _statusMessageTimer;
+
+    private void WaitingOn_Click(object sender, RoutedEventArgs e)
+    {
+        if (DataContext is not MainViewModel viewModel) return;
+        viewModel.ShowDueFilterOnly(MainViewModel.WaitingOnFilter);
+    }
+
+    private void WaitingOnDisplay_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+    {
+        if (sender is not FrameworkElement { DataContext: CardViewModel card } || DataContext is not MainViewModel viewModel) return;
+        e.Handled = true;
+        Dispatcher.BeginInvoke(new Action(() => PromptWaitingOn([card], viewModel)), DispatcherPriority.Background);
+    }
+
+    // Asks who or what the task (or group of tasks) is waiting on. The box starts with the current
+    // answer when they all share one; saving it empty clears it.
+    private void PromptWaitingOn(IReadOnlyList<CardViewModel> cards, MainViewModel viewModel)
+    {
+        if (cards.Count == 0) return;
+
+        var shared = cards.Select(c => c.WaitingOn).Distinct().Count() == 1 ? cards[0].WaitingOn : null;
+        var question = cards.Count == 1 ? "Who or what is this task waiting on?" : $"Who or what are these {cards.Count} tasks waiting on?";
+        var dialog = new PromptWindow("Waiting On", question, shared, "Save") { Owner = this };
+        if (dialog.ShowDialog() != true) return;
+
+        viewModel.SetCardsWaitingOn(cards, dialog.Value);
+    }
+
+    // Moving a task into the Waiting column is the natural moment to say what it's waiting on, so
+    // ask - once, for however many were moved, and only for tasks that don't already say. Cancel
+    // just leaves it blank.
+    private void MaybePromptWaitingOn(IEnumerable<CardViewModel> moved, ColumnViewModel targetColumn, MainViewModel viewModel)
+    {
+        if (targetColumn.Name != "Waiting") return;
+        PromptWaitingOn(moved.Where(c => !c.IsWaiting).ToList(), viewModel);
+    }
 
     private void HideFuture_Click(object sender, RoutedEventArgs e)
     {
@@ -990,6 +1026,10 @@ public partial class MainWindow : Window
             AddMenuItem(project, MenuText(option.Name), () => viewModel.SetCardProject(card, option), isChecked: card.ProjectId == option.Id);
         }
 
+        var waiting = AddSubmenu(menu, "Waitin_g On");
+        AddMenuItem(waiting, card.IsWaiting ? "Change..." : "Set...", () => PromptWaitingOn([card], viewModel));
+        AddMenuItem(waiting, "Clear", () => viewModel.SetCardWaitingOn(card, null), isEnabled: card.IsWaiting);
+
         var availableFlags = viewModel.Flags
             .Where(f => f.IsActive && card.Flags.All(cf => cf.Id != f.Id))
             .OrderBy(f => f.Name)
@@ -1035,7 +1075,9 @@ public partial class MainWindow : Window
             {
                 // As with dragging a group: no "add a note?" per card, but a task set to force an
                 // edit on completion still opens.
-                foreach (var moved in viewModel.MoveCards(cards, column)) MaybePromptCompletionNote(moved, column, viewModel, askForNote: false);
+                var movedCards = viewModel.MoveCards(cards, column);
+                foreach (var moved in movedCards) MaybePromptCompletionNote(moved, column, viewModel, askForNote: false);
+                MaybePromptWaitingOn(movedCards, column, viewModel);
             }, isEnabled: !allHere, isChecked: allHere);
         }
 
@@ -1057,6 +1099,10 @@ public partial class MainWindow : Window
         {
             AddMenuItem(project, MenuText(option.Name), () => viewModel.SetCardsProject(cards, option), isChecked: cards.All(c => c.ProjectId == option.Id));
         }
+
+        var waiting = AddSubmenu(menu, "Waitin_g On");
+        AddMenuItem(waiting, "Set...", () => PromptWaitingOn(cards, viewModel));
+        AddMenuItem(waiting, "Clear", () => viewModel.SetCardsWaitingOn(cards, null), isEnabled: cards.Any(c => c.IsWaiting));
 
         // A flag is offered while at least one selected card lacks it.
         var availableFlags = viewModel.Flags
@@ -1324,6 +1370,7 @@ public partial class MainWindow : Window
         {
             viewModel.MoveCardCommand.Execute((card, targetColumn));
             MaybePromptCompletionNote(card, targetColumn, viewModel);
+            MaybePromptWaitingOn([card], targetColumn, viewModel);
         }), DispatcherPriority.Background);
     }
 
@@ -1347,6 +1394,7 @@ public partial class MainWindow : Window
                 // to force an edit on completion still opens, since that is the task's own setting.
                 var askForNote = dragged.Count == 1;
                 foreach (var card in moved) MaybePromptCompletionNote(card, column, viewModel, askForNote);
+                MaybePromptWaitingOn(moved, column, viewModel);
             }), DispatcherPriority.Background);
         }
     }

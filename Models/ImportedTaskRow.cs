@@ -9,5 +9,6 @@ public class ImportedTaskRow
     public string? Goal { get; init; }
     public DateTime? DueDate { get; init; }
     public DateTime? StartDate { get; init; }
+    public string? WaitingOn { get; init; }
     public string? Who { get; init; }
 }

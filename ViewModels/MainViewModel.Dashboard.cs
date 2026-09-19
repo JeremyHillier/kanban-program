@@ -63,6 +63,8 @@ public partial class MainViewModel
         NotifySelectionChanged(); // a deleted, archived or moved card may have been selected
         OnPropertyChanged(nameof(FutureTaskCount));
         OnPropertyChanged(nameof(HideFutureButtonLabel));
+        OnPropertyChanged(nameof(WaitingOnCount));
+        OnPropertyChanged(nameof(WaitingOnButtonLabel));
 
         foreach (var column in Columns)
         {
