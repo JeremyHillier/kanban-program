@@ -835,85 +835,204 @@ public partial class MainWindow : Window
         Dispatcher.BeginInvoke(new Action(() => viewModel.DeleteCard(card, spawnNext)), DispatcherPriority.Background);
     }
 
+    // Deleting a whole selection always asks, whatever the ConfirmDelete setting says: it is one
+    // question for many tasks, and there is no undo. If any of them would still create a next
+    // occurrence, the recurring-task choice is asked once for the group instead.
+    private void DeleteCardsWithConfirm(List<CardViewModel> cards, MainViewModel viewModel)
+    {
+        var recurring = cards.Count(c => c.IsRecurring && !string.IsNullOrWhiteSpace(c.RecurrencePattern) && !c.NextOccurrenceSpawned);
+        var spawnNext = false;
+
+        if (recurring > 0)
+        {
+            var dialog = new DeleteRecurringTaskWindow(cards.Count, recurring) { Owner = this };
+            if (dialog.ShowDialog() != true || dialog.SpawnNext is null) return;
+            spawnNext = dialog.SpawnNext.Value;
+        }
+        else
+        {
+            var result = MessageBox.Show(this, $"Delete {cards.Count} tasks?\n\nThis cannot be undone.",
+                "Confirm Delete", MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No);
+            if (result != MessageBoxResult.Yes) return;
+        }
+
+        Dispatcher.BeginInvoke(new Action(() => viewModel.DeleteCards(cards, spawnNext)), DispatcherPriority.Background);
+    }
+
+    // Every right-click menu action runs after the menu has closed - see ShowQuickEditMenu for why.
+    private System.Windows.Controls.MenuItem AddMenuItem(System.Windows.Controls.ItemsControl parent, string header, Action action,
+        bool isEnabled = true, bool isChecked = false, string? gesture = null)
+    {
+        var item = new System.Windows.Controls.MenuItem { Header = header, IsEnabled = isEnabled, IsChecked = isChecked, InputGestureText = gesture ?? string.Empty };
+        item.Click += (_, _) => Dispatcher.BeginInvoke(action, DispatcherPriority.Background);
+        parent.Items.Add(item);
+        return item;
+    }
+
+    private static System.Windows.Controls.MenuItem AddSubmenu(System.Windows.Controls.ContextMenu menu, string header)
+    {
+        var item = new System.Windows.Controls.MenuItem { Header = header };
+        menu.Items.Add(item);
+        return item;
+    }
+
+    // A person or list name is data, not a caption: without this a name containing an underscore
+    // would lose it to WPF's access-key handling.
+    private static string MenuText(string name) => name.Replace("_", "__");
+
     // The card's right-click menu. Built fresh on every open so it reflects the card as it is now
     // (its column, priority, assignee, remaining flags, whether it has a website or an email).
     // Every entry reuses the path its button or quick-edit already takes, so a right-click Delete
     // or Move behaves exactly like the X or quick-move button, prompts included.
+    //
+    // Right-clicking a card that is part of a multi-card selection opens the selection's menu
+    // instead. Right-clicking a card outside the selection drops the selection first (as dragging
+    // one does), so what's highlighted always matches what a menu action would touch.
     private void Card_PreviewMouseRightButtonUp(object sender, MouseButtonEventArgs e)
     {
         if (sender is not FrameworkElement { DataContext: CardViewModel card } element || DataContext is not MainViewModel viewModel) return;
         e.Handled = true;
 
-        var currentColumn = viewModel.Columns.FirstOrDefault(c => c.Cards.Contains(card));
         var menu = new System.Windows.Controls.ContextMenu
         {
             PlacementTarget = element,
             Placement = System.Windows.Controls.Primitives.PlacementMode.MousePoint
         };
 
-        // Every action runs after the menu has closed - see ShowQuickEditMenu for why.
-        System.Windows.Controls.MenuItem Item(System.Windows.Controls.ItemsControl parent, string header, Action action,
-            bool isEnabled = true, bool isChecked = false, string? gesture = null)
+        if (card.IsSelected && viewModel.SelectedCardCount > 1)
         {
-            var item = new System.Windows.Controls.MenuItem { Header = header, IsEnabled = isEnabled, IsChecked = isChecked, InputGestureText = gesture ?? string.Empty };
-            item.Click += (_, _) => Dispatcher.BeginInvoke(action, DispatcherPriority.Background);
-            parent.Items.Add(item);
-            return item;
+            BuildSelectionMenu(menu, viewModel.SelectedCards, viewModel);
+        }
+        else
+        {
+            if (!card.IsSelected && viewModel.SelectedCardCount > 0) viewModel.ClearCardSelection();
+            BuildCardMenu(menu, card, viewModel);
         }
 
-        System.Windows.Controls.MenuItem Submenu(string header)
-        {
-            var item = new System.Windows.Controls.MenuItem { Header = header };
-            menu.Items.Add(item);
-            return item;
-        }
+        menu.IsOpen = true;
+    }
 
+    private void BuildCardMenu(System.Windows.Controls.ContextMenu menu, CardViewModel card, MainViewModel viewModel)
+    {
+        var currentColumn = viewModel.Columns.FirstOrDefault(c => c.Cards.Contains(card));
         void Separator() => menu.Items.Add(new System.Windows.Controls.Separator());
 
-        Item(menu, "_Edit Task...", () => EditCard(card, viewModel), gesture: "Double-click");
-        Item(menu, "_Copy as Text", () => CopyToClipboard(CardTextFormatter.Format(card, currentColumn?.DisplayName ?? string.Empty)));
-        Item(menu, "Copy _Title", () => CopyToClipboard(card.Title));
-        Item(menu, "D_uplicate", () => viewModel.DuplicateCard(card));
+        AddMenuItem(menu, "_Edit Task...", () => EditCard(card, viewModel), gesture: "Double-click");
+        AddMenuItem(menu, "_Copy as Text", () => CopyToClipboard(CardTextFormatter.Format(card, currentColumn?.DisplayName ?? string.Empty)));
+        AddMenuItem(menu, "Copy _Title", () => CopyToClipboard(card.Title));
+        AddMenuItem(menu, "D_uplicate", () => viewModel.DuplicateCard(card));
         Separator();
 
-        var moveTo = Submenu("_Move To");
+        var moveTo = AddSubmenu(menu, "_Move To");
         foreach (var column in viewModel.Columns)
         {
             var isCurrent = column == currentColumn;
-            Item(moveTo, column.DisplayName, () => MoveCardDeferred(card, column, viewModel), isEnabled: !isCurrent, isChecked: isCurrent);
+            AddMenuItem(moveTo, MenuText(column.DisplayName), () => MoveCardDeferred(card, column, viewModel), isEnabled: !isCurrent, isChecked: isCurrent);
         }
 
-        var priority = Submenu("_Priority");
+        var priority = AddSubmenu(menu, "_Priority");
         foreach (var level in new[] { "High", "Medium", "Normal", "Low" })
         {
-            Item(priority, level, () => viewModel.SetCardPriority(card, level), isChecked: card.Priority == level);
+            AddMenuItem(priority, level, () => viewModel.SetCardPriority(card, level), isChecked: card.Priority == level);
         }
 
-        var assign = Submenu("_Assign To");
-        Item(assign, "Unassigned", () => viewModel.SetCardWho(card, null), isChecked: card.WhoId is null);
+        var assign = AddSubmenu(menu, "_Assign To");
+        AddMenuItem(assign, "Unassigned", () => viewModel.SetCardWho(card, null), isChecked: card.WhoId is null);
         foreach (var person in viewModel.People.Where(p => p.IsActive))
         {
-            Item(assign, person.Name, () => viewModel.SetCardWho(card, person), isChecked: card.WhoId == person.Id);
+            AddMenuItem(assign, MenuText(person.Name), () => viewModel.SetCardWho(card, person), isChecked: card.WhoId == person.Id);
+        }
+
+        var project = AddSubmenu(menu, "P_roject");
+        foreach (var option in viewModel.Projects.Where(p => p.IsActive))
+        {
+            AddMenuItem(project, MenuText(option.Name), () => viewModel.SetCardProject(card, option), isChecked: card.ProjectId == option.Id);
         }
 
         var availableFlags = viewModel.Flags
             .Where(f => f.IsActive && card.Flags.All(cf => cf.Id != f.Id))
             .OrderBy(f => f.Name)
             .ToList();
-        var addFlag = Submenu("Add _Flag");
+        var addFlag = AddSubmenu(menu, "Add _Flag");
         addFlag.IsEnabled = availableFlags.Count > 0;
         foreach (var flag in availableFlags)
         {
-            Item(addFlag, flag.Name, () => viewModel.AddFlagToCard(card, flag));
+            AddMenuItem(addFlag, MenuText(flag.Name), () => viewModel.AddFlagToCard(card, flag));
         }
 
         Separator();
-        Item(menu, "Open _Website", () => UrlLauncher.Open(card.WebsiteUrl, this), isEnabled: !string.IsNullOrWhiteSpace(card.WebsiteUrl));
-        Item(menu, "E_mail Task...", () => OutlookEmailHelper.ComposeCardEmail(this, card, card.WhoEmail!, viewModel), isEnabled: card.CanEmailCard);
+        AddMenuItem(menu, "Open _Website", () => UrlLauncher.Open(card.WebsiteUrl, this), isEnabled: !string.IsNullOrWhiteSpace(card.WebsiteUrl));
+        AddMenuItem(menu, "E_mail Task...", () => OutlookEmailHelper.ComposeCardEmail(this, card, card.WhoEmail!, viewModel), isEnabled: card.CanEmailCard);
         Separator();
-        Item(menu, "_Delete...", () => DeleteCardWithConfirm(card, viewModel));
+        AddMenuItem(menu, "_Delete...", () => DeleteCardWithConfirm(card, viewModel));
+    }
 
-        menu.IsOpen = true;
+    // The same menu for a whole selection. One-card-only entries (Edit, Open Website, Email) are
+    // left out. A tick means every selected card already has that value; choosing an entry changes
+    // only the cards that differ. The cards are captured when the menu opens, so the action applies
+    // to what was highlighted at that moment.
+    private void BuildSelectionMenu(System.Windows.Controls.ContextMenu menu, List<CardViewModel> cards, MainViewModel viewModel)
+    {
+        void Separator() => menu.Items.Add(new System.Windows.Controls.Separator());
+        ColumnViewModel? ColumnOf(CardViewModel card) => viewModel.Columns.FirstOrDefault(c => c.Cards.Contains(card));
+
+        menu.Items.Add(new System.Windows.Controls.MenuItem { Header = $"{cards.Count} tasks selected", IsEnabled = false, FontWeight = FontWeights.Bold });
+        Separator();
+
+        const string divider = "\r\n----------------------------------------\r\n\r\n";
+        AddMenuItem(menu, "_Copy All as Text", () => CopyToClipboard(string.Join(divider,
+            cards.Select(c => CardTextFormatter.Format(c, ColumnOf(c)?.DisplayName ?? string.Empty)))));
+        AddMenuItem(menu, "Copy _Titles", () => CopyToClipboard(string.Join("\r\n", cards.Select(c => c.Title))));
+        AddMenuItem(menu, "D_uplicate All", () => viewModel.DuplicateCards(cards));
+        Separator();
+
+        var moveTo = AddSubmenu(menu, "_Move All To");
+        foreach (var column in viewModel.Columns)
+        {
+            var allHere = cards.All(column.Cards.Contains);
+            AddMenuItem(moveTo, MenuText(column.DisplayName), () =>
+            {
+                // As with dragging a group: no "add a note?" per card, but a task set to force an
+                // edit on completion still opens.
+                foreach (var moved in viewModel.MoveCards(cards, column)) MaybePromptCompletionNote(moved, column, viewModel, askForNote: false);
+            }, isEnabled: !allHere, isChecked: allHere);
+        }
+
+        var priority = AddSubmenu(menu, "_Priority");
+        foreach (var level in new[] { "High", "Medium", "Normal", "Low" })
+        {
+            AddMenuItem(priority, level, () => viewModel.SetCardsPriority(cards, level), isChecked: cards.All(c => c.Priority == level));
+        }
+
+        var assign = AddSubmenu(menu, "_Assign To");
+        AddMenuItem(assign, "Unassigned", () => viewModel.SetCardsWho(cards, null), isChecked: cards.All(c => c.WhoId is null));
+        foreach (var person in viewModel.People.Where(p => p.IsActive))
+        {
+            AddMenuItem(assign, MenuText(person.Name), () => viewModel.SetCardsWho(cards, person), isChecked: cards.All(c => c.WhoId == person.Id));
+        }
+
+        var project = AddSubmenu(menu, "P_roject");
+        foreach (var option in viewModel.Projects.Where(p => p.IsActive))
+        {
+            AddMenuItem(project, MenuText(option.Name), () => viewModel.SetCardsProject(cards, option), isChecked: cards.All(c => c.ProjectId == option.Id));
+        }
+
+        // A flag is offered while at least one selected card lacks it.
+        var availableFlags = viewModel.Flags
+            .Where(f => f.IsActive && cards.Any(c => c.Flags.All(cf => cf.Id != f.Id)))
+            .OrderBy(f => f.Name)
+            .ToList();
+        var addFlag = AddSubmenu(menu, "Add _Flag");
+        addFlag.IsEnabled = availableFlags.Count > 0;
+        foreach (var flag in availableFlags)
+        {
+            AddMenuItem(addFlag, MenuText(flag.Name), () => viewModel.AddFlagToCards(cards, flag));
+        }
+
+        Separator();
+        AddMenuItem(menu, "Clear _Selection", viewModel.ClearCardSelection, gesture: "Esc");
+        Separator();
+        AddMenuItem(menu, $"_Delete {cards.Count} Tasks...", () => DeleteCardsWithConfirm(cards, viewModel));
     }
 
     private void CopyToClipboard(string text)

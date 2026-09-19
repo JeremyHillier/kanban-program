@@ -1,8 +1,8 @@
 namespace KanbanApp.ViewModels;
 
-// Selecting several cards (Ctrl+click, Shift+click) so they can be dragged together: to another
-// column, or as a block to a new place in their own column. Selection is screen state only and is
-// never saved.
+// Selecting several cards (Ctrl+click, Shift+click) so they can be handled together: dragged to
+// another column or as a block to a new place in their own column, or changed from the right-click
+// menu. Selection is screen state only and is never saved.
 public partial class MainViewModel
 {
     private CardViewModel? _selectionAnchor;
@@ -101,5 +101,61 @@ public partial class MainViewModel
             _sortKeys.Add(SortKey.Manual);
             NotifySortRanksChanged();
         }
+    }
+
+    // The right-click menu's actions for a whole selection. Each does what the single-card version
+    // does to every card, but re-sorts and refreshes the dashboard once at the end rather than once
+    // per card, so a long Shift+click range doesn't crawl. A card the change hides (because it no
+    // longer matches the filters) drops out of the selection, the same as anywhere else.
+    private void ChangeCards(IEnumerable<CardViewModel> cards, Func<CardViewModel, bool> needsChange, Action<CardViewModel> change)
+    {
+        var changing = cards.Where(needsChange).ToList();
+        if (changing.Count == 0) return;
+
+        foreach (var card in changing)
+        {
+            change(card);
+            PersistCard(card);
+        }
+
+        var criteria = BuildFilterCriteria();
+        foreach (var card in changing) SetCardVisible(card, Matches(card, criteria));
+        ApplySort();
+        RefreshDashboardStats();
+    }
+
+    public void SetCardsPriority(IEnumerable<CardViewModel> cards, string priority) =>
+        ChangeCards(cards, c => c.Priority != priority, c => c.Priority = priority);
+
+    public void SetCardsWho(IEnumerable<CardViewModel> cards, PersonViewModel? who) =>
+        ChangeCards(cards, c => c.WhoId != who?.Id, c =>
+        {
+            c.WhoId = who?.Id;
+            c.WhoName = who?.Name ?? "Unassigned";
+            c.WhoEmail = who?.Email;
+        });
+
+    public void SetCardsProject(IEnumerable<CardViewModel> cards, ProjectViewModel project) =>
+        ChangeCards(cards, c => c.ProjectId != project.Id, c =>
+        {
+            c.ProjectId = project.Id;
+            c.ProjectName = project.Name;
+        });
+
+    public void AddFlagToCards(IEnumerable<CardViewModel> cards, FlagViewModel flag)
+    {
+        foreach (var card in cards.ToList()) AddFlagToCard(card, flag);
+    }
+
+    // Copies go in board order, and the originals stay selected (the copies are not).
+    public List<CardViewModel> DuplicateCards(IEnumerable<CardViewModel> cards) =>
+        cards.ToList().Select(DuplicateCard).OfType<CardViewModel>().ToList();
+
+    // spawnNextOccurrence only affects the recurring cards in the group that haven't already
+    // created their next occurrence - see DeleteCard.
+    public void DeleteCards(IEnumerable<CardViewModel> cards, bool spawnNextOccurrence = false)
+    {
+        foreach (var card in cards.ToList()) DeleteCard(card, spawnNextOccurrence);
+        NotifySelectionChanged();
     }
 }

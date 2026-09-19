@@ -12,16 +12,16 @@
         <TextBlock x:Name="MessageText" TextWrapping="Wrap" Margin="0,0,0,16"
                    Foreground="{DynamicResource PrimaryTextBrush}"/>
 
-        <Button Content="Delete This Occurrence, Keep Series Going" Padding="10,10" Margin="0,0,0,8"
+        <Button x:Name="KeepSeriesButton" Content="Delete This Occurrence, Keep Series Going" Padding="10,10" Margin="0,0,0,8"
                 HorizontalContentAlignment="Left" Click="KeepSeries_Click"
                 Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
-        <TextBlock Text="Removes just this one occurrence and creates the next one right away." FontSize="11" Margin="0,0,0,12"
+        <TextBlock x:Name="KeepSeriesNote" Text="Removes just this one occurrence and creates the next one right away." FontSize="11" Margin="0,0,0,12"
                    Foreground="{DynamicResource SecondaryTextBrush}" TextWrapping="Wrap"/>
 
-        <Button Content="Delete This Occurrence, End Series" Padding="10,10" Margin="0,0,0,8"
+        <Button x:Name="EndSeriesButton" Content="Delete This Occurrence, End Series" Padding="10,10" Margin="0,0,0,8"
                 HorizontalContentAlignment="Left" Click="EndSeries_Click"
                 Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
-        <TextBlock Text="Removes this occurrence and stops the series - no further occurrences will be created." FontSize="11" Margin="0,0,0,16"
+        <TextBlock x:Name="EndSeriesNote" Text="Removes this occurrence and stops the series - no further occurrences will be created." FontSize="11" Margin="0,0,0,16"
                    Foreground="{DynamicResource SecondaryTextBrush}" TextWrapping="Wrap"/>
 
         <Button Content="Cancel" Width="100" Padding="0,6" HorizontalAlignment="Right" IsCancel="True"

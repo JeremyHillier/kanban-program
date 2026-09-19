@@ -6,6 +6,14 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.95.0 — 2026-09-19
+- Right-click works on a whole selection: pick several tasks (Ctrl+click or Shift+click), right-click any of them, and the menu acts on all of them at once: Move All To, Priority, Assign To, Project, Add Flag, Duplicate All, and Delete
+- Copy All as Text copies every selected task in full, and Copy Titles copies just the titles, one per line
+- Deleting several tasks at once always asks first. If any of them repeat, it asks once whether to keep their series going
+- A tick in the menu means every selected task already has that value
+- Right-clicking a task outside the selection clears the selection and opens the usual one-task menu
+- The one-task right-click menu also has Project now
+
 ## 0.94.0 — 2026-09-19
 - Softer colours on the left-hand panel: the buttons and filter labels are toned down to be easier on the eyes, and the navy background (also behind the top banner) is a little lighter
 
