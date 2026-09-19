@@ -56,6 +56,9 @@ public partial class MainViewModel
     public List<CardViewModel> MoveCards(IEnumerable<CardViewModel> cards, ColumnViewModel targetColumn)
     {
         var moving = cards.Where(c => !targetColumn.Cards.Contains(c)).ToList();
+        if (moving.Count == 0) return moving;
+
+        using var undo = RecordUndo(DescribeAction("Move", moving, $"to {targetColumn.DisplayName}"), moving);
         foreach (var card in moving) MoveCard(card, targetColumn);
         return moving;
     }
@@ -74,6 +77,8 @@ public partial class MainViewModel
         var draggedSet = cards.ToHashSet();
         var dragged = list.Where(draggedSet.Contains).ToList();
         if (dragged.Count == 0) return;
+
+        using var undo = RecordUndo(DescribeAction("Reorder", dragged), [], column);
 
         var insertAt = list.Take(Math.Clamp(newIndex, 0, list.Count)).Count(c => !draggedSet.Contains(c));
         var rest = list.Where(c => !draggedSet.Contains(c)).ToList();
@@ -107,10 +112,12 @@ public partial class MainViewModel
     // does to every card, but re-sorts and refreshes the dashboard once at the end rather than once
     // per card, so a long Shift+click range doesn't crawl. A card the change hides (because it no
     // longer matches the filters) drops out of the selection, the same as anywhere else.
-    private void ChangeCards(IEnumerable<CardViewModel> cards, Func<CardViewModel, bool> needsChange, Action<CardViewModel> change)
+    private void ChangeCards(string verb, IEnumerable<CardViewModel> cards, Func<CardViewModel, bool> needsChange, Action<CardViewModel> change)
     {
         var changing = cards.Where(needsChange).ToList();
         if (changing.Count == 0) return;
+
+        using var undo = RecordUndo(DescribeAction(verb, changing), changing);
 
         foreach (var card in changing)
         {
@@ -125,10 +132,10 @@ public partial class MainViewModel
     }
 
     public void SetCardsPriority(IEnumerable<CardViewModel> cards, string priority) =>
-        ChangeCards(cards, c => c.Priority != priority, c => c.Priority = priority);
+        ChangeCards("Change priority of", cards, c => c.Priority != priority, c => c.Priority = priority);
 
     public void SetCardsWho(IEnumerable<CardViewModel> cards, PersonViewModel? who) =>
-        ChangeCards(cards, c => c.WhoId != who?.Id, c =>
+        ChangeCards("Reassign", cards, c => c.WhoId != who?.Id, c =>
         {
             c.WhoId = who?.Id;
             c.WhoName = who?.Name ?? "Unassigned";
@@ -136,7 +143,7 @@ public partial class MainViewModel
         });
 
     public void SetCardsProject(IEnumerable<CardViewModel> cards, ProjectViewModel project) =>
-        ChangeCards(cards, c => c.ProjectId != project.Id, c =>
+        ChangeCards("Change project of", cards, c => c.ProjectId != project.Id, c =>
         {
             c.ProjectId = project.Id;
             c.ProjectName = project.Name;
@@ -144,18 +151,31 @@ public partial class MainViewModel
 
     public void AddFlagToCards(IEnumerable<CardViewModel> cards, FlagViewModel flag)
     {
-        foreach (var card in cards.ToList()) AddFlagToCard(card, flag);
+        var flagging = cards.Where(c => c.Flags.All(f => f.Id != flag.Id)).ToList();
+        if (flagging.Count == 0) return;
+
+        using var undo = RecordUndo(DescribeAction("Flag", flagging), flagging);
+        foreach (var card in flagging) AddFlagToCard(card, flag);
     }
 
     // Copies go in board order, and the originals stay selected (the copies are not).
-    public List<CardViewModel> DuplicateCards(IEnumerable<CardViewModel> cards) =>
-        cards.ToList().Select(DuplicateCard).OfType<CardViewModel>().ToList();
+    public List<CardViewModel> DuplicateCards(IEnumerable<CardViewModel> cards)
+    {
+        var originals = cards.ToList();
+        using var undo = RecordUndo(DescribeAction("Duplicate", originals), []);
+        return originals.Select(DuplicateCard).OfType<CardViewModel>().ToList();
+    }
 
     // spawnNextOccurrence only affects the recurring cards in the group that haven't already
     // created their next occurrence - see DeleteCard.
     public void DeleteCards(IEnumerable<CardViewModel> cards, bool spawnNextOccurrence = false)
     {
-        foreach (var card in cards.ToList()) DeleteCard(card, spawnNextOccurrence);
+        var deleting = cards.ToList();
+        using (RecordUndo(DescribeAction("Delete", deleting), deleting))
+        {
+            foreach (var card in deleting) DeleteCard(card, spawnNextOccurrence);
+        }
+
         NotifySelectionChanged();
     }
 }

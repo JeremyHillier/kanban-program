@@ -123,23 +123,8 @@ public partial class MainViewModel
             // cards to matter, and there the board gets a freshly built list once at the end
             // instead of re-processing each of thousands of moves - nothing is being dragged or
             // has a popup open at that point.
-            var outOfPlace = 0;
-            for (var i = 0; i < sorted.Count; i++)
-            {
-                if (!ReferenceEquals(sorted[i], column.Cards[i])) outOfPlace++;
-            }
-            using var bulk = outOfPlace > ColumnViewModel.BulkChangeThreshold ? column.BeginBulkChange() : null;
-
-            for (var i = 0; i < sorted.Count; i++)
-            {
-                var currentIndex = column.Cards.IndexOf(sorted[i]);
-                if (currentIndex != i)
-                {
-                    column.Cards.Move(currentIndex, i);
-                    anyMoved = true;
-                }
-                updates.Add((sorted[i].Id, i));
-            }
+            if (ArrangeColumn(column, sorted)) anyMoved = true;
+            for (var i = 0; i < sorted.Count; i++) updates.Add((sorted[i].Id, i));
         }
 
         // Every routine card mutation (add, edit, quick-edit, move) calls ApplySort afterwards, and
@@ -152,5 +137,26 @@ public partial class MainViewModel
         {
             _db.UpdateSortOrders(updates);
         }
+    }
+
+    // Puts a column's cards into the given order (the same cards, rearranged). Returns whether
+    // anything had to move.
+    private static bool ArrangeColumn(ColumnViewModel column, List<CardViewModel> sorted)
+    {
+        var outOfPlace = 0;
+        for (var i = 0; i < sorted.Count; i++)
+        {
+            if (!ReferenceEquals(sorted[i], column.Cards[i])) outOfPlace++;
+        }
+        if (outOfPlace == 0) return false;
+
+        using var bulk = outOfPlace > ColumnViewModel.BulkChangeThreshold ? column.BeginBulkChange() : null;
+        for (var i = 0; i < sorted.Count; i++)
+        {
+            var currentIndex = column.Cards.IndexOf(sorted[i]);
+            if (currentIndex != i) column.Cards.Move(currentIndex, i);
+        }
+
+        return true;
     }
 }

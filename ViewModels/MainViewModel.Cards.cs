@@ -16,6 +16,7 @@ public partial class MainViewModel
         subTasks ??= [];
         attachments ??= [];
         if (dueDate is null) dueTime = null;
+        using var undo = RecordUndo(DescribeAction("Add", title.Trim()), []);
         var card = _db.AddCard(column.Id, title.Trim(), project?.Id, column.Name, priority, dueDate, who?.Id, isRecurring, recurrencePattern, goal?.Id, notes, isImported, forceEditOnComplete, websiteUrl, dueTime);
         _db.SetCardFlags(card.Id, flags.Select(f => f.Id));
         var subTaskItems = _db.SetCardSubTasks(card.Id, subTasks.Select(s => (s.Title, s.IsDone)).ToList());
@@ -32,6 +33,7 @@ public partial class MainViewModel
             LastUpdated = card.LastUpdated
         };
         column.Cards.Add(cardVm);
+        _recording?.CreatedIds.Add(cardVm.Id);
 
         RefreshAfterCardChange(cardVm);
 
@@ -46,6 +48,8 @@ public partial class MainViewModel
         string? websiteUrl, string? dueTime)
     {
         if (string.IsNullOrWhiteSpace(title)) return;
+
+        using var undo = RecordUndo(DescribeAction("Edit", [card]), [card]);
 
         flags ??= [];
         subTasks ??= [];
@@ -101,6 +105,7 @@ public partial class MainViewModel
 
     public void SetSubTaskDone(CardViewModel card, SubTaskViewModel subTask, bool isDone)
     {
+        using var undo = RecordUndo(DescribeAction(isDone ? "Tick a sub-task of" : "Untick a sub-task of", [card]), [card]);
         subTask.IsDone = isDone;
         _db.SetSubTaskDone(subTask.Id, isDone);
         card.RefreshSubTaskProgress();
@@ -110,6 +115,7 @@ public partial class MainViewModel
     {
         if (card.Flags.Any(f => f.Id == flag.Id)) return;
 
+        using var undo = RecordUndo(DescribeAction("Flag", [card]), [card]);
         card.Flags = card.Flags.Append(flag).ToList();
         _db.SetCardFlags(card.Id, card.Flags.Select(f => f.Id));
     }
@@ -139,6 +145,7 @@ public partial class MainViewModel
     {
         if (card.Priority == priority) return;
 
+        using var undo = RecordUndo(DescribeAction("Change priority of", [card]), [card]);
         card.Priority = priority;
         PersistCard(card);
         RefreshAfterCardChange(card);
@@ -148,6 +155,7 @@ public partial class MainViewModel
     {
         if (card.DueDate == dueDate) return;
 
+        using var undo = RecordUndo(DescribeAction("Change due date of", [card]), [card]);
         card.DueDate = dueDate;
         if (dueDate is null) card.DueTime = null;
         PersistCard(card);
@@ -158,6 +166,7 @@ public partial class MainViewModel
     {
         if (card.WhoId == who?.Id) return;
 
+        using var undo = RecordUndo(DescribeAction("Reassign", [card]), [card]);
         card.WhoId = who?.Id;
         card.WhoName = who?.Name ?? "Unassigned";
         card.WhoEmail = who?.Email;
@@ -169,6 +178,7 @@ public partial class MainViewModel
     {
         if (card.ProjectId == project.Id) return;
 
+        using var undo = RecordUndo(DescribeAction("Change project of", [card]), [card]);
         card.ProjectId = project.Id;
         card.ProjectName = project.Name;
         PersistCard(card);
@@ -183,6 +193,8 @@ public partial class MainViewModel
     {
         if (card is null) return;
 
+        using var undo = RecordUndo(DescribeAction("Delete", [card]), [card]);
+
         if (spawnNextOccurrence && card.IsRecurring && !string.IsNullOrWhiteSpace(card.RecurrencePattern) && !card.NextOccurrenceSpawned)
         {
             SpawnNextOccurrence(card);
@@ -191,6 +203,7 @@ public partial class MainViewModel
         var column = Columns.FirstOrDefault(c => c.Cards.Contains(card));
         ReconcileAttachmentLocations(card, "Deleted");
         column?.Cards.Remove(card);
+        _recording?.Removed.TryAdd(card.Id, card);
         _db.DeleteCard(card.Id, card.Title, column?.Name ?? "Unknown");
         RefreshDashboardStats();
     }
@@ -203,6 +216,8 @@ public partial class MainViewModel
     {
         var column = Columns.FirstOrDefault(c => c.Cards.Contains(card));
         if (column is null) return null;
+
+        using var undo = RecordUndo(DescribeAction("Duplicate", [card]), []);
 
         var freshSubTasks = card.SubTasks
             .Select(s => new SubTaskViewModel(new SubTaskItem { Title = s.Title, IsDone = false }))
@@ -219,6 +234,8 @@ public partial class MainViewModel
     {
         var sourceColumn = Columns.FirstOrDefault(c => c.Cards.Contains(card));
         if (sourceColumn is null || sourceColumn == targetColumn) return;
+
+        using var undo = RecordUndo(DescribeAction("Move", [card], $"to {targetColumn.DisplayName}"), [card]);
 
         sourceColumn.Cards.Remove(card);
         card.ColumnId = targetColumn.Id;

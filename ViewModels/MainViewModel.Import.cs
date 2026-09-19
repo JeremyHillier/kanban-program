@@ -22,8 +22,13 @@ public partial class MainViewModel
     {
         var toDoColumn = Columns.FirstOrDefault(c => c.Name == "To Do") ?? Columns.First();
         var created = new List<CardViewModel>();
+        var importing = rows.Where(r => !string.IsNullOrWhiteSpace(r.Title)).ToList();
 
-        foreach (var row in rows)
+        // One Undo step for the whole import. It takes the tasks away again; any project, goal,
+        // person or flag the import added to the lists stays.
+        using var undo = RecordUndo($"Import {importing.Count} task{(importing.Count == 1 ? "" : "s")}", []);
+
+        foreach (var row in importing)
         {
             if (string.IsNullOrWhiteSpace(row.Title)) continue;
 

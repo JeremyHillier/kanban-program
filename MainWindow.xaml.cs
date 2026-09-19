@@ -432,6 +432,32 @@ public partial class MainWindow : Window
         Close();
     }
 
+    private DispatcherTimer? _statusMessageTimer;
+
+    private void Undo_Click(object sender, RoutedEventArgs e) => UndoLastAction();
+
+    // Deferred like every other board change made from a click, and says what it took back, since
+    // the card that changed may be scrolled out of view or in another column.
+    private void UndoLastAction()
+    {
+        if (DataContext is not MainViewModel viewModel || !viewModel.CanUndo) return;
+
+        Dispatcher.BeginInvoke(new Action(() =>
+        {
+            if (viewModel.Undo() is not { } undone) return;
+
+            viewModel.StatusMessage = $"Undid: {undone}";
+            _statusMessageTimer?.Stop();
+            _statusMessageTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(4) };
+            _statusMessageTimer.Tick += (timer, _) =>
+            {
+                ((DispatcherTimer)timer!).Stop();
+                viewModel.StatusMessage = string.Empty;
+            };
+            _statusMessageTimer.Start();
+        }), DispatcherPriority.Background);
+    }
+
     private void MainWindow_PreviewKeyDown(object sender, KeyEventArgs e)
     {
         // Handled at the Window level (tunneling PreviewKeyDown, fires before any focused control's
@@ -459,6 +485,12 @@ public partial class MainWindow : Window
                         break;
                     case Key.P:
                         ReportBuilder_Click(sender, e);
+                        e.Handled = true;
+                        break;
+                    case Key.Z:
+                        // A text box keeps its own Ctrl+Z for typing.
+                        if (Keyboard.FocusedElement is System.Windows.Controls.Primitives.TextBoxBase) break;
+                        UndoLastAction();
                         e.Handled = true;
                         break;
                     case Key.N:
@@ -825,7 +857,7 @@ public partial class MainWindow : Window
         }
         else if (viewModel.ConfirmDelete)
         {
-            var result = MessageBox.Show(this, $"Delete \"{card.Title}\"?\n\nThis cannot be undone.",
+            var result = MessageBox.Show(this, $"Delete \"{card.Title}\"?\n\nYou can take this back with Undo (Ctrl+Z).",
                 "Confirm Delete", MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.Yes);
             if (result != MessageBoxResult.Yes) return;
         }
@@ -836,8 +868,8 @@ public partial class MainWindow : Window
     }
 
     // Deleting a whole selection always asks, whatever the ConfirmDelete setting says: it is one
-    // question for many tasks, and there is no undo. If any of them would still create a next
-    // occurrence, the recurring-task choice is asked once for the group instead.
+    // question for many tasks. If any of them would still create a next occurrence, the
+    // recurring-task choice is asked once for the group instead.
     private void DeleteCardsWithConfirm(List<CardViewModel> cards, MainViewModel viewModel)
     {
         var recurring = cards.Count(c => c.IsRecurring && !string.IsNullOrWhiteSpace(c.RecurrencePattern) && !c.NextOccurrenceSpawned);
@@ -851,7 +883,7 @@ public partial class MainWindow : Window
         }
         else
         {
-            var result = MessageBox.Show(this, $"Delete {cards.Count} tasks?\n\nThis cannot be undone.",
+            var result = MessageBox.Show(this, $"Delete {cards.Count} tasks?\n\nYou can take this back with Undo (Ctrl+Z).",
                 "Confirm Delete", MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No);
             if (result != MessageBoxResult.Yes) return;
         }

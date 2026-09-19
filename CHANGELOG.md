@@ -6,6 +6,15 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.96.0 — 2026-09-19
+- New: Undo. Press Ctrl+Z, or click the new Undo button beside New Task, to take back the last thing you did to a task
+- It covers adding, editing, moving, dragging into a new order, duplicating, deleting, Archive Done, importing, and the quick changes on a card. A change to several selected tasks is undone in one go
+- Hover over the Undo button to see what it will take back. A short note at the foot of the board confirms what was undone
+- Undoing the completion of a recurring task also removes the next occurrence it created, and attachment files move back with the task
+- The last 30 actions are remembered until you close the app. There is no redo
+- Not covered: the Project, Goal, Flag and Who lists, Settings, adding or removing attachments, and the View Archived and View Deleted screens
+- The delete prompts now say you can take a delete back with Undo
+
 ## 0.95.0 — 2026-09-19
 - Right-click works on a whole selection: pick several tasks (Ctrl+click or Shift+click), right-click any of them, and the menu acts on all of them at once: Move All To, Priority, Assign To, Project, Add Flag, Duplicate All, and Delete
 - Copy All as Text copies every selected task in full, and Copy Titles copies just the titles, one per line

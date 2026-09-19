@@ -379,4 +379,36 @@ public class CardViewModel(CardItem model) : ObservableObject
 
     public string AttachmentsCountDisplay =>
         Attachments.Count == 0 ? string.Empty : $"📎 {Attachments.Count} attachment{(Attachments.Count == 1 ? "" : "s")}";
+
+    // Used by Undo: copies every stored value from a freshly loaded copy of this same task onto
+    // the card already on the board, so anything still holding this card (an open reminder, a drag,
+    // the selection) keeps pointing at the live one. Screen state (IsVisible, IsSelected) is left
+    // alone. A new stored field needs adding here as well as to the loader.
+    public void TakeValuesFrom(CardViewModel other)
+    {
+        Title = other.Title;
+        ColumnId = other.ColumnId;
+        ProjectId = other.ProjectId;
+        ProjectName = other.ProjectName;
+        GoalId = other.GoalId;
+        GoalName = other.GoalName;
+        Priority = other.Priority;
+        DueDate = other.DueDate;
+        DueTime = other.DueTime;
+        WhoId = other.WhoId;
+        WhoName = other.WhoName;
+        WhoEmail = other.WhoEmail;
+        Notes = other.Notes;
+        WebsiteUrl = other.WebsiteUrl;
+        IsImported = other.IsImported;
+        ForceEditOnComplete = other.ForceEditOnComplete;
+        IsRecurring = other.IsRecurring;
+        RecurrencePattern = other.RecurrencePattern;
+        NextOccurrenceSpawned = other.NextOccurrenceSpawned;
+        LastUpdated = other.LastUpdated;
+        CompletedAt = other.CompletedAt;
+        Flags = other.Flags;
+        SubTasks = other.SubTasks;
+        Attachments = other.Attachments;
+    }
 }

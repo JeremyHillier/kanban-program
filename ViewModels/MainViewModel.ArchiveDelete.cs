@@ -11,13 +11,17 @@ public partial class MainViewModel
     public void ArchiveDoneTasks()
     {
         var doneColumn = Columns.FirstOrDefault(c => c.Name == "Done");
-        if (doneColumn is null) return;
+        if (doneColumn is null || doneColumn.Cards.Count == 0) return;
+
+        var archiving = doneColumn.Cards.ToList();
+        using var undo = RecordUndo(DescribeAction("Archive", archiving), archiving);
 
         foreach (var card in doneColumn.Cards.ToList())
         {
             ReconcileAttachmentLocations(card, "Archived");
             _db.ArchiveCard(card.Id, card.Title, doneColumn.Name);
             doneColumn.Cards.Remove(card);
+            _recording?.Removed.TryAdd(card.Id, card);
         }
 
         RefreshDashboardStats();

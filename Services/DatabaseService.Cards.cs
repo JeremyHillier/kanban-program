@@ -6,16 +6,19 @@ namespace KanbanApp.Services;
 // reorder, move between columns, archive/reactivate, soft-delete/reactivate, and permanent delete.
 public partial class DatabaseService
 {
-    public List<CardItem> GetCards(bool archivedOnly = false)
+    // onlyIds narrows the result to those tasks (still only ones on the board) - used by Undo to
+    // rebuild just the cards it restored.
+    public List<CardItem> GetCards(bool archivedOnly = false, IReadOnlyCollection<int>? onlyIds = null)
     {
         using var connection = OpenConnection();
         using var cmd = connection.CreateCommand();
         var archivedAtColumn = archivedOnly
             ? ", (SELECT MAX(h.Timestamp) FROM CardHistory h WHERE h.CardId = Cards.Id AND h.EventType = 'Archived')"
             : "";
+        var idFilter = onlyIds is null ? "" : $" AND Id IN ({string.Join(",", onlyIds.DefaultIfEmpty(-1))})";
         cmd.CommandText = $"""
             SELECT Id, ColumnId, Title, SortOrder, ProjectId, Priority, DueDate, WhoId, LastUpdated, IsRecurring, RecurrencePattern, GoalId, Notes, IsImported, ForceEditOnComplete, NextOccurrenceSpawned, WebsiteUrl, DueTime, CompletedAt{archivedAtColumn}
-            FROM Cards WHERE IsArchived = {(archivedOnly ? 1 : 0)} AND IsDeleted = 0 ORDER BY SortOrder;
+            FROM Cards WHERE IsArchived = {(archivedOnly ? 1 : 0)} AND IsDeleted = 0{idFilter} ORDER BY SortOrder;
             """;
 
         var result = new List<CardItem>();

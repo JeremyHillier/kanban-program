@@ -211,6 +211,15 @@
             <Setter Property="Padding" Value="2"/>
         </Style>
 
+        <!-- Greyed while there is nothing to undo. -->
+        <Style x:Key="UndoButtonStyle" BasedOn="{StaticResource SmallSquareButtonStyle}" TargetType="Button">
+            <Style.Triggers>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Opacity" Value="0.4"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
         <Style x:Key="SortButtonProject" BasedOn="{StaticResource SmallSquareButtonStyle}" TargetType="Button">
             <Setter Property="BorderThickness" Value="1"/>
             <Style.Triggers>
@@ -431,6 +440,10 @@
                                 <Button Style="{StaticResource SmallSquareButtonStyle}" Background="#FF537187" Foreground="White" Click="ToggleCardSize_Click"
                                         ToolTip="Toggle task cards between large (full detail) and small (compact) display">
                                     <TextBlock Text="{Binding CardSizeButtonLabel}" TextWrapping="Wrap" TextAlignment="Center"/>
+                                </Button>
+                                <Button Style="{StaticResource UndoButtonStyle}" Background="#FF647E93" Foreground="White" Click="Undo_Click"
+                                        IsEnabled="{Binding CanUndo}" ToolTip="{Binding UndoToolTip}" ToolTipService.ShowOnDisabled="True">
+                                    <TextBlock Text="Undo" TextWrapping="Wrap" TextAlignment="Center"/>
                                 </Button>
                             </StackPanel>
                         </StackPanel>
@@ -1022,5 +1035,21 @@
                 </ItemsControl>
             </ScrollViewer>
         </DockPanel>
+
+        <!-- Brief confirmation after Ctrl+Z / the Undo button, e.g. Undid: Move 3 tasks to Done.
+             MainWindow clears it after a few seconds. Never takes clicks. -->
+        <Border Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,0,0,24" Padding="16,8"
+                CornerRadius="6" Background="#EE263238" BorderBrush="#FF5779A3" BorderThickness="1" IsHitTestVisible="False">
+            <Border.Style>
+                <Style TargetType="Border">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding StatusMessage}" Value="">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Border.Style>
+            <TextBlock Text="{Binding StatusMessage}" Foreground="White" FontSize="13"/>
+        </Border>
     </Grid>
 </Window>

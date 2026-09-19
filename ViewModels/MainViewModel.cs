@@ -163,18 +163,7 @@ public partial class MainViewModel : ObservableObject
             var columnVm = new ColumnViewModel(column, background);
             foreach (var card in cards.Where(c => c.ColumnId == column.Id))
             {
-                var cardVm = new CardViewModel(card)
-                {
-                    ProjectName = ResolveProjectName(card.ProjectId),
-                    GoalName = ResolveGoalName(card.GoalId),
-                    WhoName = ResolveWhoName(card.WhoId),
-                    WhoEmail = ResolveWhoEmail(card.WhoId),
-                    Flags = ResolveFlags(card.FlagIds),
-                    SubTasks = card.SubTasks.Select(s => new SubTaskViewModel(s)).ToList(),
-                    Attachments = card.Attachments.Select(a => new AttachmentViewModel(a)).ToList(),
-                    LastUpdated = card.LastUpdated
-                };
-                columnVm.Cards.Add(cardVm);
+                columnVm.Cards.Add(BuildCardViewModel(card));
             }
             Columns.Add(columnVm);
         }

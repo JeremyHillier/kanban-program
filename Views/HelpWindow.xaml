@@ -44,6 +44,7 @@
 
                 <TextBlock Text="Keyboard shortcuts" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <local:BulletItem Text="Ctrl+N — create a new task."/>
+                <local:BulletItem Text="Ctrl+Z — undo the last change to a task (see Undo below). While typing in a box, Ctrl+Z undoes your typing instead."/>
                 <local:BulletItem Text="Ctrl+P — open Report Builder."/>
                 <local:BulletItem Text="Ctrl+Q — quit the app."/>
                 <local:BulletItem Text="Alt+A — archive done tasks."/>
@@ -109,6 +110,13 @@
                 <local:BulletItem Text="A task's title and due date are highlighted yellow once it's past due (and still outside Done)."/>
                 <local:BulletItem Text="The small stamp at the bottom of a card shows when it was last updated, or once it's in Done, when it was completed. Editing a finished task doesn't change its completion time; moving it back out of Done clears it."/>
                 <local:BulletItem Text="A card's Project name is shown prominently just below the title, and works on both full and compact cards."/>
+
+                <TextBlock Text="Undo" Style="{StaticResource HelpSectionHeaderStyle}"/>
+                <local:BulletItem Text="Press Ctrl+Z, or click Undo beside New Task, to take back the last thing you did to a task. Hover over the Undo button to see what it will take back. A short note at the foot of the board confirms what was undone."/>
+                <local:BulletItem Text="It covers adding, editing, moving, dragging into a new order, duplicating, deleting, Archive Done, importing, and the quick changes on a card (priority, due date, who, project, flags, sub-task ticks). An action on several selected tasks is undone in one go."/>
+                <local:BulletItem Text="Undoing the completion of a recurring task also removes the next occurrence it created. Attachment files move back with the task."/>
+                <local:BulletItem Text="Keep pressing to go back further: the last 30 actions are remembered until you close the app. There is no redo."/>
+                <local:BulletItem Text="Not covered: changes to the Project, Goal, Flag and Who lists, Settings, adding or removing attachments, and anything done on the View Archived or View Deleted screens."/>
 
                 <TextBlock Text="Organizing: Projects, Goals, Flags, Who" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <local:BulletItem Text="Manage Projects / Manage Goals / Manage Flags / Manage Who let you add, rename, or permanently delete these from the whole board. Clicking the coloured Project, Who, Goal, or Flag label beside its filter opens the same screen."/>
