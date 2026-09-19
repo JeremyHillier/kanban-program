@@ -276,16 +276,16 @@ public partial class TimelineWindow : Window
 
                 var parts = new List<string> { task.Title };
                 if (!string.IsNullOrWhiteSpace(task.WhoName) && task.WhoName != "Unassigned") parts.Add(task.WhoName);
-                parts.Add(item.DueAfterWindow ? $"due {task.DueDate:MMM d}" : TimelineLayout.DateLabel(task));
+                parts.Add(TimelineLayout.DateLabel(task));
 
                 var priorityBrush = GetPriorityBrush(task.Priority);
                 var tooltip = $"{task.Title}\nPriority: {task.Priority}\n{(task.WhoName != "Unassigned" ? $"Who: {task.WhoName}\n" : "")}"
                     + $"{(task.StartDate is not null ? $"Start: {task.StartDate:MMM d, yyyy}\n" : "")}"
                     + $"{(task.DueDate is not null ? $"Due: {task.DueDate:MMM d, yyyy}\n" : "")}\nDouble-click to open";
 
-                // Due past the right edge: the box can't sit at its due date, so it is drawn
-                // hollow and dashed at the left of what's showing, with the arrow running on from it.
-                FrameworkElement block = item.DueAfterWindow
+                // Started before the left edge: the box can't sit at its start date, so it is drawn
+                // hollow and dashed in the first column showing, with the arrow running on from it.
+                FrameworkElement block = item.StartsBeforeWindow
                     ? new Grid
                     {
                         Children =
@@ -317,28 +317,18 @@ public partial class TimelineWindow : Window
         }
     }
 
-    // The arrow from a task's start date to its box: a dot where it starts (left off when the start
-    // is before the visible range, so the line simply comes in from the edge), a line, and a head
-    // pointing at the box - or off the right edge when the due date is beyond it. Drawn in the text
-    // colour, so it is black on the light theme and light on the dark one. It sits level with the
-    // first line of text in the box.
+    // The arrow from a task's box (at its start date) to its due date: a line and a head whose tip
+    // stops in the middle of the due column - or at the right edge when the due date is beyond it.
+    // Drawn in the text colour, so it is black on the light theme and light on the dark one. It
+    // sits level with the first line of text in the box.
     private static FrameworkElement BuildArrow(TimelineItem item, double unitColWidth, Brush stroke)
     {
         const double arrowTop = 6;
         var panel = new DockPanel
         {
             Height = 10, VerticalAlignment = VerticalAlignment.Top, LastChildFill = true, IsHitTestVisible = false,
-            // Starts in the middle of the start column (not applicable when it comes in from the
-            // edge, or when it starts at the dashed box's right-hand side).
-            Margin = new Thickness(item.StartsBeforeWindow || item.DueAfterWindow ? 0 : unitColWidth / 2, arrowTop, 0, 0)
+            Margin = new Thickness(0, arrowTop, item.DueAfterWindow ? 0 : unitColWidth / 2, 0)
         };
-
-        if (!item.StartsBeforeWindow && !item.DueAfterWindow)
-        {
-            var dot = new Ellipse { Width = 8, Height = 8, Fill = stroke, VerticalAlignment = VerticalAlignment.Center };
-            DockPanel.SetDock(dot, Dock.Left);
-            panel.Children.Add(dot);
-        }
 
         var head = new Polygon { Points = [new Point(0, 0), new Point(9, 5), new Point(0, 10)], Fill = stroke, VerticalAlignment = VerticalAlignment.Center };
         DockPanel.SetDock(head, Dock.Right);
@@ -495,7 +485,7 @@ public partial class TimelineWindow : Window
                 var task = item.Card;
                 var parts = new List<string> { task.Title };
                 if (!string.IsNullOrWhiteSpace(task.WhoName) && task.WhoName != "Unassigned") parts.Add(task.WhoName);
-                parts.Add(item.DueAfterWindow ? $"due {task.DueDate:MMM d}" : TimelineLayout.DateLabel(task));
+                parts.Add(TimelineLayout.DateLabel(task));
 
                 var lines = WrapWords(string.Join(" - ", parts), regularTypeface, 7.5, unitColWidth - 2 * chipPadding - 4);
                 boxLines[item] = lines;
@@ -529,26 +519,18 @@ public partial class TimelineWindow : Window
 
                 if (item.HasArrow)
                 {
-                    // Same arrow as on screen: dot at the start (unless it comes in from the left
-                    // edge or starts at the dashed box), line, head pointing at the box or off the
-                    // right edge. Level with the first line of text.
+                    // Same arrow as on screen: from the box to the middle of the due column, or
+                    // to the right edge when the due date is beyond it. Level with the first line
+                    // of text.
                     var arrowY = laneTop + chipPadding + lineHeight / 2;
-                    var hasDot = !item.StartsBeforeWindow && !item.DueAfterWindow;
-                    var x1 = UnitLeft(item.ArrowFirstUnit) + (hasDot ? unitColWidth / 2 : 0);
-                    var x2 = UnitLeft(item.ArrowLastUnit + 1) - 1;
+                    var x1 = UnitLeft(item.ArrowFirstUnit);
+                    var x2 = UnitLeft(item.ArrowLastUnit + 1) - (item.DueAfterWindow ? 1 : unitColWidth / 2);
 
                     canvas.Children.Add(new Line { X1 = x1, Y1 = arrowY, X2 = x2 - 5, Y2 = arrowY, Stroke = Brushes.Black, StrokeThickness = 1.25 });
                     canvas.Children.Add(new Polygon
                     {
                         Points = [new Point(x2 - 6, arrowY - 3.5), new Point(x2, arrowY), new Point(x2 - 6, arrowY + 3.5)], Fill = Brushes.Black
                     });
-                    if (hasDot)
-                    {
-                        var dot = new Ellipse { Width = 5, Height = 5, Fill = Brushes.Black };
-                        Canvas.SetLeft(dot, x1 - 2.5);
-                        Canvas.SetTop(dot, arrowY - 2.5);
-                        canvas.Children.Add(dot);
-                    }
                 }
 
                 var chipHeight = lines.Count * lineHeight + 2 * chipPadding;
@@ -557,10 +539,10 @@ public partial class TimelineWindow : Window
                 {
                     Width = unitColWidth - 2, Height = chipHeight, RadiusX = 2, RadiusY = 2,
                     Stroke = new SolidColorBrush(priorityColor), StrokeThickness = 0.75,
-                    // Dashed and unfilled when the due date is past the right edge - see TimelineItem.
-                    Fill = item.DueAfterWindow ? Brushes.White : new SolidColorBrush(LightenColor(priorityColor, 0.85))
+                    // Dashed and unfilled when the start is before the left edge - see TimelineItem.
+                    Fill = item.StartsBeforeWindow ? Brushes.White : new SolidColorBrush(LightenColor(priorityColor, 0.85))
                 };
-                if (item.DueAfterWindow) chip.StrokeDashArray = [3, 2];
+                if (item.StartsBeforeWindow) chip.StrokeDashArray = [3, 2];
                 Canvas.SetLeft(chip, chipX);
                 Canvas.SetTop(chip, laneTop);
                 canvas.Children.Add(chip);

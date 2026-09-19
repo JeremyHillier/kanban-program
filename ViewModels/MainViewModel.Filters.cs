@@ -248,11 +248,28 @@ public partial class MainViewModel
 
     private bool MatchesFilters(CardViewModel card) => Matches(card, BuildFilterCriteria());
 
+    // The Today / Tomorrow / Within a Week buttons are about what needs attention on those days,
+    // and a task that starts then does, even if it isn't due for a while. Shared with the Report
+    // Builder's Due filter so the two agree.
+    internal static bool StartsBetween(CardViewModel card, DateTime from, DateTime to) =>
+        card.StartDate is { } start && start.Date >= from && start.Date <= to;
+
     private static bool Matches(CardViewModel card, in FilterCriteria criteria)
     {
         // A view setting rather than a filter (Clear Filters leaves it alone): tasks whose start date
-        // is still ahead. A finished task is never hidden for this, however early it was done.
-        if (criteria.HideNotStarted && card.CompletedAt is null && card.StartDate is { } start && start.Date > criteria.Today) return false;
+        // is still ahead. A finished task is never hidden for this, however early it was done. The
+        // one exception is asking for it by name: Tomorrow and Within a Week show a task that
+        // starts on those days, and Hide Future doesn't take that away again.
+        if (criteria.HideNotStarted && card.CompletedAt is null && card.StartDate is { } start && start.Date > criteria.Today)
+        {
+            var askedFor = criteria.Due switch
+            {
+                "Tomorrow" => StartsBetween(card, criteria.Today.AddDays(1), criteria.Today.AddDays(1)),
+                "Within a Week" => StartsBetween(card, criteria.Today, criteria.Today.AddDays(7)),
+                _ => false
+            };
+            if (!askedFor) return false;
+        }
 
         if (criteria.Projects.Count > 0 && !criteria.Projects.Contains(card.ProjectName)) return false;
 
@@ -283,9 +300,9 @@ public partial class MainViewModel
             var today = criteria.Today;
             var matchesDue = criteria.Due switch
             {
-                "Today" => card.DueDate is not null && card.DueDate.Value.Date <= today,
-                "Tomorrow" => card.DueDate?.Date == today.AddDays(1),
-                "Within a Week" => card.DueDate is not null && card.DueDate.Value.Date <= today.AddDays(7),
+                "Today" => (card.DueDate is not null && card.DueDate.Value.Date <= today) || StartsBetween(card, today, today),
+                "Tomorrow" => card.DueDate?.Date == today.AddDays(1) || StartsBetween(card, today.AddDays(1), today.AddDays(1)),
+                "Within a Week" => (card.DueDate is not null && card.DueDate.Value.Date <= today.AddDays(7)) || StartsBetween(card, today, today.AddDays(7)),
                 "No Due Date" => card.DueDate is null,
                 _ => true
             };

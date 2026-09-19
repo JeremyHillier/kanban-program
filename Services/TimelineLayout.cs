@@ -2,22 +2,24 @@ using KanbanApp.ViewModels;
 
 namespace KanbanApp.Services;
 
-// Where one task goes on a Timeline row. The task's box sits in the column of its due date, and a
-// task with a start date gets an arrow running along the row from the start to that box. Units are
-// the Timeline's columns (days or weeks), counted from the left edge of the visible window.
+// Where one task goes on a Timeline row. A task with a start date has its box at the start (the
+// left), and an arrow running right along the row to its due date. A task with no start date is
+// just a box at its due date. Units are the Timeline's columns (days or weeks), counted from the
+// left edge of the visible window.
 //
-// When the due date is past the right edge there is no due column to put the box in, so the box
-// goes at the left end of what's visible instead (drawn dashed, to show it isn't at its due date)
-// and the arrow runs from it off the right edge.
+// When the start is before the left edge there is no start column to put the box in, so the box
+// goes in the first visible column instead, drawn dashed to show it isn't at its real start. When
+// the due date is past the right edge, the arrow simply runs off that edge.
 public sealed record TimelineItem(CardViewModel Card, int FirstUnit, int LastUnit, int Lane, bool StartsBeforeWindow, bool DueAfterWindow)
 {
-    public int BoxUnit => DueAfterWindow ? FirstUnit : LastUnit;
+    public int BoxUnit => FirstUnit;
 
     public bool HasArrow => LastUnit > FirstUnit;
 
-    // The columns the arrow runs across - every column of the span except the box's.
-    public int ArrowFirstUnit => DueAfterWindow ? FirstUnit + 1 : FirstUnit;
-    public int ArrowLastUnit => DueAfterWindow ? LastUnit : LastUnit - 1;
+    // The columns the arrow runs across: from just after the box to the due column (its head
+    // stops in the middle of that column, or at the edge when the due date is beyond it).
+    public int ArrowFirstUnit => FirstUnit + 1;
+    public int ArrowLastUnit => LastUnit;
 }
 
 public static class TimelineLayout

@@ -188,4 +188,49 @@ public sealed class StartDateTests(WpfDispatcherFixture wpf) : IDisposable
         Assert.Equal("Start Date", headings.Last());
         Assert.Equal("Who", headings[^2]); // existing columns stay where they were
     });
+
+    [Fact]
+    public void TodayTomorrowAndWithinAWeek_AlsoShowTasksThatStartThen() => wpf.Run(() =>
+    {
+        var board = OpenBoard();
+        var farDue = DateTime.Today.AddDays(60);
+        var startsToday = Add(board, "Starts today", DateTime.Today, farDue);
+        var startsTomorrow = Add(board, "Starts tomorrow", Tomorrow, farDue);
+        var startsInFive = Add(board, "Starts in five days", DateTime.Today.AddDays(5), farDue);
+        var startedLastWeek = Add(board, "Started last week", DateTime.Today.AddDays(-7), farDue);
+        var startsNextMonth = Add(board, "Starts next month", DateTime.Today.AddDays(30), farDue);
+        var dueToday = Add(board, "Due today", null, DateTime.Today);
+
+        List<string> Showing() => Column(board, "To Do").Cards.Where(c => c.IsVisible).Select(c => c.Title).Order().ToList();
+
+        board.DueFilter = "Today";
+        Assert.Equal(["Due today", "Starts today"], Showing());
+
+        board.DueFilter = "Tomorrow";
+        Assert.Equal(["Starts tomorrow"], Showing());
+
+        board.DueFilter = "Within a Week";
+        Assert.Equal(["Due today", "Starts in five days", "Starts today", "Starts tomorrow"], Showing());
+
+        _ = (startsToday, startsTomorrow, startsInFive, startedLastWeek, startsNextMonth, dueToday);
+    });
+
+    [Fact]
+    public void HideFuture_DoesNotHideWhatTomorrowOrWithinAWeekAskedFor() => wpf.Run(() =>
+    {
+        var board = OpenBoard();
+        var startsTomorrow = Add(board, "Starts tomorrow", Tomorrow, DateTime.Today.AddDays(60));
+        var startsNextMonth = Add(board, "Starts next month", DateTime.Today.AddDays(30), DateTime.Today.AddDays(60));
+        board.ToggleHideFutureTasks();
+        Assert.False(startsTomorrow.IsVisible);
+
+        board.DueFilter = "Tomorrow";
+        Assert.True(startsTomorrow.IsVisible);
+        board.DueFilter = "Within a Week";
+        Assert.True(startsTomorrow.IsVisible);
+        Assert.False(startsNextMonth.IsVisible);
+
+        board.DueFilter = "All";
+        Assert.False(startsTomorrow.IsVisible);
+    });
 }

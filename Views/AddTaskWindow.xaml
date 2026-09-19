@@ -114,100 +114,125 @@
                               Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
                               BorderBrush="{DynamicResource CardBorderBrush}"/>
 
-                    <!-- Due Date | Recurring | Goal -->
-                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Due Date" Style="{StaticResource FieldLabelStyle}"/>
+                    <!-- Dates box (Start, Due / Recurring, Time) | Goal, Force edit -->
+                    <!-- Everything about when: the dates on the first line, how it repeats and its
+                         alert time on the second. Boxed so it reads as one group. -->
+                    <Border Grid.Row="2" Grid.RowSpan="3" Grid.Column="0" Grid.ColumnSpan="3" Margin="0,12,0,0" Padding="10,8"
+                            BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="1" CornerRadius="4">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="9*"/>
+                                <ColumnDefinition Width="14"/>
+                                <ColumnDefinition Width="11*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="10"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <!-- Start -->
+                            <Grid Grid.Row="0" Grid.Column="0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="Start" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,8,0"
+                                           Foreground="{DynamicResource PrimaryTextBrush}"
+                                           ToolTip="Optional. The earliest date this task can be worked on."/>
+                                <DatePicker Grid.Column="1" x:Name="StartDatePicker" Padding="4"
+                                            ToolTip="Optional. The earliest date this task can be worked on. Hide Future on the main screen keeps the task off the board until then."
+                                            Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                                            BorderBrush="{DynamicResource CardBorderBrush}"/>
+                                <Button Grid.Column="2" Content="Clear" Padding="8,4" Margin="6,0,0,0" Click="ClearStartDate_Click" IsTabStop="False"
+                                        Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                            </Grid>
+
+                            <!-- Due -->
+                            <Grid Grid.Row="0" Grid.Column="2">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="Due" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,8,0"
+                                           Foreground="{DynamicResource PrimaryTextBrush}"/>
+                                <DatePicker Grid.Column="1" x:Name="DueDatePicker" Padding="4"
+                                            Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                                            BorderBrush="{DynamicResource CardBorderBrush}"/>
+                                <Button Grid.Column="2" Content="Today" Padding="8,4" Margin="6,0,0,0" Click="TodayDueDate_Click"
+                                        Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                                <Button Grid.Column="3" Content="Clear" Padding="8,4" Margin="6,0,0,0" Click="ClearDueDate_Click"
+                                        Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                            </Grid>
+
+                            <!-- Recurring -->
+                            <StackPanel Grid.Row="2" Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                                <CheckBox x:Name="RecurringCheckBox" Content="Recurring task" VerticalAlignment="Center"
+                                          Foreground="{DynamicResource PrimaryTextBrush}"
+                                          Checked="RecurringCheckBox_Changed" Unchecked="RecurringCheckBox_Changed"/>
+                                <ComboBox x:Name="RecurrenceComboBox" Padding="8,4" MinWidth="110" SelectedIndex="0" Visibility="Collapsed"
+                                          VerticalAlignment="Center" Margin="12,0,0,0"
+                                          Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                                          BorderBrush="{DynamicResource CardBorderBrush}">
+                                    <ComboBoxItem Content="Daily"/>
+                                    <ComboBoxItem Content="Weekday"/>
+                                    <ComboBoxItem Content="Weekly"/>
+                                    <ComboBoxItem Content="Bi-Weekly"/>
+                                    <ComboBoxItem Content="Semi-Monthly" ToolTip="Twice a month, on two fixed days taken from the due date - a task due on the 3rd repeats on the 3rd and the 18th. Due dates from the 13th on pair the 15th with the last day of the month."/>
+                                    <ComboBoxItem Content="Monthly"/>
+                                    <ComboBoxItem Content="Bi-Monthly"/>
+                                    <ComboBoxItem Content="Quarterly"/>
+                                    <ComboBoxItem Content="Annually"/>
+                                </ComboBox>
+                            </StackPanel>
+
+                            <!-- Alert time -->
+                            <StackPanel Grid.Row="2" Grid.Column="2" Orientation="Horizontal">
+                                <TextBlock Text="Time" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,8,0"
+                                           Foreground="{DynamicResource PrimaryTextBrush}"/>
+                                <Grid Width="100">
+                                    <TextBox x:Name="DueTimeTextBox" Padding="6" LostFocus="DueTimeTextBox_LostFocus" TextChanged="DueTimeTextBox_TextChanged"
+                                             Style="{StaticResource HoverTextBoxStyle}"
+                                             ToolTip="Optional time on the due date, e.g. 2:30 PM or 14:30. Use AM / PM to pick the half of the day. While the app is running, you'll get an alert when that time arrives."
+                                             Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                                    <TextBlock Text="e.g. 2:30 PM" IsHitTestVisible="False" Margin="10,0,0,0" VerticalAlignment="Center"
+                                               Foreground="{DynamicResource SecondaryTextBrush}">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Text, ElementName=DueTimeTextBox}" Value="">
+                                                        <Setter Property="Visibility" Value="Visible"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </Grid>
+                                <Button x:Name="AmButton" Content="AM" Width="38" Margin="6,0,0,0" Click="Meridiem_Click" IsTabStop="False"
+                                        ToolTip="Morning - a time typed without AM or PM is read as AM"
+                                        Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                                <Button x:Name="PmButton" Content="PM" Width="38" Margin="4,0,0,0" Click="Meridiem_Click" IsTabStop="False"
+                                        ToolTip="Afternoon / evening - a time typed without AM or PM is read as PM"
+                                        Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+
                     <StackPanel Grid.Row="2" Grid.Column="4" Style="{StaticResource FieldLabelRowStyle}">
                         <TextBlock Text="Goal" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Center"/>
                         <Button Content="+" Style="{StaticResource NewLinkButtonStyle}" ToolTip="Add new goal" Click="NewGoal_Click"/>
                         <Button Content="−" Style="{StaticResource DeleteLinkButtonStyle}" ToolTip="Clear goal" Click="DeleteGoal_Click"/>
                     </StackPanel>
-                    <Grid Grid.Row="3" Grid.Column="0">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        <DatePicker Grid.Column="0" x:Name="DueDatePicker" Padding="4"
-                                    Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
-                                    BorderBrush="{DynamicResource CardBorderBrush}"/>
-                        <Button Grid.Column="1" Content="Today" Padding="8,4" Margin="6,0,0,0" Click="TodayDueDate_Click"
-                                Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
-                        <Button Grid.Column="2" Content="Clear" Padding="8,4" Margin="6,0,0,0" Click="ClearDueDate_Click"
-                                Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
-                    </Grid>
-                    <!-- Same row as the Due Date input (not the label row above) so the checkbox lines
-                         up vertically centered with it, instead of floating up near the labels. -->
-                    <StackPanel Grid.Row="3" Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
-                        <CheckBox x:Name="RecurringCheckBox" Content="Recurring task" VerticalAlignment="Center"
-                                  Foreground="{DynamicResource PrimaryTextBrush}"
-                                  Checked="RecurringCheckBox_Changed" Unchecked="RecurringCheckBox_Changed"/>
-                        <ComboBox x:Name="RecurrenceComboBox" Padding="8,4" MinWidth="110" SelectedIndex="0" Visibility="Collapsed"
-                                  VerticalAlignment="Center" Margin="16,0,0,0"
-                                  Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
-                                  BorderBrush="{DynamicResource CardBorderBrush}">
-                            <ComboBoxItem Content="Daily"/>
-                            <ComboBoxItem Content="Weekday"/>
-                            <ComboBoxItem Content="Weekly"/>
-                            <ComboBoxItem Content="Bi-Weekly"/>
-                            <ComboBoxItem Content="Semi-Monthly" ToolTip="Twice a month, on two fixed days taken from the due date - a task due on the 3rd repeats on the 3rd and the 18th. Due dates from the 13th on pair the 15th with the last day of the month."/>
-                            <ComboBoxItem Content="Monthly"/>
-                            <ComboBoxItem Content="Bi-Monthly"/>
-                            <ComboBoxItem Content="Quarterly"/>
-                            <ComboBoxItem Content="Annually"/>
-                        </ComboBox>
-                    </StackPanel>
                     <ComboBox Grid.Row="3" Grid.Column="4" x:Name="GoalComboBox" Padding="6" SelectedIndex="-1"
-                              DisplayMemberPath="Name"
+                              DisplayMemberPath="Name" VerticalAlignment="Top"
                               Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
                               BorderBrush="{DynamicResource CardBorderBrush}"/>
-
-                    <StackPanel Grid.Row="4" Grid.Column="0" Orientation="Horizontal" Margin="0,12,0,4">
-                        <TextBlock Text="Time" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,8,0"
-                                   Foreground="{DynamicResource PrimaryTextBrush}"/>
-                        <Grid Width="100">
-                            <TextBox x:Name="DueTimeTextBox" Padding="6" LostFocus="DueTimeTextBox_LostFocus" TextChanged="DueTimeTextBox_TextChanged"
-                                     Style="{StaticResource HoverTextBoxStyle}"
-                                     ToolTip="Optional time on the due date, e.g. 2:30 PM or 14:30. Use AM / PM to pick the half of the day. While the app is running, you'll get an alert when that time arrives."
-                                     Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
-                            <TextBlock Text="e.g. 2:30 PM" IsHitTestVisible="False" Margin="10,0,0,0" VerticalAlignment="Center"
-                                       Foreground="{DynamicResource SecondaryTextBrush}">
-                                <TextBlock.Style>
-                                    <Style TargetType="TextBlock">
-                                        <Setter Property="Visibility" Value="Collapsed"/>
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding Text, ElementName=DueTimeTextBox}" Value="">
-                                                <Setter Property="Visibility" Value="Visible"/>
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </TextBlock.Style>
-                            </TextBlock>
-                        </Grid>
-                        <Button x:Name="AmButton" Content="AM" Width="38" Margin="6,0,0,0" Click="Meridiem_Click" IsTabStop="False"
-                                ToolTip="Morning - a time typed without AM or PM is read as AM"
-                                Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
-                        <Button x:Name="PmButton" Content="PM" Width="38" Margin="4,0,0,0" Click="Meridiem_Click" IsTabStop="False"
-                                ToolTip="Afternoon / evening - a time typed without AM or PM is read as PM"
-                                Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
-                    </StackPanel>
-
-
-                    <!-- Optional "not before" date, beside the due time: the space under the Recurring
-                         controls was free. -->
-                    <StackPanel Grid.Row="4" Grid.Column="2" Orientation="Horizontal" Margin="0,12,0,4">
-                        <TextBlock Text="Start" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,8,0"
-                                   Foreground="{DynamicResource PrimaryTextBrush}"
-                                   ToolTip="Optional. The earliest date this task can be worked on."/>
-                        <DatePicker x:Name="StartDatePicker" Padding="4" Width="130"
-                                    ToolTip="Optional. The earliest date this task can be worked on. Hide Future on the main screen keeps the task off the board until then."
-                                    Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
-                                    BorderBrush="{DynamicResource CardBorderBrush}"/>
-                        <Button Content="Clear" Padding="8,4" Margin="6,0,0,0" Click="ClearStartDate_Click" IsTabStop="False"
-                                Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
-                    </StackPanel>
-
                     <CheckBox Grid.Row="4" Grid.Column="4" x:Name="ForceEditOnCompleteCheckBox" Content="Force edit upon completion" Margin="0,12,0,4"
-                              Foreground="{DynamicResource PrimaryTextBrush}"
+                              Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Center"
                               ToolTip="When on, marking this task Done will automatically open it for editing instead of just moving it."/>
                 </Grid>
 

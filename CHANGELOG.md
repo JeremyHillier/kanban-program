@@ -6,6 +6,11 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.98.1 — 2026-09-19
+- Timeline: a task's box now sits at its start date, on the left, with the arrow running right to its due date. A task that started before the dates showing gets a dashed box in the first column
+- The Today, Tomorrow and Within a Week buttons also show tasks that start on those days, even if they aren't due for a while. Tomorrow and Within a Week show them even while Hide Future is on
+- Task screen: Start and Due are together on one line, with Recurring and the alert Time on the line below, all inside one box
+
 ## 0.98.0 — 2026-09-19
 - Timeline: a task with a start date now has an arrow running along its row from the start date to its box at the due date, so you can see how long each task has and what overlaps. A dot marks the start
 - A task that started before the dates showing has its arrow come in from the left edge

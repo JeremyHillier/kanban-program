@@ -4,7 +4,7 @@ using KanbanApp.ViewModels;
 
 namespace KanbanApp.Tests;
 
-// Where tasks land on a Timeline row: the box in the due-date column, an arrow from the start date,
+// Where tasks land on a Timeline row: the box at the start date, an arrow to the due date,
 // and lanes so nothing overlaps. The window in these tests is 12 weekly columns from Mon 5 Oct 2026.
 public sealed class TimelineLayoutTests
 {
@@ -27,14 +27,14 @@ public sealed class TimelineLayoutTests
     }
 
     [Fact]
-    public void AStartDate_GivesAnArrowFromTheStartWeekUpToTheBox()
+    public void AStartDate_PutsTheBoxAtTheStart_WithAnArrowToTheDueWeek()
     {
         var item = Assert.Single(PlaceWeekly(Task("A", new DateTime(2026, 10, 6), new DateTime(2026, 11, 5))));
 
         Assert.Equal((0, 4), (item.FirstUnit, item.LastUnit));
-        Assert.Equal(4, item.BoxUnit);
+        Assert.Equal(0, item.BoxUnit);
         Assert.True(item.HasArrow);
-        Assert.Equal((0, 3), (item.ArrowFirstUnit, item.ArrowLastUnit));
+        Assert.Equal((1, 4), (item.ArrowFirstUnit, item.ArrowLastUnit));
         Assert.False(item.StartsBeforeWindow);
     }
 
@@ -48,17 +48,17 @@ public sealed class TimelineLayoutTests
     }
 
     [Fact]
-    public void AStartBeforeTheWindow_ComesInFromTheLeftEdge()
+    public void AStartBeforeTheWindow_PutsTheBoxInTheFirstColumn()
     {
         var item = Assert.Single(PlaceWeekly(Task("A", new DateTime(2026, 9, 1), new DateTime(2026, 10, 21))));
 
         Assert.True(item.StartsBeforeWindow);
-        Assert.Equal((0, 1), (item.ArrowFirstUnit, item.ArrowLastUnit));
-        Assert.Equal(2, item.BoxUnit);
+        Assert.Equal((1, 2), (item.ArrowFirstUnit, item.ArrowLastUnit));
+        Assert.Equal(0, item.BoxUnit);
     }
 
     [Fact]
-    public void ADuePastTheWindow_PutsTheBoxAtTheLeftOfTheSpan_WithTheArrowRunningOffTheRight()
+    public void ADuePastTheWindow_HasTheArrowRunningToTheLastColumn()
     {
         var item = Assert.Single(PlaceWeekly(Task("A", new DateTime(2026, 12, 8), new DateTime(2027, 3, 1))));
 
@@ -132,7 +132,8 @@ public sealed class TimelineLayoutTests
         var item = Assert.Single(TimelineLayout.Place([Task("A", new DateTime(2026, 10, 7), new DateTime(2026, 10, 12))], WindowStart, 1, 21));
 
         Assert.Equal((2, 7), (item.FirstUnit, item.LastUnit));
-        Assert.Equal((2, 6), (item.ArrowFirstUnit, item.ArrowLastUnit));
+        Assert.Equal((3, 7), (item.ArrowFirstUnit, item.ArrowLastUnit));
+        Assert.Equal(2, item.BoxUnit);
     }
 
     [Fact]
