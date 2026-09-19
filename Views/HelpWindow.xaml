@@ -111,7 +111,7 @@
                 <local:BulletItem Text="A card's Project name is shown prominently just below the title, and works on both full and compact cards."/>
 
                 <TextBlock Text="Organizing: Projects, Goals, Flags, Who" Style="{StaticResource HelpSectionHeaderStyle}"/>
-                <local:BulletItem Text="Manage Projects / Manage Goals / Manage Flags / Manage Who let you add, rename, or permanently delete these from the whole board."/>
+                <local:BulletItem Text="Manage Projects / Manage Goals / Manage Flags / Manage Who let you add, rename, or permanently delete these from the whole board. Clicking the coloured Project, Who, Goal, or Flag label beside its filter opens the same screen."/>
                 <local:BulletItem Text="Flags are multi-select tags — a task can carry more than one."/>
                 <local:BulletItem Text="Projects, Goals, Who, and Flags are always listed alphabetically, everywhere they appear."/>
                 <local:BulletItem Text="Untick a Project's, Goal's, Flag's, or Who's Active checkbox to retire it: it disappears from filters and from selection on new or edited tasks, but any task already using it keeps showing its name and is unaffected."/>
@@ -149,6 +149,7 @@
 
                 <TextBlock Text="Importing tasks" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <local:BulletItem Text="Click Import Tasks to download an Excel template or choose a filled-in .xlsx file to import. Only the Title column is required; Category, Priority, Project, Goal, Due Date, and Who are all optional."/>
+                <local:BulletItem Text="Your own spreadsheet works too: the headings can be on any row and in any order, and the task column can be headed Title, Task, or Task Details. Status or Column works for Category, Due for Due Date, and Assigned To or Assignee for Who."/>
                 <local:BulletItem Text="Category and Priority must be chosen from the template's dropdown. Project, Goal, and Who show a dropdown of existing values but also accept a new one you type in."/>
                 <local:BulletItem Text="Enter Due Date as MM/DD/YYYY (year optional, defaults to the current year); it's displayed as DD-MMM-YYYY."/>
                 <local:BulletItem Text="Projects, Goals, and People mentioned in the file that don't already exist are created automatically."/>
@@ -199,6 +200,7 @@
                 <local:BulletItem Text="Large Cards / Compact Cards toggles how much detail each card shows, useful for fitting more on screen at once."/>
 
                 <TextBlock x:Name="HelpSection_Settings" Text="Settings" Style="{StaticResource HelpSectionHeaderStyle}"/>
+                <local:BulletItem Text="Changes take effect as you make them, so you can see them on the board straight away. Save &amp; Close keeps them; Cancel (or Esc, or the window's X) puts every setting back to how it was when you opened Settings, after checking with you first. Backing up, and moving or switching your task file, are actions rather than settings, so Cancel doesn't undo those."/>
                 <local:BulletItem Text="Rename any column's label (e.g. change &quot;Waiting&quot; to &quot;Blocked&quot;). This only changes what's displayed — the board still treats the same column as the completion column for archiving, reminders, and recurring tasks."/>
                 <local:BulletItem Text="Move the button panel to the right side of the board."/>
                 <local:BulletItem Text="Set the task column width in pixels (default 310)."/>

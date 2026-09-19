@@ -263,9 +263,13 @@
                 <Button Content="About" Width="90" Padding="0,6" Click="About_Click"
                         Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
             </StackPanel>
-            <Button Content="Save &amp; Close" Width="120" Padding="0,6"
-                    HorizontalAlignment="Right" IsCancel="True" IsDefault="True"
-                    Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button Content="Cancel" Width="90" Padding="0,6" Margin="0,0,8,0" IsCancel="True"
+                        ToolTip="Close and put every setting back to how it was when this window opened"
+                        Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                <Button Content="Save &amp; Close" Width="120" Padding="0,6" IsDefault="True" Click="Save_Click"
+                        Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+            </StackPanel>
         </Grid>
     </StackPanel>
     </ScrollViewer>

@@ -81,6 +81,44 @@ public partial class SettingsWindow : Window
         ShowTimeAlertsCheckBox.IsChecked = viewModel.ShowTimeAlerts;
         RememberLastViewCheckBox.IsChecked = viewModel.RememberLastView;
         ShowWhatsNewCheckBox.IsChecked = viewModel.ShowWhatsNew;
+
+        _openingSettings = viewModel.CaptureSettings();
+    }
+
+    // Every change on this dialog is saved as it's made, so Cancel (and Esc, and the window's X)
+    // works by putting back the snapshot taken when the dialog opened - see
+    // MainViewModel.RestoreSettings for what that covers. Asks first if anything actually changed,
+    // the same as the task dialog does.
+    private readonly MainViewModel.SettingsSnapshot _openingSettings;
+    private bool _saved;
+    private bool _restarting; // the app is shutting down to reopen on another file: nothing to ask
+
+    private void Save_Click(object sender, RoutedEventArgs e)
+    {
+        // Text boxes save when they lose focus, which pressing Enter doesn't cause on its own.
+        FocusManager.SetFocusedElement(this, null);
+        _saved = true;
+        Close();
+    }
+
+    protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
+    {
+        base.OnClosing(e);
+        if (e.Cancel || _saved || _restarting) return;
+
+        // A text box being edited hasn't saved yet; commit it so it's part of what gets compared
+        // and put back.
+        FocusManager.SetFocusedElement(this, null);
+        Keyboard.ClearFocus();
+        if (_viewModel.CaptureSettings() == _openingSettings) return;
+
+        if (!UnsavedChangesGuard.ConfirmDiscard(this))
+        {
+            e.Cancel = true;
+            return;
+        }
+
+        _viewModel.RestoreSettings(_openingSettings);
     }
 
     private void ShowWhatsNewCheckBox_Changed(object sender, RoutedEventArgs e)
@@ -337,6 +375,7 @@ public partial class SettingsWindow : Window
             if (result == MessageBoxResult.Yes)
             {
                 Process.Start(Environment.ProcessPath!);
+                _restarting = true;
                 Application.Current.Shutdown();
             }
             else
@@ -470,6 +509,7 @@ public partial class SettingsWindow : Window
         if (result == MessageBoxResult.Yes)
         {
             Process.Start(Environment.ProcessPath!);
+            _restarting = true;
             Application.Current.Shutdown();
         }
         else

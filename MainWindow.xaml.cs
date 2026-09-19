@@ -417,6 +417,16 @@ public partial class MainWindow : Window
         dialog.ShowDialog();
     }
 
+    // The coloured label boxes beside the Project / Who / Goal / Flag filters double as shortcuts
+    // to the matching Manage dialog, the same ones the big Manage buttons open.
+    private void ManageProjectsLabel_MouseLeftButtonUp(object sender, MouseButtonEventArgs e) => ManageProjects_Click(sender, e);
+
+    private void ManageWhoLabel_MouseLeftButtonUp(object sender, MouseButtonEventArgs e) => ManageWho_Click(sender, e);
+
+    private void ManageGoalsLabel_MouseLeftButtonUp(object sender, MouseButtonEventArgs e) => ManageGoals_Click(sender, e);
+
+    private void ManageFlagsLabel_MouseLeftButtonUp(object sender, MouseButtonEventArgs e) => ManageFlags_Click(sender, e);
+
     private void Close_Click(object sender, RoutedEventArgs e)
     {
         Close();

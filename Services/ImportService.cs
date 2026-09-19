@@ -116,23 +116,57 @@ public static class ImportService
         workbook.SaveAs(filePath);
     }
 
+    // The headings each field answers to, so a customer's own spreadsheet imports without being
+    // reshaped to match the template. Matched whole-cell, ignoring case and surrounding spaces.
+    private static readonly string[] TitleHeadings = ["Title", "Task", "Task Details"];
+    private static readonly string[] CategoryHeadings = ["Category", "Column", "Status"];
+    private static readonly string[] PriorityHeadings = ["Priority"];
+    private static readonly string[] ProjectHeadings = ["Project"];
+    private static readonly string[] GoalHeadings = ["Goal"];
+    private static readonly string[] DueDateHeadings = ["Due Date", "Due"];
+    private static readonly string[] WhoHeadings = ["Who", "Assigned To", "Assignee"];
+
+    private static readonly string[][] OtherHeadings =
+        [CategoryHeadings, PriorityHeadings, ProjectHeadings, GoalHeadings, DueDateHeadings, WhoHeadings];
+
+    private static bool IsHeading(IXLCell cell, string[] headings) =>
+        headings.Contains(cell.GetString().Trim(), StringComparer.OrdinalIgnoreCase);
+
+    // The header row is wherever the title heading is - any column, any row, under any banner or
+    // blank rows. A row that has a title heading AND at least one other known heading wins, so a
+    // stray cell that just says "Task" above the real headings (a sheet title, say) isn't mistaken
+    // for them. If no row has two, the first row with a title heading alone is used, which is what a
+    // plain one-column list of tasks looks like.
+    private static IXLRow? FindHeaderRow(IXLWorksheet sheet)
+    {
+        IXLRow? titleOnly = null;
+        foreach (var row in sheet.RowsUsed())
+        {
+            var cells = row.CellsUsed().ToList();
+            if (!cells.Any(c => IsHeading(c, TitleHeadings))) continue;
+            if (cells.Any(c => OtherHeadings.Any(h => IsHeading(c, h)))) return row;
+            titleOnly ??= row;
+        }
+        return titleOnly;
+    }
+
     public static List<ImportedTaskRow> ReadTasks(string filePath)
     {
         using var workbook = new XLWorkbook(filePath);
         var sheet = workbook.Worksheets.First();
 
-        var headerRow = sheet.RowsUsed()
-            .FirstOrDefault(r => string.Equals(r.Cell(1).GetString().Trim(), "Title", StringComparison.OrdinalIgnoreCase));
+        var headerRow = FindHeaderRow(sheet);
         if (headerRow is null) return [];
 
+        // First column wins if a heading appears twice.
         var columnIndexByHeader = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
         foreach (var cell in headerRow.CellsUsed())
         {
             var header = cell.GetString().Trim();
-            if (!string.IsNullOrEmpty(header)) columnIndexByHeader[header] = cell.Address.ColumnNumber;
+            if (!string.IsNullOrEmpty(header)) columnIndexByHeader.TryAdd(header, cell.Address.ColumnNumber);
         }
 
-        int? ColumnFor(params string[] names)
+        int? ColumnFor(string[] names)
         {
             foreach (var name in names)
             {
@@ -141,14 +175,14 @@ public static class ImportService
             return null;
         }
 
-        var titleCol = ColumnFor("Title", "Task", "Task Details");
+        var titleCol = ColumnFor(TitleHeadings);
         if (titleCol is null) return [];
-        var categoryCol = ColumnFor("Category", "Column", "Status");
-        var priorityCol = ColumnFor("Priority");
-        var projectCol = ColumnFor("Project");
-        var goalCol = ColumnFor("Goal");
-        var dueDateCol = ColumnFor("Due Date", "Due");
-        var whoCol = ColumnFor("Who", "Assigned To", "Assignee");
+        var categoryCol = ColumnFor(CategoryHeadings);
+        var priorityCol = ColumnFor(PriorityHeadings);
+        var projectCol = ColumnFor(ProjectHeadings);
+        var goalCol = ColumnFor(GoalHeadings);
+        var dueDateCol = ColumnFor(DueDateHeadings);
+        var whoCol = ColumnFor(WhoHeadings);
 
         var results = new List<ImportedTaskRow>();
         foreach (var row in sheet.RowsUsed().Where(r => r.RowNumber() > headerRow.RowNumber()))

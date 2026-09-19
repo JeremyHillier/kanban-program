@@ -91,4 +91,81 @@ public sealed class ImportServiceTests : IDisposable
 
         Assert.Empty(ImportService.ReadTasks(path));
     }
+
+    private string Workbook(string name, Action<IXLWorksheet> fill)
+    {
+        var path = _temp.File(name);
+        using var workbook = new XLWorkbook();
+        fill(workbook.AddWorksheet("Sheet1"));
+        workbook.SaveAs(path);
+        return path;
+    }
+
+    [Fact]
+    public void TaskHeadingInAnotherColumn_UnderATitleBannerAndBlankRow_Imports()
+    {
+        var path = Workbook("own.xlsx", sheet =>
+        {
+            sheet.Cell(1, 1).Value = "Office move - action list";
+            sheet.Cell(3, 1).Value = "Owner";     // no recognised heading in column A
+            sheet.Cell(3, 2).Value = "  task ";   // heading in column B, odd case and spacing
+            sheet.Cell(3, 3).Value = "Priority";
+            sheet.Cell(4, 1).Value = "Pat";
+            sheet.Cell(4, 2).Value = "Book movers";
+            sheet.Cell(4, 3).Value = "High";
+            sheet.Cell(5, 2).Value = "Order boxes";
+        });
+
+        var rows = ImportService.ReadTasks(path);
+
+        Assert.Equal(["Book movers", "Order boxes"], rows.Select(r => r.Title));
+        Assert.Equal("High", rows[0].Priority);
+        Assert.Null(rows[0].Who); // "Owner" isn't a heading the import knows
+    }
+
+    [Fact]
+    public void AStrayTaskCellAboveTheRealHeadings_IsNotMistakenForThem()
+    {
+        var path = Workbook("stray.xlsx", sheet =>
+        {
+            sheet.Cell(1, 1).Value = "Task";      // a sheet title, not a heading row
+            sheet.Cell(2, 1).Value = "Prepared by Sam";
+            sheet.Cell(4, 1).Value = "Status";
+            sheet.Cell(4, 2).Value = "Task Details";
+            sheet.Cell(5, 1).Value = "Waiting";
+            sheet.Cell(5, 2).Value = "Chase invoice";
+        });
+
+        var row = Assert.Single(ImportService.ReadTasks(path));
+        Assert.Equal("Chase invoice", row.Title);
+        Assert.Equal("Waiting", row.Category);
+    }
+
+    [Fact]
+    public void APlainOneColumnListHeadedTask_Imports()
+    {
+        var path = Workbook("list.xlsx", sheet =>
+        {
+            sheet.Cell(1, 1).Value = "Task";
+            sheet.Cell(2, 1).Value = "First";
+            sheet.Cell(3, 1).Value = "Second";
+        });
+
+        Assert.Equal(["First", "Second"], ImportService.ReadTasks(path).Select(r => r.Title));
+    }
+
+    [Fact]
+    public void ATaskWhoseTitleIsTheWordTask_IsDataNotAHeading()
+    {
+        var path = Workbook("word.xlsx", sheet =>
+        {
+            sheet.Cell(1, 1).Value = "Title";
+            sheet.Cell(1, 2).Value = "Priority";
+            sheet.Cell(2, 1).Value = "Task";
+            sheet.Cell(2, 2).Value = "Low";
+            sheet.Cell(3, 1).Value = "Another";
+        });
+
+        Assert.Equal(["Task", "Another"], ImportService.ReadTasks(path).Select(r => r.Title));
+    }
 }

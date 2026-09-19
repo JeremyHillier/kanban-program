@@ -6,6 +6,12 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.93.0 — 2026-09-19
+- Settings has a Cancel button: it puts every setting back to how it was when you opened Settings (Esc and the X do the same), and asks first if you changed anything. Save & Close keeps your changes
+- Importing from Excel now works with your own spreadsheets: the headings can be on any row and in any column, and the task column can be headed Title, Task, or Task Details. Before, nothing imported unless the first column was headed Title
+- Click the coloured Project, Who, Goal, or Flag label beside its filter to open that Manage screen
+- The square buttons on the main screen have slightly rounded corners, matching the Goal, Flag and Keyword labels
+
 ## 0.92.0 — 2026-09-17
 - Resize the filter lists: drag the small bar under the Project list, or under Priority and Who, to make them taller or shorter. Priority and Who resize together
 - Double-click a bar to put its list back to the standard height. The app remembers the heights you choose
