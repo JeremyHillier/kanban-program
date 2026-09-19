@@ -6,6 +6,9 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.94.0 — 2026-09-19
+- Softer colours on the left-hand panel: the buttons and filter labels are toned down to be easier on the eyes, and the navy background (also behind the top banner) is a little lighter
+
 ## 0.93.0 — 2026-09-19
 - Settings has a Cancel button: it puts every setting back to how it was when you opened Settings (Esc and the X do the same), and asks first if you changed anything. Save & Close keeps your changes
 - Importing from Excel now works with your own spreadsheets: the headings can be on any row and in any column, and the task column can be headed Title, Task, or Task Details. Before, nothing imported unless the first column was headed Title
