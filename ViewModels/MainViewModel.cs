@@ -76,6 +76,8 @@ public partial class MainViewModel : ObservableObject
             }
         });
 
+        // Before Load, which applies the filters: Hide Future is part of what they hide.
+        _hideFutureTasks = _db.GetSetting("HideFutureTasks") == "True";
         Load();
 
         _isDarkMode = _db.GetSetting("Theme") == "Dark";

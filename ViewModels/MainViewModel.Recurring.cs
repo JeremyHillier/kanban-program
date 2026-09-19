@@ -12,6 +12,14 @@ public partial class MainViewModel
         if (toDoColumn is null) return;
 
         var nextDueDate = CalculateNextDueDate(completedCard.DueDate ?? DateTime.Today, completedCard.RecurrencePattern!);
+
+        // A start date moves on with the task, keeping the same lead time before the due date.
+        // (With no due date to measure from, it simply steps forward by the pattern.)
+        DateTime? nextStartDate = completedCard.StartDate is not { } start ? null
+            : completedCard.DueDate is { } due ? nextDueDate - (due.Date - start.Date)
+            : CalculateNextDueDate(start, completedCard.RecurrencePattern!);
+        if (nextStartDate > nextDueDate) nextStartDate = nextDueDate;
+
         var project = Projects.FirstOrDefault(p => p.Id == completedCard.ProjectId);
         var goal = Goals.FirstOrDefault(g => g.Id == completedCard.GoalId);
         var who = People.FirstOrDefault(p => p.Id == completedCard.WhoId);
@@ -21,7 +29,8 @@ public partial class MainViewModel
 
         AddCard(completedCard.Title, toDoColumn, project, completedCard.Priority, nextDueDate, who,
             true, completedCard.RecurrencePattern, goal, completedCard.Flags, freshSubTasks, completedCard.Notes,
-            forceEditOnComplete: completedCard.ForceEditOnComplete, websiteUrl: completedCard.WebsiteUrl, dueTime: completedCard.DueTime);
+            forceEditOnComplete: completedCard.ForceEditOnComplete, websiteUrl: completedCard.WebsiteUrl, dueTime: completedCard.DueTime,
+            startDate: nextStartDate);
     }
 
     internal static DateTime CalculateNextDueDate(DateTime anchor, string pattern) => pattern switch

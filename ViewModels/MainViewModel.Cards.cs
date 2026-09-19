@@ -10,14 +10,14 @@ public partial class MainViewModel
     public CardViewModel AddCard(string title, ColumnViewModel column, ProjectViewModel? project, string priority, DateTime? dueDate, PersonViewModel? who,
         bool isRecurring, string? recurrencePattern, GoalViewModel? goal, List<FlagViewModel>? flags = null, List<SubTaskViewModel>? subTasks = null,
         string? notes = null, bool isImported = false, List<AttachmentViewModel>? attachments = null, bool forceEditOnComplete = false,
-        string? websiteUrl = null, string? dueTime = null)
+        string? websiteUrl = null, string? dueTime = null, DateTime? startDate = null)
     {
         flags ??= [];
         subTasks ??= [];
         attachments ??= [];
         if (dueDate is null) dueTime = null;
         using var undo = RecordUndo(DescribeAction("Add", title.Trim()), []);
-        var card = _db.AddCard(column.Id, title.Trim(), project?.Id, column.Name, priority, dueDate, who?.Id, isRecurring, recurrencePattern, goal?.Id, notes, isImported, forceEditOnComplete, websiteUrl, dueTime);
+        var card = _db.AddCard(column.Id, title.Trim(), project?.Id, column.Name, priority, dueDate, who?.Id, isRecurring, recurrencePattern, goal?.Id, notes, isImported, forceEditOnComplete, websiteUrl, dueTime, startDate);
         _db.SetCardFlags(card.Id, flags.Select(f => f.Id));
         var subTaskItems = _db.SetCardSubTasks(card.Id, subTasks.Select(s => (s.Title, s.IsDone)).ToList());
         var attachmentItems = _db.SetCardAttachments(card.Id, attachments.Select(a => (a.FilePath, a.DisplayName, a.AddedDate)).ToList());
@@ -45,7 +45,7 @@ public partial class MainViewModel
     public void EditCard(CardViewModel card, string title, ColumnViewModel newColumn, ProjectViewModel? project, string priority, DateTime? dueDate, PersonViewModel? who,
         bool isRecurring, string? recurrencePattern, GoalViewModel? goal, List<FlagViewModel>? flags, List<SubTaskViewModel>? subTasks,
         string? notes, List<AttachmentViewModel>? attachments, bool forceEditOnComplete,
-        string? websiteUrl, string? dueTime)
+        string? websiteUrl, string? dueTime, DateTime? startDate)
     {
         if (string.IsNullOrWhiteSpace(title)) return;
 
@@ -62,6 +62,7 @@ public partial class MainViewModel
         card.Priority = priority;
         card.DueDate = dueDate;
         card.DueTime = dueDate is null ? null : dueTime;
+        card.StartDate = startDate;
         card.WhoId = who?.Id;
         card.WhoName = who?.Name ?? "Unassigned";
         card.WhoEmail = who?.Email;
@@ -128,7 +129,7 @@ public partial class MainViewModel
     private void PersistCard(CardViewModel card)
     {
         card.LastUpdated = _db.UpdateCard(card.Id, card.Title, card.ProjectId, card.Priority, card.DueDate, card.WhoId,
-            card.IsRecurring, card.RecurrencePattern, card.GoalId, card.Notes, card.ForceEditOnComplete, card.WebsiteUrl, card.DueTime);
+            card.IsRecurring, card.RecurrencePattern, card.GoalId, card.Notes, card.ForceEditOnComplete, card.WebsiteUrl, card.DueTime, card.StartDate);
     }
 
     // The follow-up every card change shares: re-test the changed card against the active filters,
@@ -158,6 +159,7 @@ public partial class MainViewModel
         using var undo = RecordUndo(DescribeAction("Change due date of", [card]), [card]);
         card.DueDate = dueDate;
         if (dueDate is null) card.DueTime = null;
+        if (dueDate is not null && card.StartDate > dueDate) card.StartDate = dueDate; // a start can never be after the due date
         PersistCard(card);
         RefreshAfterCardChange(card);
     }
@@ -227,7 +229,7 @@ public partial class MainViewModel
             Projects.FirstOrDefault(p => p.Id == card.ProjectId), card.Priority, card.DueDate,
             People.FirstOrDefault(p => p.Id == card.WhoId), card.IsRecurring, card.RecurrencePattern,
             Goals.FirstOrDefault(g => g.Id == card.GoalId), [.. card.Flags], freshSubTasks, card.Notes,
-            forceEditOnComplete: card.ForceEditOnComplete, websiteUrl: card.WebsiteUrl, dueTime: card.DueTime);
+            forceEditOnComplete: card.ForceEditOnComplete, websiteUrl: card.WebsiteUrl, dueTime: card.DueTime, startDate: card.StartDate);
     }
 
     private void MoveCard(CardViewModel card, ColumnViewModel targetColumn)

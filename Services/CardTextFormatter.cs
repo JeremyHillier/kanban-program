@@ -17,6 +17,7 @@ internal static class CardTextFormatter
         sb.Append("Status: ").Append(columnName).Append("\r\n");
         sb.Append("Project: ").Append(card.ProjectName).Append("\r\n");
         sb.Append("Priority: ").Append(card.Priority).Append("\r\n");
+        if (card.StartDate.HasValue) sb.Append("Start: ").Append(OutlookEmailHelper.FormatStart(card)).Append("\r\n");
         if (card.DueDate.HasValue) sb.Append("Due: ").Append(OutlookEmailHelper.FormatDue(card)).Append("\r\n");
         if (card.WhoId.HasValue) sb.Append("Assigned to: ").Append(card.WhoName).Append("\r\n");
         if (OutlookEmailHelper.HasGoal(card)) sb.Append("Goal: ").Append(card.GoalName).Append("\r\n");

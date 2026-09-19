@@ -111,6 +111,32 @@ public class CardViewModel(CardItem model) : ObservableObject
         }
     }
 
+    // Optional "not before" date. A task whose start date is still ahead counts as not started:
+    // the board can hide those (MainViewModel.HideFutureTasks) and the card says when it starts.
+    public DateTime? StartDate
+    {
+        get => Model.StartDate;
+        set
+        {
+            if (Model.StartDate == value) return;
+            Model.StartDate = value;
+            OnPropertyChanged();
+            RefreshStartDisplay();
+        }
+    }
+
+    public bool IsNotStarted => StartDate is not null && StartDate.Value.Date > DateTime.Today;
+
+    // Only while the start is still ahead - once it has passed the line is just clutter.
+    public string StartDateDisplay => IsNotStarted ? $"Starts {StartDate:MMM d, yyyy}" : string.Empty;
+
+    // Also called when the day changes, since both depend on today's date.
+    public void RefreshStartDisplay()
+    {
+        OnPropertyChanged(nameof(IsNotStarted));
+        OnPropertyChanged(nameof(StartDateDisplay));
+    }
+
     // The exact moment a timed task comes due - null unless both a date and a time are set.
     public DateTime? DueDateTime =>
         DueDate is not null && TimeSpan.TryParse(DueTime, out var time) ? DueDate.Value.Date + time : null;
@@ -395,6 +421,7 @@ public class CardViewModel(CardItem model) : ObservableObject
         Priority = other.Priority;
         DueDate = other.DueDate;
         DueTime = other.DueTime;
+        StartDate = other.StartDate;
         WhoId = other.WhoId;
         WhoName = other.WhoName;
         WhoEmail = other.WhoEmail;

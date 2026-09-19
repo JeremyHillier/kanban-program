@@ -54,6 +54,44 @@ public partial class MainViewModel
     public bool IsLargeCards => !IsCompactCards;
     public string CardSizeButtonLabel => IsCompactCards ? "Large Cards" : "Compact Cards";
 
+    // "Hide Future": keeps tasks off the board until their start date arrives. A view setting like
+    // card size - always remembered, and not touched by Clear Filters or custom filters.
+    private bool _hideFutureTasks;
+    public bool HideFutureTasks
+    {
+        get => _hideFutureTasks;
+        private set
+        {
+            if (SetField(ref _hideFutureTasks, value)) OnPropertyChanged(nameof(HideFutureButtonLabel));
+        }
+    }
+
+    // While hiding, the button says how many, so hidden tasks are never forgotten about.
+    public string HideFutureButtonLabel => HideFutureTasks ? $"Show Future ({FutureTaskCount})" : "Hide Future";
+
+    // How many tasks the setting is hiding (or would hide) right now - shown on the button's tooltip.
+    public int FutureTaskCount => Columns.SelectMany(c => c.Cards).Count(c => c.IsNotStarted && c.CompletedAt is null);
+
+    public void ToggleHideFutureTasks()
+    {
+        HideFutureTasks = !HideFutureTasks;
+        _db.SetSetting("HideFutureTasks", HideFutureTasks ? "True" : "False");
+        ApplyFilters();
+    }
+
+    // Called on a timer: when the date rolls over while the app is open, "today" has changed for
+    // overdue highlighting, the Starts line and Hide Future, so bring them up to date.
+    private DateTime _lastSeenDay = DateTime.Today;
+
+    public void RefreshIfDayChanged()
+    {
+        if (_lastSeenDay == DateTime.Today) return;
+
+        _lastSeenDay = DateTime.Today;
+        RefreshDashboardStats();
+        ApplyFilters();
+    }
+
     private int _columnWidth = 310;
     public int ColumnWidth
     {

@@ -220,6 +220,18 @@
             </Style.Triggers>
         </Style>
 
+        <!-- Outlined while it is hiding tasks, like an active sort or due button. -->
+        <Style x:Key="HideFutureButtonStyle" BasedOn="{StaticResource SmallSquareButtonStyle}" TargetType="Button">
+            <Setter Property="BorderThickness" Value="1"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding HideFutureTasks}" Value="True">
+                    <Setter Property="BorderBrush" Value="White"/>
+                    <Setter Property="BorderThickness" Value="3"/>
+                    <Setter Property="FontWeight" Value="Bold"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
         <Style x:Key="SortButtonProject" BasedOn="{StaticResource SmallSquareButtonStyle}" TargetType="Button">
             <Setter Property="BorderThickness" Value="1"/>
             <Style.Triggers>
@@ -444,6 +456,10 @@
                                 <Button Style="{StaticResource UndoButtonStyle}" Background="#FF647E93" Foreground="White" Click="Undo_Click"
                                         IsEnabled="{Binding CanUndo}" ToolTip="{Binding UndoToolTip}" ToolTipService.ShowOnDisabled="True">
                                     <TextBlock Text="Undo" TextWrapping="Wrap" TextAlignment="Center"/>
+                                </Button>
+                                <Button Style="{StaticResource HideFutureButtonStyle}" Background="#FF2A8E91" Foreground="White" Click="HideFuture_Click"
+                                        ToolTip="Hide tasks whose start date hasn't arrived yet, so only what you can work on now is showing. Click again to show them. Clear Filters doesn't change this.">
+                                    <TextBlock Text="{Binding HideFutureButtonLabel}" TextWrapping="Wrap" TextAlignment="Center"/>
                                 </Button>
                             </StackPanel>
                         </StackPanel>
@@ -868,6 +884,10 @@
                                                                                    MouseLeftButtonUp="WhoDisplay_MouseLeftButtonUp"
                                                                                    Visibility="{Binding WhoDisplay, Converter={StaticResource EmptyStringToVisibilityConverter}}"/>
                                                                     </StackPanel>
+                                                                    <TextBlock Text="{Binding StartDateDisplay}" FontSize="10" FontStyle="Italic"
+                                                                               Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,1,0,0"
+                                                                               ToolTip="This task can't be started before this date"
+                                                                               Visibility="{Binding StartDateDisplay, Converter={StaticResource EmptyStringToVisibilityConverter}}"/>
                                                                     <TextBlock Text="{Binding RecurrenceDisplay}" FontSize="10" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,1,0,0"
                                                                                Visibility="{Binding RecurrenceDisplay, Converter={StaticResource EmptyStringToVisibilityConverter}}"/>
                                                                     <TextBlock Text="{Binding StatusStampDisplay}" FontSize="9" FontStyle="Italic"

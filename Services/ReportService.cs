@@ -132,6 +132,7 @@ public static class ReportService
         ProjectName = card.ProjectName,
         Priority = card.Priority,
         DueDate = card.DueDate,
+        StartDate = card.StartDate,
         Who = card.WhoId is null ? null : card.WhoName,
         GoalName = card.GoalName,
         Flags = card.Flags.Select(f => f.Name).ToList(),
@@ -279,6 +280,7 @@ public static class ReportService
             $"Priority: {row.Priority}"
         };
 
+        if (row.StartDate is not null) parts.Add($"Start {row.StartDate:MMM d, yyyy}");
         if (row.DueDate is not null) parts.Add($"Due {row.DueDate:MMM d, yyyy}");
         if (row.CompletedAt is not null) parts.Add($"Completed {row.CompletedAt:MMM d, yyyy h:mm tt}");
         parts.Add(string.IsNullOrWhiteSpace(row.Who) ? "Unassigned" : $"Who: {row.Who}");

@@ -78,7 +78,7 @@ public sealed class TaskFileUpgradeTests : IDisposable
         _ = new DatabaseService(path);
 
         var cardColumns = ColumnNames(path, "Cards");
-        foreach (var expected in new[] { "IsArchived", "Priority", "DueDate", "DueTime", "CompletedAt", "WhoId", "GoalId", "IsRecurring",
+        foreach (var expected in new[] { "IsArchived", "Priority", "DueDate", "DueTime", "StartDate", "CompletedAt", "WhoId", "GoalId", "IsRecurring",
                      "RecurrencePattern", "NextOccurrenceSpawned", "IsDeleted", "Notes", "IsImported", "ForceEditOnComplete", "WebsiteUrl" })
         {
             Assert.Contains(expected, cardColumns);

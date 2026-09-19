@@ -8,5 +8,6 @@ public class ImportedTaskRow
     public string? Project { get; init; }
     public string? Goal { get; init; }
     public DateTime? DueDate { get; init; }
+    public DateTime? StartDate { get; init; }
     public string? Who { get; init; }
 }

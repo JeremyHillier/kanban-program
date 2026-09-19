@@ -296,6 +296,7 @@ public static class OutlookEmailHelper
         sb.Append(card.Title).Append("\r\n\r\n");
         sb.Append("Project: ").Append(card.ProjectName).Append("\r\n");
         sb.Append("Priority: ").Append(card.Priority).Append("\r\n");
+        if (card.StartDate.HasValue) sb.Append("Start: ").Append(FormatStart(card)).Append("\r\n");
         if (card.DueDate.HasValue) sb.Append("Due: ").Append(FormatDue(card)).Append("\r\n");
         if (HasGoal(card)) sb.Append("Goal: ").Append(card.GoalName).Append("\r\n");
         if (card.Flags.Count > 0) sb.Append("Flags: ").Append(string.Join(", ", card.Flags.Select(f => f.Name))).Append("\r\n");
@@ -375,6 +376,7 @@ public static class OutlookEmailHelper
         Project = card.ProjectName,
         Goal = HasGoal(card) ? card.GoalName : null,
         DueDate = card.DueDate,
+        StartDate = card.StartDate,
         Who = card.WhoName == "Unassigned" ? null : card.WhoName
     };
 
@@ -392,6 +394,8 @@ public static class OutlookEmailHelper
     }
 
     internal static bool HasGoal(CardViewModel card) => !string.IsNullOrWhiteSpace(card.GoalName) && card.GoalName != "No Goal";
+
+    internal static string FormatStart(CardViewModel card) => card.StartDate!.Value.ToString("dd-MMM-yyyy");
 
     internal static string FormatDue(CardViewModel card) =>
         card.DueDateTime is { } dueAt ? dueAt.ToString("dd-MMM-yyyy h:mm tt") : card.DueDate!.Value.ToString("dd-MMM-yyyy");
@@ -419,6 +423,7 @@ public static class OutlookEmailHelper
         sb.Append("<table style=\"border-collapse: collapse;\">");
         AppendRow(sb, "Project", card.ProjectName);
         AppendRow(sb, "Priority", card.Priority);
+        if (card.StartDate.HasValue) AppendRow(sb, "Start", FormatStart(card));
         if (card.DueDate.HasValue) AppendRow(sb, "Due", FormatDue(card));
         if (HasGoal(card)) AppendRow(sb, "Goal", card.GoalName);
         if (card.Flags.Count > 0) AppendRow(sb, "Flags", string.Join(", ", card.Flags.Select(f => f.Name)));

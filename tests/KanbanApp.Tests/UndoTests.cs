@@ -130,7 +130,7 @@ public sealed class UndoTests(WpfDispatcherFixture wpf) : IDisposable
 
         board.EditCard(card, "Report v2", Column(board, "Done"), board.Projects.First(), "High", new DateTime(2026, 10, 1), null,
             false, null, null, [board.Flags.Single()], [new SubTaskViewModel(new SubTaskItem { Title = "Only one", IsDone = true })],
-            "second notes", card.Attachments, false, "https://example.com", "09:30");
+            "second notes", card.Attachments, false, "https://example.com", "09:30", new DateTime(2026, 9, 25));
 
         Assert.Equal("Edit \"Report\"", board.Undo());
 
@@ -140,6 +140,7 @@ public sealed class UndoTests(WpfDispatcherFixture wpf) : IDisposable
             Assert.Equal("Normal", c.Priority);
             Assert.Null(c.DueDate);
             Assert.Null(c.DueTime);
+            Assert.Null(c.StartDate);
             Assert.Null(c.WebsiteUrl);
             Assert.Equal("first notes", c.Notes);
             Assert.Empty(c.Flags);

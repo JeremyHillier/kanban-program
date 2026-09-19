@@ -191,6 +191,21 @@
                                 Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
                     </StackPanel>
 
+
+                    <!-- Optional "not before" date, beside the due time: the space under the Recurring
+                         controls was free. -->
+                    <StackPanel Grid.Row="4" Grid.Column="2" Orientation="Horizontal" Margin="0,12,0,4">
+                        <TextBlock Text="Start" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,8,0"
+                                   Foreground="{DynamicResource PrimaryTextBrush}"
+                                   ToolTip="Optional. The earliest date this task can be worked on."/>
+                        <DatePicker x:Name="StartDatePicker" Padding="4" Width="130"
+                                    ToolTip="Optional. The earliest date this task can be worked on. Hide Future on the main screen keeps the task off the board until then."
+                                    Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                                    BorderBrush="{DynamicResource CardBorderBrush}"/>
+                        <Button Content="Clear" Padding="8,4" Margin="6,0,0,0" Click="ClearStartDate_Click" IsTabStop="False"
+                                Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                    </StackPanel>
+
                     <CheckBox Grid.Row="4" Grid.Column="4" x:Name="ForceEditOnCompleteCheckBox" Content="Force edit upon completion" Margin="0,12,0,4"
                               Foreground="{DynamicResource PrimaryTextBrush}"
                               ToolTip="When on, marking this task Done will automatically open it for editing instead of just moving it."/>

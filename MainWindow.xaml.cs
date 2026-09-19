@@ -87,6 +87,8 @@ public partial class MainWindow : Window
     {
         if (DataContext is not MainViewModel viewModel) return;
 
+        viewModel.RefreshIfDayChanged();
+
         var newlyDue = _timeAlerts.TakeCardsToAlert(viewModel.GetCardsPastDueTime(), DateTime.Now);
 
         // Still recorded as announced while alerts are switched off, so turning them back on later
@@ -340,7 +342,8 @@ public partial class MainWindow : Window
             viewModel.AddCard(dialog.TaskDetails, dialog.SelectedColumn, dialog.SelectedProject,
                 dialog.SelectedPriority, dialog.SelectedDueDate, dialog.SelectedWho, dialog.IsRecurring, dialog.RecurrencePattern,
                 dialog.SelectedGoal, dialog.SelectedFlags, dialog.SelectedSubTasks, dialog.Notes, attachments: dialog.SelectedAttachments,
-                forceEditOnComplete: dialog.ForceEditOnComplete, websiteUrl: dialog.WebsiteUrl, dueTime: dialog.SelectedDueTime);
+                forceEditOnComplete: dialog.ForceEditOnComplete, websiteUrl: dialog.WebsiteUrl, dueTime: dialog.SelectedDueTime,
+                startDate: dialog.SelectedStartDate);
         }
     }
 
@@ -356,7 +359,8 @@ public partial class MainWindow : Window
             viewModel.EditCard(card, dialog.TaskDetails, dialog.SelectedColumn, dialog.SelectedProject,
                 dialog.SelectedPriority, dialog.SelectedDueDate, dialog.SelectedWho, dialog.IsRecurring, dialog.RecurrencePattern,
                 dialog.SelectedGoal, dialog.SelectedFlags, dialog.SelectedSubTasks, dialog.Notes, attachments: dialog.SelectedAttachments,
-                forceEditOnComplete: dialog.ForceEditOnComplete, websiteUrl: dialog.WebsiteUrl, dueTime: dialog.SelectedDueTime);
+                forceEditOnComplete: dialog.ForceEditOnComplete, websiteUrl: dialog.WebsiteUrl, dueTime: dialog.SelectedDueTime,
+                startDate: dialog.SelectedStartDate);
         }
     }
 
@@ -433,6 +437,11 @@ public partial class MainWindow : Window
     }
 
     private DispatcherTimer? _statusMessageTimer;
+
+    private void HideFuture_Click(object sender, RoutedEventArgs e)
+    {
+        if (DataContext is MainViewModel viewModel) viewModel.ToggleHideFutureTasks();
+    }
 
     private void Undo_Click(object sender, RoutedEventArgs e) => UndoLastAction();
 

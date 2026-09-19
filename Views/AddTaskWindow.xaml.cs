@@ -35,6 +35,7 @@ public partial class AddTaskWindow : Window
     public string SelectedPriority { get; private set; } = "Normal";
     public DateTime? SelectedDueDate { get; private set; }
     public string? SelectedDueTime { get; private set; }
+    public DateTime? SelectedStartDate { get; private set; }
     public PersonViewModel? SelectedWho { get; private set; }
     public string? Notes { get; private set; }
     public string? WebsiteUrl { get; private set; }
@@ -62,6 +63,7 @@ public partial class AddTaskWindow : Window
 
         _viewModel = viewModel;
         CalendarWheelSupport.Attach(DueDatePicker);
+        CalendarWheelSupport.Attach(StartDatePicker);
         CategoryComboBox.ItemsSource = viewModel.Columns;
         RebuildProjectItems();
         RebuildGoalItems();
@@ -95,6 +97,7 @@ public partial class AddTaskWindow : Window
             (CategoryComboBox.SelectedItem as ColumnViewModel)?.Id.ToString() ?? "-",
             (PriorityComboBox.SelectedItem as ComboBoxItem)?.Content as string ?? "-",
             DueDatePicker.SelectedDate?.ToString("yyyy-MM-dd") ?? "-",
+            StartDatePicker.SelectedDate?.ToString("yyyy-MM-dd") ?? "-",
             CurrentDueTime() ?? DueTimeTextBox.Text.Trim(),
             (WhoComboBox.SelectedItem as PersonViewModel)?.Id.ToString() ?? "-",
             (GoalComboBox.SelectedItem as GoalViewModel)?.Id.ToString() ?? "-",
@@ -171,6 +174,7 @@ public partial class AddTaskWindow : Window
         }
 
         DueDatePicker.SelectedDate = cardToEdit.DueDate;
+        StartDatePicker.SelectedDate = cardToEdit.StartDate;
         DueTimeTextBox.Text = DueTimeParser.Format(cardToEdit.DueTime);
         RebuildWhoItems(_viewModel.People.FirstOrDefault(p => p.Id == cardToEdit.WhoId));
         NotesTextBox.Text = cardToEdit.Notes ?? string.Empty;
@@ -782,6 +786,8 @@ public partial class AddTaskWindow : Window
         DueDatePicker.SelectedDate = DateTime.Today;
     }
 
+    private void ClearStartDate_Click(object sender, RoutedEventArgs e) => StartDatePicker.SelectedDate = null;
+
     private void ClearDueDate_Click(object sender, RoutedEventArgs e)
     {
         DueDatePicker.SelectedDate = null;
@@ -885,6 +891,13 @@ public partial class AddTaskWindow : Window
             DueDatePicker.Focus();
             return;
         }
+        if (StartDatePicker.SelectedDate is { } startDate && DueDatePicker.SelectedDate is { } dueDate && startDate.Date > dueDate.Date)
+        {
+            MessageBox.Show(this, "The start date is after the due date. Move one of them, or clear the start date.",
+                "Start Date After Due Date", MessageBoxButton.OK, MessageBoxImage.Warning);
+            StartDatePicker.Focus();
+            return;
+        }
         if (!string.IsNullOrWhiteSpace(WebsiteUrlTextBox.Text) && !UrlLauncher.TryNormalize(WebsiteUrlTextBox.Text, out _))
         {
             MessageBox.Show(this, UrlLauncher.AllowedLinksMessage + "\n\nFix the Website field, or clear it.",
@@ -901,6 +914,7 @@ public partial class AddTaskWindow : Window
         SelectedGoal = GoalComboBox.SelectedItem as GoalViewModel;
         SelectedPriority = (string)priorityItem.Content;
         SelectedDueDate = DueDatePicker.SelectedDate;
+        SelectedStartDate = StartDatePicker.SelectedDate;
         SelectedWho = WhoComboBox.SelectedItem as PersonViewModel;
         Notes = string.IsNullOrWhiteSpace(NotesTextBox.Text) ? null : NotesTextBox.Text.Trim();
         WebsiteUrl = string.IsNullOrWhiteSpace(WebsiteUrlTextBox.Text) ? null : WebsiteUrlTextBox.Text.Trim();

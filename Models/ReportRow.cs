@@ -7,6 +7,7 @@ public class ReportRow
     public required string ProjectName { get; init; }
     public required string Priority { get; init; }
     public DateTime? DueDate { get; init; }
+    public DateTime? StartDate { get; init; }
     public string? Who { get; init; }
     public required string GoalName { get; init; }
     public List<string> Flags { get; init; } = [];

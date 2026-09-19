@@ -6,7 +6,7 @@ namespace KanbanApp.Services;
 
 public static class ImportService
 {
-    private static readonly string[] Headers = ["Title", "Category", "Priority", "Project", "Goal", "Due Date", "Who"];
+    private static readonly string[] Headers = ["Title", "Category", "Priority", "Project", "Goal", "Due Date", "Who", "Start Date"];
     private static readonly string[] Priorities = ["High", "Medium", "Normal", "Low"];
 
     public static void SaveTemplate(string filePath, IEnumerable<string> categories, IEnumerable<string> projects, IEnumerable<string> goals, IEnumerable<string> people)
@@ -17,7 +17,7 @@ public static class ImportService
         sheet.Range(1, 1, 1, Headers.Length).Merge();
         sheet.Cell(1, 1).Value = "One task per row below. Category and Priority must be chosen from their dropdown. "
             + "Project, Goal, and Who offer a dropdown of existing values, but you can type a new one instead. "
-            + "Due Date: enter as MM/DD/YYYY (year optional, defaults to this year) — shown as DD-MMM-YYYY. Only Title is required.";
+            + "Due Date and Start Date (optional, the earliest the task can be worked on): enter as MM/DD/YYYY (year optional, defaults to this year) — shown as DD-MMM-YYYY. Only Title is required.";
         sheet.Cell(1, 1).Style.Font.Italic = true;
         sheet.Cell(1, 1).Style.Font.FontColor = XLColor.FromArgb(0x88, 0x88, 0x88);
         sheet.Cell(1, 1).Style.Alignment.WrapText = true;
@@ -38,10 +38,13 @@ public static class ImportService
         sheet.Column(5).Width = 20;
         sheet.Column(6).Width = 14;
         sheet.Column(7).Width = 14;
+        sheet.Column(8).Width = 14;
 
         const int maxDataRow = 500;
         sheet.Range(3, 6, maxDataRow, 6).Style.DateFormat.Format = "dd-mmm-yyyy";
         sheet.Range(3, 6, maxDataRow, 6).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Left;
+        sheet.Range(3, 8, maxDataRow, 8).Style.DateFormat.Format = "dd-mmm-yyyy";
+        sheet.Range(3, 8, maxDataRow, 8).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Left;
 
         var listsSheet = workbook.AddWorksheet("ValidationLists");
         listsSheet.Visibility = XLWorksheetVisibility.VeryHidden;
@@ -110,6 +113,11 @@ public static class ImportService
             sheet.Cell(2, 6).Style.DateFormat.Format = "dd-mmm-yyyy";
         }
         sheet.Cell(2, 7).Value = row.Who ?? string.Empty;
+        if (row.StartDate.HasValue)
+        {
+            sheet.Cell(2, 8).Value = row.StartDate.Value;
+            sheet.Cell(2, 8).Style.DateFormat.Format = "dd-mmm-yyyy";
+        }
 
         sheet.Columns().AdjustToContents();
 
@@ -125,9 +133,10 @@ public static class ImportService
     private static readonly string[] GoalHeadings = ["Goal"];
     private static readonly string[] DueDateHeadings = ["Due Date", "Due"];
     private static readonly string[] WhoHeadings = ["Who", "Assigned To", "Assignee"];
+    private static readonly string[] StartDateHeadings = ["Start Date", "Start", "Not Before"];
 
     private static readonly string[][] OtherHeadings =
-        [CategoryHeadings, PriorityHeadings, ProjectHeadings, GoalHeadings, DueDateHeadings, WhoHeadings];
+        [CategoryHeadings, PriorityHeadings, ProjectHeadings, GoalHeadings, DueDateHeadings, WhoHeadings, StartDateHeadings];
 
     private static bool IsHeading(IXLCell cell, string[] headings) =>
         headings.Contains(cell.GetString().Trim(), StringComparer.OrdinalIgnoreCase);
@@ -183,6 +192,7 @@ public static class ImportService
         var goalCol = ColumnFor(GoalHeadings);
         var dueDateCol = ColumnFor(DueDateHeadings);
         var whoCol = ColumnFor(WhoHeadings);
+        var startDateCol = ColumnFor(StartDateHeadings);
 
         var results = new List<ImportedTaskRow>();
         foreach (var row in sheet.RowsUsed().Where(r => r.RowNumber() > headerRow.RowNumber()))
@@ -212,10 +222,18 @@ public static class ImportService
                 Project = projectCol is not null ? row.Cell(projectCol.Value).GetString().Trim() : null,
                 Goal = goalCol is not null ? row.Cell(goalCol.Value).GetString().Trim() : null,
                 DueDate = dueDate,
+                StartDate = startDateCol is not null ? ReadDate(row.Cell(startDateCol.Value)) : null,
                 Who = whoCol is not null ? row.Cell(whoCol.Value).GetString().Trim() : null
             });
         }
 
         return results;
+    }
+
+    // A real Excel date, or text that reads as one (US order, as the template shows it).
+    private static DateTime? ReadDate(IXLCell cell)
+    {
+        if (cell.TryGetValue(out DateTime parsedDate)) return parsedDate;
+        return DateTime.TryParse(cell.GetString().Trim(), CultureInfo.GetCultureInfo("en-US"), DateTimeStyles.None, out var parsedText) ? parsedText : null;
     }
 }

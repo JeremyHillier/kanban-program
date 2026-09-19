@@ -14,6 +14,9 @@ public class CardItem
     public DateTime? DueDate { get; set; }
     // Optional time of day ("HH:mm", 24-hour) on top of DueDate - drives the while-running time alert.
     public string? DueTime { get; set; }
+
+    // Optional "not before" date: the task can't usefully be started until then. Date only.
+    public DateTime? StartDate { get; set; }
     public DateTime? CompletedAt { get; set; } // set while the task is in Done (or archived from it)
     public int? WhoId { get; set; }
     public DateTime? LastUpdated { get; set; }

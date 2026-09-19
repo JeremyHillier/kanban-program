@@ -6,6 +6,16 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.97.0 — 2026-09-19
+- New: a Start date on tasks, for work that can't begin until a certain day. It sits beside the due time on the task screen and is optional
+- While the start date is still ahead, the card says when it starts
+- New Hide Future button (beside Undo): keeps tasks off the board until their start date arrives, so you only see what you can work on now. While it is on, the button is outlined and shows how many tasks are hidden
+- Hide Future is remembered between sessions, and Clear Filters leaves it alone. Finished tasks are never hidden by it
+- The start date can't be after the due date: the task screen says so, and moving a due date earlier on the card pulls the start date back with it
+- Recurring tasks keep the same gap between start and due on each new occurrence
+- The start date is included in Copy as Text, task emails, reports, the Timeline (shown as "Oct 3 to Oct 20"), and Excel import and export. The import template has a new Start Date column at the end, and your own spreadsheet can head it Start or Not Before
+- Undo covers the start date too
+
 ## 0.96.0 — 2026-09-19
 - New: Undo. Press Ctrl+Z, or click the new Undo button beside New Task, to take back the last thing you did to a task
 - It covers adding, editing, moving, dragging into a new order, duplicating, deleting, Archive Done, importing, and the quick changes on a card. A change to several selected tasks is undone in one go

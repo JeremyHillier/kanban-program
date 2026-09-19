@@ -17,7 +17,7 @@ public partial class DatabaseService
             : "";
         var idFilter = onlyIds is null ? "" : $" AND Id IN ({string.Join(",", onlyIds.DefaultIfEmpty(-1))})";
         cmd.CommandText = $"""
-            SELECT Id, ColumnId, Title, SortOrder, ProjectId, Priority, DueDate, WhoId, LastUpdated, IsRecurring, RecurrencePattern, GoalId, Notes, IsImported, ForceEditOnComplete, NextOccurrenceSpawned, WebsiteUrl, DueTime, CompletedAt{archivedAtColumn}
+            SELECT Id, ColumnId, Title, SortOrder, ProjectId, Priority, DueDate, WhoId, LastUpdated, IsRecurring, RecurrencePattern, GoalId, Notes, IsImported, ForceEditOnComplete, NextOccurrenceSpawned, WebsiteUrl, DueTime, CompletedAt, StartDate{archivedAtColumn}
             FROM Cards WHERE IsArchived = {(archivedOnly ? 1 : 0)} AND IsDeleted = 0{idFilter} ORDER BY SortOrder;
             """;
 
@@ -47,7 +47,8 @@ public partial class DatabaseService
                     WebsiteUrl = reader.IsDBNull(16) ? null : reader.GetString(16),
                     DueTime = reader.IsDBNull(17) ? null : reader.GetString(17),
                     CompletedAt = reader.IsDBNull(18) ? null : DateTime.Parse(reader.GetString(18)),
-                    ArchivedAt = archivedOnly && !reader.IsDBNull(19) ? DateTime.Parse(reader.GetString(19)) : null
+                    StartDate = reader.IsDBNull(19) ? null : DateTime.Parse(reader.GetString(19)),
+                    ArchivedAt = archivedOnly && !reader.IsDBNull(20) ? DateTime.Parse(reader.GetString(20)) : null
                 });
             }
         }
@@ -116,7 +117,7 @@ public partial class DatabaseService
 
     public CardItem AddCard(int columnId, string title, int? projectId, string columnName, string priority, DateTime? dueDate, int? whoId,
         bool isRecurring, string? recurrencePattern, int? goalId, string? notes = null, bool isImported = false, bool forceEditOnComplete = false,
-        string? websiteUrl = null, string? dueTime = null)
+        string? websiteUrl = null, string? dueTime = null, DateTime? startDate = null)
     {
         using var connection = OpenConnection();
 
@@ -129,8 +130,8 @@ public partial class DatabaseService
         var completedAt = columnName == "Done" ? now : null; // created straight into Done counts as completed
         using var insertCmd = connection.CreateCommand();
         insertCmd.CommandText = """
-            INSERT INTO Cards (ColumnId, Title, SortOrder, ProjectId, Priority, DueDate, WhoId, LastUpdated, IsRecurring, RecurrencePattern, GoalId, Notes, IsImported, ForceEditOnComplete, WebsiteUrl, DueTime, CompletedAt)
-            VALUES ($columnId, $title, $sortOrder, $projectId, $priority, $dueDate, $whoId, $lastUpdated, $isRecurring, $recurrencePattern, $goalId, $notes, $isImported, $forceEditOnComplete, $websiteUrl, $dueTime, $completedAt);
+            INSERT INTO Cards (ColumnId, Title, SortOrder, ProjectId, Priority, DueDate, WhoId, LastUpdated, IsRecurring, RecurrencePattern, GoalId, Notes, IsImported, ForceEditOnComplete, WebsiteUrl, DueTime, CompletedAt, StartDate)
+            VALUES ($columnId, $title, $sortOrder, $projectId, $priority, $dueDate, $whoId, $lastUpdated, $isRecurring, $recurrencePattern, $goalId, $notes, $isImported, $forceEditOnComplete, $websiteUrl, $dueTime, $completedAt, $startDate);
             SELECT last_insert_rowid();
             """;
         insertCmd.Parameters.AddWithValue("$completedAt", (object?)completedAt ?? DBNull.Value);
@@ -150,6 +151,7 @@ public partial class DatabaseService
         insertCmd.Parameters.AddWithValue("$forceEditOnComplete", forceEditOnComplete ? 1 : 0);
         insertCmd.Parameters.AddWithValue("$websiteUrl", (object?)websiteUrl ?? DBNull.Value);
         insertCmd.Parameters.AddWithValue("$dueTime", (object?)dueTime ?? DBNull.Value);
+        insertCmd.Parameters.AddWithValue("$startDate", (object?)startDate?.ToString("yyyy-MM-dd") ?? DBNull.Value);
         var id = (long)insertCmd.ExecuteScalar()!;
 
         LogHistory(connection, (int)id, title, "Created", $"Added to {columnName}");
@@ -159,7 +161,7 @@ public partial class DatabaseService
             Id = (int)id, ColumnId = columnId, Title = title, SortOrder = (int)sortOrder, ProjectId = projectId,
             Priority = priority, DueDate = dueDate, WhoId = whoId, LastUpdated = DateTime.Parse(now),
             IsRecurring = isRecurring, RecurrencePattern = recurrencePattern, GoalId = goalId, Notes = notes, IsImported = isImported,
-            ForceEditOnComplete = forceEditOnComplete, WebsiteUrl = websiteUrl, DueTime = dueTime,
+            ForceEditOnComplete = forceEditOnComplete, WebsiteUrl = websiteUrl, DueTime = dueTime, StartDate = startDate,
             CompletedAt = completedAt is null ? null : DateTime.Parse(completedAt)
         };
     }
@@ -176,7 +178,7 @@ public partial class DatabaseService
 
     public DateTime UpdateCard(int cardId, string title, int? projectId, string priority, DateTime? dueDate, int? whoId,
         bool isRecurring, string? recurrencePattern, int? goalId, string? notes = null, bool forceEditOnComplete = false,
-        string? websiteUrl = null, string? dueTime = null)
+        string? websiteUrl = null, string? dueTime = null, DateTime? startDate = null)
     {
         using var connection = OpenConnection();
         var now = NowStamp();
@@ -187,7 +189,8 @@ public partial class DatabaseService
                 UPDATE Cards SET Title = $title, ProjectId = $projectId, Priority = $priority,
                     DueDate = $dueDate, WhoId = $whoId, LastUpdated = $lastUpdated,
                     IsRecurring = $isRecurring, RecurrencePattern = $recurrencePattern, GoalId = $goalId, Notes = $notes,
-                    ForceEditOnComplete = $forceEditOnComplete, WebsiteUrl = $websiteUrl, DueTime = $dueTime
+                    ForceEditOnComplete = $forceEditOnComplete, WebsiteUrl = $websiteUrl, DueTime = $dueTime,
+                    StartDate = $startDate
                 WHERE Id = $id;
                 """;
             cmd.Parameters.AddWithValue("$title", title);
@@ -203,6 +206,7 @@ public partial class DatabaseService
             cmd.Parameters.AddWithValue("$forceEditOnComplete", forceEditOnComplete ? 1 : 0);
             cmd.Parameters.AddWithValue("$websiteUrl", (object?)websiteUrl ?? DBNull.Value);
             cmd.Parameters.AddWithValue("$dueTime", (object?)dueTime ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("$startDate", (object?)startDate?.ToString("yyyy-MM-dd") ?? DBNull.Value);
             cmd.Parameters.AddWithValue("$id", cardId);
             cmd.ExecuteNonQuery();
         }

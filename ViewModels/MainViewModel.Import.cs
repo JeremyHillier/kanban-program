@@ -84,10 +84,15 @@ public partial class MainViewModel
             }
 
             var cardVm = AddCard(row.Title.Trim(), column, project, priority, row.DueDate, who,
-                false, null, goal, isImported: true);
+                false, null, goal, isImported: true, startDate: StartNoLaterThanDue(row.StartDate, row.DueDate));
             created.Add(cardVm);
         }
 
         return created;
     }
+
+    // A spreadsheet can say anything. A start date after the due date makes no sense on the board
+    // (the task dialog refuses it), so it is pulled back to the due date rather than rejected.
+    private static DateTime? StartNoLaterThanDue(DateTime? startDate, DateTime? dueDate) =>
+        startDate is not null && dueDate is not null && startDate.Value.Date > dueDate.Value.Date ? dueDate.Value.Date : startDate?.Date;
 }

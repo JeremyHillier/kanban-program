@@ -114,7 +114,8 @@ public partial class TimelineWindow : Window
             _viewModel.EditCard(card, dialog.TaskDetails, dialog.SelectedColumn, dialog.SelectedProject,
                 dialog.SelectedPriority, dialog.SelectedDueDate, dialog.SelectedWho, dialog.IsRecurring, dialog.RecurrencePattern,
                 dialog.SelectedGoal, dialog.SelectedFlags, dialog.SelectedSubTasks, dialog.Notes, attachments: dialog.SelectedAttachments,
-                forceEditOnComplete: dialog.ForceEditOnComplete, websiteUrl: dialog.WebsiteUrl, dueTime: dialog.SelectedDueTime);
+                forceEditOnComplete: dialog.ForceEditOnComplete, websiteUrl: dialog.WebsiteUrl, dueTime: dialog.SelectedDueTime,
+                startDate: dialog.SelectedStartDate);
         }
 
         BuildGrid();
@@ -259,7 +260,7 @@ public partial class TimelineWindow : Window
                     {
                         var parts = new List<string> { task.Title };
                         if (!string.IsNullOrWhiteSpace(task.WhoName) && task.WhoName != "Unassigned") parts.Add(task.WhoName);
-                        parts.Add(task.DueDate!.Value.ToString("MMM d"));
+                        parts.Add(DateLabel(task));
 
                         var priorityBrush = GetPriorityBrush(task.Priority);
                         var block = new Border
@@ -443,7 +444,7 @@ public partial class TimelineWindow : Window
                 {
                     var parts = new List<string> { task.Title };
                     if (!string.IsNullOrWhiteSpace(task.WhoName) && task.WhoName != "Unassigned") parts.Add(task.WhoName);
-                    parts.Add(task.DueDate!.Value.ToString("MMM d"));
+                    parts.Add(DateLabel(task));
                     linesPerTask.Add(WrapWords(string.Join(" - ", parts), regularTypeface, 7.5, unitColWidth - 2 * chipPadding - 4));
                 }
                 cellLines[w] = linesPerTask;
@@ -520,4 +521,10 @@ public partial class TimelineWindow : Window
 
         return fixedDoc;
     }
+
+    // "Oct 20", or "Oct 3 to Oct 20" for a task with a start date. The task still sits in the
+    // column of its due date.
+    private static string DateLabel(CardViewModel task) => task.StartDate is { } start
+        ? $"{start:MMM d} to {task.DueDate!.Value:MMM d}"
+        : task.DueDate!.Value.ToString("MMM d");
 }

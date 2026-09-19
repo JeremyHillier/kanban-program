@@ -198,7 +198,8 @@ public partial class MainViewModel
         DateTime Today,
         DateTime? RangeFrom,
         DateTime? RangeTo,
-        string? Keyword);
+        string? Keyword,
+        bool HideNotStarted);
 
     private FilterCriteria BuildFilterCriteria() => new(
         ProjectFilterOptions.Where(o => o.IsSelected).Select(o => o.Name).ToHashSet(),
@@ -210,7 +211,8 @@ public partial class MainViewModel
         DateTime.Today,
         DueRangeFrom,
         DueRangeTo,
-        string.IsNullOrWhiteSpace(KeywordFilter) ? null : KeywordFilter.Trim());
+        string.IsNullOrWhiteSpace(KeywordFilter) ? null : KeywordFilter.Trim(),
+        HideFutureTasks);
 
     public void ApplyFilters()
     {
@@ -248,6 +250,10 @@ public partial class MainViewModel
 
     private static bool Matches(CardViewModel card, in FilterCriteria criteria)
     {
+        // A view setting rather than a filter (Clear Filters leaves it alone): tasks whose start date
+        // is still ahead. A finished task is never hidden for this, however early it was done.
+        if (criteria.HideNotStarted && card.CompletedAt is null && card.StartDate is { } start && start.Date > criteria.Today) return false;
+
         if (criteria.Projects.Count > 0 && !criteria.Projects.Contains(card.ProjectName)) return false;
 
         if (criteria.Priorities.Count > 0 && !criteria.Priorities.Contains(card.Priority)) return false;

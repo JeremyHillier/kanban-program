@@ -22,6 +22,7 @@ public sealed class ImportServiceTests : IDisposable
             Project = "Household",
             Goal = "Stay organised",
             DueDate = new DateTime(2026, 12, 25),
+            StartDate = new DateTime(2026, 12, 1),
             Who = "Jane Doe"
         });
 
@@ -32,6 +33,7 @@ public sealed class ImportServiceTests : IDisposable
         Assert.Equal("Household", row.Project);
         Assert.Equal("Stay organised", row.Goal);
         Assert.Equal(new DateTime(2026, 12, 25), row.DueDate);
+        Assert.Equal(new DateTime(2026, 12, 1), row.StartDate);
         Assert.Equal("Jane Doe", row.Who);
     }
 

@@ -61,6 +61,8 @@ public partial class MainViewModel
         OnPropertyChanged(nameof(DueTodayCount));
         OnPropertyChanged(nameof(DueThisWeekCount));
         NotifySelectionChanged(); // a deleted, archived or moved card may have been selected
+        OnPropertyChanged(nameof(FutureTaskCount));
+        OnPropertyChanged(nameof(HideFutureButtonLabel));
 
         foreach (var column in Columns)
         {
@@ -68,6 +70,7 @@ public partial class MainViewModel
             foreach (var card in column.Cards)
             {
                 card.IsOverdue = canBeOverdue && card.DueDate is not null && card.DueDate.Value.Date < DateTime.Today;
+                card.RefreshStartDisplay(); // "Starts ..." depends on today's date too
             }
         }
     }
