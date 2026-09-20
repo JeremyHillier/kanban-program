@@ -113,6 +113,8 @@ public partial class DatabaseService
             }
         }
 
+        LoadCardPeople(connection, result);
+
         return result;
     }
 
@@ -382,6 +384,7 @@ public partial class DatabaseService
         {
             cmd.CommandText = """
                 DELETE FROM CardFlags WHERE CardId = $id;
+                DELETE FROM CardPeople WHERE CardId = $id;
                 DELETE FROM SubTasks WHERE CardId = $id;
                 DELETE FROM CardAttachments WHERE CardId = $id;
                 DELETE FROM Cards WHERE Id = $id;

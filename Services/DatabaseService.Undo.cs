@@ -13,6 +13,7 @@ public sealed class CardSnapshot
     public required int CardId { get; init; }
     public required Dictionary<string, object?> Row { get; init; }
     public required List<int> FlagIds { get; init; }
+    public List<int> PersonIds { get; init; } = [];
     public required List<(string Title, bool IsDone)> SubTasks { get; init; }
 }
 
@@ -51,6 +52,13 @@ public partial class DatabaseService
             cmd.CommandText = $"SELECT CardId, FlagId FROM CardFlags WHERE CardId IN ({idList});";
             using var reader = cmd.ExecuteReader();
             while (reader.Read()) byId[reader.GetInt32(0)].FlagIds.Add(reader.GetInt32(1));
+        }
+
+        using (var cmd = connection.CreateCommand())
+        {
+            cmd.CommandText = $"SELECT CardId, PersonId FROM CardPeople WHERE CardId IN ({idList}) ORDER BY CardId, SortOrder;";
+            using var reader = cmd.ExecuteReader();
+            while (reader.Read()) byId[reader.GetInt32(0)].PersonIds.Add(reader.GetInt32(1));
         }
 
         using (var cmd = connection.CreateCommand())
@@ -95,6 +103,10 @@ public partial class DatabaseService
             {
                 Execute(connection, "INSERT INTO CardFlags (CardId, FlagId) VALUES ($id, $flagId);", ("$id", snapshot.CardId), ("$flagId", flagId));
             }
+
+            // People who have been deleted since are dropped; the lead (WhoId) follows the list, so
+            // if it was the lead who went, the next person steps up.
+            WriteCardPeople(connection, transaction, snapshot.CardId, snapshot.PersonIds.Where(p => Exists(connection, "People", p)).ToList());
 
             Execute(connection, "DELETE FROM SubTasks WHERE CardId = $id;", ("$id", snapshot.CardId));
             for (var i = 0; i < snapshot.SubTasks.Count; i++)

@@ -19,6 +19,51 @@
             <Setter Property="Orientation" Value="Horizontal"/>
             <Setter Property="Margin" Value="0,12,0,4"/>
         </Style>
+        <!-- The Who drop-down button: looks like the dialog's other drop-downs, open or closed,
+             rather than taking the theme's bright "checked" look while its list is open. -->
+        <Style x:Key="WhoDropDownButtonStyle" TargetType="ToggleButton">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ToggleButton">
+                        <Border x:Name="Bd" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="4" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="BorderBrush" Value="{DynamicResource CardOutlineBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsKeyboardFocused" Value="True">
+                                <Setter TargetName="Bd" Property="BorderBrush" Value="{DynamicResource AccentTextBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="Bd" Property="BorderBrush" Value="{DynamicResource AccentTextBrush}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- "make lead" beside a ticked person in the Who list: a plain text link. -->
+        <Style x:Key="WhoLeadLinkStyle" TargetType="Button">
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Foreground" Value="{DynamicResource AccentTextBrush}"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <TextBlock x:Name="Txt" Text="{TemplateBinding Content}" Foreground="{TemplateBinding Foreground}" Background="Transparent"/>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Txt" Property="TextDecorations" Value="Underline"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
         <Style x:Key="NewLinkButtonStyle" BasedOn="{StaticResource {x:Type Button}}" TargetType="Button">
             <Setter Property="Width" Value="20"/>
             <Setter Property="Height" Value="20"/>
@@ -120,7 +165,7 @@
                     <StackPanel Grid.Row="0" Grid.Column="4" Style="{StaticResource FieldLabelRowStyle}">
                         <TextBlock Text="Who" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Center"/>
                         <Button Content="+" Style="{StaticResource NewLinkButtonStyle}" ToolTip="Add new person" Click="NewWho_Click"/>
-                        <Button Content="−" Style="{StaticResource DeleteLinkButtonStyle}" ToolTip="Clear who" Click="DeleteWho_Click"/>
+                        <Button Content="−" Style="{StaticResource DeleteLinkButtonStyle}" ToolTip="Clear everyone" Click="DeleteWho_Click"/>
                     </StackPanel>
                     <ComboBox Grid.Row="1" Grid.Column="0" x:Name="PriorityComboBox" Padding="6" SelectedIndex="2"
                               Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
@@ -134,10 +179,31 @@
                               DisplayMemberPath="DisplayName" SelectedIndex="0"
                               Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
                               BorderBrush="{DynamicResource CardBorderBrush}"/>
-                    <ComboBox Grid.Row="1" Grid.Column="4" x:Name="WhoComboBox" Padding="6" SelectedIndex="-1"
-                              DisplayMemberPath="Name" SelectionChanged="WhoComboBox_SelectionChanged"
-                              Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
-                              BorderBrush="{DynamicResource CardBorderBrush}"/>
+                    <!-- Who: a drop-down of tickboxes, since a task can have several people. The
+                         first one ticked is the lead; the list under the button says who that is. -->
+                    <Grid Grid.Row="1" Grid.Column="4">
+                        <ToggleButton x:Name="WhoButton" Style="{StaticResource WhoDropDownButtonStyle}" Padding="8,6,6,6" HorizontalContentAlignment="Stretch" Cursor="Hand"
+                                      Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                                      BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="1"
+                                      ToolTip="Tick everyone this task is assigned to. The first person ticked is the lead.">
+                            <DockPanel>
+                                <TextBlock DockPanel.Dock="Right" Text="▾" Margin="6,0,2,0" VerticalAlignment="Center"
+                                           Foreground="{DynamicResource SecondaryTextStrongBrush}"/>
+                                <TextBlock x:Name="WhoSummaryText" TextTrimming="CharacterEllipsis" VerticalAlignment="Center"/>
+                            </DockPanel>
+                        </ToggleButton>
+                        <Popup x:Name="WhoPopup" PlacementTarget="{Binding ElementName=WhoButton}" Placement="Bottom" StaysOpen="False"
+                               AllowsTransparency="True" IsOpen="{Binding IsChecked, ElementName=WhoButton, Mode=TwoWay}"
+                               Opened="WhoPopup_Opened" Closed="WhoPopup_Closed"
+                               MinWidth="{Binding ActualWidth, ElementName=WhoButton}">
+                            <Border Background="{DynamicResource InputBackgroundBrush}" BorderBrush="{DynamicResource CardOutlineBrush}"
+                                    BorderThickness="1" CornerRadius="4" Padding="8,6" Margin="0,2,0,0">
+                                <ScrollViewer MaxHeight="280" VerticalScrollBarVisibility="Auto">
+                                    <StackPanel x:Name="WhoPanel"/>
+                                </ScrollViewer>
+                            </Border>
+                        </Popup>
+                    </Grid>
 
                     <!-- Dates box (Start, Due / Recurring, Time) | Goal, Force edit -->
                     <!-- Everything about when: the dates on the first line, how it repeats and its

@@ -36,7 +36,9 @@ public partial class AddTaskWindow : Window
     public DateTime? SelectedDueDate { get; private set; }
     public string? SelectedDueTime { get; private set; }
     public DateTime? SelectedStartDate { get; private set; }
-    public PersonViewModel? SelectedWho { get; private set; }
+    // Everyone the task is assigned to, lead first. SelectedWho is the lead.
+    public List<PersonViewModel> SelectedPeople { get; private set; } = [];
+    public PersonViewModel? SelectedWho => SelectedPeople.FirstOrDefault();
     public string? Notes { get; private set; }
     public string? WebsiteUrl { get; private set; }
     public string? WaitingOn { get; private set; }
@@ -101,7 +103,7 @@ public partial class AddTaskWindow : Window
             DueDatePicker.SelectedDate?.ToString("yyyy-MM-dd") ?? "-",
             StartDatePicker.SelectedDate?.ToString("yyyy-MM-dd") ?? "-",
             CurrentDueTime() ?? DueTimeTextBox.Text.Trim(),
-            (WhoComboBox.SelectedItem as PersonViewModel)?.Id.ToString() ?? "-",
+            string.Join(",", _selectedPeople.Select(p => p.Id)),
             (GoalComboBox.SelectedItem as GoalViewModel)?.Id.ToString() ?? "-",
             RecurringCheckBox.IsChecked == true,
             (RecurrenceComboBox.SelectedItem as ComboBoxItem)?.Content as string ?? "-",
@@ -180,7 +182,7 @@ public partial class AddTaskWindow : Window
         DueDatePicker.SelectedDate = cardToEdit.DueDate;
         StartDatePicker.SelectedDate = cardToEdit.StartDate;
         DueTimeTextBox.Text = DueTimeParser.Format(cardToEdit.DueTime);
-        RebuildWhoItems(_viewModel.People.FirstOrDefault(p => p.Id == cardToEdit.WhoId));
+        SetSelectedPeople(cardToEdit.People);
         NotesTextBox.Text = cardToEdit.Notes ?? string.Empty;
         WebsiteUrlTextBox.Text = cardToEdit.WebsiteUrl ?? string.Empty;
         WaitingOnTextBox.Text = cardToEdit.WaitingOn ?? string.Empty;
@@ -237,20 +239,6 @@ public partial class AddTaskWindow : Window
         GoalComboBox.SelectedItem = autoSelect is null
             ? null
             : items.FirstOrDefault(g => g.Id == autoSelect.Id);
-    }
-
-    private void RebuildWhoItems(PersonViewModel? autoSelect = null)
-    {
-        var items = _viewModel.People.Where(p => p.IsActive).ToList();
-        if (autoSelect is not null && !items.Any(p => p.Id == autoSelect.Id))
-        {
-            items.Insert(0, autoSelect);
-        }
-
-        WhoComboBox.ItemsSource = items;
-        WhoComboBox.SelectedItem = autoSelect is null
-            ? null
-            : items.FirstOrDefault(p => p.Id == autoSelect.Id);
     }
 
     private void RebuildFlagCheckboxes(int? autoCheckFlagId = null, IEnumerable<int>? forceCheckedIds = null)
@@ -359,23 +347,6 @@ public partial class AddTaskWindow : Window
         {
             MessageBox.Show($"Couldn't open the file: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
         }
-    }
-
-    private void WhoComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-    {
-        // Reacts to the live selection rather than the card's saved WhoId/Email, so assigning
-        // someone (with an email on file) to a previously-unassigned task lights the button up
-        // immediately, without needing to save and reopen the dialog first.
-        var hasEmail = _cardToEdit is not null && WhoComboBox.SelectedItem is PersonViewModel { Email: { Length: > 0 } };
-        EmailButton.Visibility = hasEmail ? Visibility.Visible : Visibility.Collapsed;
-    }
-
-    private void Email_Click(object sender, RoutedEventArgs e)
-    {
-        if (_cardToEdit is null) return;
-        if (WhoComboBox.SelectedItem is not PersonViewModel { Email: { Length: > 0 } } selected) return;
-
-        OutlookEmailHelper.ComposeCardEmail(this, _cardToEdit, selected.Email, _viewModel);
     }
 
     private void AddFile_Click(object sender, RoutedEventArgs e)
@@ -763,20 +734,6 @@ public partial class AddTaskWindow : Window
         GoalComboBox.SelectedIndex = -1;
     }
 
-    private void NewWho_Click(object sender, RoutedEventArgs e)
-    {
-        var dialog = new PromptWindow("New Person", "Person name") { Owner = this };
-        if (dialog.ShowDialog() != true) return;
-
-        _viewModel.AddPerson(dialog.Value);
-        RebuildWhoItems(_viewModel.People.FirstOrDefault(p => p.Name == dialog.Value.Trim()));
-    }
-
-    private void DeleteWho_Click(object sender, RoutedEventArgs e)
-    {
-        WhoComboBox.SelectedIndex = -1;
-    }
-
     private void NewFlag_Click(object sender, RoutedEventArgs e)
     {
         var dialog = new PromptWindow("New Flag", "Flag name") { Owner = this };
@@ -922,7 +879,7 @@ public partial class AddTaskWindow : Window
         SelectedPriority = (string)priorityItem.Content;
         SelectedDueDate = DueDatePicker.SelectedDate;
         SelectedStartDate = StartDatePicker.SelectedDate;
-        SelectedWho = WhoComboBox.SelectedItem as PersonViewModel;
+        SelectedPeople = [.. _selectedPeople];
         Notes = string.IsNullOrWhiteSpace(NotesTextBox.Text) ? null : NotesTextBox.Text.Trim();
         WebsiteUrl = string.IsNullOrWhiteSpace(WebsiteUrlTextBox.Text) ? null : WebsiteUrlTextBox.Text.Trim();
         WaitingOn = string.IsNullOrWhiteSpace(WaitingOnTextBox.Text) ? null : WaitingOnTextBox.Text.Trim();

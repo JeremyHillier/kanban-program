@@ -29,7 +29,7 @@ public partial class MainViewModel
 
         person.Email = trimmed;
         _db.SetPersonEmail(person.Id, trimmed);
-        UpdateMatchingCards(c => c.WhoId == person.Id, c => c.WhoEmail = trimmed);
+        UpdateMatchingCards(c => c.IsAssignedTo(person.Id), c => c.RefreshPeople());
     }
 
     public void AddGoal(string name) => _goalManager.Add(name);

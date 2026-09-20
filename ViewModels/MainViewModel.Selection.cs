@@ -134,12 +134,28 @@ public partial class MainViewModel
     public void SetCardsPriority(IEnumerable<CardViewModel> cards, string priority) =>
         ChangeCards("Change priority of", cards, c => c.Priority != priority, c => c.Priority = priority);
 
+    // Makes this one person the whole assignment of every task (or nobody, for null).
     public void SetCardsWho(IEnumerable<CardViewModel> cards, PersonViewModel? who) =>
-        ChangeCards("Reassign", cards, c => c.WhoId != who?.Id, c =>
+        ChangeCards("Reassign", cards, c => c.People.Count != (who is null ? 0 : 1) || c.WhoId != who?.Id, c =>
         {
-            c.WhoId = who?.Id;
-            c.WhoName = who?.Name ?? "Unassigned";
-            c.WhoEmail = who?.Email;
+            c.People = who is null ? [] : [who];
+            PersistPeople(c);
+        });
+
+    // Adds the person to each task that doesn't have them yet, leaving whoever is already there.
+    public void AddPersonToCards(IEnumerable<CardViewModel> cards, PersonViewModel person) =>
+        ChangeCards("Add a person to", cards, c => !c.IsAssignedTo(person.Id), c =>
+        {
+            c.People = [.. c.People, person];
+            PersistPeople(c);
+        });
+
+    // Takes the person off each task that has them. Where they were the lead, the next person steps up.
+    public void RemovePersonFromCards(IEnumerable<CardViewModel> cards, PersonViewModel person) =>
+        ChangeCards("Take a person off", cards, c => c.IsAssignedTo(person.Id), c =>
+        {
+            c.People = c.People.Where(p => p.Id != person.Id).ToList();
+            PersistPeople(c);
         });
 
     public void SetCardsProject(IEnumerable<CardViewModel> cards, ProjectViewModel project) =>

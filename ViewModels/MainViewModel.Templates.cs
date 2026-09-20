@@ -25,6 +25,7 @@ public partial class MainViewModel
         ProjectId = card.ProjectId,
         Priority = card.Priority,
         WhoId = card.WhoId,
+        PeopleIds = card.People.Select(p => p.Id).ToList(),
         GoalId = card.GoalId,
         FlagIds = card.Flags.Select(f => f.Id).ToList(),
         SubTasks = card.SubTasks.Select(s => s.Title).ToList(),

@@ -16,12 +16,12 @@ public static class ImportService
 
         sheet.Range(1, 1, 1, Headers.Length).Merge();
         sheet.Cell(1, 1).Value = "One task per row below. Category and Priority must be chosen from their dropdown. "
-            + "Project, Goal, and Who offer a dropdown of existing values, but you can type a new one instead. "
+            + "Project, Goal, and Who offer a dropdown of existing values, but you can type a new one instead. For more than one person, type the names in the Who cell with a semicolon between them (Sam Lee; Priya Patel) - the first is the lead. "
             + "Due Date and Start Date (optional, the earliest the task can be worked on): enter as MM/DD/YYYY (year optional, defaults to this year) — shown as DD-MMM-YYYY. Only Title is required.";
         sheet.Cell(1, 1).Style.Font.Italic = true;
         sheet.Cell(1, 1).Style.Font.FontColor = XLColor.FromArgb(0x88, 0x88, 0x88);
         sheet.Cell(1, 1).Style.Alignment.WrapText = true;
-        sheet.Row(1).Height = 30;
+        sheet.Row(1).Height = 45;
 
         for (var i = 0; i < Headers.Length; i++)
         {

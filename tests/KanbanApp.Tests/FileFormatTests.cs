@@ -77,8 +77,8 @@ public sealed class FileFormatTests : IDisposable
     [Fact]
     public void ChangingTheTables_MeansRaisingTheFileFormat()
     {
-        const int formatTheFingerprintBelongsTo = 1;
-        const string fingerprint = "8ACEDA89DF6516E4";
+        const int formatTheFingerprintBelongsTo = 2;
+        const string fingerprint = "0D5C96D398DD6B52";
 
         Open();
         SqliteConnection.ClearAllPools();

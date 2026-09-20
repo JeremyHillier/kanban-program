@@ -21,7 +21,8 @@ public class CardItem
     // Who or what the task is blocked by, in the user's own words. Empty or null means it isn't waiting.
     public string? WaitingOn { get; set; }
     public DateTime? CompletedAt { get; set; } // set while the task is in Done (or archived from it)
-    public int? WhoId { get; set; }
+    public int? WhoId { get; set; } // the lead: always the first of PeopleIds
+    public List<int> PeopleIds { get; set; } = [];
     public DateTime? LastUpdated { get; set; }
     public bool IsRecurring { get; set; }
     public string? RecurrencePattern { get; set; }

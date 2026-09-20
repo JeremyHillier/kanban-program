@@ -51,7 +51,7 @@ public partial class AddTaskWindow
         DetailsTextBox.Text = template.Title;
         RebuildProjectItems(_viewModel.Projects.FirstOrDefault(p => p.Id == template.ProjectId && p.IsActive));
         RebuildGoalItems(_viewModel.Goals.FirstOrDefault(g => g.Id == template.GoalId && g.IsActive));
-        RebuildWhoItems(_viewModel.People.FirstOrDefault(p => p.Id == template.WhoId && p.IsActive));
+        SetSelectedPeople(template.AllPeopleIds.Select(id => _viewModel.People.FirstOrDefault(p => p.Id == id && p.IsActive)).OfType<PersonViewModel>());
 
         PriorityComboBox.SelectedItem = PriorityComboBox.Items.OfType<ComboBoxItem>().FirstOrDefault(i => (string)i.Content == template.Priority)
             ?? PriorityComboBox.SelectedItem;
@@ -92,7 +92,8 @@ public partial class AddTaskWindow
             Title = DetailsTextBox.Text.Trim(),
             ProjectId = (ProjectComboBox.SelectedItem as ProjectViewModel)?.Id,
             Priority = (PriorityComboBox.SelectedItem as ComboBoxItem)?.Content as string ?? "Normal",
-            WhoId = (WhoComboBox.SelectedItem as PersonViewModel)?.Id,
+            WhoId = _selectedPeople.FirstOrDefault()?.Id,
+            PeopleIds = _selectedPeople.Select(p => p.Id).ToList(),
             GoalId = (GoalComboBox.SelectedItem as GoalViewModel)?.Id,
             FlagIds = FlagsPanel.Children.OfType<CheckBox>().Where(cb => cb.IsChecked == true).Select(cb => ((FlagViewModel)cb.Tag).Id).ToList(),
             SubTasks = SubTasksPanel.Children.OfType<Grid>().Select(row => ((TextBox)row.Children[2]).Text.Trim()).Where(t => t.Length > 0).ToList(),

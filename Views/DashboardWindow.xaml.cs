@@ -120,7 +120,8 @@ public partial class DashboardWindow : Window
                 (status.DisplayName, cardsWithColumn.Count(x => x.Card.ProjectName == project && x.ColumnName == status.Name),
                  StatusPalette.GetValueOrDefault(status.Name, FallbackStatusBrush))));
 
-        var whoGroups = allCards.GroupBy(c => c.WhoName)
+        // A shared task counts once for each of its people.
+        var whoGroups = allCards.SelectMany(c => c.People.Count == 0 ? ["Unassigned"] : c.People.Select(p => p.Name)).GroupBy(name => name)
             .OrderByDescending(g => g.Count()).ThenBy(g => g.Key, StringComparer.OrdinalIgnoreCase)
             .Select((g, i) => (g.Key, g.Count(), CategoryPalette[i % CategoryPalette.Length]));
         WhoChart.ItemsSource = BuildBars(whoGroups);

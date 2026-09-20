@@ -83,7 +83,7 @@ public partial class MainViewModel
     private static IOrderedEnumerable<CardViewModel> OrderByKey(IEnumerable<CardViewModel> cards, SortKey key) => key switch
     {
         SortKey.DueDate => cards.OrderBy(c => c.DueDate ?? DateTime.MaxValue),
-        SortKey.Who => cards.OrderBy(c => c.WhoName, StringComparer.OrdinalIgnoreCase),
+        SortKey.Who => cards.OrderBy(c => c.LeadName, StringComparer.OrdinalIgnoreCase),
         SortKey.Priority => cards.OrderBy(c => PriorityRank(c.Priority)),
         _ => cards.OrderBy(c => c.ProjectName, StringComparer.OrdinalIgnoreCase)
     };
@@ -91,7 +91,7 @@ public partial class MainViewModel
     private static IOrderedEnumerable<CardViewModel> ThenByKey(IOrderedEnumerable<CardViewModel> cards, SortKey key) => key switch
     {
         SortKey.DueDate => cards.ThenBy(c => c.DueDate ?? DateTime.MaxValue),
-        SortKey.Who => cards.ThenBy(c => c.WhoName, StringComparer.OrdinalIgnoreCase),
+        SortKey.Who => cards.ThenBy(c => c.LeadName, StringComparer.OrdinalIgnoreCase),
         SortKey.Priority => cards.ThenBy(c => PriorityRank(c.Priority)),
         _ => cards.ThenBy(c => c.ProjectName, StringComparer.OrdinalIgnoreCase)
     };

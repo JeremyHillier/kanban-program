@@ -30,7 +30,7 @@ public partial class MainViewModel
         AddCard(completedCard.Title, toDoColumn, project, completedCard.Priority, nextDueDate, who,
             true, completedCard.RecurrencePattern, goal, completedCard.Flags, freshSubTasks, completedCard.Notes,
             forceEditOnComplete: completedCard.ForceEditOnComplete, websiteUrl: completedCard.WebsiteUrl, dueTime: completedCard.DueTime,
-            startDate: nextStartDate);
+            startDate: nextStartDate, people: [.. completedCard.People]);
     }
 
     internal static DateTime CalculateNextDueDate(DateTime anchor, string pattern) => pattern switch

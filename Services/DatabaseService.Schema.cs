@@ -169,6 +169,7 @@ public partial class DatabaseService
         }
 
         BackfillPeopleFromLegacyWho(connection);
+        EnsureCardPeopleTable(connection); // after the line above: its backfill reads the WhoId that one fills in
 
         using (var checkCmd = connection.CreateCommand())
         {

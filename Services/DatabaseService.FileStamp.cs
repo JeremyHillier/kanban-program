@@ -13,7 +13,8 @@ namespace KanbanApp.Services;
 // FileFormatTests fails when the tables change without this number changing.
 public partial class DatabaseService
 {
-    public const int CurrentFileFormat = 1;
+    // 1: first stamped format (0.102.0). 2: CardPeople - a task can have several people (0.103.0).
+    public const int CurrentFileFormat = 2;
 
     private const string FileFormatKey = "FileFormat";
     private const string FileFormatAppVersionKey = "FileFormatAppVersion";

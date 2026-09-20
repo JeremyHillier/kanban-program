@@ -250,10 +250,15 @@ public static class OutlookEmailHelper
 
     internal static string EmailSubject(CardViewModel card) => $"Task: {card.Title}";
 
+    // Several recipients arrive as "a@x.com; b@y.com" (how Outlook wants them). A mailto link
+    // wants commas between them instead, each address escaped on its own.
+    internal static string JoinRecipients(IEnumerable<string> emails) => string.Join("; ", emails);
+
     // A long body is shortened to fit, ending in an ellipsis, rather than the link failing to open.
     internal static string BuildMailtoUri(string recipient, string subject, string body)
     {
-        var to = Uri.EscapeDataString(recipient).Replace("%40", "@");
+        var to = string.Join(",", recipient.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Select(address => Uri.EscapeDataString(address).Replace("%40", "@")));
         string Build(string text) => $"mailto:{to}?subject={Uri.EscapeDataString(subject)}&body={Uri.EscapeDataString(text)}";
 
         var uri = Build(body);
@@ -379,7 +384,7 @@ public static class OutlookEmailHelper
         DueDate = card.DueDate,
         StartDate = card.StartDate,
         WaitingOn = card.WaitingOn,
-        Who = card.WhoName == "Unassigned" ? null : card.WhoName
+        Who = card.People.Count == 0 ? null : string.Join("; ", card.People.Select(p => p.Name)) // semicolons: how the import reads several people
     };
 
     private static string ImportFileName(string taskTitle) => $"KanbanTask_{SanitizeFileName(taskTitle)}.xlsx";

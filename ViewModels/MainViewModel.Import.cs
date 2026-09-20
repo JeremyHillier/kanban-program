@@ -71,26 +71,34 @@ public partial class MainViewModel
                 }
             }
 
-            PersonViewModel? who = null;
-            if (!string.IsNullOrWhiteSpace(row.Who))
+            // Several people go in the one Who cell, separated by semicolons; the first is the lead.
+            var people = new List<PersonViewModel>();
+            foreach (var name in SplitPeopleNames(row.Who))
             {
-                var name = row.Who.Trim();
-                who = People.FirstOrDefault(p => string.Equals(p.Name, name, StringComparison.OrdinalIgnoreCase));
-                if (who is null)
+                var person = People.FirstOrDefault(p => string.Equals(p.Name, name, StringComparison.OrdinalIgnoreCase));
+                if (person is null)
                 {
                     AddPerson(name);
-                    who = People.FirstOrDefault(p => string.Equals(p.Name, name, StringComparison.OrdinalIgnoreCase));
+                    person = People.FirstOrDefault(p => string.Equals(p.Name, name, StringComparison.OrdinalIgnoreCase));
                 }
+
+                if (person is not null && people.All(p => p.Id != person.Id)) people.Add(person);
             }
 
-            var cardVm = AddCard(row.Title.Trim(), column, project, priority, row.DueDate, who,
+            var cardVm = AddCard(row.Title.Trim(), column, project, priority, row.DueDate, people.FirstOrDefault(),
                 false, null, goal, isImported: true, startDate: StartNoLaterThanDue(row.StartDate, row.DueDate),
-                waitingOn: row.WaitingOn);
+                waitingOn: row.WaitingOn, people: people);
             created.Add(cardVm);
         }
 
         return created;
     }
+
+    // "Sam Lee; Priya Patel" -> the names, trimmed, blanks and repeats dropped. A name with a comma
+    // in it ("Lee, Sam") stays whole, which is why the separator is a semicolon.
+    internal static List<string> SplitPeopleNames(string? cell) =>
+        (cell ?? string.Empty).Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Distinct(StringComparer.OrdinalIgnoreCase).ToList();
 
     // A spreadsheet can say anything. A start date after the due date makes no sense on the board
     // (the task dialog refuses it), so it is pulled back to the due date rather than rejected.

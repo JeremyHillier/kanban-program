@@ -9,7 +9,8 @@ public class ReportRow
     public DateTime? DueDate { get; init; }
     public DateTime? StartDate { get; init; }
     public string? WaitingOn { get; init; }
-    public string? Who { get; init; }
+    public string? Who { get; init; } // everyone, for display: "Alice, Bob"
+    public List<string> People { get; init; } = []; // the same people one by one, lead first
     public required string GoalName { get; init; }
     public List<string> Flags { get; init; } = [];
     public List<(string Title, bool IsDone)> SubTasks { get; init; } = [];

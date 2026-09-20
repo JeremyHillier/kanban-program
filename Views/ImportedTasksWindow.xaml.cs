@@ -73,9 +73,14 @@ public partial class ImportedTasksWindow : Window
 
             var project = row.ProjectId is null ? null : _viewModel.Projects.FirstOrDefault(p => p.Id == row.ProjectId);
             var goal = row.GoalId is null ? null : _viewModel.Goals.FirstOrDefault(g => g.Id == row.GoalId);
+            // This screen edits one person per row - the lead. Left alone, everyone stays. Changed,
+            // the new person takes the lead's place and the others stay; cleared, nobody is assigned.
             var who = row.WhoId is null ? null : _viewModel.People.FirstOrDefault(p => p.Id == row.WhoId);
+            IReadOnlyList<PersonViewModel> people = row.WhoId == row.Card.WhoId ? row.Card.People
+                : who is null ? []
+                : [who, .. row.Card.People.Skip(1).Where(p => p.Id != who.Id)];
 
-            _viewModel.EditCard(row.Card, row.Title, column, project, row.Priority, row.DueDate, who,
+            _viewModel.EditCard(row.Card, row.Title, column, project, row.Priority, row.DueDate, people,
                 row.Card.IsRecurring, row.Card.RecurrencePattern, goal, row.Card.Flags, row.Card.SubTasks, row.Card.Notes,
                 attachments: row.Card.Attachments, forceEditOnComplete: row.Card.ForceEditOnComplete,
                 websiteUrl: row.Card.WebsiteUrl, dueTime: row.Card.DueTime, startDate: row.Card.StartDate,

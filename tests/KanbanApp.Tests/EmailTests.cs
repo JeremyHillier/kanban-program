@@ -16,7 +16,7 @@ public sealed class EmailTests : IDisposable
     {
         var model = new CardItem { Title = "Quarterly report", Priority = "High" };
         configure?.Invoke(model);
-        return new CardViewModel(model) { ProjectName = "Finance", GoalName = "No Goal", WhoName = "Unassigned" };
+        return new CardViewModel(model) { ProjectName = "Finance", GoalName = "No Goal" };
     }
 
     [Fact]

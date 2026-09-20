@@ -6,6 +6,18 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.103.0 — 2026-09-20
+- New: shared tasks. A task can now be assigned to more than one person. Open the Who list on the task screen and tick everyone involved; the first person ticked is the lead, and "make lead" changes that at any time
+- Cards list everyone assigned to a task, lead first. Clicking the Assigned line, or Assign To in the right-click menu, adds or removes one person without affecting the others
+- The Who filter shows a shared task when any of its people is selected, and Sort by Who orders tasks by their lead
+- Email This Task is addressed to everyone on the task who has an email address
+- Reports grouped by Who list a shared task under each of its people, with a note naming the others it appears under. The Dashboard's Who chart counts shared tasks the same way
+- Excel import accepts several names in the Who cell, separated by semicolons (for example: Sam Lee; Priya Patel). The task file attached to a task email lists everyone in the same format
+- With several tasks selected, Assign To adds a person to all of them or removes that person from all of them, and Unassigned clears everyone
+- Duplicated tasks, the next occurrence of a recurring task, and task templates all carry the full list of people. Undo covers every assignment change
+- Existing tasks are unchanged: each keeps its current person, who becomes the lead
+- Improved: a long list of assigned people now wraps onto a second line on the card instead of being cut off
+
 ## 0.102.0 — 2026-09-20
 - Timeline: the window now remembers whether you left it in Day view or Week view
 - The navy behind the button column and the header is now lighter in light mode and deeper in dark mode

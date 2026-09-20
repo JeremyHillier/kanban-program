@@ -83,20 +83,26 @@ public partial class DatabaseService
         cmd.ExecuteNonQuery();
     }
 
+    // Takes the person off every task. Where they were the lead, the next person on that task's
+    // list steps up (or nobody, if they were the only one).
     public void DeletePerson(int personId)
     {
         using var connection = OpenConnection();
+        using var transaction = connection.BeginTransaction();
 
         using (var clearCmd = connection.CreateCommand())
         {
-            clearCmd.CommandText = "UPDATE Cards SET WhoId = NULL WHERE WhoId = $id;";
+            clearCmd.Transaction = transaction;
+            clearCmd.CommandText = """
+                DELETE FROM CardPeople WHERE PersonId = $id;
+                UPDATE Cards SET WhoId = (SELECT PersonId FROM CardPeople WHERE CardId = Cards.Id ORDER BY SortOrder LIMIT 1)
+                WHERE WhoId = $id;
+                DELETE FROM People WHERE Id = $id;
+                """;
             clearCmd.Parameters.AddWithValue("$id", personId);
             clearCmd.ExecuteNonQuery();
         }
 
-        using var deleteCmd = connection.CreateCommand();
-        deleteCmd.CommandText = "DELETE FROM People WHERE Id = $id;";
-        deleteCmd.Parameters.AddWithValue("$id", personId);
-        deleteCmd.ExecuteNonQuery();
+        transaction.Commit();
     }
 }

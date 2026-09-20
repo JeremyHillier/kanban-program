@@ -873,8 +873,9 @@
                                                                     <TextBlock Text="{Binding FlagsDisplay}" FontSize="10" Foreground="{DynamicResource SecondaryTextBrush}" FontStyle="Italic" Margin="0,3,0,0"
                                                                                Visibility="{Binding FlagsDisplay, Converter={StaticResource EmptyStringToVisibilityConverter}}"/>
 
-                                                                    <StackPanel Orientation="Horizontal" Margin="0,3,0,0">
-                                                                        <TextBlock Text="{Binding DueDateDisplay}" FontSize="10"
+                                                                    <!-- A WrapPanel, so a long list of people drops to its own line and wraps rather than being cut off. -->
+                                                                    <WrapPanel Margin="0,3,0,0">
+                                                                        <TextBlock Text="{Binding DueDateDisplay}" FontSize="10" Margin="0,0,8,0"
                                                                                    Cursor="Hand" ToolTip="Click to change due date"
                                                                                    MouseLeftButtonUp="DueDateDisplay_MouseLeftButtonUp"
                                                                                    Visibility="{Binding DueDateDisplay, Converter={StaticResource EmptyStringToVisibilityConverter}}">
@@ -891,11 +892,11 @@
                                                                                 </Style>
                                                                             </TextBlock.Style>
                                                                         </TextBlock>
-                                                                        <TextBlock Text="{Binding WhoDisplay}" FontSize="10" Foreground="{DynamicResource SecondaryTextBrush}" Margin="8,0,0,0"
-                                                                                   Cursor="Hand" ToolTip="Click to reassign"
+                                                                        <TextBlock Text="{Binding WhoDisplay}" FontSize="10" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,0,0,0" TextWrapping="Wrap"
+                                                                                   Cursor="Hand" ToolTip="Click to change who this is assigned to. The first person named is the lead."
                                                                                    MouseLeftButtonUp="WhoDisplay_MouseLeftButtonUp"
                                                                                    Visibility="{Binding WhoDisplay, Converter={StaticResource EmptyStringToVisibilityConverter}}"/>
-                                                                    </StackPanel>
+                                                                    </WrapPanel>
                                                                     <TextBlock Text="{Binding WaitingOnDisplay}" FontSize="10" FontWeight="SemiBold" TextWrapping="Wrap"
                                                                                Background="#FFFFE0B2" Foreground="#FF4E342E" Padding="3,1" Margin="0,3,0,0" HorizontalAlignment="Left"
                                                                                Cursor="Hand" ToolTip="Click to change or clear what this task is waiting on"

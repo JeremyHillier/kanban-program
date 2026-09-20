@@ -275,10 +275,12 @@ public partial class MainViewModel
 
         if (criteria.Priorities.Count > 0 && !criteria.Priorities.Contains(card.Priority)) return false;
 
+        // A shared task shows when any one of its people is picked.
         if (criteria.Whos.Count > 0)
         {
-            var whoKey = card.WhoId is null ? "Unassigned" : card.WhoName;
-            if (!criteria.Whos.Contains(whoKey)) return false;
+            var whos = criteria.Whos;
+            var matches = card.People.Count == 0 ? whos.Contains("Unassigned") : card.People.Any(p => whos.Contains(p.Name));
+            if (!matches) return false;
         }
 
         if (criteria.Goal == "Unassigned")

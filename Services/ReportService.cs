@@ -106,6 +106,7 @@ public static class ReportService
         StartDate = card.StartDate,
         WaitingOn = card.WaitingOn,
         Who = card.WhoId is null ? null : card.WhoName,
+        People = card.People.Select(p => p.Name).ToList(),
         GoalName = card.GoalName,
         Flags = card.Flags.Select(f => f.Name).ToList(),
         SubTasks = card.SubTasks.Select(s => (s.Title, s.IsDone)).ToList(),
@@ -123,8 +124,9 @@ public static class ReportService
 
         if (whoFilter.Count > 0)
         {
-            var whoKey = card.WhoId is null ? "Unassigned" : card.WhoName;
-            if (!whoFilter.Contains(whoKey)) return false;
+            // A shared task counts for each of its people.
+            var matchesWho = card.People.Count == 0 ? whoFilter.Contains("Unassigned") : card.People.Any(p => whoFilter.Contains(p.Name));
+            if (!matchesWho) return false;
         }
 
         if (goalFilter == "Unassigned")
@@ -213,7 +215,7 @@ public static class ReportService
     {
         "Category" => rows.OrderBy(r => CategoryRank(r, categoryOrder)),
         "Priority" => rows.OrderBy(r => PriorityRank(r.Priority)),
-        "Who" => rows.OrderBy(r => string.IsNullOrWhiteSpace(r.Who) ? "Unassigned" : r.Who, StringComparer.OrdinalIgnoreCase),
+        "Who" => rows.OrderBy(LeadOf, StringComparer.OrdinalIgnoreCase),
         "Due Date" => rows.OrderBy(r => r.DueDate ?? DateTime.MaxValue),
         "Completed Date" => rows.OrderBy(r => r.CompletedAt ?? DateTime.MaxValue), // unfinished tasks last
         "Project" => rows.OrderBy(r => r.ProjectName, StringComparer.OrdinalIgnoreCase),
@@ -225,7 +227,7 @@ public static class ReportService
     {
         "Category" => rows.ThenBy(r => CategoryRank(r, categoryOrder)),
         "Priority" => rows.ThenBy(r => PriorityRank(r.Priority)),
-        "Who" => rows.ThenBy(r => string.IsNullOrWhiteSpace(r.Who) ? "Unassigned" : r.Who, StringComparer.OrdinalIgnoreCase),
+        "Who" => rows.ThenBy(LeadOf, StringComparer.OrdinalIgnoreCase),
         "Due Date" => rows.ThenBy(r => r.DueDate ?? DateTime.MaxValue),
         "Completed Date" => rows.ThenBy(r => r.CompletedAt ?? DateTime.MaxValue),
         "Project" => rows.ThenBy(r => r.ProjectName, StringComparer.OrdinalIgnoreCase),
@@ -233,17 +235,26 @@ public static class ReportService
         _ => rows
     };
 
-    private static List<IGrouping<string, ReportRow>> GroupRows(List<ReportRow> rows, string groupBy) => groupBy switch
+    internal static List<IGrouping<string, ReportRow>> GroupRows(List<ReportRow> rows, string groupBy) => groupBy switch
     {
         "Status" => rows.GroupBy(r => r.ColumnName).ToList(),
         "Project" => rows.GroupBy(r => r.ProjectName).OrderBy(g => g.Key).ToList(),
         "Priority" => rows.GroupBy(r => r.Priority).OrderBy(g => g.Key).ToList(),
-        "Who" => rows.GroupBy(r => string.IsNullOrWhiteSpace(r.Who) ? "Unassigned" : r.Who).OrderBy(g => g.Key).ToList(),
+        // A shared task is listed under each of its people, not just the lead.
+        "Who" => rows.SelectMany(r => WhoKeys(r).Select(name => (name, r))).GroupBy(x => x.name, x => x.r).OrderBy(g => g.Key, StringComparer.OrdinalIgnoreCase).ToList(),
         "Goal" => rows.GroupBy(r => r.GoalName).OrderBy(g => g.Key).ToList(),
         _ => rows.GroupBy(_ => string.Empty).ToList()
     };
 
-    internal static List<string> BuildMetaParts(ReportRow row)
+    // Rows built before tasks could be shared have only Who.
+    private static List<string> WhoKeys(ReportRow row) =>
+        row.People.Count > 0 ? row.People : [string.IsNullOrWhiteSpace(row.Who) ? "Unassigned" : row.Who];
+
+    private static string LeadOf(ReportRow row) => WhoKeys(row)[0];
+
+    // whoGroup is the person whose section the row is being printed in, when the report is grouped
+    // by Who: a shared task then says whose sections it also appears in.
+    internal static List<string> BuildMetaParts(ReportRow row, string? whoGroup = null)
     {
         var parts = new List<string>
         {
@@ -256,7 +267,10 @@ public static class ReportService
         if (!string.IsNullOrWhiteSpace(row.WaitingOn)) parts.Add($"Waiting on: {row.WaitingOn}");
         if (row.DueDate is not null) parts.Add($"Due {row.DueDate:MMM d, yyyy}");
         if (row.CompletedAt is not null) parts.Add($"Completed {row.CompletedAt:MMM d, yyyy h:mm tt}");
-        parts.Add(string.IsNullOrWhiteSpace(row.Who) ? "Unassigned" : $"Who: {row.Who}");
+        var others = whoGroup is null ? [] : row.People.Where(p => !string.Equals(p, whoGroup, StringComparison.OrdinalIgnoreCase)).ToList();
+        parts.Add(string.IsNullOrWhiteSpace(row.Who) ? "Unassigned"
+            : others.Count == 0 ? $"Who: {row.Who}"
+            : $"Who: {row.Who} (shared - also listed under {string.Join(", ", others)})");
         if (row.GoalName != "No Goal") parts.Add($"Goal: {row.GoalName}");
         if (row.Flags.Count > 0) parts.Add($"Flags: {string.Join(", ", row.Flags)}");
         if (row.SubTasks.Count > 0)
@@ -444,7 +458,7 @@ public static class ReportService
                         lines.Add((titleLine, boldTypeface, 13, Brushes.Black, 0, 18));
                     }
 
-                    var metaLine = string.Join("   •   ", BuildMetaParts(row));
+                    var metaLine = string.Join("   •   ", BuildMetaParts(row, groupBy == "Who" ? group.Key : null));
                     foreach (var line in WrapLine(metaLine, regularTypeface, 10, contentWidth - 16))
                     {
                         lines.Add((line, regularTypeface, 10, Brushes.DimGray, 0, 14));
@@ -658,7 +672,7 @@ public static class ReportService
                     lines.Add((titleLine, rowTitleFont, XBrushes.Black, 0, 18));
                 }
 
-                var metaLine = string.Join("   •   ", BuildMetaParts(row));
+                var metaLine = string.Join("   •   ", BuildMetaParts(row, groupBy == "Who" ? group.Key : null));
                 foreach (var line in WrapText(gfx, metaLine, metaFont, width - 16))
                 {
                     lines.Add((line, metaFont, XBrushes.DimGray, 0, 13));

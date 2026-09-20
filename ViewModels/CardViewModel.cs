@@ -175,47 +175,54 @@ public class CardViewModel(CardItem model) : ObservableObject
         }
     }
 
-    public int? WhoId
+    // Everyone the task is assigned to, in the order they were picked. The first is the lead:
+    // WhoId, LeadName and WhoEmail are the lead's, and Sort by Who goes by the lead. WhoName is
+    // everyone, for display ("Alice, Bob"). Setting this is the only way any of them change.
+    private List<PersonViewModel> _people = [];
+    public IReadOnlyList<PersonViewModel> People
     {
-        get => Model.WhoId;
+        get => _people;
         set
         {
-            if (Model.WhoId == value) return;
-            Model.WhoId = value;
-            OnPropertyChanged();
-            OnPropertyChanged(nameof(CanEmailCard));
+            _people = value.DistinctBy(p => p.Id).ToList();
+            Model.WhoId = _people.Count == 0 ? null : _people[0].Id;
+            Model.PeopleIds = _people.Select(p => p.Id).ToList();
+            RefreshPeople();
         }
     }
 
-    private string _whoName = string.Empty;
-    public string WhoName
+    // Also called when a person is renamed or their email changes - the card holds the same
+    // PersonViewModel objects as the People list, so only the notifications are needed.
+    public void RefreshPeople()
     {
-        get => _whoName;
-        set
-        {
-            if (SetField(ref _whoName, value))
-            {
-                OnPropertyChanged(nameof(WhoDisplay));
-            }
-        }
+        OnPropertyChanged(nameof(People));
+        OnPropertyChanged(nameof(WhoId));
+        OnPropertyChanged(nameof(LeadName));
+        OnPropertyChanged(nameof(WhoName));
+        OnPropertyChanged(nameof(WhoEmail));
+        OnPropertyChanged(nameof(WhoDisplay));
+        OnPropertyChanged(nameof(PeopleEmails));
+        OnPropertyChanged(nameof(CanEmailCard));
     }
 
-    private string? _whoEmail;
-    public string? WhoEmail
-    {
-        get => _whoEmail;
-        set
-        {
-            if (SetField(ref _whoEmail, value))
-            {
-                OnPropertyChanged(nameof(CanEmailCard));
-            }
-        }
-    }
+    public int? WhoId => Model.WhoId;
 
-    public string WhoDisplay => string.IsNullOrWhiteSpace(WhoName) || WhoName == "Unassigned" ? string.Empty : $"Assigned: {WhoName}";
+    public string LeadName => _people.Count == 0 ? "Unassigned" : _people[0].Name;
 
-    public bool CanEmailCard => WhoId.HasValue && !string.IsNullOrWhiteSpace(WhoEmail);
+    public string WhoName => _people.Count == 0 ? "Unassigned" : string.Join(", ", _people.Select(p => p.Name));
+
+    public string? WhoEmail => _people.Count == 0 ? null : _people[0].Email;
+
+    public bool IsAssignedTo(int personId) => _people.Any(p => p.Id == personId);
+
+    // Everyone assigned who has an email address, lead first - who Email This Task goes to.
+    public IReadOnlyList<string> PeopleEmails => _people
+        .Select(p => p.Email?.Trim()).Where(e => !string.IsNullOrEmpty(e)).Select(e => e!)
+        .Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+
+    public string WhoDisplay => _people.Count == 0 ? string.Empty : $"Assigned: {WhoName}";
+
+    public bool CanEmailCard => PeopleEmails.Count > 0;
 
     public string? Notes
     {
@@ -443,9 +450,7 @@ public class CardViewModel(CardItem model) : ObservableObject
         DueTime = other.DueTime;
         StartDate = other.StartDate;
         WaitingOn = other.WaitingOn;
-        WhoId = other.WhoId;
-        WhoName = other.WhoName;
-        WhoEmail = other.WhoEmail;
+        People = other.People;
         Notes = other.Notes;
         WebsiteUrl = other.WebsiteUrl;
         IsImported = other.IsImported;

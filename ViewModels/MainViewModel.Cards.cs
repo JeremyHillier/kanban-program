@@ -10,24 +10,27 @@ public partial class MainViewModel
     public CardViewModel AddCard(string title, ColumnViewModel column, ProjectViewModel? project, string priority, DateTime? dueDate, PersonViewModel? who,
         bool isRecurring, string? recurrencePattern, GoalViewModel? goal, List<FlagViewModel>? flags = null, List<SubTaskViewModel>? subTasks = null,
         string? notes = null, bool isImported = false, List<AttachmentViewModel>? attachments = null, bool forceEditOnComplete = false,
-        string? websiteUrl = null, string? dueTime = null, DateTime? startDate = null, string? waitingOn = null)
+        string? websiteUrl = null, string? dueTime = null, DateTime? startDate = null, string? waitingOn = null,
+        IReadOnlyList<PersonViewModel>? people = null)
     {
         flags ??= [];
         subTasks ??= [];
         attachments ??= [];
         if (dueDate is null) dueTime = null;
+        // `people` is everyone, lead first; callers with just one person pass `who` and leave it out.
+        people ??= who is null ? [] : [who];
         using var undo = RecordUndo(DescribeAction("Add", title.Trim()), []);
-        var card = _db.AddCard(column.Id, title.Trim(), project?.Id, column.Name, priority, dueDate, who?.Id, isRecurring, recurrencePattern, goal?.Id, notes, isImported, forceEditOnComplete, websiteUrl, dueTime, startDate,
+        var card = _db.AddCard(column.Id, title.Trim(), project?.Id, column.Name, priority, dueDate, people.FirstOrDefault()?.Id, isRecurring, recurrencePattern, goal?.Id, notes, isImported, forceEditOnComplete, websiteUrl, dueTime, startDate,
             string.IsNullOrWhiteSpace(waitingOn) ? null : waitingOn.Trim());
         _db.SetCardFlags(card.Id, flags.Select(f => f.Id));
+        _db.SetCardPeople(card.Id, people.Select(p => p.Id));
         var subTaskItems = _db.SetCardSubTasks(card.Id, subTasks.Select(s => (s.Title, s.IsDone)).ToList());
         var attachmentItems = _db.SetCardAttachments(card.Id, attachments.Select(a => (a.FilePath, a.DisplayName, a.AddedDate)).ToList());
         var cardVm = new CardViewModel(card)
         {
             ProjectName = project?.Name ?? "No Project",
             GoalName = goal?.Name ?? "No Goal",
-            WhoName = who?.Name ?? "Unassigned",
-            WhoEmail = who?.Email,
+            People = people,
             Flags = flags,
             SubTasks = subTaskItems.Select(s => new SubTaskViewModel(s)).ToList(),
             Attachments = attachmentItems.Select(a => new AttachmentViewModel(a)).ToList(),
@@ -43,7 +46,7 @@ public partial class MainViewModel
 
     // Deliberately no default values: every field is overwritten, so a caller that left one out
     // would silently clear it on save. Without defaults, forgetting a field is a compile error.
-    public void EditCard(CardViewModel card, string title, ColumnViewModel newColumn, ProjectViewModel? project, string priority, DateTime? dueDate, PersonViewModel? who,
+    public void EditCard(CardViewModel card, string title, ColumnViewModel newColumn, ProjectViewModel? project, string priority, DateTime? dueDate, IReadOnlyList<PersonViewModel>? people,
         bool isRecurring, string? recurrencePattern, GoalViewModel? goal, List<FlagViewModel>? flags, List<SubTaskViewModel>? subTasks,
         string? notes, List<AttachmentViewModel>? attachments, bool forceEditOnComplete,
         string? websiteUrl, string? dueTime, DateTime? startDate, string? waitingOn)
@@ -65,9 +68,7 @@ public partial class MainViewModel
         card.DueTime = dueDate is null ? null : dueTime;
         card.StartDate = startDate;
         card.WaitingOn = waitingOn;
-        card.WhoId = who?.Id;
-        card.WhoName = who?.Name ?? "Unassigned";
-        card.WhoEmail = who?.Email;
+        card.People = people ?? [];
         card.IsRecurring = isRecurring;
         card.RecurrencePattern = recurrencePattern;
         card.GoalId = goal?.Id;
@@ -79,6 +80,7 @@ public partial class MainViewModel
 
         PersistCard(card);
         _db.SetCardFlags(card.Id, flags.Select(f => f.Id));
+        PersistPeople(card);
         var subTaskItems = _db.SetCardSubTasks(card.Id, subTasks.Select(s => (s.Title, s.IsDone)).ToList());
         card.SubTasks = subTaskItems.Select(s => new SubTaskViewModel(s)).ToList();
         var attachmentItems = _db.SetCardAttachments(card.Id, attachments.Select(a => (a.FilePath, a.DisplayName, a.AddedDate)).ToList());
@@ -166,17 +168,29 @@ public partial class MainViewModel
         RefreshAfterCardChange(card);
     }
 
-    public void SetCardWho(CardViewModel card, PersonViewModel? who)
+    // Makes this one person the whole assignment (or nobody, for null).
+    public void SetCardWho(CardViewModel card, PersonViewModel? who) => SetCardPeople(card, who is null ? [] : [who]);
+
+    // Everyone the task is assigned to, lead first.
+    public void SetCardPeople(CardViewModel card, IReadOnlyList<PersonViewModel> people)
     {
-        if (card.WhoId == who?.Id) return;
+        if (card.People.Select(p => p.Id).SequenceEqual(people.Select(p => p.Id))) return;
 
         using var undo = RecordUndo(DescribeAction("Reassign", [card]), [card]);
-        card.WhoId = who?.Id;
-        card.WhoName = who?.Name ?? "Unassigned";
-        card.WhoEmail = who?.Email;
+        card.People = people;
         PersistCard(card);
+        PersistPeople(card);
         RefreshAfterCardChange(card);
     }
+
+    // Ticks one person on or off a task, as the card's Assigned menu does. A newly ticked person
+    // goes on the end, so the lead only changes when the lead is the one taken off.
+    public void ToggleCardPerson(CardViewModel card, PersonViewModel person) =>
+        SetCardPeople(card, card.IsAssignedTo(person.Id)
+            ? card.People.Where(p => p.Id != person.Id).ToList()
+            : [.. card.People, person]);
+
+    private void PersistPeople(CardViewModel card) => _db.SetCardPeople(card.Id, card.People.Select(p => p.Id));
 
     // Blank or null clears it.
     public void SetCardWaitingOn(CardViewModel card, string? waitingOn)
@@ -241,10 +255,10 @@ public partial class MainViewModel
 
         return AddCard($"{card.Title} (copy)", column,
             Projects.FirstOrDefault(p => p.Id == card.ProjectId), card.Priority, card.DueDate,
-            People.FirstOrDefault(p => p.Id == card.WhoId), card.IsRecurring, card.RecurrencePattern,
+            card.People.FirstOrDefault(), card.IsRecurring, card.RecurrencePattern,
             Goals.FirstOrDefault(g => g.Id == card.GoalId), [.. card.Flags], freshSubTasks, card.Notes,
             forceEditOnComplete: card.ForceEditOnComplete, websiteUrl: card.WebsiteUrl, dueTime: card.DueTime, startDate: card.StartDate,
-            waitingOn: card.WaitingOn);
+            waitingOn: card.WaitingOn, people: [.. card.People]);
     }
 
     private void MoveCard(CardViewModel card, ColumnViewModel targetColumn)

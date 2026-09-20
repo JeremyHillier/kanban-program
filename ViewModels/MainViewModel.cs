@@ -50,9 +50,9 @@ public partial class MainViewModel : ObservableObject
         _personManager = new ManagedList<Person, PersonViewModel>(
             People, _db.AddPerson, _db.RenamePerson, _db.DeletePerson, _db.SetPersonActive, m => new PersonViewModel(m),
             RefreshWhoFilterOptions, () => OnPropertyChanged(nameof(ActivePeople)),
-            item => UpdateMatchingCards(c => c.WhoId == item.Id, c => c.WhoName = item.Name),
-            item => UpdateMatchingCards(c => c.WhoId == item.Id, c => { c.WhoId = null; c.WhoName = "Unassigned"; }),
-            item => Columns.SelectMany(c => c.Cards).Count(c => c.WhoId == item.Id));
+            item => UpdateMatchingCards(c => c.IsAssignedTo(item.Id), c => c.RefreshPeople()),
+            item => UpdateMatchingCards(c => c.IsAssignedTo(item.Id), c => c.People = c.People.Where(p => p.Id != item.Id).ToList()),
+            item => Columns.SelectMany(c => c.Cards).Count(c => c.IsAssignedTo(item.Id)));
 
         _goalManager = new ManagedList<Goal, GoalViewModel>(
             Goals, _db.AddGoal, _db.RenameGoal, _db.DeleteGoal, _db.SetGoalActive, m => new GoalViewModel(m),
@@ -235,17 +235,10 @@ public partial class MainViewModel : ObservableObject
         return Goals.FirstOrDefault(g => g.Id == goalId)?.Name ?? "No Goal";
     }
 
-    private string ResolveWhoName(int? whoId)
-    {
-        if (whoId is null) return "Unassigned";
-        return People.FirstOrDefault(p => p.Id == whoId)?.Name ?? "Unassigned";
-    }
-
-    private string? ResolveWhoEmail(int? whoId)
-    {
-        if (whoId is null) return null;
-        return People.FirstOrDefault(p => p.Id == whoId)?.Email;
-    }
+    // The task's people, lead first, as the live PersonViewModels. Anyone no longer on the list
+    // (deleted) is left out.
+    private List<PersonViewModel> ResolvePeople(List<int> personIds) =>
+        personIds.Select(id => People.FirstOrDefault(p => p.Id == id)).OfType<PersonViewModel>().ToList();
 
     private List<FlagViewModel> ResolveFlags(List<int> flagIds) =>
         Flags.Where(f => flagIds.Contains(f.Id)).ToList();

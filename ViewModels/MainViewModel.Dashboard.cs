@@ -25,7 +25,7 @@ public partial class MainViewModel
             {
                 ProjectName = ResolveProjectName(card.ProjectId),
                 GoalName = ResolveGoalName(card.GoalId),
-                WhoName = ResolveWhoName(card.WhoId),
+                People = ResolvePeople(card.PeopleIds),
                 Flags = ResolveFlags(card.FlagIds),
                 SubTasks = card.SubTasks.Select(s => new SubTaskViewModel(s)).ToList(),
                 Attachments = card.Attachments.Select(a => new AttachmentViewModel(a)).ToList(),

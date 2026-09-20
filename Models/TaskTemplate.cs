@@ -11,7 +11,12 @@ public class TaskTemplate
     public string Title { get; set; } = string.Empty;
     public int? ProjectId { get; set; }
     public string Priority { get; set; } = "Normal";
-    public int? WhoId { get; set; }
+    public int? WhoId { get; set; } // the lead
+    // Everyone, lead first. Empty in a template saved before tasks could have several people,
+    // which has just WhoId - AllPeopleIds covers both.
+    public List<int> PeopleIds { get; set; } = [];
+    [System.Text.Json.Serialization.JsonIgnore]
+    public IReadOnlyList<int> AllPeopleIds => PeopleIds.Count > 0 ? PeopleIds : WhoId is { } lead ? [lead] : [];
     public int? GoalId { get; set; }
     public List<int> FlagIds { get; set; } = [];
     public List<string> SubTasks { get; set; } = [];

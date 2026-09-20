@@ -11,7 +11,7 @@ public sealed class CardTextFormatterTests
     {
         var model = new CardItem { Title = "Quarterly report", Priority = "High" };
         configure?.Invoke(model);
-        return new CardViewModel(model) { ProjectName = "Finance", GoalName = "No Goal", WhoName = "Unassigned" };
+        return new CardViewModel(model) { ProjectName = "Finance", GoalName = "No Goal" };
     }
 
     [Fact]
@@ -21,14 +21,13 @@ public sealed class CardTextFormatterTests
         {
             m.DueDate = new DateTime(2026, 9, 14);
             m.DueTime = "14:30";
-            m.WhoId = 7;
             m.IsRecurring = true;
             m.RecurrencePattern = "Semi-Monthly";
             m.WebsiteUrl = " example.com/report ";
             m.Notes = "Check figures\nwith Sam";
             m.CompletedAt = new DateTime(2026, 9, 15, 15, 25, 0);
         });
-        card.WhoName = "Sam Lee";
+        card.People = [new PersonViewModel(new Person { Id = 7, Name = "Sam Lee" })];
         card.GoalName = "Close the books";
         card.Flags = [new FlagViewModel(new Flag { Name = "Urgent" }), new FlagViewModel(new Flag { Name = "Client" })];
         card.SubTasks = [new SubTaskViewModel(new SubTaskItem { Title = "Draft", IsDone = true }), new SubTaskViewModel(new SubTaskItem { Title = "Review" })];

@@ -371,7 +371,7 @@ public partial class MainWindow : Window
                 dialog.SelectedPriority, dialog.SelectedDueDate, dialog.SelectedWho, dialog.IsRecurring, dialog.RecurrencePattern,
                 dialog.SelectedGoal, dialog.SelectedFlags, dialog.SelectedSubTasks, dialog.Notes, attachments: dialog.SelectedAttachments,
                 forceEditOnComplete: dialog.ForceEditOnComplete, websiteUrl: dialog.WebsiteUrl, dueTime: dialog.SelectedDueTime,
-                startDate: dialog.SelectedStartDate, waitingOn: dialog.WaitingOn);
+                startDate: dialog.SelectedStartDate, waitingOn: dialog.WaitingOn, people: dialog.SelectedPeople);
         }
     }
 
@@ -385,7 +385,7 @@ public partial class MainWindow : Window
         if (dialog.ShowDialog() == true && dialog.SelectedColumn is not null)
         {
             viewModel.EditCard(card, dialog.TaskDetails, dialog.SelectedColumn, dialog.SelectedProject,
-                dialog.SelectedPriority, dialog.SelectedDueDate, dialog.SelectedWho, dialog.IsRecurring, dialog.RecurrencePattern,
+                dialog.SelectedPriority, dialog.SelectedDueDate, dialog.SelectedPeople, dialog.IsRecurring, dialog.RecurrencePattern,
                 dialog.SelectedGoal, dialog.SelectedFlags, dialog.SelectedSubTasks, dialog.Notes, attachments: dialog.SelectedAttachments,
                 forceEditOnComplete: dialog.ForceEditOnComplete, websiteUrl: dialog.WebsiteUrl, dueTime: dialog.SelectedDueTime,
                 startDate: dialog.SelectedStartDate, waitingOn: dialog.WaitingOn);
@@ -1058,7 +1058,9 @@ public partial class MainWindow : Window
         AddMenuItem(assign, "Unassigned", () => viewModel.SetCardWho(card, null), isChecked: card.WhoId is null);
         foreach (var person in viewModel.People.Where(p => p.IsActive))
         {
-            AddMenuItem(assign, MenuText(person.Name), () => viewModel.SetCardWho(card, person), isChecked: card.WhoId == person.Id);
+            // Ticks the person on or off, leaving the others: a task can have several people.
+            var label = card.People.Count > 1 && card.WhoId == person.Id ? $"{person.Name}  (lead)" : person.Name;
+            AddMenuItem(assign, MenuText(label), () => viewModel.ToggleCardPerson(card, person), isChecked: card.IsAssignedTo(person.Id));
         }
 
         var project = AddSubmenu(menu, "P_roject");
@@ -1084,7 +1086,7 @@ public partial class MainWindow : Window
 
         Separator();
         AddMenuItem(menu, "Open _Website", () => UrlLauncher.Open(card.WebsiteUrl, this), isEnabled: !string.IsNullOrWhiteSpace(card.WebsiteUrl));
-        AddMenuItem(menu, "E_mail Task...", () => OutlookEmailHelper.ComposeCardEmail(this, card, card.WhoEmail!, viewModel), isEnabled: card.CanEmailCard);
+        AddMenuItem(menu, "E_mail Task...", () => OutlookEmailHelper.ComposeCardEmail(this, card, OutlookEmailHelper.JoinRecipients(card.PeopleEmails), viewModel), isEnabled: card.CanEmailCard);
         Separator();
         AddMenuItem(menu, "_Delete...", () => DeleteCardWithConfirm(card, viewModel));
     }
@@ -1132,7 +1134,10 @@ public partial class MainWindow : Window
         AddMenuItem(assign, "Unassigned", () => viewModel.SetCardsWho(cards, null), isChecked: cards.All(c => c.WhoId is null));
         foreach (var person in viewModel.People.Where(p => p.IsActive))
         {
-            AddMenuItem(assign, MenuText(person.Name), () => viewModel.SetCardsWho(cards, person), isChecked: cards.All(c => c.WhoId == person.Id));
+            // Ticked only when every task has them; clicking adds them to the ones that do not,
+            // or takes them off all of them when they are already on every one.
+            var onAll = cards.All(c => c.IsAssignedTo(person.Id));
+            AddMenuItem(assign, MenuText(person.Name), () => { if (onAll) viewModel.RemovePersonFromCards(cards, person); else viewModel.AddPersonToCards(cards, person); }, isChecked: onAll);
         }
 
         var project = AddSubmenu(menu, "P_roject");
@@ -1226,7 +1231,7 @@ public partial class MainWindow : Window
         if (sender is not FrameworkElement { DataContext: CardViewModel card } || !card.CanEmailCard) return;
         if (DataContext is not MainViewModel viewModel) return;
 
-        OutlookEmailHelper.ComposeCardEmail(this, card, card.WhoEmail!, viewModel);
+        OutlookEmailHelper.ComposeCardEmail(this, card, OutlookEmailHelper.JoinRecipients(card.PeopleEmails), viewModel);
     }
 
     private void PriorityBadge_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
@@ -1244,8 +1249,9 @@ public partial class MainWindow : Window
         if (sender is not FrameworkElement { DataContext: CardViewModel card } element || DataContext is not MainViewModel viewModel) return;
 
         var items = new List<(string Header, bool IsChecked, PersonViewModel? Value)> { ("Unassigned", card.WhoId is null, null) };
-        items.AddRange(viewModel.People.Where(p => p.IsActive).Select(p => (p.Name, card.WhoId == p.Id, (PersonViewModel?)p)));
-        ShowQuickEditMenu(element, items, who => viewModel.SetCardWho(card, who));
+        items.AddRange(viewModel.People.Where(p => p.IsActive).Select(p =>
+            (card.People.Count > 1 && card.WhoId == p.Id ? $"{p.Name}  (lead)" : p.Name, card.IsAssignedTo(p.Id), (PersonViewModel?)p)));
+        ShowQuickEditMenu(element, items, who => { if (who is null) viewModel.SetCardWho(card, null); else viewModel.ToggleCardPerson(card, who); });
         e.Handled = true;
     }
 
