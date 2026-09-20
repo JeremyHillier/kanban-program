@@ -1,0 +1,33 @@
+<Window x:Class="KanbanApp.Views.ManageTemplatesWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Task Templates" Width="420" Height="420" MinWidth="340" MinHeight="300"
+        WindowStartupLocation="CenterOwner" ShowInTaskbar="False"
+        Background="{DynamicResource WindowBackgroundBrush}">
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0" TextWrapping="Wrap" Margin="0,0,0,8" Foreground="{DynamicResource SecondaryTextBrush}"
+                   Text="Templates are starting points for new tasks. To make one, fill in a task and click Save as Template, or right-click a task on the board."/>
+
+        <ListBox Grid.Row="1" x:Name="TemplateList" DisplayMemberPath="Name" SelectionChanged="TemplateList_SelectionChanged"
+                 MouseDoubleClick="Rename_Click"
+                 Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                 BorderBrush="{DynamicResource CardBorderBrush}"/>
+
+        <Grid Grid.Row="2" Margin="0,12,0,0">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                <Button x:Name="RenameButton" Content="Rename..." Width="90" Padding="0,6" Click="Rename_Click" IsEnabled="False"
+                        Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                <Button x:Name="DeleteButton" Content="Delete" Width="80" Padding="0,6" Margin="8,0,0,0" Click="Delete_Click" IsEnabled="False"
+                        Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+            </StackPanel>
+            <Button Content="Close" Width="80" Padding="0,6" HorizontalAlignment="Right" IsCancel="True" IsDefault="True"
+                    Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+        </Grid>
+    </Grid>
+</Window>

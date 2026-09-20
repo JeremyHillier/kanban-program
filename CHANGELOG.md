@@ -6,6 +6,15 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.100.0 — 2026-09-19
+- New: Quick Add from any program. While the app is running, press Ctrl+Alt+N anywhere to open a small New Task box, type the task and press Enter. The box stays open for more; Esc closes it
+- Quick Add codes, each as its own word: !high !medium !low for priority, @sam for who, and /today /tomorrow /fri /+3 /10-15 for the due date. The line under the box shows how it was understood
+- Quick Add remembers the project you used last. It can be switched off in Settings, which also tells you if another program already uses the key
+- New: task templates. Fill in a task and click Save as Template (or right-click a task on the board), then pick it from the Template list at the top of a new task
+- Templates keep the project, priority, who, goal, flags, sub-tasks, notes, website and recurring settings. Dates are kept as so many days from today
+- Manage, beside the Template list, renames and deletes templates
+- The board confirms a Quick Add with a short note, and Undo takes it back
+
 ## 0.99.0 — 2026-09-19
 - New: Waiting On. When a task is held up, say who or what by (for example "Sam's quote") in the new Waiting On box on the task screen
 - The card shows it in a highlighted line. Click the line to change it, or save it empty to clear it

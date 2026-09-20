@@ -79,6 +79,7 @@ public partial class MainViewModel : ObservableObject
         // Before Load, which applies the filters: Hide Future is part of what they hide.
         _hideFutureTasks = _db.GetSetting("HideFutureTasks") == "True";
         Load();
+        LoadTaskTemplates();
 
         _isDarkMode = _db.GetSetting("Theme") == "Dark";
         Theming.ThemeManager.Apply(_isDarkMode);
@@ -112,6 +113,7 @@ public partial class MainViewModel : ObservableObject
         AddNoteOnComplete = _db.GetSetting("AddNoteOnComplete") == "True";
         ShowDueReminders = _db.GetSetting("ShowDueReminders") != "False";
         ShowTimeAlerts = _db.GetSetting("ShowTimeAlerts") != "False";
+        QuickAddHotkeyEnabled = _db.GetSetting("QuickAddHotkeyEnabled") != "False";
         ShowWhatsNew = _db.GetSetting("ShowWhatsNew") != "False";
         LoadCustomFilters();
         LoadSavedReportViews();

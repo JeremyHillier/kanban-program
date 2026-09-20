@@ -108,6 +108,7 @@ public partial class DatabaseService
         MigrateColumn(connection, "Cards", "DueTime", "TEXT NULL");
         MigrateColumn(connection, "Cards", "StartDate", "TEXT NULL");
         MigrateColumn(connection, "Cards", "WaitingOn", "TEXT NULL");
+        EnsureTaskTemplatesTable(connection);
         MigrateColumn(connection, "Cards", "CompletedAt", "TEXT NULL");
         MigrateColumn(connection, "Projects", "IsActive", "INTEGER NOT NULL DEFAULT 1");
         MigrateColumn(connection, "Goals", "IsActive", "INTEGER NOT NULL DEFAULT 1");

@@ -97,6 +97,12 @@
                           ToolTip="For tasks with a due time set: while the app is running, a reminder pops up the moment that time is reached."
                           Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,8"
                           Checked="ShowTimeAlertsCheckBox_Changed" Unchecked="ShowTimeAlertsCheckBox_Changed"/>
+                <CheckBox x:Name="QuickAddHotkeyCheckBox"
+                          ToolTip="While the app is running (minimised is fine), this key opens a small New Task box over whatever program you are in. Type the task and press Enter."
+                          Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,8"
+                          Checked="QuickAddHotkeyCheckBox_Changed" Unchecked="QuickAddHotkeyCheckBox_Changed"/>
+                <TextBlock x:Name="QuickAddHotkeyProblemText" TextWrapping="Wrap" FontSize="11" Margin="20,-4,0,8" Foreground="#FFE57373"
+                           Visibility="Collapsed"/>
                 <CheckBox x:Name="RememberLastViewCheckBox" Content="Remember filters, sort, and search between sessions"
                           Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,20"
                           Checked="RememberLastViewCheckBox_Changed" Unchecked="RememberLastViewCheckBox_Changed"/>

@@ -1,0 +1,125 @@
+using System.Windows;
+using System.Windows.Controls;
+using KanbanApp.Models;
+using KanbanApp.Services;
+using KanbanApp.ViewModels;
+
+namespace KanbanApp.Views;
+
+// Task templates on the task screen: starting a new task from one (the Template row at the top,
+// new tasks only) and saving whatever is currently filled in as one (Save as Template, always).
+public partial class AddTaskWindow
+{
+    private void InitializeTemplates()
+    {
+        TemplateComboBox.ItemsSource = _viewModel.TaskTemplates;
+        RefreshTemplatePanel();
+    }
+
+    // Shown for a new task once there is at least one template to pick - an empty picker on every
+    // new task would just be clutter. Never shown when editing: a template would overwrite the task.
+    private void RefreshTemplatePanel() =>
+        TemplatePanel.Visibility = _cardToEdit is null && _viewModel.TaskTemplates.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
+
+    private void TemplateComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (TemplateComboBox.SelectedItem is TaskTemplate template) ApplyTemplate(template);
+    }
+
+    // Fills the form from a template, replacing what was there. A project, person, goal or flag
+    // the template refers to that no longer exists (or has been retired) is simply left unset.
+    private void ApplyTemplate(TaskTemplate template)
+    {
+        DetailsTextBox.Text = template.Title;
+        RebuildProjectItems(_viewModel.Projects.FirstOrDefault(p => p.Id == template.ProjectId && p.IsActive));
+        RebuildGoalItems(_viewModel.Goals.FirstOrDefault(g => g.Id == template.GoalId && g.IsActive));
+        RebuildWhoItems(_viewModel.People.FirstOrDefault(p => p.Id == template.WhoId && p.IsActive));
+
+        PriorityComboBox.SelectedItem = PriorityComboBox.Items.OfType<ComboBoxItem>().FirstOrDefault(i => (string)i.Content == template.Priority)
+            ?? PriorityComboBox.SelectedItem;
+
+        var due = template.DueDateFromToday;
+        var start = template.StartDateFromToday;
+        if (due is not null && start > due) start = due;
+        DueDatePicker.SelectedDate = due;
+        StartDatePicker.SelectedDate = start;
+        DueTimeTextBox.Text = due is null ? string.Empty : DueTimeParser.Format(template.DueTime);
+
+        NotesTextBox.Text = template.Notes ?? string.Empty;
+        WebsiteUrlTextBox.Text = template.WebsiteUrl ?? string.Empty;
+        ForceEditOnCompleteCheckBox.IsChecked = template.ForceEditOnComplete;
+
+        RecurringCheckBox.IsChecked = template.IsRecurring;
+        RecurrenceComboBox.Visibility = template.IsRecurring ? Visibility.Visible : Visibility.Collapsed;
+        if (template.IsRecurring)
+        {
+            RecurrenceComboBox.SelectedItem = RecurrenceComboBox.Items.OfType<ComboBoxItem>().FirstOrDefault(i => (string)i.Content == template.RecurrencePattern)
+                ?? RecurrenceComboBox.SelectedItem;
+        }
+
+        RebuildFlagCheckboxes(forceCheckedIds: template.FlagIds);
+
+        SubTasksPanel.Children.Clear();
+        foreach (var title in template.SubTasks) AddSubTaskRow(title);
+        UpdateSubTaskProgressLabel();
+    }
+
+    // What is on the form right now, as a template. Reads the same controls Add_Click does, but
+    // without its validation: a half-filled form is a perfectly good template.
+    private TaskTemplate BuildTemplateFromForm()
+    {
+        var isRecurring = RecurringCheckBox.IsChecked == true;
+        return new TaskTemplate
+        {
+            Title = DetailsTextBox.Text.Trim(),
+            ProjectId = (ProjectComboBox.SelectedItem as ProjectViewModel)?.Id,
+            Priority = (PriorityComboBox.SelectedItem as ComboBoxItem)?.Content as string ?? "Normal",
+            WhoId = (WhoComboBox.SelectedItem as PersonViewModel)?.Id,
+            GoalId = (GoalComboBox.SelectedItem as GoalViewModel)?.Id,
+            FlagIds = FlagsPanel.Children.OfType<CheckBox>().Where(cb => cb.IsChecked == true).Select(cb => ((FlagViewModel)cb.Tag).Id).ToList(),
+            SubTasks = SubTasksPanel.Children.OfType<Grid>().Select(row => ((TextBox)row.Children[2]).Text.Trim()).Where(t => t.Length > 0).ToList(),
+            Notes = string.IsNullOrWhiteSpace(NotesTextBox.Text) ? null : NotesTextBox.Text.Trim(),
+            IsRecurring = isRecurring,
+            RecurrencePattern = isRecurring ? (RecurrenceComboBox.SelectedItem as ComboBoxItem)?.Content as string : null,
+            ForceEditOnComplete = ForceEditOnCompleteCheckBox.IsChecked == true,
+            WebsiteUrl = string.IsNullOrWhiteSpace(WebsiteUrlTextBox.Text) ? null : WebsiteUrlTextBox.Text.Trim(),
+            DueTime = DueDatePicker.SelectedDate is null ? null : CurrentDueTime(),
+            DueInDays = TaskTemplate.DaysFromToday(DueDatePicker.SelectedDate),
+            StartInDays = TaskTemplate.DaysFromToday(StartDatePicker.SelectedDate)
+        };
+    }
+
+    private void SaveAsTemplate_Click(object sender, RoutedEventArgs e)
+    {
+        if (TemplatePrompts.SaveAs(this, _viewModel, BuildTemplateFromForm()) is null) return;
+        RefreshTemplatePanel();
+    }
+
+    private void ManageTemplates_Click(object sender, RoutedEventArgs e)
+    {
+        TemplateComboBox.SelectedItem = null;
+        new ManageTemplatesWindow(_viewModel) { Owner = this }.ShowDialog();
+        RefreshTemplatePanel();
+    }
+}
+
+// Asking for a template's name, shared by the task screen and the board's right-click menu.
+internal static class TemplatePrompts
+{
+    // Returns the saved template, or null if the user backed out. An existing name is only
+    // replaced after a yes.
+    public static TaskTemplate? SaveAs(Window owner, MainViewModel viewModel, TaskTemplate template)
+    {
+        var dialog = new PromptWindow("Save as Template", "Template name", template.Title, "Save") { Owner = owner };
+        if (dialog.ShowDialog() != true || string.IsNullOrWhiteSpace(dialog.Value)) return null;
+
+        if (viewModel.FindTaskTemplate(dialog.Value) is { } existing)
+        {
+            var answer = MessageBox.Show(owner, $"There is already a template called \"{existing.Name}\".\n\nReplace it?",
+                "Save as Template", MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No);
+            if (answer != MessageBoxResult.Yes) return null;
+        }
+
+        return viewModel.SaveTaskTemplate(dialog.Value, template);
+    }
+}

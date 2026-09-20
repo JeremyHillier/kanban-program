@@ -79,6 +79,9 @@ public partial class SettingsWindow : Window
         AddNoteOnCompleteCheckBox.IsChecked = viewModel.AddNoteOnComplete;
         ShowDueRemindersCheckBox.IsChecked = viewModel.ShowDueReminders;
         ShowTimeAlertsCheckBox.IsChecked = viewModel.ShowTimeAlerts;
+        QuickAddHotkeyCheckBox.Content = $"Quick Add: {MainWindow.QuickAddHotkeyText} opens a New Task box from any program";
+        QuickAddHotkeyCheckBox.IsChecked = viewModel.QuickAddHotkeyEnabled;
+        ShowQuickAddHotkeyProblem();
         RememberLastViewCheckBox.IsChecked = viewModel.RememberLastView;
         ShowWhatsNewCheckBox.IsChecked = viewModel.ShowWhatsNew;
 
@@ -172,6 +175,20 @@ public partial class SettingsWindow : Window
     private void ShowDueRemindersCheckBox_Changed(object sender, RoutedEventArgs e)
     {
         _viewModel.SetShowDueReminders(ShowDueRemindersCheckBox.IsChecked == true);
+    }
+
+    private void QuickAddHotkeyCheckBox_Changed(object sender, RoutedEventArgs e)
+    {
+        _viewModel.SetQuickAddHotkeyEnabled(QuickAddHotkeyCheckBox.IsChecked == true);
+        ShowQuickAddHotkeyProblem();
+    }
+
+    // The main window re-registers the key as soon as the setting changes, so by the time this
+    // reads it the view-model already knows whether Windows handed the key over.
+    private void ShowQuickAddHotkeyProblem()
+    {
+        QuickAddHotkeyProblemText.Text = _viewModel.QuickAddHotkeyProblem;
+        QuickAddHotkeyProblemText.Visibility = string.IsNullOrEmpty(_viewModel.QuickAddHotkeyProblem) ? Visibility.Collapsed : Visibility.Visible;
     }
 
     private void ShowTimeAlertsCheckBox_Changed(object sender, RoutedEventArgs e)

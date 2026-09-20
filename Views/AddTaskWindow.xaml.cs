@@ -70,6 +70,7 @@ public partial class AddTaskWindow : Window
         RebuildGoalItems();
         RebuildWhoItems();
         RebuildFlagCheckboxes();
+        InitializeTemplates();
         UpdateSubTaskProgressLabel();
 
         ProjectComboBox.Focus();
@@ -152,6 +153,7 @@ public partial class AddTaskWindow : Window
         SubmitButton.Content = "Save";
 
         _cardToEdit = cardToEdit;
+        RefreshTemplatePanel();
 
         TaskStampPanel.Visibility = Visibility.Visible;
         UpdatedStampText.Text = cardToEdit.UpdatedFullDisplay;

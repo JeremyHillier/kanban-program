@@ -491,16 +491,24 @@ public partial class MainWindow : Window
         {
             if (viewModel.Undo() is not { } undone) return;
 
-            viewModel.StatusMessage = $"Undid: {undone}";
-            _statusMessageTimer?.Stop();
-            _statusMessageTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(4) };
-            _statusMessageTimer.Tick += (timer, _) =>
-            {
-                ((DispatcherTimer)timer!).Stop();
-                viewModel.StatusMessage = string.Empty;
-            };
-            _statusMessageTimer.Start();
+            ShowStatusMessage($"Undid: {undone}");
         }), DispatcherPriority.Background);
+    }
+
+    // The short line at the foot of the board ("Undid: ...", "Added: ..."), gone after a few seconds.
+    private void ShowStatusMessage(string message)
+    {
+        if (DataContext is not MainViewModel viewModel) return;
+
+        viewModel.StatusMessage = message;
+        _statusMessageTimer?.Stop();
+        _statusMessageTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(4) };
+        _statusMessageTimer.Tick += (timer, _) =>
+        {
+            ((DispatcherTimer)timer!).Stop();
+            viewModel.StatusMessage = string.Empty;
+        };
+        _statusMessageTimer.Start();
     }
 
     private void MainWindow_PreviewKeyDown(object sender, KeyEventArgs e)
@@ -998,6 +1006,7 @@ public partial class MainWindow : Window
         AddMenuItem(menu, "_Copy as Text", () => CopyToClipboard(CardTextFormatter.Format(card, currentColumn?.DisplayName ?? string.Empty)));
         AddMenuItem(menu, "Copy _Title", () => CopyToClipboard(card.Title));
         AddMenuItem(menu, "D_uplicate", () => viewModel.DuplicateCard(card));
+        AddMenuItem(menu, "Save as Temp_late...", () => TemplatePrompts.SaveAs(this, viewModel, MainViewModel.TemplateFromCard(card)));
         Separator();
 
         var moveTo = AddSubmenu(menu, "_Move To");

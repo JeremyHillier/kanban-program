@@ -44,6 +44,7 @@
 
                 <TextBlock Text="Keyboard shortcuts" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <local:BulletItem Text="Ctrl+N — create a new task."/>
+                <local:BulletItem Text="Ctrl+Alt+N — Quick Add: works from any program while the app is running (see Quick Add below)."/>
                 <local:BulletItem Text="Ctrl+Z — undo the last change to a task (see Undo below). While typing in a box, Ctrl+Z undoes your typing instead."/>
                 <local:BulletItem Text="Ctrl+P — open Report Builder."/>
                 <local:BulletItem Text="Ctrl+Q — quit the app."/>
@@ -81,6 +82,20 @@
                 <local:BulletItem Text="With classic Outlook, the task's attachments and the Excel file are attached for you, and your Outlook signature is kept. If Outlook has no signature set up, one is built from Settings > Your Details."/>
                 <local:BulletItem Text="With the new Outlook, another email app, or no Outlook, the email opens in your default email app instead. Files can't be attached for you that way, so a folder with the Excel file and attachments opens alongside it for you to drag them in."/>
 
+                <TextBlock Text="Quick Add from any program" Style="{StaticResource HelpSectionHeaderStyle}"/>
+                <local:BulletItem Text="While the app is running (minimised is fine), press Ctrl+Alt+N in any program to open a small New Task box on top of it. Type the task, press Enter, and carry on with what you were doing. The box stays open so you can add several; Esc closes it."/>
+                <local:BulletItem Text="The task goes into To Do, with Normal priority, in the project shown beside the box (it remembers the last one you used)."/>
+                <local:BulletItem Text="Optional codes, each as its own word anywhere in the line: !high, !medium or !low for priority; @ and the start of a person's name, such as @sam, for who; and for the due date /today, /tomorrow, a day such as /fri, a number of days such as /+3, or a date such as /10-15. The line under the box shows how it was understood before you press Enter."/>
+                <local:BulletItem Text="Anything that isn't one of those codes stays in the title as typed, so an email address or 50/50 is safe. A name that could be two people is left in the title too."/>
+                <local:BulletItem Text="If another program already uses Ctrl+Alt+N, Settings says so. You can switch Quick Add off there. It only works while the app is running."/>
+
+                <TextBlock Text="Task templates" Style="{StaticResource HelpSectionHeaderStyle}"/>
+                <local:BulletItem Text="A template is a saved starting point for tasks you create again and again, with its project, priority, who, goal, flags, sub-tasks, notes, website and recurring settings already filled in."/>
+                <local:BulletItem Text="To make one, fill in a task and click Save as Template on the task screen, or right-click a task on the board and choose Save as Template. Saving under a name that already exists asks before replacing it."/>
+                <local:BulletItem Text="To use one, click New Task and pick it from the Template list at the top; the list appears once you have at least one template. Everything it fills in can still be changed before you save."/>
+                <local:BulletItem Text="Dates are kept as so many days from today: a template saved from a task due in 14 days makes tasks due 14 days after you use it. Dates already past, attachments, Waiting On, the column, and sub-task ticks are not kept."/>
+                <local:BulletItem Text="Click Manage beside the Template list to rename or delete templates. Deleting one does not affect tasks already made from it."/>
+
                 <TextBlock Text="Sub-tasks" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <local:BulletItem Text="Add sub-task rows in the task dialog; each has its own checkbox."/>
                 <local:BulletItem Text="Sub-task checkboxes also appear directly on the card (in large card view) so you can tick them off without opening the dialog."/>
@@ -106,7 +121,7 @@
                 <local:BulletItem Text="The letter buttons move a card directly to To Do, In Progress, On Hold, or Waiting; the check mark moves it to Done; the X deletes it."/>
                 <local:BulletItem Text="The tag icon, beside the task's details, adds an existing flag from a dropdown without opening the task."/>
                 <local:BulletItem Text="Click a card's Project name, Priority badge, Assigned name, or due date to change any of them directly from the board, without opening the task."/>
-                <local:BulletItem Text="Right-click a card for a menu of everything you can do with it: Edit, Copy as Text (the whole task, ready to paste into a chat, document, or email), Copy Title, Duplicate, Move To, Priority, Assign To, Project, Waiting On, Add Flag, Open Website, Email Task, and Delete."/>
+                <local:BulletItem Text="Right-click a card for a menu of everything you can do with it: Edit, Copy as Text (the whole task, ready to paste into a chat, document, or email), Copy Title, Duplicate, Save as Template, Move To, Priority, Assign To, Project, Waiting On, Add Flag, Open Website, Email Task, and Delete."/>
                 <local:BulletItem Text="Duplicate makes a copy in the same column with every detail carried over and its sub-tasks unticked. Attached files aren't copied, since each file belongs to one task."/>
                 <local:BulletItem Text="A task's title and due date are highlighted yellow once it's past due (and still outside Done)."/>
                 <local:BulletItem Text="The small stamp at the bottom of a card shows when it was last updated, or once it's in Done, when it was completed. Editing a finished task doesn't change its completion time; moving it back out of Done clears it."/>

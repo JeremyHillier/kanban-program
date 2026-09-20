@@ -53,6 +53,29 @@
              buttons with it. -->
         <ScrollViewer Grid.Row="0" x:Name="FormScrollViewer" VerticalScrollBarVisibility="Auto">
             <StackPanel Margin="16,0,16,0">
+                <!-- New tasks only: start from a saved template. Choosing one fills in the fields
+                     below; everything can still be changed before saving. -->
+                <Border x:Name="TemplatePanel" Margin="0,0,0,12" Padding="8,6" CornerRadius="4"
+                        BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="1">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="Template" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,8,0"
+                                   Foreground="{DynamicResource PrimaryTextBrush}"/>
+                        <ComboBox Grid.Column="1" x:Name="TemplateComboBox" Padding="6" DisplayMemberPath="Name"
+                                  SelectionChanged="TemplateComboBox_SelectionChanged"
+                                  ToolTip="Start this task from a saved template. To make one, fill in a task and click Save as Template, or right-click a task on the board."
+                                  Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                                  BorderBrush="{DynamicResource CardBorderBrush}"/>
+                        <Button Grid.Column="2" Content="Manage..." Padding="10,4" Margin="6,0,0,0" Click="ManageTemplates_Click" IsTabStop="False"
+                                ToolTip="Rename or delete templates"
+                                Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                    </Grid>
+                </Border>
+
                 <!-- Project -->
                 <StackPanel Style="{StaticResource FieldLabelRowStyle}" Margin="0,0,0,4">
                     <TextBlock Text="Project *" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Center" ToolTip="Required"/>
@@ -340,6 +363,9 @@
                 </StackPanel>
             </StackPanel>
             <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
+                <Button Content="Save as Template..." Padding="12,6" Margin="0,0,8,0" Click="SaveAsTemplate_Click"
+                        ToolTip="Save what is filled in here as a template for new tasks. Dates are kept as so many days from today; attachments and Waiting On are not kept."
+                        Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
                 <Button x:Name="EmailButton" Content="&#x2709; Email" Width="90" Padding="0,6" Margin="0,0,8,0" Click="Email_Click"
                         Visibility="Collapsed" ToolTip="Email this task to the assigned person"
                         Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
