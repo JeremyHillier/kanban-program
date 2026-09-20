@@ -81,6 +81,7 @@ public partial class SettingsWindow : Window
         ShowTimeAlertsCheckBox.IsChecked = viewModel.ShowTimeAlerts;
         QuickAddHotkeyCheckBox.Content = $"Quick Add: {MainWindow.QuickAddHotkeyText} opens a New Task box from any program";
         QuickAddHotkeyCheckBox.IsChecked = viewModel.QuickAddHotkeyEnabled;
+        CheckForUpdatesCheckBox.IsChecked = viewModel.CheckForUpdatesEnabled;
         ShowQuickAddHotkeyProblem();
         RememberLastViewCheckBox.IsChecked = viewModel.RememberLastView;
         ShowWhatsNewCheckBox.IsChecked = viewModel.ShowWhatsNew;
@@ -175,6 +176,11 @@ public partial class SettingsWindow : Window
     private void ShowDueRemindersCheckBox_Changed(object sender, RoutedEventArgs e)
     {
         _viewModel.SetShowDueReminders(ShowDueRemindersCheckBox.IsChecked == true);
+    }
+
+    private void CheckForUpdatesCheckBox_Changed(object sender, RoutedEventArgs e)
+    {
+        _viewModel.SetCheckForUpdatesEnabled(CheckForUpdatesCheckBox.IsChecked == true);
     }
 
     private void QuickAddHotkeyCheckBox_Changed(object sender, RoutedEventArgs e)

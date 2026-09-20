@@ -114,6 +114,7 @@ public partial class MainViewModel : ObservableObject
         ShowDueReminders = _db.GetSetting("ShowDueReminders") != "False";
         ShowTimeAlerts = _db.GetSetting("ShowTimeAlerts") != "False";
         QuickAddHotkeyEnabled = _db.GetSetting("QuickAddHotkeyEnabled") != "False";
+        LoadUpdateSettings();
         ShowWhatsNew = _db.GetSetting("ShowWhatsNew") != "False";
         LoadCustomFilters();
         LoadSavedReportViews();

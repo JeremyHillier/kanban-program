@@ -282,6 +282,17 @@
                 <local:BulletItem Text="The ? button in Add/Edit Task, Report Builder, Timeline, and Settings opens this Help screen at the matching topic."/>
                 <local:BulletItem Text="If something goes wrong, click Report a Problem at the bottom of this screen (or in About). It opens an email to support with the app's error log attached. Add a few words about what you were doing, then send it. Nothing is sent until you click Send."/>
                 <local:BulletItem Text="When the app hits an unexpected error, it also offers to open that email for you."/>
+
+                <TextBlock Text="Updates" Style="{StaticResource HelpSectionHeaderStyle}"/>
+                <local:BulletItem Text="At most once a day, when the app starts, it checks whether a newer version has been released. If one has, it shows what is new in it and a Get the Update button, which opens our download page in your browser. Run the installer from there: it updates the program in place and leaves your tasks as they are."/>
+                <local:BulletItem Text="Remind Me Later closes the notice until the next day's check. Skip This Version stops the notice for that version only; the one after it is still offered."/>
+                <local:BulletItem Text="The check sends the app's name and version number and nothing else. Nothing is ever downloaded or installed unless you choose to. To turn it off, untick 'Check for a newer version automatically' in Settings."/>
+                <local:BulletItem Text="To check whenever you like, open About and click Check for Updates."/>
+
+                <TextBlock Text="Privacy, licence and support" Style="{StaticResource HelpSectionHeaderStyle}"/>
+                <local:BulletItem Text="Everything you enter stays in your task file on this PC. There is no account, no cloud storage, and no usage tracking. The Privacy Note, in About, sets this out in full."/>
+                <local:BulletItem Text="The Licence Agreement is also in About. One licence covers one person, on any PCs that person uses."/>
+                <local:BulletItem Text="For support, use the email address shown in About, or click Report a Problem."/>
             </StackPanel>
         </ScrollViewer>
 

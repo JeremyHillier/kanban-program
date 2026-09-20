@@ -58,6 +58,8 @@ public partial class MainWindow : Window
             Dispatcher.BeginInvoke(() => ShowWhatsNew(viewModel), DispatcherPriority.ApplicationIdle);
         }
 
+        CheckForUpdatesOnStartup(viewModel);
+
         if (!viewModel.ShowDueReminders) return;
 
         var dueCards = viewModel.GetDueReminders();

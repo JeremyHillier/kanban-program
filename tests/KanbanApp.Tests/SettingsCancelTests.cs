@@ -38,6 +38,7 @@ public sealed class SettingsCancelTests(WpfDispatcherFixture wpf) : IDisposable
         board.SetRememberLastView(!board.RememberLastView);
         board.SetShowWhatsNew(!board.ShowWhatsNew);
         board.SetQuickAddHotkeyEnabled(!board.QuickAddHotkeyEnabled);
+        board.SetCheckForUpdatesEnabled(!board.CheckForUpdatesEnabled);
     }
 
     [Fact]

@@ -1,0 +1,57 @@
+KANBAN TASK BOARD
+PRIVACY NOTE
+
+Last updated: September 20, 2026
+
+The short version: everything you put into Kanban Task Board stays on your own computer. We never see it.
+
+
+WHERE YOUR INFORMATION IS KEPT
+
+Your tasks, notes, sub-tasks, people, projects, templates, settings and task history are stored in a single task file on your computer, in the folder you chose when you installed the program. Files you attach to tasks are kept in an Attachments folder beside it, and automatic backups are kept in a Backups folder. A small settings file that records where your task file lives is kept in your Windows user profile.
+
+You can see the exact locations at any time on the About screen.
+
+None of this is sent to Jeremy Hillier Consulting Inc or to anyone else. There is no account to create, no sign-in, and no cloud storage. The program contains no advertising, no analytics and no usage tracking.
+
+
+WHEN THE PROGRAM CONTACTS THE INTERNET
+
+There is one occasion, and you can turn it off.
+
+Checking for a newer version. At most once a day, when the program starts, it asks our public download list (hosted by GitHub) what the latest version is. The request contains the program's name and version number and nothing else: no information about you, your computer's contents or your tasks. As with any internet request, GitHub's servers see the IP address the request comes from; GitHub's own privacy statement applies to that. If a newer version exists, the program shows you what is new and a link to our download page. Nothing is downloaded or installed unless you choose to.
+
+To turn this off, open Settings and untick "Check for a newer version automatically". You can still check by hand from the About screen whenever you like.
+
+
+THINGS THAT HAPPEN ONLY WHEN YOU ASK
+
+Emailing a task. When you choose to email a task, the program hands the message to your own email program (such as Outlook). You see the message before it goes, and it is sent from your own email account. It never passes through us.
+
+Reporting a problem. The Report a Problem button prepares an email to our support address with the program's error log attached. The log records technical details of errors: the date and time, the program's version and the technical description of what went wrong. It may include the names of files or folders on your computer. You can read the message and the attachment before sending, and nothing is sent unless you press Send. We use what you send only to investigate the problem and reply to you.
+
+Opening a website. If you add a web address to a task and click Open, the address opens in your own web browser.
+
+Importing and exporting. Excel files, PDF reports and printouts that you create are saved or printed where you choose. They go nowhere else.
+
+
+IF YOU KEEP YOUR TASK FILE IN A SYNCED FOLDER
+
+If you choose to store your task file in a folder that is synchronised by a service such as OneDrive or Dropbox, that service will hold a copy under its own terms. That is your choice and is between you and that service; the program itself does not upload anything.
+
+
+YOUR CONTROL OVER YOUR INFORMATION
+
+Because your information is held only by you, you are in full control of it. You can back it up, move it, or delete it at any time, and uninstalling the program does not remove your task file unless you delete it yourself. We hold no copy, so there is nothing for us to provide, correct or erase on request. If you have emailed us, you may ask us to delete that correspondence.
+
+
+CHANGES TO THIS NOTE
+
+If a future version of the program changes any of this, the note supplied with that version will say so, and the change will be listed in What's New.
+
+
+CONTACT
+
+Jeremy Hillier Consulting Inc
+Email: jeremy.hillier@gmail.com
+Web: https://hillierconsulting.ca

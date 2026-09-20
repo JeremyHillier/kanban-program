@@ -10,4 +10,8 @@ public static class AppInfo
 
     // Where Report a Problem sends its email. Customers see this address.
     public const string SupportEmail = "jeremy.hillier@gmail.com";
+
+    // Where people are sent to get a newer version. The update check never uses a link from the
+    // internet reply itself - only this one.
+    public const string DownloadPageUrl = "https://hillierconsulting.ca/kanban.html";
 }

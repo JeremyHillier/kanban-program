@@ -1,0 +1,93 @@
+KANBAN TASK BOARD
+END-USER LICENCE AGREEMENT
+
+Last updated: September 20, 2026
+
+Please read this agreement before installing or using Kanban Task Board (the "Software"). It is an agreement between you and Jeremy Hillier Consulting Inc ("we", "us"). By installing or using the Software you accept it. If you do not accept it, do not install or use the Software.
+
+
+1. YOUR LICENCE
+
+The Software is licensed, not sold. Subject to this agreement, we grant you a personal, non-exclusive, non-transferable licence to install and use the Software.
+
+One licence is for one person. That person may install and use the Software on any number of computers that they personally use. Each additional person who uses the Software needs a licence of their own.
+
+If you use the Software on behalf of a business or other organisation, you confirm that you are authorised to accept this agreement for it, and "you" includes that organisation.
+
+
+2. WHAT YOU MAY NOT DO
+
+You may not:
+
+  (a) sell, rent, lease, lend, sublicense or redistribute the Software, or make it available to others as a hosted or shared service;
+  (b) share your licence with another person, or transfer it without our written consent;
+  (c) reverse engineer, decompile or disassemble the Software, except to the extent that the law expressly allows this despite this restriction;
+  (d) remove or alter any copyright, trademark or other ownership notice in the Software; or
+  (e) use the Software in any way that breaks the law.
+
+
+3. OWNERSHIP
+
+The Software, including its code, design, text and graphics, belongs to Jeremy Hillier Consulting Inc and is protected by copyright and other laws. This agreement gives you a right to use the Software and nothing more. All rights not expressly granted are reserved.
+
+
+4. YOUR DATA
+
+Your tasks, notes, attachments and settings are stored in files on your own computer, in a location you choose. We do not receive, store or have access to them. They remain yours.
+
+Because your data is held only by you, you are responsible for keeping it safe, including keeping backups. The Software includes backup features to help with this, but we cannot recover data that is lost from your computer.
+
+The Privacy Note supplied with the Software explains this in more detail, including the limited occasions on which the Software contacts the internet.
+
+
+5. UPDATES
+
+We may release updates to the Software from time to time, but we are not obliged to. Unless you turn the feature off in Settings, the Software checks our download page periodically to see whether a newer version is available and tells you if there is one. Updates are never installed without your action. This agreement applies to any update unless the update comes with its own terms.
+
+
+6. THIRD-PARTY COMPONENTS
+
+The Software includes components from third parties that are provided under their own licences, including PDFsharp, ClosedXML, SQLite with Microsoft.Data.Sqlite, the Microsoft .NET runtime, and the Lato typeface (SIL Open Font License). Those licences govern the components they apply to. They are acknowledged on the About screen.
+
+
+7. SUPPORT
+
+We may provide support at our discretion. You can reach us at jeremy.hillier@gmail.com. The Report a Problem button on the About screen prepares an email to that address; nothing is sent until you choose to send it.
+
+
+8. NO WARRANTY
+
+To the fullest extent the law allows, the Software is provided "as is" and "as available", without warranties or conditions of any kind, whether express, implied or statutory. This includes any implied warranties or conditions of merchantability, fitness for a particular purpose, non-infringement, and that the Software will be uninterrupted or free of errors.
+
+You are responsible for deciding whether the Software is suitable for your purposes. It is a task-management tool and is not designed for uses in which a failure could lead to injury, loss of life or serious damage.
+
+
+9. LIMIT OF LIABILITY
+
+To the fullest extent the law allows, we will not be liable for any indirect, incidental, special, consequential or punitive loss, or for any loss of data, profits, revenue, business or goodwill, arising from or related to the Software or this agreement, however caused and even if we have been told that such loss is possible.
+
+Our total liability for all claims arising from or related to the Software or this agreement will not be more than the greater of (a) the amount you paid for your licence in the twelve months before the claim arose and (b) fifty Canadian dollars (CAD $50).
+
+Some jurisdictions do not allow certain warranties to be excluded or certain liabilities to be limited. Nothing in this agreement takes away rights that you have under consumer-protection or other laws that cannot be waived by agreement. In those cases, the exclusions and limits above apply only as far as the law permits.
+
+
+10. ENDING THIS AGREEMENT
+
+This agreement lasts until it is ended. You may end it at any time by uninstalling the Software and destroying all copies. It ends automatically if you do not comply with it. When it ends you must stop using the Software and remove all copies. Your own data files remain yours. Sections 3, 4, 8, 9, 11 and 12 continue to apply after it ends.
+
+
+11. GOVERNING LAW
+
+This agreement is governed by the laws of the Province of Ontario and the federal laws of Canada that apply there, without regard to rules on conflict of laws. The courts of Ontario have jurisdiction over any dispute arising from it, except where the law of the place you live gives you the right to bring a claim in your local courts.
+
+
+12. GENERAL
+
+This agreement, together with the Privacy Note, is the whole agreement between you and us about the Software and replaces any earlier understanding about it. If any part of it is found to be unenforceable, the rest continues to apply. If we do not enforce a right, that is not a waiver of it. We may update this agreement for future versions of the Software; the version supplied with the copy you install is the one that applies to that copy.
+
+
+13. CONTACT
+
+Jeremy Hillier Consulting Inc
+Email: jeremy.hillier@gmail.com
+Web: https://hillierconsulting.ca

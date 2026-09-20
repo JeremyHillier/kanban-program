@@ -6,7 +6,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
-    <Version>0.103.0</Version>
+    <Version>0.104.0</Version>
     <ApplicationIcon>Assets\app.ico</ApplicationIcon>
 
     <AppChannel Condition="'$(AppChannel)'==''">Test</AppChannel>
@@ -42,6 +42,10 @@
          Lato is free to ship under the SIL Open Font License; the licence travels with it. -->
     <EmbeddedResource Include="Assets\Fonts\Lato-*.ttf" />
     <EmbeddedResource Include="Assets\Fonts\Lato-OFL.txt" />
+    <!-- The licence agreement and privacy note shown from the About screen (LegalDocuments). The
+         installer shows the same EULA.txt on its licence page. -->
+    <EmbeddedResource Include="Legal\EULA.txt" />
+    <EmbeddedResource Include="Legal\PRIVACY.txt" />
   </ItemGroup>
 
 </Project>

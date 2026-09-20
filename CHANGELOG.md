@@ -6,6 +6,14 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.104.0 — 2026-09-20
+- New: update notices. When a newer version is released, the app tells you what is new in it and offers a button that opens the download page. Nothing is downloaded or installed unless you choose to
+- The check runs at most once a day when the app starts, and sends only the app's name and version number. It can be turned off in Settings, and About has a Check for Updates button for checking at any time
+- Remind Me Later postpones the notice to the next day; Skip This Version hides it for that version only
+- New: a Licence Agreement and a Privacy Note, both available from the About screen. The installer now shows the Licence Agreement before installing
+- The Privacy Note confirms how the app has always worked: your tasks, notes and attachments are stored only on your own PC, with no account, no cloud storage and no usage tracking
+- About now shows the support email address
+
 ## 0.103.0 — 2026-09-20
 - New: shared tasks. A task can now be assigned to more than one person. Open the Who list on the task screen and tick everyone involved; the first person ticked is the lead, and "make lead" changes that at any time
 - Cards list everyone assigned to a task, lead first. Clicking the Assigned line, or Assign To in the right-click menu, adds or removes one person without affecting the others

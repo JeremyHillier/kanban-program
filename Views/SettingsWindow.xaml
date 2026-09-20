@@ -103,6 +103,10 @@
                           Checked="QuickAddHotkeyCheckBox_Changed" Unchecked="QuickAddHotkeyCheckBox_Changed"/>
                 <TextBlock x:Name="QuickAddHotkeyProblemText" TextWrapping="Wrap" FontSize="11" Margin="20,-4,0,8" Foreground="#FFE57373"
                            Visibility="Collapsed"/>
+                <CheckBox x:Name="CheckForUpdatesCheckBox" Content="Check for a newer version automatically"
+                          ToolTip="At most once a day, when the app starts, it asks our download list whether a newer version is out, and tells you what is new if there is one. Only the app's name and version are sent - nothing about you or your tasks - and nothing is downloaded unless you choose to. You can also check by hand from the About screen."
+                          Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,8"
+                          Checked="CheckForUpdatesCheckBox_Changed" Unchecked="CheckForUpdatesCheckBox_Changed"/>
                 <CheckBox x:Name="RememberLastViewCheckBox" Content="Remember filters, sort, and search between sessions"
                           Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,20"
                           Checked="RememberLastViewCheckBox_Changed" Unchecked="RememberLastViewCheckBox_Changed"/>
