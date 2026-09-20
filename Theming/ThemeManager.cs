@@ -63,8 +63,8 @@ public static class ThemeManager
             res["AccentPanelBorderBrush"] = Brush(0x70, 0x90, 0xB6);
             // Pale, so the slate and blue buttons stand clear of it instead of washing into a navy of
             // much the same strength. The header keeps AccentPanelBrush: its white text needs the depth.
-            res["SidebarPanelBrush"] = Brush(0xD6, 0xDF, 0xEB);
-            res["SidebarPanelBorderBrush"] = Brush(0x9C, 0xB0, 0xCA);
+            res["SidebarPanelBrush"] = Brush(0xC1, 0xC9, 0xD4);
+            res["SidebarPanelBorderBrush"] = Brush(0x8C, 0x9E, 0xB6);
             res["SidebarGripBrush"] = Brush(0x4F, 0x67, 0x85);
         }
     }
