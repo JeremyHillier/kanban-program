@@ -29,6 +29,8 @@ These bullets are also published as the release notes on the public download pag
 
 `installer/build-installers.ps1` defaults to `-Channels Production` only, and that's the desired behavior now — the user no longer needs the Test channel installer built as a matter of course. Just run it with no `-Channels` arg. Only pass `-Channels Test` or `-Channels Production,Test` if the user explicitly asks for a Test build for some specific reason.
 
+After building, say where the installer is and stop there. Never ask whether to install it on this PC, never offer to, and never run it: the user always installs it themselves. The only question to ask after a build is the publishing one below.
+
 ## Publishing a release to the download page
 
 Public download page: https://hillierconsulting.ca/kanban.html. It reads the latest release from the **public** repo `JeremyHillier/kanban-task-board-downloads` through the GitHub API, so publishing a release there is all it takes. The website itself never needs redeploying for a new version.
