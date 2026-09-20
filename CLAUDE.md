@@ -27,6 +27,20 @@ WPF (.NET, `net10.0-windows`) desktop kanban app, SQLite-backed via `Microsoft.D
 
 `installer/build-installers.ps1` defaults to `-Channels Production` only, and that's the desired behavior now — the user no longer needs the Test channel installer built as a matter of course. Just run it with no `-Channels` arg. Only pass `-Channels Test` or `-Channels Production,Test` if the user explicitly asks for a Test build for some specific reason.
 
+## Publishing a release to the download page
+
+Public download page: https://hillierconsulting.ca/kanban.html. It reads the latest release from the **public** repo `JeremyHillier/kanban-task-board-downloads` through the GitHub API, so publishing a release there is all it takes. The website itself never needs redeploying for a new version.
+
+- **After every successful installer build, ask the user**: "Publish <version> to the download page?" Only publish on a yes. Never publish without asking.
+- Prerequisite: the GitHub CLI. Check with `gh auth status`. If it is missing or not signed in, tell the user to run `winget install --id GitHub.cli` and then `gh auth login` (once per computer), and stop.
+- Only Production channel installers are ever published, never the Test build.
+- Tag is `v<Version>` from `KanbanApp.csproj`. First check `gh release view v<Version> --repo JeremyHillier/kanban-task-board-downloads`. If that version is already released, ask before replacing its file (`gh release upload v<Version> "<installer>" --clobber --repo ...`); a real change should normally get a version bump instead.
+- Release notes are that version's bullets from `CHANGELOG.md`, copied as written (customer wording, lines starting with `- `, which the page shows as a list). Write them to a temp file and pass `--notes-file`.
+- Publish with:
+  `gh release create v<Version> "installer/Output/Kanban Task Board-Setup-<Version>.exe" --repo JeremyHillier/kanban-task-board-downloads --title "Kanban Task Board <Version>" --notes-file <temp file> --latest`
+- Never mark it `--prerelease` or `--draft` (the page only picks up the latest full release). Never push source code or anything other than the installer to that repo; the code repo `kanban-program` stays private.
+- Afterwards confirm with `gh release view` and tell the user it is live at https://hillierconsulting.ca/kanban.html.
+
 ## Architecture
 
 Standard MVVM:
