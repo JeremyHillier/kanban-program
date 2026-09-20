@@ -46,8 +46,32 @@ public partial class TimelineWindow : Window
         InitializeComponent();
         _viewModel = viewModel;
         _windowStart = MondayOf(DateTime.Today);
+        RestoreSize();
+        Closing += (_, _) => SaveSize();
         _initializing = false;
         BuildGrid();
+    }
+
+    // Opens at the size it was last left. It never opens bigger than the screen it is on - the
+    // remembered size may have come from a larger monitor.
+    private void RestoreSize()
+    {
+        if (_viewModel.TimelineWindowSize is not { } size) return;
+
+        var area = SystemParameters.WorkArea;
+        Width = Math.Clamp(size.Width, MinWidth, Math.Max(MinWidth, area.Width));
+        Height = Math.Clamp(size.Height, MinHeight, Math.Max(MinHeight, area.Height));
+        if (size.Maximized) WindowState = WindowState.Maximized;
+    }
+
+    // A maximized window remembers the size it goes back to as well, so un-maximizing next time
+    // doesn't leave it filling the screen.
+    private void SaveSize()
+    {
+        var maximized = WindowState == WindowState.Maximized;
+        var width = WindowState == WindowState.Normal ? Width : RestoreBounds.Width;
+        var height = WindowState == WindowState.Normal ? Height : RestoreBounds.Height;
+        _viewModel.SaveTimelineWindowSize(width, height, maximized);
     }
 
     private bool IsDayView => DayViewRadio.IsChecked == true;

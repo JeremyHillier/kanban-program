@@ -142,6 +142,29 @@ public partial class MainViewModel
             ? ClampFilterListHeight(height)
             : DefaultFilterListHeight;
 
+    // The Timeline window's size as it was last left, stored as "width,height,maximized". The
+    // position isn't kept: the window always opens centred on the board.
+    public (double Width, double Height, bool Maximized)? TimelineWindowSize
+    {
+        get
+        {
+            var parts = (_db.GetSetting("TimelineWindowSize") ?? string.Empty).Split(',');
+            if (parts.Length != 3) return null;
+            var invariant = System.Globalization.CultureInfo.InvariantCulture;
+            if (!double.TryParse(parts[0], System.Globalization.NumberStyles.Float, invariant, out var width)
+                || !double.TryParse(parts[1], System.Globalization.NumberStyles.Float, invariant, out var height)
+                || !double.IsFinite(width) || !double.IsFinite(height) || width <= 0 || height <= 0) return null;
+            return (width, height, parts[2] == "1");
+        }
+    }
+
+    public void SaveTimelineWindowSize(double width, double height, bool maximized)
+    {
+        if (!double.IsFinite(width) || !double.IsFinite(height) || width <= 0 || height <= 0) return;
+        var invariant = System.Globalization.CultureInfo.InvariantCulture;
+        _db.SetSetting("TimelineWindowSize", $"{width.ToString(invariant)},{height.ToString(invariant)},{(maximized ? "1" : "0")}");
+    }
+
     public bool ShowSplash { get; private set; }
     public int SplashDelayMs { get; private set; }
 

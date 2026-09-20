@@ -20,37 +20,8 @@ public static class ReportService
     private static void EnsureFontResolverRegistered()
     {
         if (_fontResolverRegistered) return;
-        GlobalFontSettings.FontResolver = new SegoeUiFontResolver();
+        GlobalFontSettings.FontResolver = new PdfFontResolver();
         _fontResolverRegistered = true;
-    }
-
-    private class SegoeUiFontResolver : IFontResolver
-    {
-        private static readonly string FontsDir = Environment.GetFolderPath(Environment.SpecialFolder.Fonts);
-
-        public byte[] GetFont(string faceName)
-        {
-            var fileName = faceName switch
-            {
-                "SegoeUI#Bold" => "segoeuib.ttf",
-                "SegoeUI#Italic" => "segoeuii.ttf",
-                "SegoeUI#BoldItalic" => "segoeuiz.ttf",
-                _ => "segoeui.ttf"
-            };
-            return File.ReadAllBytes(Path.Combine(FontsDir, fileName));
-        }
-
-        public FontResolverInfo ResolveTypeface(string familyName, bool isBold, bool isItalic)
-        {
-            var faceName = (isBold, isItalic) switch
-            {
-                (true, true) => "SegoeUI#BoldItalic",
-                (true, false) => "SegoeUI#Bold",
-                (false, true) => "SegoeUI#Italic",
-                _ => "SegoeUI#Regular"
-            };
-            return new FontResolverInfo(faceName);
-        }
     }
 
     // unionFilters, when non-empty, REPLACES the six discrete filter params entirely for matching
@@ -596,13 +567,13 @@ public static class ReportService
         double width = page.Width.Point - 2 * margin;
         double pageWidth = page.Width.Point;
 
-        var titleFont = new XFont("Segoe UI", 20, XFontStyleEx.Bold);
-        var subtitleFont = new XFont("Segoe UI", 10, XFontStyleEx.Regular);
-        var groupFont = new XFont("Segoe UI", 13, XFontStyleEx.Bold);
-        var rowTitleFont = new XFont("Segoe UI", 11, XFontStyleEx.Bold);
-        var metaFont = new XFont("Segoe UI", 9, XFontStyleEx.Regular);
-        var subTaskFont = new XFont("Segoe UI", 9, XFontStyleEx.Regular);
-        var noteFont = new XFont("Segoe UI", 9, XFontStyleEx.Italic);
+        var titleFont = new XFont(PdfFontResolver.FamilyName, 20, XFontStyleEx.Bold);
+        var subtitleFont = new XFont(PdfFontResolver.FamilyName, 10, XFontStyleEx.Regular);
+        var groupFont = new XFont(PdfFontResolver.FamilyName, 13, XFontStyleEx.Bold);
+        var rowTitleFont = new XFont(PdfFontResolver.FamilyName, 11, XFontStyleEx.Bold);
+        var metaFont = new XFont(PdfFontResolver.FamilyName, 9, XFontStyleEx.Regular);
+        var subTaskFont = new XFont(PdfFontResolver.FamilyName, 9, XFontStyleEx.Regular);
+        var noteFont = new XFont(PdfFontResolver.FamilyName, 9, XFontStyleEx.Italic);
 
         var accentBrush = new XSolidBrush(XColor.FromArgb(0x1E, 0x3A, 0x5F));
         var subtitleBrush = new XSolidBrush(XColor.FromArgb(0xC0, 0xCB, 0xDA));
@@ -620,7 +591,7 @@ public static class ReportService
             y = margin;
         }
 
-        var paramFont = new XFont("Segoe UI", 12, XFontStyleEx.Regular);
+        var paramFont = new XFont(PdfFontResolver.FamilyName, 12, XFontStyleEx.Regular);
         const double paramLineHeight = 16;
         const double bandMinHeight = 70;
 
@@ -737,7 +708,7 @@ public static class ReportService
                 y += 6;
                 gfx.DrawLine(new XPen(XColor.FromArgb(0x1E, 0x3A, 0x5F), 1.2), new XPoint(margin - 8, y), new XPoint(pageWidth - margin + 8, y));
                 y += 16;
-                gfx.DrawString("Sub-task Completion Summary", new XFont("Segoe UI", 16, XFontStyleEx.Bold), accentBrush, new XPoint(margin, y));
+                gfx.DrawString("Sub-task Completion Summary", new XFont(PdfFontResolver.FamilyName, 16, XFontStyleEx.Bold), accentBrush, new XPoint(margin, y));
                 y += 26;
 
                 string? lastParent = null;

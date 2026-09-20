@@ -221,6 +221,7 @@
                 <local:BulletItem Text="Switch to Day view for 21 daily columns instead of 12 weekly ones; paging then moves a week at a time."/>
                 <local:BulletItem Text="Task blocks are coloured by priority, using the same colours as the priority badge on the cards. Hover a block for its details, including the due time if it has one and what it is waiting on, or double-click it to open the task."/>
                 <local:BulletItem Text="The date headings stay in place while you scroll down through the projects."/>
+                <local:BulletItem Text="The Timeline window opens at the size you last left it, including full screen."/>
                 <local:BulletItem Text="Print opens a preview of the range and view currently showing, ready to print on landscape pages."/>
 
                 <TextBlock Text="Reminders" Style="{StaticResource HelpSectionHeaderStyle}"/>

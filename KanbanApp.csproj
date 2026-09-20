@@ -6,7 +6,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
-    <Version>0.100.1</Version>
+    <Version>0.101.0</Version>
     <ApplicationIcon>Assets\app.ico</ApplicationIcon>
 
     <AppChannel Condition="'$(AppChannel)'==''">Test</AppChannel>
@@ -38,6 +38,10 @@
          packages only the published binary, so a loose CHANGELOG.md wouldn't be there. Keeping it
          as the single source avoids maintaining a second copy of the release notes in code. -->
     <Resource Include="CHANGELOG.md" />
+    <!-- The PDF report's stand-in font for a PC where Segoe UI can't be read (see PdfFontResolver).
+         Lato is free to ship under the SIL Open Font License; the licence travels with it. -->
+    <EmbeddedResource Include="Assets\Fonts\Lato-*.ttf" />
+    <EmbeddedResource Include="Assets\Fonts\Lato-OFL.txt" />
   </ItemGroup>
 
 </Project>

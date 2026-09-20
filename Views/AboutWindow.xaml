@@ -84,7 +84,7 @@
 
             <TextBlock Text="Acknowledgements" Style="{StaticResource AboutSectionHeaderStyle}"/>
             <TextBlock TextWrapping="Wrap" FontSize="11" Foreground="{DynamicResource SecondaryTextBrush}"
-                       Text="PDF rendering by PDFsharp. Excel import by ClosedXML. Data stored with SQLite via Microsoft.Data.Sqlite. Installer built with Inno Setup."/>
+                       Text="PDF rendering by PDFsharp. Excel import by ClosedXML. Data stored with SQLite via Microsoft.Data.Sqlite. Installer built with Inno Setup. The Lato font, by Łukasz Dziedzic, is included under the SIL Open Font License."/>
         </StackPanel>
 
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="24,20,24,20">
