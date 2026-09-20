@@ -6,6 +6,12 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.105.0 — 2026-09-20
+- New: Waiting On remembers your earlier answers. The Waiting On prompt lists your recent answers as soon as it opens, narrows the list as you type, and fills in the closest match ahead of the cursor
+- Press Enter to save what is in the box. Keep typing to replace a suggestion, press Backspace to remove it, use the Down and Up arrows to move through the list, or click an answer to take it
+- The Waiting On box on the task screen offers the same suggestions once you start typing
+- Answers are remembered even after the task they belonged to is finished. To stop one being suggested, highlight it with the arrow keys and press Shift+Delete
+
 ## 0.104.2 — 2026-09-20
 - Improved: in light mode, the panel behind the button column is now a soft blue-grey, so every button stands out clearly against it. Dark mode is unchanged
 

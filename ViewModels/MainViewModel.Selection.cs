@@ -169,6 +169,7 @@ public partial class MainViewModel
     public void SetCardsWaitingOn(IEnumerable<CardViewModel> cards, string? waitingOn)
     {
         var cleaned = string.IsNullOrWhiteSpace(waitingOn) ? null : waitingOn.Trim();
+        RememberWaitingOn(cleaned);
         ChangeCards(cleaned is null ? "Clear waiting-on of" : "Set waiting-on of", cards, c => c.WaitingOn != cleaned, c => c.WaitingOn = cleaned);
     }
 

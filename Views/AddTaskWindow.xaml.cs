@@ -73,6 +73,7 @@ public partial class AddTaskWindow : Window
         RebuildWhoItems();
         RebuildFlagCheckboxes();
         InitializeTemplates();
+        TextBoxSuggestions.Attach(WaitingOnTextBox, viewModel.WaitingOnSuggestions, viewModel.ForgetWaitingOnSuggestion);
         UpdateSubTaskProgressLabel();
 
         ProjectComboBox.Focus();

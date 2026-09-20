@@ -11,7 +11,10 @@ public partial class PromptWindow : Window
 
     // initialValue / okText are for changing an existing value (the card's Waiting On) rather than
     // adding a new one: the box starts filled in and selected, and the button says Save.
-    public PromptWindow(string title, string label, string? initialValue = null, string okText = "Add")
+    // suggestions are past answers to offer while typing (see TextBoxSuggestions); forgetSuggestion
+    // lets Shift+Delete take one off that list for good.
+    public PromptWindow(string title, string label, string? initialValue = null, string okText = "Add",
+        IEnumerable<string>? suggestions = null, Action<string>? forgetSuggestion = null)
     {
         InitializeComponent();
         Title = title;
@@ -21,6 +24,13 @@ public partial class PromptWindow : Window
         ValueTextBox.Text = _initialValue;
         ValueTextBox.SelectAll();
         ValueTextBox.Focus();
+
+        if (suggestions is not null && TextBoxSuggestions.Attach(ValueTextBox, suggestions, forgetSuggestion, openWhenEmpty: true) is not null)
+        {
+            ValueTextBox.ToolTip = forgetSuggestion is null
+                ? "Start typing, or press the Down arrow, to pick an earlier answer."
+                : "Start typing, or press the Down arrow, to pick an earlier answer. Shift+Delete on a highlighted one forgets it.";
+        }
     }
 
     // Anything typed that differs from how the box started is the unsaved work.

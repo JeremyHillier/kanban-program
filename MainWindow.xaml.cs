@@ -489,7 +489,7 @@ public partial class MainWindow : Window
 
         var shared = cards.Select(c => c.WaitingOn).Distinct().Count() == 1 ? cards[0].WaitingOn : null;
         var question = cards.Count == 1 ? "Who or what is this task waiting on?" : $"Who or what are these {cards.Count} tasks waiting on?";
-        var dialog = new PromptWindow("Waiting On", question, shared, "Save") { Owner = this };
+        var dialog = new PromptWindow("Waiting On", question, shared, "Save", viewModel.WaitingOnSuggestions, viewModel.ForgetWaitingOnSuggestion) { Owner = this };
         if (dialog.ShowDialog() != true) return;
 
         viewModel.SetCardsWaitingOn(cards, dialog.Value);

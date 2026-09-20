@@ -22,6 +22,7 @@ public partial class MainViewModel
         using var undo = RecordUndo(DescribeAction("Add", title.Trim()), []);
         var card = _db.AddCard(column.Id, title.Trim(), project?.Id, column.Name, priority, dueDate, people.FirstOrDefault()?.Id, isRecurring, recurrencePattern, goal?.Id, notes, isImported, forceEditOnComplete, websiteUrl, dueTime, startDate,
             string.IsNullOrWhiteSpace(waitingOn) ? null : waitingOn.Trim());
+        RememberWaitingOn(waitingOn);
         _db.SetCardFlags(card.Id, flags.Select(f => f.Id));
         _db.SetCardPeople(card.Id, people.Select(p => p.Id));
         var subTaskItems = _db.SetCardSubTasks(card.Id, subTasks.Select(s => (s.Title, s.IsDone)).ToList());
@@ -68,6 +69,7 @@ public partial class MainViewModel
         card.DueTime = dueDate is null ? null : dueTime;
         card.StartDate = startDate;
         card.WaitingOn = waitingOn;
+        RememberWaitingOn(waitingOn);
         card.People = people ?? [];
         card.IsRecurring = isRecurring;
         card.RecurrencePattern = recurrencePattern;
@@ -200,6 +202,7 @@ public partial class MainViewModel
 
         using var undo = RecordUndo(DescribeAction(cleaned is null ? "Clear waiting-on of" : "Set waiting-on of", [card]), [card]);
         card.WaitingOn = cleaned;
+        RememberWaitingOn(cleaned);
         PersistCard(card);
         RefreshAfterCardChange(card);
     }
