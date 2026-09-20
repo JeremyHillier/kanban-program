@@ -57,6 +57,7 @@
                 <local:BulletItem Text="Alt+S — open Settings."/>
                 <local:BulletItem Text="Alt+H — open this Help screen."/>
                 <local:BulletItem Text="Alt+L — open the Timeline."/>
+                <local:BulletItem Text="Alt+M — manage task templates (rename or delete)."/>
                 <local:BulletItem Text="Alt+T — show just what's due today (and anything overdue), clearing every other filter first."/>
                 <local:BulletItem Text="Alt+0 to Alt+9 — apply the custom filter saved in that slot (see Custom filters below). An unassigned slot does nothing."/>
                 <local:BulletItem Text="Esc — close the open dialog. On the main board, the first Esc clears any selected cards, and the next clears every filter."/>
@@ -92,9 +93,9 @@
                 <TextBlock Text="Task templates" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <local:BulletItem Text="A template is a saved starting point for tasks you create again and again, with its project, priority, who, goal, flags, sub-tasks, notes, website and recurring settings already filled in."/>
                 <local:BulletItem Text="To make one, fill in a task and click Save as Template on the task screen, or right-click a task on the board and choose Save as Template. Saving under a name that already exists asks before replacing it."/>
-                <local:BulletItem Text="To use one, click New Task and pick it from the Template list at the top; the list appears once you have at least one template. Everything it fills in can still be changed before you save."/>
+                <local:BulletItem Text="To use one, click New Task and pick it from the Template list at the top of the task screen, or right-click the New Task button and choose it there. Everything it fills in can still be changed before you save."/>
                 <local:BulletItem Text="Dates are kept as so many days from today: a template saved from a task due in 14 days makes tasks due 14 days after you use it. Dates already past, attachments, Waiting On, the column, and sub-task ticks are not kept."/>
-                <local:BulletItem Text="Click Manage beside the Template list to rename or delete templates. Deleting one does not affect tasks already made from it."/>
+                <local:BulletItem Text="To rename or delete templates, press Alt+M on the main screen, right-click the New Task button and choose Manage Templates, or click Manage beside the Template list. Deleting one does not affect tasks already made from it."/>
 
                 <TextBlock Text="Sub-tasks" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <local:BulletItem Text="Add sub-task rows in the task dialog; each has its own checkbox."/>
@@ -218,7 +219,7 @@
                 <local:BulletItem Text="Shows 12 weeks at a time starting from the current week; use ◀ 4 Weeks / 4 Weeks ▶ to page through time, or Today to jump back to the current week."/>
                 <local:BulletItem Text="Done tasks are left out by default — check Include Done tasks to bring them back in."/>
                 <local:BulletItem Text="Switch to Day view for 21 daily columns instead of 12 weekly ones; paging then moves a week at a time."/>
-                <local:BulletItem Text="Task blocks are coloured by priority, using the same colours as the priority badge on the cards. Hover a block for its details, or double-click it to open the task."/>
+                <local:BulletItem Text="Task blocks are coloured by priority, using the same colours as the priority badge on the cards. Hover a block for its details, including the due time if it has one and what it is waiting on, or double-click it to open the task."/>
                 <local:BulletItem Text="The date headings stay in place while you scroll down through the projects."/>
                 <local:BulletItem Text="Print opens a preview of the range and view currently showing, ready to print on landscape pages."/>
 

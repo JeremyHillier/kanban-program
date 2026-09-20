@@ -70,6 +70,8 @@
                                   ToolTip="Start this task from a saved template. To make one, fill in a task and click Save as Template, or right-click a task on the board."
                                   Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
                                   BorderBrush="{DynamicResource CardBorderBrush}"/>
+                        <TextBlock Grid.Column="1" x:Name="TemplateHintText" IsHitTestVisible="False" Margin="10,0,28,0" VerticalAlignment="Center"
+                                   TextTrimming="CharacterEllipsis" Foreground="{DynamicResource SecondaryTextBrush}"/>
                         <Button Grid.Column="2" Content="Manage..." Padding="10,4" Margin="6,0,0,0" Click="ManageTemplates_Click" IsTabStop="False"
                                 ToolTip="Rename or delete templates"
                                 Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>

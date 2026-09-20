@@ -323,6 +323,33 @@ public partial class MainWindow : Window
         OpenAddTaskDialog(viewModel, null);
     }
 
+    // Right-click New Task: start straight from a template, or get to Manage Templates. Built on
+    // each open so it always lists the templates as they are now.
+    private void NewTaskButton_PreviewMouseRightButtonUp(object sender, MouseButtonEventArgs e)
+    {
+        if (sender is not FrameworkElement button || DataContext is not MainViewModel viewModel) return;
+        e.Handled = true;
+
+        var menu = new System.Windows.Controls.ContextMenu { PlacementTarget = button, Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom };
+        AddMenuItem(menu, "_New Task", () => OpenAddTaskDialog(viewModel, null), gesture: "Ctrl+N");
+        menu.Items.Add(new System.Windows.Controls.Separator());
+
+        if (viewModel.TaskTemplates.Count == 0)
+        {
+            menu.Items.Add(new System.Windows.Controls.MenuItem { Header = "No templates yet", IsEnabled = false });
+        }
+        foreach (var template in viewModel.TaskTemplates)
+        {
+            AddMenuItem(menu, $"From template: {MenuText(template.Name)}", () => OpenAddTaskDialog(viewModel, null, template));
+        }
+
+        menu.Items.Add(new System.Windows.Controls.Separator());
+        AddMenuItem(menu, "_Manage Templates...", () => ManageTemplates(viewModel), gesture: "Alt+M");
+        menu.IsOpen = true;
+    }
+
+    private void ManageTemplates(MainViewModel viewModel) => new ManageTemplatesWindow(viewModel) { Owner = this }.ShowDialog();
+
     private void ColumnHeader_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
     {
         if (e.ClickCount != 2) return;
@@ -332,10 +359,11 @@ public partial class MainWindow : Window
         e.Handled = true;
     }
 
-    private void OpenAddTaskDialog(MainViewModel viewModel, ColumnViewModel? initialColumn)
+    private void OpenAddTaskDialog(MainViewModel viewModel, ColumnViewModel? initialColumn, KanbanApp.Models.TaskTemplate? template = null)
     {
         var dialog = new AddTaskWindow(viewModel) { Owner = this };
         if (initialColumn is not null) dialog.PreselectColumn(initialColumn);
+        if (template is not null) dialog.StartFromTemplate(template);
 
         if (dialog.ShowDialog() == true && dialog.SelectedColumn is not null)
         {
@@ -590,6 +618,10 @@ public partial class MainWindow : Window
                         break;
                     case Key.L:
                         Timeline_Click(sender, e);
+                        e.Handled = true;
+                        break;
+                    case Key.M:
+                        if (DataContext is MainViewModel templatesViewModel) ManageTemplates(templatesViewModel);
                         e.Handled = true;
                         break;
                     case Key.T:

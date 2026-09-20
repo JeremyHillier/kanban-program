@@ -16,14 +16,32 @@ public partial class AddTaskWindow
         RefreshTemplatePanel();
     }
 
-    // Shown for a new task once there is at least one template to pick - an empty picker on every
-    // new task would just be clutter. Never shown when editing: a template would overwrite the task.
-    private void RefreshTemplatePanel() =>
-        TemplatePanel.Visibility = _cardToEdit is null && _viewModel.TaskTemplates.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
+    // Always shown for a new task, even with no templates yet - the row is how people find out
+    // templates exist, and Manage lives on it. With none, the list is greyed and says how to make
+    // one. Never shown when editing: a template would overwrite the task.
+    private void RefreshTemplatePanel()
+    {
+        TemplatePanel.Visibility = _cardToEdit is null ? Visibility.Visible : Visibility.Collapsed;
+
+        var hasTemplates = _viewModel.TaskTemplates.Count > 0;
+        TemplateComboBox.IsEnabled = hasTemplates;
+        TemplateHintText.Text = hasTemplates
+            ? "Start from a template..."
+            : "No templates yet - fill in a task below, then click Save as Template";
+        UpdateTemplateHint();
+    }
+
+    private void UpdateTemplateHint() =>
+        TemplateHintText.Visibility = TemplateComboBox.SelectedItem is null ? Visibility.Visible : Visibility.Collapsed;
+
+    // Opens the dialog already filled in from a template (the board's right-click on New Task).
+    // Called before the window shows, so the filled-in form is what "unchanged" means on closing.
+    public void StartFromTemplate(TaskTemplate template) => TemplateComboBox.SelectedItem = template;
 
     private void TemplateComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
         if (TemplateComboBox.SelectedItem is TaskTemplate template) ApplyTemplate(template);
+        UpdateTemplateHint();
     }
 
     // Fills the form from a template, replacing what was there. A project, person, goal or flag

@@ -281,7 +281,8 @@ public partial class TimelineWindow : Window
                 var priorityBrush = GetPriorityBrush(task.Priority);
                 var tooltip = $"{task.Title}\nPriority: {task.Priority}\n{(task.WhoName != "Unassigned" ? $"Who: {task.WhoName}\n" : "")}"
                     + $"{(task.StartDate is not null ? $"Start: {task.StartDate:MMM d, yyyy}\n" : "")}"
-                    + $"{(task.DueDate is not null ? $"Due: {task.DueDate:MMM d, yyyy}\n" : "")}\nDouble-click to open";
+                    + $"{(task.DueDate is not null ? $"Due: {task.DueDate:MMM d, yyyy}{(task.DueDateTime is { } dueAt ? $" at {dueAt:h:mm tt}" : "")}\n" : "")}"
+                    + $"{(task.IsWaiting ? $"{task.WaitingOnDisplay}\n" : "")}\nDouble-click to open";
 
                 // Started before the left edge: the box can't sit at its start date, so it is drawn
                 // hollow and dashed in the first column showing, with the arrow running on from it.

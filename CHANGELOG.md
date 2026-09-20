@@ -6,6 +6,12 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.100.1 — 2026-09-19
+- The Template list now always shows at the top of a new task. With no templates yet, it says how to make one, and its Manage button is always there
+- Right-click the New Task button to start a task straight from a template, or to open Manage Templates
+- New shortcut: Alt+M opens Manage Templates from the main screen
+- Timeline: hovering over a task now shows its due time, if it has one, and what it is waiting on
+
 ## 0.100.0 — 2026-09-19
 - New: Quick Add from any program. While the app is running, press Ctrl+Alt+N anywhere to open a small New Task box, type the task and press Enter. The box stays open for more; Esc closes it
 - Quick Add codes, each as its own word: !high !medium !low for priority, @sam for who, and /today /tomorrow /fri /+3 /10-15 for the due date. The line under the box shows how it was understood
