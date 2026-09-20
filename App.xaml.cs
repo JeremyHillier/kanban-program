@@ -38,6 +38,12 @@ public partial class App : Application
         Theming.DialogCopyright.Register();
 
         var db = new DatabaseService();
+        if (db.IsFromNewerApp && !ConfirmOpenNewerTaskFile(db))
+        {
+            Shutdown();
+            return;
+        }
+
         CleanUpOldDbFileAfterMove(db.DbPath);
 
         DispatcherUnhandledException += (_, ex) =>
@@ -91,6 +97,20 @@ public partial class App : Application
         };
         timer.Start();
     }
+
+    // A newer copy of the app has used this task file (another PC, or a downgrade). This copy
+    // doesn't know about whatever that one stores, so it says so before anything is edited. The
+    // safe answer, closing, is the default.
+    private static bool ConfirmOpenNewerTaskFile(DatabaseService db) =>
+        MessageBox.Show(NewerTaskFileMessage(db.NewerAppVersion, DatabaseService.RunningAppVersion), AppChannel.DisplayName,
+            MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No) == MessageBoxResult.Yes;
+
+    internal static string NewerTaskFileMessage(string? newerVersion, string thisVersion) =>
+        $"This task file was last used by a newer version of the app{(string.IsNullOrWhiteSpace(newerVersion) ? "" : $" ({newerVersion} or later)")}. " +
+        $"This PC is running version {thisVersion}.\n\n" +
+        "If you carry on, tasks you change here can lose details that only the newer version knows about.\n\n" +
+        "It is safer to close now and update this PC first.\n\n" +
+        "Open the task file anyway?";
 
     private static void LogCrash(string dbPath, Exception ex)
     {

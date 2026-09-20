@@ -16,8 +16,6 @@
         <conv:StringEqualsConverter x:Key="StringEqualsConverter"/>
         <conv:GreaterThanZeroToVisibilityConverter x:Key="GreaterThanZeroToVisibilityConverter"/>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
-        <SolidColorBrush x:Key="AccentPanelBrush" Color="#FF34557D"/>
-        <SolidColorBrush x:Key="AccentPanelBorderBrush" Color="#FF5779A3"/>
 
         <!-- Project/Priority/Who filter lists: each ListBoxItem's IsSelected binds TwoWay to the
              underlying FilterOptionViewModel.IsSelected, so Ctrl/Shift-click multi-select falls out
@@ -353,7 +351,7 @@
 
         <Border Grid.Row="0" Padding="16,6" Margin="0,0,0,10" CornerRadius="6" Cursor="Hand"
                 ToolTip="Double-click for the Dashboard"
-                Background="{StaticResource AccentPanelBrush}" BorderBrush="{StaticResource AccentPanelBorderBrush}" BorderThickness="1"
+                Background="{DynamicResource AccentPanelBrush}" BorderBrush="{DynamicResource AccentPanelBorderBrush}" BorderThickness="1"
                 MouseLeftButtonDown="Header_MouseLeftButtonDown">
             <Grid>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
@@ -399,8 +397,8 @@
         <DockPanel Grid.Row="1">
             <Border DockPanel.Dock="{Binding SidebarDock}" Width="344" Margin="6" Padding="12"
                     CornerRadius="6"
-                    Background="{StaticResource AccentPanelBrush}"
-                    BorderBrush="{StaticResource AccentPanelBorderBrush}" BorderThickness="1">
+                    Background="{DynamicResource AccentPanelBrush}"
+                    BorderBrush="{DynamicResource AccentPanelBorderBrush}" BorderThickness="1">
                 <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
                     <StackPanel>
                         <StackPanel>

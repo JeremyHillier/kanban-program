@@ -27,6 +27,7 @@ public partial class DatabaseService
         _connectionString = $"Data Source={DbPath}";
 
         Initialize();
+        StampFile();
     }
 
     private SqliteConnection OpenConnection()

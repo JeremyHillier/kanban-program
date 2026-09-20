@@ -30,6 +30,11 @@ public static class ThemeManager
             res["AccentTextBrush"] = Brush(0x64, 0xB5, 0xF6);
             res["ColumnHeaderTextBrush"] = Brushes.White;
             res["AlternateRowBrush"] = Brush(0x20, 0x20, 0x22);
+            // The navy behind the button column and the header: deeper in the dark theme so it sits
+            // with the near-black board, lighter in the light theme so it isn't a heavy slab beside
+            // a pale one. Both keep white text readable (the light one is about 5.4:1).
+            res["AccentPanelBrush"] = Brush(0x1F, 0x34, 0x52);
+            res["AccentPanelBorderBrush"] = Brush(0x3A, 0x55, 0x80);
         }
         else
         {
@@ -49,6 +54,8 @@ public static class ThemeManager
             res["AccentTextBrush"] = Brush(0x0B, 0x5F, 0xD9);
             res["ColumnHeaderTextBrush"] = Brush(0x1A, 0x1A, 0x1A);
             res["AlternateRowBrush"] = Brush(0xD7, 0xD8, 0xDB);
+            res["AccentPanelBrush"] = Brush(0x4B, 0x6D, 0x96);
+            res["AccentPanelBorderBrush"] = Brush(0x70, 0x90, 0xB6);
         }
     }
 

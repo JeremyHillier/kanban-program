@@ -3,7 +3,7 @@ using KanbanApp.ViewModels;
 
 namespace KanbanApp.Tests;
 
-// The Timeline window's size is remembered in the task file between openings.
+// The Timeline window's size, and its Day or Week view, are remembered in the task file between openings.
 [Collection(WpfCollection.Name)]
 public sealed class TimelineWindowSizeTests(WpfDispatcherFixture wpf) : IDisposable
 {
@@ -41,5 +41,17 @@ public sealed class TimelineWindowSizeTests(WpfDispatcherFixture wpf) : IDisposa
         board.SaveTimelineWindowSize(double.NaN, 500, maximized: false);
 
         Assert.Equal((1000d, 700d, false), OpenBoard().TimelineWindowSize);
+    });
+
+    [Fact]
+    public void TheDayOrWeekView_IsRemembered_AndStartsAsWeek() => wpf.Run(() =>
+    {
+        Assert.False(OpenBoard().TimelineDayView);
+
+        OpenBoard().SaveTimelineDayView(true);
+        Assert.True(OpenBoard().TimelineDayView);
+
+        OpenBoard().SaveTimelineDayView(false);
+        Assert.False(OpenBoard().TimelineDayView);
     });
 }

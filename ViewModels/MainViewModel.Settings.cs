@@ -165,6 +165,11 @@ public partial class MainViewModel
         _db.SetSetting("TimelineWindowSize", $"{width.ToString(invariant)},{height.ToString(invariant)},{(maximized ? "1" : "0")}");
     }
 
+    // Whether the Timeline was last left in Day view (otherwise Week view, which is also the default).
+    public bool TimelineDayView => _db.GetSetting("TimelineView") == "Day";
+
+    public void SaveTimelineDayView(bool dayView) => _db.SetSetting("TimelineView", dayView ? "Day" : "Week");
+
     public bool ShowSplash { get; private set; }
     public int SplashDelayMs { get; private set; }
 

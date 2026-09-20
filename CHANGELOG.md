@@ -6,6 +6,11 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.102.0 — 2026-09-20
+- Timeline: the window now remembers whether you left it in Day view or Week view
+- The navy behind the button column and the header is now lighter in light mode and deeper in dark mode
+- New safety check: the task file now records which version of the app has used it. If an older copy of the app opens a task file that a newer copy has been using (a second PC that hasn't been updated, say), it warns you before anything can be changed, and offers to close. It only warns when the newer version really does store something the older one doesn't know about
+
 ## 0.101.0 — 2026-09-20
 - Timeline: the window now opens at the size you last left it, including full screen
 - PDF reports no longer depend on a Windows font. If the usual one (Segoe UI) can't be read on a PC, the report is made in Lato, a free font now carried inside the app, instead of failing. Nothing changes on a PC where reports already worked

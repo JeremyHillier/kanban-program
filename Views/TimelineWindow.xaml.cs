@@ -47,6 +47,7 @@ public partial class TimelineWindow : Window
         _viewModel = viewModel;
         _windowStart = MondayOf(DateTime.Today);
         RestoreSize();
+        if (_viewModel.TimelineDayView) DayViewRadio.IsChecked = true;
         Closing += (_, _) => SaveSize();
         _initializing = false;
         BuildGrid();
@@ -121,6 +122,7 @@ public partial class TimelineWindow : Window
     private void ZoomLevel_Changed(object sender, RoutedEventArgs e)
     {
         if (_initializing) return;
+        _viewModel.SaveTimelineDayView(IsDayView);
         BuildGrid();
     }
 
