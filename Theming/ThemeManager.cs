@@ -35,6 +35,11 @@ public static class ThemeManager
             // a pale one. Both keep white text readable (the light one is about 5.4:1).
             res["AccentPanelBrush"] = Brush(0x1F, 0x34, 0x52);
             res["AccentPanelBorderBrush"] = Brush(0x3A, 0x55, 0x80);
+            // The button column. Everything in it is a coloured box with its own white text, so its
+            // background is free to be whatever sets those boxes off best: the same deep navy here.
+            res["SidebarPanelBrush"] = Brush(0x1F, 0x34, 0x52);
+            res["SidebarPanelBorderBrush"] = Brush(0x3A, 0x55, 0x80);
+            res["SidebarGripBrush"] = Brush(0x8F, 0xA6, 0xC4);
         }
         else
         {
@@ -56,6 +61,11 @@ public static class ThemeManager
             res["AlternateRowBrush"] = Brush(0xD7, 0xD8, 0xDB);
             res["AccentPanelBrush"] = Brush(0x4B, 0x6D, 0x96);
             res["AccentPanelBorderBrush"] = Brush(0x70, 0x90, 0xB6);
+            // Pale, so the slate and blue buttons stand clear of it instead of washing into a navy of
+            // much the same strength. The header keeps AccentPanelBrush: its white text needs the depth.
+            res["SidebarPanelBrush"] = Brush(0xD6, 0xDF, 0xEB);
+            res["SidebarPanelBorderBrush"] = Brush(0x9C, 0xB0, 0xCA);
+            res["SidebarGripBrush"] = Brush(0x4F, 0x67, 0x85);
         }
     }
 

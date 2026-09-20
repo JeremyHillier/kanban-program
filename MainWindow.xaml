@@ -56,8 +56,8 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="Thumb">
                         <Border Background="Transparent">
-                            <Border x:Name="Bar" Width="36" Height="3" CornerRadius="1.5" Opacity="0.45"
-                                    Background="{DynamicResource CardBorderBrush}"
+                            <Border x:Name="Bar" Width="36" Height="3" CornerRadius="1.5" Opacity="0.55"
+                                    Background="{DynamicResource SidebarGripBrush}"
                                     HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
@@ -397,8 +397,8 @@
         <DockPanel Grid.Row="1">
             <Border DockPanel.Dock="{Binding SidebarDock}" Width="344" Margin="6" Padding="12"
                     CornerRadius="6"
-                    Background="{DynamicResource AccentPanelBrush}"
-                    BorderBrush="{DynamicResource AccentPanelBorderBrush}" BorderThickness="1">
+                    Background="{DynamicResource SidebarPanelBrush}"
+                    BorderBrush="{DynamicResource SidebarPanelBorderBrush}" BorderThickness="1">
                 <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
                     <StackPanel>
                         <StackPanel>

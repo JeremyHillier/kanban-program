@@ -6,6 +6,9 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.104.1 — 2026-09-20
+- Improved: in light mode, the panel behind the button column is now a pale blue, so every button stands out clearly against it. Dark mode is unchanged
+
 ## 0.104.0 — 2026-09-20
 - New: update notices. When a newer version is released, the app tells you what is new in it and offers a button that opens the download page. Nothing is downloaded or installed unless you choose to
 - The check runs at most once a day when the app starts, and sends only the app's name and version number. It can be turned off in Settings, and About has a Check for Updates button for checking at any time

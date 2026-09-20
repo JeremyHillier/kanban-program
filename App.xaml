@@ -15,6 +15,9 @@
         <SolidColorBrush x:Key="InputBackgroundBrush" Color="White"/>
         <SolidColorBrush x:Key="AccentPanelBrush" Color="#FF4B6D96"/>
         <SolidColorBrush x:Key="AccentPanelBorderBrush" Color="#FF7090B6"/>
+        <SolidColorBrush x:Key="SidebarPanelBrush" Color="#FFD6DFEB"/>
+        <SolidColorBrush x:Key="SidebarPanelBorderBrush" Color="#FF9CB0CA"/>
+        <SolidColorBrush x:Key="SidebarGripBrush" Color="#FF4F6785"/>
 
         <!-- The built-in (Fluent-theme) ComboBoxItem template paints its Highlighted/Selected states
              from its own internal resources, ignoring plain Background/Foreground setters and triggers,
