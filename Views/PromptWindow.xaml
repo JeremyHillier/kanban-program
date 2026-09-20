@@ -22,11 +22,27 @@
                  Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
                  BorderBrush="{DynamicResource CardBorderBrush}"/>
 
-        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,16,0,0">
-            <Button Content="Cancel" Width="80" Padding="0,6" IsCancel="True"
-                    Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
-            <Button x:Name="OkButton" Content="Add" Width="80" Padding="0,6" Margin="8,0,0,0" IsDefault="True" Click="Add_Click"
-                    Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
-        </StackPanel>
+        <Grid Grid.Row="2" Margin="0,16,0,0">
+            <Button x:Name="ManageLink" Content="Manage list..." Visibility="Collapsed" HorizontalAlignment="Left" VerticalAlignment="Center"
+                    Click="ManageLink_Click" IsTabStop="False" Cursor="Hand" Foreground="{DynamicResource AccentTextBrush}"
+                    ToolTip="Add to, reword or prune the answers suggested here">
+                <Button.Template>
+                    <ControlTemplate TargetType="Button">
+                        <TextBlock x:Name="Txt" Text="{TemplateBinding Content}" Foreground="{TemplateBinding Foreground}" Background="Transparent"/>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Txt" Property="TextDecorations" Value="Underline"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Button.Template>
+            </Button>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button Content="Cancel" Width="80" Padding="0,6" IsCancel="True"
+                        Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                <Button x:Name="OkButton" Content="Add" Width="80" Padding="0,6" Margin="8,0,0,0" IsDefault="True" Click="Add_Click"
+                        Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+            </StackPanel>
+        </Grid>
     </Grid>
 </Window>

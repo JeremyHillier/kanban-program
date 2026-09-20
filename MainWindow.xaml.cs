@@ -352,6 +352,20 @@ public partial class MainWindow : Window
 
     private void ManageTemplates(MainViewModel viewModel) => new ManageTemplatesWindow(viewModel) { Owner = this }.ShowDialog();
 
+    private void ManageWaitingOn(MainViewModel viewModel) => new ManageWaitingOnWindow(viewModel) { Owner = this }.ShowDialog();
+
+    // Right-click the Waiting On button: the filter it normally applies, or the list behind the suggestions.
+    private void WaitingOnButton_PreviewMouseRightButtonUp(object sender, MouseButtonEventArgs e)
+    {
+        if (sender is not FrameworkElement button || DataContext is not MainViewModel viewModel) return;
+        e.Handled = true;
+
+        var menu = new System.Windows.Controls.ContextMenu { PlacementTarget = button, Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom };
+        AddMenuItem(menu, "_Show Waiting Tasks", () => WaitingOn_Click(button, new RoutedEventArgs()));
+        AddMenuItem(menu, "_Manage Waiting On List...", () => ManageWaitingOn(viewModel));
+        menu.IsOpen = true;
+    }
+
     private void ColumnHeader_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
     {
         if (e.ClickCount != 2) return;
@@ -489,7 +503,8 @@ public partial class MainWindow : Window
 
         var shared = cards.Select(c => c.WaitingOn).Distinct().Count() == 1 ? cards[0].WaitingOn : null;
         var question = cards.Count == 1 ? "Who or what is this task waiting on?" : $"Who or what are these {cards.Count} tasks waiting on?";
-        var dialog = new PromptWindow("Waiting On", question, shared, "Save", viewModel.WaitingOnSuggestions, viewModel.ForgetWaitingOnSuggestion) { Owner = this };
+        var dialog = new PromptWindow("Waiting On", question, shared, "Save", viewModel.WaitingOnSuggestions, viewModel.ForgetWaitingOnSuggestion,
+            owner => { new ManageWaitingOnWindow(viewModel) { Owner = owner }.ShowDialog(); return viewModel.WaitingOnSuggestions; }) { Owner = this };
         if (dialog.ShowDialog() != true) return;
 
         viewModel.SetCardsWaitingOn(cards, dialog.Value);
@@ -1074,6 +1089,8 @@ public partial class MainWindow : Window
         var waiting = AddSubmenu(menu, "Waitin_g On");
         AddMenuItem(waiting, card.IsWaiting ? "Change..." : "Set...", () => PromptWaitingOn([card], viewModel));
         AddMenuItem(waiting, "Clear", () => viewModel.SetCardWaitingOn(card, null), isEnabled: card.IsWaiting);
+        waiting.Items.Add(new System.Windows.Controls.Separator());
+        AddMenuItem(waiting, "Manage List...", () => ManageWaitingOn(viewModel));
 
         var availableFlags = viewModel.Flags
             .Where(f => f.IsActive && card.Flags.All(cf => cf.Id != f.Id))
@@ -1151,6 +1168,8 @@ public partial class MainWindow : Window
         var waiting = AddSubmenu(menu, "Waitin_g On");
         AddMenuItem(waiting, "Set...", () => PromptWaitingOn(cards, viewModel));
         AddMenuItem(waiting, "Clear", () => viewModel.SetCardsWaitingOn(cards, null), isEnabled: cards.Any(c => c.IsWaiting));
+        waiting.Items.Add(new System.Windows.Controls.Separator());
+        AddMenuItem(waiting, "Manage List...", () => ManageWaitingOn(viewModel));
 
         // A flag is offered while at least one selected card lacks it.
         var availableFlags = viewModel.Flags

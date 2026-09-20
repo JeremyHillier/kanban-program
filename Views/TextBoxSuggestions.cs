@@ -75,6 +75,14 @@ internal sealed class TextBoxSuggestions
         return list.Count == 0 ? null : new TextBoxSuggestions(box, list, forget, openWhenEmpty);
     }
 
+    // After the list has been managed elsewhere: carry on with the new answers.
+    public void Replace(IEnumerable<string> suggestions)
+    {
+        _all.Clear();
+        _all.AddRange(suggestions);
+        Close();
+    }
+
     internal bool IsOpen => _popup.IsOpen;
     internal IReadOnlyList<string> Showing => _list.Items.Cast<string>().ToList();
 

@@ -6,6 +6,12 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.106.0 — 2026-09-20
+- New: a Waiting On List screen for looking after the answers suggested in Waiting On. Open it from Manage list in the Waiting On prompt, from List beside the Waiting On box on the task screen, or by right-clicking the Waiting On button
+- Add answers ahead of time, rename them, or delete the ones you no longer need. Each answer shows how many tasks are currently waiting on it
+- Renaming an answer also rewords it on every task that uses it, so a spelling mistake can be corrected everywhere in one step
+- Deleting an answer that tasks still use asks whether to clear it from those tasks too. Undo reverses any change made to tasks
+
 ## 0.105.0 — 2026-09-20
 - New: Waiting On remembers your earlier answers. The Waiting On prompt lists your recent answers as soon as it opens, narrows the list as you type, and fills in the closest match ahead of the cursor
 - Press Enter to save what is in the box. Keep typing to replace a suggestion, press Backspace to remove it, use the Down and Up arrows to move through the list, or click an answer to take it

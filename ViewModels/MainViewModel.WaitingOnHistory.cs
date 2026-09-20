@@ -64,3 +64,65 @@ public partial class MainViewModel
         _db.SetSetting(WaitingOnHistoryKey, JsonSerializer.Serialize(WaitingOnHistory));
     }
 }
+
+// Managing the list by hand (the Manage Waiting On List screen).
+public partial class MainViewModel
+{
+    // One line of the managed list: an answer, and how many tasks on the board say it right now.
+    public sealed record WaitingOnEntry(string Text, int TaskCount)
+    {
+        public string Display => TaskCount == 0 ? Text : $"{Text}   ({TaskCount} task{(TaskCount == 1 ? "" : "s")})";
+    }
+
+    // Alphabetical here, for finding things; the order answers are suggested in stays most-recent-first.
+    public List<WaitingOnEntry> WaitingOnEntries =>
+        WaitingOnSuggestions
+            .OrderBy(text => text, StringComparer.OrdinalIgnoreCase)
+            .Select(text => new WaitingOnEntry(text, CardsWaitingOn(text).Count))
+            .ToList();
+
+    private List<CardViewModel> CardsWaitingOn(string text) =>
+        Columns.SelectMany(c => c.Cards).Where(c => string.Equals(c.WaitingOn, text.Trim(), StringComparison.OrdinalIgnoreCase)).ToList();
+
+    // False when it is blank or already on the list.
+    public bool AddWaitingOnSuggestion(string text)
+    {
+        var cleaned = text.Trim();
+        if (cleaned.Length == 0 || WaitingOnSuggestions.Contains(cleaned, StringComparer.OrdinalIgnoreCase)) return false;
+
+        RememberWaitingOn(cleaned);
+        return true;
+    }
+
+    // Changes the wording on the list and on every task that says it, as one Undo step for the
+    // tasks. Renaming onto an answer that already exists merges the two. Returns how many tasks
+    // changed, or -1 when there was nothing to do (blank, or the same text).
+    public int RenameWaitingOnSuggestion(string oldText, string newText)
+    {
+        var from = oldText.Trim();
+        var to = newText.Trim();
+        if (to.Length == 0 || from == to) return -1;
+
+        var history = WaitingOnHistory;
+        var index = history.FindIndex(v => string.Equals(v, from, StringComparison.OrdinalIgnoreCase));
+        history.RemoveAll(v => string.Equals(v, from, StringComparison.OrdinalIgnoreCase) || string.Equals(v, to, StringComparison.OrdinalIgnoreCase));
+        history.Insert(Math.Clamp(index, 0, history.Count), to); // keeps its place in the suggestion order
+        _db.SetSetting(WaitingOnHistoryKey, JsonSerializer.Serialize(history));
+
+        var cards = CardsWaitingOn(from);
+        ChangeCards("Reword waiting-on of", cards, c => c.WaitingOn != to, c => c.WaitingOn = to);
+        return cards.Count;
+    }
+
+    // Takes the answer off the list. With clearFromTasks, tasks that say it stop waiting too (one
+    // Undo step); without, they keep it, and it goes on being suggested until none of them does.
+    public int DeleteWaitingOnSuggestion(string text, bool clearFromTasks)
+    {
+        ForgetWaitingOnSuggestion(text);
+        if (!clearFromTasks) return 0;
+
+        var cards = CardsWaitingOn(text);
+        SetCardsWaitingOn(cards, null);
+        return cards.Count;
+    }
+}

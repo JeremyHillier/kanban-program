@@ -493,8 +493,8 @@
                                     ToolTip="Show only cards with no due date. Clears every other filter first.">
                                 <TextBlock Text="No Due Date" TextWrapping="Wrap" TextAlignment="Center"/>
                             </Button>
-                            <Button Style="{StaticResource DueFilterButtonWaitingOn}" Background="#FFBF7C26" Foreground="White" Click="WaitingOn_Click"
-                                    ToolTip="Show only tasks that are waiting on someone or something. Clears every other filter first.">
+                            <Button Style="{StaticResource DueFilterButtonWaitingOn}" Background="#FFBF7C26" Foreground="White" Click="WaitingOn_Click" PreviewMouseRightButtonUp="WaitingOnButton_PreviewMouseRightButtonUp"
+                                    ToolTip="Show only tasks that are waiting on someone or something. Clears every other filter first. Right-click to manage the list of Waiting On answers.">
                                 <TextBlock Text="{Binding WaitingOnButtonLabel}" TextWrapping="Wrap" TextAlignment="Center"/>
                             </Button>
                         </StackPanel>

@@ -1,0 +1,40 @@
+<Window x:Class="KanbanApp.Views.ManageWaitingOnWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Waiting On List" Width="460" Height="460" MinWidth="360" MinHeight="320"
+        WindowStartupLocation="CenterOwner" ShowInTaskbar="False"
+        Background="{DynamicResource WindowBackgroundBrush}">
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0" TextWrapping="Wrap" Margin="0,0,0,8" Foreground="{DynamicResource SecondaryTextStrongBrush}"
+                   Text="These are the answers offered when you fill in Waiting On. Anything you type there is added automatically. Renaming one also rewords it on every task that says it."/>
+
+        <ListBox Grid.Row="1" x:Name="EntryList" DisplayMemberPath="Display" SelectionChanged="EntryList_SelectionChanged"
+                 MouseDoubleClick="Rename_Click" KeyDown="EntryList_KeyDown"
+                 Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                 BorderBrush="{DynamicResource CardBorderBrush}"/>
+        <TextBlock Grid.Row="1" x:Name="EmptyText" Visibility="Collapsed" TextWrapping="Wrap" TextAlignment="Center"
+                   VerticalAlignment="Center" Margin="24" IsHitTestVisible="False"
+                   Foreground="{DynamicResource SecondaryTextStrongBrush}"
+                   Text="Nothing here yet. Click Add, or fill in Waiting On on a task and it will appear here."/>
+
+        <Grid Grid.Row="2" Margin="0,12,0,0">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                <Button Content="Add..." Width="80" Padding="0,6" Click="Add_Click"
+                        Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                <Button x:Name="RenameButton" Content="Rename..." Width="90" Padding="0,6" Margin="8,0,0,0" Click="Rename_Click" IsEnabled="False"
+                        Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                <Button x:Name="DeleteButton" Content="Delete" Width="80" Padding="0,6" Margin="8,0,0,0" Click="Delete_Click" IsEnabled="False"
+                        ToolTip="Take this answer off the list (Delete key)"
+                        Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+            </StackPanel>
+            <Button Content="Close" Width="80" Padding="0,6" HorizontalAlignment="Right" IsCancel="True" IsDefault="True"
+                    Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+        </Grid>
+    </Grid>
+</Window>

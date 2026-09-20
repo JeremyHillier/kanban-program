@@ -73,7 +73,7 @@ public partial class AddTaskWindow : Window
         RebuildWhoItems();
         RebuildFlagCheckboxes();
         InitializeTemplates();
-        TextBoxSuggestions.Attach(WaitingOnTextBox, viewModel.WaitingOnSuggestions, viewModel.ForgetWaitingOnSuggestion);
+        _waitingOnSuggestions = TextBoxSuggestions.Attach(WaitingOnTextBox, viewModel.WaitingOnSuggestions, viewModel.ForgetWaitingOnSuggestion);
         UpdateSubTaskProgressLabel();
 
         ProjectComboBox.Focus();
@@ -752,6 +752,25 @@ public partial class AddTaskWindow : Window
     private void ClearStartDate_Click(object sender, RoutedEventArgs e) => StartDatePicker.SelectedDate = null;
 
     private void ClearWaitingOn_Click(object sender, RoutedEventArgs e) => WaitingOnTextBox.Text = string.Empty;
+
+    private TextBoxSuggestions? _waitingOnSuggestions;
+
+    // Opens the Waiting On list. Apart from the case noted below, what is in the box is left alone.
+    private void ManageWaitingOn_Click(object sender, RoutedEventArgs e)
+    {
+        var before = _cardToEdit?.WaitingOn;
+        new ManageWaitingOnWindow(_viewModel) { Owner = this }.ShowDialog();
+
+        // Renaming or deleting there can reword this very task on the board. If the box still holds
+        // the old wording, follow it - otherwise saving would put the old wording straight back.
+        if (_cardToEdit is not null && _cardToEdit.WaitingOn != before && WaitingOnTextBox.Text.Trim() == (before ?? string.Empty))
+        {
+            WaitingOnTextBox.Text = _cardToEdit.WaitingOn ?? string.Empty;
+        }
+
+        if (_waitingOnSuggestions is null) _waitingOnSuggestions = TextBoxSuggestions.Attach(WaitingOnTextBox, _viewModel.WaitingOnSuggestions, _viewModel.ForgetWaitingOnSuggestion);
+        else _waitingOnSuggestions.Replace(_viewModel.WaitingOnSuggestions);
+    }
 
     private void ClearDueDate_Click(object sender, RoutedEventArgs e)
     {

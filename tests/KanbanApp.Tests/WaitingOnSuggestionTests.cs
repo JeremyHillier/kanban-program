@@ -95,4 +95,84 @@ public sealed class WaitingOnSuggestionTests(WpfDispatcherFixture wpf) : IDispos
         Assert.Null(TextBoxSuggestions.Completion(Past, ""));
         Assert.Null(TextBoxSuggestions.Completion(Past, " sa"));
     }
+
+    [Fact]
+    public void TheManagedList_IsAlphabetical_AndCountsTheTasksUsingEachAnswer() => wpf.Run(() =>
+    {
+        var board = OpenBoard();
+        Add(board, "A", "Sam's quote");
+        Add(board, "B", "sam's QUOTE");
+        Add(board, "C", "Client sign-off");
+        Assert.True(board.AddWaitingOnSuggestion("  Legal team "));
+        Assert.False(board.AddWaitingOnSuggestion("legal TEAM")); // already there
+        Assert.False(board.AddWaitingOnSuggestion("   "));
+
+        var entries = board.WaitingOnEntries;
+
+        Assert.Equal(["Client sign-off", "Legal team", "sam's QUOTE"], entries.Select(e => e.Text));
+        Assert.Equal([1, 0, 2], entries.Select(e => e.TaskCount));
+        Assert.Equal("Legal team", entries[1].Display);
+        Assert.Equal("sam's QUOTE   (2 tasks)", entries[2].Display);
+        Assert.Equal("Client sign-off   (1 task)", entries[0].Display);
+    });
+
+    [Fact]
+    public void Renaming_RewordsTheListAndEveryTaskThatSaysIt_AsOneUndoStep_AndKeepsItsPlace() => wpf.Run(() =>
+    {
+        var board = OpenBoard();
+        var a = Add(board, "A", "Sams qoute");
+        var b = Add(board, "B", "Sams qoute");
+        var other = Add(board, "C", "Client sign-off"); // typed later, so it is suggested first
+
+        Assert.Equal(2, board.RenameWaitingOnSuggestion("sams QOUTE", " Sam's quote "));
+
+        Assert.Equal("Sam's quote", a.WaitingOn);
+        Assert.Equal("Sam's quote", b.WaitingOn);
+        Assert.Equal("Client sign-off", other.WaitingOn);
+        Assert.Equal(["Client sign-off", "Sam's quote"], OpenBoard().WaitingOnSuggestions);
+        Assert.Equal("Sam's quote", OpenBoard().Columns.SelectMany(c => c.Cards).First(c => c.Title == "A").WaitingOn);
+
+        Assert.Equal("Reword waiting-on of 2 tasks", board.Undo());
+        Assert.Equal("Sams qoute", a.WaitingOn);
+
+        Assert.Equal(-1, board.RenameWaitingOnSuggestion("Client sign-off", "Client sign-off"));
+        Assert.Equal(-1, board.RenameWaitingOnSuggestion("Client sign-off", "  "));
+    });
+
+    [Fact]
+    public void RenamingOntoAnAnswerThatExists_MergesTheTwo() => wpf.Run(() =>
+    {
+        var board = OpenBoard();
+        Add(board, "A", "Sam");
+        Add(board, "B", "Sam's quote");
+
+        board.RenameWaitingOnSuggestion("Sam", "Sam's quote");
+
+        Assert.Equal(["Sam's quote"], board.WaitingOnSuggestions);
+        Assert.Equal(2, board.WaitingOnEntries.Single().TaskCount);
+    });
+
+    [Fact]
+    public void Deleting_CanLeaveTheTasksAlone_OrClearThemToo() => wpf.Run(() =>
+    {
+        var board = OpenBoard();
+        var a = Add(board, "A", "Sam's quote");
+        var b = Add(board, "B", "Legal team");
+        board.AddWaitingOnSuggestion("Unused");
+
+        Assert.Equal(0, board.DeleteWaitingOnSuggestion("unused", clearFromTasks: false));
+        Assert.DoesNotContain("Unused", board.WaitingOnSuggestions);
+
+        Assert.Equal(0, board.DeleteWaitingOnSuggestion("Sam's quote", clearFromTasks: false));
+        Assert.Equal("Sam's quote", a.WaitingOn);                  // the task keeps it...
+        Assert.Contains("Sam's quote", board.WaitingOnSuggestions); // ...so it is still offered
+
+        Assert.Equal(1, board.DeleteWaitingOnSuggestion("Legal team", clearFromTasks: true));
+        Assert.Null(b.WaitingOn);
+        Assert.DoesNotContain("Legal team", OpenBoard().WaitingOnSuggestions);
+
+        board.Undo(); // the task gets it back; the list entry comes back with it, since a task says it again
+        Assert.Equal("Legal team", b.WaitingOn);
+        Assert.Contains("Legal team", board.WaitingOnSuggestions);
+    });
 }
