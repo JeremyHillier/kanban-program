@@ -49,6 +49,7 @@
                 <local:BulletItem Text="Ctrl+P — open Report Builder."/>
                 <local:BulletItem Text="Ctrl+Q — quit the app."/>
                 <local:BulletItem Text="Alt+A — archive done tasks."/>
+                <local:BulletItem Text="Alt+B — hide or show the button column."/>
                 <local:BulletItem Text="Alt+P — manage Projects."/>
                 <local:BulletItem Text="Alt+G — manage Goals."/>
                 <local:BulletItem Text="Alt+F — manage Flags."/>
@@ -246,6 +247,8 @@
                 <TextBlock Text="Display options" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <local:BulletItem Text="Dark Mode / Light Mode switches the whole app's theme."/>
                 <local:BulletItem Text="Large Cards / Compact Cards toggles how much detail each card shows, useful for fitting more on screen at once."/>
+                <local:BulletItem Text="To give the board the full width, hide the button column: click Hide at the top of it, or press Alt+B. It shrinks to a thin strip at the side; click the strip, or press Alt+B again, to bring it back. Your choice is remembered, and every keyboard shortcut still works while it is hidden."/>
+                <local:BulletItem Text="While the buttons are hidden, the strip shows an orange note such as '3 hidden by filters' whenever filters (or Hide Future) are keeping tasks off the board, so a task never seems to have gone missing."/>
 
                 <TextBlock x:Name="HelpSection_Settings" Text="Settings" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <local:BulletItem Text="Changes take effect as you make them, so you can see them on the board straight away. Save &amp; Close keeps them; Cancel (or Esc, or the window's X) puts every setting back to how it was when you opened Settings, after checking with you first. Backing up, and moving or switching your task file, are actions rather than settings, so Cancel doesn't undo those."/>

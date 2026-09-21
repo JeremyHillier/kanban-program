@@ -31,6 +31,9 @@ public partial class MainViewModel
             if (SetField(ref _isButtonsOnRight, value))
             {
                 OnPropertyChanged(nameof(SidebarDock));
+                OnPropertyChanged(nameof(SidebarCollapseGlyph));
+                OnPropertyChanged(nameof(SidebarExpandGlyph));
+                OnPropertyChanged(nameof(SidebarHideAlignment));
             }
         }
     }

@@ -233,6 +233,8 @@ public partial class MainViewModel
             using var bulk = flips.Count > ColumnViewModel.BulkChangeThreshold ? column.BeginBulkChange() : null;
             foreach (var (card, visible) in flips) SetCardVisible(card, visible);
         }
+
+        NotifyHiddenTasksChanged();
     }
 
     // A card the filters hide is also deselected, so a later multi-card drag can never carry along

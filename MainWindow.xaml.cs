@@ -354,6 +354,15 @@ public partial class MainWindow : Window
 
     private void ManageWaitingOn(MainViewModel viewModel) => new ManageWaitingOnWindow(viewModel) { Owner = this }.ShowDialog();
 
+    // The button column collapses to a thin strip and back: the Hide link, a click on the strip, or Alt+B.
+    private void ToggleSidebar_Click(object sender, RoutedEventArgs e) => (DataContext as MainViewModel)?.ToggleSidebar();
+
+    private void SidebarStrip_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+    {
+        (DataContext as MainViewModel)?.ToggleSidebar();
+        e.Handled = true;
+    }
+
     // Right-click the Waiting On button: the filter it normally applies, or the list behind the suggestions.
     private void WaitingOnButton_PreviewMouseRightButtonUp(object sender, MouseButtonEventArgs e)
     {
@@ -639,6 +648,10 @@ public partial class MainWindow : Window
                         break;
                     case Key.M:
                         if (DataContext is MainViewModel templatesViewModel) ManageTemplates(templatesViewModel);
+                        e.Handled = true;
+                        break;
+                    case Key.B:
+                        (DataContext as MainViewModel)?.ToggleSidebar();
                         e.Handled = true;
                         break;
                     case Key.T:

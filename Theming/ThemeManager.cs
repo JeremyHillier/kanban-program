@@ -40,6 +40,9 @@ public static class ThemeManager
             res["SidebarPanelBrush"] = Brush(0x1F, 0x34, 0x52);
             res["SidebarPanelBorderBrush"] = Brush(0x3A, 0x55, 0x80);
             res["SidebarGripBrush"] = Brush(0x8F, 0xA6, 0xC4);
+            // The line under each column's name: see-through, so it darkens (or here lightens) whatever
+            // colour the column is rather than needing one shade per column.
+            res["ColumnHeaderLineBrush"] = new SolidColorBrush(Color.FromArgb(0x55, 0xFF, 0xFF, 0xFF));
         }
         else
         {
@@ -66,6 +69,7 @@ public static class ThemeManager
             res["SidebarPanelBrush"] = Brush(0xC1, 0xC9, 0xD4);
             res["SidebarPanelBorderBrush"] = Brush(0x8C, 0x9E, 0xB6);
             res["SidebarGripBrush"] = Brush(0x4F, 0x67, 0x85);
+            res["ColumnHeaderLineBrush"] = new SolidColorBrush(Color.FromArgb(0x4D, 0x00, 0x00, 0x00));
         }
     }
 

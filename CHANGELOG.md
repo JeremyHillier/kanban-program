@@ -6,6 +6,12 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.107.0 — 2026-09-21
+- New: the button column can be hidden to give the board the full width. Click Hide at the top of the column, or press Alt+B; it shrinks to a thin strip at the side. Click the strip, or press Alt+B again, to bring it back
+- While the buttons are hidden, the strip shows a note such as "3 hidden by filters" whenever filters are keeping tasks off the board
+- Your choice is remembered between sessions, and every keyboard shortcut keeps working while the column is hidden
+- Improved: each column heading now has a line beneath it, separating the heading from the tasks below. The heading stays in place while the tasks scroll
+
 ## 0.106.0 — 2026-09-20
 - New: a Waiting On List screen for looking after the answers suggested in Waiting On. Open it from Manage list in the Waiting On prompt, from List beside the Waiting On box on the task screen, or by right-clicking the Waiting On button
 - Add answers ahead of time, rename them, or delete the ones you no longer need. Each answer shows how many tasks are currently waiting on it

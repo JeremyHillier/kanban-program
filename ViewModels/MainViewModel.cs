@@ -115,6 +115,7 @@ public partial class MainViewModel : ObservableObject
         ShowTimeAlerts = _db.GetSetting("ShowTimeAlerts") != "False";
         QuickAddHotkeyEnabled = _db.GetSetting("QuickAddHotkeyEnabled") != "False";
         LoadUpdateSettings();
+        LoadSidebarState();
         ShowWhatsNew = _db.GetSetting("ShowWhatsNew") != "False";
         LoadCustomFilters();
         LoadSavedReportViews();

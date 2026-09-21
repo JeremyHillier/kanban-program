@@ -61,6 +61,7 @@ public partial class MainViewModel
         OnPropertyChanged(nameof(DueTodayCount));
         OnPropertyChanged(nameof(DueThisWeekCount));
         NotifySelectionChanged(); // a deleted, archived or moved card may have been selected
+        NotifyHiddenTasksChanged();
         OnPropertyChanged(nameof(FutureTaskCount));
         OnPropertyChanged(nameof(HideFutureButtonLabel));
         OnPropertyChanged(nameof(WaitingOnCount));

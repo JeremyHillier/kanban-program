@@ -395,12 +395,58 @@
         </Border>
 
         <DockPanel Grid.Row="1">
+            <!-- The button column collapsed: a thin strip on the same side. Click anywhere on it (or
+                 Alt+B) to bring the buttons back. It says when filters are hiding tasks, since the
+                 filters themselves are out of sight. -->
+            <Border DockPanel.Dock="{Binding SidebarDock}" Width="30" Margin="6" CornerRadius="6" Cursor="Hand"
+                    Background="{DynamicResource SidebarPanelBrush}"
+                    BorderBrush="{DynamicResource SidebarPanelBorderBrush}" BorderThickness="1"
+                    ToolTip="Show the buttons and filters (Alt+B)"
+                    MouseLeftButtonUp="SidebarStrip_MouseLeftButtonUp"
+                    Visibility="{Binding IsSidebarCollapsed, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <DockPanel>
+                    <TextBlock DockPanel.Dock="Top" Text="{Binding SidebarExpandGlyph}" FontSize="16" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,6,0,0"
+                               Foreground="{DynamicResource PrimaryTextBrush}"/>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,14,0,0">
+                        <StackPanel.LayoutTransform>
+                            <RotateTransform Angle="-90"/>
+                        </StackPanel.LayoutTransform>
+                        <Border Background="#FFBF7C26" CornerRadius="3" Padding="6,1" Margin="0,0,10,0" VerticalAlignment="Center"
+                                Visibility="{Binding HiddenTasksLabel, Converter={StaticResource EmptyStringToVisibilityConverter}}">
+                            <TextBlock Text="{Binding HiddenTasksLabel}" FontSize="11" FontWeight="SemiBold" Foreground="White"/>
+                        </Border>
+                        <TextBlock Text="Buttons and filters" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center"
+                                   Foreground="{DynamicResource PrimaryTextBrush}"/>
+                    </StackPanel>
+                </DockPanel>
+            </Border>
+
             <Border DockPanel.Dock="{Binding SidebarDock}" Width="344" Margin="6" Padding="12"
                     CornerRadius="6"
                     Background="{DynamicResource SidebarPanelBrush}"
-                    BorderBrush="{DynamicResource SidebarPanelBorderBrush}" BorderThickness="1">
+                    BorderBrush="{DynamicResource SidebarPanelBorderBrush}" BorderThickness="1"
+                    Visibility="{Binding IsSidebarExpanded, Converter={StaticResource BooleanToVisibilityConverter}}">
                 <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
                     <StackPanel>
+                        <!-- Collapses this whole column to a thin strip, giving the board the full width. -->
+                        <Button HorizontalAlignment="{Binding SidebarHideAlignment}" Margin="0,0,0,6" Padding="4,1" Click="ToggleSidebar_Click"
+                                Cursor="Hand" IsTabStop="False" ToolTip="Hide the buttons and filters to give the board the full width (Alt+B)"
+                                Foreground="{DynamicResource PrimaryTextBrush}">
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+                                    <Border Background="Transparent" Padding="{TemplateBinding Padding}">
+                                        <TextBlock x:Name="Txt" FontSize="11" FontWeight="SemiBold" Foreground="{TemplateBinding Foreground}">
+                                            <Run Text="{Binding SidebarCollapseGlyph, Mode=OneWay}"/><Run Text=" Hide"/>
+                                        </TextBlock>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="Txt" Property="TextDecorations" Value="Underline"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Button.Template>
+                        </Button>
                         <StackPanel>
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                                 <Button Style="{StaticResource SortButtonProject}" Background="#FF3E8DD1" Foreground="White" Click="SortByProject_Click"
@@ -767,9 +813,14 @@
                                         <RowDefinition Height="*"/>
                                     </Grid.RowDefinitions>
 
-                                    <TextBlock Grid.Row="0" Text="{Binding DisplayName}" FontWeight="Bold" FontSize="14" Margin="0,0,0,10" Foreground="{DynamicResource ColumnHeaderTextBrush}"
-                                               Background="Transparent" Cursor="Hand" ToolTip="Double-click to add a new task in this column"
-                                               MouseLeftButtonDown="ColumnHeader_MouseLeftButtonDown"/>
+                                    <!-- A line under the column's name, so the heading reads as a heading and not
+                                         as the first thing in the list. It stays put while the cards scroll. -->
+                                    <Border Grid.Row="0" BorderBrush="{DynamicResource ColumnHeaderLineBrush}" BorderThickness="0,0,0,1"
+                                            Padding="0,0,0,6" Margin="0,0,0,8">
+                                        <TextBlock Text="{Binding DisplayName}" FontWeight="Bold" FontSize="14" Foreground="{DynamicResource ColumnHeaderTextBrush}"
+                                                   Background="Transparent" Cursor="Hand" ToolTip="Double-click to add a new task in this column"
+                                                   MouseLeftButtonDown="ColumnHeader_MouseLeftButtonDown"/>
+                                    </Border>
 
                                     <!-- The drop area for drag-reordering within the column. It sits around the
                                          list rather than inside its scroller, so the insertion line below and
