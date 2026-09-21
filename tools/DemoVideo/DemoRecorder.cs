@@ -21,6 +21,7 @@ internal static class DemoRecorder
 {
     private const double W = 1600, H = 900, Scale = 1.2;   // 1920x1080 output; wide enough for all five columns
     private const int MoveFrameMs = 50;                      // 20 frames a second while things move
+    private const double Pace = 1.25;                        // one dial for the whole video: holds, pointer moves and typing all stretch by this
     private static readonly Color Navy = Color.FromRgb(0x1E, 0x3A, 0x5F);
 
     private static string _framesDir = "";
@@ -152,12 +153,12 @@ internal static class DemoRecorder
         dc.DrawGeometry(Brushes.White, new Pen(Brushes.Black, 1.3) { LineJoin = PenLineJoin.Round }, geometry);
     }
 
-    private static void Hold(int ms) => Emit(ms);
+    private static void Hold(int ms) => Emit((int)(ms * Pace));
 
     private static void MoveTo(Point target, int ms = 600)
     {
         var from = _cursor;
-        var steps = Math.Max(2, ms / MoveFrameMs);
+        var steps = Math.Max(2, (int)(ms * Pace) / MoveFrameMs);
         for (var i = 1; i <= steps; i++)
         {
             var t = (double)i / steps;
@@ -190,7 +191,7 @@ internal static class DemoRecorder
 
     private static void TitleCard(string big, string small, int ms)
     {
-        Emit(ms, dc =>
+        Emit((int)(ms * Pace), dc =>
         {
             dc.DrawRectangle(new SolidColorBrush(Navy), null, new Rect(0, 0, W, H));
             var top = Text(big, 54, Brushes.White, FontWeights.Bold);
@@ -310,7 +311,7 @@ internal static class DemoRecorder
             {
                 details.Text = title[..Math.Min(i, title.Length)];
                 await Refresh();
-                Emit(90);
+                Emit((int)(90 * Pace));
             }
             details.Text = title;
             await Refresh();
