@@ -581,6 +581,13 @@ public partial class MainWindow : Window
             return;
         }
 
+        if (Keyboard.Modifiers == (ModifierKeys.Control | ModifierKeys.Shift) && e.Key == Key.P)
+        {
+            QuickReport_Click(sender, e);
+            e.Handled = true;
+            return;
+        }
+
         switch (Keyboard.Modifiers)
         {
             case ModifierKeys.Control:
@@ -702,6 +709,12 @@ public partial class MainWindow : Window
 
         var dialog = new HelpWindow(viewModel) { Owner = this };
         dialog.ShowDialog();
+    }
+
+    private void QuickReport_Click(object sender, RoutedEventArgs e)
+    {
+        if (DataContext is not MainViewModel viewModel) return;
+        new QuickReportWindow(viewModel) { Owner = this }.ShowDialog();
     }
 
     private void ReportBuilder_Click(object sender, RoutedEventArgs e)

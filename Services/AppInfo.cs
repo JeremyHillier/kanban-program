@@ -8,6 +8,9 @@ public static class AppInfo
     public const string Company = "Jeremy Hillier Consulting Inc";
     public const string Copyright = $"© {Company}";
 
+    // Shown, with a maple leaf, in the header and on the About screen.
+    public const string MadeIn = "Made in Canada";
+
     // Where Report a Problem sends its email. Customers see this address.
     public const string SupportEmail = "jeremy.hillier@gmail.com";
 

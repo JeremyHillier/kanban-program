@@ -132,6 +132,8 @@
                         Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
                         BorderBrush="{DynamicResource CardBorderBrush}"/>
             <Button Content="Today" Padding="8,4" Margin="6,0,0,0" Click="TodayDueFrom_Click"
+                    ToolTip="Today, whenever the report is run. Saved in a view, it stays 'today' rather than becoming a fixed date. Right-click for so many days from today."
+                    PreviewMouseRightButtonUp="TodayDueFrom_RightClick"
                     Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
             <Button Content="Clear" Padding="8,4" Margin="6,0,0,0" Click="ClearDueFrom_Click"
                     Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
@@ -140,6 +142,8 @@
                         Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
                         BorderBrush="{DynamicResource CardBorderBrush}"/>
             <Button Content="Today" Padding="8,4" Margin="6,0,0,0" Click="TodayDueTo_Click"
+                    ToolTip="Today, whenever the report is run. Saved in a view, it stays 'today' rather than becoming a fixed date. Right-click for so many days from today."
+                    PreviewMouseRightButtonUp="TodayDueTo_RightClick"
                     Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
             <Button Content="Clear" Padding="8,4" Margin="6,0,0,0" Click="ClearDueTo_Click"
                     Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>

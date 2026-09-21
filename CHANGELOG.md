@@ -6,6 +6,12 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.110.0 — 2026-09-21
+- New: Quick Report. Click the Quick Report button (or press Ctrl+Shift+P), pick a saved report view from the list, and choose Preview, Print or PDF. The line under the list says what the report will cover, and the view you ran last is remembered
+- New: report dates that mean "today". The Today buttons beside the From and To dates in Report Builder now save as "today" rather than a fixed date, so a saved view stays current however long ago it was saved. Right-click a Today button for a date so many days from today, for example 7 days from today for a week-ahead report
+- Views saved before this version keep their fixed dates and run as before
+- New: a small maple leaf and "Made in Canada" in the corner of the main screen and on the About screen
+
 ## 0.109.1 — 2026-09-21
 - Fixed: in the Who list on the task screen, pressing Space immediately after typing a name now ticks the highlighted person. Previously the tick was ignored unless there was a pause of a second after typing
 

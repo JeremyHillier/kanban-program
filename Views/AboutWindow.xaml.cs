@@ -23,6 +23,7 @@ public partial class AboutWindow : Window
         SettingsPathText.Text = AppConfig.SettingsFilePath;
         RuntimeText.Text = $".NET {Environment.Version} on {Environment.OSVersion.VersionString}";
         SupportEmailRun.Text = AppInfo.SupportEmail;
+        MadeInText.Text = AppInfo.MadeIn;
     }
 
     private void Website_Click(object sender, RoutedEventArgs e)

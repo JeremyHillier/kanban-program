@@ -1,0 +1,43 @@
+<Window x:Class="KanbanApp.Views.QuickReportWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Quick Report" Width="560" SizeToContent="Height" ResizeMode="NoResize"
+        WindowStartupLocation="CenterOwner" ShowInTaskbar="False"
+        Background="{DynamicResource WindowBackgroundBrush}">
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0" Text="Saved report view" FontWeight="SemiBold" Margin="0,0,0,6" Foreground="{DynamicResource PrimaryTextBrush}"/>
+        <ComboBox Grid.Row="1" x:Name="ViewComboBox" DisplayMemberPath="Name" Padding="6" SelectionChanged="ViewComboBox_SelectionChanged"
+                  Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                  BorderBrush="{DynamicResource CardBorderBrush}"/>
+
+        <!-- What the chosen view covers, with any "today" dates worked out for today. -->
+        <TextBlock Grid.Row="2" x:Name="SummaryText" TextWrapping="Wrap" FontSize="11" Margin="0,8,0,0" MinHeight="34"
+                   Foreground="{DynamicResource SecondaryTextStrongBrush}"/>
+
+        <Grid Grid.Row="3" Margin="0,14,0,0">
+            <Button Content="Report Builder..." Padding="10,6" HorizontalAlignment="Left" Click="ReportBuilder_Click"
+                    ToolTip="Open the full Report Builder to change a view or make a new one"
+                    Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button x:Name="PdfButton" Content="PDF" Width="70" Padding="0,6" Margin="0,0,8,0" Click="Pdf_Click"
+                        ToolTip="Save the report as a PDF file"
+                        Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                <Button x:Name="PrintButton" Content="Print" Width="80" Padding="0,6" Margin="0,0,8,0" Click="Print_Click"
+                        ToolTip="Send the report straight to a printer"
+                        Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                <Button x:Name="PreviewButton" Content="Preview" Width="90" Padding="0,6" Margin="0,0,8,0" IsDefault="True" Click="Preview_Click"
+                        ToolTip="Show the report on screen; it can be printed from there too"
+                        Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                <Button Content="Close" Width="80" Padding="0,6" IsCancel="True"
+                        Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+            </StackPanel>
+        </Grid>
+    </Grid>
+</Window>

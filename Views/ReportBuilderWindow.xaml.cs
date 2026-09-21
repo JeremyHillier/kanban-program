@@ -1,6 +1,7 @@
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using KanbanApp.Models;
 using KanbanApp.Services;
 using KanbanApp.ViewModels;
@@ -167,8 +168,8 @@ public partial class ReportBuilderWindow : Window
         Goal = (string)GoalFilterComboBox.SelectedItem,
         Flag = (string)FlagFilterComboBox.SelectedItem,
         Due = (string)DueFilterComboBox.SelectedItem,
-        DueFrom = DueFromDatePicker.SelectedDate?.ToString("yyyy-MM-dd"),
-        DueTo = DueToDatePicker.SelectedDate?.ToString("yyyy-MM-dd"),
+        DueFrom = SavedDate(DueFromDatePicker),
+        DueTo = SavedDate(DueToDatePicker),
         IncludeNoDueDate = IncludeNoDueDateCheckBox.IsChecked == true,
         CustomFilterNames = _customFilterCheckBoxes.Where(c => c.IsChecked == true).Select(c => ((CustomFilter)c.Tag).Name).ToList(),
         SortLevel1 = (string)((ComboBoxItem)SortLevel1ComboBox.SelectedItem).Tag,
@@ -176,8 +177,8 @@ public partial class ReportBuilderWindow : Window
         SortLevel3 = (string)((ComboBoxItem)SortLevel3ComboBox.SelectedItem).Tag,
         GroupBy = GetGroupBy(),
         ArchiveScope = GetArchiveScope().ToString(),
-        ArchivedFrom = ArchivedFromDatePicker.SelectedDate?.ToString("yyyy-MM-dd"),
-        ArchivedTo = ArchivedToDatePicker.SelectedDate?.ToString("yyyy-MM-dd"),
+        ArchivedFrom = SavedDate(ArchivedFromDatePicker),
+        ArchivedTo = SavedDate(ArchivedToDatePicker),
         IsLandscape = LandscapeRadio.IsChecked == true,
         IncludeNotes = IncludeNotesCheckBox.IsChecked == true,
         IncludeSubTasks = IncludeSubTasksCheckBox.IsChecked == true,
@@ -198,8 +199,8 @@ public partial class ReportBuilderWindow : Window
         SelectComboItem(FlagFilterComboBox, view.Flag);
         SelectComboItem(DueFilterComboBox, view.Due);
 
-        DueFromDatePicker.SelectedDate = ParseDate(view.DueFrom);
-        DueToDatePicker.SelectedDate = ParseDate(view.DueTo);
+        SetDate(DueFromDatePicker, view.DueFrom);
+        SetDate(DueToDatePicker, view.DueTo);
         IncludeNoDueDateCheckBox.IsChecked = view.IncludeNoDueDate;
 
         // A custom filter slot renamed or deleted since this view was saved just drops out here,
@@ -218,8 +219,8 @@ public partial class ReportBuilderWindow : Window
         BoardAndArchivedRadio.IsChecked = view.ArchiveScope == nameof(ReportArchiveScope.BoardAndArchived);
         ArchivedOnlyRadio.IsChecked = view.ArchiveScope == nameof(ReportArchiveScope.ArchivedOnly);
 
-        ArchivedFromDatePicker.SelectedDate = ParseDate(view.ArchivedFrom);
-        ArchivedToDatePicker.SelectedDate = ParseDate(view.ArchivedTo);
+        SetDate(ArchivedFromDatePicker, view.ArchivedFrom);
+        SetDate(ArchivedToDatePicker, view.ArchivedTo);
 
         LandscapeRadio.IsChecked = view.IsLandscape;
         PortraitRadio.IsChecked = !view.IsLandscape;
@@ -248,17 +249,50 @@ public partial class ReportBuilderWindow : Window
         }
     }
 
-    private static DateTime? ParseDate(string? value) => DateTime.TryParse(value, out var parsed) ? parsed : null;
+    // A date picker can hold a day that means "today" (its Today button, or a saved view's
+    // "today+7"). The picker shows the real day, and the relative text is kept beside it in Tag
+    // for as long as the picker still shows that day - so re-saving a loaded view keeps it
+    // relative, while picking another day by hand makes it a fixed date again.
+    private static void SetDate(DatePicker picker, string? saved)
+    {
+        picker.SelectedDate = RelativeDate.Resolve(saved, DateTime.Today);
+        picker.Tag = RelativeDate.IsRelative(saved) ? saved!.Trim() : null;
+    }
+
+    private static string? SavedDate(DatePicker picker)
+    {
+        if (picker.SelectedDate is not { } day) return null;
+        return picker.Tag is string relative && RelativeDate.Resolve(relative, DateTime.Today) == day.Date ? relative : day.ToString("yyyy-MM-dd");
+    }
 
     private void DatePicker_Loaded(object sender, RoutedEventArgs e) => CalendarWheelSupport.Attach((DatePicker)sender);
 
-    private void TodayDueFrom_Click(object sender, RoutedEventArgs e) => DueFromDatePicker.SelectedDate = DateTime.Today;
+    private void TodayDueFrom_Click(object sender, RoutedEventArgs e) => SetDate(DueFromDatePicker, RelativeDate.Today);
 
-    private void TodayDueTo_Click(object sender, RoutedEventArgs e) => DueToDatePicker.SelectedDate = DateTime.Today;
+    private void TodayDueTo_Click(object sender, RoutedEventArgs e) => SetDate(DueToDatePicker, RelativeDate.Today);
 
-    private void ClearDueFrom_Click(object sender, RoutedEventArgs e) => DueFromDatePicker.SelectedDate = null;
+    private void ClearDueFrom_Click(object sender, RoutedEventArgs e) => SetDate(DueFromDatePicker, null);
 
-    private void ClearDueTo_Click(object sender, RoutedEventArgs e) => DueToDatePicker.SelectedDate = null;
+    private void ClearDueTo_Click(object sender, RoutedEventArgs e) => SetDate(DueToDatePicker, null);
+
+    // Right-click on a Today button: a day so many days from today, kept relative in the same way.
+    private void TodayDueFrom_RightClick(object sender, MouseButtonEventArgs e) => OfferRelativeDays((Button)sender, DueFromDatePicker, e);
+
+    private void TodayDueTo_RightClick(object sender, MouseButtonEventArgs e) => OfferRelativeDays((Button)sender, DueToDatePicker, e);
+
+    private void OfferRelativeDays(Button button, DatePicker picker, MouseButtonEventArgs e)
+    {
+        e.Handled = true;
+        var menu = new ContextMenu { PlacementTarget = button, Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom };
+        foreach (var days in new[] { -30, -14, -7, -1, 1, 7, 14, 30, 60, 90 })
+        {
+            var item = new MenuItem { Header = days < 0 ? $"{-days} day{(days == -1 ? "" : "s")} ago" : $"{days} day{(days == 1 ? "" : "s")} from today" };
+            var captured = days;
+            item.Click += (_, _) => SetDate(picker, RelativeDate.Relative(captured));
+            menu.Items.Add(item);
+        }
+        menu.IsOpen = true;
+    }
 
     private void TodayArchivedFrom_Click(object sender, RoutedEventArgs e) => ArchivedFromDatePicker.SelectedDate = DateTime.Today;
 

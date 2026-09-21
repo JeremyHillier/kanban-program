@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:KanbanApp"
         xmlns:conv="clr-namespace:KanbanApp.Converters"
+        xmlns:svc="clr-namespace:KanbanApp.Services"
         mc:Ignorable="d"
         Title="{Binding WindowTitle}" Width="1700" Height="900" MinWidth="900" MinHeight="600"
         Icon="Assets/app.ico"
@@ -421,6 +422,10 @@
                                HorizontalAlignment="Right" Margin="0,4,0,0"/>
                     <TextBlock Text="{Binding CopyrightText}" FontSize="9" Foreground="#FFC0CBDA"
                                HorizontalAlignment="Right" Margin="0,2,0,0"/>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,3,0,0" ToolTip="Designed and built in Canada">
+                        <Path Data="{StaticResource MapleLeafGeometry}" Fill="#FFE53935" Width="10" Height="10" Stretch="Uniform" Margin="0,0,4,0" VerticalAlignment="Center"/>
+                        <TextBlock Text="{x:Static svc:AppInfo.MadeIn}" FontSize="9" Foreground="#FFC0CBDA" VerticalAlignment="Center"/>
+                    </StackPanel>
                 </StackPanel>
             </Grid>
         </Border>
@@ -797,6 +802,10 @@
                                         ToolTip="Click: Import Tasks from Excel. Double-click: Review Imported Tasks."
                                         PreviewMouseLeftButtonDown="ImportTasks_PreviewMouseDown">
                                     <TextBlock Text="Import Tasks" TextWrapping="Wrap" TextAlignment="Center"/>
+                                </Button>
+                                <Button Style="{StaticResource LargeSquareButtonStyle}" Background="#FF579C70" Foreground="White" Click="QuickReport_Click"
+                                        ToolTip="Run a saved report view in two clicks: preview, print or PDF (Ctrl+Shift+P)">
+                                    <TextBlock Text="Quick Report" TextWrapping="Wrap" TextAlignment="Center"/>
                                 </Button>
                             </StackPanel>
                         </StackPanel>

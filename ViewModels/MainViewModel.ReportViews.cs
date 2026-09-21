@@ -73,3 +73,11 @@ public partial class MainViewModel
         PersistSavedReportViews();
     }
 }
+
+// Quick Report remembers which saved view was run last.
+public partial class MainViewModel
+{
+    public string? QuickReportLastView => _db.GetSetting("QuickReportLastView");
+
+    public void SetQuickReportLastView(string name) => _db.SetSetting("QuickReportLastView", name);
+}
