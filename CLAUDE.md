@@ -45,6 +45,11 @@ Public download page: https://hillierconsulting.ca/kanban.html. It reads the lat
 - Never mark it `--prerelease` or `--draft` (the page only picks up the latest full release). Never push source code or anything other than the installer to that repo; the code repo `kanban-program` stays private.
 - Afterwards confirm with `gh release view` and tell the user it is live at https://hillierconsulting.ca/kanban.html.
 
+
+## Demo video
+
+`tools/DemoVideo` (README there) makes the short "basics" video with nothing installed: a recorder that plays a scripted scene inside the real app against a made-up board, an encoder that uses Windows' built-in H.264 encoder, and a localhost viewer for checking the result. The `tools` folder is excluded from `KanbanApp.csproj`; the recorder is compiled in only for one run, through the same temporary `App.xaml.cs` hook as the self-checks, and neither that hook nor the copied file is ever committed. Two hard-won facts are written up in the README: this PC's AMD graphics plays the frames *between* key frames back with white dashes on a perfectly sound file (so encode with `--allkey`, and never judge a file by decoding it on this PC), and checks must sample in-between moments, not whole seconds. When the look of the app changes noticeably, re-record.
+
 ## Architecture
 
 Standard MVVM:

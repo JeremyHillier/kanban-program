@@ -21,6 +21,11 @@
     <Compile Remove="tests\**" />
     <None Remove="tests\**" />
     <Page Remove="tests\**" />
+    <!-- Likewise the tools folder: things that are not part of the app (the demo-video recorder,
+         encoder and viewer - see tools/DemoVideo/README.md). -->
+    <Compile Remove="tools\**" />
+    <None Remove="tools\**" />
+    <Page Remove="tools\**" />
   </ItemGroup>
 
   <ItemGroup>
