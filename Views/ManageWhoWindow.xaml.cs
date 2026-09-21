@@ -22,7 +22,7 @@ public partial class ManageWhoWindow : Window
         var name = NewPersonTextBox.Text.Trim();
         if (string.IsNullOrWhiteSpace(name)) return;
 
-        _viewModel.AddPerson(name);
+        ManagedListPrompts.ShowAddNotice(this, _viewModel.AddPerson(name), "person", name);
         NewPersonTextBox.Clear();
         NewPersonTextBox.Focus();
     }
@@ -35,7 +35,10 @@ public partial class ManageWhoWindow : Window
         // tears down this very TextBox's row while its own LostFocus event is still dispatching —
         // the same WPF deadlock documented on the board's quick-edit popups.
         var newName = textBox.Text;
-        Dispatcher.BeginInvoke(new Action(() => _viewModel.RenamePerson(person, newName)), DispatcherPriority.Background);
+        Dispatcher.BeginInvoke(new Action(() =>
+        {
+            if (!_viewModel.RenamePerson(person, newName)) ManagedListPrompts.RenameRefused(this, textBox, "person", newName);
+        }), DispatcherPriority.Background);
     }
 
     private void PersonEmail_LostFocus(object sender, RoutedEventArgs e)

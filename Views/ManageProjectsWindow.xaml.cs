@@ -22,7 +22,7 @@ public partial class ManageProjectsWindow : Window
         var name = NewProjectTextBox.Text.Trim();
         if (string.IsNullOrWhiteSpace(name)) return;
 
-        _viewModel.AddProject(name);
+        ManagedListPrompts.ShowAddNotice(this, _viewModel.AddProject(name), "project", name);
         NewProjectTextBox.Clear();
         NewProjectTextBox.Focus();
     }
@@ -35,7 +35,10 @@ public partial class ManageProjectsWindow : Window
         // tears down this very TextBox's row while its own LostFocus event is still dispatching —
         // the same WPF deadlock documented on the board's quick-edit popups.
         var newName = textBox.Text;
-        Dispatcher.BeginInvoke(new Action(() => _viewModel.RenameProject(project, newName)), DispatcherPriority.Background);
+        Dispatcher.BeginInvoke(new Action(() =>
+        {
+            if (!_viewModel.RenameProject(project, newName)) ManagedListPrompts.RenameRefused(this, textBox, "project", newName);
+        }), DispatcherPriority.Background);
     }
 
     private void Active_Changed(object sender, RoutedEventArgs e)

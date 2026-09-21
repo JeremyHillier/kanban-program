@@ -204,7 +204,10 @@ internal sealed class TextBoxSuggestions
     private void List_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
     {
         var element = e.OriginalSource as DependencyObject;
-        while (element is not null and not ListBoxItem) element = VisualTreeHelper.GetParent(element);
+        while (element is not null and not ListBoxItem)
+        {
+            element = element is Visual ? VisualTreeHelper.GetParent(element) : LogicalTreeHelper.GetParent(element);
+        }
         if (element is not ListBoxItem { Content: string chosen }) return;
 
         TakeAnswer(chosen);

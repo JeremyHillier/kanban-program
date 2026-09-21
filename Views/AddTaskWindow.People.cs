@@ -23,6 +23,7 @@ public partial class AddTaskWindow
     // Active people, plus anyone already on the task who has since been made inactive.
     private void RebuildWhoItems()
     {
+        var focusedPerson = FocusedWhoPerson();
         WhoPanel.Children.Clear();
         var listed = _viewModel.People.Where(p => p.IsActive || _selectedPeople.Any(s => s.Id == p.Id)).ToList();
 
@@ -74,6 +75,7 @@ public partial class AddTaskWindow
             : "Tick everyone this task is assigned to. The first person ticked is the lead.";
 
         RefreshEmailButton();
+        RestoreWhoFocus(focusedPerson);
     }
 
     private void WhoBox_Changed(object sender, RoutedEventArgs e)
@@ -128,8 +130,9 @@ public partial class AddTaskWindow
         var dialog = new PromptWindow("New Person", "Person's name") { Owner = this };
         if (dialog.ShowDialog() != true) return;
 
-        _viewModel.AddPerson(dialog.Value);
-        var added = _viewModel.People.FirstOrDefault(p => string.Equals(p.Name, dialog.Value.Trim(), StringComparison.OrdinalIgnoreCase));
+        var result = _viewModel.AddPerson(dialog.Value);
+        ManagedListPrompts.ShowAddNotice(this, result, "person", dialog.Value);
+        var added = result.Item;
         if (added is not null && _selectedPeople.All(p => p.Id != added.Id)) _selectedPeople.Add(added);
         RebuildWhoItems();
     }

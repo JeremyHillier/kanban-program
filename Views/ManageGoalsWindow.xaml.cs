@@ -22,7 +22,7 @@ public partial class ManageGoalsWindow : Window
         var name = NewGoalTextBox.Text.Trim();
         if (string.IsNullOrWhiteSpace(name)) return;
 
-        _viewModel.AddGoal(name);
+        ManagedListPrompts.ShowAddNotice(this, _viewModel.AddGoal(name), "goal", name);
         NewGoalTextBox.Clear();
         NewGoalTextBox.Focus();
     }
@@ -35,7 +35,10 @@ public partial class ManageGoalsWindow : Window
         // tears down this very TextBox's row while its own LostFocus event is still dispatching —
         // the same WPF deadlock documented on the board's quick-edit popups.
         var newName = textBox.Text;
-        Dispatcher.BeginInvoke(new Action(() => _viewModel.RenameGoal(goal, newName)), DispatcherPriority.Background);
+        Dispatcher.BeginInvoke(new Action(() =>
+        {
+            if (!_viewModel.RenameGoal(goal, newName)) ManagedListPrompts.RenameRefused(this, textBox, "goal", newName);
+        }), DispatcherPriority.Background);
     }
 
     private void Active_Changed(object sender, RoutedEventArgs e)

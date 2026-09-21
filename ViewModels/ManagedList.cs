@@ -40,18 +40,38 @@ public class ManagedList<TModel, TViewModel> where TViewModel : ObservableObject
         _countUsage = countUsage;
     }
 
-    public void Add(string name)
+    // Names are unique whatever their capitals. Asking for one that is already there adds nothing
+    // and hands back the existing entry, switched back on if it had been retired - the user asked
+    // for it by name, so they want to be able to pick it.
+    public ManagedAddResult<TViewModel> Add(string name)
     {
-        if (string.IsNullOrWhiteSpace(name)) return;
+        if (string.IsNullOrWhiteSpace(name)) return new(null, ManagedAddOutcome.Nothing);
 
-        var model = _dbAdd(name.Trim());
-        InsertSortedByName(_factory(model));
+        var existing = Find(name);
+        if (existing is not null)
+        {
+            if (existing.IsActive) return new(existing, ManagedAddOutcome.AlreadyThere);
+
+            SetActive(existing, true);
+            return new(existing, ManagedAddOutcome.SwitchedBackOn);
+        }
+
+        var item = _factory(_dbAdd(name.Trim()));
+        InsertSortedByName(item);
         _onRefreshFilterOptions();
+        return new(item, ManagedAddOutcome.Added);
     }
 
-    public void Rename(TViewModel item, string newName)
+    public TViewModel? Find(string name) =>
+        _items.FirstOrDefault(i => string.Equals(i.Name, name.Trim(), StringComparison.OrdinalIgnoreCase));
+
+    // False when another entry already has that name: the rename is refused and nothing changes.
+    public bool Rename(TViewModel item, string newName)
     {
-        if (string.IsNullOrWhiteSpace(newName) || item.Name == newName.Trim()) return;
+        if (string.IsNullOrWhiteSpace(newName) || item.Name == newName.Trim()) return true;
+
+        var other = Find(newName);
+        if (other is not null && !ReferenceEquals(other, item)) return false;
 
         item.Name = newName.Trim();
         _dbRename(item.Id, item.Name);
@@ -60,6 +80,7 @@ public class ManagedList<TModel, TViewModel> where TViewModel : ObservableObject
 
         _onRenamedSyncCards(item);
         _onRefreshFilterOptions();
+        return true;
     }
 
     public void Delete(TViewModel item)
@@ -91,4 +112,17 @@ public class ManagedList<TModel, TViewModel> where TViewModel : ObservableObject
         }
         _items.Insert(index, item);
     }
+}
+
+public enum ManagedAddOutcome { Nothing, Added, AlreadyThere, SwitchedBackOn }
+
+public readonly record struct ManagedAddResult<TViewModel>(TViewModel? Item, ManagedAddOutcome Outcome)
+{
+    // What to tell the user when nothing new was added, or null when there is nothing to say.
+    public string? Notice(string kind, string name) => Outcome switch
+    {
+        ManagedAddOutcome.AlreadyThere => $"There is already a {kind} called \"{name.Trim()}\", so a second one was not added.",
+        ManagedAddOutcome.SwitchedBackOn => $"There is already a {kind} called \"{name.Trim()}\". It had been made inactive, so it has been made active again instead of adding a second one.",
+        _ => null
+    };
 }

@@ -22,6 +22,8 @@
              of ListBox's own built-in selection handling with no extra code, in either direction. -->
         <Style x:Key="MultiSelectFilterListBoxStyle" TargetType="ListBox">
             <Setter Property="SelectionMode" Value="Extended"/>
+            <!-- Click in a list and type the start of a name to jump to it (and filter by it). -->
+            <Setter Property="TextSearch.TextPath" Value="Name"/>
             <Setter Property="Height" Value="84"/>
             <Setter Property="Padding" Value="2"/>
             <Setter Property="Margin" Value="0,0,0,6"/>
@@ -1008,6 +1010,28 @@
                                                                         </ItemsControl.ItemTemplate>
                                                                     </ItemsControl>
                                                                 </StackPanel>
+
+                                                                <!-- Compact cards drop the detail lines above, but what a task is waiting on
+                                                                     is the reason it isn't moving, so that one line stays. -->
+                                                                <TextBlock Text="{Binding WaitingOnDisplay}" FontSize="10" FontWeight="SemiBold" TextWrapping="Wrap"
+                                                                           Background="#FFFFE0B2" Foreground="#FF4E342E" Padding="3,1" Margin="0,3,0,0" HorizontalAlignment="Left"
+                                                                           Cursor="Hand" ToolTip="Click to change or clear what this task is waiting on"
+                                                                           MouseLeftButtonUp="WaitingOnDisplay_MouseLeftButtonUp">
+                                                                    <TextBlock.Style>
+                                                                        <Style TargetType="TextBlock">
+                                                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                                                            <Style.Triggers>
+                                                                                <MultiDataTrigger>
+                                                                                    <MultiDataTrigger.Conditions>
+                                                                                        <Condition Binding="{Binding IsWaiting}" Value="True"/>
+                                                                                        <Condition Binding="{Binding DataContext.IsLargeCards, RelativeSource={RelativeSource AncestorType=Window}}" Value="False"/>
+                                                                                    </MultiDataTrigger.Conditions>
+                                                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                                                </MultiDataTrigger>
+                                                                            </Style.Triggers>
+                                                                        </Style>
+                                                                    </TextBlock.Style>
+                                                                </TextBlock>
 
                                                                 <TextBlock Text="{Binding SubTaskProgressDisplay}" FontSize="9"
                                                                            Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,3,0,0">

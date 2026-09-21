@@ -118,8 +118,12 @@ public partial class MainViewModel
     // surviving option's IsSelected state (and the FilterOptionViewModel instance itself, since
     // that's what ListBox.SelectedItems tracks) carries over across a refresh; a name that's gone
     // (project renamed away, person deactivated) just drops out along with whatever selection it had.
-    private static void SyncFilterOptions(ObservableCollection<FilterOptionViewModel> options, List<string> desired)
+    internal static void SyncFilterOptions(ObservableCollection<FilterOptionViewModel> options, List<string> desired)
     {
+        // A task file from before names had to be unique can hold the same name twice. One entry
+        // covers both (filters match by name), and two would send Move past the end of the list.
+        desired = desired.Distinct().ToList();
+
         for (var i = options.Count - 1; i >= 0; i--)
         {
             if (!desired.Contains(options[i].Name)) options.RemoveAt(i);

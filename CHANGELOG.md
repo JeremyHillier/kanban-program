@@ -6,6 +6,13 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.109.0 — 2026-09-21
+- New: type to find a person. In the task screen, select the Who box and start typing a first name or surname; the list opens and jumps to that person. Press Space to tick them, and Enter or Esc to close the list. The Project, Priority and Who filter lists on the board also jump to a name as it is typed
+- Improved: compact cards now keep the "Waiting on" line, so it stays clear why a task is not moving
+- Fixed: adding a person, project, goal or flag under a name that already exists no longer creates a duplicate, which could then cause an error. The existing entry is used instead, and is made active again if it had been made inactive. Renaming an entry to a name already in use is refused
+- Fixed: task files that already contain a duplicated name open and work normally; the spare entry can be removed from its Manage screen
+- Fixed: double-clicking the text of a task in the Reminders list opens the task instead of showing an error
+
 ## 0.108.0 — 2026-09-21
 - New: Compact buttons, in Settings. It makes the button column narrower and shorter, which suits a smaller screen: the buttons are lower, the large buttons in the lower half are brought down to the same size as the rest, and there is less padding
 - The text stays the same size in compact mode, so nothing becomes harder to read. The From and To date boxes stack one above the other so that full dates still fit

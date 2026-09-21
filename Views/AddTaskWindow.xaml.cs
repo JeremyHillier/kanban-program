@@ -73,6 +73,7 @@ public partial class AddTaskWindow : Window
         RebuildWhoItems();
         RebuildFlagCheckboxes();
         InitializeTemplates();
+        InitializeWhoTypeAhead();
         _waitingOnSuggestions = TextBoxSuggestions.Attach(WaitingOnTextBox, viewModel.WaitingOnSuggestions, viewModel.ForgetWaitingOnSuggestion);
         UpdateSubTaskProgressLabel();
 
@@ -712,8 +713,9 @@ public partial class AddTaskWindow : Window
         var dialog = new PromptWindow("New Project", "Project name") { Owner = this };
         if (dialog.ShowDialog() != true) return;
 
-        _viewModel.AddProject(dialog.Value);
-        RebuildProjectItems(_viewModel.Projects.FirstOrDefault(p => p.Name == dialog.Value.Trim()));
+        var added = _viewModel.AddProject(dialog.Value);
+        ManagedListPrompts.ShowAddNotice(this, added, "project", dialog.Value);
+        RebuildProjectItems(added.Item);
     }
 
     private void DeleteProject_Click(object sender, RoutedEventArgs e)
@@ -726,8 +728,9 @@ public partial class AddTaskWindow : Window
         var dialog = new PromptWindow("New Goal", "Goal name") { Owner = this };
         if (dialog.ShowDialog() != true) return;
 
-        _viewModel.AddGoal(dialog.Value);
-        RebuildGoalItems(_viewModel.Goals.FirstOrDefault(g => g.Name == dialog.Value.Trim()));
+        var added = _viewModel.AddGoal(dialog.Value);
+        ManagedListPrompts.ShowAddNotice(this, added, "goal", dialog.Value);
+        RebuildGoalItems(added.Item);
     }
 
     private void DeleteGoal_Click(object sender, RoutedEventArgs e)
@@ -740,8 +743,9 @@ public partial class AddTaskWindow : Window
         var dialog = new PromptWindow("New Flag", "Flag name") { Owner = this };
         if (dialog.ShowDialog() != true) return;
 
-        _viewModel.AddFlag(dialog.Value);
-        RebuildFlagCheckboxes(_viewModel.Flags.FirstOrDefault(f => f.Name == dialog.Value.Trim())?.Id);
+        var added = _viewModel.AddFlag(dialog.Value);
+        ManagedListPrompts.ShowAddNotice(this, added, "flag", dialog.Value);
+        RebuildFlagCheckboxes(added.Item?.Id);
     }
 
     private void TodayDueDate_Click(object sender, RoutedEventArgs e)

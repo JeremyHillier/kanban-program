@@ -184,7 +184,10 @@ public partial class ReminderWindow : Window
         while (current is not null)
         {
             if (current is T match) return match;
-            current = VisualTreeHelper.GetParent(current);
+            // Text inside a TextBlock (a Run) is not a Visual, and GetParent throws on it.
+            current = current is Visual or System.Windows.Media.Media3D.Visual3D
+                ? VisualTreeHelper.GetParent(current)
+                : LogicalTreeHelper.GetParent(current);
         }
         return null;
     }

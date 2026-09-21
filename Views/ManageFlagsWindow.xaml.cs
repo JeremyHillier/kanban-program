@@ -22,7 +22,7 @@ public partial class ManageFlagsWindow : Window
         var name = NewFlagTextBox.Text.Trim();
         if (string.IsNullOrWhiteSpace(name)) return;
 
-        _viewModel.AddFlag(name);
+        ManagedListPrompts.ShowAddNotice(this, _viewModel.AddFlag(name), "flag", name);
         NewFlagTextBox.Clear();
         NewFlagTextBox.Focus();
     }
@@ -35,7 +35,10 @@ public partial class ManageFlagsWindow : Window
         // tears down this very TextBox's row while its own LostFocus event is still dispatching —
         // the same WPF deadlock documented on the board's quick-edit popups.
         var newName = textBox.Text;
-        Dispatcher.BeginInvoke(new Action(() => _viewModel.RenameFlag(flag, newName)), DispatcherPriority.Background);
+        Dispatcher.BeginInvoke(new Action(() =>
+        {
+            if (!_viewModel.RenameFlag(flag, newName)) ManagedListPrompts.RenameRefused(this, textBox, "flag", newName);
+        }), DispatcherPriority.Background);
     }
 
     private void Active_Changed(object sender, RoutedEventArgs e)

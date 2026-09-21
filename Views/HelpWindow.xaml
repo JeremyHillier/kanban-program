@@ -73,6 +73,7 @@
                 <local:BulletItem Text="The AM and PM buttons beside the Time pick the half of the day, and the highlighted one shows how the time will be saved. Click one to switch a time you've already typed, or click it first and then type. If you type a time like 2:30 without AM or PM and don't click either button, it's read as a working hour (7 to 11 as AM, 12 to 6 as PM). Typing am/pm yourself, or a 24-hour time like 14:30 or 06:00, is always taken as written."/>
                 <local:BulletItem Text="Use the + and − buttons next to Project, Goal, and Who to add a new one on the fly, or clear the current selection without deleting the record."/>
                 <local:BulletItem Text="A task can be assigned to more than one person. Click the Who box to open the list and tick everyone involved. The first person ticked is the lead; click 'make lead' beside another name to change that. The − button clears everyone."/>
+                <local:BulletItem Text="You can also type to find someone: with the Who box selected or its list open, start typing a name (first name or surname) and the list jumps to that person. Press Space to tick them, and Enter or Esc to close the list. The Project, Priority and Who filter lists on the board work the same way: click in the list and type."/>
                 <local:BulletItem Text="On a shared task, the card lists everyone (lead first), the Who filter shows it when any of its people is selected, Sort by Who uses the lead, and Email goes to everyone who has an email address."/>
                 <local:BulletItem Text="Each task also has an optional Website field — paste a link related to the task and click Open beside it to launch it in your default browser. A link typed without http:// still works."/>
                 <local:BulletItem Text="The Website field takes web links and email addresses only (an email address opens a new email). For your safety, links to files, folders, or programs are refused, including in task files you get from someone else."/>
@@ -155,6 +156,7 @@
                 <local:BulletItem Text="Flags are multi-select tags — a task can carry more than one."/>
                 <local:BulletItem Text="Projects, Goals, Who, and Flags are always listed alphabetically, everywhere they appear."/>
                 <local:BulletItem Text="Untick a Project's, Goal's, Flag's, or Who's Active checkbox to retire it: it disappears from filters and from selection on new or edited tasks, but any task already using it keeps showing its name and is unaffected."/>
+                <local:BulletItem Text="Names in each list are unique, whatever their capitals. If you add a name that is already there, nothing is added and the existing one is used; if it had been made inactive, it is made active again. Renaming one entry to another entry's name is refused."/>
                 <local:BulletItem Text="Delete warns you first with the number of tasks currently using that Project, Goal, Flag, or Who, since deleting it removes it from those tasks and cannot be undone."/>
 
                 <TextBlock Text="Sorting and filtering" Style="{StaticResource HelpSectionHeaderStyle}"/>
@@ -247,6 +249,7 @@
                 <TextBlock Text="Display options" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <local:BulletItem Text="Dark Mode / Light Mode switches the whole app's theme."/>
                 <local:BulletItem Text="Large Cards / Compact Cards toggles how much detail each card shows, useful for fitting more on screen at once."/>
+                <local:BulletItem Text="Compact cards still show what a task is waiting on, since that is the reason it is not moving."/>
                 <local:BulletItem Text="To give the board the full width, hide the button column: click Hide at the top of it, or press Alt+B. It shrinks to a thin strip at the side; click the strip, or press Alt+B again, to bring it back. Your choice is remembered, and every keyboard shortcut still works while it is hidden."/>
                 <local:BulletItem Text="While the buttons are hidden, the strip shows an orange note such as '3 hidden by filters' whenever filters (or Hide Future) are keeping tasks off the board, so a task never seems to have gone missing."/>
                 <local:BulletItem Text="Compact buttons, in Settings, makes the button column narrower and shorter for a smaller screen. The buttons become lower, the large buttons in the lower half come down to the same size as the rest, and the From and To date boxes stack one above the other. The text stays the same size, so nothing gets harder to read."/>
