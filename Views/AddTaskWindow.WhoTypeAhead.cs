@@ -8,7 +8,8 @@ namespace KanbanApp.Views;
 
 // Typing in the Who picker: start typing a name, with the list open or with just the button
 // focused, and the matching person's tickbox is brought into view and focused, ready for Space to
-// tick it. Letters typed within a second of each other build on one another ("sa", then "m").
+// tick it, however soon after the typing. Letters typed within a second of each other build on
+// one another ("sa", then "m").
 public partial class AddTaskWindow
 {
     private string _whoTyped = string.Empty;
@@ -36,9 +37,14 @@ public partial class AddTaskWindow
     {
         switch (e.Key)
         {
-            // Part of a name while one is being typed ("sam l"); otherwise Space ticks the box as usual.
-            case Key.Space when WhoTypingIsLive:
-                WhoTypeAhead(" ");
+            // Space always ticks the highlighted person, even straight after typing (it is never
+            // taken as part of a name - a surname can be typed by itself instead). Ticked here
+            // rather than left to the tickbox: its own Space handling takes and releases the mouse
+            // capture, which can close a list that closes on an outside click. The next letter
+            // typed starts a new search.
+            case Key.Space when e.OriginalSource is CheckBox { Tag: PersonViewModel } box:
+                _whoTyped = string.Empty;
+                box.IsChecked = box.IsChecked != true;
                 e.Handled = true;
                 break;
 

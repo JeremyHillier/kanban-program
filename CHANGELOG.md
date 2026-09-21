@@ -6,6 +6,9 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.109.1 — 2026-09-21
+- Fixed: in the Who list on the task screen, pressing Space immediately after typing a name now ticks the highlighted person. Previously the tick was ignored unless there was a pause of a second after typing
+
 ## 0.109.0 — 2026-09-21
 - New: type to find a person. In the task screen, select the Who box and start typing a first name or surname; the list opens and jumps to that person. Press Space to tick them, and Enter or Esc to close the list. The Project, Priority and Who filter lists on the board also jump to a name as it is typed
 - Improved: compact cards now keep the "Waiting on" line, so it stays clear why a task is not moving
