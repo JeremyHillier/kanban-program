@@ -19,7 +19,7 @@ public partial class MainViewModel
         string DefaultExportPath, string DefaultImportPath, string LinkedFilesDefaultPath,
         string UserName, string UserTitle, string UserEmail, string UserPhone,
         bool StartFullScreen, bool ConfirmDelete, bool ConfirmArchive, bool AddNoteOnComplete,
-        bool ShowDueReminders, bool ShowTimeAlerts, bool RememberLastView, bool ShowWhatsNew, bool QuickAddHotkeyEnabled, bool CheckForUpdatesEnabled);
+        bool ShowDueReminders, bool ShowTimeAlerts, bool RememberLastView, bool ShowWhatsNew, bool QuickAddHotkeyEnabled, bool CheckForUpdatesEnabled, bool IsCompactButtons);
 
     private const char ColumnNameSeparator = ''; // can't be typed into a name
 
@@ -31,7 +31,7 @@ public partial class MainViewModel
         DefaultExportPath, DefaultImportPath, LinkedFilesDefaultPath,
         UserName, UserTitle, UserEmail, UserPhone,
         StartFullScreen, ConfirmDelete, ConfirmArchive, AddNoteOnComplete,
-        ShowDueReminders, ShowTimeAlerts, RememberLastView, ShowWhatsNew, QuickAddHotkeyEnabled, CheckForUpdatesEnabled);
+        ShowDueReminders, ShowTimeAlerts, RememberLastView, ShowWhatsNew, QuickAddHotkeyEnabled, CheckForUpdatesEnabled, IsCompactButtons);
 
     // Goes through the same setters the dialog uses, so each value is saved and the board reacts
     // (column width, button side, column headings) exactly as if the user had typed it back.
@@ -63,5 +63,6 @@ public partial class MainViewModel
         SetShowWhatsNew(snapshot.ShowWhatsNew);
         SetQuickAddHotkeyEnabled(snapshot.QuickAddHotkeyEnabled);
         SetCheckForUpdatesEnabled(snapshot.CheckForUpdatesEnabled);
+        SetCompactButtons(snapshot.IsCompactButtons);
     }
 }

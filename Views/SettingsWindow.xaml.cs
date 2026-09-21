@@ -74,6 +74,7 @@ public partial class SettingsWindow : Window
         UserPhoneTextBox.Text = viewModel.UserPhone;
 
         StartFullScreenCheckBox.IsChecked = viewModel.StartFullScreen;
+        CompactButtonsCheckBox.IsChecked = viewModel.IsCompactButtons;
         ConfirmDeleteCheckBox.IsChecked = viewModel.ConfirmDelete;
         ConfirmArchiveCheckBox.IsChecked = viewModel.ConfirmArchive;
         AddNoteOnCompleteCheckBox.IsChecked = viewModel.AddNoteOnComplete;
@@ -151,6 +152,11 @@ public partial class SettingsWindow : Window
 
         _viewModel.RenameColumnDisplayName(column, textBox.Text);
         textBox.Text = column.DisplayName;
+    }
+
+    private void CompactButtonsCheckBox_Changed(object sender, RoutedEventArgs e)
+    {
+        _viewModel.SetCompactButtons(CompactButtonsCheckBox.IsChecked == true);
     }
 
     private void StartFullScreenCheckBox_Changed(object sender, RoutedEventArgs e)

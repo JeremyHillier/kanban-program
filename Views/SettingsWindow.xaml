@@ -72,6 +72,10 @@
                 <CheckBox x:Name="StartFullScreenCheckBox" Content="Start in full screen"
                           Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,8"
                           Checked="StartFullScreenCheckBox_Changed" Unchecked="StartFullScreenCheckBox_Changed"/>
+                <CheckBox x:Name="CompactButtonsCheckBox" Content="Compact buttons (a tighter, narrower button column)"
+                          ToolTip="Makes the button column narrower and shorter: lower buttons, the large buttons brought down to the same size as the rest, and less padding. The text stays the same size. Useful on a smaller screen. To hide the column altogether, press Alt+B."
+                          Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,8"
+                          Checked="CompactButtonsCheckBox_Changed" Unchecked="CompactButtonsCheckBox_Changed"/>
                 <CheckBox x:Name="ShowWhatsNewCheckBox" Content="Show what's new after an update"
                           Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,8"
                           Checked="ShowWhatsNewCheckBox_Changed" Unchecked="ShowWhatsNewCheckBox_Changed"/>

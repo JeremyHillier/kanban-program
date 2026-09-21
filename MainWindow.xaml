@@ -108,6 +108,13 @@
         <Style x:Key="FilterLabelSmallBoxStyle" BasedOn="{StaticResource FilterLabelBoxStyle}" TargetType="Border">
             <Setter Property="Width" Value="34"/>
             <Setter Property="Margin" Value="0,0,4,0"/>
+            <Style.Triggers>
+                <!-- Stacked (see the From/To row): match the Goal / Flag / Keyword labels below. -->
+                <DataTrigger Binding="{Binding IsCompactButtons}" Value="True">
+                    <Setter Property="Width" Value="56"/>
+                    <Setter Property="Margin" Value="0,0,6,0"/>
+                </DataTrigger>
+            </Style.Triggers>
         </Style>
 
         <!-- Matches the rest of the Filter cluster (slightly rounded, see SquareButtonStyle) instead
@@ -207,6 +214,28 @@
             <Setter Property="FontSize" Value="9"/>
             <Setter Property="Margin" Value="0,0,4,0"/>
             <Setter Property="Padding" Value="2"/>
+            <Style.Triggers>
+                <!-- Compact buttons (Settings): lower, not narrower - the labels need the width, and
+                     the text is already as small as reads comfortably. -->
+                <DataTrigger Binding="{Binding IsCompactButtons}" Value="True">
+                    <Setter Property="Height" Value="36"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- The large buttons in the lower half of the column. Compact buttons brings them down to
+             the same footprint as the small ones above, four to a row still, at a size whose
+             two-word labels ("Manage Projects", "Report Builder") still fit on two lines. -->
+        <Style x:Key="LargeSquareButtonStyle" BasedOn="{StaticResource SquareButtonStyle}" TargetType="Button">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsCompactButtons}" Value="True">
+                    <Setter Property="Width" Value="60"/>
+                    <Setter Property="Height" Value="38"/>
+                    <Setter Property="FontSize" Value="10"/>
+                    <Setter Property="Margin" Value="0,0,5,5"/>
+                    <Setter Property="Padding" Value="2"/>
+                </DataTrigger>
+            </Style.Triggers>
         </Style>
 
         <!-- Greyed while there is nothing to undo. -->
@@ -421,7 +450,7 @@
                 </DockPanel>
             </Border>
 
-            <Border DockPanel.Dock="{Binding SidebarDock}" Width="344" Margin="6" Padding="12"
+            <Border DockPanel.Dock="{Binding SidebarDock}" Width="{Binding SidebarWidth}" Margin="6" Padding="{Binding SidebarPadding}"
                     CornerRadius="6"
                     Background="{DynamicResource SidebarPanelBrush}"
                     BorderBrush="{DynamicResource SidebarPanelBorderBrush}" BorderThickness="1"
@@ -545,13 +574,11 @@
                             </Button>
                         </StackPanel>
 
-                        <Grid Margin="0,0,0,6">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="8"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <Grid Grid.Column="0">
+                        <!-- Side by side normally. With Compact buttons the column is too narrow for two full
+                             dates in one row (they were cut off at "12/28/20"), so From and To stack instead,
+                             their labels widening to line up with Goal / Flag / Keyword below. -->
+                        <UniformGrid Margin="0,0,0,2" Columns="{Binding DateRangeColumns}">
+                            <Grid Margin="{Binding DateRangeFromMargin}">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto"/>
                                     <ColumnDefinition Width="*"/>
@@ -564,7 +591,7 @@
                                             Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
                                             BorderBrush="{DynamicResource CardBorderBrush}"/>
                             </Grid>
-                            <Grid Grid.Column="2">
+                            <Grid Margin="{Binding DateRangeToMargin}">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto"/>
                                     <ColumnDefinition Width="*"/>
@@ -577,7 +604,7 @@
                                             Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
                                             BorderBrush="{DynamicResource CardBorderBrush}"/>
                             </Grid>
-                        </Grid>
+                        </UniformGrid>
 
                         <Grid Margin="0,0,0,2">
                             <Grid.ColumnDefinitions>
@@ -719,52 +746,52 @@
 
                         <StackPanel Margin="0,14,0,0">
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                <Button Style="{StaticResource SquareButtonStyle}" Background="#FF5064AC" Foreground="White" Click="ManageProjects_Click"
+                                <Button Style="{StaticResource LargeSquareButtonStyle}" Background="#FF5064AC" Foreground="White" Click="ManageProjects_Click"
                                         ToolTip="Add, rename, or delete projects (Alt+P)">
                                     <TextBlock Text="Manage Projects" TextWrapping="Wrap" TextAlignment="Center"/>
                                 </Button>
-                                <Button Style="{StaticResource SquareButtonStyle}" Background="#FF5064AC" Foreground="White" Click="ManageGoals_Click"
+                                <Button Style="{StaticResource LargeSquareButtonStyle}" Background="#FF5064AC" Foreground="White" Click="ManageGoals_Click"
                                         ToolTip="Add, rename, or delete goals (Alt+G)">
                                     <TextBlock Text="Manage Goals" TextWrapping="Wrap" TextAlignment="Center"/>
                                 </Button>
-                                <Button Style="{StaticResource SquareButtonStyle}" Background="#FF5064AC" Foreground="White" Click="ManageFlags_Click"
+                                <Button Style="{StaticResource LargeSquareButtonStyle}" Background="#FF5064AC" Foreground="White" Click="ManageFlags_Click"
                                         ToolTip="Add, rename, or delete flags (Alt+F)">
                                     <TextBlock Text="Manage Flags" TextWrapping="Wrap" TextAlignment="Center"/>
                                 </Button>
-                                <Button Style="{StaticResource SquareButtonStyle}" Background="#FF5064AC" Foreground="White" Click="ManageWho_Click"
+                                <Button Style="{StaticResource LargeSquareButtonStyle}" Background="#FF5064AC" Foreground="White" Click="ManageWho_Click"
                                         ToolTip="Add, rename, or delete people (Alt+W)">
                                     <TextBlock Text="Manage Who" TextWrapping="Wrap" TextAlignment="Center"/>
                                 </Button>
                             </StackPanel>
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                <Button Style="{StaticResource SquareButtonStyle}" Background="#FFB7545E" Foreground="White" Click="Reminders_Click"
+                                <Button Style="{StaticResource LargeSquareButtonStyle}" Background="#FFB7545E" Foreground="White" Click="Reminders_Click"
                                         ToolTip="Show tasks that are overdue or due today (Alt+R)">
                                     <TextBlock Text="Reminders" TextWrapping="Wrap" TextAlignment="Center"/>
                                 </Button>
-                                <Button Style="{StaticResource SquareButtonStyle}" Background="#FF4A667B" Foreground="White" Click="ToggleTheme_Click"
+                                <Button Style="{StaticResource LargeSquareButtonStyle}" Background="#FF4A667B" Foreground="White" Click="ToggleTheme_Click"
                                         ToolTip="Switch between light and dark theme">
                                     <TextBlock Text="{Binding ThemeButtonLabel}" TextWrapping="Wrap" TextAlignment="Center"/>
                                 </Button>
-                                <Button Style="{StaticResource SquareButtonStyle}" Background="#FF579C70" Foreground="White" Click="ReportBuilder_Click"
+                                <Button Style="{StaticResource LargeSquareButtonStyle}" Background="#FF579C70" Foreground="White" Click="ReportBuilder_Click"
                                         ToolTip="Build a custom report and preview it or save it as a PDF (Ctrl+P)">
                                     <TextBlock Text="Report Builder" TextWrapping="Wrap" TextAlignment="Center"/>
                                 </Button>
-                                <Button Style="{StaticResource SquareButtonStyle}" Background="#FF6856AD" Foreground="White" Click="Timeline_Click"
+                                <Button Style="{StaticResource LargeSquareButtonStyle}" Background="#FF6856AD" Foreground="White" Click="Timeline_Click"
                                         ToolTip="Show a timeline of tasks by due date, grouped by project (Alt+L)">
                                     <TextBlock Text="Timeline" TextWrapping="Wrap" TextAlignment="Center"/>
                                 </Button>
                             </StackPanel>
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                <Button Style="{StaticResource SquareButtonStyle}" Background="#FFC28E40" Foreground="White" Click="ArchiveDone_Click"
+                                <Button Style="{StaticResource LargeSquareButtonStyle}" Background="#FFC28E40" Foreground="White" Click="ArchiveDone_Click"
                                         ToolTip="Archive every task currently in the Done column (Alt+A)">
                                     <TextBlock Text="Archive Done" TextWrapping="Wrap" TextAlignment="Center"/>
                                 </Button>
-                                <Button Style="{StaticResource SquareButtonStyle}" Background="#FFC28E40" Foreground="White"
+                                <Button Style="{StaticResource LargeSquareButtonStyle}" Background="#FFC28E40" Foreground="White"
                                         ToolTip="Click: View Archived. Double-click: View Deleted."
                                         PreviewMouseLeftButtonDown="ViewArchived_PreviewMouseDown">
                                     <TextBlock Text="View Archived" TextWrapping="Wrap" TextAlignment="Center"/>
                                 </Button>
-                                <Button Style="{StaticResource SquareButtonStyle}" Background="#FFC28E40" Foreground="White"
+                                <Button Style="{StaticResource LargeSquareButtonStyle}" Background="#FFC28E40" Foreground="White"
                                         ToolTip="Click: Import Tasks from Excel. Double-click: Review Imported Tasks."
                                         PreviewMouseLeftButtonDown="ImportTasks_PreviewMouseDown">
                                     <TextBlock Text="Import Tasks" TextWrapping="Wrap" TextAlignment="Center"/>
@@ -775,15 +802,15 @@
                         <Separator Margin="0,14,0,10"/>
 
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                            <Button Style="{StaticResource SquareButtonStyle}" Background="#FF647E93" Foreground="White" Click="Settings_Click"
+                            <Button Style="{StaticResource LargeSquareButtonStyle}" Background="#FF647E93" Foreground="White" Click="Settings_Click"
                                     ToolTip="Open app settings (Alt+S)">
                                 <TextBlock Text="Settings" TextWrapping="Wrap" TextAlignment="Center"/>
                             </Button>
-                            <Button Style="{StaticResource SquareButtonStyle}" Background="#FF2AA4BE" Foreground="White" Click="Help_Click"
+                            <Button Style="{StaticResource LargeSquareButtonStyle}" Background="#FF2AA4BE" Foreground="White" Click="Help_Click"
                                     ToolTip="Open the help screen">
                                 <TextBlock Text="Help" TextWrapping="Wrap" TextAlignment="Center"/>
                             </Button>
-                            <Button Style="{StaticResource SquareButtonStyle}" Background="#FFB06A76" Foreground="White" Click="Close_Click"
+                            <Button Style="{StaticResource LargeSquareButtonStyle}" Background="#FFB06A76" Foreground="White" Click="Close_Click"
                                     ToolTip="Close the application (Ctrl+Q)">
                                 <TextBlock Text="Close" TextWrapping="Wrap" TextAlignment="Center"/>
                             </Button>

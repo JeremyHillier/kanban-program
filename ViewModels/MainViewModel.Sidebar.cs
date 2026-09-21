@@ -39,3 +39,40 @@ public partial class MainViewModel
         OnPropertyChanged(nameof(HiddenTasksLabel));
     }
 }
+
+// Compact buttons: a tighter button column for smaller screens. The text stays the same size (some
+// labels are already at the limit of what reads comfortably); what shrinks is button height, the
+// large lower buttons, the padding and the column's width. Unlike collapsing, this one is a
+// preference set in Settings, so it is in the Settings snapshot.
+public partial class MainViewModel
+{
+    public const double SidebarWidthNormal = 344;
+    public const double SidebarWidthCompact = 300;
+
+    public bool IsCompactButtons { get; private set; }
+
+    public double SidebarWidth => IsCompactButtons ? SidebarWidthCompact : SidebarWidthNormal;
+
+    public System.Windows.Thickness SidebarPadding => new(IsCompactButtons ? 8 : 12);
+
+    // From and To sit side by side normally and stack when compact, where one row is too narrow
+    // for two full dates.
+    public int DateRangeColumns => IsCompactButtons ? 1 : 2;
+    public System.Windows.Thickness DateRangeFromMargin => IsCompactButtons ? new(0, 0, 0, 4) : new(0, 0, 4, 4);
+    public System.Windows.Thickness DateRangeToMargin => IsCompactButtons ? new(0, 0, 0, 4) : new(4, 0, 0, 4);
+
+    public void SetCompactButtons(bool value)
+    {
+        if (IsCompactButtons == value) return;
+        IsCompactButtons = value;
+        _db.SetSetting("CompactButtons", value ? "True" : "False");
+        OnPropertyChanged(nameof(IsCompactButtons));
+        OnPropertyChanged(nameof(SidebarWidth));
+        OnPropertyChanged(nameof(SidebarPadding));
+        OnPropertyChanged(nameof(DateRangeColumns));
+        OnPropertyChanged(nameof(DateRangeFromMargin));
+        OnPropertyChanged(nameof(DateRangeToMargin));
+    }
+
+    private void LoadCompactButtons() => IsCompactButtons = _db.GetSetting("CompactButtons") == "True";
+}

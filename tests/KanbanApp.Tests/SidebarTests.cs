@@ -89,4 +89,37 @@ public sealed class SidebarTests(WpfDispatcherFixture wpf) : IDisposable
 
         Assert.Equal(1, board.HiddenTaskCount);
     });
+
+    [Fact]
+    public void CompactButtons_StartsOff_NarrowsTheColumn_StacksTheDates_AndIsRemembered() => wpf.Run(() =>
+    {
+        var board = OpenBoard();
+        Assert.False(board.IsCompactButtons);
+        Assert.Equal((MainViewModel.SidebarWidthNormal, 2), (board.SidebarWidth, board.DateRangeColumns));
+
+        var raised = new List<string?>();
+        board.PropertyChanged += (_, e) => raised.Add(e.PropertyName);
+        board.SetCompactButtons(true);
+
+        Assert.Equal((MainViewModel.SidebarWidthCompact, 1), (board.SidebarWidth, board.DateRangeColumns));
+        Assert.True(MainViewModel.SidebarWidthCompact < MainViewModel.SidebarWidthNormal);
+        Assert.Contains(nameof(MainViewModel.SidebarWidth), raised);
+        Assert.Contains(nameof(MainViewModel.DateRangeColumns), raised);
+        Assert.True(OpenBoard().IsCompactButtons);
+
+        board.SetCompactButtons(false);
+        Assert.False(OpenBoard().IsCompactButtons);
+    });
+
+    [Fact]
+    public void CompactAndCollapsed_AreIndependent() => wpf.Run(() =>
+    {
+        var board = OpenBoard();
+        board.SetCompactButtons(true);
+        board.ToggleSidebar();
+
+        var reopened = OpenBoard();
+        Assert.True(reopened.IsCompactButtons);
+        Assert.True(reopened.IsSidebarCollapsed);
+    });
 }

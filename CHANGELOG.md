@@ -6,6 +6,11 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.108.0 — 2026-09-21
+- New: Compact buttons, in Settings. It makes the button column narrower and shorter, which suits a smaller screen: the buttons are lower, the large buttons in the lower half are brought down to the same size as the rest, and there is less padding
+- The text stays the same size in compact mode, so nothing becomes harder to read. The From and To date boxes stack one above the other so that full dates still fit
+- Compact buttons works alongside hiding the button column (Alt+B); use either or both
+
 ## 0.107.1 — 2026-09-21
 - Fixed: when two PCs share one task file, each PC now runs its own daily check for a newer version. Previously a check made on one PC could stop the other from checking, so a PC that needed an update might never be told
 - Fixed: on PCs that share a task file, the What's New screen is now shown once on each PC after it is updated, instead of reappearing when switching between PCs on different versions

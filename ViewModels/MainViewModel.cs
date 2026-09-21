@@ -116,6 +116,7 @@ public partial class MainViewModel : ObservableObject
         QuickAddHotkeyEnabled = _db.GetSetting("QuickAddHotkeyEnabled") != "False";
         LoadUpdateSettings();
         LoadSidebarState();
+        LoadCompactButtons();
         ShowWhatsNew = _db.GetSetting("ShowWhatsNew") != "False";
         LoadCustomFilters();
         LoadSavedReportViews();

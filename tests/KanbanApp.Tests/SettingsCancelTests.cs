@@ -39,6 +39,7 @@ public sealed class SettingsCancelTests(WpfDispatcherFixture wpf) : IDisposable
         board.SetShowWhatsNew(!board.ShowWhatsNew);
         board.SetQuickAddHotkeyEnabled(!board.QuickAddHotkeyEnabled);
         board.SetCheckForUpdatesEnabled(!board.CheckForUpdatesEnabled);
+        board.SetCompactButtons(!board.IsCompactButtons);
     }
 
     [Fact]
