@@ -143,4 +143,36 @@ public sealed class UpdateCheckTests(WpfDispatcherFixture wpf) : IDisposable
         Assert.Equal("https://api.github.com/repos/JeremyHillier/kanban-task-board-downloads/releases/latest", UpdateChecker.LatestReleaseUrl);
         Assert.Equal("https://hillierconsulting.ca/kanban.html", AppInfo.DownloadPageUrl);
     }
+
+    [Fact]
+    public void TwoComputersSharingOneTaskFile_EachKeepTheirOwnDailyCheck() => wpf.Run(() =>
+    {
+        var now = new DateTime(2026, 9, 21, 9, 0, 0);
+        var upToDatePc = OpenBoard();
+        upToDatePc.ThisComputer = "OFFICE-PC";
+        upToDatePc.RecordUpdateCheck(now); // started first this morning, found nothing new
+
+        var olderPc = OpenBoard();          // the same task file, opened on the other machine
+        olderPc.ThisComputer = "LAPTOP";
+
+        Assert.True(olderPc.IsUpdateCheckDue(now.AddHours(1))); // not silenced by the other PC's check
+        Assert.Null(olderPc.LastUpdateCheck);
+
+        olderPc.RecordUpdateCheck(now.AddHours(1));
+        Assert.False(olderPc.IsUpdateCheckDue(now.AddHours(2)));
+
+        var officeAgain = OpenBoard();
+        officeAgain.ThisComputer = "OFFICE-PC";
+        Assert.Equal(now, officeAgain.LastUpdateCheck);          // and each keeps its own time
+        Assert.True(officeAgain.IsUpdateCheckDue(now.AddHours(24)));
+    });
+
+    [Fact]
+    public void ATimeLeftByAnOlderVersion_InTheSharedSetting_IsIgnored() => wpf.Run(() =>
+    {
+        var now = new DateTime(2026, 9, 21, 9, 0, 0);
+        new DatabaseService(_temp.File("board.db")).SetSetting("LastUpdateCheck", now.ToString("o"));
+
+        Assert.True(OpenBoard().IsUpdateCheckDue(now.AddMinutes(5)));
+    });
 }

@@ -322,13 +322,22 @@ public partial class MainViewModel
     // True when this build differs from the one last acknowledged, i.e. the app has just been
     // updated. A brand-new install is deliberately excluded: with no cards on the board there's
     // nothing to have "updated" from, and a changelog is a poor first thing to greet someone with.
+    // Some things belong to the PC, not to the task file - and two PCs can share one task file (a
+    // synced folder). Those are stored under a key that carries the computer's name: when this PC
+    // last checked for an update, and which version's What's New it has shown. Kept in the task
+    // file all the same, so tests and self-checks never touch anything outside their own folder.
+    internal string ThisComputer { get; set; } = Environment.MachineName;
+
+    private string LastSeenVersionKey => $"LastSeenVersion:{ThisComputer}";
+
     // An existing user upgrading into this feature has no stored version yet but does have cards,
-    // so they still get the screen the first time.
+    // so they still get the screen the first time. A PC with nothing of its own recorded yet falls
+    // back to the old shared value, so a single-PC user upgrading isn't shown the screen twice.
     public bool ShouldShowWhatsNewOnStartup()
     {
         if (!ShowWhatsNew) return false;
 
-        var lastSeen = _db.GetSetting("LastSeenVersion");
+        var lastSeen = _db.GetSetting(LastSeenVersionKey) ?? _db.GetSetting("LastSeenVersion");
         if (string.IsNullOrEmpty(lastSeen)) return Columns.Any(c => c.Cards.Count > 0);
 
         return lastSeen != AppVersion;
@@ -336,7 +345,7 @@ public partial class MainViewModel
 
     public void MarkWhatsNewSeen()
     {
-        _db.SetSetting("LastSeenVersion", AppVersion);
+        _db.SetSetting(LastSeenVersionKey, AppVersion);
     }
 
     public void SaveLastViewState()

@@ -294,7 +294,7 @@
                 <local:BulletItem Text="At most once a day, when the app starts, it checks whether a newer version has been released. If one has, it shows what is new in it and a Get the Update button, which opens our download page in your browser. Run the installer from there: it updates the program in place and leaves your tasks as they are."/>
                 <local:BulletItem Text="Remind Me Later closes the notice until the next day's check. Skip This Version stops the notice for that version only; the one after it is still offered."/>
                 <local:BulletItem Text="The check sends the app's name and version number and nothing else. Nothing is ever downloaded or installed unless you choose to. To turn it off, untick 'Check for a newer version automatically' in Settings."/>
-                <local:BulletItem Text="To check whenever you like, open About and click Check for Updates."/>
+                <local:BulletItem Text="To check whenever you like, open About and click Check for Updates. Checking by hand does not affect the daily automatic check. If two PCs share one task file, each PC runs its own daily check."/>
 
                 <TextBlock Text="Privacy, licence and support" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <local:BulletItem Text="Everything you enter stays in your task file on this PC. There is no account, no cloud storage, and no usage tracking. The Privacy Note, in About, sets this out in full."/>

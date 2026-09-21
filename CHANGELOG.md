@@ -6,6 +6,11 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.107.1 — 2026-09-21
+- Fixed: when two PCs share one task file, each PC now runs its own daily check for a newer version. Previously a check made on one PC could stop the other from checking, so a PC that needed an update might never be told
+- Fixed: on PCs that share a task file, the What's New screen is now shown once on each PC after it is updated, instead of reappearing when switching between PCs on different versions
+- Improved: using Check for Updates in About no longer postpones the next automatic check
+
 ## 0.107.0 — 2026-09-21
 - New: the button column can be hidden to give the board the full width. Click Hide at the top of the column, or press Alt+B; it shrinks to a thin strip at the side. Click the strip, or press Alt+B again, to bring it back
 - While the buttons are hidden, the strip shows a note such as "3 hidden by filters" whenever filters are keeping tasks off the board

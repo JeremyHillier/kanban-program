@@ -19,12 +19,22 @@ public partial class MainViewModel
 
     private void LoadUpdateSettings() => CheckForUpdatesEnabled = _db.GetSetting("CheckForUpdates") != "False";
 
+    // When THIS PC last checked. Kept per computer, not per task file: two PCs can share one task
+    // file (a synced folder), and with a shared timestamp whichever started first each day silenced
+    // the other - so an out-of-date PC beside an up-to-date one was never told. The old shared
+    // "LastUpdateCheck" setting is ignored for the same reason.
+
+
+    private string LastUpdateCheckKey => $"LastUpdateCheck:{ThisComputer}";
+
     public DateTime? LastUpdateCheck =>
-        DateTime.TryParse(_db.GetSetting("LastUpdateCheck"), CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out var when) ? when : null;
+        DateTime.TryParse(_db.GetSetting(LastUpdateCheckKey), CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out var when) ? when : null;
 
     public bool IsUpdateCheckDue(DateTime now) => CheckForUpdatesEnabled && UpdateChecker.IsDue(LastUpdateCheck, now);
 
-    public void RecordUpdateCheck(DateTime now) => _db.SetSetting("LastUpdateCheck", now.ToString("o", CultureInfo.InvariantCulture));
+    // Only the automatic check calls this. Checking by hand from About leaves the daily timer
+    // alone, so trying the button never postpones the next automatic check.
+    public void RecordUpdateCheck(DateTime now) => _db.SetSetting(LastUpdateCheckKey, now.ToString("o", CultureInfo.InvariantCulture));
 
     public string? SkippedUpdateVersion => _db.GetSetting("SkippedUpdateVersion") is { Length: > 0 } version ? version : null;
 

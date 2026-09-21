@@ -45,7 +45,8 @@ public partial class AboutWindow : Window
         new LegalWindow("Privacy Note", LegalDocuments.Privacy) { Owner = this }.ShowDialog();
     }
 
-    // Checking by hand: always answers, one way or the other, and ignores "Skip This Version".
+    // Checking by hand: always answers, one way or the other, and ignores "Skip This Version". It
+    // does not count as the day's automatic check, so trying it never delays that.
     private async void CheckForUpdates_Click(object sender, RoutedEventArgs e)
     {
         CheckUpdatesButton.IsEnabled = false;
@@ -62,7 +63,6 @@ public partial class AboutWindow : Window
             return;
         }
 
-        _viewModel.RecordUpdateCheck(DateTime.Now);
         if (!_viewModel.ShouldOfferUpdate(update, askedByHand: true))
         {
             UpdateStatusText.Text = $"You have the latest version ({_viewModel.AppVersion.TrimStart('v')}).";
