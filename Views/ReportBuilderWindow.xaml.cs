@@ -111,36 +111,56 @@ public partial class ReportBuilderWindow : Window
         UpdateSortLevelAvailability();
     }
 
-    private void Reset_Click(object sender, RoutedEventArgs e) => ResetFields();
+    private void Reset_Click(object sender, RoutedEventArgs e)
+    {
+        ResetFields();
+        _loadedViewName = null; // a fresh start is a new view, not an edit of the last one loaded
+    }
 
     private void Help_Click(object sender, RoutedEventArgs e)
     {
         new HelpWindow(_viewModel, "HelpSection_ReportBuilder") { Owner = this }.ShowDialog();
     }
 
+    // The view most recently loaded (or saved) on this screen - Save View offers to update it.
+    private string? _loadedViewName;
+
     private void LoadReportView_Click(object sender, RoutedEventArgs e)
     {
         if (SavedViewsComboBox.SelectedItem is not SavedReportView view) return;
         ApplyReportView(view);
+        _loadedViewName = view.Name;
     }
 
+    // After a view has been loaded, the prompt starts with that view's name and saving under it
+    // asks to update the view; a different name saves as a new view (asking first only if that
+    // name is already taken by some other view).
     private void SaveReportView_Click(object sender, RoutedEventArgs e)
     {
-        var prompt = new PromptWindow("Save Report View", "Name for this view:") { Owner = this };
+        var updating = _loadedViewName is not null && _viewModel.SavedReportViews.Any(v => string.Equals(v.Name, _loadedViewName, StringComparison.OrdinalIgnoreCase));
+        var prompt = new PromptWindow("Save Report View", updating ? "Name for this view (keep the name to update the loaded view):" : "Name for this view:",
+            updating ? _loadedViewName : null, "Save") { Owner = this };
         if (prompt.ShowDialog() != true) return;
 
         var name = prompt.Value.Trim();
         if (string.IsNullOrWhiteSpace(name)) return;
 
-        if (_viewModel.SavedReportViews.Any(v => string.Equals(v.Name, name, StringComparison.OrdinalIgnoreCase)))
+        var existing = _viewModel.SavedReportViews.FirstOrDefault(v => string.Equals(v.Name, name, StringComparison.OrdinalIgnoreCase));
+        if (existing is not null)
         {
-            var overwrite = MessageBox.Show(this, $"A saved view named \"{name}\" already exists. Overwrite it?",
-                "Overwrite View", MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No);
-            if (overwrite != MessageBoxResult.Yes) return;
+            var isTheLoadedOne = updating && string.Equals(name, _loadedViewName, StringComparison.OrdinalIgnoreCase);
+            var question = isTheLoadedOne
+                ? $"Update the saved view \"{existing.Name}\" with what is on the screen now?"
+                : $"A saved view named \"{existing.Name}\" already exists. Overwrite it?";
+            var answer = MessageBox.Show(this, question, isTheLoadedOne ? "Update View" : "Overwrite View",
+                MessageBoxButton.YesNo, MessageBoxImage.Question, isTheLoadedOne ? MessageBoxResult.Yes : MessageBoxResult.No);
+            if (answer != MessageBoxResult.Yes) return;
+            name = existing.Name; // keep the capitals it was saved with
         }
 
         _viewModel.SaveReportView(CaptureCurrentAsView(name));
         SavedViewsComboBox.SelectedItem = _viewModel.SavedReportViews.FirstOrDefault(v => v.Name == name);
+        _loadedViewName = name;
     }
 
     private void DeleteReportView_Click(object sender, RoutedEventArgs e)
@@ -152,6 +172,7 @@ public partial class ReportBuilderWindow : Window
         if (result != MessageBoxResult.Yes) return;
 
         _viewModel.DeleteReportView(view.Name);
+        if (string.Equals(_loadedViewName, view.Name, StringComparison.OrdinalIgnoreCase)) _loadedViewName = null;
     }
 
     // Captures every field this window exposes - broader than GetParameterSummary, which only

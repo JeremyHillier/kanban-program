@@ -6,6 +6,9 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.110.2 — 2026-09-22
+- Improved: in Report Builder, after loading a saved view, Save View now starts with that view's name. Keep the name to update the view with what is on the screen (the app asks first), or type a different name to save it as a new view
+
 ## 0.110.1 — 2026-09-22
 - Improved: in Report Builder, a line under the From and To dates now says what a saved view will keep for each: "today" (which moves with the calendar each time the report runs) or a fixed date picked from the calendar
 - The Quick Report and Timeline buttons have swapped places, so Quick Report sits beside Report Builder
