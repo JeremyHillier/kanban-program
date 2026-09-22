@@ -253,10 +253,11 @@ public partial class ReportBuilderWindow : Window
     // "today+7"). The picker shows the real day, and the relative text is kept beside it in Tag
     // for as long as the picker still shows that day - so re-saving a loaded view keeps it
     // relative, while picking another day by hand makes it a fixed date again.
-    private static void SetDate(DatePicker picker, string? saved)
+    private void SetDate(DatePicker picker, string? saved)
     {
         picker.SelectedDate = RelativeDate.Resolve(saved, DateTime.Today);
         picker.Tag = RelativeDate.IsRelative(saved) ? saved!.Trim() : null;
+        if (picker == DueFromDatePicker || picker == DueToDatePicker) RefreshDateKind();
     }
 
     private static string? SavedDate(DatePicker picker)
@@ -265,7 +266,29 @@ public partial class ReportBuilderWindow : Window
         return picker.Tag is string relative && RelativeDate.Resolve(relative, DateTime.Today) == day.Date ? relative : day.ToString("yyyy-MM-dd");
     }
 
-    private void DatePicker_Loaded(object sender, RoutedEventArgs e) => CalendarWheelSupport.Attach((DatePicker)sender);
+    // The line under the From/To pickers. A picker's Tag holds the relative text ("today+7") while
+    // it still shows that day (see SetDate/SavedDate); otherwise what it shows is a fixed date.
+    private void RefreshDateKind()
+    {
+        if (DateKindText is null) return;
+        string Kind(DatePicker picker) => picker.SelectedDate is null ? "any"
+            : SavedDate(picker) is { } saved && RelativeDate.IsRelative(saved) ? $"{RelativeDate.Describe(saved)} (moves with the calendar)"
+            : $"fixed {picker.SelectedDate:MMM d, yyyy}";
+        DateKindText.Text = DueFromDatePicker.SelectedDate is null && DueToDatePicker.SelectedDate is null
+            ? "A saved view keeps 'today' from the Today buttons as the word today, so it moves with the calendar. A date picked from the calendar is kept as that date."
+            : $"Saved as: From {Kind(DueFromDatePicker)}, To {Kind(DueToDatePicker)}.";
+    }
+
+    private void DatePicker_Loaded(object sender, RoutedEventArgs e)
+    {
+        var picker = (DatePicker)sender;
+        CalendarWheelSupport.Attach(picker);
+        if (picker == DueFromDatePicker || picker == DueToDatePicker)
+        {
+            picker.SelectedDateChanged += (_, _) => RefreshDateKind();
+            RefreshDateKind();
+        }
+    }
 
     private void TodayDueFrom_Click(object sender, RoutedEventArgs e) => SetDate(DueFromDatePicker, RelativeDate.Today);
 

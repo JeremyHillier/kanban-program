@@ -126,7 +126,8 @@
                   BorderBrush="{DynamicResource CardBorderBrush}"/>
 
         <TextBlock Grid.Row="11" Grid.Column="0" Grid.ColumnSpan="3" Text="Due date range (this report only)" Style="{StaticResource SectionHeaderStyle}"/>
-        <StackPanel Grid.Row="12" Grid.Column="0" Grid.ColumnSpan="3" Orientation="Horizontal">
+        <StackPanel Grid.Row="12" Grid.Column="0" Grid.ColumnSpan="3">
+        <StackPanel Orientation="Horizontal">
             <TextBlock Text="From" VerticalAlignment="Center" Margin="0,0,6,0" Foreground="{DynamicResource PrimaryTextBrush}"/>
             <DatePicker x:Name="DueFromDatePicker" Padding="4" Width="140" Loaded="DatePicker_Loaded"
                         Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
@@ -147,6 +148,10 @@
                     Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
             <Button Content="Clear" Padding="8,4" Margin="6,0,0,0" Click="ClearDueTo_Click"
                     Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+        </StackPanel>
+        <!-- Says what a saved view will keep for each date: the word today (worked out afresh each
+             time the report runs) or the fixed day picked from the calendar. -->
+        <TextBlock x:Name="DateKindText" FontSize="11" Margin="0,4,0,0" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryTextStrongBrush}"/>
         </StackPanel>
         <CheckBox Grid.Row="13" Grid.Column="0" Grid.ColumnSpan="3" x:Name="IncludeNoDueDateCheckBox" Content="Include tasks with no due date"
                   Margin="0,6,0,0" Foreground="{DynamicResource PrimaryTextBrush}"/>

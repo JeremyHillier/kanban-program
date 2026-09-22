@@ -6,6 +6,10 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.110.1 — 2026-09-22
+- Improved: in Report Builder, a line under the From and To dates now says what a saved view will keep for each: "today" (which moves with the calendar each time the report runs) or a fixed date picked from the calendar
+- The Quick Report and Timeline buttons have swapped places, so Quick Report sits beside Report Builder
+
 ## 0.110.0 — 2026-09-21
 - New: Quick Report. Click the Quick Report button (or press Ctrl+Shift+P), pick a saved report view from the list, and choose Preview, Print or PDF. The line under the list says what the report will cover, and the view you ran last is remembered
 - New: report dates that mean "today". The Today buttons beside the From and To dates in Report Builder now save as "today" rather than a fixed date, so a saved view stays current however long ago it was saved. Right-click a Today button for a date so many days from today, for example 7 days from today for a week-ahead report
