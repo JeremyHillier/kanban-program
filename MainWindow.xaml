@@ -422,7 +422,7 @@
                                HorizontalAlignment="Right" Margin="0,4,0,0"/>
                     <TextBlock Text="{Binding CopyrightText}" FontSize="9" Foreground="#FFC0CBDA"
                                HorizontalAlignment="Right" Margin="0,2,0,0"/>
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,3,0,0" ToolTip="Designed and built in Canada">
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,3,0,0" ToolTip="Designed in Canada">
                         <Path Data="{StaticResource MapleLeafGeometry}" Fill="#FFE53935" Width="10" Height="10" Stretch="Uniform" Margin="0,0,4,0" VerticalAlignment="Center"/>
                         <TextBlock Text="{x:Static svc:AppInfo.MadeIn}" FontSize="9" Foreground="#FFC0CBDA" VerticalAlignment="Center"/>
                     </StackPanel>
