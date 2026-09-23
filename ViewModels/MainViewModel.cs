@@ -88,7 +88,7 @@ public partial class MainViewModel : ObservableObject
         _isButtonsOnRight = _db.GetSetting("ButtonPosition") == "Right";
 
         _isCompactCards = _db.GetSetting("CardSize") == "Compact";
-        _columnWidth = int.TryParse(_db.GetSetting("ColumnWidth"), out var columnWidth) ? columnWidth : 310;
+        _columnWidth = int.TryParse(_db.GetSetting("ColumnWidth"), out var columnWidth) ? Math.Clamp(columnWidth, MinColumnWidth, 800) : 310;
         _isFitColumnsToWindow = _db.GetSetting("FitColumnsToWindow") != "False";
         _projectFilterListHeight = LoadFilterListHeight(_db.GetSetting("ProjectFilterListHeight"));
         _priorityWhoFilterListHeight = LoadFilterListHeight(_db.GetSetting("PriorityWhoFilterListHeight"));

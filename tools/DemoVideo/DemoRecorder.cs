@@ -251,7 +251,7 @@ internal static class DemoRecorder
             log.Add($"content {_mainContent.ActualWidth}x{_mainContent.ActualHeight}");
             foreach (var badge in Walk(_main).OfType<TextBlock>().Where(t => t.Text == "TEST BUILD")) badge.Visibility = Visibility.Collapsed; // the released app has no badge
             vm.SetFitColumnsToWindow(false); // the recording is laid out for this exact width
-            vm.SetColumnWidth(232);
+            vm.SetColumnWidth(240); // the narrowest the app allows
 
             // A made-up board.
             foreach (var p in new[] { "Website Redesign", "Client Onboarding", "Office Move" }) vm.AddProject(p);

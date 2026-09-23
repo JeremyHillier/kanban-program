@@ -263,8 +263,8 @@
                 <local:BulletItem Text="Changes take effect as you make them, so you can see them on the board straight away. Save &amp; Close keeps them; Cancel (or Esc, or the window's X) puts every setting back to how it was when you opened Settings, after checking with you first. Backing up, and moving or switching your task file, are actions rather than settings, so Cancel doesn't undo those."/>
                 <local:BulletItem Text="Rename any column's label (e.g. change &quot;Waiting&quot; to &quot;Blocked&quot;). This only changes what's displayed — the board still treats the same column as the completion column for archiving, reminders, and recurring tasks."/>
                 <local:BulletItem Text="Move the button panel to the right side of the board."/>
-                <local:BulletItem Text="Fit task columns to the window width (on unless you switch it off): the task columns share the board evenly and resize with the window, and widen when the button column is hidden. Below 200 pixels each, the board scrolls sideways instead."/>
-                <local:BulletItem Text="With fitting switched off, every task column is the width you set in pixels (default 310)."/>
+                <local:BulletItem Text="Fit task columns to the window width (on unless you switch it off): the task columns share the board evenly and resize with the window, and widen when the button column is hidden. Below 240 pixels each, the board scrolls sideways instead."/>
+                <local:BulletItem Text="With fitting switched off, every task column is the width you set in pixels (default 310, at least 240)."/>
                 <local:BulletItem Text="Turn the startup splash screen on or off and set how long it stays visible."/>
                 <local:BulletItem Text="Start the app in full screen."/>
                 <local:BulletItem Text="The window size and position are remembered automatically between sessions; the full-screen setting still applies on top of that when starting up."/>

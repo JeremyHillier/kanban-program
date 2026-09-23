@@ -107,7 +107,7 @@ public partial class MainViewModel
 
     public void SetColumnWidth(int value)
     {
-        ColumnWidth = Math.Clamp(value, 150, 800);
+        ColumnWidth = Math.Clamp(value, MinColumnWidth, 800);
         _db.SetSetting("ColumnWidth", ColumnWidth.ToString());
     }
 
@@ -115,7 +115,10 @@ public partial class MainViewModel
     // is resized or the button column is shown or hidden. Off, every column is ColumnWidth wide.
     // Either way a board too narrow for its columns scrolls sideways.
     public const double ColumnGap = 12;             // each column's right margin on the board
-    public const double MinFittedColumnWidth = 200; // below this, fitting gives way to scrolling
+    // The narrowest a task column can be, fitted or not: room for a card's six quick buttons (147px)
+    // plus the column and card padding and the list's scrollbar (59px), with some to spare. Below it,
+    // fitting gives way to scrolling sideways.
+    public const int MinColumnWidth = 240;
 
     private bool _isFitColumnsToWindow = true;
     public bool IsFitColumnsToWindow
@@ -150,7 +153,7 @@ public partial class MainViewModel
     internal static double FittedColumnWidth(bool fit, double boardWidth, int columnCount, int fixedWidth)
     {
         if (!fit || boardWidth <= 0 || columnCount == 0) return fixedWidth;
-        return Math.Max(MinFittedColumnWidth, Math.Floor((boardWidth - 1) / columnCount - ColumnGap));
+        return Math.Max(MinColumnWidth, Math.Floor((boardWidth - 1) / columnCount - ColumnGap));
     }
 
     // Heights of the sidebar's multi-select filter lists, adjusted by dragging the grip under each.

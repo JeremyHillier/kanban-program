@@ -6,6 +6,10 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.113.1 — 2026-09-23
+- Improved: task columns are never narrower than 240 pixels, so the quick buttons on every card always show in full. This applies whether the columns fit the window or use a fixed width
+- Improved: a project name too long for its card now ends in "…" instead of being cut off
+
 ## 0.113.0 — 2026-09-23
 - New: the task columns now fit the window. They share the width of the board evenly, resize with the window, and widen to use the space when the button column is hidden. On a narrow window the columns keep a sensible minimum width and the board scrolls sideways
 - To use a fixed column width instead, untick "Fit task columns to the window width" in Settings and enter the width in pixels

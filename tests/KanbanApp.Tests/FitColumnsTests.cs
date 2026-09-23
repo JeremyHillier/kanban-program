@@ -18,11 +18,12 @@ public sealed class FitColumnsTests(WpfDispatcherFixture wpf) : IDisposable
     [InlineData(1761, 5, 340)]   // (1760 / 5) - 12
     [InlineData(1400, 5, 267)]   // (1399 / 5) - 12, rounded down
     [InlineData(2400, 4, 587)]
-    [InlineData(900, 5, 200)]    // would be 167 - held at the minimum, so the board scrolls
+    [InlineData(900, 5, 240)]    // would be 167 - held at the minimum, so the board scrolls
+    [InlineData(1300, 5, 247)]   // just above it
     public void TheBoardIsSharedEvenly_WithRoomForTheGaps_AndAMinimumWidth(double board, int columns, double expected)
     {
         Assert.Equal(expected, MainViewModel.FittedColumnWidth(true, board, columns, 310));
-        Assert.True(expected == MainViewModel.MinFittedColumnWidth || columns * (expected + MainViewModel.ColumnGap) < board);
+        Assert.True(expected == MainViewModel.MinColumnWidth || columns * (expected + MainViewModel.ColumnGap) < board);
     }
 
     [Theory]
