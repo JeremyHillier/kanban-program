@@ -396,7 +396,7 @@ public partial class MainWindow : Window
                 dialog.SelectedPriority, dialog.SelectedDueDate, dialog.SelectedWho, dialog.IsRecurring, dialog.RecurrencePattern,
                 dialog.SelectedGoal, dialog.SelectedFlags, dialog.SelectedSubTasks, dialog.Notes, attachments: dialog.SelectedAttachments,
                 forceEditOnComplete: dialog.ForceEditOnComplete, websiteUrl: dialog.WebsiteUrl, dueTime: dialog.SelectedDueTime,
-                startDate: dialog.SelectedStartDate, waitingOn: dialog.WaitingOn, people: dialog.SelectedPeople);
+                startDate: dialog.SelectedStartDate, waitingOn: dialog.WaitingOn, people: dialog.SelectedPeople, recurrencesLeft: dialog.RecurrencesLeft);
         }
     }
 
@@ -413,7 +413,7 @@ public partial class MainWindow : Window
                 dialog.SelectedPriority, dialog.SelectedDueDate, dialog.SelectedPeople, dialog.IsRecurring, dialog.RecurrencePattern,
                 dialog.SelectedGoal, dialog.SelectedFlags, dialog.SelectedSubTasks, dialog.Notes, attachments: dialog.SelectedAttachments,
                 forceEditOnComplete: dialog.ForceEditOnComplete, websiteUrl: dialog.WebsiteUrl, dueTime: dialog.SelectedDueTime,
-                startDate: dialog.SelectedStartDate, waitingOn: dialog.WaitingOn);
+                startDate: dialog.SelectedStartDate, waitingOn: dialog.WaitingOn, recurrencesLeft: dialog.RecurrencesLeft);
         }
     }
 
@@ -974,7 +974,7 @@ public partial class MainWindow : Window
         // gets a real three-way choice instead of the plain confirm - deleting it is how you'd "skip"
         // today's instance, and whether the series should keep going is a decision worth asking for
         // every time, not something the ConfirmDelete setting should be able to skip past.
-        var offerRecurrenceChoice = card.IsRecurring && !string.IsNullOrWhiteSpace(card.RecurrencePattern) && !card.NextOccurrenceSpawned;
+        var offerRecurrenceChoice = card.HasNextOccurrence;
         var spawnNext = false;
 
         if (offerRecurrenceChoice)
@@ -1000,7 +1000,7 @@ public partial class MainWindow : Window
     // recurring-task choice is asked once for the group instead.
     private void DeleteCardsWithConfirm(List<CardViewModel> cards, MainViewModel viewModel)
     {
-        var recurring = cards.Count(c => c.IsRecurring && !string.IsNullOrWhiteSpace(c.RecurrencePattern) && !c.NextOccurrenceSpawned);
+        var recurring = cards.Count(c => c.HasNextOccurrence);
         var spawnNext = false;
 
         if (recurring > 0)

@@ -32,11 +32,11 @@ public sealed class StartDateTests(WpfDispatcherFixture wpf) : IDisposable
         Assert.Equal(new DateTime(2026, 10, 3), Assert.Single(Column(OpenBoard(), "To Do").Cards).StartDate);
 
         board.EditCard(card, card.Title, Column(board, "To Do"), board.Projects.First(), "Normal", card.DueDate, null, false, null, null,
-            card.Flags, card.SubTasks, null, card.Attachments, false, null, null, new DateTime(2026, 10, 10), null);
+            card.Flags, card.SubTasks, null, card.Attachments, false, null, null, new DateTime(2026, 10, 10), null, null);
         Assert.Equal(new DateTime(2026, 10, 10), Assert.Single(Column(OpenBoard(), "To Do").Cards).StartDate);
 
         board.EditCard(card, card.Title, Column(board, "To Do"), board.Projects.First(), "Normal", card.DueDate, null, false, null, null,
-            card.Flags, card.SubTasks, null, card.Attachments, false, null, null, null, null);
+            card.Flags, card.SubTasks, null, card.Attachments, false, null, null, null, null, null);
         Assert.Null(Assert.Single(Column(OpenBoard(), "To Do").Cards).StartDate);
     });
 
@@ -103,7 +103,7 @@ public sealed class StartDateTests(WpfDispatcherFixture wpf) : IDisposable
         Assert.True(card.IsVisible);
 
         board.EditCard(card, card.Title, Column(board, "To Do"), board.Projects.First(), "Normal", null, null, false, null, null,
-            card.Flags, card.SubTasks, null, card.Attachments, false, null, null, Tomorrow, null);
+            card.Flags, card.SubTasks, null, card.Attachments, false, null, null, Tomorrow, null, null);
         Assert.False(card.IsVisible);
         Assert.False(Add(board, "Later", Tomorrow).IsVisible);
         Assert.Equal("Show Future (2)", board.HideFutureButtonLabel);

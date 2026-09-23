@@ -27,6 +27,8 @@ public class CardItem
     public bool IsRecurring { get; set; }
     public string? RecurrencePattern { get; set; }
     public bool NextOccurrenceSpawned { get; set; }
+    // How many times the task still happens, counting this one; null repeats with no end.
+    public int? RecurrencesLeft { get; set; }
     public bool IsDeleted { get; set; }
     public bool IsImported { get; set; }
     public bool ForceEditOnComplete { get; set; }

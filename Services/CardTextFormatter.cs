@@ -23,7 +23,7 @@ internal static class CardTextFormatter
         if (card.WhoId.HasValue) sb.Append("Assigned to: ").Append(card.WhoName).Append("\r\n");
         if (OutlookEmailHelper.HasGoal(card)) sb.Append("Goal: ").Append(card.GoalName).Append("\r\n");
         if (card.Flags.Count > 0) sb.Append("Flags: ").Append(string.Join(", ", card.Flags.Select(f => f.Name))).Append("\r\n");
-        if (card.IsRecurring && !string.IsNullOrWhiteSpace(card.RecurrencePattern)) sb.Append("Repeats: ").Append(card.RecurrencePattern).Append("\r\n");
+        if (card.IsRecurring && !string.IsNullOrWhiteSpace(card.RecurrencePattern)) sb.Append("Repeats: ").Append(card.RecurrencePattern).Append(RepeatsLeftText(card.RecurrencesLeft)).Append("\r\n");
         if (card.CompletedFullDisplay is { } completed) sb.Append(completed).Append("\r\n");
         if (!string.IsNullOrWhiteSpace(card.WebsiteUrl)) sb.Append("Website: ").Append(card.WebsiteUrl.Trim()).Append("\r\n");
 
@@ -43,4 +43,12 @@ internal static class CardTextFormatter
 
         return sb.ToString().TrimEnd();
     }
+
+    // After the pattern: nothing for a task with no end, otherwise how many are still to come.
+    internal static string RepeatsLeftText(int? recurrencesLeft) => recurrencesLeft switch
+    {
+        null => string.Empty,
+        <= 1 => " (this is the last one)",
+        var left => $" ({left - 1} more after this one)"
+    };
 }

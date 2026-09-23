@@ -14,7 +14,8 @@ namespace KanbanApp.Services;
 public partial class DatabaseService
 {
     // 1: first stamped format (0.102.0). 2: CardPeople - a task can have several people (0.103.0).
-    public const int CurrentFileFormat = 2;
+    // 3: Cards.RecurrencesLeft - a recurring task can stop after a number of times (0.111.0).
+    public const int CurrentFileFormat = 3;
 
     private const string FileFormatKey = "FileFormat";
     private const string FileFormatAppVersionKey = "FileFormatAppVersion";

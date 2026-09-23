@@ -84,7 +84,7 @@ public partial class ImportedTasksWindow : Window
                 row.Card.IsRecurring, row.Card.RecurrencePattern, goal, row.Card.Flags, row.Card.SubTasks, row.Card.Notes,
                 attachments: row.Card.Attachments, forceEditOnComplete: row.Card.ForceEditOnComplete,
                 websiteUrl: row.Card.WebsiteUrl, dueTime: row.Card.DueTime, startDate: row.Card.StartDate,
-                waitingOn: row.Card.WaitingOn);
+                waitingOn: row.Card.WaitingOn, recurrencesLeft: row.Card.RecurrencesLeft);
 
             _viewModel.SetCardImported(row.Card, row.IsImported);
             if (!row.IsImported) toRemove.Add(row);

@@ -6,6 +6,11 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.111.0 — 2026-09-23
+- New: recurring tasks can stop after a set number of times. When Recurring is ticked, a box under the repeat pattern takes how many times the task should happen in all, counting the first. Each new occurrence counts down, and the last one creates no more. Leave the box empty to keep the task repeating until it is deleted
+- The card shows how many occurrences are still to come, for example "Repeats Weekly · 3 more", or "last one" on the final occurrence
+- Task templates and duplicated tasks keep the number of times
+
 ## 0.110.2 — 2026-09-22
 - Improved: in Report Builder, after loading a saved view, Save View now starts with that view's name. Keep the name to update the view with what is on the screen (the app asks first), or type a different name to save it as a new view
 

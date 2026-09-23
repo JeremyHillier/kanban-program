@@ -44,6 +44,7 @@ public partial class AddTaskWindow : Window
     public string? WaitingOn { get; private set; }
     public bool IsRecurring { get; private set; }
     public string? RecurrencePattern { get; private set; }
+    public int? RecurrencesLeft { get; private set; } // times in all, counting this one; null has no end
     public bool ForceEditOnComplete { get; private set; }
 
     public AddTaskWindow(MainViewModel viewModel)
@@ -109,6 +110,7 @@ public partial class AddTaskWindow : Window
             (GoalComboBox.SelectedItem as GoalViewModel)?.Id.ToString() ?? "-",
             RecurringCheckBox.IsChecked == true,
             (RecurrenceComboBox.SelectedItem as ComboBoxItem)?.Content as string ?? "-",
+            RecurrenceCountTextBox.Text.Trim(),
             ForceEditOnCompleteCheckBox.IsChecked == true,
             NotesTextBox.Text,
             WebsiteUrlTextBox.Text,
@@ -192,6 +194,7 @@ public partial class AddTaskWindow : Window
 
         RecurringCheckBox.IsChecked = cardToEdit.IsRecurring;
         RecurrenceComboBox.Visibility = cardToEdit.IsRecurring ? Visibility.Visible : Visibility.Collapsed;
+        RecurrenceCountTextBox.Text = cardToEdit.IsRecurring ? cardToEdit.RecurrencesLeft?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? string.Empty : string.Empty;
         foreach (var item in RecurrenceComboBox.Items.OfType<ComboBoxItem>())
         {
             if ((string)item.Content == cardToEdit.RecurrencePattern)
@@ -841,6 +844,24 @@ public partial class AddTaskWindow : Window
         RecurrenceComboBox.Visibility = RecurringCheckBox.IsChecked == true ? Visibility.Visible : Visibility.Collapsed;
     }
 
+    // The times box takes digits only; anything pasted in is still checked on save.
+    private void RecurrenceCountTextBox_PreviewTextInput(object sender, TextCompositionEventArgs e) =>
+        e.Handled = !e.Text.All(char.IsAsciiDigit);
+
+    // Empty (or not recurring) means no end. False for anything that isn't a whole number from 1 to 999.
+    private bool TryReadRecurrenceCount(out int? count)
+    {
+        count = null;
+        var text = RecurrenceCountTextBox.Text.Trim();
+        if (RecurringCheckBox.IsChecked != true || text.Length == 0) return true;
+
+        if (!int.TryParse(text, System.Globalization.NumberStyles.None, System.Globalization.CultureInfo.InvariantCulture, out var value)
+            || value is < 1 or > 999) return false;
+
+        count = value;
+        return true;
+    }
+
     // Opens whatever is currently typed, not the card's saved value, so a link pasted in during
     // this edit can be tried out before saving.
     private void OpenWebsite_Click(object sender, RoutedEventArgs e)
@@ -895,6 +916,15 @@ public partial class AddTaskWindow : Window
             return;
         }
 
+        if (!TryReadRecurrenceCount(out var recurrencesLeft))
+        {
+            MessageBox.Show(this, "Enter how many times this task should happen in all, from 1 to 999, or leave the box empty to keep it repeating with no end.",
+                "Number of Times", MessageBoxButton.OK, MessageBoxImage.Warning);
+            RecurrenceCountTextBox.Focus();
+            RecurrenceCountTextBox.SelectAll();
+            return;
+        }
+
         TaskDetails = details;
         SelectedDueTime = dueTime;
         SelectedColumn = column;
@@ -912,6 +942,7 @@ public partial class AddTaskWindow : Window
         RecurrencePattern = IsRecurring && RecurrenceComboBox.SelectedItem is ComboBoxItem recurrenceItem
             ? (string)recurrenceItem.Content
             : null;
+        RecurrencesLeft = IsRecurring ? recurrencesLeft : null;
         ForceEditOnComplete = ForceEditOnCompleteCheckBox.IsChecked == true;
 
         SelectedFlags = FlagsPanel.Children.OfType<CheckBox>()

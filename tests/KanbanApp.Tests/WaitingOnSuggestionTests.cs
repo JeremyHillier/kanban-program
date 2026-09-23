@@ -39,7 +39,7 @@ public sealed class WaitingOnSuggestionTests(WpfDispatcherFixture wpf) : IDispos
         var b = Add(board, "B");
         board.SetCardsWaitingOn([a, b], "Group answer");
         board.EditCard(b, b.Title, board.Columns.First(), board.Projects.First(), "Normal", null, null, false, null, null, null, null, null, null, false,
-            null, null, null, "from the edit screen");
+            null, null, null, "from the edit screen", null);
         board.SetCardWaitingOn(a, "GROUP ANSWER"); // same answer, different capitals
         board.SetCardWaitingOn(a, null);            // clearing remembers nothing
 

@@ -117,6 +117,7 @@
 
                 <TextBlock Text="Recurring tasks" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <local:BulletItem Text="Mark a task Recurring and choose a pattern (Daily, Weekday, Weekly, Bi-Weekly, Semi-Monthly, Monthly, Bi-Monthly, Quarterly, or Annually)."/>
+                <local:BulletItem Text="To stop after a set number of times, enter it in the box under the pattern, for example 6 for six times in all, counting this task. Each new occurrence counts down by one, the card shows how many are still to come, and the last one creates no more. Leave the box empty (it shows ∞) to keep repeating until you delete the task or untick Recurring."/>
                 <local:BulletItem Text="Semi-Monthly means twice a month rather than every 15 days, so it stays on the same two dates instead of drifting through the calendar. The pair comes from the due date you set: due on the 3rd repeats on the 3rd and the 18th, due on the 20th repeats on the 5th and the 20th."/>
                 <local:BulletItem Text="Due dates from the 13th to the 15th, and from the 28th to the 31st, settle onto the 15th and the last day of the month — the usual twice-monthly pairing, and the only one that survives February without shifting. Dates from the 1st to the 12th keep their own pair and never move."/>
                 <local:BulletItem Text="When a recurring task is moved to Done, its next occurrence is created automatically in To Do with the same details and sub-task list — but with every sub-task unchecked."/>

@@ -23,6 +23,7 @@ public class TaskTemplate
     public string? Notes { get; set; }
     public bool IsRecurring { get; set; }
     public string? RecurrencePattern { get; set; }
+    public int? RecurrenceCount { get; set; } // times in all, counting the first; null has no end
     public bool ForceEditOnComplete { get; set; }
     public string? WebsiteUrl { get; set; }
     public string? DueTime { get; set; }

@@ -4,6 +4,8 @@ namespace KanbanApp.ViewModels;
 
 // Spawning a recurring task's next occurrence (triggered from MoveCard in MainViewModel.Cards.cs
 // when a recurring card that hasn't spawned yet lands in Done) and the due-date math per pattern.
+// A task set to happen a number of times passes one fewer to each new occurrence; the last one
+// (RecurrencesLeft 1) creates nothing - see CardViewModel.HasNextOccurrence.
 public partial class MainViewModel
 {
     private void SpawnNextOccurrence(CardViewModel completedCard)
@@ -30,7 +32,7 @@ public partial class MainViewModel
         AddCard(completedCard.Title, toDoColumn, project, completedCard.Priority, nextDueDate, who,
             true, completedCard.RecurrencePattern, goal, completedCard.Flags, freshSubTasks, completedCard.Notes,
             forceEditOnComplete: completedCard.ForceEditOnComplete, websiteUrl: completedCard.WebsiteUrl, dueTime: completedCard.DueTime,
-            startDate: nextStartDate, people: [.. completedCard.People]);
+            startDate: nextStartDate, people: [.. completedCard.People], recurrencesLeft: completedCard.RecurrencesLeft - 1);
     }
 
     internal static DateTime CalculateNextDueDate(DateTime anchor, string pattern) => pattern switch

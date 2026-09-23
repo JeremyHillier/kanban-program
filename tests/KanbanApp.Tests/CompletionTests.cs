@@ -93,7 +93,7 @@ public sealed class CompletionTests(WpfDispatcherFixture wpf) : IDisposable
         }
 
         board.EditCard(card, "Write report (with notes)", Column(board, "Done"), board.Projects.First(), "High", null, null,
-            false, null, null, card.Flags, card.SubTasks, "Sent to Sam", card.Attachments, card.ForceEditOnComplete, card.WebsiteUrl, card.DueTime, card.StartDate, card.WaitingOn);
+            false, null, null, card.Flags, card.SubTasks, "Sent to Sam", card.Attachments, card.ForceEditOnComplete, card.WebsiteUrl, card.DueTime, card.StartDate, card.WaitingOn, null);
 
         Assert.Equal(completedAt, card.CompletedAt);
         Assert.Equal(completedAt, Assert.Single(Column(OpenBoard(), "Done").Cards).CompletedAt);

@@ -11,7 +11,7 @@ public partial class MainViewModel
         bool isRecurring, string? recurrencePattern, GoalViewModel? goal, List<FlagViewModel>? flags = null, List<SubTaskViewModel>? subTasks = null,
         string? notes = null, bool isImported = false, List<AttachmentViewModel>? attachments = null, bool forceEditOnComplete = false,
         string? websiteUrl = null, string? dueTime = null, DateTime? startDate = null, string? waitingOn = null,
-        IReadOnlyList<PersonViewModel>? people = null)
+        IReadOnlyList<PersonViewModel>? people = null, int? recurrencesLeft = null)
     {
         flags ??= [];
         subTasks ??= [];
@@ -21,7 +21,7 @@ public partial class MainViewModel
         people ??= who is null ? [] : [who];
         using var undo = RecordUndo(DescribeAction("Add", title.Trim()), []);
         var card = _db.AddCard(column.Id, title.Trim(), project?.Id, column.Name, priority, dueDate, people.FirstOrDefault()?.Id, isRecurring, recurrencePattern, goal?.Id, notes, isImported, forceEditOnComplete, websiteUrl, dueTime, startDate,
-            string.IsNullOrWhiteSpace(waitingOn) ? null : waitingOn.Trim());
+            string.IsNullOrWhiteSpace(waitingOn) ? null : waitingOn.Trim(), isRecurring ? recurrencesLeft : null);
         RememberWaitingOn(waitingOn);
         _db.SetCardFlags(card.Id, flags.Select(f => f.Id));
         _db.SetCardPeople(card.Id, people.Select(p => p.Id));
@@ -50,7 +50,7 @@ public partial class MainViewModel
     public void EditCard(CardViewModel card, string title, ColumnViewModel newColumn, ProjectViewModel? project, string priority, DateTime? dueDate, IReadOnlyList<PersonViewModel>? people,
         bool isRecurring, string? recurrencePattern, GoalViewModel? goal, List<FlagViewModel>? flags, List<SubTaskViewModel>? subTasks,
         string? notes, List<AttachmentViewModel>? attachments, bool forceEditOnComplete,
-        string? websiteUrl, string? dueTime, DateTime? startDate, string? waitingOn)
+        string? websiteUrl, string? dueTime, DateTime? startDate, string? waitingOn, int? recurrencesLeft)
     {
         if (string.IsNullOrWhiteSpace(title)) return;
 
@@ -73,6 +73,7 @@ public partial class MainViewModel
         card.People = people ?? [];
         card.IsRecurring = isRecurring;
         card.RecurrencePattern = recurrencePattern;
+        card.RecurrencesLeft = isRecurring ? recurrencesLeft : null;
         card.GoalId = goal?.Id;
         card.GoalName = goal?.Name ?? "No Goal";
         card.Flags = flags;
@@ -135,7 +136,8 @@ public partial class MainViewModel
     private void PersistCard(CardViewModel card)
     {
         card.LastUpdated = _db.UpdateCard(card.Id, card.Title, card.ProjectId, card.Priority, card.DueDate, card.WhoId,
-            card.IsRecurring, card.RecurrencePattern, card.GoalId, card.Notes, card.ForceEditOnComplete, card.WebsiteUrl, card.DueTime, card.StartDate, card.WaitingOn);
+            card.IsRecurring, card.RecurrencePattern, card.GoalId, card.Notes, card.ForceEditOnComplete, card.WebsiteUrl, card.DueTime, card.StartDate, card.WaitingOn,
+            card.RecurrencesLeft);
     }
 
     // The follow-up every card change shares: re-test the changed card against the active filters,
@@ -228,7 +230,7 @@ public partial class MainViewModel
 
         using var undo = RecordUndo(DescribeAction("Delete", [card]), [card]);
 
-        if (spawnNextOccurrence && card.IsRecurring && !string.IsNullOrWhiteSpace(card.RecurrencePattern) && !card.NextOccurrenceSpawned)
+        if (spawnNextOccurrence && card.HasNextOccurrence)
         {
             SpawnNextOccurrence(card);
         }
@@ -261,7 +263,7 @@ public partial class MainViewModel
             card.People.FirstOrDefault(), card.IsRecurring, card.RecurrencePattern,
             Goals.FirstOrDefault(g => g.Id == card.GoalId), [.. card.Flags], freshSubTasks, card.Notes,
             forceEditOnComplete: card.ForceEditOnComplete, websiteUrl: card.WebsiteUrl, dueTime: card.DueTime, startDate: card.StartDate,
-            waitingOn: card.WaitingOn, people: [.. card.People]);
+            waitingOn: card.WaitingOn, people: [.. card.People], recurrencesLeft: card.RecurrencesLeft);
     }
 
     private void MoveCard(CardViewModel card, ColumnViewModel targetColumn)
@@ -286,7 +288,7 @@ public partial class MainViewModel
             PersistCard(card);
         }
 
-        if (targetColumn.Name == "Done" && card.IsRecurring && !string.IsNullOrWhiteSpace(card.RecurrencePattern) && !card.NextOccurrenceSpawned)
+        if (targetColumn.Name == "Done" && card.HasNextOccurrence)
         {
             SpawnNextOccurrence(card);
             card.NextOccurrenceSpawned = true;

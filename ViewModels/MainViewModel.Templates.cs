@@ -32,6 +32,7 @@ public partial class MainViewModel
         Notes = card.Notes,
         IsRecurring = card.IsRecurring,
         RecurrencePattern = card.IsRecurring ? card.RecurrencePattern : null,
+        RecurrenceCount = card.IsRecurring ? card.RecurrencesLeft : null,
         ForceEditOnComplete = card.ForceEditOnComplete,
         WebsiteUrl = card.WebsiteUrl,
         DueTime = card.DueDate is null ? null : card.DueTime,

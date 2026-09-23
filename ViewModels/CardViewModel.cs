@@ -295,7 +295,32 @@ public class CardViewModel(CardItem model) : ObservableObject
         }
     }
 
-    public string RecurrenceDisplay => IsRecurring && !string.IsNullOrWhiteSpace(RecurrencePattern) ? $"↻ Repeats {RecurrencePattern}" : string.Empty;
+    // How many times the task still happens, counting this one. Null keeps it repeating until it is
+    // deleted or Recurring is unticked; 1 means this is the last one and completing it creates no
+    // more. Each new occurrence carries one fewer.
+    public int? RecurrencesLeft
+    {
+        get => Model.RecurrencesLeft;
+        set
+        {
+            if (Model.RecurrencesLeft == value) return;
+            Model.RecurrencesLeft = value;
+            OnPropertyChanged();
+            OnPropertyChanged(nameof(RecurrenceDisplay));
+        }
+    }
+
+    // Whether finishing (or skipping) this task should put the next one on the board.
+    public bool HasNextOccurrence =>
+        IsRecurring && !string.IsNullOrWhiteSpace(RecurrencePattern) && !NextOccurrenceSpawned && RecurrencesLeft is null or > 1;
+
+    public string RecurrenceDisplay => !IsRecurring || string.IsNullOrWhiteSpace(RecurrencePattern) ? string.Empty
+        : RecurrencesLeft switch
+        {
+            null => $"↻ Repeats {RecurrencePattern}",
+            <= 1 => $"↻ Repeats {RecurrencePattern} · last one",
+            var left => $"↻ Repeats {RecurrencePattern} · {left - 1} more"
+        };
 
     // True once this specific card has already spawned its next occurrence on completion - prevents
     // a duplicate spawn if the card is later reactivated (e.g. from Archive) and marked Done again.
@@ -458,6 +483,7 @@ public class CardViewModel(CardItem model) : ObservableObject
         IsRecurring = other.IsRecurring;
         RecurrencePattern = other.RecurrencePattern;
         NextOccurrenceSpawned = other.NextOccurrenceSpawned;
+        RecurrencesLeft = other.RecurrencesLeft;
         LastUpdated = other.LastUpdated;
         CompletedAt = other.CompletedAt;
         Flags = other.Flags;
