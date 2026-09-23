@@ -40,7 +40,11 @@
                 <CheckBox x:Name="ButtonsOnRightCheckBox" Content="Show the button panel on the right side of the board"
                           Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,12"
                           Checked="ButtonsOnRightCheckBox_Changed" Unchecked="ButtonsOnRightCheckBox_Changed"/>
-                <TextBlock Text="Task column width (pixels)" Style="{StaticResource FieldLabelStyle}"/>
+                <CheckBox x:Name="FitColumnsCheckBox" Content="Fit task columns to the window width"
+                          ToolTip="The task columns share the width of the board and resize with the window. When the window is too narrow, the board scrolls sideways instead."
+                          Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,8"
+                          Checked="FitColumnsCheckBox_Changed" Unchecked="FitColumnsCheckBox_Changed"/>
+                <TextBlock x:Name="ColumnWidthLabel" Text="Task column width when not fitted (pixels)" Style="{StaticResource FieldLabelStyle}"/>
                 <TextBox x:Name="ColumnWidthTextBox" Width="100" Padding="6" HorizontalAlignment="Left" Margin="0,0,0,20"
                          LostFocus="ColumnWidthTextBox_LostFocus"
                          Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"

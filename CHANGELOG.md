@@ -6,6 +6,10 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.113.0 — 2026-09-23
+- New: the task columns now fit the window. They share the width of the board evenly, resize with the window, and widen to use the space when the button column is hidden. On a narrow window the columns keep a sensible minimum width and the board scrolls sideways
+- To use a fixed column width instead, untick "Fit task columns to the window width" in Settings and enter the width in pixels
+
 ## 0.112.0 — 2026-09-23
 - New: right-click an attachment in the task screen to open it, show it in its folder, copy it, copy its path, save a copy elsewhere, or remove it. A copied attachment pastes into a folder, an email or a chat, and a copied picture also pastes straight into Word or Paint
 - Fixed: cards could extend under a column's scrollbar, cutting off their right edge, after the scrollbar appeared or the column width was changed

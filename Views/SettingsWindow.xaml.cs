@@ -46,6 +46,8 @@ public partial class SettingsWindow : Window
 
         ButtonsOnRightCheckBox.IsChecked = viewModel.IsButtonsOnRight;
         ColumnWidthTextBox.Text = viewModel.ColumnWidth.ToString();
+        FitColumnsCheckBox.IsChecked = viewModel.IsFitColumnsToWindow;
+        RefreshColumnWidthBox();
         DbPathTextBox.Text = viewModel.CurrentDbPath;
         RefreshRecentFilesList();
 
@@ -232,6 +234,21 @@ public partial class SettingsWindow : Window
 
         _viewModel.SetColumnWidth(width);
         ColumnWidthTextBox.Text = _viewModel.ColumnWidth.ToString();
+    }
+
+    private void FitColumnsCheckBox_Changed(object sender, RoutedEventArgs e)
+    {
+        if (!IsLoaded) return; // setting IsChecked in the constructor isn't a change
+        _viewModel.SetFitColumnsToWindow(FitColumnsCheckBox.IsChecked == true);
+        RefreshColumnWidthBox();
+    }
+
+    // The pixel width only applies when the columns aren't fitted to the window.
+    private void RefreshColumnWidthBox()
+    {
+        var fixedWidth = FitColumnsCheckBox.IsChecked != true;
+        ColumnWidthTextBox.IsEnabled = fixedWidth;
+        ColumnWidthLabel.Opacity = fixedWidth ? 1 : 0.5;
     }
 
     private void About_Click(object sender, RoutedEventArgs e)

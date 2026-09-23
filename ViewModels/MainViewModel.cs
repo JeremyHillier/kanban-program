@@ -89,6 +89,7 @@ public partial class MainViewModel : ObservableObject
 
         _isCompactCards = _db.GetSetting("CardSize") == "Compact";
         _columnWidth = int.TryParse(_db.GetSetting("ColumnWidth"), out var columnWidth) ? columnWidth : 310;
+        _isFitColumnsToWindow = _db.GetSetting("FitColumnsToWindow") != "False";
         _projectFilterListHeight = LoadFilterListHeight(_db.GetSetting("ProjectFilterListHeight"));
         _priorityWhoFilterListHeight = LoadFilterListHeight(_db.GetSetting("PriorityWhoFilterListHeight"));
 
@@ -174,6 +175,7 @@ public partial class MainViewModel : ObservableObject
             }
             Columns.Add(columnVm);
         }
+        OnPropertyChanged(nameof(EffectiveColumnWidth)); // it divides the board by the number of columns
 
         List<string>? savedProjectFilter = null;
         List<string>? savedPriorityFilter = null;

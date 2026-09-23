@@ -831,7 +831,10 @@
                 </ScrollViewer>
             </Border>
 
-            <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled"
+            <!-- The board. Its width is passed to the view model (BoardScrollViewer_SizeChanged), which shares it
+                 out among the columns when Fit to Window is on - see EffectiveColumnWidth. -->
+            <ScrollViewer x:Name="BoardScrollViewer" SizeChanged="BoardScrollViewer_SizeChanged"
+                          HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled"
                           Background="{DynamicResource BoardAreaBrush}">
                 <ItemsControl ItemsSource="{Binding Columns}">
                     <ItemsControl.ItemsPanel>
@@ -841,7 +844,7 @@
                     </ItemsControl.ItemsPanel>
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <Border Width="{Binding DataContext.ColumnWidth, RelativeSource={RelativeSource AncestorType=Window}}"
+                            <Border Width="{Binding DataContext.EffectiveColumnWidth, RelativeSource={RelativeSource AncestorType=Window}}"
                                     Margin="0,0,12,0" Padding="10" Background="{Binding Background}"
                                     CornerRadius="6"
                                     BorderBrush="{DynamicResource PanelBorderBrush}" BorderThickness="1"

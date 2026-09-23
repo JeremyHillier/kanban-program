@@ -18,6 +18,7 @@ public sealed class SettingsCancelTests(WpfDispatcherFixture wpf) : IDisposable
         board.RenameColumnDisplayName(board.Columns[0], "Backlog");
         board.ToggleButtonPosition();
         board.SetColumnWidth(board.ColumnWidth + 40);
+        board.SetFitColumnsToWindow(!board.IsFitColumnsToWindow);
         board.SetAutoBackupEnabled(!board.AutoBackupEnabled);
         board.SetBackupRetentionCount(board.BackupRetentionCount + 3);
         board.SetShowSplash(!board.ShowSplash);

@@ -484,6 +484,13 @@ public partial class MainWindow : Window
 
     private void ManageFlagsLabel_MouseLeftButtonUp(object sender, MouseButtonEventArgs e) => ManageFlags_Click(sender, e);
 
+    // Fit to Window shares the board's width among the task columns, so the board reports it
+    // whenever it changes (window resized, button column shown or hidden, buttons moved sides).
+    private void BoardScrollViewer_SizeChanged(object sender, SizeChangedEventArgs e)
+    {
+        if (e.WidthChanged && DataContext is MainViewModel viewModel) viewModel.SetBoardWidth(e.NewSize.Width);
+    }
+
     private void Close_Click(object sender, RoutedEventArgs e)
     {
         Close();
