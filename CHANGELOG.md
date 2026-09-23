@@ -6,6 +6,10 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.112.0 — 2026-09-23
+- New: right-click an attachment in the task screen to open it, show it in its folder, copy it, copy its path, save a copy elsewhere, or remove it. A copied attachment pastes into a folder, an email or a chat, and a copied picture also pastes straight into Word or Paint
+- Fixed: cards could extend under a column's scrollbar, cutting off their right edge, after the scrollbar appeared or the column width was changed
+
 ## 0.111.0 — 2026-09-23
 - New: recurring tasks can stop after a set number of times. When Recurring is ticked, a box under the repeat pattern takes how many times the task should happen in all, counting the first. Each new occurrence counts down, and the last one creates no more. Leave the box empty to keep the task repeating until it is deleted
 - The card shows how many occurrences are still to come, for example "Repeats Weekly · 3 more", or "last one" on the final occurrence

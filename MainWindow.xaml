@@ -16,6 +16,7 @@
         <conv:EmptyStringToVisibilityConverter x:Key="EmptyStringToVisibilityConverter"/>
         <conv:StringEqualsConverter x:Key="StringEqualsConverter"/>
         <conv:GreaterThanZeroToVisibilityConverter x:Key="GreaterThanZeroToVisibilityConverter"/>
+        <conv:ViewportWidthToCardWidthConverter x:Key="ViewportWidthToCardWidthConverter"/>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
 
         <!-- Project/Priority/Who filter lists: each ListBoxItem's IsSelected binds TwoWay to the
@@ -890,7 +891,10 @@
                                         </ItemsControl.ItemsPanel>
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate>
-                                                <Border CornerRadius="4" Padding="8" Margin="0,0,0,6"
+                                                <!-- Width: exactly what the list shows, so a card can't run under the
+                                                     column's scrollbar (see ViewportWidthToCardWidthConverter). -->
+                                                <Border CornerRadius="4" Padding="8" Margin="0,0,0,6" HorizontalAlignment="Left"
+                                                        Width="{Binding ViewportWidth, RelativeSource={RelativeSource AncestorType=ScrollViewer}, Converter={StaticResource ViewportWidthToCardWidthConverter}}"
                                                         Visibility="{Binding IsVisible, Converter={StaticResource BooleanToVisibilityConverter}}"
                                                         PreviewMouseLeftButtonDown="Card_PreviewMouseLeftButtonDown"
                                                         PreviewMouseRightButtonUp="Card_PreviewMouseRightButtonUp"

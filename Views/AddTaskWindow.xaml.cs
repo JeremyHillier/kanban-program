@@ -274,7 +274,8 @@ public partial class AddTaskWindow : Window
 
     private void AddAttachmentRow(AttachmentViewModel attachment)
     {
-        var row = new Grid { Margin = new Thickness(0, 0, 0, 6), Tag = attachment };
+        // Transparent rather than no background, so a right-click anywhere on the row opens its menu.
+        var row = new Grid { Margin = new Thickness(0, 0, 0, 6), Tag = attachment, Background = Brushes.Transparent };
         row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
         row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
         row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
@@ -312,7 +313,7 @@ public partial class AddTaskWindow : Window
             TextTrimming = TextTrimming.CharacterEllipsis,
             Foreground = (Brush)FindResource("PrimaryTextBrush"),
             Cursor = Cursors.Hand,
-            ToolTip = attachment.FilePath
+            ToolTip = $"{attachment.FilePath}\nClick to open. Right-click to copy, save a copy or show it in its folder."
         };
         nameText.MouseLeftButtonUp += (_, _) => OpenAttachment(attachment.FilePath);
         Grid.SetColumn(nameText, 1);
@@ -333,6 +334,7 @@ public partial class AddTaskWindow : Window
         row.Children.Add(preview);
         row.Children.Add(nameText);
         row.Children.Add(deleteButton);
+        AttachAttachmentMenu(row, attachment);
         AttachmentsPanel.Children.Add(row);
     }
 
