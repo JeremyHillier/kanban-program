@@ -6,6 +6,9 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.114.1 — 2026-09-24
+- Maintenance: internal improvements to the app's code for reliability and easier future updates. There is no change to how the app looks or works
+
 ## 0.114.0 — 2026-09-24
 - Improved: a redesigned Dashboard. Each chart sits on its own card with stronger, clearer colours, tuned separately for light and dark mode and chosen to stay distinguishable for people with colour blindness. Every bar shows its numbers when you hover over it
 - New: Completed per Week, showing how many tasks were finished in each of the last 12 weeks, including tasks since archived
