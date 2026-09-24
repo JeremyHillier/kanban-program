@@ -17,6 +17,12 @@ namespace KanbanApp.Views;
 //   Shift+Delete  on a highlighted answer forgets it (when the owner allows that).
 //
 // The list never takes keyboard focus - the caret stays in the box throughout.
+//
+// Two ways to show the list. As a drop-down under the box (the default), which suits a field on a
+// form: it appears while typing and goes when the box loses focus. Or inside a panel the window
+// provides (inlineHost), which suits a small one-question prompt: a drop-down there opens over the
+// prompt's own buttons and blocks them. The inline list is always shown, keeps one height while
+// typing so the buttons below it never move under the mouse, and leaves Esc to the window.
 internal sealed class TextBoxSuggestions
 {
     private const int MaxShown = 8;
@@ -25,12 +31,15 @@ internal sealed class TextBoxSuggestions
     private readonly List<string> _all;
     private readonly Action<string>? _forget;
     private readonly bool _openWhenEmpty;
-    private readonly Popup _popup;
+    private readonly Popup? _popup;       // null when the list sits inside the window
+    private readonly Border _frame;
     private readonly ListBox _list;
     private bool _updating;
     private string? _userTyped;
 
-    private TextBoxSuggestions(TextBox box, IEnumerable<string> suggestions, Action<string>? forget, bool openWhenEmpty)
+    private bool IsInline => _popup is null;
+
+    private TextBoxSuggestions(TextBox box, IEnumerable<string> suggestions, Action<string>? forget, bool openWhenEmpty, Panel? inlineHost)
     {
         _box = box;
         _all = suggestions.ToList();
@@ -46,11 +55,19 @@ internal sealed class TextBoxSuggestions
         _list.ItemContainerStyle = itemStyle;
         _list.PreviewMouseLeftButtonUp += List_PreviewMouseLeftButtonUp;
 
-        var frame = new Border { BorderThickness = new Thickness(1), CornerRadius = new CornerRadius(4), Child = _list, Margin = new Thickness(0, 2, 0, 0) };
-        frame.SetResourceReference(Border.BorderBrushProperty, "CardOutlineBrush");
-        frame.SetResourceReference(Border.BackgroundProperty, "InputBackgroundBrush");
+        _frame = new Border { BorderThickness = new Thickness(1), CornerRadius = new CornerRadius(4), Child = _list, Margin = new Thickness(0, 2, 0, 0) };
+        _frame.SetResourceReference(Border.BorderBrushProperty, "CardOutlineBrush");
+        _frame.SetResourceReference(Border.BackgroundProperty, "InputBackgroundBrush");
 
-        _popup = new Popup { PlacementTarget = box, Placement = PlacementMode.Bottom, StaysOpen = true, AllowsTransparency = true, Child = frame };
+        if (inlineHost is null)
+        {
+            _popup = new Popup { PlacementTarget = box, Placement = PlacementMode.Bottom, StaysOpen = true, AllowsTransparency = true, Child = _frame };
+        }
+        else
+        {
+            inlineHost.Children.Add(_frame);
+            ShowAllAndHoldHeight();
+        }
 
         box.TextChanged += Box_TextChanged;
         box.PreviewKeyDown += Box_PreviewKeyDown;
@@ -69,10 +86,12 @@ internal sealed class TextBoxSuggestions
     // Nothing to suggest means nothing is attached: the box behaves exactly as before.
     // openWhenEmpty: show the recent answers as soon as the empty box has the cursor - right for a
     // one-question prompt, too busy for one field among many on a form.
-    public static TextBoxSuggestions? Attach(TextBox box, IEnumerable<string> suggestions, Action<string>? forget = null, bool openWhenEmpty = false)
+    // inlineHost: show the list inside this panel rather than as a drop-down (see above).
+    public static TextBoxSuggestions? Attach(TextBox box, IEnumerable<string> suggestions, Action<string>? forget = null, bool openWhenEmpty = false,
+        Panel? inlineHost = null)
     {
         var list = suggestions.ToList();
-        return list.Count == 0 ? null : new TextBoxSuggestions(box, list, forget, openWhenEmpty);
+        return list.Count == 0 ? null : new TextBoxSuggestions(box, list, forget, openWhenEmpty, inlineHost);
     }
 
     // After the list has been managed elsewhere: carry on with the new answers.
@@ -80,10 +99,24 @@ internal sealed class TextBoxSuggestions
     {
         _all.Clear();
         _all.AddRange(suggestions);
-        Close();
+        if (IsInline) ShowAllAndHoldHeight();
+        else Close();
     }
 
-    internal bool IsOpen => _popup.IsOpen;
+    // The inline list starts with the recent answers and keeps the height that takes, so it doesn't
+    // shrink and grow (moving the buttons under it) as typing narrows it.
+    private void ShowAllAndHoldHeight()
+    {
+        _frame.Height = double.NaN;
+        _list.ItemsSource = Matches(_all, _box.Text);
+        _list.SelectedIndex = -1;
+        _frame.Dispatcher.BeginInvoke(() =>
+        {
+            _frame.Height = _frame.ActualHeight > 0 ? _frame.ActualHeight : double.NaN;
+        }, System.Windows.Threading.DispatcherPriority.Loaded);
+    }
+
+    internal bool IsOpen => _popup?.IsOpen ?? _list.Items.Count > 0;
     internal IReadOnlyList<string> Showing => _list.Items.Cast<string>().ToList();
 
     // Answers that start with what is typed come first, then ones that merely contain it; each
@@ -144,12 +177,19 @@ internal sealed class TextBoxSuggestions
         var matches = Matches(_all, typed ?? _box.Text);
         _list.ItemsSource = matches;
         _list.SelectedIndex = -1;
+        if (_popup is null) return; // the inline list is simply there, with whatever matches
+
         _popup.MinWidth = _box.ActualWidth;
         _popup.MaxWidth = Math.Max(_box.ActualWidth, 420);
         _popup.IsOpen = matches.Count > 0;
     }
 
-    private void Close() => _popup.IsOpen = false;
+    // A drop-down closes; the inline list stays put and just drops its highlight.
+    private void Close()
+    {
+        if (_popup is not null) _popup.IsOpen = false;
+        else _list.SelectedIndex = -1;
+    }
 
     private void OpenIfEmpty()
     {
@@ -161,22 +201,22 @@ internal sealed class TextBoxSuggestions
         switch (e.Key)
         {
             case Key.Down or Key.Up:
-                if (!_popup.IsOpen)
+                if (!IsOpen)
                 {
                     if (e.Key == Key.Down) Refresh(string.Empty);
-                    if (!_popup.IsOpen) return;
+                    if (!IsOpen) return;
                 }
 
                 Move(e.Key == Key.Down ? 1 : -1);
                 e.Handled = true;
                 break;
 
-            case Key.Escape when _popup.IsOpen:
+            case Key.Escape when _popup is { IsOpen: true }: // inline: Esc is the window's (Cancel)
                 Close();
                 e.Handled = true;
                 break;
 
-            case Key.Delete when _popup.IsOpen && _forget is not null && Keyboard.Modifiers == ModifierKeys.Shift && _list.SelectedItem is string highlighted:
+            case Key.Delete when IsOpen && _forget is not null && Keyboard.Modifiers == ModifierKeys.Shift && _list.SelectedItem is string highlighted:
                 _forget(highlighted);
                 _all.RemoveAll(s => string.Equals(s, highlighted, StringComparison.OrdinalIgnoreCase));
                 TakeAnswer(string.Empty);

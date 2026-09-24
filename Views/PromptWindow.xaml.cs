@@ -46,9 +46,11 @@ public partial class PromptWindow : Window
             return;
         }
 
-        _suggestions = TextBoxSuggestions.Attach(ValueTextBox, suggestions, _forgetSuggestion, openWhenEmpty: true);
+        // Shown inside the prompt, under the box: as a drop-down it would open over Cancel and Add.
+        _suggestions = TextBoxSuggestions.Attach(ValueTextBox, suggestions, _forgetSuggestion, openWhenEmpty: true, inlineHost: SuggestionsHost);
         if (_suggestions is null) return;
 
+        SuggestionsHost.Visibility = Visibility.Visible;
         ValueTextBox.ToolTip = _forgetSuggestion is null
             ? "Start typing, or press the Down arrow, to pick an earlier answer."
             : "Start typing, or press the Down arrow, to pick an earlier answer. Shift+Delete on a highlighted one forgets it.";

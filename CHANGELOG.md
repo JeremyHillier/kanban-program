@@ -6,6 +6,9 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.114.2 — 2026-09-24
+- Fixed: in the Waiting On box, the list of earlier answers could cover the Cancel and Save buttons and stop them being clicked. The earlier answers now appear inside the Waiting On window, under where you type, so the buttons are always within reach and Esc cancels straight away
+
 ## 0.114.1 — 2026-09-24
 - Maintenance: internal improvements to the app's code for reliability and easier future updates. There is no change to how the app looks or works
 
