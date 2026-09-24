@@ -1,5 +1,3 @@
-using System.Collections.ObjectModel;
-using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -10,20 +8,20 @@ using KanbanApp.ViewModels;
 
 namespace KanbanApp.Views;
 
+// Archived tasks: filter by when they were archived, bring one back (button or double-click), or
+// permanently delete it. The list logic is shared with Deleted Tasks in RecoverableTaskList.
 public partial class ArchivedTasksWindow : Window
 {
     private readonly MainViewModel _viewModel;
-    private readonly List<ArchivedCardInfo> _allItems;
-    private readonly ObservableCollection<ArchivedCardInfo> _items;
+    private readonly RecoverableTaskList<ArchivedCardInfo> _list;
 
     public ArchivedTasksWindow(MainViewModel viewModel, List<ArchivedCardInfo> archivedCards)
     {
         InitializeComponent();
         MaxHeight = SystemParameters.WorkArea.Height * 0.9;
         _viewModel = viewModel;
-        _allItems = archivedCards;
-        _items = new ObservableCollection<ArchivedCardInfo>(archivedCards);
-        ArchivedList.ItemsSource = _items;
+        _list = new RecoverableTaskList<ArchivedCardInfo>(archivedCards, i => i.ArchivedAt);
+        ArchivedList.ItemsSource = _list.Shown;
         UpdateEmptyState();
     }
 
@@ -40,35 +38,15 @@ public partial class ArchivedTasksWindow : Window
 
     private void ApplyDateFilter()
     {
-        var from = FromDatePicker.SelectedDate;
-        var to = ToDatePicker.SelectedDate;
-
-        _items.Clear();
-        foreach (var item in _allItems.Where(i => MatchesDateRange(i.ArchivedAt, from, to)))
-        {
-            _items.Add(item);
-        }
-
+        _list.Filter(FromDatePicker.SelectedDate, ToDatePicker.SelectedDate);
         UpdateEmptyState();
-    }
-
-    // Items whose archived date can't be parsed (shouldn't normally happen) are never hidden by a
-    // date filter - better to show something unclassifiable than to silently drop it from the list.
-    private static bool MatchesDateRange(string timestamp, DateTime? from, DateTime? to)
-    {
-        if (from is null && to is null) return true;
-        if (!DateTime.TryParse(timestamp, CultureInfo.InvariantCulture, DateTimeStyles.None, out var date)) return true;
-
-        if (from is not null && date.Date < from.Value.Date) return false;
-        if (to is not null && date.Date > to.Value.Date) return false;
-        return true;
     }
 
     private void Reactivate_Click(object sender, RoutedEventArgs e)
     {
         if (ArchivedList.SelectedItem is not ArchivedCardInfo selected)
         {
-            MessageBox.Show(this, "Select a task to reactivate first.", "No Task Selected", MessageBoxButton.OK, MessageBoxImage.Information);
+            RecoverableTaskPrompts.NothingSelected(this);
             return;
         }
 
@@ -88,8 +66,7 @@ public partial class ArchivedTasksWindow : Window
     private void Reactivate(ArchivedCardInfo selected)
     {
         _viewModel.ReactivateCard(selected.Id, selected.Title);
-        _items.Remove(selected);
-        _allItems.Remove(selected);
+        _list.Remove(selected);
         UpdateEmptyState();
     }
 
@@ -97,36 +74,26 @@ public partial class ArchivedTasksWindow : Window
     {
         if (sender is not FrameworkElement { DataContext: ArchivedCardInfo item } element) return;
 
-        var menu = new ContextMenu();
-        var deleteItem = new MenuItem { Header = "Permanently Delete..." };
-        deleteItem.Click += (_, _) => ConfirmAndPermanentlyDelete(item);
-        menu.Items.Add(deleteItem);
-
-        menu.PlacementTarget = element;
-        menu.IsOpen = true;
+        RecoverableTaskPrompts.ShowPermanentDeleteMenu(element, () => ConfirmAndPermanentlyDelete(item));
         e.Handled = true;
     }
 
     private void ConfirmAndPermanentlyDelete(ArchivedCardInfo item)
     {
-        var result = MessageBox.Show(this,
-            $"Permanently delete \"{item.Title}\"?\n\nThis cannot be undone. Any attachments still stored with it will be deleted too.",
-            "Permanently Delete Task", MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No);
-        if (result != MessageBoxResult.Yes) return;
+        if (!RecoverableTaskPrompts.ConfirmPermanentDelete(this, item.Title)) return;
 
         // Deferred via BeginInvoke: same reasoning as Reactivate above - this fires from a
         // ContextMenu opened on the very item's container that's about to be removed.
         Dispatcher.BeginInvoke(new Action(() =>
         {
             _viewModel.PermanentlyDeleteCard(item.Id, item.Title, "Archived");
-            _items.Remove(item);
-            _allItems.Remove(item);
+            _list.Remove(item);
             UpdateEmptyState();
         }), DispatcherPriority.Background);
     }
 
     private void UpdateEmptyState()
     {
-        EmptyStateText.Visibility = _items.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+        EmptyStateText.Visibility = _list.IsEmpty ? Visibility.Visible : Visibility.Collapsed;
     }
 }
