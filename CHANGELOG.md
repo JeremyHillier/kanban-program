@@ -6,6 +6,13 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.114.0 — 2026-09-24
+- Improved: a redesigned Dashboard. Each chart sits on its own card with stronger, clearer colours, tuned separately for light and dark mode and chosen to stay distinguishable for people with colour blindness. Every bar shows its numbers when you hover over it
+- New: Completed per Week, showing how many tasks were finished in each of the last 12 weeks, including tasks since archived
+- New: Open Tasks by Last Update, showing how long open tasks have gone without a change so that stalled work stands out
+- New: Waiting On and Done in 7 Days tiles alongside the existing totals
+- Improved: projects and people are now shown as horizontal bars, so long names read in full and every project fits without wrapping. People's bars show their open tasks by column
+
 ## 0.113.1 — 2026-09-23
 - Improved: task columns are never narrower than 240 pixels, so the quick buttons on every card always show in full. This applies whether the columns fit the window or use a fixed width
 - Improved: a project name too long for its card now ends in "…" instead of being cut off

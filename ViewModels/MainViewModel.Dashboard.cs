@@ -36,6 +36,11 @@ public partial class MainViewModel
         }).ToList();
     }
 
+    // When each archived task was completed - archived tasks still count in the Dashboard's
+    // "completed per week" and "done in the last 7 days". Tasks archived without finishing have none.
+    public List<DateTime> GetArchivedCompletionDates() =>
+        _db.GetCards(archivedOnly: true).Where(c => c.CompletedAt is not null).Select(c => c.CompletedAt!.Value).ToList();
+
     public List<CardViewModel> GetDueReminders() =>
         Columns.Where(c => c.Name != "Done").SelectMany(c => c.Cards)
             .Where(c => c.DueDate is not null && c.DueDate.Value.Date <= DateTime.Today)

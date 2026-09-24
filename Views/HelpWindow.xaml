@@ -215,7 +215,7 @@
                 <local:BulletItem Text="A summary line under the title breaks down the task count by status (and Archived, if included). Grouped reports also show a count next to each group heading, and each task's sub-task line shows how many are done, e.g. Sub-tasks: 2/5."/>
                 <local:BulletItem Text="Include sub-task completion summary adds a section counting how many times each sub-task was completed across all matching tasks — useful for a recurring task (e.g. 'Exercise') whose sub-tasks represent repeatable items (e.g. 'Push-ups: 12/15 completed (80%)') within the chosen scope and date range."/>
                 <local:BulletItem Text="Project, Priority, and Who accept several choices at once (Ctrl-click or Shift-click). The Due date range (From/To) limits the report by due date, with an option to also include tasks that have no due date."/>
-                <local:BulletItem Text="A task shared between several people is listed under each of them when the report is grouped by Who, with a note naming the others it also appears under. The task count in the title still counts it once. The Dashboard's Who chart counts a shared task for each of its people in the same way."/>
+                <local:BulletItem Text="A task shared between several people is listed under each of them when the report is grouped by Who, with a note naming the others it also appears under. The task count in the title still counts it once. The Dashboard's Open Tasks by Person chart counts a shared task for each of its people in the same way."/>
                 <local:BulletItem Text="Custom Filters lists your saved Alt+0 to Alt+9 filters. Tick one or more and the report includes any task matching at least one of them, instead of using the filters above."/>
                 <local:BulletItem Text="Sort order takes up to three levels (1st, 2nd, 3rd). Page orientation switches the PDF and preview between Portrait and Landscape."/>
                 <local:BulletItem Text="Finished tasks show when they were completed. Sort by Completed Date to list them in the order they were done, with unfinished tasks last."/>
@@ -226,7 +226,9 @@
 
                 <TextBlock Text="Dashboard" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <local:BulletItem Text="The banner always shows Open, Overdue, Due Today, and Due This Week counts across all non-Done tasks."/>
-                <local:BulletItem Text="Double-click the banner to open the full Dashboard: five summary tiles (the banner's four, plus In Done), and four charts — Status Distribution by Priority, Due Date Timeline, By Project, and By Who."/>
+                <local:BulletItem Text="Double-click the banner to open the full Dashboard. Seven tiles across the top: Open, Overdue, Due Today, Due This Week, Waiting On, Done in 7 Days (including tasks since archived) and In Done."/>
+                <local:BulletItem Text="Six charts below: Tasks by Status and Priority; When Open Tasks Are Due; Completed per Week over the last 12 weeks; Open Tasks by Last Update, which shows work that has sat untouched; Tasks by Project; and Open Tasks by Person. Hover over any bar for its numbers."/>
+                <local:BulletItem Text="The colours are chosen to stay distinct for people with colour blindness, and dark mode has its own set. Every chart has a legend or labels, so no number depends on colour alone."/>
 
                 <TextBlock x:Name="HelpSection_Timeline" Text="Timeline" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <local:BulletItem Text="Click Timeline (Alt+L) for a calendar view of tasks with a due date: projects down the left, weekly date columns across the top, and each task shown as a block in the week it falls due, labelled with its title, who it's assigned to, and its due date."/>

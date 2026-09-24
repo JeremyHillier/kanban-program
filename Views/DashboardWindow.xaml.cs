@@ -1,163 +1,147 @@
+using System.Globalization;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Media;
+using System.Windows.Shapes;
+using KanbanApp.Services;
 using KanbanApp.ViewModels;
+using static KanbanApp.Views.DashboardCharts;
 
 namespace KanbanApp.Views;
 
+// The Dashboard: headline tiles, then chart cards two to a row. The numbers come from
+// DashboardData; the colours from DashboardPalette (checked for colour-blind separation, with
+// their own dark-mode steps); the drawing from DashboardCharts.
 public partial class DashboardWindow : Window
 {
-    private static readonly Brush HighBrush = new SolidColorBrush(Color.FromRgb(0xE5, 0x39, 0x35));
-    private static readonly Brush MediumBrush = new SolidColorBrush(Color.FromRgb(0xFB, 0x8C, 0x00));
-    private static readonly Brush NormalBrush = new SolidColorBrush(Color.FromRgb(0x60, 0x7D, 0x8B));
-    private static readonly Brush LowBrush = new SolidColorBrush(Color.FromRgb(0x29, 0xB6, 0xF6));
-
-    private static readonly Brush OverdueBrush = new SolidColorBrush(Color.FromRgb(0xE5, 0x39, 0x35));
-    private static readonly Brush TodayBrush = new SolidColorBrush(Color.FromRgb(0xFB, 0x8C, 0x00));
-    private static readonly Brush ThisWeekBrush = new SolidColorBrush(Color.FromRgb(0xFD, 0xD8, 0x35));
-    private static readonly Brush Next30Brush = new SolidColorBrush(Color.FromRgb(0x29, 0xB6, 0xF6));
-    private static readonly Brush LaterBrush = new SolidColorBrush(Color.FromRgb(0x7E, 0x57, 0xC2));
-    private static readonly Brush NoDueDateBrush = new SolidColorBrush(Color.FromRgb(0x78, 0x90, 0x9C));
-
-    private static readonly Brush[] CategoryPalette =
-    [
-        new SolidColorBrush(Color.FromRgb(0x42, 0xA5, 0xF5)), // blue
-        new SolidColorBrush(Color.FromRgb(0x26, 0xA6, 0x9A)), // teal
-        new SolidColorBrush(Color.FromRgb(0xAB, 0x47, 0xBC)), // purple
-        new SolidColorBrush(Color.FromRgb(0x66, 0xBB, 0x6A)), // green
-        new SolidColorBrush(Color.FromRgb(0xFB, 0x8C, 0x00)), // orange
-        new SolidColorBrush(Color.FromRgb(0xE5, 0x39, 0x35)), // red
-        new SolidColorBrush(Color.FromRgb(0xEC, 0x40, 0x7A)), // pink
-        new SolidColorBrush(Color.FromRgb(0x8D, 0x6E, 0x63)), // brown
-    ];
-
-    // Fixed, vivid per-status colors for chart use — deliberately independent of the pastel
-    // kanban column background colors, which are far too low-contrast (near-black in dark mode)
-    // to double as chart fill colors.
-    private static readonly Dictionary<string, Brush> StatusPalette = new()
-    {
-        ["To Do"] = new SolidColorBrush(Color.FromRgb(0x42, 0xA5, 0xF5)),
-        ["In Progress"] = new SolidColorBrush(Color.FromRgb(0xFD, 0xD8, 0x35)),
-        ["On Hold"] = new SolidColorBrush(Color.FromRgb(0xFB, 0x8C, 0x00)),
-        ["Waiting"] = new SolidColorBrush(Color.FromRgb(0xAB, 0x47, 0xBC)),
-        ["Done"] = new SolidColorBrush(Color.FromRgb(0x66, 0xBB, 0x6A)),
-    };
-    private static readonly Brush FallbackStatusBrush = new SolidColorBrush(Color.FromRgb(0x9E, 0x9E, 0x9E));
-
-    private static readonly (string Name, Brush Brush)[] PriorityLegend =
-    [
-        ("High", HighBrush), ("Medium", MediumBrush), ("Normal", NormalBrush), ("Low", LowBrush)
-    ];
-
-    private class BarItem
-    {
-        public required string Label { get; init; }
-        public int Count { get; init; }
-        public double BarHeight { get; init; }
-        public required Brush Brush { get; init; }
-    }
-
-    private class SegmentItem
-    {
-        public double SegmentHeight { get; init; }
-        public required Brush Brush { get; init; }
-    }
-
-    private class StackedBarItem
-    {
-        public required string Label { get; init; }
-        public int Total { get; init; }
-        public required List<SegmentItem> Segments { get; init; }
-    }
+    private readonly DashboardPalette _palette;
 
     public DashboardWindow(MainViewModel viewModel)
     {
         InitializeComponent();
+        _palette = new DashboardPalette(viewModel.IsDarkMode);
 
-        var cardsWithColumn = viewModel.Columns.SelectMany(c => c.Cards.Select(card => (Card: card, ColumnName: c.Name, ColumnDisplayName: c.DisplayName))).ToList();
-        var allCards = cardsWithColumn.Select(x => x.Card).ToList();
-        var openCards = cardsWithColumn.Where(x => x.ColumnName != "Done").Select(x => x.Card).ToList();
-        var doneColumn = viewModel.Columns.FirstOrDefault(c => c.Name == "Done");
-
-        OpenTile.Text = openCards.Count.ToString();
-        InDoneTile.Text = (doneColumn?.Cards.Count ?? 0).ToString();
-
-        var today = DateTime.Today;
-        OverdueTile.Text = openCards.Count(c => c.DueDate is not null && c.DueDate.Value.Date < today).ToString();
-        DueTodayTile.Text = openCards.Count(c => c.DueDate?.Date == today).ToString();
-        DueThisWeekTile.Text = openCards.Count(c => c.DueDate is not null && c.DueDate.Value.Date >= today && c.DueDate.Value.Date <= today.AddDays(7)).ToString();
-
-        // Status Distribution + Priority Mix combined: one stacked bar per status, segments by priority.
-        StatusByPriorityChart.ItemsSource = BuildStackedBars(
-            viewModel.Columns.Select(c => c.DisplayName),
-            status => PriorityLegend.Select(p => (p.Name, cardsWithColumn.Count(x => x.ColumnDisplayName == status && x.Card.Priority == p.Name), p.Brush)));
-
-        var overdue = openCards.Count(c => c.DueDate is not null && c.DueDate.Value.Date < today);
-        var dueToday = openCards.Count(c => c.DueDate?.Date == today);
-        var thisWeek = openCards.Count(c => c.DueDate is not null && c.DueDate.Value.Date > today && c.DueDate.Value.Date <= today.AddDays(7));
-        var next30 = openCards.Count(c => c.DueDate is not null && c.DueDate.Value.Date > today.AddDays(7) && c.DueDate.Value.Date <= today.AddDays(30));
-        var later = openCards.Count(c => c.DueDate is not null && c.DueDate.Value.Date > today.AddDays(30));
-        var noDueDate = openCards.Count(c => c.DueDate is null);
-
-        TimelineChart.ItemsSource = BuildBars(
-        [
-            ("Overdue", overdue, OverdueBrush),
-            ("Today", dueToday, TodayBrush),
-            ("This Week", thisWeek, ThisWeekBrush),
-            ("Next 30 Days", next30, Next30Brush),
-            ("Later", later, LaterBrush),
-            ("No Due Date", noDueDate, NoDueDateBrush)
-        ]);
-
-        // By Project + Status combined: one stacked bar per project, segments by status.
-        var projectNames = allCards.GroupBy(c => c.ProjectName)
-            .OrderByDescending(g => g.Count()).ThenBy(g => g.Key, StringComparer.OrdinalIgnoreCase)
-            .Select(g => g.Key)
+        var cards = viewModel.Columns
+            .SelectMany(c => c.Cards.Select(card => new DashboardData.BoardCard(card, c.Name, c.DisplayName)))
             .ToList();
-        var statusOrder = viewModel.Columns.Select(c => (c.Name, c.DisplayName)).ToList();
-        ProjectByStatusChart.ItemsSource = BuildStackedBars(
-            projectNames,
-            project => statusOrder.Select(status =>
-                (status.DisplayName, cardsWithColumn.Count(x => x.Card.ProjectName == project && x.ColumnName == status.Name),
-                 StatusPalette.GetValueOrDefault(status.Name, FallbackStatusBrush))));
+        var columns = viewModel.Columns.Select(c => new DashboardData.Status(c.Name, c.DisplayName)).ToList();
+        var data = DashboardData.Build(cards, columns, viewModel.GetArchivedCompletionDates(), DateTime.Today,
+            CultureInfo.CurrentCulture.DateTimeFormat.FirstDayOfWeek);
 
-        // A shared task counts once for each of its people.
-        var whoGroups = allCards.SelectMany(c => c.People.Count == 0 ? ["Unassigned"] : c.People.Select(p => p.Name)).GroupBy(name => name)
-            .OrderByDescending(g => g.Count()).ThenBy(g => g.Key, StringComparer.OrdinalIgnoreCase)
-            .Select((g, i) => (g.Key, g.Count(), CategoryPalette[i % CategoryPalette.Length]));
-        WhoChart.ItemsSource = BuildBars(whoGroups);
+        AsOfText.Text = $"As of {DateTime.Now:MMM d, yyyy h:mm tt}";
+        BuildTiles(data);
+        BuildCharts(data);
     }
 
-    private static List<BarItem> BuildBars(IEnumerable<(string Label, int Count, Brush Brush)> data, double maxHeight = 140)
+    private void BuildTiles(DashboardData data)
     {
-        var list = data.ToList();
-        var maxCount = list.Count == 0 ? 0 : list.Max(d => d.Count);
-
-        return list.Select(d => new BarItem
-        {
-            Label = d.Label,
-            Count = d.Count,
-            Brush = d.Brush,
-            BarHeight = maxCount == 0 || d.Count == 0 ? 0 : Math.Max(4, d.Count / (double)maxCount * maxHeight)
-        }).ToList();
+        AddTile(data.Open, "Open", "Tasks not in Done");
+        AddTile(data.Overdue, "Overdue", "Open tasks past their due date", data.Overdue > 0 ? _palette.DueDates[0] : null);
+        AddTile(data.DueToday, "Due Today", "Open tasks due today", data.DueToday > 0 ? _palette.DueDates[1] : null);
+        AddTile(data.DueThisWeek, "Due This Week", "Open tasks due today or in the next 7 days");
+        AddTile(data.WaitingOn, "Waiting On", "Open tasks waiting on someone or something");
+        AddTile(data.DoneLast7Days, "Done in 7 Days", "Tasks completed in the last 7 days, including any since archived");
+        AddTile(data.InDone, "In Done", "Tasks in the Done column");
     }
 
-    private static List<StackedBarItem> BuildStackedBars(IEnumerable<string> labels,
-        Func<string, IEnumerable<(string Name, int Count, Brush Brush)>> segmentSelector, double maxHeight = 140)
+    // The number stays in the text colour; a small dot beside the label flags one that needs attention.
+    private void AddTile(int value, string label, string toolTip, Brush? flag = null)
     {
-        var rows = labels.Select(l => (Label: l, Segments: segmentSelector(l).ToList())).ToList();
-        var maxTotal = rows.Count == 0 ? 0 : rows.Max(r => r.Segments.Sum(s => s.Count));
+        var number = new TextBlock { Text = value.ToString(), FontSize = 26, FontWeight = FontWeights.Bold, HorizontalAlignment = HorizontalAlignment.Center };
+        number.SetResourceReference(TextBlock.ForegroundProperty, "PrimaryTextBrush");
 
-        return rows.Select(r => new StackedBarItem
+        // One wrapping line of text (with the dot inside it), so a narrow window wraps the label
+        // rather than cutting it off.
+        var caption = new TextBlock { FontSize = 11, TextWrapping = TextWrapping.Wrap, TextAlignment = TextAlignment.Center, Margin = new Thickness(0, 2, 0, 0) };
+        caption.SetResourceReference(TextBlock.ForegroundProperty, "SecondaryTextBrush");
+        if (flag is not null)
         {
-            Label = r.Label,
-            Total = r.Segments.Sum(s => s.Count),
-            Segments = r.Segments
-                .Where(s => s.Count > 0)
-                .Select(s => new SegmentItem
-                {
-                    Brush = s.Brush,
-                    SegmentHeight = maxTotal == 0 ? 0 : Math.Max(2, s.Count / (double)maxTotal * maxHeight)
-                }).ToList()
-        }).ToList();
+            caption.Inlines.Add(new System.Windows.Documents.InlineUIContainer(
+                new Ellipse { Width = 8, Height = 8, Fill = flag, Margin = new Thickness(0, 0, 5, 1) }) { BaselineAlignment = BaselineAlignment.Center });
+        }
+        caption.Inlines.Add(new System.Windows.Documents.Run(label));
+
+        var tile = new Border
+        {
+            CornerRadius = new CornerRadius(8), BorderThickness = new Thickness(1), Padding = new Thickness(8, 10, 8, 10),
+            Margin = new Thickness(TilesPanel.Children.Count == 0 ? 0 : 5, 0, TilesPanel.Children.Count == 6 ? 0 : 5, 0),
+            ToolTip = toolTip,
+            Child = new StackPanel { Children = { number, caption } }
+        };
+        tile.SetResourceReference(Border.BackgroundProperty, "PanelBackgroundBrush");
+        tile.SetResourceReference(Border.BorderBrushProperty, "CardBorderBrush");
+        TilesPanel.Children.Add(tile);
+    }
+
+    private void BuildCharts(DashboardData data)
+    {
+        // Open work: every column, each split by priority.
+        var priorityBrushes = data.Priorities.Select(p => (Name: p, Brush: _palette.Priority(p))).ToList();
+        var byPriority = data.StatusByPriority.Select(s => new Bar(s.Label,
+            s.Counts.Select((n, i) => new Segment(priorityBrushes[i].Name, n, priorityBrushes[i].Brush)).ToList())).ToList();
+        var statusCard = Card("Tasks by Status and Priority", "Every task on the board, by column",
+            Columns(byPriority), Legend(priorityBrushes));
+
+        var dueBrushes = _palette.DueDates;
+        var dueCard = Card("When Open Tasks Are Due", $"{data.Open} open tasks",
+            Columns(data.DueDates.Select((b, i) => new Bar(b.Label, [new Segment(b.Label, b.Count, dueBrushes[i])])).ToList(), barWidth: 32));
+
+        // Throughput: completions per week. Only the latest week and the busiest carry numbers; hover for the rest.
+        var weeks = data.CompletedPerWeek;
+        var busiest = weeks.Count == 0 ? -1 : weeks.Select((w, i) => (w.Count, i)).Max().i;
+        var weekBars = weeks.Select((w, i) => new Bar($"{w.Start:MMM}\n{w.Start:%d}",[new Segment("Completed", w.Count, _palette.Series)],
+            $"{(i == weeks.Count - 1 ? "This week, so far" : $"Week of {w.Start:MMM d}")}: {w.Count} completed")).ToList();
+        var total = weeks.Sum(w => w.Count);
+        var average = weeks.Count > 1 ? weeks.Take(weeks.Count - 1).Average(w => w.Count) : 0; // the current week isn't over
+        var throughputCard = Card("Completed per Week",
+            $"Last {DashboardData.WeeksShown} weeks: {total} completed, about {average:0.#} a week. The last bar is this week so far.",
+            Columns(weekBars, barWidth: 18, labelEvery: 2, showTotal: i => i == weeks.Count - 1 || (i == busiest && weeks[i].Count > 0)));
+
+        var ageBrushes = _palette.LastUpdated;
+        var ageCard = Card("Open Tasks by Last Update", "How long since each open task was last changed",
+            Columns(data.LastUpdated.Select((b, i) => new Bar(b.Label, [new Segment(b.Label, b.Count, ageBrushes[i])])).ToList(), barWidth: 40));
+
+        // Projects and people as horizontal bars - long names read properly and nothing wraps.
+        var statusBrushes = data.Statuses.Select(s => (Name: s.DisplayName, Brush: _palette.Status(s.Name))).ToList();
+        var projectBars = data.ProjectsByStatus.Select(p => new Bar(p.Label,
+            p.Counts.Select((n, i) => new Segment(statusBrushes[i].Name, n, statusBrushes[i].Brush)).ToList())).ToList();
+        var projectCard = Card("Tasks by Project",
+            data.FoldedProjectCount > 0 ? $"Every task on the board. The {data.FoldedProjectCount} smallest projects are grouped as Other." : "Every task on the board, by column",
+            projectBars.Count == 0 ? Empty() : Rows(projectBars), Legend(statusBrushes));
+
+        var openBrushes = data.OpenStatuses.Select(s => (Name: s.DisplayName, Brush: _palette.Status(s.Name))).ToList();
+        var peopleBars = data.PeopleByStatus.Select(p => new Bar(p.Label,
+            p.Counts.Select((n, i) => new Segment(openBrushes[i].Name, n, openBrushes[i].Brush)).ToList())).ToList();
+        var peopleCard = Card("Open Tasks by Person", "A task shared by several people counts once for each of them",
+            peopleBars.Count == 0 ? Empty() : Rows(peopleBars), Legend(openBrushes));
+
+        AddRow(statusCard, dueCard);
+        AddRow(throughputCard, ageCard);
+        AddRow(projectCard);
+        AddRow(peopleCard);
+    }
+
+    private static TextBlock Empty()
+    {
+        var text = new TextBlock { Text = "No tasks yet.", FontSize = 12 };
+        text.SetResourceReference(TextBlock.ForegroundProperty, "SecondaryTextBrush");
+        return text;
+    }
+
+    // Two cards side by side, or one across the full width.
+    private void AddRow(FrameworkElement left, FrameworkElement? right = null)
+    {
+        var row = ChartsGrid.RowDefinitions.Count;
+        ChartsGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+        left.Margin = new Thickness(0, 0, 0, 12);
+        Grid.SetRow(left, row);
+        if (right is null) Grid.SetColumnSpan(left, 3);
+        ChartsGrid.Children.Add(left);
+
+        if (right is null) return;
+        right.Margin = new Thickness(0, 0, 0, 12);
+        Grid.SetRow(right, row);
+        Grid.SetColumn(right, 2);
+        ChartsGrid.Children.Add(right);
     }
 }

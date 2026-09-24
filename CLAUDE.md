@@ -113,5 +113,6 @@ Standard MVVM:
 
 ## Known rough edges
 
-- Dashboard / Report / Print bypass MVVM (logic in code-behind) — inconsistent with the rest of the app, not urgent to fix but don't copy the pattern forward.
+- Report / Print bypass MVVM (logic in code-behind) — inconsistent with the rest of the app, not urgent to fix but don't copy the pattern forward. The Dashboard no longer does: its numbers are `Services/DashboardData.cs` (unit-tested in `DashboardDataTests`), its drawing `Views/DashboardCharts.cs`.
+- **Dashboard colours** (`DashboardPalette` in `Views/DashboardCharts.cs`) were checked with a palette validator (colour-blind separation of neighbouring colours, contrast against the chart card) separately for light and dark - dark is its own set of steps, chosen by `MainViewModel.IsDarkMode`, not a flip. On Hold is magenta, not the board's orange: orange beside In Progress yellow failed the check. Re-check any colour change the same way rather than by eye. Text never takes a series colour; single-series charts use one blue; projects and people are horizontal bars sharing one scale; more than 20 projects fold into "Other". Completions per week and "Done in 7 Days" include archived tasks (`GetArchivedCompletionDates`) and weeks start on the PC's first day of the week.
 - No DB migration versioning — fine at current scale, but there's no rollback story if a migration ever needs undoing.
