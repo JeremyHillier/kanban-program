@@ -7,61 +7,14 @@ namespace KanbanApp.Services;
 // Schema.cs's legacy-Who backfill can create each person on the same connection as its migration.
 public partial class DatabaseService
 {
-    public List<Person> GetPeople()
-    {
-        using var connection = OpenConnection();
-        using var cmd = connection.CreateCommand();
-        cmd.CommandText = "SELECT Id, Name, SortOrder, IsActive, Email FROM People ORDER BY Name COLLATE NOCASE;";
+    public List<Person> GetPeople() =>
+        GetListEntries<Person>("People", ", Email", (reader, person) => person.Email = reader.IsDBNull(4) ? null : reader.GetString(4));
 
-        var result = new List<Person>();
-        using var reader = cmd.ExecuteReader();
-        while (reader.Read())
-        {
-            result.Add(new Person
-            {
-                Id = reader.GetInt32(0),
-                Name = reader.GetString(1),
-                SortOrder = reader.GetInt32(2),
-                IsActive = reader.GetInt32(3) != 0,
-                Email = reader.IsDBNull(4) ? null : reader.GetString(4)
-            });
-        }
-        return result;
-    }
+    public Person AddPerson(string name) => AddListEntry<Person>("People", name);
 
-    public Person AddPerson(string name)
-    {
-        using var connection = OpenConnection();
-        return AddPerson(name, connection);
-    }
+    private static Person AddPerson(string name, SqliteConnection connection) => AddListEntry<Person>("People", name, connection);
 
-    private Person AddPerson(string name, SqliteConnection connection)
-    {
-        using var maxCmd = connection.CreateCommand();
-        maxCmd.CommandText = "SELECT COALESCE(MAX(SortOrder), -1) + 1 FROM People;";
-        var sortOrder = (long)maxCmd.ExecuteScalar()!;
-
-        using var insertCmd = connection.CreateCommand();
-        insertCmd.CommandText = """
-            INSERT INTO People (Name, SortOrder) VALUES ($name, $sortOrder);
-            SELECT last_insert_rowid();
-            """;
-        insertCmd.Parameters.AddWithValue("$name", name);
-        insertCmd.Parameters.AddWithValue("$sortOrder", sortOrder);
-        var id = (long)insertCmd.ExecuteScalar()!;
-
-        return new Person { Id = (int)id, Name = name, SortOrder = (int)sortOrder };
-    }
-
-    public void RenamePerson(int personId, string name)
-    {
-        using var connection = OpenConnection();
-        using var cmd = connection.CreateCommand();
-        cmd.CommandText = "UPDATE People SET Name = $name WHERE Id = $id;";
-        cmd.Parameters.AddWithValue("$name", name);
-        cmd.Parameters.AddWithValue("$id", personId);
-        cmd.ExecuteNonQuery();
-    }
+    public void RenamePerson(int personId, string name) => RenameListEntry("People", personId, name);
 
     public void SetPersonEmail(int personId, string? email)
     {
@@ -73,15 +26,7 @@ public partial class DatabaseService
         cmd.ExecuteNonQuery();
     }
 
-    public void SetPersonActive(int personId, bool isActive)
-    {
-        using var connection = OpenConnection();
-        using var cmd = connection.CreateCommand();
-        cmd.CommandText = "UPDATE People SET IsActive = $isActive WHERE Id = $id;";
-        cmd.Parameters.AddWithValue("$isActive", isActive ? 1 : 0);
-        cmd.Parameters.AddWithValue("$id", personId);
-        cmd.ExecuteNonQuery();
-    }
+    public void SetPersonActive(int personId, bool isActive) => SetListEntryActive("People", personId, isActive);
 
     // Takes the person off every task. Where they were the lead, the next person on that task's
     // list steps up (or nobody, if they were the only one).

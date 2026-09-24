@@ -5,66 +5,13 @@ namespace KanbanApp.Services;
 // The Flags managed list and the many-to-many CardFlags join table.
 public partial class DatabaseService
 {
-    public List<Flag> GetFlags()
-    {
-        using var connection = OpenConnection();
-        using var cmd = connection.CreateCommand();
-        cmd.CommandText = "SELECT Id, Name, SortOrder, IsActive FROM Flags ORDER BY Name COLLATE NOCASE;";
+    public List<Flag> GetFlags() => GetListEntries<Flag>("Flags");
 
-        var result = new List<Flag>();
-        using var reader = cmd.ExecuteReader();
-        while (reader.Read())
-        {
-            result.Add(new Flag
-            {
-                Id = reader.GetInt32(0),
-                Name = reader.GetString(1),
-                SortOrder = reader.GetInt32(2),
-                IsActive = reader.GetInt32(3) != 0
-            });
-        }
-        return result;
-    }
+    public Flag AddFlag(string name) => AddListEntry<Flag>("Flags", name);
 
-    public Flag AddFlag(string name)
-    {
-        using var connection = OpenConnection();
+    public void RenameFlag(int flagId, string name) => RenameListEntry("Flags", flagId, name);
 
-        using var maxCmd = connection.CreateCommand();
-        maxCmd.CommandText = "SELECT COALESCE(MAX(SortOrder), -1) + 1 FROM Flags;";
-        var sortOrder = (long)maxCmd.ExecuteScalar()!;
-
-        using var insertCmd = connection.CreateCommand();
-        insertCmd.CommandText = """
-            INSERT INTO Flags (Name, SortOrder) VALUES ($name, $sortOrder);
-            SELECT last_insert_rowid();
-            """;
-        insertCmd.Parameters.AddWithValue("$name", name);
-        insertCmd.Parameters.AddWithValue("$sortOrder", sortOrder);
-        var id = (long)insertCmd.ExecuteScalar()!;
-
-        return new Flag { Id = (int)id, Name = name, SortOrder = (int)sortOrder };
-    }
-
-    public void RenameFlag(int flagId, string name)
-    {
-        using var connection = OpenConnection();
-        using var cmd = connection.CreateCommand();
-        cmd.CommandText = "UPDATE Flags SET Name = $name WHERE Id = $id;";
-        cmd.Parameters.AddWithValue("$name", name);
-        cmd.Parameters.AddWithValue("$id", flagId);
-        cmd.ExecuteNonQuery();
-    }
-
-    public void SetFlagActive(int flagId, bool isActive)
-    {
-        using var connection = OpenConnection();
-        using var cmd = connection.CreateCommand();
-        cmd.CommandText = "UPDATE Flags SET IsActive = $isActive WHERE Id = $id;";
-        cmd.Parameters.AddWithValue("$isActive", isActive ? 1 : 0);
-        cmd.Parameters.AddWithValue("$id", flagId);
-        cmd.ExecuteNonQuery();
-    }
+    public void SetFlagActive(int flagId, bool isActive) => SetListEntryActive("Flags", flagId, isActive);
 
     public void DeleteFlag(int flagId)
     {

@@ -1,9 +1,5 @@
 namespace KanbanApp.Models;
 
-public class Flag
+public class Flag : ManagedListEntry
 {
-    public int Id { get; set; }
-    public string Name { get; set; } = string.Empty;
-    public int SortOrder { get; set; }
-    public bool IsActive { get; set; } = true;
 }

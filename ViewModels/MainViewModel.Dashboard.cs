@@ -19,21 +19,10 @@ public partial class MainViewModel
     {
         var displayNameById = Columns.ToDictionary(c => c.Id, c => c.DisplayName);
 
-        return _db.GetCards(archivedOnly: true).Select(card =>
-        {
-            var cardVm = new CardViewModel(card)
-            {
-                ProjectName = ResolveProjectName(card.ProjectId),
-                GoalName = ResolveGoalName(card.GoalId),
-                People = ResolvePeople(card.PeopleIds),
-                Flags = ResolveFlags(card.FlagIds),
-                SubTasks = card.SubTasks.Select(s => new SubTaskViewModel(s)).ToList(),
-                Attachments = card.Attachments.Select(a => new AttachmentViewModel(a)).ToList(),
-                LastUpdated = card.LastUpdated
-            };
-            var columnName = displayNameById.GetValueOrDefault(card.ColumnId, "Unknown");
-            return (cardVm, columnName);
-        }).ToList();
+        // Built the same way as a task on the board (BuildCardViewModel).
+        return _db.GetCards(archivedOnly: true)
+            .Select(card => (BuildCardViewModel(card), displayNameById.GetValueOrDefault(card.ColumnId, "Unknown")))
+            .ToList();
     }
 
     // When each archived task was completed - archived tasks still count in the Dashboard's
