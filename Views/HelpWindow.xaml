@@ -227,6 +227,7 @@
                 <TextBlock Text="Dashboard" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <local:BulletItem Text="The banner always shows Open, Overdue, Due Today, and Due This Week counts across all non-Done tasks."/>
                 <local:BulletItem Text="Double-click the banner to open the full Dashboard. Seven tiles across the top: Open, Overdue, Due Today, Due This Week, Waiting On, Done in 7 Days (including tasks since archived) and In Done."/>
+                <local:BulletItem Text="The Dashboard opens at the size and position you last left it, including full screen. If that spot is no longer on a screen (a monitor has been unplugged, say), it opens over the board instead."/>
                 <local:BulletItem Text="Six charts below: Tasks by Status and Priority; When Open Tasks Are Due; Completed per Week over the last 12 weeks; Open Tasks by Last Update, which shows work that has sat untouched; Tasks by Project; and Open Tasks by Person. Hover over any bar for its numbers."/>
                 <local:BulletItem Text="The colours are chosen to stay distinct for people with colour blindness, and dark mode has its own set. Every chart has a legend or labels, so no number depends on colour alone."/>
 

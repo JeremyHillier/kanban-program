@@ -216,6 +216,31 @@ public partial class MainViewModel
         _db.SetSetting("TimelineWindowSize", $"{width.ToString(invariant)},{height.ToString(invariant)},{(maximized ? "1" : "0")}");
     }
 
+    // A window's size *and* position as it was last left, stored under "<key>WindowPlacement" as
+    // "left,top,width,height,maximized". Used by the Dashboard; the Timeline keeps its own
+    // size-only setting above, because it always opens centred on the board.
+    public (double Left, double Top, double Width, double Height, bool Maximized)? WindowPlacement(string key)
+    {
+        var parts = (_db.GetSetting(key + "WindowPlacement") ?? string.Empty).Split(',');
+        if (parts.Length != 5) return null;
+        var invariant = System.Globalization.CultureInfo.InvariantCulture;
+        var numbers = new double[4];
+        for (var i = 0; i < 4; i++)
+        {
+            if (!double.TryParse(parts[i], System.Globalization.NumberStyles.Float, invariant, out numbers[i]) || !double.IsFinite(numbers[i])) return null;
+        }
+        if (numbers[2] <= 0 || numbers[3] <= 0) return null;
+        return (numbers[0], numbers[1], numbers[2], numbers[3], parts[4] == "1");
+    }
+
+    public void SaveWindowPlacement(string key, double left, double top, double width, double height, bool maximized)
+    {
+        if (!double.IsFinite(left) || !double.IsFinite(top) || !double.IsFinite(width) || !double.IsFinite(height) || width <= 0 || height <= 0) return;
+        var invariant = System.Globalization.CultureInfo.InvariantCulture;
+        _db.SetSetting(key + "WindowPlacement", string.Join(',',
+            left.ToString(invariant), top.ToString(invariant), width.ToString(invariant), height.ToString(invariant), maximized ? "1" : "0"));
+    }
+
     // Whether the Timeline was last left in Day view (otherwise Week view, which is also the default).
     public bool TimelineDayView => _db.GetSetting("TimelineView") == "Day";
 

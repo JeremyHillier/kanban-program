@@ -19,6 +19,7 @@ public partial class DashboardWindow : Window
     public DashboardWindow(MainViewModel viewModel)
     {
         InitializeComponent();
+        WindowPlacementMemory.Attach(this, viewModel, "Dashboard");
         _palette = new DashboardPalette(viewModel.IsDarkMode);
 
         var cards = viewModel.Columns

@@ -6,6 +6,9 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.115.0 — 2026-09-24
+- Improved: the Dashboard now opens at the size and position it was last left in, including full screen. If that position is no longer on a screen, it opens over the board instead
+
 ## 0.114.2 — 2026-09-24
 - Fixed: in the Waiting On box, the list of earlier answers could cover the Cancel and Save buttons and stop them being clicked. The earlier answers now appear inside the Waiting On window, under where you type, so the buttons are always within reach and Esc cancels straight away
 
