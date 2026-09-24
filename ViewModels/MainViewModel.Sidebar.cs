@@ -12,12 +12,12 @@ public partial class MainViewModel
     public void ToggleSidebar()
     {
         IsSidebarCollapsed = !IsSidebarCollapsed;
-        _db.SetSetting("SidebarCollapsed", IsSidebarCollapsed ? "True" : "False");
+        _db.SetFlag("SidebarCollapsed", IsSidebarCollapsed);
         OnPropertyChanged(nameof(IsSidebarCollapsed));
         OnPropertyChanged(nameof(IsSidebarExpanded));
     }
 
-    private void LoadSidebarState() => IsSidebarCollapsed = _db.GetSetting("SidebarCollapsed") == "True";
+    private void LoadSidebarState() => IsSidebarCollapsed = _db.GetFlag("SidebarCollapsed", false);
 
     // The arrows point the way the column will move, which depends on the side it is docked to.
     public string SidebarCollapseGlyph => IsButtonsOnRight ? "»" : "«";
@@ -65,7 +65,7 @@ public partial class MainViewModel
     {
         if (IsCompactButtons == value) return;
         IsCompactButtons = value;
-        _db.SetSetting("CompactButtons", value ? "True" : "False");
+        _db.SetFlag("CompactButtons", value);
         OnPropertyChanged(nameof(IsCompactButtons));
         OnPropertyChanged(nameof(SidebarWidth));
         OnPropertyChanged(nameof(SidebarPadding));
@@ -74,5 +74,5 @@ public partial class MainViewModel
         OnPropertyChanged(nameof(DateRangeToMargin));
     }
 
-    private void LoadCompactButtons() => IsCompactButtons = _db.GetSetting("CompactButtons") == "True";
+    private void LoadCompactButtons() => IsCompactButtons = _db.GetFlag("CompactButtons", false);
 }

@@ -67,9 +67,9 @@ public partial class App : Application
             }
         };
 
-        var showSplash = db.GetSetting("ShowSplash") != "False";
-        var splashDelayMs = int.TryParse(db.GetSetting("SplashDelayMs"), out var delay) ? delay : 1800;
-        var startFullScreen = db.GetSetting("StartFullScreen") == "True";
+        var showSplash = db.GetFlag("ShowSplash", true);
+        var splashDelayMs = db.GetInt("SplashDelayMs", 1800);
+        var startFullScreen = db.GetFlag("StartFullScreen", false);
 
         if (!showSplash)
         {

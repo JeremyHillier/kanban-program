@@ -78,7 +78,7 @@ public partial class MainViewModel
     public void ToggleHideFutureTasks()
     {
         HideFutureTasks = !HideFutureTasks;
-        _db.SetSetting("HideFutureTasks", HideFutureTasks ? "True" : "False");
+        _db.SetFlag("HideFutureTasks", HideFutureTasks);
         ApplyFilters();
     }
 
@@ -133,7 +133,7 @@ public partial class MainViewModel
     public void SetFitColumnsToWindow(bool value)
     {
         IsFitColumnsToWindow = value;
-        _db.SetSetting("FitColumnsToWindow", value ? "True" : "False");
+        _db.SetFlag("FitColumnsToWindow", value);
     }
 
     private double _boardWidth;
@@ -227,7 +227,7 @@ public partial class MainViewModel
     public void SetShowSplash(bool value)
     {
         ShowSplash = value;
-        _db.SetSetting("ShowSplash", value ? "True" : "False");
+        _db.SetFlag("ShowSplash", value);
     }
 
     public void SetSplashDelayMs(int value)
@@ -297,7 +297,7 @@ public partial class MainViewModel
     public void SetAutoBackupEnabled(bool value)
     {
         AutoBackupEnabled = value;
-        _db.SetSetting("AutoBackupEnabled", value ? "True" : "False");
+        _db.SetFlag("AutoBackupEnabled", value);
     }
 
     public void SetBackupRetentionCount(int value)
@@ -317,43 +317,43 @@ public partial class MainViewModel
     public void SetStartFullScreen(bool value)
     {
         StartFullScreen = value;
-        _db.SetSetting("StartFullScreen", value ? "True" : "False");
+        _db.SetFlag("StartFullScreen", value);
     }
 
     public void SetConfirmDelete(bool value)
     {
         ConfirmDelete = value;
-        _db.SetSetting("ConfirmDelete", value ? "True" : "False");
+        _db.SetFlag("ConfirmDelete", value);
     }
 
     public void SetConfirmArchive(bool value)
     {
         ConfirmArchive = value;
-        _db.SetSetting("ConfirmArchive", value ? "True" : "False");
+        _db.SetFlag("ConfirmArchive", value);
     }
 
     public void SetAddNoteOnComplete(bool value)
     {
         AddNoteOnComplete = value;
-        _db.SetSetting("AddNoteOnComplete", value ? "True" : "False");
+        _db.SetFlag("AddNoteOnComplete", value);
     }
 
     public void SetShowDueReminders(bool value)
     {
         ShowDueReminders = value;
-        _db.SetSetting("ShowDueReminders", value ? "True" : "False");
+        _db.SetFlag("ShowDueReminders", value);
     }
 
     public void SetShowTimeAlerts(bool value)
     {
         ShowTimeAlerts = value;
-        _db.SetSetting("ShowTimeAlerts", value ? "True" : "False");
+        _db.SetFlag("ShowTimeAlerts", value);
     }
 
     public void SetRememberLastView(bool value)
     {
         RememberLastView = value;
-        _db.SetSetting("RememberLastView", value ? "True" : "False");
+        _db.SetFlag("RememberLastView", value);
     }
 
     // How many past releases the What's New screen lists.
@@ -364,7 +364,7 @@ public partial class MainViewModel
     public void SetShowWhatsNew(bool value)
     {
         ShowWhatsNew = value;
-        _db.SetSetting("ShowWhatsNew", value ? "True" : "False");
+        _db.SetFlag("ShowWhatsNew", value);
     }
 
     // True when this build differs from the one last acknowledged, i.e. the app has just been

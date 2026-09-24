@@ -25,4 +25,16 @@ public partial class DatabaseService
         cmd.Parameters.AddWithValue("$value", value);
         cmd.ExecuteNonQuery();
     }
+
+    // On/off settings are stored as "True" / "False". Reading one depends on its default, exactly as
+    // the app always has: a setting that starts on stays on unless it says "False"; one that starts
+    // off is on only when it says "True". Anything else stored there falls back the same way.
+    public bool GetFlag(string key, bool defaultValue) =>
+        defaultValue ? GetSetting(key) != "False" : GetSetting(key) == "True";
+
+    public void SetFlag(string key, bool value) => SetSetting(key, value ? "True" : "False");
+
+    // A whole-number setting, or the default when it's missing or not a number.
+    public int GetInt(string key, int defaultValue) =>
+        int.TryParse(GetSetting(key), out var value) ? value : defaultValue;
 }

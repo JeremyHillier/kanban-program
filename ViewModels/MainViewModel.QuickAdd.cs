@@ -13,7 +13,7 @@ public partial class MainViewModel
     {
         if (QuickAddHotkeyEnabled == value) return;
         QuickAddHotkeyEnabled = value;
-        _db.SetSetting("QuickAddHotkeyEnabled", value ? "True" : "False");
+        _db.SetFlag("QuickAddHotkeyEnabled", value);
         OnPropertyChanged(nameof(QuickAddHotkeyEnabled));
     }
 

@@ -13,11 +13,11 @@ public partial class MainViewModel
     {
         if (CheckForUpdatesEnabled == value) return;
         CheckForUpdatesEnabled = value;
-        _db.SetSetting("CheckForUpdates", value ? "True" : "False");
+        _db.SetFlag("CheckForUpdates", value);
         OnPropertyChanged(nameof(CheckForUpdatesEnabled));
     }
 
-    private void LoadUpdateSettings() => CheckForUpdatesEnabled = _db.GetSetting("CheckForUpdates") != "False";
+    private void LoadUpdateSettings() => CheckForUpdatesEnabled = _db.GetFlag("CheckForUpdates", true);
 
     // When THIS PC last checked. Kept per computer, not per task file: two PCs can share one task
     // file (a synced folder), and with a shared timestamp whichever started first each day silenced

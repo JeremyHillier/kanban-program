@@ -38,7 +38,7 @@ public partial class MainViewModel : ObservableObject
     public MainViewModel(DatabaseService db)
     {
         _db = db;
-        RememberLastView = _db.GetSetting("RememberLastView") == "True";
+        RememberLastView = _db.GetFlag("RememberLastView", false);
 
         _projectManager = new ManagedList<Project, ProjectViewModel>(
             Projects, _db.AddProject, _db.RenameProject, _db.DeleteProject, _db.SetProjectActive, m => new ProjectViewModel(m),
@@ -77,7 +77,7 @@ public partial class MainViewModel : ObservableObject
         });
 
         // Before Load, which applies the filters: Hide Future is part of what they hide.
-        _hideFutureTasks = _db.GetSetting("HideFutureTasks") == "True";
+        _hideFutureTasks = _db.GetFlag("HideFutureTasks", false);
         Load();
         LoadTaskTemplates();
 
@@ -88,13 +88,13 @@ public partial class MainViewModel : ObservableObject
         _isButtonsOnRight = _db.GetSetting("ButtonPosition") == "Right";
 
         _isCompactCards = _db.GetSetting("CardSize") == "Compact";
-        _columnWidth = int.TryParse(_db.GetSetting("ColumnWidth"), out var columnWidth) ? Math.Clamp(columnWidth, MinColumnWidth, 800) : 310;
-        _isFitColumnsToWindow = _db.GetSetting("FitColumnsToWindow") != "False";
+        _columnWidth = Math.Clamp(_db.GetInt("ColumnWidth", 310), MinColumnWidth, 800);
+        _isFitColumnsToWindow = _db.GetFlag("FitColumnsToWindow", true);
         _projectFilterListHeight = LoadFilterListHeight(_db.GetSetting("ProjectFilterListHeight"));
         _priorityWhoFilterListHeight = LoadFilterListHeight(_db.GetSetting("PriorityWhoFilterListHeight"));
 
-        ShowSplash = _db.GetSetting("ShowSplash") != "False";
-        SplashDelayMs = int.TryParse(_db.GetSetting("SplashDelayMs"), out var delay) ? delay : 1800;
+        ShowSplash = _db.GetFlag("ShowSplash", true);
+        SplashDelayMs = _db.GetInt("SplashDelayMs", 1800);
 
         DefaultExportPath = _db.GetSetting("DefaultExportPath") ?? string.Empty;
         DefaultImportPath = _db.GetSetting("DefaultImportPath") ?? string.Empty;
@@ -105,20 +105,20 @@ public partial class MainViewModel : ObservableObject
         UserEmail = _db.GetSetting("UserEmail") ?? string.Empty;
         UserPhone = _db.GetSetting("UserPhone") ?? string.Empty;
 
-        AutoBackupEnabled = _db.GetSetting("AutoBackupEnabled") != "False";
-        BackupRetentionCount = int.TryParse(_db.GetSetting("BackupRetentionCount"), out var retention) ? retention : 20;
+        AutoBackupEnabled = _db.GetFlag("AutoBackupEnabled", true);
+        BackupRetentionCount = _db.GetInt("BackupRetentionCount", 20);
 
-        StartFullScreen = _db.GetSetting("StartFullScreen") == "True";
-        ConfirmDelete = _db.GetSetting("ConfirmDelete") != "False";
-        ConfirmArchive = _db.GetSetting("ConfirmArchive") != "False";
-        AddNoteOnComplete = _db.GetSetting("AddNoteOnComplete") == "True";
-        ShowDueReminders = _db.GetSetting("ShowDueReminders") != "False";
-        ShowTimeAlerts = _db.GetSetting("ShowTimeAlerts") != "False";
-        QuickAddHotkeyEnabled = _db.GetSetting("QuickAddHotkeyEnabled") != "False";
+        StartFullScreen = _db.GetFlag("StartFullScreen", false);
+        ConfirmDelete = _db.GetFlag("ConfirmDelete", true);
+        ConfirmArchive = _db.GetFlag("ConfirmArchive", true);
+        AddNoteOnComplete = _db.GetFlag("AddNoteOnComplete", false);
+        ShowDueReminders = _db.GetFlag("ShowDueReminders", true);
+        ShowTimeAlerts = _db.GetFlag("ShowTimeAlerts", true);
+        QuickAddHotkeyEnabled = _db.GetFlag("QuickAddHotkeyEnabled", true);
         LoadUpdateSettings();
         LoadSidebarState();
         LoadCompactButtons();
-        ShowWhatsNew = _db.GetSetting("ShowWhatsNew") != "False";
+        ShowWhatsNew = _db.GetFlag("ShowWhatsNew", true);
         LoadCustomFilters();
         LoadSavedReportViews();
     }
