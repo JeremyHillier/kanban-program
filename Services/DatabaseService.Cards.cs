@@ -123,6 +123,8 @@ public partial class DatabaseService
         bool isRecurring, string? recurrencePattern, int? goalId, string? notes = null, bool isImported = false, bool forceEditOnComplete = false,
         string? websiteUrl = null, string? dueTime = null, DateTime? startDate = null, string? waitingOn = null, int? recurrencesLeft = null)
     {
+        var fields = new EditableCardFields(title, projectId, priority, dueDate, whoId, isRecurring, recurrencePattern, goalId, notes,
+            forceEditOnComplete, websiteUrl, dueTime, startDate, waitingOn, recurrencesLeft);
         using var connection = OpenConnection();
 
         using var maxCmd = connection.CreateCommand();
@@ -132,44 +134,30 @@ public partial class DatabaseService
 
         var now = NowStamp();
         var completedAt = columnName == "Done" ? now : null; // created straight into Done counts as completed
+
+        // Where the task starts out, then everything the user can edit.
+        (string Column, object Value)[] placement =
+        [
+            ("ColumnId", columnId), ("SortOrder", sortOrder), ("LastUpdated", now),
+            ("IsImported", isImported ? 1 : 0), ("CompletedAt", (object?)completedAt ?? DBNull.Value)
+        ];
+        var columns = placement.Concat(fields.Columns()).ToList();
+
         using var insertCmd = connection.CreateCommand();
-        insertCmd.CommandText = """
-            INSERT INTO Cards (ColumnId, Title, SortOrder, ProjectId, Priority, DueDate, WhoId, LastUpdated, IsRecurring, RecurrencePattern, GoalId, Notes, IsImported, ForceEditOnComplete, WebsiteUrl, DueTime, CompletedAt, StartDate, WaitingOn, RecurrencesLeft)
-            VALUES ($columnId, $title, $sortOrder, $projectId, $priority, $dueDate, $whoId, $lastUpdated, $isRecurring, $recurrencePattern, $goalId, $notes, $isImported, $forceEditOnComplete, $websiteUrl, $dueTime, $completedAt, $startDate, $waitingOn, $recurrencesLeft);
-            SELECT last_insert_rowid();
-            """;
-        insertCmd.Parameters.AddWithValue("$completedAt", (object?)completedAt ?? DBNull.Value);
-        insertCmd.Parameters.AddWithValue("$columnId", columnId);
-        insertCmd.Parameters.AddWithValue("$title", title);
-        insertCmd.Parameters.AddWithValue("$sortOrder", sortOrder);
-        insertCmd.Parameters.AddWithValue("$projectId", (object?)projectId ?? DBNull.Value);
-        insertCmd.Parameters.AddWithValue("$priority", priority);
-        insertCmd.Parameters.AddWithValue("$dueDate", (object?)dueDate?.ToString("yyyy-MM-dd") ?? DBNull.Value);
-        insertCmd.Parameters.AddWithValue("$whoId", (object?)whoId ?? DBNull.Value);
-        insertCmd.Parameters.AddWithValue("$lastUpdated", now);
-        insertCmd.Parameters.AddWithValue("$isRecurring", isRecurring ? 1 : 0);
-        insertCmd.Parameters.AddWithValue("$recurrencePattern", (object?)recurrencePattern ?? DBNull.Value);
-        insertCmd.Parameters.AddWithValue("$goalId", (object?)goalId ?? DBNull.Value);
-        insertCmd.Parameters.AddWithValue("$notes", (object?)notes ?? DBNull.Value);
-        insertCmd.Parameters.AddWithValue("$isImported", isImported ? 1 : 0);
-        insertCmd.Parameters.AddWithValue("$forceEditOnComplete", forceEditOnComplete ? 1 : 0);
-        insertCmd.Parameters.AddWithValue("$websiteUrl", (object?)websiteUrl ?? DBNull.Value);
-        insertCmd.Parameters.AddWithValue("$dueTime", (object?)dueTime ?? DBNull.Value);
-        insertCmd.Parameters.AddWithValue("$startDate", (object?)startDate?.ToString("yyyy-MM-dd") ?? DBNull.Value);
-        insertCmd.Parameters.AddWithValue("$waitingOn", (object?)waitingOn ?? DBNull.Value);
-        insertCmd.Parameters.AddWithValue("$recurrencesLeft", (object?)recurrencesLeft ?? DBNull.Value);
+        insertCmd.CommandText = $"INSERT INTO Cards ({string.Join(", ", columns.Select(c => c.Column))}) " +
+                                $"VALUES ({string.Join(", ", columns.Select(c => "$" + c.Column))}); SELECT last_insert_rowid();";
+        foreach (var (column, value) in columns) insertCmd.Parameters.AddWithValue("$" + column, value);
         var id = (long)insertCmd.ExecuteScalar()!;
 
         LogHistory(connection, (int)id, title, "Created", $"Added to {columnName}");
 
-        return new CardItem
+        var card = new CardItem
         {
-            Id = (int)id, ColumnId = columnId, Title = title, SortOrder = (int)sortOrder, ProjectId = projectId,
-            Priority = priority, DueDate = dueDate, WhoId = whoId, LastUpdated = DateTime.Parse(now),
-            IsRecurring = isRecurring, RecurrencePattern = recurrencePattern, GoalId = goalId, Notes = notes, IsImported = isImported,
-            ForceEditOnComplete = forceEditOnComplete, WebsiteUrl = websiteUrl, DueTime = dueTime, StartDate = startDate, WaitingOn = waitingOn, RecurrencesLeft = recurrencesLeft,
+            Id = (int)id, ColumnId = columnId, SortOrder = (int)sortOrder, LastUpdated = DateTime.Parse(now), IsImported = isImported,
             CompletedAt = completedAt is null ? null : DateTime.Parse(completedAt)
         };
+        fields.CopyTo(card);
+        return card;
     }
 
     public void SetCardImported(int cardId, bool isImported)
@@ -186,41 +174,49 @@ public partial class DatabaseService
         bool isRecurring, string? recurrencePattern, int? goalId, string? notes = null, bool forceEditOnComplete = false,
         string? websiteUrl = null, string? dueTime = null, DateTime? startDate = null, string? waitingOn = null, int? recurrencesLeft = null)
     {
+        var fields = new EditableCardFields(title, projectId, priority, dueDate, whoId, isRecurring, recurrencePattern, goalId, notes,
+            forceEditOnComplete, websiteUrl, dueTime, startDate, waitingOn, recurrencesLeft);
         using var connection = OpenConnection();
         var now = NowStamp();
 
         using (var cmd = connection.CreateCommand())
         {
-            cmd.CommandText = """
-                UPDATE Cards SET Title = $title, ProjectId = $projectId, Priority = $priority,
-                    DueDate = $dueDate, WhoId = $whoId, LastUpdated = $lastUpdated,
-                    IsRecurring = $isRecurring, RecurrencePattern = $recurrencePattern, GoalId = $goalId, Notes = $notes,
-                    ForceEditOnComplete = $forceEditOnComplete, WebsiteUrl = $websiteUrl, DueTime = $dueTime,
-                    StartDate = $startDate, WaitingOn = $waitingOn, RecurrencesLeft = $recurrencesLeft
-                WHERE Id = $id;
-                """;
-            cmd.Parameters.AddWithValue("$title", title);
-            cmd.Parameters.AddWithValue("$projectId", (object?)projectId ?? DBNull.Value);
-            cmd.Parameters.AddWithValue("$priority", priority);
-            cmd.Parameters.AddWithValue("$dueDate", (object?)dueDate?.ToString("yyyy-MM-dd") ?? DBNull.Value);
-            cmd.Parameters.AddWithValue("$whoId", (object?)whoId ?? DBNull.Value);
-            cmd.Parameters.AddWithValue("$lastUpdated", now);
-            cmd.Parameters.AddWithValue("$isRecurring", isRecurring ? 1 : 0);
-            cmd.Parameters.AddWithValue("$recurrencePattern", (object?)recurrencePattern ?? DBNull.Value);
-            cmd.Parameters.AddWithValue("$goalId", (object?)goalId ?? DBNull.Value);
-            cmd.Parameters.AddWithValue("$notes", (object?)notes ?? DBNull.Value);
-            cmd.Parameters.AddWithValue("$forceEditOnComplete", forceEditOnComplete ? 1 : 0);
-            cmd.Parameters.AddWithValue("$websiteUrl", (object?)websiteUrl ?? DBNull.Value);
-            cmd.Parameters.AddWithValue("$dueTime", (object?)dueTime ?? DBNull.Value);
-            cmd.Parameters.AddWithValue("$startDate", (object?)startDate?.ToString("yyyy-MM-dd") ?? DBNull.Value);
-            cmd.Parameters.AddWithValue("$waitingOn", (object?)waitingOn ?? DBNull.Value);
-            cmd.Parameters.AddWithValue("$recurrencesLeft", (object?)recurrencesLeft ?? DBNull.Value);
+            var columns = fields.Columns().Append(("LastUpdated", now)).ToList();
+            cmd.CommandText = $"UPDATE Cards SET {string.Join(", ", columns.Select(c => $"{c.Column} = ${c.Column}"))} WHERE Id = $id;";
+            foreach (var (column, value) in columns) cmd.Parameters.AddWithValue("$" + column, value);
             cmd.Parameters.AddWithValue("$id", cardId);
             cmd.ExecuteNonQuery();
         }
 
         LogHistory(connection, cardId, title, "Edited", "Task details updated");
         return DateTime.Parse(now);
+    }
+
+    // The task fields that both adding a task and saving an edit write. Every such column is listed
+    // once, here: the INSERT, the UPDATE and the task AddCard hands back are all built from it, so a
+    // new column can't be saved by one and forgotten by the other. (GetCards reads them back.)
+    private sealed record EditableCardFields(string Title, int? ProjectId, string Priority, DateTime? DueDate, int? WhoId,
+        bool IsRecurring, string? RecurrencePattern, int? GoalId, string? Notes, bool ForceEditOnComplete,
+        string? WebsiteUrl, string? DueTime, DateTime? StartDate, string? WaitingOn, int? RecurrencesLeft)
+    {
+        public (string Column, object Value)[] Columns() =>
+        [
+            ("Title", Title), ("ProjectId", Db(ProjectId)), ("Priority", Priority), ("DueDate", Db(DueDate?.ToString("yyyy-MM-dd"))),
+            ("WhoId", Db(WhoId)), ("IsRecurring", IsRecurring ? 1 : 0), ("RecurrencePattern", Db(RecurrencePattern)),
+            ("GoalId", Db(GoalId)), ("Notes", Db(Notes)), ("ForceEditOnComplete", ForceEditOnComplete ? 1 : 0),
+            ("WebsiteUrl", Db(WebsiteUrl)), ("DueTime", Db(DueTime)), ("StartDate", Db(StartDate?.ToString("yyyy-MM-dd"))),
+            ("WaitingOn", Db(WaitingOn)), ("RecurrencesLeft", Db(RecurrencesLeft)),
+        ];
+
+        public void CopyTo(CardItem card)
+        {
+            card.Title = Title; card.ProjectId = ProjectId; card.Priority = Priority; card.DueDate = DueDate; card.WhoId = WhoId;
+            card.IsRecurring = IsRecurring; card.RecurrencePattern = RecurrencePattern; card.GoalId = GoalId; card.Notes = Notes;
+            card.ForceEditOnComplete = ForceEditOnComplete; card.WebsiteUrl = WebsiteUrl; card.DueTime = DueTime;
+            card.StartDate = StartDate; card.WaitingOn = WaitingOn; card.RecurrencesLeft = RecurrencesLeft;
+        }
+
+        private static object Db(object? value) => value ?? DBNull.Value;
     }
 
     public void UpdateSortOrders(IEnumerable<(int CardId, int SortOrder)> updates)
