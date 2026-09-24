@@ -1,7 +1,8 @@
 namespace KanbanApp.ViewModels;
 
 // Thin delegation to each entity's ManagedList (constructed in MainViewModel.cs's constructor)
-// for the Manage Projects/Who/Goals/Flags dialogs, plus the active-only views used by filter
+// for the Manage screen (Views/ManageListWindow, one window for all four lists - see
+// Views/ManagedListKind), plus the active-only views used by filter
 // dropdowns and pickers.
 public partial class MainViewModel
 {

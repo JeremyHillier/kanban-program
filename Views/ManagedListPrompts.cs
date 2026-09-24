@@ -5,7 +5,7 @@ using KanbanApp.ViewModels;
 namespace KanbanApp.Views;
 
 // What the user is told when a project, goal, flag or person name they asked for is already taken.
-// Shared by the four Manage screens and the task screen's "+" links so the wording stays the same.
+// Shared by the Manage screen (all four lists) and the task screen's "+" links so the wording stays the same.
 internal static class ManagedListPrompts
 {
     public static void ShowAddNotice<T>(Window owner, ManagedAddResult<T> result, string kind, string name)

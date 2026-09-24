@@ -73,7 +73,7 @@ public partial class MainWindow
     {
         if (DataContext is not MainViewModel viewModel) return;
 
-        var dialog = new ManageProjectsWindow(viewModel) { Owner = this };
+        var dialog = new ManageListWindow(viewModel, ManagedListKind.Projects(viewModel)) { Owner = this };
         dialog.ShowDialog();
     }
 
@@ -81,7 +81,7 @@ public partial class MainWindow
     {
         if (DataContext is not MainViewModel viewModel) return;
 
-        var dialog = new ManageGoalsWindow(viewModel) { Owner = this };
+        var dialog = new ManageListWindow(viewModel, ManagedListKind.Goals(viewModel)) { Owner = this };
         dialog.ShowDialog();
     }
 
@@ -89,7 +89,7 @@ public partial class MainWindow
     {
         if (DataContext is not MainViewModel viewModel) return;
 
-        var dialog = new ManageFlagsWindow(viewModel) { Owner = this };
+        var dialog = new ManageListWindow(viewModel, ManagedListKind.Flags(viewModel)) { Owner = this };
         dialog.ShowDialog();
     }
 
@@ -97,7 +97,7 @@ public partial class MainWindow
     {
         if (DataContext is not MainViewModel viewModel) return;
 
-        var dialog = new ManageWhoWindow(viewModel) { Owner = this };
+        var dialog = new ManageListWindow(viewModel, ManagedListKind.People(viewModel)) { Owner = this };
         dialog.ShowDialog();
     }
 
