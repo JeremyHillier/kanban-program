@@ -1,3 +1,5 @@
+using KanbanApp.Models;
+
 namespace KanbanApp.ViewModels;
 
 // Header-strip stats (open/overdue/due-today/due-this-week counts), the due-date reminders list,
@@ -34,7 +36,7 @@ public partial class MainViewModel
         Columns.Where(c => c.Name != "Done").SelectMany(c => c.Cards)
             .Where(c => c.DueDate is not null && c.DueDate.Value.Date <= DateTime.Today)
             .OrderBy(c => c.DueDate)
-            .ThenBy(c => PriorityRank(c.Priority))
+            .ThenBy(c => Priorities.Rank(c.Priority))
             .ThenBy(c => c.Title)
             .ToList();
 
@@ -44,7 +46,7 @@ public partial class MainViewModel
         Columns.Where(c => c.Name != "Done").SelectMany(c => c.Cards)
             .Where(c => c.DueDateTime is { } dueAt && dueAt <= DateTime.Now)
             .OrderBy(c => c.DueDateTime)
-            .ThenBy(c => PriorityRank(c.Priority))
+            .ThenBy(c => Priorities.Rank(c.Priority))
             .ThenBy(c => c.Title)
             .ToList();
 

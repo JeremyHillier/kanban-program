@@ -1,3 +1,5 @@
+using KanbanApp.Models;
+
 namespace KanbanApp.ViewModels;
 
 // Multi-key board sort (Ctrl+click stacks keys) and the small badges on the sidebar's sort
@@ -71,20 +73,12 @@ public partial class MainViewModel
     public void ReorderCardWithinColumn(CardViewModel card, ColumnViewModel column, int newIndex) =>
         ReorderCardsWithinColumn([card], column, newIndex);
 
-    private static int PriorityRank(string priority) => priority switch
-    {
-        "High" => 0,
-        "Medium" => 1,
-        "Normal" => 2,
-        "Low" => 3,
-        _ => 2
-    };
 
     private static IOrderedEnumerable<CardViewModel> OrderByKey(IEnumerable<CardViewModel> cards, SortKey key) => key switch
     {
         SortKey.DueDate => cards.OrderBy(c => c.DueDate ?? DateTime.MaxValue),
         SortKey.Who => cards.OrderBy(c => c.LeadName, StringComparer.OrdinalIgnoreCase),
-        SortKey.Priority => cards.OrderBy(c => PriorityRank(c.Priority)),
+        SortKey.Priority => cards.OrderBy(c => Priorities.Rank(c.Priority)),
         _ => cards.OrderBy(c => c.ProjectName, StringComparer.OrdinalIgnoreCase)
     };
 
@@ -92,7 +86,7 @@ public partial class MainViewModel
     {
         SortKey.DueDate => cards.ThenBy(c => c.DueDate ?? DateTime.MaxValue),
         SortKey.Who => cards.ThenBy(c => c.LeadName, StringComparer.OrdinalIgnoreCase),
-        SortKey.Priority => cards.ThenBy(c => PriorityRank(c.Priority)),
+        SortKey.Priority => cards.ThenBy(c => Priorities.Rank(c.Priority)),
         _ => cards.ThenBy(c => c.ProjectName, StringComparer.OrdinalIgnoreCase)
     };
 

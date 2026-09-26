@@ -3,6 +3,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Threading;
+using KanbanApp.Models;
 using KanbanApp.Services;
 using KanbanApp.ViewModels;
 using KanbanApp.Views;
@@ -85,7 +86,7 @@ public partial class MainWindow
         }
 
         var priority = AddSubmenu(menu, "_Priority");
-        foreach (var level in new[] { "High", "Medium", "Normal", "Low" })
+        foreach (var level in Priorities.All)
         {
             AddMenuItem(priority, level, () => viewModel.SetCardPriority(card, level), isChecked: card.Priority == level);
         }
@@ -163,7 +164,7 @@ public partial class MainWindow
         }
 
         var priority = AddSubmenu(menu, "_Priority");
-        foreach (var level in new[] { "High", "Medium", "Normal", "Low" })
+        foreach (var level in Priorities.All)
         {
             AddMenuItem(priority, level, () => viewModel.SetCardsPriority(cards, level), isChecked: cards.All(c => c.Priority == level));
         }

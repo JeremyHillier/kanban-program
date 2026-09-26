@@ -3,6 +3,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Threading;
+using KanbanApp.Models;
 using KanbanApp.Services;
 using KanbanApp.ViewModels;
 using KanbanApp.Views;
@@ -199,7 +200,7 @@ public partial class MainWindow
     {
         if (sender is not FrameworkElement { DataContext: CardViewModel card } element || DataContext is not MainViewModel viewModel) return;
 
-        var items = new[] { "High", "Medium", "Normal", "Low" }
+        var items = Priorities.All
             .Select(priority => (Header: priority, IsChecked: card.Priority == priority, Value: priority));
         ShowQuickEditMenu(element, items, priority => viewModel.SetCardPriority(card, priority));
         e.Handled = true;

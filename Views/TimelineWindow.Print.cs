@@ -49,22 +49,11 @@ public partial class TimelineWindow
         FormattedText MakeText(string s, Typeface tf, double size, Brush brush) =>
             new(s, System.Globalization.CultureInfo.CurrentCulture, FlowDirection.LeftToRight, tf, size, brush, 1.0);
 
+        // Unlike the report, a chip's text is wrapped as one paragraph, and an empty last line is dropped.
         List<string> WrapWords(string text, Typeface tf, double size, double maxWidth)
         {
-            var words = text.Split(' ');
-            var lines = new List<string>();
-            var current = string.Empty;
-            foreach (var word in words)
-            {
-                var candidate = current.Length == 0 ? word : $"{current} {word}";
-                if (MakeText(candidate, tf, size, Brushes.Black).Width > maxWidth && current.Length > 0)
-                {
-                    lines.Add(current);
-                    current = word;
-                }
-                else current = candidate;
-            }
-            if (current.Length > 0) lines.Add(current);
+            var lines = TextWrap.Words(text, s => MakeText(s, tf, size, Brushes.Black).Width, maxWidth);
+            if (lines[^1].Length == 0) lines.RemoveAt(lines.Count - 1);
             return lines;
         }
 
