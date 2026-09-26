@@ -6,6 +6,9 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.116.1 — 2026-09-26
+- Improved: the Help screen has been rewritten as short, one-line points, grouped under clear headings, so every topic is quicker to scan and easier to follow
+
 ## 0.116.0 — 2026-09-26
 - Improved: every message in the app has been reviewed and rewritten to be shorter and clearer. Each one opens with the point in bold, followed by what to do next
 - Improved: messages now appear in the app's own window, in light or dark mode to match the board, instead of the plain Windows message box. File paths and error details sit in a box of their own where they can be selected and copied

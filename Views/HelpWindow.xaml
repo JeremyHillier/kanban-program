@@ -16,10 +16,10 @@
             <Setter Property="Margin" Value="0,16,0,4"/>
             <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
         </Style>
-        <Style x:Key="HelpBodyStyle" TargetType="TextBlock">
-            <Setter Property="TextWrapping" Value="Wrap"/>
-            <Setter Property="Margin" Value="0,0,0,2"/>
-            <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
+        <Style x:Key="HelpSubHeaderStyle" TargetType="TextBlock">
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Margin" Value="0,8,0,2"/>
+            <Setter Property="Foreground" Value="{DynamicResource SecondaryTextStrongBrush}"/>
         </Style>
         <Style TargetType="local:BulletItem">
             <Setter Property="Margin" Value="12,2,0,0"/>
@@ -37,282 +37,338 @@
 
         <ScrollViewer x:Name="ContentScrollViewer" Grid.Row="1" VerticalScrollBarVisibility="Auto" Margin="0,4,0,8">
             <StackPanel x:Name="ContentPanel">
-                <TextBlock Style="{StaticResource HelpBodyStyle}" TextWrapping="Wrap">
-                    This board tracks tasks across five columns: To Do, In Progress, On Hold, Waiting, and Done.
-                    Drag a card to a different column, or use its quick-move buttons.
-                </TextBlock>
+                <local:BulletItem Text="Tasks sit in five columns: To Do, In Progress, On Hold, Waiting and Done."/>
+                <local:BulletItem Text="Drag a card to another column, or use its quick-move buttons."/>
 
                 <TextBlock Text="Keyboard shortcuts" Style="{StaticResource HelpSectionHeaderStyle}"/>
-                <local:BulletItem Text="Ctrl+N — create a new task."/>
-                <local:BulletItem Text="Ctrl+Alt+N — Quick Add: works from any program while the app is running (see Quick Add below)."/>
-                <local:BulletItem Text="Ctrl+Z — undo the last change to a task (see Undo below). While typing in a box, Ctrl+Z undoes your typing instead."/>
-                <local:BulletItem Text="Ctrl+P — open Report Builder."/>
-                <local:BulletItem Text="Ctrl+Shift+P — Quick Report (run a saved report view)."/>
-                <local:BulletItem Text="Ctrl+Q — quit the app."/>
-                <local:BulletItem Text="Alt+A — archive done tasks."/>
-                <local:BulletItem Text="Alt+B — hide or show the button column."/>
-                <local:BulletItem Text="Alt+P — manage Projects."/>
-                <local:BulletItem Text="Alt+G — manage Goals."/>
-                <local:BulletItem Text="Alt+F — manage Flags."/>
-                <local:BulletItem Text="Alt+W — manage Who."/>
-                <local:BulletItem Text="Alt+R — open Reminders."/>
-                <local:BulletItem Text="Alt+S — open Settings."/>
-                <local:BulletItem Text="Alt+H — open this Help screen."/>
-                <local:BulletItem Text="Alt+L — open the Timeline."/>
-                <local:BulletItem Text="Alt+M — manage task templates (rename or delete)."/>
-                <local:BulletItem Text="Alt+T — show just what's due today (and anything overdue), clearing every other filter first."/>
-                <local:BulletItem Text="Alt+0 to Alt+9 — apply the custom filter saved in that slot (see Custom filters below). An unassigned slot does nothing."/>
-                <local:BulletItem Text="Esc — close the open dialog. On the main board, the first Esc clears any selected cards, and the next clears every filter."/>
+                <local:BulletItem Text="Ctrl+N: new task."/>
+                <local:BulletItem Text="Ctrl+Alt+N: Quick Add, from any program."/>
+                <local:BulletItem Text="Ctrl+Z: undo the last change to a task. In a text box, it undoes typing."/>
+                <local:BulletItem Text="Ctrl+P: Report Builder."/>
+                <local:BulletItem Text="Ctrl+Shift+P: Quick Report."/>
+                <local:BulletItem Text="Ctrl+Q: quit."/>
+                <local:BulletItem Text="Alt+A: archive done tasks."/>
+                <local:BulletItem Text="Alt+B: hide or show the button column."/>
+                <local:BulletItem Text="Alt+P, Alt+G, Alt+F, Alt+W: manage Projects, Goals, Flags or Who."/>
+                <local:BulletItem Text="Alt+M: manage task templates."/>
+                <local:BulletItem Text="Alt+R: Reminders."/>
+                <local:BulletItem Text="Alt+S: Settings."/>
+                <local:BulletItem Text="Alt+H: this Help screen."/>
+                <local:BulletItem Text="Alt+L: Timeline."/>
+                <local:BulletItem Text="Alt+T: only what is due today or overdue."/>
+                <local:BulletItem Text="Alt+0 to Alt+9: apply a saved custom filter."/>
+                <local:BulletItem Text="Esc: close a dialog. On the board, it clears the selection, then the filters."/>
 
                 <TextBlock x:Name="HelpSection_AddEditTask" Text="Adding and editing tasks" Style="{StaticResource HelpSectionHeaderStyle}"/>
-                <local:BulletItem Text="Click New Task in the button panel (or press Ctrl+N) to create a task."/>
-                <local:BulletItem Text="Double-click a column header (e.g. To Do, In Progress) to create a task already assigned to that column."/>
-                <local:BulletItem Text="Double-click any card to open it for editing."/>
-                <local:BulletItem Text="Each task can have a Category, Project, Goal, Priority, Due Date, Who it's assigned to, free-form Notes, Flags, and a checklist of Sub-tasks. Project is required; everything else is optional."/>
-                <local:BulletItem Text="An optional Time can go with the Due Date, typed like 2:30 PM, 2pm, or 14:30. A time needs a date; clearing the date clears the time too. Recurring tasks carry their time forward to each new occurrence."/>
-                <local:BulletItem Text="An optional Start date says a task can't be worked on before then. While that date is still ahead the card shows Starts and the date. It can't be later than the Due Date. Recurring tasks keep the same gap between start and due on each new occurrence."/>
-                <local:BulletItem Text="The AM and PM buttons beside the Time pick the half of the day, and the highlighted one shows how the time will be saved. Click one to switch a time you've already typed, or click it first and then type. If you type a time like 2:30 without AM or PM and don't click either button, it's read as a working hour (7 to 11 as AM, 12 to 6 as PM). Typing am/pm yourself, or a 24-hour time like 14:30 or 06:00, is always taken as written."/>
-                <local:BulletItem Text="Use the + and − buttons next to Project, Goal, and Who to add a new one on the fly, or clear the current selection without deleting the record."/>
-                <local:BulletItem Text="A task can be assigned to more than one person. Click the Who box to open the list and tick everyone involved. The first person ticked is the lead; click 'make lead' beside another name to change that. The − button clears everyone."/>
-                <local:BulletItem Text="You can also type to find someone: with the Who box selected or its list open, start typing a name (first name or surname) and the list jumps to that person. Press Space to tick them, and Enter or Esc to close the list. The Project, Priority and Who filter lists on the board work the same way: click in the list and type."/>
-                <local:BulletItem Text="On a shared task, the card lists everyone (lead first), the Who filter shows it when any of its people is selected, Sort by Who uses the lead, and Email goes to everyone who has an email address."/>
-                <local:BulletItem Text="Each task also has an optional Website field — paste a link related to the task and click Open beside it to launch it in your default browser. A link typed without http:// still works."/>
-                <local:BulletItem Text="The Website field takes web links and email addresses only (an email address opens a new email). For your safety, links to files, folders, or programs are refused, including in task files you get from someone else."/>
-                <local:BulletItem Text="If you close the dialog (Cancel, Esc, or the window's X) after changing anything, you're asked before the changes are thrown away."/>
-                <local:BulletItem Text="Spell check in Task and Notes accepts both Canadian and American spellings."/>
+                <TextBlock Text="Creating" Style="{StaticResource HelpSubHeaderStyle}"/>
+                <local:BulletItem Text="New Task, or Ctrl+N, creates a task."/>
+                <local:BulletItem Text="Double-click a column heading to create a task in that column."/>
+                <local:BulletItem Text="Double-click a card to edit it."/>
+                <local:BulletItem Text="Project is required. Everything else is optional."/>
+                <TextBlock Text="Dates and times" Style="{StaticResource HelpSubHeaderStyle}"/>
+                <local:BulletItem Text="A due time needs a due date. Type it as 2:30 PM, 2pm or 14:30."/>
+                <local:BulletItem Text="Clearing the date clears the time."/>
+                <local:BulletItem Text="The AM and PM buttons set or switch the half of the day."/>
+                <local:BulletItem Text="A time without AM or PM is read as a working hour: 7 to 11 AM, 12 to 6 PM."/>
+                <local:BulletItem Text="A Start date means the task cannot be worked on before then."/>
+                <local:BulletItem Text="Until that date, the card shows Starts and the date."/>
+                <local:BulletItem Text="The start date cannot be after the due date."/>
+                <local:BulletItem Text="Recurring tasks carry the time, and the gap from start to due, to each new occurrence."/>
+                <TextBlock Text="People" Style="{StaticResource HelpSubHeaderStyle}"/>
+                <local:BulletItem Text="+ adds a new Project, Goal or person. − clears the choice without deleting it."/>
+                <local:BulletItem Text="Tick several people in Who to share a task."/>
+                <local:BulletItem Text="The first person ticked is the lead. Click make lead to change it."/>
+                <local:BulletItem Text="Type a first name or surname to jump to that person. Space ticks them."/>
+                <local:BulletItem Text="The board's Project, Priority and Who filter lists also jump as you type."/>
+                <local:BulletItem Text="A shared task lists everyone on the card, lead first."/>
+                <TextBlock Text="Also on the task screen" Style="{StaticResource HelpSubHeaderStyle}"/>
+                <local:BulletItem Text="Website takes a web link or an email address. Open launches it."/>
+                <local:BulletItem Text="Links to files, folders or programs are refused, for your safety."/>
+                <local:BulletItem Text="Closing with unsaved changes asks first."/>
+                <local:BulletItem Text="Spell check accepts Canadian and American spellings."/>
 
                 <TextBlock Text="Emailing a task" Style="{StaticResource HelpSectionHeaderStyle}"/>
-                <local:BulletItem Text="When a task is assigned to someone with an email address (set in Manage Who), an envelope button appears on the card, and an Email button appears when you open the task to edit it."/>
-                <local:BulletItem Text="It opens a new email to that person with the task's details: project, priority, due date and time, goal, flags, notes, and sub-tasks. Nothing is sent until you click Send."/>
-                <local:BulletItem Text="An Excel copy of the task goes with it. Anyone who also uses Kanban Task Board can click Import Tasks and pick that file to add the task to their own board."/>
-                <local:BulletItem Text="With classic Outlook, the task's attachments and the Excel file are attached for you, and your Outlook signature is kept. If Outlook has no signature set up, one is built from Settings > Your Details."/>
-                <local:BulletItem Text="With the new Outlook, another email app, or no Outlook, the email opens in your default email app instead. Files can't be attached for you that way, so a folder with the Excel file and attachments opens alongside it for you to drag them in."/>
+                <local:BulletItem Text="The envelope button shows when the person has an email address, set in Manage Who."/>
+                <local:BulletItem Text="The email holds the task's details. Nothing is sent until you click Send."/>
+                <local:BulletItem Text="A shared task's email goes to everyone with an address."/>
+                <local:BulletItem Text="An Excel copy goes with it. Other Kanban Task Board users can import it."/>
+                <local:BulletItem Text="With classic Outlook, files are attached and your signature is kept."/>
+                <local:BulletItem Text="With no Outlook signature, one is built from Settings, Your Details."/>
+                <local:BulletItem Text="With another email app, a folder opens with the files to drag into the email."/>
 
                 <TextBlock Text="Quick Add from any program" Style="{StaticResource HelpSectionHeaderStyle}"/>
-                <local:BulletItem Text="While the app is running (minimised is fine), press Ctrl+Alt+N in any program to open a small New Task box on top of it. Type the task, press Enter, and carry on with what you were doing. The box stays open so you can add several; Esc closes it."/>
-                <local:BulletItem Text="The task goes into To Do, with Normal priority, in the project shown beside the box (it remembers the last one you used)."/>
-                <local:BulletItem Text="Optional codes, each as its own word anywhere in the line: !high, !medium or !low for priority; @ and the start of a person's name, such as @sam, for who; and for the due date /today, /tomorrow, a day such as /fri, a number of days such as /+3, or a date such as /10-15. The line under the box shows how it was understood before you press Enter."/>
-                <local:BulletItem Text="Anything that isn't one of those codes stays in the title as typed, so an email address or 50/50 is safe. A name that could be two people is left in the title too."/>
-                <local:BulletItem Text="If another program already uses Ctrl+Alt+N, Settings says so. You can switch Quick Add off there. It only works while the app is running."/>
+                <local:BulletItem Text="Press Ctrl+Alt+N in any program for a small New Task box."/>
+                <local:BulletItem Text="The app must be running. Minimised is fine."/>
+                <local:BulletItem Text="Type the task and press Enter. The box stays open for more; Esc closes it."/>
+                <local:BulletItem Text="New tasks go into To Do, at Normal priority, in the project shown beside the box."/>
+                <local:BulletItem Text="Priority: add !high, !medium or !low."/>
+                <local:BulletItem Text="Who: add @ and the start of a name, such as @sam."/>
+                <local:BulletItem Text="Due date: add /today, /tomorrow, /fri, /+3 or /10-15."/>
+                <local:BulletItem Text="The line under the box shows how it was read, before you press Enter."/>
+                <local:BulletItem Text="Anything else stays in the title, so an email address or 50/50 is safe."/>
+                <local:BulletItem Text="Settings shows if another program already uses Ctrl+Alt+N, and can switch Quick Add off."/>
 
                 <TextBlock Text="Task templates" Style="{StaticResource HelpSectionHeaderStyle}"/>
-                <local:BulletItem Text="A template is a saved starting point for tasks you create again and again, with its project, priority, who, goal, flags, sub-tasks, notes, website and recurring settings already filled in."/>
-                <local:BulletItem Text="To make one, fill in a task and click Save as Template on the task screen, or right-click a task on the board and choose Save as Template. Saving under a name that already exists asks before replacing it."/>
-                <local:BulletItem Text="To use one, click New Task and pick it from the Template list at the top of the task screen, or right-click the New Task button and choose it there. Everything it fills in can still be changed before you save."/>
-                <local:BulletItem Text="Dates are kept as so many days from today: a template saved from a task due in 14 days makes tasks due 14 days after you use it. Dates already past, attachments, Waiting On, the column, and sub-task ticks are not kept."/>
-                <local:BulletItem Text="To rename or delete templates, press Alt+M on the main screen, right-click the New Task button and choose Manage Templates, or click Manage beside the Template list. Deleting one does not affect tasks already made from it."/>
+                <local:BulletItem Text="A template is a saved starting point for a task you create often."/>
+                <local:BulletItem Text="It keeps the project, priority, who, goal, flags, sub-tasks, notes, website and recurring settings."/>
+                <local:BulletItem Text="To save one: Save as Template on the task screen, or right-click a card."/>
+                <local:BulletItem Text="To use one: pick it from the Template list, or right-click New Task."/>
+                <local:BulletItem Text="Everything it fills in can still be changed."/>
+                <local:BulletItem Text="Dates are kept as days from today. Due in 14 days stays due in 14 days."/>
+                <local:BulletItem Text="Not kept: past dates, attachments, Waiting On, the column and sub-task ticks."/>
+                <local:BulletItem Text="To rename or delete one: Alt+M, or Manage beside the Template list."/>
+                <local:BulletItem Text="Deleting a template does not affect tasks made from it."/>
 
                 <TextBlock Text="Sub-tasks" Style="{StaticResource HelpSectionHeaderStyle}"/>
-                <local:BulletItem Text="Add sub-task rows in the task dialog; each has its own checkbox."/>
-                <local:BulletItem Text="Sub-task checkboxes also appear directly on the card (in large card view) so you can tick them off without opening the dialog."/>
-                <local:BulletItem Text="A done/total (percent) summary is shown both in the dialog and on the card."/>
+                <local:BulletItem Text="Add sub-task rows on the task screen, each with its own tickbox."/>
+                <local:BulletItem Text="Large cards show the tickboxes, so they can be ticked on the board."/>
+                <local:BulletItem Text="The task screen and the card show how many are done, with a percentage."/>
 
                 <TextBlock Text="Attachments" Style="{StaticResource HelpSectionHeaderStyle}"/>
-                <local:BulletItem Text="'+ File...' picks an existing file and copies it into the task's 'Attachments' folder (next to your database) — the original file is left untouched in its original location."/>
-                <local:BulletItem Text="Dragging a file (from Explorer, Outlook, or an email) onto the attachments area or a card copies it into the 'Attachments' folder the same way."/>
-                <local:BulletItem Text="'Paste Screenshot' adds whatever image is on the clipboard (e.g. after PrtScn or the Snipping Tool), saved as a real file in the 'Attachments' folder too."/>
-                <local:BulletItem Text="Right-click an attachment in the task screen to open it, show it in its folder, copy it (ready to paste into a folder, an email or a chat; a picture also pastes as a picture), copy its path, save a copy somewhere else, or remove it from the task."/>
-                <local:BulletItem Text="Because every attachment is its own copy inside the Attachments folder, it travels with your database if you relocate it, and is unaffected by changes to (or deletion of) the original file it was copied from."/>
-                <local:BulletItem Text="When a task reaches Done, is archived, or is deleted, its attachments are automatically moved into a matching Done/Archived/Deleted subfolder inside the Attachments folder, keeping them organized by status — and moved back if the task returns to the board."/>
-                <local:BulletItem Text="Images show as a small thumbnail; other files show as a filename. Click either to open the file in its default app, or × to remove it from the task — this deletes the saved copy."/>
+                <local:BulletItem Text="+ File copies a file into the Attachments folder beside your task file."/>
+                <local:BulletItem Text="The original file is left untouched."/>
+                <local:BulletItem Text="Drag a file from Explorer, Outlook or an email onto a card or the attachments area."/>
+                <local:BulletItem Text="Paste Screenshot attaches the picture on the clipboard."/>
+                <local:BulletItem Text="Click a thumbnail or file name to open it."/>
+                <local:BulletItem Text="Right-click an attachment to open it, show its folder, copy it, save a copy or remove it."/>
+                <local:BulletItem Text="× removes an attachment and deletes its saved copy."/>
+                <local:BulletItem Text="Attachments move with the task into Done, Archived and Deleted folders, and back again."/>
 
                 <TextBlock Text="Recurring tasks" Style="{StaticResource HelpSectionHeaderStyle}"/>
-                <local:BulletItem Text="Mark a task Recurring and choose a pattern (Daily, Weekday, Weekly, Bi-Weekly, Semi-Monthly, Monthly, Bi-Monthly, Quarterly, or Annually)."/>
-                <local:BulletItem Text="To stop after a set number of times, enter it in the box under the pattern, for example 6 for six times in all, counting this task. Each new occurrence counts down by one, the card shows how many are still to come, and the last one creates no more. Leave the box empty (it shows ∞) to keep repeating until you delete the task or untick Recurring."/>
-                <local:BulletItem Text="Semi-Monthly means twice a month rather than every 15 days, so it stays on the same two dates instead of drifting through the calendar. The pair comes from the due date you set: due on the 3rd repeats on the 3rd and the 18th, due on the 20th repeats on the 5th and the 20th."/>
-                <local:BulletItem Text="Due dates from the 13th to the 15th, and from the 28th to the 31st, settle onto the 15th and the last day of the month — the usual twice-monthly pairing, and the only one that survives February without shifting. Dates from the 1st to the 12th keep their own pair and never move."/>
-                <local:BulletItem Text="When a recurring task is moved to Done, its next occurrence is created automatically in To Do with the same details and sub-task list — but with every sub-task unchecked."/>
-                <local:BulletItem Text="Each task only ever spawns its next occurrence once. If a completed recurring task is later reactivated (e.g. from Archived Tasks) and marked Done again, no second copy is created — its next occurrence already exists."/>
-                <local:BulletItem Text="Deleting a recurring task that hasn't been completed asks what you want: delete this occurrence and keep the series going (the next one is created straight away), or delete it and end the series."/>
+                <local:BulletItem Text="Tick Recurring and pick a pattern, from Daily to Annually."/>
+                <local:BulletItem Text="To stop after a number of times, enter it under the pattern, counting this task."/>
+                <local:BulletItem Text="Leave it empty, shown as ∞, to repeat with no end."/>
+                <local:BulletItem Text="The card shows how many are still to come."/>
+                <local:BulletItem Text="Moving a recurring task to Done creates the next one in To Do, with sub-tasks unticked."/>
+                <local:BulletItem Text="Each task creates its next occurrence only once, even if finished again later."/>
+                <local:BulletItem Text="Deleting an unfinished recurring task asks whether to keep the series going."/>
+                <TextBlock Text="Semi-Monthly" Style="{StaticResource HelpSubHeaderStyle}"/>
+                <local:BulletItem Text="Twice a month, on the same two dates."/>
+                <local:BulletItem Text="Due on the 3rd: the 3rd and 18th. Due on the 20th: the 5th and 20th."/>
+                <local:BulletItem Text="Due from the 13th to 15th, or 28th to 31st: the 15th and the last day of the month."/>
 
                 <TextBlock Text="Quick actions on a card" Style="{StaticResource HelpSectionHeaderStyle}"/>
-                <local:BulletItem Text="The letter buttons move a card directly to To Do, In Progress, On Hold, or Waiting; the check mark moves it to Done; the X deletes it."/>
-                <local:BulletItem Text="The tag icon, beside the task's details, adds an existing flag from a dropdown without opening the task."/>
-                <local:BulletItem Text="Click a card's Project name, Priority badge, Assigned name, or due date to change any of them directly from the board, without opening the task."/>
-                <local:BulletItem Text="Right-click a card for a menu of everything you can do with it: Edit, Copy as Text (the whole task, ready to paste into a chat, document, or email), Copy Title, Duplicate, Save as Template, Move To, Priority, Assign To, Project, Waiting On, Add Flag, Open Website, Email Task, and Delete."/>
-                <local:BulletItem Text="Duplicate makes a copy in the same column with every detail carried over and its sub-tasks unticked. Attached files aren't copied, since each file belongs to one task."/>
-                <local:BulletItem Text="A task's title and due date are highlighted yellow once it's past due (and still outside Done)."/>
-                <local:BulletItem Text="The small stamp at the bottom of a card shows when it was last updated, or once it's in Done, when it was completed. Editing a finished task doesn't change its completion time; moving it back out of Done clears it."/>
-                <local:BulletItem Text="A card's Project name is shown prominently just below the title, and works on both full and compact cards."/>
+                <local:BulletItem Text="The letter buttons move a card to To Do, In Progress, On Hold or Waiting."/>
+                <local:BulletItem Text="The check mark moves it to Done. X deletes it."/>
+                <local:BulletItem Text="The tag icon adds a flag."/>
+                <local:BulletItem Text="Click the project, priority, person or due date to change it on the board."/>
+                <local:BulletItem Text="Right-click a card for everything else: copy, duplicate, move, assign, email and more."/>
+                <local:BulletItem Text="Copy as Text copies the whole task, ready to paste anywhere."/>
+                <local:BulletItem Text="Duplicate copies every detail except attached files, with sub-tasks unticked."/>
+                <local:BulletItem Text="Past-due tasks show their title and due date in yellow."/>
+                <local:BulletItem Text="The stamp at the bottom shows the last update, or when it was completed."/>
 
                 <TextBlock Text="Waiting On" Style="{StaticResource HelpSectionHeaderStyle}"/>
-                <local:BulletItem Text="When a task is held up, say who or what by in the Waiting On box on the task screen, for example Sam's quote or the client's sign-off. Leave it empty when nothing is holding it up."/>
-                <local:BulletItem Text="The app remembers what you have entered in Waiting On before. In the Waiting On prompt your recent answers are listed as soon as it opens; start typing and the list narrows, with the closest match filled in ahead of the cursor. Press Enter to save what is in the box, keep typing to replace the suggestion, or press Backspace to remove it. The Down and Up arrows move through the list, and clicking an answer takes it."/>
-                <local:BulletItem Text="The Waiting On box on the task screen offers the same suggestions once you start typing in it. To stop a past answer being suggested, highlight it with the arrow keys and press Shift+Delete."/>
-                <local:BulletItem Text="To look after the suggestions, open the Waiting On List: click Manage list in the Waiting On prompt, click List beside the Waiting On box on the task screen, or right-click the Waiting On button on the main screen. There you can add answers ahead of time, rename one, or delete one. Each line shows how many tasks are waiting on it now."/>
-                <local:BulletItem Text="Renaming an answer also rewords it on every task that says it, which is the quick way to fix a spelling mistake everywhere at once. Deleting an answer that tasks are still waiting on asks whether to clear it from those tasks as well. Undo reverses the change to the tasks."/>
-                <local:BulletItem Text="The card then shows Waiting on and your words in a highlighted line. Click that line to change it; saving it empty clears it. Right-click a card (or a selection of cards) and choose Waiting On to set or clear it without opening the task."/>
-                <local:BulletItem Text="The Waiting On button beside No Due Date shows every task that is waiting, across all columns, and says how many there are. It clears the other filters first, like the Today button."/>
-                <local:BulletItem Text="Moving a task into the Waiting column asks what it is waiting on, once, unless it already says. Cancel leaves it blank."/>
-                <local:BulletItem Text="Finishing a task clears what it was waiting on. A recurring task's next occurrence starts out not waiting."/>
-                <local:BulletItem Text="The Keyword filter searches it, and it is included in Copy as Text, task emails, reports, and Excel import and export (a Waiting On column; Waiting For or Blocked By work too)."/>
+                <local:BulletItem Text="Say who or what a task is held up by, such as Sam's quote."/>
+                <local:BulletItem Text="Leave it empty when nothing is holding it up."/>
+                <local:BulletItem Text="The card shows it in a highlighted line. Click the line to change it."/>
+                <local:BulletItem Text="Right-click cards and choose Waiting On to set or clear it without opening them."/>
+                <local:BulletItem Text="Moving a task into Waiting asks what it is waiting on, unless it already says."/>
+                <local:BulletItem Text="Finishing a task clears it."/>
+                <local:BulletItem Text="The Waiting On button shows every waiting task, across all columns."/>
+                <local:BulletItem Text="Keyword search, Copy as Text, emails, reports and Excel files all include it."/>
+                <TextBlock Text="Suggestions" Style="{StaticResource HelpSubHeaderStyle}"/>
+                <local:BulletItem Text="Past answers are suggested as you type. Enter takes the suggestion."/>
+                <local:BulletItem Text="Backspace removes the suggestion. Up and Down move through the list."/>
+                <local:BulletItem Text="Shift+Delete stops a highlighted answer being suggested."/>
+                <local:BulletItem Text="To manage the list, click Manage list in the prompt, or List on the task screen."/>
+                <local:BulletItem Text="Renaming an answer rewords it on every task."/>
+                <local:BulletItem Text="Deleting an answer in use asks whether to clear it from those tasks too."/>
 
                 <TextBlock Text="Undo" Style="{StaticResource HelpSectionHeaderStyle}"/>
-                <local:BulletItem Text="Press Ctrl+Z, or click Undo beside New Task, to take back the last thing you did to a task. Hover over the Undo button to see what it will take back. A short note at the foot of the board confirms what was undone."/>
-                <local:BulletItem Text="It covers adding, editing, moving, dragging into a new order, duplicating, deleting, Archive Done, importing, and the quick changes on a card (priority, due date, who, project, flags, sub-task ticks). An action on several selected tasks is undone in one go."/>
-                <local:BulletItem Text="Undoing the completion of a recurring task also removes the next occurrence it created. Attachment files move back with the task."/>
-                <local:BulletItem Text="Keep pressing to go back further: the last 30 actions are remembered until you close the app. There is no redo."/>
-                <local:BulletItem Text="Not covered: changes to the Project, Goal, Flag and Who lists, Settings, adding or removing attachments, and anything done on the View Archived or View Deleted screens."/>
+                <local:BulletItem Text="Ctrl+Z, or Undo beside New Task, takes back the last change to a task."/>
+                <local:BulletItem Text="Hover over Undo to see what it will take back."/>
+                <local:BulletItem Text="It covers adding, editing, moving, deleting, Archive Done, importing and quick card changes."/>
+                <local:BulletItem Text="A change to several selected tasks is undone in one go."/>
+                <local:BulletItem Text="Undoing a recurring task's completion removes the next occurrence too."/>
+                <local:BulletItem Text="The last 30 actions are kept until the app closes. There is no redo."/>
+                <local:BulletItem Text="Not covered: the Manage lists, Settings, attachments, and the Archived and Deleted screens."/>
 
-                <TextBlock Text="Organizing: Projects, Goals, Flags, Who" Style="{StaticResource HelpSectionHeaderStyle}"/>
-                <local:BulletItem Text="Manage Projects / Manage Goals / Manage Flags / Manage Who let you add, rename, or permanently delete these from the whole board. Clicking the coloured Project, Who, Goal, or Flag label beside its filter opens the same screen."/>
-                <local:BulletItem Text="Flags are multi-select tags — a task can carry more than one."/>
-                <local:BulletItem Text="Projects, Goals, Who, and Flags are always listed alphabetically, everywhere they appear."/>
-                <local:BulletItem Text="Untick a Project's, Goal's, Flag's, or Who's Active checkbox to retire it: it disappears from filters and from selection on new or edited tasks, but any task already using it keeps showing its name and is unaffected."/>
-                <local:BulletItem Text="Names in each list are unique, whatever their capitals. If you add a name that is already there, nothing is added and the existing one is used; if it had been made inactive, it is made active again. Renaming one entry to another entry's name is refused."/>
-                <local:BulletItem Text="Delete warns you first with the number of tasks currently using that Project, Goal, Flag, or Who, since deleting it removes it from those tasks and cannot be undone."/>
+                <TextBlock Text="Projects, Goals, Flags and Who" Style="{StaticResource HelpSectionHeaderStyle}"/>
+                <local:BulletItem Text="The Manage screens add, rename or delete entries."/>
+                <local:BulletItem Text="Click the coloured label beside a filter to open its Manage screen."/>
+                <local:BulletItem Text="A task can carry several flags."/>
+                <local:BulletItem Text="Lists are always alphabetical."/>
+                <local:BulletItem Text="Untick Active to retire an entry. Tasks already using it keep it."/>
+                <local:BulletItem Text="Names are unique, whatever their capitals."/>
+                <local:BulletItem Text="Adding a name already there uses it, and switches it back on if needed."/>
+                <local:BulletItem Text="Delete says how many tasks use the entry first. It cannot be undone."/>
 
                 <TextBlock Text="Sorting and filtering" Style="{StaticResource HelpSectionHeaderStyle}"/>
-                <local:BulletItem Text="Click a sort button (Project, Due Date, Who, Priority) to sort every column by that alone. Ctrl+click additional sort buttons to combine them - a numbered badge on each active button shows its position in the combined sort (e.g. click Project, then Ctrl+click Due Date, then Ctrl+click Priority, to sort by project first, then due date, then priority). Ctrl+click an active button again to remove it from the combination."/>
-                <local:BulletItem Text="Drag a card up or down within its own column at any time to put it exactly where you want. Doing so switches the board to a hand-arranged order (every sort button unhighlights) and remembers it; clicking any sort button re-sorts and takes over again."/>
-                <local:BulletItem Text="To move several cards at once, Ctrl+click each one (or click one and Shift+click another in the same column to pick everything between them). Selected cards are highlighted and the number picked shows at the top of the board."/>
-                <local:BulletItem Text="Drag any selected card to move them all: onto another column to move them there, or up or down their own column to place them together at the line, in the order they were in. Ctrl+click a card again to unpick it; a plain click on another card, or Esc, clears the selection."/>
-                <local:BulletItem Text="Right-click any selected card for a menu that acts on all of them: Copy All as Text, Copy Titles, Duplicate All, Move All To, Priority, Assign To, Project, Add Flag, Clear Selection, and Delete. A tick in a submenu means every selected task already has that value. Deleting a selection always asks first, and if any of the tasks repeat it asks once whether to keep their series going."/>
-                <local:BulletItem Text="In Assign To, each person is a tick you switch on or off, so you can add or remove one person without disturbing the others; Unassigned clears everyone. With several tasks selected, a person is ticked only when every selected task has them: clicking adds them to the tasks that don't, or removes them from all if every task already has them."/>
-                <local:BulletItem Text="Moving several cards to Done at once skips the optional &quot;add a completion note?&quot; question, but a task set to open for editing when completed still opens."/>
-                <local:BulletItem Text="The filters in the button panel narrow the board by Project, Priority, Who, Goal, Flag, Due date range, or a keyword search across titles, project, who, and notes."/>
-                <local:BulletItem Text="Project, Priority, and Who allow more than one choice: Ctrl-click or Shift-click to select several, and the board shows tasks matching any of them."/>
-                <local:BulletItem Text="To make the Project list, or the Priority and Who lists, taller or shorter, drag the small bar just below them. Priority and Who always stay the same height. Double-click the bar to put it back to the standard height. The app remembers the heights you choose."/>
-                <local:BulletItem Text="Who, Goal, and Flag each offer an 'Unassigned' filter option, showing only tasks with none set."/>
-                <local:BulletItem Text="The Today / Tomorrow / Within a Week / No Due Date buttons filter by due date; Today and Within a Week both also include overdue tasks. They also show tasks that start on those days, even if they are not due for a while, and Tomorrow and Within a Week show those even while Hide Future is on. The active one is shown with a highlighted border."/>
-                <local:BulletItem Text="Hide Future (beside Undo) keeps tasks off the board until their Start date arrives, so you only see what you can work on now. While it is on, the button is outlined and reads Show Future with the number hidden. The choice is remembered, and Clear Filters and Esc leave it alone. Finished tasks are never hidden by it."/>
-                <local:BulletItem Text="These four are shortcuts, not extra filters: clicking one clears every other filter first, so you always see that due date across the whole board rather than within whatever you had narrowed down. Use the Due date range or the individual filters instead to combine a due date with a project, priority, and so on."/>
-                <local:BulletItem Text="Below those, From/To date pickers filter by a custom due-date range instead — leave From blank to include everything up through To, leave To blank to include everything from From onward. Setting a custom range clears the Today/Tomorrow/etc. buttons and vice versa."/>
-                <local:BulletItem Text="Clear Filters resets every filter back to All."/>
+                <TextBlock Text="Sorting" Style="{StaticResource HelpSubHeaderStyle}"/>
+                <local:BulletItem Text="Click a sort button to sort by it alone."/>
+                <local:BulletItem Text="Ctrl+click more buttons to combine them. A number shows each one's order."/>
+                <local:BulletItem Text="Ctrl+click an active button again to remove it."/>
+                <local:BulletItem Text="Drag a card within its column to place it by hand. The order is kept until you sort again."/>
+                <TextBlock Text="Selecting several cards" Style="{StaticResource HelpSubHeaderStyle}"/>
+                <local:BulletItem Text="Ctrl+click to pick cards. Shift+click picks a range in one column."/>
+                <local:BulletItem Text="Drag any picked card to move them all together."/>
+                <local:BulletItem Text="Right-click a picked card for actions on all of them."/>
+                <local:BulletItem Text="A tick in a submenu means every picked task already has it."/>
+                <local:BulletItem Text="In Assign To, each person switches on or off without changing the others."/>
+                <local:BulletItem Text="Esc, or a plain click on another card, clears the selection."/>
+                <local:BulletItem Text="Moving several to Done skips the completion note question."/>
+                <TextBlock Text="Filters" Style="{StaticResource HelpSubHeaderStyle}"/>
+                <local:BulletItem Text="Filter by project, priority, who, goal, flag, due date or keyword."/>
+                <local:BulletItem Text="Project, Priority and Who take several choices: Ctrl+click or Shift+click."/>
+                <local:BulletItem Text="Unassigned shows tasks with no person, goal or flag."/>
+                <local:BulletItem Text="Drag the bar under the lists to resize them. Double-click it to reset."/>
+                <local:BulletItem Text="Today, Tomorrow, Within a Week and No Due Date clear the other filters first."/>
+                <local:BulletItem Text="Today and Within a Week include overdue tasks."/>
+                <local:BulletItem Text="These buttons also show tasks starting in that period."/>
+                <local:BulletItem Text="From and To set a due date range. Leave either end blank to leave it open."/>
+                <local:BulletItem Text="Hide Future hides tasks until their start date, and shows how many are hidden."/>
+                <local:BulletItem Text="Clear Filters resets every filter to All."/>
 
                 <TextBlock Text="Custom filters (Alt+0 to Alt+9)" Style="{StaticResource HelpSectionHeaderStyle}"/>
-                <local:BulletItem Text="Ten slots hold filter combinations you use often. Set the board's filters how you want them, click Custom Filters..., pick a slot, and Save current filters here — everything currently set (project, priority, who, goal, flag, due date or range, and keyword) is stored together under a name you choose."/>
-                <local:BulletItem Text="Press that slot's Alt key from the board at any time to apply the whole combination at once. Both the number row and the numeric keypad work."/>
-                <local:BulletItem Text="The Custom Filters window also lets you rename a slot, apply one without leaving the keyboard, or clear a slot you no longer want. Pressing an unassigned slot's key does nothing, so a half-set-up shortcut can't wipe your current filters by accident."/>
-                <local:BulletItem Text="Hover over the Custom Filters button to see every saved slot's name and what it filters, without opening the window."/>
+                <local:BulletItem Text="Ten slots hold filter combinations you use often."/>
+                <local:BulletItem Text="Set the filters, click Custom Filters, pick a slot and save it under a name."/>
+                <local:BulletItem Text="Press Alt and the slot's number to apply it. The number row and keypad both work."/>
+                <local:BulletItem Text="The Custom Filters window renames, applies or clears slots."/>
+                <local:BulletItem Text="An empty slot's key does nothing."/>
+                <local:BulletItem Text="Hover over Custom Filters to see every slot."/>
 
                 <TextBlock Text="Archiving and deleting" Style="{StaticResource HelpSectionHeaderStyle}"/>
-                <local:BulletItem Text="Archive Done moves every task currently in Done out of the board."/>
-                <local:BulletItem Text="Deleting a task never erases it — it's kept out of sight instead."/>
-                <local:BulletItem Text="Click View Archived to browse archived tasks; double-click the same button to browse deleted tasks."/>
-                <local:BulletItem Text="Either list lets you select a task and reactivate it back to To Do; in the Archived list, double-clicking a task reactivates it immediately."/>
-                <local:BulletItem Text="The Archived list shows when each task was completed as well as when it was archived."/>
-                <local:BulletItem Text="Both lists have a From/To date range to narrow them down to when a task was archived or deleted; Clear Dates resets it back to showing everything."/>
-                <local:BulletItem Text="Right-click a task in either list for Permanently Delete — unlike the regular Delete on the board, this erases the task for good (including any attachments still stored with it) after a confirmation prompt. There's no undo."/>
+                <local:BulletItem Text="Archive Done moves every task in Done off the board."/>
+                <local:BulletItem Text="Deleted tasks are kept out of sight, not erased."/>
+                <local:BulletItem Text="View Archived shows archived tasks. Double-click it for deleted tasks."/>
+                <local:BulletItem Text="Select a task in either list and reactivate it back to To Do."/>
+                <local:BulletItem Text="In the Archived list, double-clicking a task reactivates it."/>
+                <local:BulletItem Text="Archived tasks show when they were completed and archived."/>
+                <local:BulletItem Text="From and To narrow either list by date. Clear Dates resets it."/>
+                <local:BulletItem Text="Right-click, Permanently Delete erases a task and its attachments. There is no undo."/>
 
                 <TextBlock Text="Importing tasks" Style="{StaticResource HelpSectionHeaderStyle}"/>
-                <local:BulletItem Text="Click Import Tasks to download an Excel template or choose a filled-in .xlsx file to import. Only the Title column is required; Category, Priority, Project, Goal, Due Date, Who, Start Date, and Waiting On are all optional."/>
-                <local:BulletItem Text="Your own spreadsheet works too: the headings can be on any row and in any order, and the task column can be headed Title, Task, or Task Details. Status or Column works for Category, Due for Due Date, Assigned To or Assignee for Who, and Start or Not Before for Start Date."/>
-                <local:BulletItem Text="Category and Priority must be chosen from the template's dropdown. Project, Goal, and Who show a dropdown of existing values but also accept a new one you type in."/>
-                <local:BulletItem Text="To assign an imported task to several people, type their names in the Who cell separated by semicolons, for example Sam Lee; Priya Patel. The first name is the lead, and any name not already on your Who list is added."/>
-                <local:BulletItem Text="Enter Due Date and Start Date as MM/DD/YYYY (year optional, defaults to the current year); it's displayed as DD-MMM-YYYY."/>
-                <local:BulletItem Text="Projects, Goals, and People mentioned in the file that don't already exist are created automatically."/>
-                <local:BulletItem Text="Right after import you're shown an editable list of the imported tasks to quickly fix up Category, Task Details, Priority, Project, Goal, Due Date, or Who."/>
-                <local:BulletItem Text="Double-click Import Tasks any time to review every task still flagged as imported. Uncheck Imported and Save to clear that flag once you're done reviewing a task."/>
+                <local:BulletItem Text="Import Tasks reads an Excel .xlsx file. Save Template gives one laid out the right way."/>
+                <local:BulletItem Text="Only Title is required."/>
+                <local:BulletItem Text="Your own spreadsheet works too, with headings on any row, in any order."/>
+                <local:BulletItem Text="Other headings understood include Task, Status, Due, Assigned To and Start."/>
+                <local:BulletItem Text="For several people, separate names with semicolons. The first is the lead."/>
+                <local:BulletItem Text="Dates are MM/DD/YYYY. The year is optional."/>
+                <local:BulletItem Text="New projects, goals and people in the file are added."/>
+                <local:BulletItem Text="After import, a list opens to fix up the new tasks."/>
+                <local:BulletItem Text="Double-click Import Tasks to review tasks still marked Imported."/>
 
                 <TextBlock x:Name="HelpSection_ReportBuilder" Text="Report Builder" Style="{StaticResource HelpSectionHeaderStyle}"/>
-                <local:BulletItem Text="Click Report Builder to design a custom report: choose which columns to include, filter by Project, Priority, Who, Goal, Flag, or Due date, group the results, and choose whether to include Notes and Sub-tasks."/>
-                <local:BulletItem Text="Preview opens a print-preview window with distinct pages, zoom, and a print button; each page after the first repeats a running header and shows a 'Page X of Y' footer. PDF saves it as a real PDF file."/>
-                <local:BulletItem Text="PDFs are saved to the Default Export Path set in Settings, with a timestamped filename; if no Default Export Path is set, you'll be asked where to save."/>
-                <local:BulletItem Text="Rows alternate shading for readability; grouped reports use a distinct alternating colour from ungrouped ones."/>
-                <local:BulletItem Text="Task scope chooses what the report covers: Board tasks (the default), Board tasks + archived, or Archived only — for reporting purely on completed work. Archived tasks are clearly marked (Archived) in the Status line and aren't affected by the Include Columns checkboxes."/>
-                <local:BulletItem Text="The archived date range (From/To) filters archived tasks by when they were archived — useful for 'what did I complete this month'. It has no effect on Board tasks, which have no archive date."/>
-                <local:BulletItem Text="A summary line under the title breaks down the task count by status (and Archived, if included). Grouped reports also show a count next to each group heading, and each task's sub-task line shows how many are done, e.g. Sub-tasks: 2/5."/>
-                <local:BulletItem Text="Include sub-task completion summary adds a section counting how many times each sub-task was completed across all matching tasks — useful for a recurring task (e.g. 'Exercise') whose sub-tasks represent repeatable items (e.g. 'Push-ups: 12/15 completed (80%)') within the chosen scope and date range."/>
-                <local:BulletItem Text="Project, Priority, and Who accept several choices at once (Ctrl-click or Shift-click). The Due date range (From/To) limits the report by due date, with an option to also include tasks that have no due date."/>
-                <local:BulletItem Text="A task shared between several people is listed under each of them when the report is grouped by Who, with a note naming the others it also appears under. The task count in the title still counts it once. The Dashboard's Open Tasks by Person chart counts a shared task for each of its people in the same way."/>
-                <local:BulletItem Text="Custom Filters lists your saved Alt+0 to Alt+9 filters. Tick one or more and the report includes any task matching at least one of them, instead of using the filters above."/>
-                <local:BulletItem Text="Sort order takes up to three levels (1st, 2nd, 3rd). Page orientation switches the PDF and preview between Portrait and Landscape."/>
-                <local:BulletItem Text="Finished tasks show when they were completed. Sort by Completed Date to list them in the order they were done, with unfinished tasks last."/>
-                <local:BulletItem Text="The header of every report lists the filters, sort, grouping, and scope it was built with, so a printed report explains itself."/>
-                <local:BulletItem Text="Save View... stores every choice on the screen under a name; pick it from the list and click Load to rebuild the same report later, or Delete View to remove it. After loading a view, Save View starts with that view's name: keep the name to update the view with what is on the screen (it asks first), or type a different name to save it as a new view. Reset all fields puts everything back to its defaults."/>
-                <local:BulletItem Text="Quick Report (Ctrl+Shift+P) runs a saved view in two clicks: pick it from the list, then Preview, Print or PDF. It remembers the view you ran last, and the line under the list says what the report will cover."/>
-                <local:BulletItem Text="Dates that mean 'today': the Today buttons beside the From and To dates set today's date, and a view saved with them keeps 'today' rather than a fixed date, so it stays current however long ago it was saved. Right-click a Today button for a day so many days from today, for example 'to' 7 days from today for a week-ahead report. Picking a date from the calendar makes it a fixed date again."/>
+                <TextBlock Text="Building a report" Style="{StaticResource HelpSubHeaderStyle}"/>
+                <local:BulletItem Text="Choose the columns, filters, grouping, sort, notes and sub-tasks."/>
+                <local:BulletItem Text="Sort takes up to three levels."/>
+                <local:BulletItem Text="Task scope: board tasks, board and archived, or archived only."/>
+                <local:BulletItem Text="The archived From and To pick tasks by when they were archived."/>
+                <local:BulletItem Text="Custom Filters: tick saved filters to include any task matching one."/>
+                <local:BulletItem Text="The sub-task summary counts how often each sub-task was done. Useful for recurring tasks."/>
+                <local:BulletItem Text="Grouped by Who, a shared task is listed under each person."/>
+                <TextBlock Text="Output" Style="{StaticResource HelpSubHeaderStyle}"/>
+                <local:BulletItem Text="Preview shows the pages, with zoom and Print."/>
+                <local:BulletItem Text="PDF saves to the Default Export Path, or asks where."/>
+                <local:BulletItem Text="Choose Portrait or Landscape."/>
+                <local:BulletItem Text="The heading lists the filters, sort and scope used, with task counts by status."/>
+                <TextBlock Text="Saved views" Style="{StaticResource HelpSubHeaderStyle}"/>
+                <local:BulletItem Text="Save View stores every choice under a name. Load rebuilds the report."/>
+                <local:BulletItem Text="Saving under the loaded view's name updates it, after asking."/>
+                <local:BulletItem Text="The Today buttons keep 'today' in a saved view, so it stays current."/>
+                <local:BulletItem Text="Right-click a Today button for so many days from today."/>
+                <local:BulletItem Text="Quick Report, Ctrl+Shift+P, runs a saved view in two clicks."/>
+                <local:BulletItem Text="Reset all fields puts everything back to the defaults."/>
 
                 <TextBlock Text="Dashboard" Style="{StaticResource HelpSectionHeaderStyle}"/>
-                <local:BulletItem Text="The banner always shows Open, Overdue, Due Today, and Due This Week counts across all non-Done tasks."/>
-                <local:BulletItem Text="Double-click the banner to open the full Dashboard. Seven tiles across the top: Open, Overdue, Due Today, Due This Week, Waiting On, Done in 7 Days (including tasks since archived) and In Done."/>
-                <local:BulletItem Text="The Dashboard opens at the size and position you last left it, including full screen. If that spot is no longer on a screen (a monitor has been unplugged, say), it opens over the board instead."/>
-                <local:BulletItem Text="Six charts below: Tasks by Status and Priority; When Open Tasks Are Due; Completed per Week over the last 12 weeks; Open Tasks by Last Update, which shows work that has sat untouched; Tasks by Project; and Open Tasks by Person. Hover over any bar for its numbers."/>
-                <local:BulletItem Text="The colours are chosen to stay distinct for people with colour blindness, and dark mode has its own set. Every chart has a legend or labels, so no number depends on colour alone."/>
+                <local:BulletItem Text="The banner shows Open, Overdue, Due Today and Due This Week."/>
+                <local:BulletItem Text="Double-click the banner for the full Dashboard."/>
+                <local:BulletItem Text="Seven tiles and six charts cover status, due dates, completions, stalled work, projects and people."/>
+                <local:BulletItem Text="Hover over a bar for its numbers."/>
+                <local:BulletItem Text="The colours stay distinct for colour-blind readers, in light and dark mode."/>
+                <local:BulletItem Text="It opens at the size and position it was left."/>
 
                 <TextBlock x:Name="HelpSection_Timeline" Text="Timeline" Style="{StaticResource HelpSectionHeaderStyle}"/>
-                <local:BulletItem Text="Click Timeline (Alt+L) for a calendar view of tasks with a due date: projects down the left, weekly date columns across the top, and each task shown as a block in the week it falls due, labelled with its title, who it's assigned to, and its due date."/>
-                <local:BulletItem Text="A task with a Start date has its box at the start date, on the left, with an arrow running right along its row to its due date, so you can see how long it has and what overlaps. A task with no Start date is just a box at its due date."/>
-                <local:BulletItem Text="If a task started before the dates showing, its box is drawn with a dashed outline in the first column instead. If it is due after the dates showing, its arrow runs off the right-hand side; page forward to reach the due date."/>
-                <local:BulletItem Text="A task with a Start date but no Due Date shows as a box at its start date."/>
-                <local:BulletItem Text="Shows 12 weeks at a time starting from the current week; use ◀ 4 Weeks / 4 Weeks ▶ to page through time, or Today to jump back to the current week."/>
-                <local:BulletItem Text="Done tasks are left out by default — check Include Done tasks to bring them back in."/>
-                <local:BulletItem Text="Switch to Day view for 21 daily columns instead of 12 weekly ones; paging then moves a week at a time."/>
-                <local:BulletItem Text="Task blocks are coloured by priority, using the same colours as the priority badge on the cards. Hover a block for its details, including the due time if it has one and what it is waiting on, or double-click it to open the task."/>
-                <local:BulletItem Text="The date headings stay in place while you scroll down through the projects."/>
-                <local:BulletItem Text="The Timeline window opens at the size you last left it, including full screen, and in the view (Day or Week) you last used."/>
-                <local:BulletItem Text="Print opens a preview of the range and view currently showing, ready to print on landscape pages."/>
+                <local:BulletItem Text="Alt+L shows tasks with a due date: projects down the side, dates across the top."/>
+                <local:BulletItem Text="A task with a start date has a box at the start and an arrow to its due date."/>
+                <local:BulletItem Text="A dashed box started before the dates shown. An arrow off the right is due later."/>
+                <local:BulletItem Text="Week view shows 12 weeks. Day view shows 21 days."/>
+                <local:BulletItem Text="Page with the arrow buttons. Today jumps back."/>
+                <local:BulletItem Text="Include Done tasks brings finished tasks back in."/>
+                <local:BulletItem Text="Blocks use the priority colours. Hover for details; double-click to open."/>
+                <local:BulletItem Text="Print previews what is showing, on landscape pages."/>
+                <local:BulletItem Text="It opens at the size and view last used."/>
 
                 <TextBlock Text="Reminders" Style="{StaticResource HelpSectionHeaderStyle}"/>
-                <local:BulletItem Text="If any task is overdue or due today, a reminder pop-up lists them automatically when the app opens."/>
-                <local:BulletItem Text="Check a task off in the reminder list to mark it Done, following the same confirmation/notes prompts as marking it Done from the board; the row then disappears from the list."/>
-                <local:BulletItem Text="Double-click a task to open it for editing — the reminder list stays open behind it so you can keep working through the rest, and Close it yourself when you're done. Once saved, that row refreshes with your changes, or drops off the list if it's no longer overdue or due today."/>
-                <local:BulletItem Text="Click the Reminders button (Alt+R) any time to bring the same list back up."/>
-                <local:BulletItem Text="Give a task a Time as well as a Due Date (e.g. 2:30 PM or 14:30) and, while the app is running, a Task Due Now alert pops up with a sound when that time arrives — even if the board is minimised. It works like the reminder list: check the task off to mark it Done, or double-click to open it."/>
-                <local:BulletItem Text="Each task alerts once for its time. Move the time later and it alerts again at the new time. Times that passed while the app was closed aren't replayed as alerts; those tasks show up in the startup reminder list instead."/>
-                <local:BulletItem Text="Click Snooze on the alert to be reminded again in 15 minutes, 1 hour, 2 hours, 4 hours, or 1 day. It snoozes every task still listed, so tick off anything you've finished first. Completing or rescheduling a snoozed task cancels its snooze."/>
-                <local:BulletItem Text="Snoozes last only while the app stays open. If you close the app before a snooze ends, the task appears in the startup reminder list next time instead (if it's overdue or due that day)."/>
+                <local:BulletItem Text="Opening the app lists anything overdue or due today."/>
+                <local:BulletItem Text="Tick a task to mark it Done. Double-click to edit it."/>
+                <local:BulletItem Text="Alt+R brings the list back any time."/>
+                <TextBlock Text="Task Due Now alerts" Style="{StaticResource HelpSubHeaderStyle}"/>
+                <local:BulletItem Text="A task with a due time alerts, with a sound, when the time comes."/>
+                <local:BulletItem Text="Alerts need the app running. Minimised is fine."/>
+                <local:BulletItem Text="Each task alerts once. Moving the time later alerts again."/>
+                <local:BulletItem Text="Snooze for 15 minutes up to 1 day. It snoozes every task still listed."/>
+                <local:BulletItem Text="Completing or rescheduling a task cancels its snooze."/>
+                <local:BulletItem Text="Times missed while the app was closed show in the startup list instead."/>
 
                 <TextBlock Text="Display options" Style="{StaticResource HelpSectionHeaderStyle}"/>
-                <local:BulletItem Text="Dark Mode / Light Mode switches the whole app's theme."/>
-                <local:BulletItem Text="Large Cards / Compact Cards toggles how much detail each card shows, useful for fitting more on screen at once."/>
-                <local:BulletItem Text="Compact cards still show what a task is waiting on, since that is the reason it is not moving."/>
-                <local:BulletItem Text="To give the board the full width, hide the button column: click Hide at the top of it, or press Alt+B. It shrinks to a thin strip at the side; click the strip, or press Alt+B again, to bring it back. Your choice is remembered, and every keyboard shortcut still works while it is hidden."/>
-                <local:BulletItem Text="While the buttons are hidden, the strip shows an orange note such as '3 hidden by filters' whenever filters (or Hide Future) are keeping tasks off the board, so a task never seems to have gone missing."/>
-                <local:BulletItem Text="Compact buttons, in Settings, makes the button column narrower and shorter for a smaller screen. The buttons become lower, the large buttons in the lower half come down to the same size as the rest, and the From and To date boxes stack one above the other. The text stays the same size, so nothing gets harder to read."/>
+                <local:BulletItem Text="Dark Mode or Light Mode switches the theme."/>
+                <local:BulletItem Text="Large or Compact Cards sets how much each card shows."/>
+                <local:BulletItem Text="Compact cards still show what a task is waiting on."/>
+                <local:BulletItem Text="Hide, or Alt+B, folds the button column to a thin strip. Click the strip to bring it back."/>
+                <local:BulletItem Text="While folded, the strip warns when filters are hiding tasks."/>
+                <local:BulletItem Text="Compact buttons, in Settings, makes the button column smaller for small screens."/>
 
                 <TextBlock x:Name="HelpSection_Settings" Text="Settings" Style="{StaticResource HelpSectionHeaderStyle}"/>
-                <local:BulletItem Text="Changes take effect as you make them, so you can see them on the board straight away. Save &amp; Close keeps them; Cancel (or Esc, or the window's X) puts every setting back to how it was when you opened Settings, after checking with you first. Backing up, and moving or switching your task file, are actions rather than settings, so Cancel doesn't undo those."/>
-                <local:BulletItem Text="Rename any column's label (e.g. change &quot;Waiting&quot; to &quot;Blocked&quot;). This only changes what's displayed — the board still treats the same column as the completion column for archiving, reminders, and recurring tasks."/>
-                <local:BulletItem Text="Move the button panel to the right side of the board."/>
-                <local:BulletItem Text="Fit task columns to the window width (on unless you switch it off): the task columns share the board evenly and resize with the window, and widen when the button column is hidden. Below 240 pixels each, the board scrolls sideways instead."/>
-                <local:BulletItem Text="With fitting switched off, every task column is the width you set in pixels (default 310, at least 240)."/>
-                <local:BulletItem Text="Turn the startup splash screen on or off and set how long it stays visible."/>
-                <local:BulletItem Text="Start the app in full screen."/>
-                <local:BulletItem Text="The window size and position are remembered automatically between sessions; the full-screen setting still applies on top of that when starting up."/>
-                <local:BulletItem Text="Require a yes/no confirmation before deleting a task, project, goal, or flag — turn this off to delete immediately without asking."/>
-                <local:BulletItem Text="Require a yes/no confirmation before Archive Done — turn this off to archive immediately without asking."/>
-                <local:BulletItem Text="Ask whether to add a note whenever a task is moved to Done; answering yes opens the task with the cursor already in the Notes field."/>
-                <local:BulletItem Text="Turn off the overdue/due-today reminder pop-up that appears on startup; the Reminders button still works either way."/>
-                <local:BulletItem Text="Turn off the Task Due Now alerts for tasks with a due time. Times that pass while they're off aren't replayed when you turn them back on."/>
-                <local:BulletItem Text="Remember filters, sort, and search between sessions — when on, the board reopens showing whatever view you had when you last closed it, instead of resetting to All/unsorted."/>
-                <local:BulletItem Text="Change where the task database file is stored. The old file is automatically removed once the app has restarted at the new location."/>
-                <local:BulletItem Text="The chosen location itself is remembered outside the database, in a small config file under your local AppData folder — not inside the database file."/>
-                <local:BulletItem Text="Keep your task file on this PC rather than in a OneDrive, Dropbox, or other synced folder that another computer also opens. Two copies of the app writing to the same synced file can damage it."/>
-                <local:BulletItem Text="The task file records which version of the app has used it. If this PC's copy of the app is older than one that has already used the file, it warns you when it starts and offers to close, because an older copy can lose details it doesn't know about. Update the app on this PC, then open it again."/>
-                <local:BulletItem Text="Set a Default Export Path (used by Report Builder's PDF export) and a Default Import Path (used by Import Tasks, including where the template is saved)."/>
-                <local:BulletItem Text="Set an Attach File Default Path — where the '+ File...' picker opens by default when attaching a file to a task."/>
-                <local:BulletItem Text="Your Details (name, title, email, phone) sign off emails sent with Email This Task when there's no Outlook signature to use."/>
-                <local:BulletItem Text="Turn off the What's New screen that appears the first time you open a newly updated version, or click Show What's New to read it any time. It lists everything added across the last five updates."/>
-                <local:BulletItem Text="The About button shows the version and where this installation keeps its files. What's New, beside it at the bottom of this Help screen, lists what changed in the last five updates."/>
+                <TextBlock Text="How it works" Style="{StaticResource HelpSubHeaderStyle}"/>
+                <local:BulletItem Text="Changes show as you make them. Save &amp; Close keeps them."/>
+                <local:BulletItem Text="Cancel puts every setting back, after asking."/>
+                <local:BulletItem Text="Backups and task file changes happen straight away. Cancel does not undo them."/>
+                <TextBlock Text="Board" Style="{StaticResource HelpSubHeaderStyle}"/>
+                <local:BulletItem Text="Rename any column. The last column still works as Done."/>
+                <local:BulletItem Text="Move the button panel to the right."/>
+                <local:BulletItem Text="Fit the columns to the window, or set a fixed width of at least 240 pixels."/>
+                <local:BulletItem Text="Turn the splash screen on or off, and set how long it shows."/>
+                <local:BulletItem Text="Start in full screen. The window size and position are remembered."/>
+                <TextBlock Text="Prompts" Style="{StaticResource HelpSubHeaderStyle}"/>
+                <local:BulletItem Text="Ask before deleting, and before Archive Done."/>
+                <local:BulletItem Text="Ask to add a note when a task reaches Done."/>
+                <local:BulletItem Text="Startup reminders and Task Due Now alerts, on or off."/>
+                <local:BulletItem Text="Remember filters, sort and search between sessions."/>
+                <local:BulletItem Text="Show What's New after an update, or read it any time."/>
+                <TextBlock Text="Files and details" Style="{StaticResource HelpSubHeaderStyle}"/>
+                <local:BulletItem Text="Default folders for exports, imports and attachments."/>
+                <local:BulletItem Text="Your Details sign task emails when Outlook has no signature."/>
+                <local:BulletItem Text="Move the task file. The old copy is removed after the restart."/>
+                <local:BulletItem Text="Keep the task file on this PC, not in a folder another computer syncs and opens."/>
+                <local:BulletItem Text="An older copy of the app warns before opening a file a newer copy has used."/>
 
                 <TextBlock Text="Task files" Style="{StaticResource HelpSectionHeaderStyle}"/>
-                <local:BulletItem Text="You can keep separate, fully independent boards in different task files, each with its own tasks, columns, projects, and settings. This is handy for keeping work and personal tasks apart."/>
-                <local:BulletItem Text="In Settings > Data Storage, New File... starts an empty board and Open Existing File... opens one you already have. Files you've used before appear in the list, where Switch to Selected (or a double-click) goes back to one and Remove from List tidies the list without deleting the file."/>
-                <local:BulletItem Text="Switching files restarts the app. The file you're leaving is never changed or deleted."/>
+                <local:BulletItem Text="Keep separate boards, such as work and personal, in separate task files."/>
+                <local:BulletItem Text="Settings, Data Storage: New File starts an empty board. Open Existing File opens one."/>
+                <local:BulletItem Text="Files used before are listed. Double-click one to switch to it."/>
+                <local:BulletItem Text="Remove from List tidies the list. It does not delete the file."/>
+                <local:BulletItem Text="Switching restarts the app. The file you leave is not changed."/>
 
                 <TextBlock Text="Backups" Style="{StaticResource HelpSectionHeaderStyle}"/>
-                <local:BulletItem Text="Each time the app closes, it saves a dated copy of your task file in a Backups folder next to it, keeping the most recent 20."/>
-                <local:BulletItem Text="In Settings > Backups you can turn this off, change how many are kept, make a backup right now, or open the Backups folder."/>
-                <local:BulletItem Text="To restore a backup, close the app and copy the backup over your task file (its location is shown in Settings > Data Storage). Move the current file aside first if you might want it back."/>
-                <local:BulletItem Text="Backups cover tasks and settings. Attached files live separately in the Attachments folder next to your task file."/>
+                <local:BulletItem Text="Closing the app saves a dated copy of the task file. The latest 20 are kept."/>
+                <local:BulletItem Text="Settings, Backups: turn it off, change how many, back up now or open the folder."/>
+                <local:BulletItem Text="To restore, close the app and copy the backup over the task file."/>
+                <local:BulletItem Text="Move the current file aside first if you may want it back."/>
+                <local:BulletItem Text="Backups cover tasks and settings. Attachments have their own folder."/>
 
                 <TextBlock Text="Getting help" Style="{StaticResource HelpSectionHeaderStyle}"/>
-                <local:BulletItem Text="The ? button in Add/Edit Task, Report Builder, Timeline, and Settings opens this Help screen at the matching topic."/>
-                <local:BulletItem Text="If something goes wrong, click Report a Problem at the bottom of this screen (or in About). It opens an email to support with the app's error log attached. Add a few words about what you were doing, then send it. Nothing is sent until you click Send."/>
-                <local:BulletItem Text="When the app hits an unexpected error, it also offers to open that email for you."/>
+                <local:BulletItem Text="The ? button on a screen opens Help at its topic."/>
+                <local:BulletItem Text="Report a Problem emails support with the error log attached."/>
+                <local:BulletItem Text="Nothing is sent until you click Send."/>
+                <local:BulletItem Text="An unexpected error also offers to open that email."/>
+                <local:BulletItem Text="About shows the version and where this installation keeps its files."/>
 
                 <TextBlock Text="Updates" Style="{StaticResource HelpSectionHeaderStyle}"/>
-                <local:BulletItem Text="At most once a day, when the app starts, it checks whether a newer version has been released. If one has, it shows what is new in it and a Get the Update button, which opens our download page in your browser. Run the installer from there: it updates the program in place and leaves your tasks as they are."/>
-                <local:BulletItem Text="Remind Me Later closes the notice until the next day's check. Skip This Version stops the notice for that version only; the one after it is still offered."/>
-                <local:BulletItem Text="The check sends the app's name and version number and nothing else. Nothing is ever downloaded or installed unless you choose to. To turn it off, untick 'Check for a newer version automatically' in Settings."/>
-                <local:BulletItem Text="To check whenever you like, open About and click Check for Updates. Checking by hand does not affect the daily automatic check. If two PCs share one task file, each PC runs its own daily check."/>
+                <local:BulletItem Text="Once a day, at start-up, the app checks for a newer version."/>
+                <local:BulletItem Text="Get the Update opens the download page. The installer updates in place and keeps your tasks."/>
+                <local:BulletItem Text="Remind Me Later waits a day. Skip This Version skips that version only."/>
+                <local:BulletItem Text="The check sends only the app's name and version. Nothing downloads unless you choose."/>
+                <local:BulletItem Text="To turn it off, untick 'Check for a newer version automatically' in Settings."/>
+                <local:BulletItem Text="To check any time, click Check for Updates in About."/>
 
                 <TextBlock Text="Privacy, licence and support" Style="{StaticResource HelpSectionHeaderStyle}"/>
-                <local:BulletItem Text="Everything you enter stays in your task file on this PC. There is no account, no cloud storage, and no usage tracking. The Privacy Note, in About, sets this out in full."/>
-                <local:BulletItem Text="The Licence Agreement is also in About. One licence covers one person, on any PCs that person uses."/>
-                <local:BulletItem Text="For support, use the email address shown in About, or click Report a Problem."/>
+                <local:BulletItem Text="Everything stays in your task file on this PC. No account, no cloud, no tracking."/>
+                <local:BulletItem Text="The Privacy Note and Licence Agreement are in About."/>
+                <local:BulletItem Text="One licence covers one person, on any PCs they use."/>
+                <local:BulletItem Text="For support, use the email in About, or Report a Problem."/>
+
             </StackPanel>
         </ScrollViewer>
 
