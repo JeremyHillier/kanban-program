@@ -137,9 +137,10 @@ internal static class TemplatePrompts
 
         if (viewModel.FindTaskTemplate(dialog.Value) is { } existing)
         {
-            var answer = MessageBox.Show(owner, $"There is already a template called \"{existing.Name}\".\n\nReplace it?",
-                "Save as Template", MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No);
-            if (answer != MessageBoxResult.Yes) return null;
+            if (!Dialogs.Confirm(owner, DialogMessage.AskDanger("Save as Template",
+                    $"Replace the template \"{existing.Name}\"?\n\nThere is already a template with that name. Tasks already made from it are not affected.",
+                    "Replace It")))
+                return null;
         }
 
         return viewModel.SaveTaskTemplate(dialog.Value, template);

@@ -1,6 +1,7 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Threading;
+using KanbanApp.Services;
 using KanbanApp.ViewModels;
 
 namespace KanbanApp.Views;
@@ -76,10 +77,11 @@ public partial class ManageListWindow : Window
         if (_viewModel.ConfirmDelete)
         {
             var count = _kind.CountUsage(item);
-            var impact = count == 0 ? "No tasks currently use it." : $"{count} task{(count == 1 ? "" : "s")} currently use it — {_kind.IfDeleted}";
-            var result = MessageBox.Show(this, $"{_kind.DeleteQuestion(item.Name)}\n\n{impact}\n\nThis cannot be undone.",
-                "Confirm Delete", MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.Yes);
-            if (result != MessageBoxResult.Yes) return;
+            var impact = count == 0 ? "No tasks use it." : $"{count} task{(count == 1 ? " uses" : "s use")} it. If it is deleted, {_kind.IfDeleted}";
+            // Undo does not cover the lists, so Enter keeps it: a quick Enter never deletes.
+            if (!Dialogs.Confirm(this, DialogMessage.AskDanger("Delete",
+                    $"{_kind.DeleteQuestion(item.Name)}\n\n{impact}\n\nThis cannot be undone.", "Delete")))
+                return;
         }
 
         // Deferred via BeginInvoke: same reason as the rename above — removing the row tears down

@@ -88,7 +88,9 @@ public static class OutlookEmailHelper
         }
         catch (Exception ex)
         {
-            MessageBox.Show(owner, $"The email opened, but couldn't be fully filled in: {ex.Message}", "Email", MessageBoxButton.OK, MessageBoxImage.Error);
+            Dialogs.Tell(owner, "Email This Task",
+                "The email opened, but it could not be filled in completely.\n\nCheck it before sending, and add anything that is missing.",
+                DialogTone.Warning, ex.Message);
         }
 
         return true;
@@ -105,10 +107,9 @@ public static class OutlookEmailHelper
             var files = attachmentPaths.Count == 0
                 ? "this task's Excel file"
                 : $"this task's Excel file and its {attachmentPaths.Count} attachment{(attachmentPaths.Count == 1 ? "" : "s")}";
-            MessageBox.Show(owner,
-                "Classic Outlook isn't available on this PC, so this email will open in your default email app instead.\n\n" +
-                $"Files can't be attached for you that way, so a folder with {files} will open too. Drag them into the email.",
-                "Email This Task", MessageBoxButton.OK, MessageBoxImage.Information);
+            Dialogs.Tell(owner, "Email This Task",
+                "The email will open in your default email app.\n\n" +
+                $"Classic Outlook is not available on this PC, so files cannot be attached for you. A folder with {files} opens too: drag them into the email.");
         }
 
         // Opened before the email so the compose window ends up in front of it.
@@ -139,10 +140,10 @@ public static class OutlookEmailHelper
                 // Clipboard busy - the message below still tells them what happened.
             }
 
-            MessageBox.Show(owner,
-                "No email app is set up to open email links on this PC.\n\n" +
-                $"The email has been copied to the clipboard instead. Paste it into a new message to {recipientEmail}.",
-                "Email This Task", MessageBoxButton.OK, MessageBoxImage.Warning);
+            Dialogs.Tell(owner, "Email This Task",
+                "The email has been copied to the clipboard.\n\n" +
+                $"No email app is set up to open email links on this PC. Paste it into a new message to {recipientEmail}.",
+                DialogTone.Warning);
         }
     }
 
@@ -158,9 +159,9 @@ public static class OutlookEmailHelper
         if (existing.Count > 0)
         {
             ShowMessage(owner,
-                "Classic Outlook isn't available on this PC, so this email will open in your default email app instead.\n\n" +
-                "Files can't be attached for you that way, so a folder with them will open too. Drag them into the email.",
-                dialogTitle, MessageBoxImage.Information);
+                "The email will open in your default email app.\n\n" +
+                "Classic Outlook is not available on this PC, so files cannot be attached for you. A folder with them opens too: drag them into the email.",
+                dialogTitle, DialogTone.Info);
             try
             {
                 var folder = Path.Combine(AttachmentFoldersRoot, SanitizeFileName(folderName));
@@ -191,9 +192,9 @@ public static class OutlookEmailHelper
             }
 
             ShowMessage(owner,
-                "No email app is set up to open email links on this PC.\n\n" +
-                $"The email has been copied to the clipboard instead. Paste it into a new message to {recipient}.",
-                dialogTitle, MessageBoxImage.Warning);
+                "The email has been copied to the clipboard.\n\n" +
+                $"No email app is set up to open email links on this PC. Paste it into a new message to {recipient}.",
+                dialogTitle, DialogTone.Warning);
         }
     }
 
@@ -230,23 +231,15 @@ public static class OutlookEmailHelper
         }
         catch (Exception ex)
         {
-            ShowMessage(owner, $"The email opened, but couldn't be fully filled in: {ex.Message}", dialogTitle, MessageBoxImage.Error);
+            ShowMessage(owner, "The email opened, but it could not be filled in completely.\n\nCheck it before sending, and add anything that is missing.",
+                dialogTitle, DialogTone.Warning, ex.Message);
         }
 
         return true;
     }
 
-    private static void ShowMessage(Window? owner, string message, string title, MessageBoxImage icon)
-    {
-        if (owner is not null)
-        {
-            MessageBox.Show(owner, message, title, MessageBoxButton.OK, icon);
-        }
-        else
-        {
-            MessageBox.Show(message, title, MessageBoxButton.OK, icon);
-        }
-    }
+    private static void ShowMessage(Window? owner, string message, string title, DialogTone tone, string? detail = null) =>
+        Dialogs.Tell(owner, title, message, tone, detail);
 
     internal static string EmailSubject(CardViewModel card) => $"Task: {card.Title}";
 

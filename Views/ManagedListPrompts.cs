@@ -11,14 +11,13 @@ internal static class ManagedListPrompts
     public static void ShowAddNotice<T>(Window owner, ManagedAddResult<T> result, string kind, string name)
     {
         if (result.Notice(kind, name) is not { } notice) return;
-        MessageBox.Show(owner, notice, "Name Already Used", MessageBoxButton.OK, MessageBoxImage.Information);
+        Services.Dialogs.Tell(owner, "Name Already Used", notice);
     }
 
     // The box still shows what was typed; put the real name back, since nothing was renamed.
     public static void RenameRefused(Window owner, TextBox box, string kind, string name)
     {
         box.GetBindingExpression(TextBox.TextProperty)?.UpdateTarget();
-        MessageBox.Show(owner, $"There is already a {kind} called \"{name.Trim()}\", so the name was not changed.",
-            "Name Already Used", MessageBoxButton.OK, MessageBoxImage.Information);
+        Services.Dialogs.Tell(owner, "Name Already Used", $"The name was not changed.\n\nThere is already a {kind} called \"{name.Trim()}\".");
     }
 }

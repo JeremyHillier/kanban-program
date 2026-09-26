@@ -27,8 +27,7 @@ public partial class App : Application
         _instanceMutex = new Mutex(true, $"KanbanTaskBoard-{AppChannel.Name}", out var createdNew);
         if (!createdNew)
         {
-            MessageBox.Show($"{AppChannel.DisplayName} is already running.", AppChannel.DisplayName,
-                MessageBoxButton.OK, MessageBoxImage.Information);
+            Dialogs.Tell(null, "Already Open", $"{AppChannel.DisplayName} is already open.\n\nLook for it on the taskbar.");
             Shutdown();
             return;
         }
@@ -50,11 +49,23 @@ public partial class App : Application
         {
             LogCrash(db.DbPath, ex.Exception);
             ex.Handled = true;
-            var answer = MessageBox.Show(
-                "Something went wrong, but the app will stay open.\n\n" + ex.Exception.Message +
-                "\n\nWould you like to email a problem report? You'll see the email before anything is sent.",
-                "Unexpected Error", MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No);
-            if (answer != MessageBoxResult.Yes) return;
+            const string text = "Something went wrong, but the app is still open and your tasks are safe.\n\n"
+                                + "Would you like to email a problem report? You see the email before anything is sent.";
+            bool report;
+            try
+            {
+                report = Dialogs.Confirm(null, new DialogMessage("Something Went Wrong", text)
+                {
+                    Tone = DialogTone.Warning, Detail = ex.Exception.Message, Yes = "Email a Report", No = "Not Now",
+                });
+            }
+            catch (Exception)
+            {
+                // The app's own window may be what is failing: the plain Windows message box still asks.
+                report = MessageBox.Show(text + "\n\n" + ex.Exception.Message, "Something Went Wrong",
+                    MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No) == MessageBoxResult.Yes;
+            }
+            if (!report) return;
 
             try
             {
@@ -102,15 +113,13 @@ public partial class App : Application
     // doesn't know about whatever that one stores, so it says so before anything is edited. The
     // safe answer, closing, is the default.
     private static bool ConfirmOpenNewerTaskFile(DatabaseService db) =>
-        MessageBox.Show(NewerTaskFileMessage(db.NewerAppVersion, DatabaseService.RunningAppVersion), AppChannel.DisplayName,
-            MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No) == MessageBoxResult.Yes;
+        Dialogs.Confirm(null, DialogMessage.AskDanger("Newer Task File",
+            NewerTaskFileMessage(db.NewerAppVersion, DatabaseService.RunningAppVersion), "Open It Anyway", "Close the App"));
 
     internal static string NewerTaskFileMessage(string? newerVersion, string thisVersion) =>
-        $"This task file was last used by a newer version of the app{(string.IsNullOrWhiteSpace(newerVersion) ? "" : $" ({newerVersion} or later)")}. " +
-        $"This PC is running version {thisVersion}.\n\n" +
-        "If you carry on, tasks you change here can lose details that only the newer version knows about.\n\n" +
-        "It is safer to close now and update this PC first.\n\n" +
-        "Open the task file anyway?";
+        $"This task file was last used by a newer version of the app{(string.IsNullOrWhiteSpace(newerVersion) ? "" : $" ({newerVersion} or later)")}.\n\n" +
+        $"This PC is running version {thisVersion}. If you carry on, tasks you change here can lose details that only the newer version knows about.\n\n" +
+        "It is safer to close now and update this PC first, from the download page. Open the task file anyway?";
 
     private static void LogCrash(string dbPath, Exception ex)
     {

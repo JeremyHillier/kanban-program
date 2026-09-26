@@ -42,7 +42,7 @@ public partial class ImportTasksWindow : Window
         }
         catch (Exception ex)
         {
-            MessageBox.Show(this, $"Could not save the template:\n{ex.Message}", "Save Failed", MessageBoxButton.OK, MessageBoxImage.Error);
+            Dialogs.Tell(this, "Template Not Saved", "The Excel template could not be saved.\n\nIf it is open in Excel, close it there and try again.", DialogTone.Error, ex.Message);
         }
     }
 
@@ -67,14 +67,14 @@ public partial class ImportTasksWindow : Window
         }
         catch (Exception ex)
         {
-            MessageBox.Show(this, $"Could not read that file:\n{ex.Message}", "Import Failed", MessageBoxButton.OK, MessageBoxImage.Error);
+            Dialogs.Tell(this, "Import Failed", "That file could not be read, so nothing was imported.\n\nIf it is open in Excel, close it there and try again.", DialogTone.Error, ex.Message);
             return;
         }
 
         if (rows.Count == 0)
         {
-            MessageBox.Show(this, "No tasks were found in that file. Make sure it has a header row with a \"Title\" column and at least one task below it.",
-                "Nothing to Import", MessageBoxButton.OK, MessageBoxImage.Information);
+            Dialogs.Tell(this, "Nothing to Import",
+                "No tasks were found in that file.\n\nIt needs a heading row with a \"Title\" column, and at least one task below it. Save Template gives a file laid out the right way.");
             return;
         }
 
@@ -82,8 +82,8 @@ public partial class ImportTasksWindow : Window
 
         Close();
 
-        MessageBox.Show(Owner, $"Imported {created.Count} task{(created.Count == 1 ? "" : "s")}.",
-            "Import Complete", MessageBoxButton.OK, MessageBoxImage.Information);
+        Dialogs.Tell(Owner, "Import Complete",
+            $"Imported {created.Count} task{(created.Count == 1 ? "" : "s")}.\n\nCheck them on the next screen, where anything can still be changed.");
 
         var reviewWindow = new ImportedTasksWindow(_viewModel) { Owner = Owner };
         reviewWindow.ShowDialog();

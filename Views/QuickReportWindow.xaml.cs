@@ -76,7 +76,7 @@ public partial class QuickReportWindow : Window
         if (filePath is null) return;
 
         ReportRunner.SavePdf(_viewModel, view, DateTime.Today, filePath);
-        MessageBox.Show(this, $"Report saved to:\n{filePath}", "Report Saved", MessageBoxButton.OK, MessageBoxImage.Information);
+        Dialogs.Tell(this, "Report Saved", "The report was saved as a PDF.", detail: filePath);
     }
 
     private void ReportBuilder_Click(object sender, RoutedEventArgs e)

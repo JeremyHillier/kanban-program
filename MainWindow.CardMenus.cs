@@ -219,8 +219,7 @@ public partial class MainWindow
         }
         catch (System.Runtime.InteropServices.COMException)
         {
-            MessageBox.Show(this, "The clipboard is being used by another program. Please try again.",
-                "Couldn't Copy", MessageBoxButton.OK, MessageBoxImage.Warning);
+            Dialogs.Tell(this, "Could Not Copy", "The task was not copied.\n\nAnother program is using the clipboard. Try again in a moment.", DialogTone.Warning);
         }
     }
 }

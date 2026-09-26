@@ -18,7 +18,8 @@ public static class DialogCopyright
     [
         "MainWindow",    // shows it under the sidebar's version label
         "SplashWindow",  // shows it centred, as part of the splash artwork
-        "AboutWindow"    // shows it in full in the identity band, which is the dialog's whole point
+        "AboutWindow",   // shows it in full in the identity band, which is the dialog's whole point
+        "MessageWindow"  // a short message or question: a footer there is only clutter
     ];
 
     // Marker type: lets a second pass over the same window recognise its own work and skip it,

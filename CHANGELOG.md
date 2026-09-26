@@ -6,6 +6,12 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.116.0 — 2026-09-26
+- Improved: every message in the app has been reviewed and rewritten to be shorter and clearer. Each one opens with the point in bold, followed by what to do next
+- Improved: messages now appear in the app's own window, in light or dark mode to match the board, instead of the plain Windows message box. File paths and error details sit in a box of their own where they can be selected and copied
+- Improved: buttons now say what they do, such as Delete, Replace It or Restart Now, instead of Yes and No
+- Improved: when a question would delete or replace something that cannot be undone, the main button is red and pressing Enter keeps things as they are. Deleting a task, which Undo can bring back, still works with Enter as before
+
 ## 0.115.0 — 2026-09-24
 - Improved: the Dashboard now opens at the size and position it was last left in, including full screen. If that position is no longer on a screen, it opens over the board instead
 

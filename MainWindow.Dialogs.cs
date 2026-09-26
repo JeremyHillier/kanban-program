@@ -155,9 +155,10 @@ public partial class MainWindow
 
         if (viewModel.ConfirmArchive)
         {
-            var result = MessageBox.Show(this, "Archive all tasks in the Done column?\n\nThey'll be removed from the board but not deleted.",
-                "Confirm Archive", MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.Yes);
-            if (result != MessageBoxResult.Yes) return;
+            if (!Dialogs.Confirm(this, DialogMessage.Ask("Archive Done Tasks",
+                    "Archive every task in the Done column?\n\nThey leave the board but are not deleted. View Archived brings any of them back.",
+                    "Archive Them")))
+                return;
         }
 
         viewModel.ArchiveDoneTasks();

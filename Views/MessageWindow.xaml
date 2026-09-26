@@ -1,0 +1,32 @@
+<Window x:Class="KanbanApp.Views.MessageWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Kanban Task Board" Width="520" SizeToContent="Height" MaxHeight="720"
+        WindowStartupLocation="CenterOwner" ResizeMode="NoResize" ShowInTaskbar="False"
+        Background="{DynamicResource WindowBackgroundBrush}">
+    <DockPanel Margin="18,16,18,16">
+        <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,16,0,0">
+            <Button x:Name="YesButton" Click="Yes_Click" MinWidth="96" Padding="14,6"
+                    Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+            <Button x:Name="NoButton" Click="No_Click" MinWidth="96" Padding="14,6" Margin="8,0,0,0"
+                    Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+            <Button x:Name="CancelButton" Click="Cancel_Click" MinWidth="96" Padding="14,6" Margin="8,0,0,0"
+                    Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+        </StackPanel>
+
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <!-- The mark: i, ?, ! or ×, in the colour of the message's tone. The same in both themes. -->
+            <Border x:Name="Mark" Width="30" Height="30" CornerRadius="15" VerticalAlignment="Top" Margin="0,0,14,0">
+                <TextBlock x:Name="MarkText" Foreground="White" FontSize="17" FontWeight="Bold"
+                           HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,-2,0,0"/>
+            </Border>
+            <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Focusable="False">
+                <StackPanel x:Name="Body"/>
+            </ScrollViewer>
+        </Grid>
+    </DockPanel>
+</Window>

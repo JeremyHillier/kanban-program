@@ -1,6 +1,7 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using KanbanApp.Services;
 using KanbanApp.ViewModels;
 
 namespace KanbanApp.Views;
@@ -45,7 +46,7 @@ public partial class ManageWaitingOnWindow : Window
 
         if (!_viewModel.AddWaitingOnSuggestion(dialog.Value))
         {
-            MessageBox.Show(this, $"\"{dialog.Value}\" is already on the list.", "Waiting On List", MessageBoxButton.OK, MessageBoxImage.Information);
+            Dialogs.Tell(this, "Waiting On List", $"\"{dialog.Value}\" is already on the list.");
         }
 
         Reload(dialog.Value);
@@ -73,14 +74,20 @@ public partial class ManageWaitingOnWindow : Window
             return;
         }
 
-        var answer = MessageBox.Show(this,
-            $"{Capitalised(TaskWord(entry.TaskCount))} {(entry.TaskCount == 1 ? "is" : "are")} waiting on \"{entry.Text}\".\n\n" +
-            $"Yes - take it off the list and clear it from {(entry.TaskCount == 1 ? "that task" : "those tasks")} (Undo brings it back on the tasks).\n" +
-            $"No - leave the {(entry.TaskCount == 1 ? "task" : "tasks")} as {(entry.TaskCount == 1 ? "it is" : "they are")}. It stays on this list for as long as a task says it.",
-            "Delete from Waiting On List", MessageBoxButton.YesNoCancel, MessageBoxImage.Question, MessageBoxResult.Cancel);
-        if (answer == MessageBoxResult.Cancel) return;
+        var one = entry.TaskCount == 1;
+        var answer = Dialogs.Show(this, new DialogMessage("Delete from Waiting On List",
+            $"{Capitalised(TaskWord(entry.TaskCount))} {(one ? "is" : "are")} still waiting on \"{entry.Text}\". Clear it from {(one ? "that task" : "those tasks")} too?\n\n" +
+            $"• Clear From {(one ? "Task" : "Tasks")}: it leaves the list and the {(one ? "task" : "tasks")}. Undo brings it back on the {(one ? "task" : "tasks")}.\n" +
+            $"• Leave {(one ? "the Task" : "the Tasks")}: the {(one ? "task keeps" : "tasks keep")} it, so it stays on this list for as long as a task says it.")
+        {
+            Tone = DialogTone.Question,
+            Yes = one ? "Clear From Task" : "Clear From Tasks",
+            No = one ? "Leave the Task" : "Leave the Tasks",
+            Cancel = "Cancel",
+        });
+        if (answer == DialogChoice.Cancel) return;
 
-        _viewModel.DeleteWaitingOnSuggestion(entry.Text, clearFromTasks: answer == MessageBoxResult.Yes);
+        _viewModel.DeleteWaitingOnSuggestion(entry.Text, clearFromTasks: answer == DialogChoice.Yes);
         Reload();
     }
 

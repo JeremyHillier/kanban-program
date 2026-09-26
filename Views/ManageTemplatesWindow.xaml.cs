@@ -1,6 +1,7 @@
 using System.Windows;
 using System.Windows.Controls;
 using KanbanApp.Models;
+using KanbanApp.Services;
 using KanbanApp.ViewModels;
 
 namespace KanbanApp.Views;
@@ -32,8 +33,7 @@ public partial class ManageTemplatesWindow : Window
 
         if (!_viewModel.RenameTaskTemplate(template, dialog.Value))
         {
-            MessageBox.Show(this, $"There is already a template called \"{dialog.Value}\".", "Rename Template",
-                MessageBoxButton.OK, MessageBoxImage.Warning);
+            Dialogs.Tell(this, "Rename Template", $"The template was not renamed.\n\nThere is already a template called \"{dialog.Value}\".", DialogTone.Warning);
         }
     }
 
@@ -41,8 +41,8 @@ public partial class ManageTemplatesWindow : Window
     {
         if (TemplateList.SelectedItem is not TaskTemplate template) return;
 
-        var answer = MessageBox.Show(this, $"Delete the template \"{template.Name}\"?\n\nTasks already made from it are not affected.",
-            "Delete Template", MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No);
-        if (answer == MessageBoxResult.Yes) _viewModel.DeleteTaskTemplate(template);
+        if (Dialogs.Confirm(this, DialogMessage.AskDanger("Delete Template",
+                $"Delete the template \"{template.Name}\"?\n\nTasks already made from it are not affected.", "Delete")))
+            _viewModel.DeleteTaskTemplate(template);
     }
 }

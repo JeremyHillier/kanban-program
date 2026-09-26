@@ -1,4 +1,5 @@
 using System.Windows;
+using KanbanApp.Services;
 using KanbanApp.ViewModels;
 
 namespace KanbanApp.Views;
@@ -87,10 +88,9 @@ public partial class ManageCustomFiltersWindow : Window
         if (Selected is not { } row) return;
 
         var filter = _viewModel.CustomFilters[row.Slot];
-        var confirm = MessageBox.Show(this,
-            $"Clear the filter saved on Alt+{row.Slot} (\"{filter.Name}\")?",
-            "Clear Custom Filter", MessageBoxButton.YesNo, MessageBoxImage.Question);
-        if (confirm != MessageBoxResult.Yes) return;
+        if (!Dialogs.Confirm(this, DialogMessage.AskDanger("Clear Custom Filter",
+                $"Clear the filter saved on Alt+{row.Slot}, \"{filter.Name}\"?\n\nThe tasks are not affected; only the saved filter goes.", "Clear It")))
+            return;
 
         _viewModel.ClearCustomFilter(row.Slot);
         RefreshList(row.Slot);

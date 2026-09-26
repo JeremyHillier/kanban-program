@@ -110,9 +110,10 @@ public partial class MainWindow
         }
         else if (viewModel.ConfirmDelete)
         {
-            var result = MessageBox.Show(this, $"Delete \"{card.Title}\"?\n\nYou can take this back with Undo (Ctrl+Z).",
-                "Confirm Delete", MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.Yes);
-            if (result != MessageBoxResult.Yes) return;
+            // Undo brings it back, so Enter still deletes: this is asked many times a day.
+            if (!Dialogs.Confirm(this, DialogMessage.AskDanger("Delete Task",
+                    $"Delete \"{card.Title}\"?\n\nUndo (Ctrl+Z) brings it back.", "Delete") with { EnterChoosesMain = true }))
+                return;
         }
 
         // Deferred via BeginInvoke: same reason as QuickMove_Click — removing the card tears down
@@ -136,9 +137,9 @@ public partial class MainWindow
         }
         else
         {
-            var result = MessageBox.Show(this, $"Delete {cards.Count} tasks?\n\nYou can take this back with Undo (Ctrl+Z).",
-                "Confirm Delete", MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No);
-            if (result != MessageBoxResult.Yes) return;
+            if (!Dialogs.Confirm(this, DialogMessage.AskDanger("Delete Tasks",
+                    $"Delete these {cards.Count} tasks?\n\nUndo (Ctrl+Z) brings them all back.", "Delete Them")))
+                return;
         }
 
         Dispatcher.BeginInvoke(new Action(() => viewModel.DeleteCards(cards, spawnNext)), DispatcherPriority.Background);
@@ -177,8 +178,8 @@ public partial class MainWindow
 
         if (available.Count == 0)
         {
-            MessageBox.Show(this, "This task already has every available flag, or no flags have been created yet.",
-                "No Flags to Add", MessageBoxButton.OK, MessageBoxImage.Information);
+            Dialogs.Tell(this, "No Flags to Add",
+                "There are no flags to add to this task.\n\nIt already has every flag, or none have been made yet. Flags are made with Manage Flags.");
             return;
         }
 
@@ -384,9 +385,10 @@ public partial class MainWindow
 
         if (!askForNote || !viewModel.AddNoteOnComplete) return;
 
-        var result = MessageBox.Show(this, $"Add a completion note to \"{card.Title}\"?\n\nYou can jot down any final details before it's marked Done.",
-            "Task Complete", MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.Yes);
-        if (result != MessageBoxResult.Yes) return;
+        if (!Dialogs.Confirm(this, DialogMessage.Ask("Task Complete",
+                $"Add a completion note to \"{card.Title}\"?\n\nJot down any final details before it is marked Done.",
+                "Add a Note", "No Note")))
+            return;
 
         EditCard(card, viewModel, focusNotes: true);
     }

@@ -54,10 +54,9 @@ internal static class RecoverableTaskPrompts
     }
 
     public static bool ConfirmPermanentDelete(Window owner, string title) =>
-        MessageBox.Show(owner,
-            $"Permanently delete \"{title}\"?\n\nThis cannot be undone. Any attachments still stored with it will be deleted too.",
-            "Permanently Delete Task", MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No) == MessageBoxResult.Yes;
+        Services.Dialogs.Confirm(owner, Services.DialogMessage.AskDanger("Permanently Delete Task",
+            $"Permanently delete \"{title}\"?\n\nThis cannot be undone. Any attachments stored with it are deleted too.", "Delete"));
 
     public static void NothingSelected(Window owner) =>
-        MessageBox.Show(owner, "Select a task to reactivate first.", "No Task Selected", MessageBoxButton.OK, MessageBoxImage.Information);
+        Services.Dialogs.Tell(owner, "No Task Selected", "Select a task in the list first.");
 }

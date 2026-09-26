@@ -97,8 +97,8 @@ public partial class AboutWindow : Window
         {
             // The clipboard can be momentarily locked by another process; nothing here is worth
             // failing the dialog over, so just say so rather than throwing.
-            MessageBox.Show(this, $"Couldn't copy to the clipboard: {ex.Message}", "Copy Failed",
-                MessageBoxButton.OK, MessageBoxImage.Warning);
+            Dialogs.Tell(this, "Could Not Copy", "The details were not copied.\n\nAnother program is using the clipboard. Try again in a moment.",
+                DialogTone.Warning, ex.Message);
         }
     }
 }

@@ -311,6 +311,6 @@ public partial class ReportBuilderWindow : Window
         ReportService.SavePdf(title, rows, GetGroupBy(), IncludeNotesCheckBox.IsChecked == true, IncludeSubTasksCheckBox.IsChecked == true, filePath,
             IncludeSubTaskSummaryCheckBox.IsChecked == true, LandscapeRadio.IsChecked == true, GetParameterSummary());
 
-        MessageBox.Show(this, $"Report saved to:\n{filePath}", "Report Saved", MessageBoxButton.OK, MessageBoxImage.Information);
+        Dialogs.Tell(this, "Report Saved", "The report was saved as a PDF.", detail: filePath);
     }
 }

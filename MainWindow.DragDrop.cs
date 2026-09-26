@@ -149,7 +149,7 @@ public partial class MainWindow
         }
         catch (Exception ex)
         {
-            MessageBox.Show(this, $"Couldn't read the dropped item: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            Dialogs.Tell(this, "Could Not Attach", "The dropped item could not be read, so nothing was attached.", DialogTone.Error, ex.Message);
             return;
         }
 

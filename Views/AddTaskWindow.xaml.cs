@@ -258,36 +258,32 @@ public partial class AddTaskWindow : Window
 
         if (ProjectComboBox.SelectedItem is not ProjectViewModel project)
         {
-            MessageBox.Show(this, "Please select a Project before saving.", "Project Required", MessageBoxButton.OK, MessageBoxImage.Warning);
+            Dialogs.Tell(this, "Project Required", "Choose a project before saving.\n\nEvery task belongs to a project.", DialogTone.Warning);
             return;
         }
 
         var dueTime = CurrentDueTime();
         if (dueTime is null && !string.IsNullOrWhiteSpace(DueTimeTextBox.Text))
         {
-            MessageBox.Show(this, "The time isn't recognised. Enter it like 2:30 PM or 14:30, or leave it blank.",
-                "Invalid Time", MessageBoxButton.OK, MessageBoxImage.Warning);
+            Dialogs.Tell(this, "Time Not Recognised", "The due time is not recognised.\n\nEnter it like 2:30 PM or 14:30, or leave it blank.", DialogTone.Warning);
             DueTimeTextBox.Focus();
             return;
         }
         if (dueTime is not null && DueDatePicker.SelectedDate is null)
         {
-            MessageBox.Show(this, "A time needs a due date to go with it. Pick a due date, or clear the time.",
-                "Due Date Required", MessageBoxButton.OK, MessageBoxImage.Warning);
+            Dialogs.Tell(this, "Due Date Required", "A due time needs a due date.\n\nPick a due date, or clear the time.", DialogTone.Warning);
             DueDatePicker.Focus();
             return;
         }
         if (StartDatePicker.SelectedDate is { } startDate && DueDatePicker.SelectedDate is { } dueDate && startDate.Date > dueDate.Date)
         {
-            MessageBox.Show(this, "The start date is after the due date. Move one of them, or clear the start date.",
-                "Start Date After Due Date", MessageBoxButton.OK, MessageBoxImage.Warning);
+            Dialogs.Tell(this, "Start Date After Due Date", "The start date is after the due date.\n\nMove one of them, or clear the start date.", DialogTone.Warning);
             StartDatePicker.Focus();
             return;
         }
         if (!string.IsNullOrWhiteSpace(WebsiteUrlTextBox.Text) && !UrlLauncher.TryNormalize(WebsiteUrlTextBox.Text, out _))
         {
-            MessageBox.Show(this, UrlLauncher.AllowedLinksMessage + "\n\nFix the Website field, or clear it.",
-                "Website Not Allowed", MessageBoxButton.OK, MessageBoxImage.Warning);
+            Dialogs.Tell(this, "Website Not Allowed", "The Website field cannot be saved as it is.\n\n" + UrlLauncher.AllowedLinksMessage + " Fix the field, or clear it.", DialogTone.Warning);
             WebsiteUrlTextBox.Focus();
             WebsiteUrlTextBox.SelectAll();
             return;
@@ -295,8 +291,8 @@ public partial class AddTaskWindow : Window
 
         if (!TryReadRecurrenceCount(out var recurrencesLeft))
         {
-            MessageBox.Show(this, "Enter how many times this task should happen in all, from 1 to 999, or leave the box empty to keep it repeating with no end.",
-                "Number of Times", MessageBoxButton.OK, MessageBoxImage.Warning);
+            Dialogs.Tell(this, "Number of Times",
+                "Enter how many times this task should happen in all, from 1 to 999.\n\nOr leave the box empty to keep it repeating with no end.", DialogTone.Warning);
             RecurrenceCountTextBox.Focus();
             RecurrenceCountTextBox.SelectAll();
             return;

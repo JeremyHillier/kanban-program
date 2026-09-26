@@ -33,7 +33,7 @@ public partial class SettingsWindow
     private void BackupNow_Click(object sender, RoutedEventArgs e)
     {
         BackupService.CreateBackup(_viewModel.CurrentDbPath, _viewModel.BackupRetentionCount);
-        MessageBox.Show(this, "Backup created.", "Backup", MessageBoxButton.OK, MessageBoxImage.Information);
+        Dialogs.Tell(this, "Backup", "Backup created.\n\nIt is in the backups folder, which Open Backups Folder shows.");
     }
 
     private void OpenBackupsFolder_Click(object sender, RoutedEventArgs e)
@@ -84,13 +84,15 @@ public partial class SettingsWindow
             config.Save();
 
             var cleanupNote = didCopy
-                ? "\n\nThe old database file will be removed automatically once the app restarts at the new location."
+                ? "\n\nThe old file is removed once the app restarts at the new location."
                 : "";
-            var result = MessageBox.Show(
-                $"The database location has been updated.{cleanupNote}\n\nThe app needs to restart for this to take effect. Restart now?",
-                "Restart Required", MessageBoxButton.YesNo, MessageBoxImage.Information);
+            var restart = Dialogs.Confirm(this, new DialogMessage("Restart Required",
+                $"Restart now to use the new location?\n\nThe task file location has been changed. It takes effect when the app restarts.{cleanupNote}")
+            {
+                Tone = DialogTone.Question, Yes = "Restart Now", No = "Later", Detail = newPath,
+            });
 
-            if (result == MessageBoxResult.Yes)
+            if (restart)
             {
                 Process.Start(Environment.ProcessPath!);
                 _restarting = true;
@@ -103,7 +105,7 @@ public partial class SettingsWindow
         }
         catch (Exception ex)
         {
-            MessageBox.Show($"Couldn't update the database location: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            Dialogs.Tell(this, "Location Not Changed", "The task file location could not be changed. The app keeps using the file it has now.", DialogTone.Error, ex.Message);
         }
     }
 
@@ -141,7 +143,7 @@ public partial class SettingsWindow
     {
         if (RecentFilesListBox.SelectedItem is not RecentFileEntry entry)
         {
-            MessageBox.Show(this, "Select a file from the list first.", "Switch File", MessageBoxButton.OK, MessageBoxImage.Information);
+            Dialogs.Tell(this, "Switch File", "Select a file in the list first.");
             return;
         }
 
@@ -187,9 +189,9 @@ public partial class SettingsWindow
 
         if (File.Exists(dialog.FileName))
         {
-            MessageBox.Show(this,
-                "A file already exists at that location. Choose a different name for the new file, or use \"Open Existing File...\" to open that one instead.",
-                "New File", MessageBoxButton.OK, MessageBoxImage.Warning);
+            Dialogs.Tell(this, "New File",
+                "A file with that name already exists, so no new file was made.\n\nChoose a different name, or use Open Existing File to open that one.",
+                DialogTone.Warning, dialog.FileName);
             return;
         }
 
@@ -204,27 +206,30 @@ public partial class SettingsWindow
     {
         if (AppConfig.ArePathsEqual(newPath, _viewModel.CurrentDbPath))
         {
-            MessageBox.Show(this, "That's already the current file.", "Switch File", MessageBoxButton.OK, MessageBoxImage.Information);
+            Dialogs.Tell(this, "Switch File", "That is already the file that is open.");
             return;
         }
 
         if (expectExisting && !File.Exists(newPath))
         {
-            var proceed = MessageBox.Show(this,
-                $"No file was found at:\n{newPath}\n\nContinuing will start a brand new, empty file there. Continue?",
-                "File Not Found", MessageBoxButton.YesNo, MessageBoxImage.Warning);
-            if (proceed != MessageBoxResult.Yes) return;
+            // Enter keeps to Cancel: a mistyped or moved path should not quietly become an empty file.
+            if (!Dialogs.Confirm(this, DialogMessage.AskDanger("File Not Found",
+                    "Start a new, empty task file here?\n\nNo file was found at this location. It may have been moved, renamed or deleted, or be on a drive that is not connected.",
+                    "Start a New File") with { Detail = newPath }))
+                return;
         }
 
         var config = AppConfig.Load();
         config.SwitchTo(newPath);
         config.Save();
 
-        var result = MessageBox.Show(this,
-            $"Switched to:\n{newPath}\n\nThe app needs to restart to open this file. Restart now?",
-            "Restart Required", MessageBoxButton.YesNo, MessageBoxImage.Information);
+        var restart = Dialogs.Confirm(this, new DialogMessage("Restart Required",
+            "Restart now to open this file?\n\nThe app opens it when it restarts.")
+        {
+            Tone = DialogTone.Question, Yes = "Restart Now", No = "Later", Detail = newPath,
+        });
 
-        if (result == MessageBoxResult.Yes)
+        if (restart)
         {
             Process.Start(Environment.ProcessPath!);
             _restarting = true;

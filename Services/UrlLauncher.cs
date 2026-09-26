@@ -23,7 +23,7 @@ public static class UrlLauncher
 
         if (!TryNormalize(url, out var target))
         {
-            ShowError(owner, "Link Not Allowed", $"This link can't be opened:\n\n{url.Trim()}\n\n{AllowedLinksMessage}", MessageBoxImage.Warning);
+            Dialogs.Tell(owner, "Link Not Allowed", $"This link cannot be opened.\n\n{AllowedLinksMessage}", DialogTone.Warning, url.Trim());
             return;
         }
 
@@ -33,7 +33,8 @@ public static class UrlLauncher
         }
         catch (Exception ex)
         {
-            ShowError(owner, "Error", $"Couldn't open the website:\n\n{target}\n\n{ex.Message}", MessageBoxImage.Error);
+            Dialogs.Tell(owner, "Could Not Open", "Windows could not open this link. There may be no web browser or email app set up.",
+                DialogTone.Error, $"{target}\n\n{ex.Message}");
         }
     }
 
@@ -81,15 +82,4 @@ public static class UrlLauncher
         return true;
     }
 
-    private static void ShowError(Window? owner, string title, string message, MessageBoxImage icon)
-    {
-        if (owner is not null)
-        {
-            MessageBox.Show(owner, message, title, MessageBoxButton.OK, icon);
-        }
-        else
-        {
-            MessageBox.Show(message, title, MessageBoxButton.OK, icon);
-        }
-    }
 }

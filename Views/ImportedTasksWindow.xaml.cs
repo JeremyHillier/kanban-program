@@ -63,8 +63,7 @@ public partial class ImportedTasksWindow : Window
         {
             if (string.IsNullOrWhiteSpace(row.Title))
             {
-                MessageBox.Show(this, "Task details cannot be blank. Fix or remove the row before saving.",
-                    "Missing Task Details", MessageBoxButton.OK, MessageBoxImage.Warning);
+                Dialogs.Tell(this, "Missing Task Details", "A row has no task details, so nothing was saved.\n\nFill it in, or remove the row, then save again.", DialogTone.Warning);
                 return;
             }
 
@@ -101,6 +100,6 @@ public partial class ImportedTasksWindow : Window
         // reached once every row has been written - the blank-title path returns before this.
         _savedSignature = BuildSignature();
 
-        MessageBox.Show(this, "Changes saved.", "Imported Tasks", MessageBoxButton.OK, MessageBoxImage.Information);
+        Dialogs.Tell(this, "Imported Tasks", "Changes saved.");
     }
 }

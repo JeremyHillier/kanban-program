@@ -40,12 +40,13 @@ public partial class ReportBuilderWindow
         if (existing is not null)
         {
             var isTheLoadedOne = updating && string.Equals(name, _loadedViewName, StringComparison.OrdinalIgnoreCase);
-            var question = isTheLoadedOne
-                ? $"Update the saved view \"{existing.Name}\" with what is on the screen now?"
-                : $"A saved view named \"{existing.Name}\" already exists. Overwrite it?";
-            var answer = MessageBox.Show(this, question, isTheLoadedOne ? "Update View" : "Overwrite View",
-                MessageBoxButton.YesNo, MessageBoxImage.Question, isTheLoadedOne ? MessageBoxResult.Yes : MessageBoxResult.No);
-            if (answer != MessageBoxResult.Yes) return;
+            // Updating the view that is loaded is the everyday case, so Enter still does it; replacing
+            // a different view by accident is not, so there Enter keeps it.
+            var message = isTheLoadedOne
+                ? DialogMessage.Ask("Update View", $"Update the saved view \"{existing.Name}\" with what is on the screen now?", "Update It")
+                : DialogMessage.AskDanger("Replace View",
+                    $"Replace the saved view \"{existing.Name}\"?\n\nThere is already a saved view with that name. It will be replaced with what is on the screen now.", "Replace It");
+            if (!Dialogs.Confirm(this, message)) return;
             name = existing.Name; // keep the capitals it was saved with
         }
 
@@ -58,9 +59,9 @@ public partial class ReportBuilderWindow
     {
         if (SavedViewsComboBox.SelectedItem is not SavedReportView view) return;
 
-        var result = MessageBox.Show(this, $"Delete the saved view \"{view.Name}\"?",
-            "Delete View", MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No);
-        if (result != MessageBoxResult.Yes) return;
+        if (!Dialogs.Confirm(this, DialogMessage.AskDanger("Delete View",
+                $"Delete the saved view \"{view.Name}\"?\n\nOnly the saved settings go. Tasks are not affected.", "Delete")))
+            return;
 
         _viewModel.DeleteReportView(view.Name);
         if (string.Equals(_loadedViewName, view.Name, StringComparison.OrdinalIgnoreCase)) _loadedViewName = null;

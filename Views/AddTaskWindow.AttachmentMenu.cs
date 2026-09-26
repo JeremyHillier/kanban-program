@@ -72,7 +72,7 @@ public partial class AddTaskWindow
         }
         catch (Exception ex)
         {
-            MessageBox.Show(this, $"Couldn't {what}: {ex.Message}", "Attachment", MessageBoxButton.OK, MessageBoxImage.Warning);
+            Dialogs.Tell(this, "Attachment", $"Could not {what}.", DialogTone.Warning, ex.Message);
         }
     }
 }

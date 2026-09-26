@@ -86,7 +86,8 @@ public partial class AddTaskWindow
     {
         if (!File.Exists(path))
         {
-            MessageBox.Show($"This file can no longer be found:\n{path}", "File Not Found", MessageBoxButton.OK, MessageBoxImage.Warning);
+            Dialogs.Tell(ActiveWindow, "File Not Found",
+                "This attachment can no longer be found.\n\nIt may have been moved, renamed or deleted, or be on a drive that is not connected.", DialogTone.Warning, path);
             return;
         }
 
@@ -96,9 +97,13 @@ public partial class AddTaskWindow
         }
         catch (Exception ex)
         {
-            MessageBox.Show($"Couldn't open the file: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            Dialogs.Tell(ActiveWindow, "Could Not Open", "Windows could not open this attachment. There may be no program set up for this kind of file.",
+                DialogTone.Error, $"{path}\n\n{ex.Message}");
         }
     }
+
+    // The window a message about an attachment belongs over: whichever of the app's windows is in front.
+    private static Window? ActiveWindow => Application.Current?.Windows.OfType<Window>().FirstOrDefault(w => w.IsActive);
 
     private void AddFile_Click(object sender, RoutedEventArgs e)
     {
@@ -118,7 +123,7 @@ public partial class AddTaskWindow
         }
         catch (Exception ex)
         {
-            MessageBox.Show(this, $"Couldn't copy the file: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            Dialogs.Tell(this, "Could Not Attach", "The file could not be copied into the attachments folder, so it was not attached.", DialogTone.Error, ex.Message);
             return;
         }
 
@@ -152,7 +157,7 @@ public partial class AddTaskWindow
         }
         catch (Exception ex)
         {
-            MessageBox.Show(this, $"Couldn't read the dropped item: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            Dialogs.Tell(this, "Could Not Attach", "The dropped item could not be read, so nothing was attached.", DialogTone.Error, ex.Message);
             return;
         }
 
@@ -176,8 +181,8 @@ public partial class AddTaskWindow
     {
         if (!Clipboard.ContainsImage())
         {
-            MessageBox.Show(this, "There's no image on the clipboard. Copy a screenshot (e.g. with the Snipping Tool or PrtScn) first.",
-                "No Image Found", MessageBoxButton.OK, MessageBoxImage.Information);
+            Dialogs.Tell(this, "No Image Found",
+                "There is no picture on the clipboard.\n\nCopy a screenshot first, for example with the Snipping Tool (Windows+Shift+S) or Print Screen, then try again.");
             return;
         }
 
@@ -188,7 +193,7 @@ public partial class AddTaskWindow
         }
         catch (Exception ex)
         {
-            MessageBox.Show(this, $"Couldn't read the clipboard image: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            Dialogs.Tell(this, "Could Not Paste", "The picture on the clipboard could not be read, so nothing was attached.", DialogTone.Error, ex.Message);
             return;
         }
 

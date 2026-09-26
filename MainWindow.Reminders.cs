@@ -80,7 +80,7 @@ public partial class MainWindow
         var dueCards = viewModel.GetDueReminders();
         if (dueCards.Count == 0)
         {
-            MessageBox.Show(this, "No overdue or due-today tasks.", "Task Reminders", MessageBoxButton.OK, MessageBoxImage.Information);
+            Dialogs.Tell(this, "Task Reminders", "Nothing is overdue or due today.");
             return;
         }
 
