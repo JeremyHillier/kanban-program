@@ -49,13 +49,10 @@ public partial class TimelineWindow
         FormattedText MakeText(string s, Typeface tf, double size, Brush brush) =>
             new(s, System.Globalization.CultureInfo.CurrentCulture, FlowDirection.LeftToRight, tf, size, brush, 1.0);
 
-        // Unlike the report, a chip's text is wrapped as one paragraph, and an empty last line is dropped.
-        List<string> WrapWords(string text, Typeface tf, double size, double maxWidth)
-        {
-            var lines = TextWrap.Words(text, s => MakeText(s, tf, size, Brushes.Black).Width, maxWidth);
-            if (lines[^1].Length == 0) lines.RemoveAt(lines.Count - 1);
-            return lines;
-        }
+        // A title can hold line breaks (it comes from a multi-line box), so each line of it is wrapped on its
+        // own and the chip is made tall enough for all of them. Blank lines are left out of a chip.
+        List<string> WrapWords(string text, Typeface tf, double size, double maxWidth) =>
+            TextWrap.Lines(text, s => MakeText(s, tf, size, Brushes.Black).Width, maxWidth).Where(l => l.Length > 0).ToList();
 
         void AddText(Canvas targetCanvas, string text, double x, double top, Typeface tf, double size, Brush brush,
             TextAlignment align = TextAlignment.Left)

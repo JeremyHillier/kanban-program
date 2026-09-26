@@ -6,6 +6,9 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.116.2 — 2026-09-26
+- Fixed: on the printed Timeline, a task title containing a line break now prints on separate lines, with the task box sized to fit. Previously the text could overlap the line below it
+
 ## 0.116.1 — 2026-09-26
 - Improved: the Help screen has been rewritten as short, one-line points, grouped under clear headings, so every topic is quicker to scan and easier to follow
 
