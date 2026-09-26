@@ -15,11 +15,7 @@ internal static class CardTextFormatter
         var sb = new StringBuilder();
         sb.Append(card.Title).Append("\r\n\r\n");
         sb.Append("Status: ").Append(columnName).Append("\r\n");
-        sb.Append("Project: ").Append(card.ProjectName).Append("\r\n");
-        sb.Append("Priority: ").Append(card.Priority).Append("\r\n");
-        if (card.IsWaiting) sb.Append("Waiting on: ").Append(card.WaitingOn).Append("\r\n");
-        if (card.StartDate.HasValue) sb.Append("Start: ").Append(OutlookEmailHelper.FormatStart(card)).Append("\r\n");
-        if (card.DueDate.HasValue) sb.Append("Due: ").Append(OutlookEmailHelper.FormatDue(card)).Append("\r\n");
+        AppendProjectToDue(sb, card);
         if (card.WhoId.HasValue) sb.Append("Assigned to: ").Append(card.WhoName).Append("\r\n");
         if (OutlookEmailHelper.HasGoal(card)) sb.Append("Goal: ").Append(card.GoalName).Append("\r\n");
         if (card.Flags.Count > 0) sb.Append("Flags: ").Append(string.Join(", ", card.Flags.Select(f => f.Name))).Append("\r\n");
@@ -27,6 +23,24 @@ internal static class CardTextFormatter
         if (card.CompletedFullDisplay is { } completed) sb.Append(completed).Append("\r\n");
         if (!string.IsNullOrWhiteSpace(card.WebsiteUrl)) sb.Append("Website: ").Append(card.WebsiteUrl.Trim()).Append("\r\n");
 
+        AppendNotesAndSubTasks(sb, card);
+
+        return sb.ToString().TrimEnd();
+    }
+
+    // The lines every task has, and the dates, in the order both Copy as Text and the plain-text email use.
+    internal static void AppendProjectToDue(StringBuilder sb, CardViewModel card)
+    {
+        sb.Append("Project: ").Append(card.ProjectName).Append("\r\n");
+        sb.Append("Priority: ").Append(card.Priority).Append("\r\n");
+        if (card.IsWaiting) sb.Append("Waiting on: ").Append(card.WaitingOn).Append("\r\n");
+        if (card.StartDate.HasValue) sb.Append("Start: ").Append(OutlookEmailHelper.FormatStart(card)).Append("\r\n");
+        if (card.DueDate.HasValue) sb.Append("Due: ").Append(OutlookEmailHelper.FormatDue(card)).Append("\r\n");
+    }
+
+    // The notes, then the sub-tasks as [x] and [ ] lines, each after a blank line; nothing for either when empty.
+    internal static void AppendNotesAndSubTasks(StringBuilder sb, CardViewModel card)
+    {
         if (!string.IsNullOrWhiteSpace(card.Notes))
         {
             sb.Append("\r\nNotes:\r\n").Append(card.Notes.Replace("\r\n", "\n").Replace("\n", "\r\n")).Append("\r\n");
@@ -40,8 +54,6 @@ internal static class CardTextFormatter
                 sb.Append(subTask.IsDone ? "[x] " : "[ ] ").Append(subTask.Title).Append("\r\n");
             }
         }
-
-        return sb.ToString().TrimEnd();
     }
 
     // After the pattern: nothing for a task with no end, otherwise how many are still to come.

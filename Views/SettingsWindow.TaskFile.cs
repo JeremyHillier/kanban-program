@@ -86,22 +86,7 @@ public partial class SettingsWindow
             var cleanupNote = didCopy
                 ? "\n\nThe old file is removed once the app restarts at the new location."
                 : "";
-            var restart = Dialogs.Confirm(this, new DialogMessage("Restart Required",
-                $"Restart now to use the new location?\n\nThe task file location has been changed. It takes effect when the app restarts.{cleanupNote}")
-            {
-                Tone = DialogTone.Question, Yes = "Restart Now", No = "Later", Detail = newPath,
-            });
-
-            if (restart)
-            {
-                Process.Start(Environment.ProcessPath!);
-                _restarting = true;
-                Application.Current.Shutdown();
-            }
-            else
-            {
-                DbPathTextBox.Text = newPath;
-            }
+            OfferRestart($"Restart now to use the new location?\n\nThe task file location has been changed. It takes effect when the app restarts.{cleanupNote}", newPath);
         }
         catch (Exception ex)
         {
@@ -223,8 +208,15 @@ public partial class SettingsWindow
         config.SwitchTo(newPath);
         config.Save();
 
-        var restart = Dialogs.Confirm(this, new DialogMessage("Restart Required",
-            "Restart now to open this file?\n\nThe app opens it when it restarts.")
+        if (!OfferRestart("Restart now to open this file?\n\nThe app opens it when it restarts.", newPath))
+            RefreshRecentFilesList();
+    }
+
+    // The task file is now newPath but the app is still on the old one: offers to restart onto it. True when
+    // the app is restarting; otherwise Settings shows the new file, which opens next time.
+    private bool OfferRestart(string question, string newPath)
+    {
+        var restart = Dialogs.Confirm(this, new DialogMessage("Restart Required", question)
         {
             Tone = DialogTone.Question, Yes = "Restart Now", No = "Later", Detail = newPath,
         });
@@ -238,7 +230,7 @@ public partial class SettingsWindow
         else
         {
             DbPathTextBox.Text = newPath;
-            RefreshRecentFilesList();
         }
+        return restart;
     }
 }

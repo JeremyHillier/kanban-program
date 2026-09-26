@@ -40,28 +40,8 @@ public static class OutlookEmailHelper
     // point would open a second, duplicate email.
     private static bool TryComposeInClassicOutlook(Window owner, CardViewModel card, string recipientEmail, MainViewModel viewModel)
     {
-        dynamic mailItem;
-        try
-        {
-            var outlookType = Type.GetTypeFromProgID("Outlook.Application");
-            if (outlookType is null) return false;
-
-            // Outlook enforces single-instance at the OS level, so CreateInstance attaches to an
-            // already-running instance rather than launching a duplicate.
-            dynamic app = Activator.CreateInstance(outlookType)!;
-            mailItem = app.CreateItem(0); // olMailItem
-            mailItem.To = recipientEmail;
-            mailItem.Subject = EmailSubject(card);
-
-            // Display before setting HTMLBody so Outlook inserts the user's own default "new message"
-            // signature the way it would for a message composed by hand; reading HTMLBody back then
-            // captures it, and our content goes in ahead of it rather than overwriting it.
-            mailItem.Display(false);
-        }
-        catch
-        {
-            return false;
-        }
+        if (OpenClassicOutlookEmail(recipientEmail, EmailSubject(card)) is not { } opened) return false;
+        dynamic mailItem = opened;
 
         try
         {
@@ -201,22 +181,8 @@ public static class OutlookEmailHelper
     private static bool TryComposePlainInClassicOutlook(Window? owner, string recipient, string subject, string body,
         IReadOnlyList<string> filePaths, string dialogTitle)
     {
-        dynamic mailItem;
-        try
-        {
-            var outlookType = Type.GetTypeFromProgID("Outlook.Application");
-            if (outlookType is null) return false;
-
-            dynamic app = Activator.CreateInstance(outlookType)!;
-            mailItem = app.CreateItem(0); // olMailItem
-            mailItem.To = recipient;
-            mailItem.Subject = subject;
-            mailItem.Display(false);
-        }
-        catch
-        {
-            return false;
-        }
+        if (OpenClassicOutlookEmail(recipient, subject) is not { } opened) return false;
+        dynamic mailItem = opened;
 
         try
         {
@@ -236,6 +202,34 @@ public static class OutlookEmailHelper
         }
 
         return true;
+    }
+
+    // A new classic Outlook email, addressed and on screen, or null when classic Outlook cannot open one (the
+    // new Outlook has no COM, or there is no Outlook), so the caller can fall back to the default mail app.
+    private static object? OpenClassicOutlookEmail(string to, string subject)
+    {
+        try
+        {
+            var outlookType = Type.GetTypeFromProgID("Outlook.Application");
+            if (outlookType is null) return null;
+
+            // Outlook enforces single-instance at the OS level, so CreateInstance attaches to an
+            // already-running instance rather than launching a duplicate.
+            dynamic app = Activator.CreateInstance(outlookType)!;
+            dynamic mailItem = app.CreateItem(0); // olMailItem
+            mailItem.To = to;
+            mailItem.Subject = subject;
+
+            // Display before setting HTMLBody so Outlook inserts the user's own default "new message"
+            // signature the way it would for a message composed by hand; reading HTMLBody back then
+            // captures it, and our content goes in ahead of it rather than overwriting it.
+            mailItem.Display(false);
+            return mailItem;
+        }
+        catch
+        {
+            return null;
+        }
     }
 
     private static void ShowMessage(Window? owner, string message, string title, DialogTone tone, string? detail = null) =>
@@ -292,27 +286,10 @@ public static class OutlookEmailHelper
     {
         var sb = new StringBuilder();
         sb.Append(card.Title).Append("\r\n\r\n");
-        sb.Append("Project: ").Append(card.ProjectName).Append("\r\n");
-        sb.Append("Priority: ").Append(card.Priority).Append("\r\n");
-        if (card.IsWaiting) sb.Append("Waiting on: ").Append(card.WaitingOn).Append("\r\n");
-        if (card.StartDate.HasValue) sb.Append("Start: ").Append(FormatStart(card)).Append("\r\n");
-        if (card.DueDate.HasValue) sb.Append("Due: ").Append(FormatDue(card)).Append("\r\n");
+        CardTextFormatter.AppendProjectToDue(sb, card);
         if (HasGoal(card)) sb.Append("Goal: ").Append(card.GoalName).Append("\r\n");
         if (card.Flags.Count > 0) sb.Append("Flags: ").Append(string.Join(", ", card.Flags.Select(f => f.Name))).Append("\r\n");
-
-        if (!string.IsNullOrWhiteSpace(card.Notes))
-        {
-            sb.Append("\r\nNotes:\r\n").Append(card.Notes.Replace("\r\n", "\n").Replace("\n", "\r\n")).Append("\r\n");
-        }
-
-        if (card.SubTasks.Count > 0)
-        {
-            sb.Append("\r\nSub-tasks:\r\n");
-            foreach (var subTask in card.SubTasks)
-            {
-                sb.Append(subTask.IsDone ? "[x] " : "[ ] ").Append(subTask.Title).Append("\r\n");
-            }
-        }
+        CardTextFormatter.AppendNotesAndSubTasks(sb, card);
 
         sb.Append("\r\nIf an Excel file is attached, open Kanban Task Board and click Import Tasks to add this task to your own board.\r\n");
 
