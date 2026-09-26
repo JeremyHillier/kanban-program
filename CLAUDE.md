@@ -31,6 +31,8 @@ These bullets are also published as the release notes on the public download pag
 
 After building, say where the installer is and stop there. Never ask whether to install it on this PC, never offer to, and never run it: the user always installs it themselves. The only question to ask after a build is the publishing one below.
 
+Code signing (Azure Artifact Signing) is wired in and switched off: `installer/Signing.ps1`, dot-sourced by the build script, signs only when `installer/signing.json` exists (account endpoint, account name, certificate profile; no secrets, the build PC's `az login` is the credential - safe to commit). Then every Production build signs the app exe after publish, passes `/DSigned=1` and an `azuresign` tool to ISCC so Inno signs the setup and uninstaller (`SignTool=azuresign`, `SignedUninstaller=yes` under `#ifdef Signed`), verifies with `signtool verify /pa`, and stops on any failure rather than produce an unsigned installer. Test builds are never signed. `Signing.ps1` is identical in the Kanban and Personal Finance repos: change both. The user's setup steps are in `Code Signing Setup.html` in the Personal Finance folder. To switch it on, write `installer/signing.json` in both repos from the three names the user sends (the JSON shape is in that guide, section 7), build, and check the output says "Signing: on".
+
 ## Publishing a release to the download page
 
 Public download page: https://hillierconsulting.ca/kanban.html. It reads the latest release from the **public** repo `JeremyHillier/kanban-task-board-downloads` through the GitHub API, so publishing a release there is all it takes. The website itself never needs redeploying for a new version.

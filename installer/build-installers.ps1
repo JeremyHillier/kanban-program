@@ -32,6 +32,11 @@ if (-not $iscc) {
 }
 Write-Output "ISCC: $iscc"
 
+# Code signing (installer\Signing.ps1): off until installer\signing.json exists, then Production is signed.
+. (Join-Path $installerDir "Signing.ps1")
+$signing = Get-SigningSetup $installerDir
+if ($signing) { Write-Output "Signing: on, with $($signing.SignTool)" } else { Write-Output "Signing: off (no installer\signing.json)" }
+
 $channels = $Channels
 
 foreach ($channel in $channels) {
@@ -45,14 +50,20 @@ foreach ($channel in $channels) {
         -p:AppChannel=$channel `
         -o $publishDir
     if ($LASTEXITCODE -ne 0) { throw "dotnet publish failed for $channel channel" }
+    if ($signing -and $channel -eq "Production") { Invoke-CodeSigning $signing (Join-Path $publishDir "KanbanApp.exe") }
 }
 
 New-Item -ItemType Directory -Force -Path (Join-Path $installerDir "Output") | Out-Null
 
 foreach ($channel in $channels) {
     Write-Output "`n=== Compiling installer for $channel ==="
-    & $iscc /DChannel=$channel /DMyAppVersion=$version (Join-Path $installerDir "KanbanTaskBoard.iss")
+    $isccArgs = @("/DChannel=$channel", "/DMyAppVersion=$version")
+    if ($signing -and $channel -eq "Production") { $isccArgs += "/DSigned=1", (Get-InnoSignSwitch $signing) }
+    & $iscc @isccArgs (Join-Path $installerDir "KanbanTaskBoard.iss")
     if ($LASTEXITCODE -ne 0) { throw "ISCC failed for $channel channel" }
+    if ($signing -and $channel -eq "Production") {
+        Test-CodeSignatures $signing @((Join-Path $repoRoot "publish\Production\KanbanApp.exe"), (Join-Path $installerDir "Output\Kanban Task Board-Setup-$version.exe"))
+    }
 }
 
 Write-Output "`nDone. Installers are in $installerDir\Output"

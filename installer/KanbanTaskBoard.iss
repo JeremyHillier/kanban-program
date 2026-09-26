@@ -33,6 +33,12 @@ AppMutex=KanbanTaskBoard-{#Channel}
 CloseApplications=yes
 RestartApplications=yes
 UninstallDisplayIcon={app}\{#MyAppExeName}
+; Signed by installer\build-installers.ps1 when installer\signing.json exists (see installer\Signing.ps1): the
+; build defines Signed and the "azuresign" tool, and Inno Setup signs this setup and its uninstaller.
+#ifdef Signed
+SignTool=azuresign
+SignedUninstaller=yes
+#endif
 OutputDir=Output
 OutputBaseFilename={#MyAppName}-Setup-{#MyAppVersion}
 Compression=lzma2
