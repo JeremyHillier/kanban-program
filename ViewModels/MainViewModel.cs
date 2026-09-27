@@ -16,6 +16,7 @@ public partial class MainViewModel : ObservableObject
 
     public string AppVersion { get; } = $"v{Assembly.GetExecutingAssembly().GetName().Version?.ToString(3)}";
     public string CopyrightText { get; } = AppInfo.Copyright;
+    public string VersionLine => $"Version {AppVersion.TrimStart('v')}";
     public bool IsTestChannel => AppChannel.IsTest;
     public string WindowTitle => AppChannel.DisplayName;
 

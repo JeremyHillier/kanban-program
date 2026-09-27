@@ -827,6 +827,15 @@
                                 <TextBlock Text="Close" TextWrapping="Wrap" TextAlignment="Center"/>
                             </Button>
                         </StackPanel>
+
+                        <!-- The same foot as the Personal Finance and Accounting programs: version, About, copyright. -->
+                        <TextBlock Text="{Binding VersionLine}" HorizontalAlignment="Center" FontSize="9" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,8,0,0"/>
+                        <TextBlock HorizontalAlignment="Center" FontSize="9" Margin="0,1,0,1">
+                            <Hyperlink Click="About_Click" Foreground="{DynamicResource AccentTextBrush}"
+                                       ToolTip="Version, licence agreement, privacy note, check for updates and support">About</Hyperlink>
+                        </TextBlock>
+                        <TextBlock Text="{Binding CopyrightText}" HorizontalAlignment="Center" TextAlignment="Center" TextWrapping="Wrap" FontSize="9"
+                                   Foreground="{DynamicResource SecondaryTextBrush}"/>
                     </StackPanel>
                 </ScrollViewer>
             </Border>

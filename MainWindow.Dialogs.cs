@@ -127,6 +127,14 @@ public partial class MainWindow
         dialog.ShowDialog();
     }
 
+    // The About link at the foot of the button column.
+    private void About_Click(object sender, RoutedEventArgs e)
+    {
+        if (DataContext is not MainViewModel viewModel) return;
+
+        new AboutWindow(viewModel) { Owner = this }.ShowDialog();
+    }
+
     private void QuickReport_Click(object sender, RoutedEventArgs e)
     {
         if (DataContext is not MainViewModel viewModel) return;
