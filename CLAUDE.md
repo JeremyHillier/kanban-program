@@ -129,3 +129,54 @@ Standard MVVM:
 - Report / Print bypass MVVM (logic in code-behind) — inconsistent with the rest of the app, not urgent to fix but don't copy the pattern forward. The Dashboard no longer does: its numbers are `Services/DashboardData.cs` (unit-tested in `DashboardDataTests`), its drawing `Views/DashboardCharts.cs`.
 - **Dashboard colours** (`DashboardPalette` in `Views/DashboardCharts.cs`) were checked with a palette validator (colour-blind separation of neighbouring colours, contrast against the chart card) separately for light and dark - dark is its own set of steps, chosen by `MainViewModel.IsDarkMode`, not a flip. On Hold is magenta, not the board's orange: orange beside In Progress yellow failed the check. Re-check any colour change the same way rather than by eye. Text never takes a series colour; single-series charts use one blue; projects and people are horizontal bars sharing one scale; more than 20 projects fold into "Other". Completions per week and "Done in 7 Days" include archived tasks (`GetArchivedCompletionDates`) and weeks start on the PC's first day of the week.
 - No DB migration versioning — fine at current scale, but there's no rollback story if a migration ever needs undoing.
+
+## Conventions shared by the three programs (Kanban, Accounting, Personal Finance)
+
+The three programs are kept consistent with each other (2026-09-27). Before adding a convention, screen,
+service or document to one, check whether the other two have it and do the same there. This section is
+the same in all three CLAUDE.md files; change it in all three.
+
+- **Layout:** `<Name>.slnx` at the root; the app in `src\<App>` (Accounting and Personal Finance also
+  have `Core` and `Data` projects); tests in `tests\<App>.Tests`; `installer\` with `build-installers.ps1`,
+  the `.iss` and `Signing.ps1`; `CHANGELOG.md`, `CLAUDE.md`, `README.md` at the root. .NET 10, `Nullable`
+  and `ImplicitUsings` on, no `LangVersion`. `.editorconfig` and `.gitattributes` are identical in all
+  three (UTF-8 without BOM, CRLF, 4 spaces, no trailing whitespace).
+- **Code style:** file-scoped namespaces that follow the folder; one type per file, partial classes split
+  by concern with a `.Concern.cs` suffix; Allman braces; `_camelCase` private fields; primary constructors
+  where they read well. Comments explain why. Accounting and Personal Finance use `///` summaries on
+  public types and members; Kanban's older code uses `//` and new Kanban code may use either.
+- **View models:** `ObservableObject` (`OnPropertyChanged`, `SetField`) and `RelayCommand` (the
+  `Action<object?>` and `Action` constructors, `CanExecuteChanged` on `CommandManager.RequerySuggested`),
+  one file each, in `ViewModels`.
+- **App info and channel:** `Services/AppInfo` (`ProductName`, `Company`, `Website`, `SupportEmail`
+  support@hillierconsulting.ca, `InfoEmail` info@hillierconsulting.ca, `Copyright` with the year from the
+  clock; Kanban and Personal Finance also `DownloadPageUrl`). `Services/AppChannel` picks Test or
+  Production at build time (`-p:AppChannel=Production`; plain builds are Test) with its own
+  `%LocalAppData%\<App>[.Test]\config.json` and data folder, and a " (Test)" suffix on screen.
+- **Startup:** one mutex `<App>-<Channel>`; `ShutdownMode.OnExplicitShutdown` until the main window is
+  showing, then `OnMainWindowClose`; a backup before a schema upgrade; the main window; What's New once
+  per version; the update check (where there is one) after the window is up.
+- **Messages:** never `MessageBox.Show`. `DialogMessage` (the first paragraph is the point, in bold;
+  "• " bullets; a path or an error in `Detail`; buttons named for what they do, never Yes/No) shown by
+  `Dialogs` (Kanban, Personal Finance) or `MessageDialog` (Accounting) in `MessageWindow`. `AskDanger`
+  makes the main button red and Enter choose the safe one. A test fails if `MessageBox.Show(` returns.
+- **Main screen foot:** "Version x.y.z[ (Test)]", an About link, "© <year> Jeremy Hillier Consulting Inc".
+  About shows the version, channel, file paths, both email addresses and the website. Every other dialog
+  carries the copyright line bottom-right, stamped by a class handler on `Window.Loaded`
+  (`DialogCopyright` in Kanban and Personal Finance, `DialogChrome` in Accounting).
+- **Help:** short bullets under headings, one idea per bullet, never a paragraph; the ? buttons land on
+  their topic.
+- **Changelog:** newest first; `## <version> — <date>`; the summary as `> - ` lines (one point per line,
+  no wrapping or bold, starting "New:", "Improved:" or "Fixed:" where it helps), then optional `- `
+  detail. What's New shows the `> - ` lines only. Bump `<Version>` in the app csproj with every change;
+  a pure refactor ships as a "Maintenance release" line.
+- **Database:** SQLite through Microsoft.Data.Sqlite; dates as `yyyy-MM-dd` text, timestamps as
+  `yyyy-MM-dd HH:mm:ss`, money as integer cents, bools as 0/1 in tables; a schema version stamped in the
+  file (`PRAGMA user_version` in Accounting and Personal Finance; the `FileFormat` setting in Kanban) that
+  only ever goes up, and a refusal to open a file written by a newer program; additive migrations only;
+  backups through `SqliteConnection.BackupDatabase`, kept beside the data file, newest N retained.
+  Microsoft.Data.Sqlite's default 30-second busy timeout applies everywhere. Never align table names or
+  storage formats by rewriting real data files.
+- **Installer:** Inno Setup, `{userpf}\<Name>`, `PrivilegesRequired=lowest`, one AppId per channel, the
+  EULA as `LicenseFile` where the program has one, signing through `Signing.ps1` once
+  `installer\signing.json` exists; only Production installers are ever published.
