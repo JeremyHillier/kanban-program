@@ -27,9 +27,10 @@ public partial class AboutWindow : Window
         MadeInText.Text = AppInfo.MadeIn;
     }
 
+    /// <summary>The app's own page, where the download and its notes live, not the company's home page.</summary>
     private void Website_Click(object sender, RoutedEventArgs e)
     {
-        UrlLauncher.Open(AppInfo.Website, this);
+        UrlLauncher.Open(AppInfo.DownloadPageUrl, this);
     }
 
     private void SupportEmail_Click(object sender, RoutedEventArgs e)

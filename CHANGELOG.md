@@ -6,6 +6,10 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.117.3 — 2026-09-27
+
+> - Improved: the Website button on the About screen now opens the app's own page on hillierconsulting.ca, rather than the home page.
+
 ## 0.117.2 — 2026-09-27
 
 > - Improved: the small maple leaf beside "Designed in Canada" is now the maple leaf from the Canadian flag, so it looks clean and recognisable at its small size.
