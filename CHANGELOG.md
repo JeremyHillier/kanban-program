@@ -6,6 +6,10 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.117.2 — 2026-09-27
+
+> - Improved: the small maple leaf beside "Designed in Canada" is now a simpler five-point leaf, so it looks clean at its small size instead of blurring.
+
 ## 0.117.1 — 2026-09-27
 
 > - Improved: the version number, copyright and "Designed in Canada" are back at the bottom left, under the buttons and beside the About link, and now stay in view without scrolling the button column.

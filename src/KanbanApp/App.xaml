@@ -20,8 +20,9 @@
         <SolidColorBrush x:Key="SidebarGripBrush" Color="#FF4F6785"/>
         <SolidColorBrush x:Key="ColumnHeaderLineBrush" Color="#4D000000"/>
         <!-- A maple leaf, drawn as a shape so it stays crisp at any size. Used with "Designed in Canada"
-             in the header and on the About screen. -->
-        <Geometry x:Key="MapleLeafGeometry">M 50,2 L 58,20 L 68,14 L 65,36 L 82,26 L 78,40 L 96,42 L 82,54 L 92,64 L 66,68 L 70,84 L 54,74 L 52,98 L 48,98 L 46,74 L 30,84 L 34,68 L 8,64 L 18,54 L 4,42 L 22,40 L 18,26 L 35,36 L 32,14 L 42,20 Z</Geometry>
+             at the foot of the button column and on About. Kept to five points and a stem: it is shown
+             at 10-13 px, where a detailed leaf blurs into a jagged blob. -->
+        <Geometry x:Key="MapleLeafGeometry">M 50,3 L 63,33 L 93,24 L 82,52 L 96,64 L 60,70 L 54,72 L 53,97 L 47,97 L 46,72 L 40,70 L 4,64 L 18,52 L 7,24 L 37,33 Z</Geometry>
 
         <!-- The built-in (Fluent-theme) ComboBoxItem template paints its Highlighted/Selected states
              from its own internal resources, ignoring plain Background/Foreground setters and triggers,
