@@ -42,7 +42,7 @@ Public download page: https://hillierconsulting.ca/kanban.html. It reads the lat
 - **After every successful installer build, ask the user**: "Publish <version> to the download page?" Only publish on a yes. Never publish without asking.
 - Prerequisite: the GitHub CLI. Check with `gh auth status`. If it is missing or not signed in, tell the user to run `winget install --id GitHub.cli` and then `gh auth login` (once per computer), and stop.
 - Only Production channel installers are ever published, never the Test build.
-- Tag is `v<Version>` from `srcKanbanAppKanbanApp.csproj`. First check `gh release view v<Version> --repo JeremyHillier/kanban-task-board-downloads`. If that version is already released, ask before replacing its file (`gh release upload v<Version> "<installer>" --clobber --repo ...`); a real change should normally get a version bump instead.
+- Tag is `v<Version>` from `src\KanbanApp\KanbanApp.csproj`. First check `gh release view v<Version> --repo JeremyHillier/kanban-task-board-downloads`. If that version is already released, ask before replacing its file (`gh release upload v<Version> "<installer>" --clobber --repo ...`); a real change should normally get a version bump instead.
 - Release notes are that version's bullets from `CHANGELOG.md`, copied as written (customer wording, lines starting with `- `, which the page shows as a list), summary first. Write them to a temp file and pass `--notes-file`:
   `awk '/^## <Version> /{f=1;next} /^## /{if(f)exit} f && /^(> )?- /{sub(/^> /,""); sub(/\r$/,""); print}' CHANGELOG.md > <temp file>`
 - Publish with:
