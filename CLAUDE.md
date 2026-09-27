@@ -23,6 +23,8 @@ WPF (.NET, `net10.0-windows`) desktop kanban app, SQLite-backed via `Microsoft.D
 
 `CHANGELOG.md` is embedded in the exe and its last five versions are shown to users on the What's New screen. Write entries for customers: what changed for them, in plain words, as short bullets. Implementation detail belongs in the commit message, not here. Older entries from before this rule contain developer wording; they no longer appear in What's New.
 
+Layout, the same as the Personal Finance and Accounting programs (from 0.116.5): `## <version> — <date>`, a blank line, the summary as `> - ` lines (one point per line, no wrapping or bold), a blank line, then optional detail as `- ` lines. What's New shows only the `> - ` lines (`ReleaseNotes.Parse`); a version without any (everything before 0.116.5) shows its `- ` lines instead. The download page's release notes take both, with the `> ` removed (the awk line under Publishing does this).
+
 These bullets are also published as the release notes on the public download page, so write them website-ready: professional, complete sentences a customer or prospect could read cold. Lead with "New:", "Improved:" or "Fixed:" where it helps. No first person, no slang, no mention of tests, internals, the developer or how the change was requested - only what the product now does.
 
 ## Installers
@@ -41,7 +43,8 @@ Public download page: https://hillierconsulting.ca/kanban.html. It reads the lat
 - Prerequisite: the GitHub CLI. Check with `gh auth status`. If it is missing or not signed in, tell the user to run `winget install --id GitHub.cli` and then `gh auth login` (once per computer), and stop.
 - Only Production channel installers are ever published, never the Test build.
 - Tag is `v<Version>` from `KanbanApp.csproj`. First check `gh release view v<Version> --repo JeremyHillier/kanban-task-board-downloads`. If that version is already released, ask before replacing its file (`gh release upload v<Version> "<installer>" --clobber --repo ...`); a real change should normally get a version bump instead.
-- Release notes are that version's bullets from `CHANGELOG.md`, copied as written (customer wording, lines starting with `- `, which the page shows as a list). Write them to a temp file and pass `--notes-file`.
+- Release notes are that version's bullets from `CHANGELOG.md`, copied as written (customer wording, lines starting with `- `, which the page shows as a list), summary first. Write them to a temp file and pass `--notes-file`:
+  `awk '/^## <Version> /{f=1;next} /^## /{if(f)exit} f && /^(> )?- /{sub(/^> /,""); sub(/\r$/,""); print}' CHANGELOG.md > <temp file>`
 - Publish with:
   `gh release create v<Version> "installer/Output/Kanban Task Board-Setup-<Version>.exe" --repo JeremyHillier/kanban-task-board-downloads --title "Kanban Task Board <Version>" --notes-file <temp file> --latest`
 - Never mark it `--prerelease` or `--draft` (the page only picks up the latest full release). Never push source code or anything other than the installer to that repo; the code repo `kanban-program` stays private.

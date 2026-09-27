@@ -6,6 +6,13 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.116.5 — 2026-09-27
+
+> - Improved: What's New now leads each update with a short summary of what changed, in the same layout as the other Hillier Consulting programs.
+> - Improved: the version and copyright at the foot of the button column now read the same way as in the other Hillier Consulting programs.
+
+- The copyright now includes the year, here and at the foot of every window.
+
 ## 0.116.4 — 2026-09-27
 - Improved: an About link now sits at the foot of the button column, between the version number and the copyright, as in the other Hillier Consulting programs. It opens the version, licence, privacy and support details in one click
 

@@ -6,7 +6,8 @@ namespace KanbanApp.Services;
 public static class AppInfo
 {
     public const string Company = "Jeremy Hillier Consulting Inc";
-    public const string Copyright = $"© {Company}";
+    // The same wording as the Personal Finance and Accounting programs.
+    public const string Copyright = $"© 2026 {Company}";
 
     // Shown, with a maple leaf, in the header and on the About screen.
     public const string MadeIn = "Designed in Canada";
