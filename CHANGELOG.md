@@ -6,6 +6,10 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.117.1 — 2026-09-27
+
+> - Improved: the version number, copyright and "Designed in Canada" are back at the bottom left, under the buttons and beside the About link, and now stay in view without scrolling the button column.
+
 ## 0.117.0 — 2026-09-27
 
 > - Improved: the task file now enforces the links between tasks and their columns, projects, goals, people, flags, sub-tasks and attachments, so nothing can be saved that points at something that no longer exists.

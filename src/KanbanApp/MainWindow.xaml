@@ -415,19 +415,11 @@
                 <TextBlock Text="KANBAN TASK BOARD" FontSize="36" FontWeight="Bold" Foreground="White"
                            HorizontalAlignment="Center" VerticalAlignment="Center"
                            TextAlignment="Center"/>
-                <StackPanel HorizontalAlignment="Right" VerticalAlignment="Center">
-                    <TextBlock Text="TEST BUILD" FontSize="11" FontWeight="Bold" Foreground="#FFFFEB3B" Background="#FFB71C1C"
-                               Padding="6,1" HorizontalAlignment="Right"
-                               Visibility="{Binding IsTestChannel, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-                    <TextBlock Text="{Binding AppVersion}" FontSize="10" Foreground="#FFC0CBDA"
-                               HorizontalAlignment="Right" Margin="0,4,0,0"/>
-                    <TextBlock Text="{Binding CopyrightText}" FontSize="9" Foreground="#FFC0CBDA"
-                               HorizontalAlignment="Right" Margin="0,2,0,0"/>
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,3,0,0" ToolTip="Designed in Canada">
-                        <Path Data="{StaticResource MapleLeafGeometry}" Fill="#FFE53935" Width="10" Height="10" Stretch="Uniform" Margin="0,0,4,0" VerticalAlignment="Center"/>
-                        <TextBlock Text="{x:Static svc:AppInfo.MadeIn}" FontSize="9" Foreground="#FFC0CBDA" VerticalAlignment="Center"/>
-                    </StackPanel>
-                </StackPanel>
+                <!-- Only the test-build badge sits here; the version, copyright and "Designed in Canada"
+                     are at the foot of the button column, with the About link. -->
+                <TextBlock Text="TEST BUILD" FontSize="11" FontWeight="Bold" Foreground="#FFFFEB3B" Background="#FFB71C1C"
+                           Padding="6,1" HorizontalAlignment="Right" VerticalAlignment="Center"
+                           Visibility="{Binding IsTestChannel, Converter={StaticResource BooleanToVisibilityConverter}}"/>
             </Grid>
         </Border>
 
@@ -463,6 +455,22 @@
                     Background="{DynamicResource SidebarPanelBrush}"
                     BorderBrush="{DynamicResource SidebarPanelBorderBrush}" BorderThickness="1"
                     Visibility="{Binding IsSidebarExpanded, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <!-- The foot (version, About, copyright, Designed in Canada) is pinned under the buttons,
+                     outside the part that scrolls, so it is always in view at the bottom left. -->
+                <DockPanel>
+                    <StackPanel DockPanel.Dock="Bottom">
+                        <TextBlock Text="{Binding VersionLine}" HorizontalAlignment="Center" FontSize="9" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,8,0,0"/>
+                        <TextBlock HorizontalAlignment="Center" FontSize="9" Margin="0,1,0,1">
+                            <Hyperlink Click="About_Click" Foreground="{DynamicResource AccentTextBrush}"
+                                       ToolTip="Version, licence agreement, privacy note, check for updates and support">About</Hyperlink>
+                        </TextBlock>
+                        <TextBlock Text="{Binding CopyrightText}" HorizontalAlignment="Center" TextAlignment="Center" TextWrapping="Wrap" FontSize="9"
+                                   Foreground="{DynamicResource SecondaryTextBrush}"/>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,3,0,0" ToolTip="Designed in Canada">
+                            <Path Data="{StaticResource MapleLeafGeometry}" Fill="#FFE53935" Width="10" Height="10" Stretch="Uniform" Margin="0,0,4,0" VerticalAlignment="Center"/>
+                            <TextBlock Text="{x:Static svc:AppInfo.MadeIn}" FontSize="9" Foreground="{DynamicResource SecondaryTextBrush}" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </StackPanel>
                 <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
                     <StackPanel>
                         <!-- Collapses this whole column to a thin strip, giving the board the full width. -->
@@ -827,17 +835,9 @@
                                 <TextBlock Text="Close" TextWrapping="Wrap" TextAlignment="Center"/>
                             </Button>
                         </StackPanel>
-
-                        <!-- The foot of the button column: version, About, copyright. -->
-                        <TextBlock Text="{Binding VersionLine}" HorizontalAlignment="Center" FontSize="9" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,8,0,0"/>
-                        <TextBlock HorizontalAlignment="Center" FontSize="9" Margin="0,1,0,1">
-                            <Hyperlink Click="About_Click" Foreground="{DynamicResource AccentTextBrush}"
-                                       ToolTip="Version, licence agreement, privacy note, check for updates and support">About</Hyperlink>
-                        </TextBlock>
-                        <TextBlock Text="{Binding CopyrightText}" HorizontalAlignment="Center" TextAlignment="Center" TextWrapping="Wrap" FontSize="9"
-                                   Foreground="{DynamicResource SecondaryTextBrush}"/>
                     </StackPanel>
                 </ScrollViewer>
+                </DockPanel>
             </Border>
 
             <!-- The board. Its width is passed to the view model (BoardScrollViewer_SizeChanged), which shares it
