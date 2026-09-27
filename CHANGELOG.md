@@ -6,22 +6,29 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.117.0 — 2026-09-27
+
+> - Improved: the task file now enforces the links between tasks and their columns, projects, goals, people, flags, sub-tasks and attachments, so nothing can be saved that points at something that no longer exists.
+> - Improved: the first time this version opens a task file it takes a backup of the file, kept in the Backups folder and never removed by the usual tidy-up, then brings the file up to the new structure and clears out any stray references left behind by earlier versions.
+
+- If the backup cannot be made, or the file has already been used by a newer version, the file is left exactly as it was and a message says so when the app starts.
+
 ## 0.116.6 — 2026-09-27
 
-> - Maintenance release: internal changes that bring the app's code layout into line with the other Hillier Consulting programs, with no change to how it looks or works.
+> - Maintenance release: internal changes to the app's code layout, with no change to how it looks or works.
 
-- The backup taken when the app closes is now made through SQLite's own backup method, as in the Personal Finance and Accounting programs, so the copy is consistent even if something else has the file open at the time.
-- Under the hood: the app project moved into a src folder with a solution file, the same layout as the other two programs; the app now stays open until the board is showing, as they do; the copyright year is taken from the clock; shared formatting settings were added.
+- The backup taken when the app closes is now made through SQLite's own backup method, so the copy is consistent even if something else has the file open at the time.
+- Under the hood: the app project moved into a src folder with a solution file; the app now stays open until the board is showing; the copyright year is taken from the clock; formatting settings were added.
 
 ## 0.116.5 — 2026-09-27
 
-> - Improved: What's New now leads each update with a short summary of what changed, in the same layout as the other Hillier Consulting programs.
-> - Improved: the version and copyright at the foot of the button column now read the same way as in the other Hillier Consulting programs.
+> - Improved: What's New now leads each update with a short summary of what changed.
+> - Improved: the version and copyright at the foot of the button column now read more plainly.
 
 - The copyright now includes the year, here and at the foot of every window.
 
 ## 0.116.4 — 2026-09-27
-- Improved: an About link now sits at the foot of the button column, between the version number and the copyright, as in the other Hillier Consulting programs. It opens the version, licence, privacy and support details in one click
+- Improved: an About link now sits at the foot of the button column, between the version number and the copyright. It opens the version, licence, privacy and support details in one click
 
 ## 0.116.3 — 2026-09-27
 - Improved: new contact addresses. Support requests and problem reports now go to support@hillierconsulting.ca, and general questions to info@hillierconsulting.ca. Both are shown in About, Help, the licence agreement and the privacy note, and Report a Problem sends to the support address

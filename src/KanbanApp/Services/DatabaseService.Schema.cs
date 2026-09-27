@@ -9,7 +9,13 @@ public partial class DatabaseService
 {
     private void Initialize()
     {
-        using var connection = OpenConnection();
+        // Without enforcement, explicitly: the SQLite build in use switches it on by default, the
+        // upgrade below has to rebuild tables, which SQLite only allows with the constraints off, and
+        // the file may hold stray references until then.
+        using var connection = new SqliteConnection(PlainConnectionString + ";Foreign Keys=False");
+        connection.Open();
+
+        var upgrade = BeginForeignKeyUpgrade(connection);
 
         using (var cmd = connection.CreateCommand())
         {
@@ -34,32 +40,6 @@ public partial class DatabaseService
                     Name TEXT NOT NULL,
                     SortOrder INTEGER NOT NULL
                 );
-                CREATE TABLE IF NOT EXISTS CardFlags (
-                    CardId INTEGER NOT NULL,
-                    FlagId INTEGER NOT NULL,
-                    PRIMARY KEY (CardId, FlagId)
-                );
-                CREATE TABLE IF NOT EXISTS SubTasks (
-                    Id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    CardId INTEGER NOT NULL,
-                    Title TEXT NOT NULL,
-                    IsDone INTEGER NOT NULL DEFAULT 0,
-                    SortOrder INTEGER NOT NULL
-                );
-                CREATE TABLE IF NOT EXISTS Cards (
-                    Id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    ColumnId INTEGER NOT NULL,
-                    Title TEXT NOT NULL,
-                    SortOrder INTEGER NOT NULL,
-                    ProjectId INTEGER NULL,
-                    IsArchived INTEGER NOT NULL DEFAULT 0,
-                    Priority TEXT NOT NULL DEFAULT 'Normal',
-                    DueDate TEXT NULL,
-                    Who TEXT NULL,
-                    LastUpdated TEXT NULL,
-                    FOREIGN KEY (ColumnId) REFERENCES Columns(Id) ON DELETE CASCADE,
-                    FOREIGN KEY (ProjectId) REFERENCES Projects(Id) ON DELETE SET NULL
-                );
                 CREATE TABLE IF NOT EXISTS CardHistory (
                     Id INTEGER PRIMARY KEY AUTOINCREMENT,
                     CardId INTEGER NOT NULL,
@@ -72,13 +52,6 @@ public partial class DatabaseService
                     Key TEXT PRIMARY KEY,
                     Value TEXT NOT NULL
                 );
-                CREATE TABLE IF NOT EXISTS CardAttachments (
-                    Id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    CardId INTEGER NOT NULL,
-                    FilePath TEXT NOT NULL,
-                    DisplayName TEXT NOT NULL,
-                    AddedDate TEXT NOT NULL
-                );
                 CREATE TABLE IF NOT EXISTS People (
                     Id INTEGER PRIMARY KEY AUTOINCREMENT,
                     Name TEXT NOT NULL,
@@ -88,6 +61,10 @@ public partial class DatabaseService
                 """;
             cmd.ExecuteNonQuery();
         }
+
+        // The tables that link to others, each with its constraints (DatabaseService.ForeignKeys.cs).
+        // A table already there is left for the MigrateColumn calls and the upgrade below.
+        foreach (var table in LinkedTables) Execute(connection, table.CreateSql(table.Name, ifNotExists: true));
 
         MigrateColumn(connection, "Cards", "ProjectId", "INTEGER NULL");
         MigrateColumn(connection, "Cards", "IsArchived", "INTEGER NOT NULL DEFAULT 0");
@@ -170,7 +147,11 @@ public partial class DatabaseService
         }
 
         BackfillPeopleFromLegacyWho(connection);
-        EnsureCardPeopleTable(connection); // after the line above: its backfill reads the WhoId that one fills in
+        BackfillCardPeople(connection); // after the line above: it reads the WhoId that one fills in
+
+        // Every table now exists with every column, which the rebuild in here relies on.
+        FinishForeignKeyUpgrade(connection, upgrade);
+        _connectionString = ForeignKeysEnforced ? PlainConnectionString + ";Foreign Keys=True" : PlainConnectionString;
 
         using (var checkCmd = connection.CreateCommand())
         {

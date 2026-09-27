@@ -1,5 +1,5 @@
-# The same rules in the Kanban, Accounting and Personal Finance programs: source is checked out
-# with Windows line endings whatever the machine's Git settings, and binaries are never touched.
+# Source is checked out with Windows line endings whatever the machine's Git settings, and
+# binaries are never touched.
 * text=auto eol=crlf
 
 *.cs text eol=crlf

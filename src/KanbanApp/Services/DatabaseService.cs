@@ -11,7 +11,9 @@ namespace KanbanApp.Services;
 // lives in its own partial file.
 public partial class DatabaseService
 {
-    private readonly string _connectionString;
+    // Set by Initialize: every connection after it enforces the links between tables (see
+    // DatabaseService.ForeignKeys.cs), unless the file could not be brought up to that.
+    private string _connectionString;
 
     public string DbPath { get; }
 
@@ -24,11 +26,13 @@ public partial class DatabaseService
     {
         DbPath = dbPath;
         Directory.CreateDirectory(Path.GetDirectoryName(DbPath)!);
-        _connectionString = $"Data Source={DbPath}";
+        _connectionString = PlainConnectionString;
 
         Initialize();
         StampFile();
     }
+
+    private string PlainConnectionString => $"Data Source={DbPath}";
 
     private SqliteConnection OpenConnection()
     {

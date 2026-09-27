@@ -10,8 +10,8 @@ public record ReleaseNote(string Version, string Date, List<string> Items);
 // in the exe (see the Resource include in KanbanApp.csproj), so there's never a second hand-kept
 // copy of the same notes to drift out of sync with the real changelog.
 //
-// The same layout as the Personal Finance and Accounting programs (from 0.116.5): each version's
-// summary is its "> - " lines, and only those reach What's New; the "- " lines under them are the
+// The layout (from 0.116.5): each version's summary is its "> - " lines, and only those reach
+// What's New; the "- " lines under them are the
 // detail. Versions written before then have no summary, so their "- " lines are shown instead.
 public static partial class ReleaseNotes
 {

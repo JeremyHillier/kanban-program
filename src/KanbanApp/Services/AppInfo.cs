@@ -9,7 +9,7 @@ public static class AppInfo
     public const string Company = "Jeremy Hillier Consulting Inc";
     public const string Website = "https://hillierconsulting.ca";
 
-    // The same wording as the Personal Finance and Accounting programs, and never a year behind.
+    // Never a year behind: the year comes from the clock.
     public static string Copyright => $"© {DateTime.Today.Year} {Company}";
 
     // Shown, with a maple leaf, in the header and on the About screen.

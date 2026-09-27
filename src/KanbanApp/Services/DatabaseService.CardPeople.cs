@@ -8,18 +8,14 @@ namespace KanbanApp.Services;
 // still reads one from the card's own row.
 public partial class DatabaseService
 {
-    private static void EnsureCardPeopleTable(SqliteConnection connection)
+    // The table itself is made in Initialize with the other linked tables (its definition and
+    // index are in DatabaseService.ForeignKeys.cs).
+    private static void BackfillCardPeople(SqliteConnection connection)
     {
+        foreach (var index in Shape("CardPeople").Indexes) Execute(connection, index);
+
         using var cmd = connection.CreateCommand();
         cmd.CommandText = """
-            CREATE TABLE IF NOT EXISTS CardPeople (
-                CardId INTEGER NOT NULL,
-                PersonId INTEGER NOT NULL,
-                SortOrder INTEGER NOT NULL,
-                PRIMARY KEY (CardId, PersonId)
-            );
-            CREATE INDEX IF NOT EXISTS IX_CardPeople_Person ON CardPeople (PersonId);
-
             -- Tasks from before there was a list: their one person becomes the lead. Safe on every
             -- startup, since it only touches a task that has a person and no list at all.
             INSERT INTO CardPeople (CardId, PersonId, SortOrder)

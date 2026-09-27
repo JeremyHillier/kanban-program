@@ -1,9 +1,8 @@
 # Code signing for the installer build, with Azure Artifact Signing. Dot-sourced by build-installers.ps1.
-# The same file is in both the Kanban and Personal Finance repos; keep the two copies identical.
 #
 # Signing is off until installer\signing.json exists. That file names the signing account and the
 # certificate profile, and holds no secrets (the sign-in is the build PC's own "az login"). The full
-# setup is in "Code Signing Setup.html" in the Personal Finance Program folder.
+# setup is in the user's "Code Signing Setup.html" guide.
 #
 # Once it exists, every Production build signs the program, the installer and its uninstaller, checks
 # each signature, and stops rather than produce an unsigned installer. Test builds are never signed.

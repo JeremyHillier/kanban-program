@@ -145,11 +145,12 @@ public partial class DatabaseService
         return cmd.ExecuteScalar() is not null;
     }
 
-    private static void Execute(SqliteConnection connection, string sql, params (string Name, object Value)[] parameters)
+    // Runs a statement and says how many rows it touched.
+    private static int Execute(SqliteConnection connection, string sql, params (string Name, object Value)[] parameters)
     {
         using var cmd = connection.CreateCommand();
         cmd.CommandText = sql;
         foreach (var (name, value) in parameters) cmd.Parameters.AddWithValue(name, value);
-        cmd.ExecuteNonQuery();
+        return cmd.ExecuteNonQuery();
     }
 }

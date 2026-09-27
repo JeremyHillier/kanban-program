@@ -1,5 +1,4 @@
-# The same settings in the Kanban, Accounting and Personal Finance programs. Editors and
-# `dotnet format` read this; keep the three copies identical.
+# Formatting settings for the whole repository. Editors and `dotnet format` read this.
 root = true
 
 [*]

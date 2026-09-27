@@ -828,7 +828,7 @@
                             </Button>
                         </StackPanel>
 
-                        <!-- The same foot as the Personal Finance and Accounting programs: version, About, copyright. -->
+                        <!-- The foot of the button column: version, About, copyright. -->
                         <TextBlock Text="{Binding VersionLine}" HorizontalAlignment="Center" FontSize="9" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,8,0,0"/>
                         <TextBlock HorizontalAlignment="Center" FontSize="9" Margin="0,1,0,1">
                             <Hyperlink Click="About_Click" Foreground="{DynamicResource AccentTextBrush}"

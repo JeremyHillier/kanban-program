@@ -16,7 +16,7 @@ public partial class MainViewModel : ObservableObject
 
     public string AppVersion { get; } = $"v{Assembly.GetExecutingAssembly().GetName().Version?.ToString(3)}";
     public string CopyrightText { get; } = AppInfo.Copyright;
-    // "Version 0.116.5", with " (Test)" on a Test build: the same wording as the other programs.
+    // "Version 0.116.5", with " (Test)" on a Test build.
     public string VersionLine => $"Version {AppVersion.TrimStart('v')}{(AppChannel.IsTest ? $" ({AppChannel.Name})" : "")}";
     public bool IsTestChannel => AppChannel.IsTest;
     public string WindowTitle => AppChannel.DisplayName;

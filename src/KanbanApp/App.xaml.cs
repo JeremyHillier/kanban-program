@@ -17,9 +17,9 @@ public partial class App : Application
     {
         base.OnStartup(e);
 
-        // As in the Personal Finance and Accounting programs: nothing ends the app until it says so.
-        // A message or the splash may be the first window up, and WPF would otherwise make it the main
-        // window and close the app with it. OnMainWindowClose is set once the board is showing.
+        // Nothing ends the app until it says so. A message or the splash may be the first window up,
+        // and WPF would otherwise make it the main window and close the app with it.
+        // OnMainWindowClose is set once the board is showing.
         ShutdownMode = ShutdownMode.OnExplicitShutdown;
 
         if (e.Args.Length > 1 && e.Args[0] == "--seed-data-folder")
@@ -46,6 +46,11 @@ public partial class App : Application
         {
             Shutdown();
             return;
+        }
+
+        if (db.ForeignKeyUpgradeProblem is { } upgradeProblem)
+        {
+            Dialogs.Tell(null, "Task File Not Updated", upgradeProblem, DialogTone.Warning);
         }
 
         CleanUpOldDbFileAfterMove(db.DbPath);

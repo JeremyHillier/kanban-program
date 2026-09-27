@@ -13,7 +13,7 @@ WPF (.NET, `net10.0-windows`) desktop kanban app, SQLite-backed via `Microsoft.D
 
 ## Build
 
-`dotnet build` from the repository root builds `KanbanApp.slnx` (the app in `src\KanbanApp`, the tests in `tests\KanbanApp.Tests`), the same layout as the Personal Finance and Accounting programs. No special setup beyond the SDK.
+`dotnet build` from the repository root builds `KanbanApp.slnx` (the app in `src\KanbanApp`, the tests in `tests\KanbanApp.Tests`). No special setup beyond the SDK.
 
 ## Tests
 
@@ -23,7 +23,7 @@ WPF (.NET, `net10.0-windows`) desktop kanban app, SQLite-backed via `Microsoft.D
 
 `CHANGELOG.md` is embedded in the exe and its last five versions are shown to users on the What's New screen. Write entries for customers: what changed for them, in plain words, as short bullets. Implementation detail belongs in the commit message, not here. Older entries from before this rule contain developer wording; they no longer appear in What's New.
 
-Layout, the same as the Personal Finance and Accounting programs (from 0.116.5): `## <version> — <date>`, a blank line, the summary as `> - ` lines (one point per line, no wrapping or bold), a blank line, then optional detail as `- ` lines. What's New shows only the `> - ` lines (`ReleaseNotes.Parse`); a version without any (everything before 0.116.5) shows its `- ` lines instead. The download page's release notes take both, with the `> ` removed (the awk line under Publishing does this).
+Layout (from 0.116.5): `## <version> — <date>`, a blank line, the summary as `> - ` lines (one point per line, no wrapping or bold), a blank line, then optional detail as `- ` lines. What's New shows only the `> - ` lines (`ReleaseNotes.Parse`); a version without any (everything before 0.116.5) shows its `- ` lines instead. The download page's release notes take both, with the `> ` removed (the awk line under Publishing does this).
 
 These bullets are also published as the release notes on the public download page, so write them website-ready: professional, complete sentences a customer or prospect could read cold. Lead with "New:", "Improved:" or "Fixed:" where it helps. No first person, no slang, no mention of tests, internals, the developer or how the change was requested - only what the product now does.
 
@@ -33,7 +33,7 @@ These bullets are also published as the release notes on the public download pag
 
 After building, say where the installer is and stop there. Never ask whether to install it on this PC, never offer to, and never run it: the user always installs it themselves. The only question to ask after a build is the publishing one below.
 
-Code signing (Azure Artifact Signing) is wired in and switched off: `installer/Signing.ps1`, dot-sourced by the build script, signs only when `installer/signing.json` exists (account endpoint, account name, certificate profile; no secrets, the build PC's `az login` is the credential - safe to commit). Then every Production build signs the app exe after publish, passes `/DSigned=1` and an `azuresign` tool to ISCC so Inno signs the setup and uninstaller (`SignTool=azuresign`, `SignedUninstaller=yes` under `#ifdef Signed`), verifies with `signtool verify /pa`, and stops on any failure rather than produce an unsigned installer. Test builds are never signed. `Signing.ps1` is identical in the Kanban and Personal Finance repos: change both. The user's setup steps are in `Code Signing Setup.html` in the Personal Finance folder. To switch it on, write `installer/signing.json` in both repos from the three names the user sends (the JSON shape is in that guide, section 7), build, and check the output says "Signing: on".
+Code signing (Azure Artifact Signing) is wired in and switched off: `installer/Signing.ps1`, dot-sourced by the build script, signs only when `installer/signing.json` exists (account endpoint, account name, certificate profile; no secrets, the build PC's `az login` is the credential - safe to commit). Then every Production build signs the app exe after publish, passes `/DSigned=1` and an `azuresign` tool to ISCC so Inno signs the setup and uninstaller (`SignTool=azuresign`, `SignedUninstaller=yes` under `#ifdef Signed`), verifies with `signtool verify /pa`, and stops on any failure rather than produce an unsigned installer. Test builds are never signed. The user's setup steps are in their `Code Signing Setup.html` guide. To switch it on, write `installer/signing.json` from the three names the user sends (the JSON shape is in that guide, section 7), build, and check the output says "Signing: on".
 
 ## Publishing a release to the download page
 
@@ -61,7 +61,7 @@ Standard MVVM:
 - `Models/` — plain POCOs (`CardItem`, `Project`, `Goal`, `Flag`, `Person`, `SubTaskItem`, `CardAttachment`, `ArchivedCardInfo`/`DeletedCardInfo`, `ImportedTaskRow`, `ReportRow`).
 - `ViewModels/` — `ObservableObject`/`RelayCommand` base, one VM per model, plus `MainViewModel` (large — settings passthrough, filters/sort, card CRUD, per-managed-list CRUD, lifecycle transitions).
 - `Views/` — one Window per feature (XAML + code-behind). The main window's code-behind is one `partial class MainWindow` split by concern: `MainWindow.xaml.cs` (start-up, window size and position, status line, undo), `.Reminders.cs` (What's New, due reminders, time alerts), `.DragDrop.cs`, `.CardMenus.cs` (right-click menus), `.CardActions.cs` (quick edits, move/delete/done, add and edit dialogs, Waiting On prompts), `.Keyboard.cs`, `.Sidebar.cs` (filters, sorting, grips), `.Dialogs.cs` (the windows the buttons open), `.QuickAdd.cs`, `.Updates.cs`. Put a new handler in the file for its concern rather than back in `MainWindow.xaml.cs`. The task window (`AddTaskWindow`) is split the same way: `.xaml.cs` (constructors, change tracking and the unsaved-changes prompt, Waiting On, Save), `.Attachments.cs`, `.AttachmentMenu.cs`, `.SubTasks.cs`, `.Schedule.cs` (dates, due time, AM/PM, recurring), `.Lists.cs` (project, goal and flag choices), `.People.cs`, `.WhoTypeAhead.cs`, `.Templates.cs`. `TimelineWindow` has `.Screen.cs` and `.Print.cs`; `SettingsWindow` has `.TaskFile.cs` (moving and switching the task file, recent files, backups) and `.Folders.cs` (default folders, Your Details); `ReportBuilderWindow` has `.SavedViews.cs` and `.Dates.cs`. Dashboard and Report/Print logic live mostly in Views' code-behind rather than dedicated ViewModels — an inconsistency with the rest of the app, not a bug.
-- `Services/` — `DatabaseService` (SQLite, schema migration via ad hoc `MigrateColumn` calls, no formal migrations table), `AppConfig` (bootstrap JSON: DB path, pending cleanup path), `AppChannel` (`#if TEST_CHANNEL` selects Production/Test data folder + mutex), `ReportService` (three partials: `ReportService.cs` picks, sorts and groups the rows; `.Preview` draws the FixedDocument for Preview/Print; `.Pdf` is the PDFsharp export, which reads Segoe UI straight from `%Windows%\Fonts` — fragile if that font isn't installed there; all word-wrapping, including the printed Timeline's, goes through `Services/TextWrap`), `Models/Priorities` (the four priority names in order, and `Rank` for sorting - use it rather than spelling the list out), `ImportService` (ClosedXML Excel template + import).
+- `Services/` — `DatabaseService` (SQLite, schema migration via ad hoc `MigrateColumn` calls, no formal migrations table; the links between tables are foreign keys, declared in `DatabaseService.ForeignKeys.cs` and enforced on every connection, with a one-time backed-up rebuild for older files - see Conventions, Database), `AppConfig` (bootstrap JSON: DB path, pending cleanup path), `AppChannel` (`#if TEST_CHANNEL` selects Production/Test data folder + mutex), `ReportService` (three partials: `ReportService.cs` picks, sorts and groups the rows; `.Preview` draws the FixedDocument for Preview/Print; `.Pdf` is the PDFsharp export, which reads Segoe UI straight from `%Windows%\Fonts` — fragile if that font isn't installed there; all word-wrapping, including the printed Timeline's, goes through `Services/TextWrap`), `Models/Priorities` (the four priority names in order, and `Rank` for sorting - use it rather than spelling the list out), `ImportService` (ClosedXML Excel template + import).
 - `Theming/ThemeManager.cs`, `Converters/`.
 
 ### Key conventions
@@ -130,40 +130,37 @@ Standard MVVM:
 - **Dashboard colours** (`DashboardPalette` in `Views/DashboardCharts.cs`) were checked with a palette validator (colour-blind separation of neighbouring colours, contrast against the chart card) separately for light and dark - dark is its own set of steps, chosen by `MainViewModel.IsDarkMode`, not a flip. On Hold is magenta, not the board's orange: orange beside In Progress yellow failed the check. Re-check any colour change the same way rather than by eye. Text never takes a series colour; single-series charts use one blue; projects and people are horizontal bars sharing one scale; more than 20 projects fold into "Other". Completions per week and "Done in 7 Days" include archived tasks (`GetArchivedCompletionDates`) and weeks start on the PC's first day of the week.
 - No DB migration versioning — fine at current scale, but there's no rollback story if a migration ever needs undoing.
 
-## Conventions shared by the three programs (Kanban, Accounting, Personal Finance)
+## Conventions
 
-The three programs are kept consistent with each other (2026-09-27). Before adding a convention, screen,
-service or document to one, check whether the other two have it and do the same there. This section is
-the same in all three CLAUDE.md files; change it in all three.
+How the program is laid out and built (recorded 2026-09-27). Before adding a convention, screen,
+service or document, check this section and keep to it.
 
-- **Layout:** `<Name>.slnx` at the root; the app in `src\<App>` (Accounting and Personal Finance also
-  have `Core` and `Data` projects); tests in `tests\<App>.Tests`; `installer\` with `build-installers.ps1`,
-  the `.iss` and `Signing.ps1`; `CHANGELOG.md`, `CLAUDE.md`, `README.md` at the root. .NET 10, `Nullable`
-  and `ImplicitUsings` on, no `LangVersion`. `.editorconfig` and `.gitattributes` are identical in all
-  three (UTF-8 without BOM, CRLF, 4 spaces, no trailing whitespace).
+- **Layout:** `KanbanApp.slnx` at the root; the app in `src\KanbanApp`; tests in `tests\KanbanApp.Tests`;
+  `installer\` with `build-installers.ps1`, the `.iss` and `Signing.ps1`; `CHANGELOG.md`, `CLAUDE.md`,
+  `README.md` at the root. .NET 10, `Nullable` and `ImplicitUsings` on, no `LangVersion`. `.editorconfig`
+  and `.gitattributes` set UTF-8 without BOM, CRLF, 4 spaces, no trailing whitespace.
 - **Code style:** file-scoped namespaces that follow the folder; one type per file, partial classes split
   by concern with a `.Concern.cs` suffix; Allman braces; `_camelCase` private fields; primary constructors
-  where they read well. Comments explain why. Accounting and Personal Finance use `///` summaries on
-  public types and members; Kanban's older code uses `//` and new Kanban code may use either.
+  where they read well. Comments explain why; `//` comments throughout, `///` summaries where they help.
 - **View models:** `ObservableObject` (`OnPropertyChanged`, `SetField`) and `RelayCommand` (the
   `Action<object?>` and `Action` constructors, `CanExecuteChanged` on `CommandManager.RequerySuggested`),
   one file each, in `ViewModels`.
-- **App info and channel:** `Services/AppInfo` (`ProductName`, `Company`, `Website`, `SupportEmail`
-  support@hillierconsulting.ca, `InfoEmail` info@hillierconsulting.ca, `Copyright` with the year from the
-  clock; Kanban and Personal Finance also `DownloadPageUrl`). `Services/AppChannel` picks Test or
-  Production at build time (`-p:AppChannel=Production`; plain builds are Test) with its own
-  `%LocalAppData%\<App>[.Test]\config.json` and data folder, and a " (Test)" suffix on screen.
-- **Startup:** one mutex `<App>-<Channel>`; `ShutdownMode.OnExplicitShutdown` until the main window is
-  showing, then `OnMainWindowClose`; a backup before a schema upgrade; the main window; What's New once
-  per version; the update check (where there is one) after the window is up.
+- **App info and channel:** `Services/AppInfo` (`ProductName`, `Company`, `Website`, `DownloadPageUrl`,
+  `SupportEmail` support@hillierconsulting.ca, `InfoEmail` info@hillierconsulting.ca, `Copyright` with
+  the year from the clock). `Services/AppChannel` picks Test or Production at build time
+  (`-p:AppChannel=Production`; plain builds are Test) with its own `%LocalAppData%\KanbanApp[.Test]\config.json`
+  and data folder, and a " (Test)" suffix on screen.
+- **Startup:** one mutex `KanbanTaskBoard-<Channel>`; `ShutdownMode.OnExplicitShutdown` until the board is
+  showing, then `OnMainWindowClose`; a backup before the task file's structure is changed; the main
+  window; What's New once per version; the update check after the window is up.
 - **Messages:** never `MessageBox.Show`. `DialogMessage` (the first paragraph is the point, in bold;
   "• " bullets; a path or an error in `Detail`; buttons named for what they do, never Yes/No) shown by
-  `Dialogs` (Kanban, Personal Finance) or `MessageDialog` (Accounting) in `MessageWindow`. `AskDanger`
-  makes the main button red and Enter choose the safe one. A test fails if `MessageBox.Show(` returns.
+  `Dialogs` in `MessageWindow`. `AskDanger` makes the main button red and Enter choose the safe one. A
+  test fails if `MessageBox.Show(` returns.
 - **Main screen foot:** "Version x.y.z[ (Test)]", an About link, "© <year> Jeremy Hillier Consulting Inc".
   About shows the version, channel, file paths, both email addresses and the website. Every other dialog
   carries the copyright line bottom-right, stamped by a class handler on `Window.Loaded`
-  (`DialogCopyright` in Kanban and Personal Finance, `DialogChrome` in Accounting).
+  (`Theming/DialogCopyright`).
 - **Help:** short bullets under headings, one idea per bullet, never a paragraph; the ? buttons land on
   their topic.
 - **Changelog:** newest first; `## <version> — <date>`; the summary as `> - ` lines (one point per line,
@@ -171,12 +168,17 @@ the same in all three CLAUDE.md files; change it in all three.
   detail. What's New shows the `> - ` lines only. Bump `<Version>` in the app csproj with every change;
   a pure refactor ships as a "Maintenance release" line.
 - **Database:** SQLite through Microsoft.Data.Sqlite; dates as `yyyy-MM-dd` text, timestamps as
-  `yyyy-MM-dd HH:mm:ss`, money as integer cents, bools as 0/1 in tables; a schema version stamped in the
-  file (`PRAGMA user_version` in Accounting and Personal Finance; the `FileFormat` setting in Kanban) that
-  only ever goes up, and a refusal to open a file written by a newer program; additive migrations only;
-  backups through `SqliteConnection.BackupDatabase`, kept beside the data file, newest N retained.
-  Microsoft.Data.Sqlite's default 30-second busy timeout applies everywhere. Never align table names or
-  storage formats by rewriting real data files.
-- **Installer:** Inno Setup, `{userpf}\<Name>`, `PrivilegesRequired=lowest`, one AppId per channel, the
-  EULA as `LicenseFile` where the program has one, signing through `Signing.ps1` once
-  `installer\signing.json` exists; only Production installers are ever published.
+  `yyyy-MM-dd HH:mm:ss`, bools as 0/1 in tables; the `FileFormat` setting stamps the newest format that
+  has ever saved the file, only ever goes up, and brings a warning before a file a newer version has used
+  is opened. Migrations are additive (`MigrateColumn`), with one exception: the links between tables are
+  foreign keys (`DatabaseService.ForeignKeys.cs` holds the linked tables' definitions), enforced on every
+  connection (`Foreign Keys=True`; the SQLite build in use has them on by default, so the upgrade
+  connection says `False` explicitly), and a file from before they were declared is rebuilt once - backed
+  up first, stray references tidied, checked with `PRAGMA foreign_key_check`, or left exactly as it was
+  with the reason in `ForeignKeyUpgradeProblem`. Backups go through `SqliteConnection.BackupDatabase`
+  into `Backups` beside the task file, newest N retained; `before-update` copies are never pruned.
+  Microsoft.Data.Sqlite's default 30-second busy timeout applies everywhere. Never rewrite real data files
+  to rename tables or change storage formats.
+- **Installer:** Inno Setup, `{userpf}\Kanban Task Board`, `PrivilegesRequired=lowest`, one AppId per
+  channel, the EULA as `LicenseFile`, signing through `Signing.ps1` once `installer\signing.json` exists;
+  only Production installers are ever published.
