@@ -8,7 +8,7 @@ $ErrorActionPreference = "Stop"
 
 $installerDir = $PSScriptRoot
 $repoRoot = Split-Path $installerDir -Parent
-$csprojPath = Join-Path $repoRoot "KanbanApp.csproj"
+$csprojPath = Join-Path $repoRoot "src\KanbanApp\KanbanApp.csproj"
 
 [xml]$csproj = Get-Content $csprojPath
 $version = $csproj.Project.PropertyGroup.Version | Where-Object { $_ } | Select-Object -First 1

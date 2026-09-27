@@ -1,0 +1,22 @@
+# The same rules in the Kanban, Accounting and Personal Finance programs: source is checked out
+# with Windows line endings whatever the machine's Git settings, and binaries are never touched.
+* text=auto eol=crlf
+
+*.cs text eol=crlf
+*.xaml text eol=crlf
+*.csproj text eol=crlf
+*.slnx text eol=crlf
+*.md text eol=crlf
+*.txt text eol=crlf
+*.json text eol=crlf
+*.ps1 text eol=crlf
+*.iss text eol=crlf
+
+*.png binary
+*.ico binary
+*.bmp binary
+*.ttf binary
+*.xlsm binary
+*.db binary
+*.exe binary
+*.dll binary

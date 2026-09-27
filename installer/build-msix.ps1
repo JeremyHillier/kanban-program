@@ -13,7 +13,7 @@ $ErrorActionPreference = "Stop"
 
 $installerDir = $PSScriptRoot
 $repoRoot = Split-Path $installerDir -Parent
-$csprojPath = Join-Path $repoRoot "KanbanApp.csproj"
+$csprojPath = Join-Path $repoRoot "src\KanbanApp\KanbanApp.csproj"
 $manifestTemplatePath = Join-Path $installerDir "msix\AppxManifest.xml"
 
 [xml]$csproj = Get-Content $csprojPath
@@ -57,7 +57,7 @@ New-Item -ItemType Directory -Force -Path $layoutDir | Out-Null
 New-Item -ItemType Directory -Force -Path (Join-Path $layoutDir "Assets") | Out-Null
 
 Copy-Item (Join-Path $publishDir "*") $layoutDir -Recurse -Force
-Copy-Item (Join-Path $repoRoot "Assets\MsixIcons\*.png") (Join-Path $layoutDir "Assets") -Force
+Copy-Item (Join-Path $repoRoot "src\KanbanApp\Assets\MsixIcons\*.png") (Join-Path $layoutDir "Assets") -Force
 
 $manifestContent = (Get-Content $manifestTemplatePath -Raw) -replace '\{VERSION\}', $msixVersion
 Set-Content -Path (Join-Path $layoutDir "AppxManifest.xml") -Value $manifestContent -Encoding UTF8

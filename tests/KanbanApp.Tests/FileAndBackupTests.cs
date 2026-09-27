@@ -9,24 +9,30 @@ public sealed class BackupServiceTests : IDisposable
 
     public void Dispose() => _temp.Dispose();
 
+    // A real task file: the copy is taken through SQLite's backup API, which needs one.
+    private string TaskFile(string name)
+    {
+        var path = _temp.File(name);
+        new DatabaseService(path).SetSetting("Marker", "task data");
+        return path;
+    }
+
     [Fact]
     public void Backup_CopiesTheTaskFileIntoABackupsFolderBesideIt()
     {
-        var db = _temp.File("kanban.db");
-        File.WriteAllText(db, "task data");
+        var db = TaskFile("kanban.db");
 
         BackupService.CreateBackup(db, retentionCount: 20);
 
         var backup = Assert.Single(Directory.GetFiles(BackupService.GetBackupsDir(db)));
         Assert.StartsWith("kanban_", Path.GetFileName(backup));
-        Assert.Equal("task data", File.ReadAllText(backup));
+        Assert.Equal("task data", new DatabaseService(backup).GetSetting("Marker"));   // a working copy, not just bytes
     }
 
     [Fact]
     public void Backup_KeepsOnlyTheNewestCopies()
     {
-        var db = _temp.File("kanban.db");
-        File.WriteAllText(db, "task data");
+        var db = TaskFile("kanban.db");
         var backupsDir = Directory.CreateDirectory(BackupService.GetBackupsDir(db)).FullName;
         for (var day = 1; day <= 12; day++)
         {
@@ -39,11 +45,11 @@ public sealed class BackupServiceTests : IDisposable
 
         BackupService.CreateBackup(db, retentionCount: 5);
 
-        var kept = Directory.GetFiles(backupsDir, "kanban_*.db").Select(File.ReadAllText).ToList();
+        var kept = Directory.GetFiles(backupsDir, "kanban_*.db").Select(Path.GetFileName).ToList();
         Assert.Equal(5, kept.Count);
-        Assert.Contains("task data", kept); // the one just made
-        Assert.DoesNotContain("day 7", kept);
-        Assert.Contains("day 12", kept);
+        Assert.Contains(kept, name => !name.StartsWith("kanban_2026-01-")); // the one just made
+        Assert.DoesNotContain("kanban_2026-01-07_120000.db", kept);
+        Assert.Contains("kanban_2026-01-12_120000.db", kept);
         Assert.True(File.Exists(unrelated), "files that aren't this task file's backups must be left alone");
     }
 

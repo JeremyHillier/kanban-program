@@ -6,7 +6,7 @@ namespace KanbanApp.Views;
 
 public partial class AboutWindow : Window
 {
-    private const string CompanyWebsite = "hillierconsulting.ca";
+
 
     private readonly MainViewModel _viewModel;
 
@@ -29,7 +29,7 @@ public partial class AboutWindow : Window
 
     private void Website_Click(object sender, RoutedEventArgs e)
     {
-        UrlLauncher.Open(CompanyWebsite, this);
+        UrlLauncher.Open(AppInfo.Website, this);
     }
 
     private void SupportEmail_Click(object sender, RoutedEventArgs e)

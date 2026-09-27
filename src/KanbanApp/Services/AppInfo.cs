@@ -5,9 +5,12 @@ namespace KanbanApp.Services;
 // into each of those places, which is exactly the kind of thing that drifts once one gets edited.
 public static class AppInfo
 {
+    public const string ProductName = "Kanban Task Board";
     public const string Company = "Jeremy Hillier Consulting Inc";
-    // The same wording as the Personal Finance and Accounting programs.
-    public const string Copyright = $"© 2026 {Company}";
+    public const string Website = "https://hillierconsulting.ca";
+
+    // The same wording as the Personal Finance and Accounting programs, and never a year behind.
+    public static string Copyright => $"© {DateTime.Today.Year} {Company}";
 
     // Shown, with a maple leaf, in the header and on the About screen.
     public const string MadeIn = "Designed in Canada";

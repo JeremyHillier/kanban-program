@@ -3,7 +3,7 @@
 Makes the short "basics" video (new task, Today filter, dragging between columns) without any
 extra software and without recording the real screen or real tasks.
 
-Nothing here is part of the app: `KanbanApp.csproj` excludes the whole `tools` folder.
+Nothing here is part of the app: it lives outside `src\KanbanApp`, so the app project never sees it.
 
 ## How it works
 
@@ -23,7 +23,7 @@ as the other self-checks (see CLAUDE.md):
 1. Copy `tools/DemoVideo/DemoRecorder.cs` into the project root.
 2. In `App.xaml.cs`, straight after `base.OnStartup(e);`, add:
    `if (e.Args.Length > 0 && e.Args[0] == "--demo-record") { ShutdownMode = ShutdownMode.OnExplicitShutdown; DemoRecorder.Run(); return; }`
-3. `dotnet build KanbanApp.csproj -c Debug`, then run `bin/Debug/net10.0-windows/KanbanApp.exe --demo-record`.
+3. `dotnet build src/KanbanApp -c Debug`, then run `src/KanbanApp/bin/Debug/net10.0-windows/KanbanApp.exe --demo-record`.
    It takes about a minute and shows the app's windows while it works. `%TEMP%\kanban-demo\result.txt`
    names the frames folder.
 4. Put `App.xaml.cs` back as it was and move the copied `DemoRecorder.cs` out of the project root

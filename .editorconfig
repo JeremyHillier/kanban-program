@@ -1,0 +1,34 @@
+# The same settings in the Kanban, Accounting and Personal Finance programs. Editors and
+# `dotnet format` read this; keep the three copies identical.
+root = true
+
+[*]
+charset = utf-8
+end_of_line = crlf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 4
+
+[*.{cs,xaml}]
+indent_size = 4
+
+[*.cs]
+csharp_style_namespace_declarations = file_scoped:warning
+csharp_prefer_braces = when_multiline:suggestion
+dotnet_sort_system_directives_first = true
+
+[*.{csproj,slnx,props,targets,xml}]
+indent_size = 2
+
+[*.{json,yml,yaml}]
+indent_size = 2
+
+[*.{md,txt}]
+trim_trailing_whitespace = false
+
+[*.{ps1,psd1}]
+indent_size = 4
+
+[*.iss]
+end_of_line = crlf

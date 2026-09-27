@@ -47,12 +47,12 @@ public sealed class LegalDocumentTests
     {
         var root = FindRepoRoot();
         var script = File.ReadAllText(Path.Combine(root, "installer", "KanbanTaskBoard.iss"));
-        Assert.Contains(@"LicenseFile=..\Legal\EULA.txt", script);
+        Assert.Contains(@"LicenseFile=..\src\KanbanApp\Legal\EULA.txt", script);
 
-        var onDisk = File.ReadAllText(Path.Combine(root, "Legal", "EULA.txt"));
+        var onDisk = File.ReadAllText(Path.Combine(root, "src", "KanbanApp", "Legal", "EULA.txt"));
         Assert.Equal(Normalise(onDisk), Normalise(LegalDocuments.Eula));
 
-        var settings = File.ReadAllText(Path.Combine(root, "Views", "SettingsWindow.xaml"));
+        var settings = File.ReadAllText(Path.Combine(root, "src", "KanbanApp", "Views", "SettingsWindow.xaml"));
         Assert.Contains("Content=\"Check for a newer version automatically\"", settings);
     }
 
@@ -61,7 +61,7 @@ public sealed class LegalDocumentTests
     private static string FindRepoRoot()
     {
         var dir = new DirectoryInfo(AppContext.BaseDirectory);
-        while (dir is not null && !File.Exists(Path.Combine(dir.FullName, "KanbanApp.csproj"))) dir = dir.Parent;
+        while (dir is not null && !File.Exists(Path.Combine(dir.FullName, "KanbanApp.slnx"))) dir = dir.Parent;
         return dir?.FullName ?? throw new InvalidOperationException("Couldn't find the repository root from the test folder.");
     }
 }

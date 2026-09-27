@@ -32,7 +32,7 @@ public sealed class ReleaseNotesTests
     public void EveryVersionTheScreenShowsHasSomethingToSay()
     {
         var dir = new DirectoryInfo(AppContext.BaseDirectory);
-        while (dir is not null && !File.Exists(Path.Combine(dir.FullName, "KanbanApp.csproj"))) dir = dir.Parent;
+        while (dir is not null && !File.Exists(Path.Combine(dir.FullName, "KanbanApp.slnx"))) dir = dir.Parent;
         Assert.NotNull(dir);
         var notes = ReleaseNotes.Parse(File.ReadAllText(Path.Combine(dir.FullName, "CHANGELOG.md")));
         Assert.Equal(5, notes.Count);

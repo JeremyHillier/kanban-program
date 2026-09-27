@@ -6,7 +6,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
-    <Version>0.116.5</Version>
+    <Version>0.116.6</Version>
     <ApplicationIcon>Assets\app.ico</ApplicationIcon>
 
     <AppChannel Condition="'$(AppChannel)'==''">Test</AppChannel>
@@ -15,18 +15,6 @@
     <Product Condition="'$(AppChannel)'=='Production'">Kanban Task Board</Product>
   </PropertyGroup>
 
-  <ItemGroup>
-    <!-- The test project lives inside this folder, so keep the SDK's default globs from pulling its
-         files into the app itself. -->
-    <Compile Remove="tests\**" />
-    <None Remove="tests\**" />
-    <Page Remove="tests\**" />
-    <!-- Likewise the tools folder: things that are not part of the app (the demo-video recorder,
-         encoder and viewer - see tools/DemoVideo/README.md). -->
-    <Compile Remove="tools\**" />
-    <None Remove="tools\**" />
-    <Page Remove="tools\**" />
-  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="ClosedXML" Version="0.105.1" />
@@ -42,7 +30,7 @@
     <!-- Ships inside the exe so the What's New screen can read it at runtime: the installer
          packages only the published binary, so a loose CHANGELOG.md wouldn't be there. Keeping it
          as the single source avoids maintaining a second copy of the release notes in code. -->
-    <Resource Include="CHANGELOG.md" />
+    <Resource Include="..\..\CHANGELOG.md" Link="CHANGELOG.md" />
     <!-- The PDF report's stand-in font for a PC where Segoe UI can't be read (see PdfFontResolver).
          Lato is free to ship under the SIL Open Font License; the licence travels with it. -->
     <EmbeddedResource Include="Assets\Fonts\Lato-*.ttf" />

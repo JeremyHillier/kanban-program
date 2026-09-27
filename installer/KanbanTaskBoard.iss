@@ -46,10 +46,10 @@ SolidCompression=yes
 WizardStyle=modern
 ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
-SetupIconFile=..\Assets\app.ico
+SetupIconFile=..\src\KanbanApp\Assets\app.ico
 ; The licence agreement the customer accepts before installing. The same file is inside the exe
 ; (About > Licence Agreement), so there is one text to maintain.
-LicenseFile=..\Legal\EULA.txt
+LicenseFile=..\src\KanbanApp\Legal\EULA.txt
 WizardImageFile=WizardImage.bmp
 WizardSmallImageFile=WizardSmallImage.bmp
 

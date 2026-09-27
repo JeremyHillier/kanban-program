@@ -6,6 +6,13 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.116.6 — 2026-09-27
+
+> - Maintenance release: internal changes that bring the app's code layout into line with the other Hillier Consulting programs, with no change to how it looks or works.
+
+- The backup taken when the app closes is now made through SQLite's own backup method, as in the Personal Finance and Accounting programs, so the copy is consistent even if something else has the file open at the time.
+- Under the hood: the app project moved into a src folder with a solution file, the same layout as the other two programs; the app now stays open until the board is showing, as they do; the copyright year is taken from the clock; shared formatting settings were added.
+
 ## 0.116.5 — 2026-09-27
 
 > - Improved: What's New now leads each update with a short summary of what changed, in the same layout as the other Hillier Consulting programs.

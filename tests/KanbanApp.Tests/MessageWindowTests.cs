@@ -64,14 +64,12 @@ public sealed class MessageWindowTests(WpfDispatcherFixture wpf)
     public void NoWindowsMessageBoxIsLeft_ExceptTheCrashFallback()
     {
         var dir = new DirectoryInfo(AppContext.BaseDirectory);
-        while (dir is not null && !File.Exists(Path.Combine(dir.FullName, "KanbanApp.csproj"))) dir = dir.Parent;
+        while (dir is not null && !File.Exists(Path.Combine(dir.FullName, "KanbanApp.slnx"))) dir = dir.Parent;
         Assert.NotNull(dir);
-        var offenders = Directory.EnumerateFiles(dir.FullName, "*.cs", SearchOption.AllDirectories)
+        var offenders = Directory.EnumerateFiles(Path.Combine(dir.FullName, "src"), "*.cs", SearchOption.AllDirectories)
             .Where(f => !f.Contains($"{Path.DirectorySeparatorChar}obj{Path.DirectorySeparatorChar}")
-                     && !f.Contains($"{Path.DirectorySeparatorChar}bin{Path.DirectorySeparatorChar}")
-                     && !f.Contains($"{Path.DirectorySeparatorChar}tests{Path.DirectorySeparatorChar}")
-                     && !f.Contains($"{Path.DirectorySeparatorChar}tools{Path.DirectorySeparatorChar}"))
-            .SelectMany(f => File.ReadLines(f).Select((line, i) => (File: Path.GetRelativePath(dir.FullName, f), Line: i + 1, Text: line)))
+                     && !f.Contains($"{Path.DirectorySeparatorChar}bin{Path.DirectorySeparatorChar}"))
+            .SelectMany(f => File.ReadLines(f).Select((line, i) => (File: Path.GetFileName(f), Line: i + 1, Text: line)))
             .Where(l => l.Text.Contains("MessageBox.Show("))
             .ToList();
         Assert.Equal(["App.xaml.cs"], offenders.Select(o => o.File));
