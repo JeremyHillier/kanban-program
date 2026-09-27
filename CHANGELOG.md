@@ -8,7 +8,7 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 
 ## 0.117.2 — 2026-09-27
 
-> - Improved: the small maple leaf beside "Designed in Canada" is now a simpler five-point leaf, so it looks clean at its small size instead of blurring.
+> - Improved: the small maple leaf beside "Designed in Canada" is now the maple leaf from the Canadian flag, so it looks clean and recognisable at its small size.
 
 ## 0.117.1 — 2026-09-27
 
