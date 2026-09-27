@@ -1,7 +1,7 @@
 KANBAN TASK BOARD
 PRIVACY NOTE
 
-Last updated: September 20, 2026
+Last updated: September 27, 2026
 
 The short version: everything you put into Kanban Task Board stays on your own computer. We never see it.
 
@@ -53,5 +53,6 @@ If a future version of the program changes any of this, the note supplied with t
 CONTACT
 
 Jeremy Hillier Consulting Inc
-Email: jeremy.hillier@gmail.com
+Support and problem reports: support@hillierconsulting.ca
+General questions and information requests: info@hillierconsulting.ca
 Web: https://hillierconsulting.ca

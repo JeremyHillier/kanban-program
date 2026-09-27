@@ -16,6 +16,7 @@ public sealed class LegalDocumentTests
             Assert.True(document.Length > 1500);
             Assert.Contains(AppInfo.Company, document);
             Assert.Contains(AppInfo.SupportEmail, document);
+            Assert.Contains(AppInfo.InfoEmail, document);
             Assert.Contains("Last updated:", document);
         }
     }

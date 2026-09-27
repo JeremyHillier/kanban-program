@@ -367,7 +367,8 @@
                 <local:BulletItem Text="Everything stays in your task file on this PC. No account, no cloud, no tracking."/>
                 <local:BulletItem Text="The Privacy Note and Licence Agreement are in About."/>
                 <local:BulletItem Text="One licence covers one person, on any PCs they use."/>
-                <local:BulletItem Text="For support, use the email in About, or Report a Problem."/>
+                <local:BulletItem Text="For support, email support@hillierconsulting.ca, or click Report a Problem."/>
+                <local:BulletItem Text="For general questions, email info@hillierconsulting.ca."/>
 
             </StackPanel>
         </ScrollViewer>

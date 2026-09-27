@@ -6,6 +6,9 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.116.3 — 2026-09-27
+- Improved: new contact addresses. Support requests and problem reports now go to support@hillierconsulting.ca, and general questions to info@hillierconsulting.ca. Both are shown in About, Help, the licence agreement and the privacy note, and Report a Problem sends to the support address
+
 ## 0.116.2 — 2026-09-26
 - Fixed: on the printed Timeline, a task title containing a line break now prints on separate lines, with the task box sized to fit. Previously the text could overlap the line below it
 

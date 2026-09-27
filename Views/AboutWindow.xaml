@@ -93,8 +93,13 @@
             <TextBlock Text="Support, updates and legal" Style="{StaticResource AboutSectionHeaderStyle}"/>
             <TextBlock TextWrapping="Wrap" Foreground="{DynamicResource PrimaryTextBrush}">
                 <Run Text="Support:"/>
-                <Hyperlink x:Name="SupportEmailLink" Click="SupportEmail_Click" Foreground="{DynamicResource AccentTextBrush}"><Run x:Name="SupportEmailRun"/></Hyperlink>
-                <Run Text="   Your tasks stay on this PC - see the Privacy Note."/>
+                <Hyperlink x:Name="SupportEmailLink" Click="SupportEmail_Click" Foreground="{DynamicResource AccentTextBrush}"
+                           ToolTip="For help, and for reporting a problem"><Run x:Name="SupportEmailRun"/></Hyperlink>
+                <Run Text="   Information:"/>
+                <Hyperlink x:Name="InfoEmailLink" Click="InfoEmail_Click" Foreground="{DynamicResource AccentTextBrush}"
+                           ToolTip="For general questions and information requests"><Run x:Name="InfoEmailRun"/></Hyperlink>
+                <LineBreak/>
+                <Run Text="Your tasks stay on this PC - see the Privacy Note."/>
             </TextBlock>
             <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
                 <Button x:Name="CheckUpdatesButton" Content="Check for Updates" Width="140" Padding="0,5" Margin="0,0,8,0" Click="CheckForUpdates_Click"

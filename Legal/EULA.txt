@@ -1,7 +1,7 @@
 KANBAN TASK BOARD
 END-USER LICENCE AGREEMENT
 
-Last updated: September 20, 2026
+Last updated: September 27, 2026
 
 Please read this agreement before installing or using Kanban Task Board (the "Software"). It is an agreement between you and Jeremy Hillier Consulting Inc ("we", "us"). By installing or using the Software you accept it. If you do not accept it, do not install or use the Software.
 
@@ -52,7 +52,7 @@ The Software includes components from third parties that are provided under thei
 
 7. SUPPORT
 
-We may provide support at our discretion. You can reach us at jeremy.hillier@gmail.com. The Report a Problem button on the About screen prepares an email to that address; nothing is sent until you choose to send it.
+We may provide support at our discretion. You can reach us at support@hillierconsulting.ca. The Report a Problem button on the About screen prepares an email to that address; nothing is sent until you choose to send it.
 
 
 8. NO WARRANTY
@@ -89,5 +89,6 @@ This agreement, together with the Privacy Note, is the whole agreement between y
 13. CONTACT
 
 Jeremy Hillier Consulting Inc
-Email: jeremy.hillier@gmail.com
+Support and problem reports: support@hillierconsulting.ca
+General questions and information requests: info@hillierconsulting.ca
 Web: https://hillierconsulting.ca

@@ -23,6 +23,7 @@ public partial class AboutWindow : Window
         SettingsPathText.Text = AppConfig.SettingsFilePath;
         RuntimeText.Text = $".NET {Environment.Version} on {Environment.OSVersion.VersionString}";
         SupportEmailRun.Text = AppInfo.SupportEmail;
+        InfoEmailRun.Text = AppInfo.InfoEmail;
         MadeInText.Text = AppInfo.MadeIn;
     }
 
@@ -34,6 +35,11 @@ public partial class AboutWindow : Window
     private void SupportEmail_Click(object sender, RoutedEventArgs e)
     {
         UrlLauncher.Open($"mailto:{AppInfo.SupportEmail}", this);
+    }
+
+    private void InfoEmail_Click(object sender, RoutedEventArgs e)
+    {
+        UrlLauncher.Open($"mailto:{AppInfo.InfoEmail}", this);
     }
 
     private void Eula_Click(object sender, RoutedEventArgs e)

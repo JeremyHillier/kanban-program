@@ -11,8 +11,12 @@ public static class AppInfo
     // Shown, with a maple leaf, in the header and on the About screen.
     public const string MadeIn = "Designed in Canada";
 
-    // Where Report a Problem sends its email. Customers see this address.
-    public const string SupportEmail = "jeremy.hillier@gmail.com";
+    // Support requests and error logs: Report a Problem and the crash prompt send here. Customers see it in
+    // About, Help and the licence.
+    public const string SupportEmail = "support@hillierconsulting.ca";
+
+    // General questions and information requests, shown beside the support address.
+    public const string InfoEmail = "info@hillierconsulting.ca";
 
     // Where people are sent to get a newer version. The update check never uses a link from the
     // internet reply itself - only this one.
