@@ -721,6 +721,24 @@
                                       BorderBrush="{DynamicResource CardBorderBrush}"/>
                         </Grid>
 
+                        <!-- The Waiting On answers on the board's tasks. Unlike the Waiting On button, it
+                             narrows alongside the other filters rather than replacing them. -->
+                        <Grid Margin="0,0,0,6">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Border Grid.Column="0" Background="#FFBF7C26" Style="{StaticResource FilterLabelFlatBoxStyle}"
+                                    Cursor="Hand" ToolTip="Click to manage the Waiting On list" MouseLeftButtonUp="ManageWaitingOnLabel_MouseLeftButtonUp">
+                                <TextBlock Text="Waiting" Style="{StaticResource FilterLabelTextStyle}"/>
+                            </Border>
+                            <ComboBox Grid.Column="1" ItemsSource="{Binding WaitingOnFilterOptions}" SelectedItem="{Binding SelectedWaitingOnFilter, Mode=TwoWay}"
+                                      Padding="4,0" Margin="0" Height="26" VerticalContentAlignment="Center"
+                                      ToolTip="Show only cards waiting on this. Any shows every waiting card; Unassigned, cards not waiting on anything."
+                                      Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                                      BorderBrush="{DynamicResource CardBorderBrush}"/>
+                        </Grid>
+
                         <Grid Margin="0,0,0,8">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto"/>

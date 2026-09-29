@@ -62,6 +62,7 @@ public partial class MainViewModel
         OnPropertyChanged(nameof(HideFutureButtonLabel));
         OnPropertyChanged(nameof(WaitingOnCount));
         OnPropertyChanged(nameof(WaitingOnButtonLabel));
+        RefreshWaitingOnFilterOptions();
 
         foreach (var column in Columns)
         {

@@ -18,6 +18,7 @@ public class CustomFilter
 
     public string Goal { get; set; } = "All";
     public string Flag { get; set; } = "All";
+    public string WaitingOn { get; set; } = "All"; // missing from slots saved before it existed, so "All"
     public string Due { get; set; } = "All";
 
     // Stored as yyyy-MM-dd strings rather than DateTime so the persisted JSON stays culture-proof.
@@ -43,6 +44,7 @@ public class CustomFilter
             if (Who.Count > 0) parts.Add($"Who: {string.Join(", ", Who)}");
             if (Goal != "All") parts.Add($"Goal: {Goal}");
             if (Flag != "All") parts.Add($"Flag: {Flag}");
+            if (WaitingOn != "All") parts.Add($"Waiting: {WaitingOn}");
             if (Due != "All") parts.Add($"Due: {Due}");
             if (!string.IsNullOrEmpty(DueFrom)) parts.Add($"From: {DueFrom}");
             if (!string.IsNullOrEmpty(DueTo)) parts.Add($"To: {DueTo}");

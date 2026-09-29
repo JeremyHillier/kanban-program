@@ -61,6 +61,7 @@ public partial class MainViewModel
             Who = WhoFilterOptions.Where(o => o.IsSelected).Select(o => o.Name).ToList(),
             Goal = SelectedGoalFilter,
             Flag = SelectedFlagFilter,
+            WaitingOn = SelectedWaitingOnFilter,
             Due = DueFilter,
             DueFrom = DueRangeFrom?.ToString("yyyy-MM-dd"),
             DueTo = DueRangeTo?.ToString("yyyy-MM-dd"),
@@ -110,6 +111,7 @@ public partial class MainViewModel
 
         _selectedGoalFilter = filter.Goal;
         _selectedFlagFilter = filter.Flag;
+        _selectedWaitingOnFilter = filter.WaitingOn;
         _dueFilter = filter.Due;
         _dueRangeFrom = ParseDate(filter.DueFrom);
         _dueRangeTo = ParseDate(filter.DueTo);
@@ -117,6 +119,7 @@ public partial class MainViewModel
 
         OnPropertyChanged(nameof(SelectedGoalFilter));
         OnPropertyChanged(nameof(SelectedFlagFilter));
+        OnPropertyChanged(nameof(SelectedWaitingOnFilter));
         OnPropertyChanged(nameof(DueFilter));
         OnPropertyChanged(nameof(DueRangeFrom));
         OnPropertyChanged(nameof(DueRangeTo));

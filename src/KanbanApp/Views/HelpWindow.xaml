@@ -166,6 +166,7 @@
                 <local:BulletItem Text="Moving a task into Waiting asks what it is waiting on, unless it already says."/>
                 <local:BulletItem Text="Finishing a task clears it."/>
                 <local:BulletItem Text="The Waiting On button shows every waiting task, across all columns."/>
+                <local:BulletItem Text="The Waiting filter shows the tasks waiting on one answer, alongside your other filters."/>
                 <local:BulletItem Text="Keyword search, Copy as Text, emails, reports and Excel files all include it."/>
                 <TextBlock Text="Suggestions" Style="{StaticResource HelpSubHeaderStyle}"/>
                 <local:BulletItem Text="Past answers are suggested as you type. Enter takes the suggestion."/>
@@ -209,9 +210,10 @@
                 <local:BulletItem Text="Esc, or a plain click on another card, clears the selection."/>
                 <local:BulletItem Text="Moving several to Done skips the completion note question."/>
                 <TextBlock Text="Filters" Style="{StaticResource HelpSubHeaderStyle}"/>
-                <local:BulletItem Text="Filter by project, priority, who, goal, flag, due date or keyword."/>
+                <local:BulletItem Text="Filter by project, priority, who, goal, flag, waiting on, due date or keyword."/>
                 <local:BulletItem Text="Project, Priority and Who take several choices: Ctrl+click or Shift+click."/>
-                <local:BulletItem Text="Unassigned shows tasks with no person, goal or flag."/>
+                <local:BulletItem Text="Unassigned shows tasks with no person, goal or flag, or not waiting on anything."/>
+                <local:BulletItem Text="Waiting lists the answers on your tasks. Any shows every waiting task."/>
                 <local:BulletItem Text="Drag the bar under the lists to resize them. Double-click it to reset."/>
                 <local:BulletItem Text="Today, Tomorrow, Within a Week and No Due Date clear the other filters first."/>
                 <local:BulletItem Text="Today and Within a Week include overdue tasks."/>

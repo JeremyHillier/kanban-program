@@ -111,6 +111,11 @@ public partial class MainWindow
 
     private void ManageFlagsLabel_MouseLeftButtonUp(object sender, MouseButtonEventArgs e) => ManageFlags_Click(sender, e);
 
+    private void ManageWaitingOnLabel_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+    {
+        if (DataContext is MainViewModel viewModel) ManageWaitingOn(viewModel);
+    }
+
     private void Settings_Click(object sender, RoutedEventArgs e)
     {
         if (DataContext is not MainViewModel viewModel) return;

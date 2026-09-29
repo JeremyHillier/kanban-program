@@ -16,6 +16,7 @@ public partial class MainViewModel
 
     public ObservableCollection<string> GoalFilterOptions { get; } = ["All"];
     public ObservableCollection<string> FlagFilterOptions { get; } = ["All"];
+    public ObservableCollection<string> WaitingOnFilterOptions { get; } = ["All"];
     public ObservableCollection<string> DueFilterOptions { get; } = ["All", "Today", "Tomorrow", "Within a Week", "No Due Date"];
 
     private string _selectedGoalFilter = "All";
@@ -30,6 +31,16 @@ public partial class MainViewModel
     {
         get => _selectedFlagFilter;
         set { if (SetField(ref _selectedFlagFilter, value ?? "All")) ApplyFilters(); }
+    }
+
+    // All, Any (waiting on anything), Unassigned (not waiting), or one answer, matched whatever its capitals.
+    public const string AnyWaitingOn = "Any";
+
+    private string _selectedWaitingOnFilter = "All";
+    public string SelectedWaitingOnFilter
+    {
+        get => _selectedWaitingOnFilter;
+        set { if (SetField(ref _selectedWaitingOnFilter, value ?? "All")) ApplyFilters(); }
     }
 
     private string _dueFilter = "All";
@@ -187,6 +198,20 @@ public partial class MainViewModel
         }
     }
 
+    // The answers on the board's tasks right now, so the list follows the tasks rather than the
+    // suggestion history. A chosen answer no task says any more stays listed while it is chosen
+    // (a remembered view or a custom filter can bring one back), and drops out once it isn't.
+    private void RefreshWaitingOnFilterOptions()
+    {
+        string[] fixedOptions = ["All", AnyWaitingOn, "Unassigned"];
+        var answers = Columns.SelectMany(c => c.Cards).Select(c => c.WaitingOn?.Trim()).OfType<string>()
+            .Prepend(SelectedWaitingOnFilter) // first, so its own spelling is the one listed and the box can show it
+            .Where(v => v.Length > 0 && !fixedOptions.Contains(v, StringComparer.OrdinalIgnoreCase))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .OrderBy(v => v, StringComparer.OrdinalIgnoreCase);
+        ReplaceFilterOptions(WaitingOnFilterOptions, [.. fixedOptions, .. answers]);
+    }
+
     // The active filter state, resolved once per pass. Previously each of the three multi-selects
     // was re-scanned into a fresh List for every card tested, so a board of N cards allocated 3N
     // lists on every keystroke in the Keyword box. HashSet also turns the membership test from a
@@ -198,6 +223,7 @@ public partial class MainViewModel
         HashSet<string> Whos,
         string Goal,
         string Flag,
+        string WaitingOn,
         string Due,
         DateTime Today,
         DateTime? RangeFrom,
@@ -211,6 +237,7 @@ public partial class MainViewModel
         WhoFilterOptions.Where(o => o.IsSelected).Select(o => o.Name).ToHashSet(),
         SelectedGoalFilter,
         SelectedFlagFilter,
+        SelectedWaitingOnFilter,
         DueFilter,
         DateTime.Today,
         DueRangeFrom,
@@ -220,6 +247,7 @@ public partial class MainViewModel
 
     public void ApplyFilters()
     {
+        RefreshWaitingOnFilterOptions(); // a newly chosen answer (a custom filter's, say) has to be listed to show
         var criteria = BuildFilterCriteria();
         foreach (var column in Columns)
         {
@@ -303,6 +331,15 @@ public partial class MainViewModel
         }
         else if (flag != "All" && card.Flags.All(f => f.Name != flag)) return false;
 
+        var matchesWaitingOn = criteria.WaitingOn switch
+        {
+            "All" => true,
+            AnyWaitingOn => card.IsWaiting,
+            "Unassigned" => !card.IsWaiting,
+            var answer => string.Equals(card.WaitingOn?.Trim(), answer, StringComparison.OrdinalIgnoreCase)
+        };
+        if (!matchesWaitingOn) return false;
+
         if (criteria.Due != "All")
         {
             var today = criteria.Today;
@@ -380,6 +417,8 @@ public partial class MainViewModel
         OnPropertyChanged(nameof(SelectedGoalFilter));
         _selectedFlagFilter = "All";
         OnPropertyChanged(nameof(SelectedFlagFilter));
+        _selectedWaitingOnFilter = "All";
+        OnPropertyChanged(nameof(SelectedWaitingOnFilter));
         _dueFilter = "All";
         OnPropertyChanged(nameof(DueFilter));
         ClearDueRange(notify: true);

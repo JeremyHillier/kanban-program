@@ -430,6 +430,7 @@ public partial class MainViewModel
         _db.SetSetting("LastWhoFilter", string.Join(",", WhoFilterOptions.Where(o => o.IsSelected).Select(o => o.Name)));
         _db.SetSetting("LastGoalFilter", SelectedGoalFilter);
         _db.SetSetting("LastFlagFilter", SelectedFlagFilter);
+        _db.SetSetting("LastWaitingOnFilter", SelectedWaitingOnFilter);
         _db.SetSetting("LastDueFilter", DueFilter);
         _db.SetSetting("LastDueRangeFrom", DueRangeFrom?.ToString("yyyy-MM-dd") ?? string.Empty);
         _db.SetSetting("LastDueRangeTo", DueRangeTo?.ToString("yyyy-MM-dd") ?? string.Empty);

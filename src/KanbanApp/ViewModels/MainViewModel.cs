@@ -190,6 +190,7 @@ public partial class MainViewModel : ObservableObject
             savedWhoFilter = SplitFilterNames(_db.GetSetting("LastWhoFilter"));
             _selectedGoalFilter = _db.GetSetting("LastGoalFilter") ?? "All";
             _selectedFlagFilter = _db.GetSetting("LastFlagFilter") ?? "All";
+            _selectedWaitingOnFilter = _db.GetSetting("LastWaitingOnFilter") ?? "All";
             _dueFilter = _db.GetSetting("LastDueFilter") ?? "All";
             _dueRangeFrom = DateTime.TryParse(_db.GetSetting("LastDueRangeFrom"), out var savedFrom) ? savedFrom : null;
             _dueRangeTo = DateTime.TryParse(_db.GetSetting("LastDueRangeTo"), out var savedTo) ? savedTo : null;
@@ -213,6 +214,7 @@ public partial class MainViewModel : ObservableObject
         RefreshWhoFilterOptions();
         RefreshGoalFilterOptions();
         RefreshFlagFilterOptions();
+        RefreshWaitingOnFilterOptions();
 
         // Applied after the options lists are populated, since restoring a selection means setting
         // IsSelected on the actual FilterOptionViewModel instances, not a bare string. A saved name

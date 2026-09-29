@@ -6,6 +6,13 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.118.0 — 2026-09-29
+
+> - New: a Waiting filter in the sidebar, between Flag and Keyword, lists who or what your tasks are waiting on, so you can show just the tasks waiting on one of them.
+> - New: the Waiting filter also offers Any (every waiting task) and Unassigned (tasks not waiting on anything), and works together with your other filters.
+- Click the Waiting label to manage the Waiting On list.
+- The filter is remembered with the rest of your view, saved in custom filters, and reset by Clear Filters.
+
 ## 0.117.4 — 2026-09-29
 
 > - Fixed: on the task window, the repeat pattern box and the "for ... times" box beside Recurring task are no longer cut off at the right edge.
