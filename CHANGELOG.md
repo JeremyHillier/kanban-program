@@ -6,6 +6,10 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.117.4 — 2026-09-29
+
+> - Fixed: on the task window, the repeat pattern box and the "for ... times" box beside Recurring task are no longer cut off at the right edge.
+
 ## 0.117.3 — 2026-09-27
 
 > - Improved: the Website button on the About screen now opens the app's own page on hillierconsulting.ca, rather than the home page.
