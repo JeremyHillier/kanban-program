@@ -6,6 +6,23 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.119.0 — 2026-09-30
+
+> - New: priorities can be changed. Add priorities such as Urgent or Someday, rename the existing ones, put them in any order, and choose each one's colour.
+> - New: the letters on each card's move buttons now follow the column names, so renamed columns get matching buttons. Done keeps its tick.
+> - New: Use GTD Names, in Settings, renames the columns to Inbox, Next Actions, In Progress, Waiting and Done in one click. Use Standard Names puts the original names back.
+- Open the priority list by clicking the Priority label beside the filter list, from Settings, from the + beside Priority on the task screen, or under Priority when right-clicking a card.
+- Renaming a priority rewords every task that has it, including archived tasks, along with task templates, custom filters and saved report views.
+- The order of the list is the order used by menus, the filter list, reports, the Dashboard and Sort by Priority.
+- Each priority's colour is used for its badge on cards, in Reminders, on the Timeline and on the Dashboard. The eight colours on offer were chosen to stay distinguishable for people with colour blindness.
+- One priority is the default that new tasks start with; any of them can be made the default.
+- Deleting a priority moves its tasks to the default priority.
+- Quick Add accepts any priority by the start of its name, such as !urgent or !u.
+- Excel import templates list the current priorities, and an imported priority that is not on the list becomes the default.
+- Once the priority list has been changed, an older version of the app opening the same task file warns that it should be updated.
+- If two column names start with the same letter, the later column takes another letter from its name.
+- Improved: in Settings, Backups now sits beside Data Storage.
+
 ## 0.118.1 — 2026-09-30
 
 > - Improved: for your safety, opening an attachment that is a program or script (such as an .exe, .bat or shortcut) now asks first, so a task file shared by someone else can't run a program with a single click. Documents and pictures open as before.

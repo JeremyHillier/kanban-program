@@ -10,7 +10,6 @@
         ShowInTaskbar="False"
         Background="{DynamicResource WindowBackgroundBrush}">
     <Window.Resources>
-        <conv:PriorityToBrushConverter x:Key="PriorityToBrushConverter"/>
     </Window.Resources>
     <Grid Margin="16">
         <Grid.RowDefinitions>
@@ -50,7 +49,7 @@
                             <StackPanel Grid.Column="1">
                                 <TextBlock Text="{Binding Title}" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryTextBrush}"/>
                                 <StackPanel Orientation="Horizontal" Margin="0,3,0,0">
-                                    <Border Background="{Binding Priority, Converter={StaticResource PriorityToBrushConverter}}"
+                                    <Border Background="{Binding PriorityBrush}"
                                             CornerRadius="3" Padding="5,1" Margin="0,0,6,0">
                                         <TextBlock Text="{Binding Priority}" FontSize="10" Foreground="White"/>
                                     </Border>

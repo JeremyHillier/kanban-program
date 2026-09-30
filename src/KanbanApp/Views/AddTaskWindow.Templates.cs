@@ -53,8 +53,8 @@ public partial class AddTaskWindow
         RebuildGoalItems(_viewModel.Goals.FirstOrDefault(g => g.Id == template.GoalId && g.IsActive));
         SetSelectedPeople(template.AllPeopleIds.Select(id => _viewModel.People.FirstOrDefault(p => p.Id == id && p.IsActive)).OfType<PersonViewModel>());
 
-        PriorityComboBox.SelectedItem = PriorityComboBox.Items.OfType<ComboBoxItem>().FirstOrDefault(i => (string)i.Content == template.Priority)
-            ?? PriorityComboBox.SelectedItem;
+        // A priority the template names that has since left the list keeps whatever is chosen now.
+        if (_viewModel.Priorities.Find(template.Priority) is { } templatePriority) RebuildPriorityItems(templatePriority);
 
         var due = template.DueDateFromToday;
         var start = template.StartDateFromToday;
@@ -93,7 +93,7 @@ public partial class AddTaskWindow
         {
             Title = DetailsTextBox.Text.Trim(),
             ProjectId = (ProjectComboBox.SelectedItem as ProjectViewModel)?.Id,
-            Priority = (PriorityComboBox.SelectedItem as ComboBoxItem)?.Content as string ?? "Normal",
+            Priority = SelectedPriorityName ?? _viewModel.Priorities.Default,
             WhoId = _selectedPeople.FirstOrDefault()?.Id,
             PeopleIds = _selectedPeople.Select(p => p.Id).ToList(),
             GoalId = (GoalComboBox.SelectedItem as GoalViewModel)?.Id,

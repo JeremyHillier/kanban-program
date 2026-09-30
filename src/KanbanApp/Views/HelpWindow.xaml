@@ -37,8 +37,9 @@
 
         <ScrollViewer x:Name="ContentScrollViewer" Grid.Row="1" VerticalScrollBarVisibility="Auto" Margin="0,4,0,8">
             <StackPanel x:Name="ContentPanel">
-                <local:BulletItem Text="Tasks sit in five columns: To Do, In Progress, On Hold, Waiting and Done."/>
-                <local:BulletItem Text="Drag a card to another column, or use its quick-move buttons."/>
+                <local:BulletItem Text="Tasks sit in five columns: To Do, In Progress, On Hold, Waiting and Done. You can rename them."/>
+                <local:BulletItem Text="Drag a card to another column, or use its move buttons."/>
+                <local:BulletItem Text="Each move button shows a letter from its column's name. The tick is always Done."/>
 
                 <TextBlock Text="Keyboard shortcuts" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <local:BulletItem Text="Ctrl+N: new task."/>
@@ -100,8 +101,8 @@
                 <local:BulletItem Text="Press Ctrl+Alt+N in any program for a small New Task box."/>
                 <local:BulletItem Text="The app must be running. Minimised is fine."/>
                 <local:BulletItem Text="Type the task and press Enter. The box stays open for more; Esc closes it."/>
-                <local:BulletItem Text="New tasks go into To Do, at Normal priority, in the project shown beside the box."/>
-                <local:BulletItem Text="Priority: add !high, !medium or !low."/>
+                <local:BulletItem Text="New tasks go into the first column, at the default priority, in the project shown beside the box."/>
+                <local:BulletItem Text="Priority: add ! and the start of its name, such as !high or !h."/>
                 <local:BulletItem Text="Who: add @ and the start of a name, such as @sam."/>
                 <local:BulletItem Text="Due date: add /today, /tomorrow, /fri, /+3 or /10-15."/>
                 <local:BulletItem Text="The line under the box shows how it was read, before you press Enter."/>
@@ -210,6 +211,17 @@
                 <local:BulletItem Text="In Assign To, each person switches on or off without changing the others."/>
                 <local:BulletItem Text="Esc, or a plain click on another card, clears the selection."/>
                 <local:BulletItem Text="Moving several to Done skips the completion note question."/>
+                <TextBlock Text="Priorities" Style="{StaticResource HelpSubHeaderStyle}"/>
+                <local:BulletItem Text="Click the Priority label beside the filter list to open the priority list."/>
+                <local:BulletItem Text="It is also in Settings, and under Priority when you right-click a card."/>
+                <local:BulletItem Text="Add priorities of your own, such as Urgent or Someday."/>
+                <local:BulletItem Text="Rename one, and every task that has it is reworded, archived tasks too."/>
+                <local:BulletItem Text="Move Up and Move Down set the order. The top one is the highest."/>
+                <local:BulletItem Text="Menus, the filter list, reports and Sort by Priority all use that order."/>
+                <local:BulletItem Text="Colour sets the badge colour on cards, the Timeline and the Dashboard."/>
+                <local:BulletItem Text="Make Default chooses the priority a new task starts with."/>
+                <local:BulletItem Text="Delete moves its tasks to the default priority. The default cannot be deleted."/>
+                <local:BulletItem Text="Renaming or deleting a priority clears the Undo history."/>
                 <TextBlock Text="Filters" Style="{StaticResource HelpSubHeaderStyle}"/>
                 <local:BulletItem Text="Filter by project, priority, who, goal, flag, waiting on, due date or keyword."/>
                 <local:BulletItem Text="Project, Priority and Who take several choices: Ctrl+click or Shift+click."/>
@@ -320,6 +332,9 @@
                 <local:BulletItem Text="Backups and task file changes happen straight away. Cancel does not undo them."/>
                 <TextBlock Text="Board" Style="{StaticResource HelpSubHeaderStyle}"/>
                 <local:BulletItem Text="Rename any column. The last column still works as Done."/>
+                <local:BulletItem Text="The letters on each card's move buttons follow the column names."/>
+                <local:BulletItem Text="Use GTD Names sets Inbox, Next Actions, In Progress, Waiting and Done."/>
+                <local:BulletItem Text="Use Standard Names puts the original names back."/>
                 <local:BulletItem Text="Move the button panel to the right."/>
                 <local:BulletItem Text="Fit the columns to the window, or set a fixed width of at least 240 pixels."/>
                 <local:BulletItem Text="Turn the splash screen on or off, and set how long it shows."/>

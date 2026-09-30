@@ -51,10 +51,25 @@
                          BorderBrush="{DynamicResource CardBorderBrush}"/>
 
                 <TextBlock Text="Columns" Style="{StaticResource SectionHeaderStyle}"/>
-                <TextBlock Text="Rename any column's label. Its role on the board (e.g. what counts as &quot;done&quot;) doesn't change."
+                <TextBlock Text="Rename any column's label. Its role on the board (e.g. what counts as &quot;done&quot;) doesn't change, and the letters on each card's move buttons follow the names."
                            FontSize="11" Margin="0,0,0,8" TextWrapping="Wrap"
                            Foreground="{DynamicResource SecondaryTextBrush}"/>
-                <StackPanel x:Name="ColumnNamesPanel" Margin="0,0,0,20"/>
+                <StackPanel x:Name="ColumnNamesPanel" Margin="0,0,0,8"/>
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,20">
+                    <Button Content="Use GTD Names" Padding="10,6" Margin="0,0,8,0" Click="UseGtdNames_Click"
+                            ToolTip="Getting Things Done names: Inbox, Next Actions, In Progress, Waiting, Done"
+                            Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                    <Button Content="Use Standard Names" Padding="10,6" Click="UseStandardNames_Click"
+                            ToolTip="To Do, In Progress, On Hold, Waiting, Done"
+                            Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                </StackPanel>
+
+                <TextBlock Text="Priorities" Style="{StaticResource SectionHeaderStyle}"/>
+                <TextBlock x:Name="PrioritiesSummaryText" FontSize="11" Margin="0,0,0,8" TextWrapping="Wrap"
+                           Foreground="{DynamicResource SecondaryTextBrush}"/>
+                <Button Content="Manage Priorities..." Padding="10,6" HorizontalAlignment="Left" Margin="0,0,0,20" Click="ManagePriorities_Click"
+                        ToolTip="Add, rename, recolour and reorder the priorities tasks can have"
+                        Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
 
                 <TextBlock Text="Startup" Style="{StaticResource SectionHeaderStyle}"/>
                 <CheckBox x:Name="ShowSplashCheckBox" Content="Show splash screen on startup"
@@ -118,28 +133,6 @@
                 <CheckBox x:Name="RememberLastViewCheckBox" Content="Remember filters, sort, and search between sessions"
                           Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,20"
                           Checked="RememberLastViewCheckBox_Changed" Unchecked="RememberLastViewCheckBox_Changed"/>
-
-                <TextBlock Text="Backups" Style="{StaticResource SectionHeaderStyle}"/>
-                <CheckBox x:Name="AutoBackupCheckBox" Content="Automatically back up when the app closes"
-                          Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,8"
-                          Checked="AutoBackupCheckBox_Changed" Unchecked="AutoBackupCheckBox_Changed"/>
-                <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-                    <TextBlock Text="Keep last" VerticalAlignment="Center" Margin="0,0,6,0" Foreground="{DynamicResource PrimaryTextBrush}"/>
-                    <TextBox x:Name="BackupRetentionTextBox" Width="50" Padding="6" LostFocus="BackupRetentionTextBox_LostFocus"
-                             Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
-                             BorderBrush="{DynamicResource CardBorderBrush}"/>
-                    <TextBlock Text="backups" VerticalAlignment="Center" Margin="6,0,0,0" Foreground="{DynamicResource PrimaryTextBrush}"/>
-                </StackPanel>
-                <TextBlock Text="Backups are stored at:" Margin="0,0,0,4" Foreground="{DynamicResource PrimaryTextBrush}"/>
-                <TextBox x:Name="BackupsPathTextBox" IsReadOnly="True" Padding="6" Margin="0,0,0,10"
-                         Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
-                         BorderBrush="{DynamicResource CardBorderBrush}"/>
-                <StackPanel Orientation="Horizontal">
-                    <Button Content="Back Up Now" Padding="10,6" Margin="0,0,8,0" Click="BackupNow_Click"
-                            Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
-                    <Button Content="Open Backups Folder" Padding="10,6" Click="OpenBackupsFolder_Click"
-                            Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
-                </StackPanel>
             </StackPanel>
 
             <StackPanel Grid.Column="2">
@@ -184,6 +177,28 @@
                     <Button Content="Open Existing File..." Padding="10,6" Margin="0,0,8,0" Click="OpenExistingFile_Click"
                             Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
                     <Button Content="New File..." Padding="10,6" Click="NewFile_Click"
+                            Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                </StackPanel>
+
+                <TextBlock Text="Backups" Style="{StaticResource SectionHeaderStyle}"/>
+                <CheckBox x:Name="AutoBackupCheckBox" Content="Automatically back up when the app closes"
+                          Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,8"
+                          Checked="AutoBackupCheckBox_Changed" Unchecked="AutoBackupCheckBox_Changed"/>
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                    <TextBlock Text="Keep last" VerticalAlignment="Center" Margin="0,0,6,0" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                    <TextBox x:Name="BackupRetentionTextBox" Width="50" Padding="6" LostFocus="BackupRetentionTextBox_LostFocus"
+                             Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                             BorderBrush="{DynamicResource CardBorderBrush}"/>
+                    <TextBlock Text="backups" VerticalAlignment="Center" Margin="6,0,0,0" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                </StackPanel>
+                <TextBlock Text="Backups are stored at:" Margin="0,0,0,4" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                <TextBox x:Name="BackupsPathTextBox" IsReadOnly="True" Padding="6" Margin="0,0,0,10"
+                         Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                         BorderBrush="{DynamicResource CardBorderBrush}"/>
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,20">
+                    <Button Content="Back Up Now" Padding="10,6" Margin="0,0,8,0" Click="BackupNow_Click"
+                            Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                    <Button Content="Open Backups Folder" Padding="10,6" Click="OpenBackupsFolder_Click"
                             Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
                 </StackPanel>
 

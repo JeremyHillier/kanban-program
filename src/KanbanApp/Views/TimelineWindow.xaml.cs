@@ -26,15 +26,10 @@ public partial class TimelineWindow : Window
     private DateTime _windowStart;
     private bool _initializing = true;
 
-    // Reuses the exact same priority palette as the main board's priority badge (see
-    // PriorityToBrushConverter) rather than defining a second one here, so "what color means High"
-    // stays consistent across the whole app.
-    private static readonly PriorityToBrushConverter PriorityBrushConverter = new();
+    // The same colours as the priority badge on the board: both come from the task file's priority list.
+    private Brush GetPriorityBrush(string priority) => _viewModel.Priorities.Brush(priority);
 
-    private static Brush GetPriorityBrush(string priority) =>
-        (Brush)PriorityBrushConverter.Convert(priority, typeof(Brush), null, System.Globalization.CultureInfo.InvariantCulture)!;
-
-    private static Color GetPriorityColor(string priority) => ((SolidColorBrush)GetPriorityBrush(priority)).Color;
+    private Color GetPriorityColor(string priority) => ((SolidColorBrush)GetPriorityBrush(priority)).Color;
 
     private static Color LightenColor(Color color, double whiteAmount) => Color.FromRgb(
         (byte)(color.R + (255 - color.R) * whiteAmount),

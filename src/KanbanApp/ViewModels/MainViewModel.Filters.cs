@@ -10,8 +10,7 @@ public partial class MainViewModel
     // bound to each ListBoxItem) - no selection means no restriction on that field, same meaning
     // "All" had as a single-select value. Goal/Flag/Due stay single-select ComboBoxes.
     public ObservableCollection<FilterOptionViewModel> ProjectFilterOptions { get; } = [];
-    public ObservableCollection<FilterOptionViewModel> PriorityFilterOptions { get; } =
-        [new("High"), new("Medium"), new("Normal"), new("Low")];
+    public ObservableCollection<FilterOptionViewModel> PriorityFilterOptions { get; } = []; // filled from Priorities
     public ObservableCollection<FilterOptionViewModel> WhoFilterOptions { get; } = [];
 
     public ObservableCollection<string> GoalFilterOptions { get; } = ["All"];

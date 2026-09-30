@@ -8,7 +8,9 @@ public static class ImportService
 {
     private static readonly string[] Headers = ["Title", "Category", "Priority", "Project", "Goal", "Due Date", "Who", "Start Date", "Waiting On"];
 
-    public static void SaveTemplate(string filePath, IEnumerable<string> categories, IEnumerable<string> projects, IEnumerable<string> goals, IEnumerable<string> people)
+    // priorities is the task file's own list; left out, the standard four.
+    public static void SaveTemplate(string filePath, IEnumerable<string> categories, IEnumerable<string> projects, IEnumerable<string> goals, IEnumerable<string> people,
+        IEnumerable<string>? priorities = null)
     {
         using var workbook = new XLWorkbook();
         var sheet = workbook.AddWorksheet("Tasks");
@@ -50,7 +52,7 @@ public static class ImportService
         listsSheet.Visibility = XLWorksheetVisibility.VeryHidden;
 
         AddValidationList(sheet, listsSheet, column: 2, dataColumn: 2, maxDataRow, categories, restrict: true);
-        AddValidationList(sheet, listsSheet, column: 3, dataColumn: 3, maxDataRow, Priorities.All, restrict: true);
+        AddValidationList(sheet, listsSheet, column: 3, dataColumn: 3, maxDataRow, priorities ?? ViewModels.PriorityList.Fallback.Names, restrict: true);
         AddValidationList(sheet, listsSheet, column: 4, dataColumn: 4, maxDataRow, projects, restrict: false);
         AddValidationList(sheet, listsSheet, column: 5, dataColumn: 5, maxDataRow, goals, restrict: false);
         AddValidationList(sheet, listsSheet, column: 7, dataColumn: 7, maxDataRow, people, restrict: false);

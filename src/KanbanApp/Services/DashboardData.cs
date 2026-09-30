@@ -36,7 +36,7 @@ public sealed class DashboardData
 
     public IReadOnlyList<Status> Statuses { get; private init; } = [];        // every column, board order
     public IReadOnlyList<Status> OpenStatuses { get; private init; } = [];    // every column but Done
-    public IReadOnlyList<string> Priorities { get; private init; } = PriorityOptions.All;
+    public IReadOnlyList<string> Priorities { get; private init; } = [];      // the task file's list, highest first
 
     public IReadOnlyList<Stack> StatusByPriority { get; private init; } = [];  // a bar per column, split by priority
     public IReadOnlyList<Bucket> DueDates { get; private init; } = [];         // open tasks by when they're due
@@ -47,9 +47,11 @@ public sealed class DashboardData
     public int FoldedProjectCount { get; private init; }                       // how many projects the "Other" row holds
 
     public static DashboardData Build(IReadOnlyList<BoardCard> cards, IReadOnlyList<Status> columns,
-        IEnumerable<DateTime> archivedCompletions, DateTime today, DayOfWeek firstDayOfWeek)
+        IEnumerable<DateTime> archivedCompletions, DateTime today, DayOfWeek firstDayOfWeek, PriorityList? priorities = null)
     {
         today = today.Date;
+        priorities ??= PriorityList.Fallback; // the standard four
+        var priorityNames = priorities.Names;
         var open = cards.Where(c => c.ColumnName != DoneColumn).Select(c => c.Card).ToList();
         var openStatuses = columns.Where(s => s.Name != DoneColumn).ToList();
 
@@ -103,9 +105,10 @@ public sealed class DashboardData
             DoneLast7Days = completions.Count(d => d > today.AddDays(-7) && d <= today),
 
             Statuses = columns,
+            Priorities = priorityNames,
             OpenStatuses = openStatuses,
             StatusByPriority = columns
-                .Select(s => new Stack(s.DisplayName, PriorityOptions.All.Select(p => cards.Count(c => c.ColumnName == s.Name && c.Card.Priority == p)).ToList()))
+                .Select(s => new Stack(s.DisplayName, priorityNames.Select(p => cards.Count(c => c.ColumnName == s.Name && priorities.Resolve(c.Card.Priority) == p)).ToList()))
                 .ToList(),
             DueDates =
             [

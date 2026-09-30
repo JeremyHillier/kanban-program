@@ -33,11 +33,5 @@ public sealed class TextWrapTests
         Assert.Equal(["first line", "wraps here", "second", "", "fourth"],
             TextWrap.Lines("first line wraps here\r\nsecond\n\nfourth", Chars, 10));
     }
-
-    [Fact]
-    public void Priorities_HighestFirst_AndAnUnknownOneSortsWithNormal()
-    {
-        Assert.Equal([0, 1, 2, 3], Priorities.All.Select(Priorities.Rank));
-        Assert.Equal(Priorities.Rank("Normal"), Priorities.Rank("Urgent"));
-    }
 }
+

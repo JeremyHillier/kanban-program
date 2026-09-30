@@ -160,21 +160,19 @@
                     </Grid.RowDefinitions>
 
                     <!-- Priority | Category | Who -->
-                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Priority" Style="{StaticResource FieldLabelStyle}"/>
+                    <StackPanel Grid.Row="0" Grid.Column="0" Style="{StaticResource FieldLabelRowStyle}">
+                        <TextBlock Text="Priority" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Center"/>
+                        <Button Content="+" Style="{StaticResource NewLinkButtonStyle}" ToolTip="Add, rename or reorder priorities" Click="ManagePriorities_Click"/>
+                    </StackPanel>
                     <TextBlock Grid.Row="0" Grid.Column="2" Text="Category" Style="{StaticResource FieldLabelStyle}"/>
                     <StackPanel Grid.Row="0" Grid.Column="4" Style="{StaticResource FieldLabelRowStyle}">
                         <TextBlock Text="Who" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Center"/>
                         <Button Content="+" Style="{StaticResource NewLinkButtonStyle}" ToolTip="Add new person" Click="NewWho_Click"/>
                         <Button Content="−" Style="{StaticResource DeleteLinkButtonStyle}" ToolTip="Clear everyone" Click="DeleteWho_Click"/>
                     </StackPanel>
-                    <ComboBox Grid.Row="1" Grid.Column="0" x:Name="PriorityComboBox" Padding="6" SelectedIndex="2"
+                    <ComboBox Grid.Row="1" Grid.Column="0" x:Name="PriorityComboBox" Padding="6"
                               Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
-                              BorderBrush="{DynamicResource CardBorderBrush}">
-                        <ComboBoxItem Content="High"/>
-                        <ComboBoxItem Content="Medium"/>
-                        <ComboBoxItem Content="Normal"/>
-                        <ComboBoxItem Content="Low"/>
-                    </ComboBox>
+                              BorderBrush="{DynamicResource CardBorderBrush}"/>
                     <ComboBox Grid.Row="1" Grid.Column="2" x:Name="CategoryComboBox" Padding="6"
                               DisplayMemberPath="DisplayName" SelectedIndex="0"
                               Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"

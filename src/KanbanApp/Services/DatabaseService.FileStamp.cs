@@ -15,7 +15,16 @@ public partial class DatabaseService
 {
     // 1: first stamped format (0.102.0). 2: CardPeople - a task can have several people (0.103.0).
     // 3: Cards.RecurrencesLeft - a recurring task can stop after a number of times (0.111.0).
-    public const int CurrentFileFormat = 3;
+    // 4: the priority list can be changed, so a task's priority can be a name older copies don't
+    //    offer - they would put it back to Normal on any task they edit (0.119.0).
+    // The newest format this copy of the app understands.
+    public const int CurrentFileFormat = 4;
+
+    // What every file is raised to just by being opened. Format 4 adds no table or column: a file
+    // whose priorities are still the standard four is no different from a format 3 file, so it is
+    // only stamped 4 once the list is actually changed (RaiseFileFormat). That keeps older copies
+    // from warning about files they can still handle perfectly well.
+    public const int FormatStampedOnOpen = 3;
 
     private const string FileFormatKey = "FileFormat";
     private const string FileFormatAppVersionKey = "FileFormatAppVersion";
@@ -39,12 +48,23 @@ public partial class DatabaseService
     {
         FileFormatAtOpen = int.TryParse(GetSetting(FileFormatKey), NumberStyles.None, CultureInfo.InvariantCulture, out var stored) ? stored : 0;
 
-        if (FileFormatAtOpen < CurrentFileFormat)
+        if (FileFormatAtOpen < FormatStampedOnOpen)
         {
-            SetSetting(FileFormatKey, CurrentFileFormat.ToString(CultureInfo.InvariantCulture));
+            SetSetting(FileFormatKey, FormatStampedOnOpen.ToString(CultureInfo.InvariantCulture));
             SetSetting(FileFormatAppVersionKey, RunningAppVersion);
         }
 
         if (GetSetting(LastOpenedByVersionKey) != RunningAppVersion) SetSetting(LastOpenedByVersionKey, RunningAppVersion);
+    }
+
+    // For a format that only applies once a feature is used (see FormatStampedOnOpen): raises the
+    // stamp to it, if it isn't there already. Like StampFile, it never lowers the stamp.
+    public void RaiseFileFormat(int format)
+    {
+        var stored = int.TryParse(GetSetting(FileFormatKey), NumberStyles.None, CultureInfo.InvariantCulture, out var value) ? value : 0;
+        if (stored >= format) return;
+
+        SetSetting(FileFormatKey, format.ToString(CultureInfo.InvariantCulture));
+        SetSetting(FileFormatAppVersionKey, RunningAppVersion);
     }
 }

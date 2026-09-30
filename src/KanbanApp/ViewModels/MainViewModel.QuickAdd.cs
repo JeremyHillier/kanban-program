@@ -33,8 +33,11 @@ public partial class MainViewModel
         ?? Projects.FirstOrDefault(p => p.IsActive)
         ?? Projects.FirstOrDefault();
 
+    // What the To Do column is called on this board - the user can rename it.
+    public string QuickAddColumnName => (Columns.FirstOrDefault(c => c.Name == "To Do") ?? Columns.First()).DisplayName;
+
     public QuickAddResult ParseQuickAdd(string text) =>
-        QuickAddParser.Parse(text, People.Where(p => p.IsActive).Select(p => p.Name), DateTime.Today);
+        QuickAddParser.Parse(text, People.Where(p => p.IsActive).Select(p => p.Name), DateTime.Today, Priorities.Names);
 
     // Null when there is no title left to make a task from.
     public CardViewModel? QuickAdd(string text, ProjectViewModel? project)
@@ -47,6 +50,6 @@ public partial class MainViewModel
         var who = parsed.WhoName is null ? null : People.FirstOrDefault(p => p.Name == parsed.WhoName);
 
         if (project is not null) _db.SetSetting("QuickAddProjectId", project.Id.ToString());
-        return AddCard(parsed.Title, column, project, parsed.Priority ?? "Normal", parsed.DueDate, who, false, null, null);
+        return AddCard(parsed.Title, column, project, parsed.Priority ?? Priorities.Default, parsed.DueDate, who, false, null, null);
     }
 }

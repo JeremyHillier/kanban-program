@@ -39,13 +39,8 @@ public partial class MainViewModel
                 if (match is not null) column = match;
             }
 
-            var priority = row.Priority?.Trim() switch
-            {
-                { } p when string.Equals(p, "High", StringComparison.OrdinalIgnoreCase) => "High",
-                { } p when string.Equals(p, "Medium", StringComparison.OrdinalIgnoreCase) => "Medium",
-                { } p when string.Equals(p, "Low", StringComparison.OrdinalIgnoreCase) => "Low",
-                _ => "Normal"
-            };
+            // A priority that is not on this task file's list becomes the default one.
+            var priority = Priorities.Resolve(row.Priority);
 
             ProjectViewModel? project = null;
             if (!string.IsNullOrWhiteSpace(row.Project))

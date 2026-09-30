@@ -80,6 +80,9 @@ public partial class MainViewModel : ObservableObject
 
         // Before Load, which applies the filters: Hide Future is part of what they hide.
         _hideFutureTasks = _db.GetFlag("HideFutureTasks", false);
+        // Also before Load: every card it builds is handed the list, for its badge colour and sort position.
+        Priorities = PriorityList.FromJson(_db.GetSetting(PriorityList.SettingKey));
+        RefreshPriorityFilterOptions();
         Load();
         LoadTaskTemplates();
 
@@ -132,6 +135,7 @@ public partial class MainViewModel : ObservableObject
 
         column.DisplayName = trimmed;
         _db.RenameColumnDisplayName(column.Id, trimmed);
+        RefreshColumnLetters();
     }
 
     private void Load()
@@ -178,6 +182,11 @@ public partial class MainViewModel : ObservableObject
             Columns.Add(columnVm);
         }
         OnPropertyChanged(nameof(EffectiveColumnWidth)); // it divides the board by the number of columns
+        RefreshColumnLetters();
+        foreach (var property in (string[])[nameof(ToDoColumn), nameof(InProgressColumn), nameof(OnHoldColumn), nameof(WaitingColumn), nameof(DoneColumn)])
+        {
+            OnPropertyChanged(property); // Load builds the columns afresh
+        }
 
         List<string>? savedProjectFilter = null;
         List<string>? savedPriorityFilter = null;

@@ -85,6 +85,7 @@ public static partial class ReportService
         ColumnName = columnName,
         ProjectName = card.ProjectName,
         Priority = card.Priority,
+        PriorityRank = card.PriorityRank,
         DueDate = card.DueDate,
         StartDate = card.StartDate,
         WaitingOn = card.WaitingOn,
@@ -189,7 +190,7 @@ public static partial class ReportService
     private static IOrderedEnumerable<ReportRow> ApplyOrderBy(IEnumerable<ReportRow> rows, string key, List<string> categoryOrder) => key switch
     {
         "Category" => rows.OrderBy(r => CategoryRank(r, categoryOrder)),
-        "Priority" => rows.OrderBy(r => Priorities.Rank(r.Priority)),
+        "Priority" => rows.OrderBy(r => r.PriorityRank),
         "Who" => rows.OrderBy(LeadOf, StringComparer.OrdinalIgnoreCase),
         "Due Date" => rows.OrderBy(r => r.DueDate ?? DateTime.MaxValue),
         "Completed Date" => rows.OrderBy(r => r.CompletedAt ?? DateTime.MaxValue), // unfinished tasks last
@@ -201,7 +202,7 @@ public static partial class ReportService
     private static IOrderedEnumerable<ReportRow> ApplyThenBy(IOrderedEnumerable<ReportRow> rows, string key, List<string> categoryOrder) => key switch
     {
         "Category" => rows.ThenBy(r => CategoryRank(r, categoryOrder)),
-        "Priority" => rows.ThenBy(r => Priorities.Rank(r.Priority)),
+        "Priority" => rows.ThenBy(r => r.PriorityRank),
         "Who" => rows.ThenBy(LeadOf, StringComparer.OrdinalIgnoreCase),
         "Due Date" => rows.ThenBy(r => r.DueDate ?? DateTime.MaxValue),
         "Completed Date" => rows.ThenBy(r => r.CompletedAt ?? DateTime.MaxValue),
@@ -214,7 +215,7 @@ public static partial class ReportService
     {
         "Status" => rows.GroupBy(r => r.ColumnName).ToList(),
         "Project" => rows.GroupBy(r => r.ProjectName).OrderBy(g => g.Key).ToList(),
-        "Priority" => rows.GroupBy(r => r.Priority).OrderBy(g => g.Key).ToList(),
+        "Priority" => rows.GroupBy(r => r.Priority).OrderBy(g => g.Min(r => r.PriorityRank)).ThenBy(g => g.Key).ToList(),
         // A shared task is listed under each of its people, not just the lead.
         "Who" => rows.SelectMany(r => WhoKeys(r).Select(name => (name, r))).GroupBy(x => x.name, x => x.r).OrderBy(g => g.Key, StringComparer.OrdinalIgnoreCase).ToList(),
         "Goal" => rows.GroupBy(r => r.GoalName).OrderBy(g => g.Key).ToList(),

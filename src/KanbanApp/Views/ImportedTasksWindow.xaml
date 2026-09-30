@@ -94,7 +94,7 @@
                                               BorderBrush="{DynamicResource CardBorderBrush}"/>
 
                                     <ComboBox Grid.Column="2" Style="{StaticResource CellMargin}" Padding="4,2"
-                                              ItemsSource="{x:Static vm:PriorityOptions.All}" SelectedItem="{Binding Priority, Mode=TwoWay}"
+                                              ItemsSource="{Binding DataContext.Priorities.Names, RelativeSource={RelativeSource AncestorType=Window}}" SelectedItem="{Binding Priority, Mode=TwoWay}"
                                               Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
                                               BorderBrush="{DynamicResource CardBorderBrush}"/>
 

@@ -29,6 +29,46 @@ public partial class AddTaskWindow
             : items.FirstOrDefault(p => p.Id == autoSelect.Id);
     }
 
+    // The task file's priorities, highest first. A task can carry a name that is no longer on the
+    // list (an older copy of the app edited it, say); it is offered too, so opening and saving the
+    // task doesn't quietly change its priority.
+    private void RebuildPriorityItems(string? select = null)
+    {
+        var names = _viewModel.Priorities.Names.ToList();
+        var chosen = _viewModel.Priorities.Find(select) ?? (string.IsNullOrWhiteSpace(select) ? _viewModel.Priorities.Default : select);
+        if (!names.Contains(chosen)) names.Add(chosen);
+
+        PriorityComboBox.Items.Clear();
+        foreach (var name in names) PriorityComboBox.Items.Add(new ComboBoxItem { Content = name });
+        PriorityComboBox.SelectedIndex = names.IndexOf(chosen);
+    }
+
+    private string? SelectedPriorityName => (PriorityComboBox.SelectedItem as ComboBoxItem)?.Content as string;
+
+    // Opens the priority list. The task keeps its choice, under its new name if that was renamed
+    // (the task being edited is reworded along with every other task that had it).
+    private void ManagePriorities_Click(object sender, RoutedEventArgs e)
+    {
+        var before = SelectedPriorityName;
+        var wasTheTasksOwn = _cardToEdit is not null && before == _priorityWhenOpened;
+
+        new ManagePrioritiesWindow(_viewModel) { Owner = this }.ShowDialog();
+
+        if (wasTheTasksOwn && _cardToEdit!.Priority != _priorityWhenOpened)
+        {
+            // Renamed or deleted: follow the task, and don't let that count as an unsaved change.
+            _priorityWhenOpened = _cardToEdit.Priority;
+            RebuildPriorityItems(_cardToEdit.Priority);
+            _openingSignature = BuildSignature();
+        }
+        else
+        {
+            RebuildPriorityItems(before);
+        }
+    }
+
+    private string? _priorityWhenOpened;
+
     private void RebuildGoalItems(GoalViewModel? autoSelect = null)
     {
         var items = _viewModel.Goals.Where(g => g.IsActive).ToList();

@@ -69,6 +69,7 @@ public partial class AddTaskWindow : Window
         CalendarWheelSupport.Attach(DueDatePicker);
         CalendarWheelSupport.Attach(StartDatePicker);
         CategoryComboBox.ItemsSource = viewModel.Columns;
+        RebuildPriorityItems();
         RebuildProjectItems();
         RebuildGoalItems();
         RebuildWhoItems();
@@ -174,14 +175,8 @@ public partial class AddTaskWindow : Window
         RebuildProjectItems(_viewModel.Projects.FirstOrDefault(p => p.Id == cardToEdit.ProjectId));
         RebuildGoalItems(_viewModel.Goals.FirstOrDefault(g => g.Id == cardToEdit.GoalId));
 
-        foreach (var item in PriorityComboBox.Items.OfType<ComboBoxItem>())
-        {
-            if ((string)item.Content == cardToEdit.Priority)
-            {
-                PriorityComboBox.SelectedItem = item;
-                break;
-            }
-        }
+        _priorityWhenOpened = cardToEdit.Priority;
+        RebuildPriorityItems(cardToEdit.Priority);
 
         DueDatePicker.SelectedDate = cardToEdit.DueDate;
         StartDatePicker.SelectedDate = cardToEdit.StartDate;

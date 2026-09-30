@@ -37,7 +37,8 @@ public partial class ImportTasksWindow : Window
                 _viewModel.Columns.Select(c => c.DisplayName),
                 _viewModel.Projects.Select(p => p.Name),
                 _viewModel.Goals.Select(g => g.Name),
-                _viewModel.People.Select(p => p.Name));
+                _viewModel.People.Select(p => p.Name),
+                _viewModel.Priorities.Names);
             StatusText.Text = $"Template saved to:\n{dialog.FileName}";
         }
         catch (Exception ex)

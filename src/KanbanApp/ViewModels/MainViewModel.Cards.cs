@@ -29,6 +29,7 @@ public partial class MainViewModel
         var attachmentItems = _db.SetCardAttachments(card.Id, attachments.Select(a => (a.FilePath, a.DisplayName, a.AddedDate)).ToList());
         var cardVm = new CardViewModel(card)
         {
+            PriorityList = Priorities,
             ProjectName = project?.Name ?? "No Project",
             GoalName = goal?.Name ?? "No Goal",
             People = people,

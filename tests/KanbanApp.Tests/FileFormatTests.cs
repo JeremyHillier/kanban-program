@@ -24,8 +24,8 @@ public sealed class FileFormatTests : IDisposable
         Assert.False(first.IsFromNewerApp);
 
         var second = Open();
-        Assert.Equal(DatabaseService.CurrentFileFormat, second.FileFormatAtOpen);
-        Assert.Equal(DatabaseService.CurrentFileFormat.ToString(), second.GetSetting("FileFormat"));
+        Assert.Equal(DatabaseService.FormatStampedOnOpen, second.FileFormatAtOpen);
+        Assert.Equal(DatabaseService.FormatStampedOnOpen.ToString(), second.GetSetting("FileFormat"));
         Assert.Equal(DatabaseService.RunningAppVersion, second.GetSetting("FileFormatAppVersion"));
         Assert.Equal(DatabaseService.RunningAppVersion, second.GetSetting("LastOpenedByVersion"));
         Assert.False(second.IsFromNewerApp);
@@ -58,7 +58,7 @@ public sealed class FileFormatTests : IDisposable
 
         Assert.Equal(0, db.FileFormatAtOpen);
         Assert.False(db.IsFromNewerApp);
-        Assert.Equal(DatabaseService.CurrentFileFormat.ToString(), db.GetSetting("FileFormat"));
+        Assert.Equal(DatabaseService.FormatStampedOnOpen.ToString(), db.GetSetting("FileFormat"));
     }
 
     [Fact]
@@ -71,13 +71,32 @@ public sealed class FileFormatTests : IDisposable
         Assert.DoesNotContain("()", App.NewerTaskFileMessage(null, "0.102.0"));
     }
 
+    // A format that only applies once a feature is used (4: a changed priority list) is raised then,
+    // not on opening, and like the opening stamp it only ever goes up.
+    [Fact]
+    public void AFormatRaisedLater_GoesUp_AndNeverComesDown()
+    {
+        var db = Open();
+
+        db.RaiseFileFormat(4);
+        Assert.Equal("4", db.GetSetting("FileFormat"));
+
+        db.RaiseFileFormat(2);
+        Assert.Equal("4", db.GetSetting("FileFormat"));
+
+        var reopened = Open();
+        Assert.Equal(4, reopened.FileFormatAtOpen);
+        Assert.Equal("4", reopened.GetSetting("FileFormat")); // opening does not put it back to 3
+        Assert.False(reopened.IsFromNewerApp);
+    }
+
     // If this fails you have changed what the task file stores (a table or a column). An older copy
     // of the app won't know about it, so: add one to DatabaseService.CurrentFileFormat, then put
     // the new format number and fingerprint (both are in the failure message) here.
     [Fact]
     public void ChangingTheTables_MeansRaisingTheFileFormat()
     {
-        const int formatTheFingerprintBelongsTo = 3;
+        const int formatTheFingerprintBelongsTo = 4; // 4 changed no table: it is the priority list becoming editable
         const string fingerprint = "CFA33BB4654456F4";
 
         Open();

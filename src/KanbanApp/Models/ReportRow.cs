@@ -6,6 +6,8 @@ public class ReportRow
     public required string ColumnName { get; init; }
     public required string ProjectName { get; init; }
     public required string Priority { get; init; }
+    // Where the priority sits on the task file's list, highest first - for sorting and group order.
+    public int PriorityRank { get; init; }
     public DateTime? DueDate { get; init; }
     public DateTime? StartDate { get; init; }
     public string? WaitingOn { get; init; }

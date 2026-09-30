@@ -9,7 +9,8 @@ namespace KanbanApp.Views;
 // not a flipped copy):
 //   - statuses: one hue each, in board order; On Hold is magenta rather than the board's orange,
 //     which sits too close to In Progress yellow to tell apart in a stacked bar
-//   - priorities: red / amber / neutral grey / blue, like the board's priority badges
+//   - priorities: each priority's own colour from PriorityColors (red / amber / neutral grey / blue
+//     for the standard four, like the board's priority badges)
 //   - due dates: red and orange for overdue and today, then one blue getting quieter with distance
 //   - time since last update: one blue getting stronger with age, so stale work stands out
 // Text never takes a series colour - numbers and labels stay in the theme's text colours.
@@ -32,13 +33,13 @@ internal sealed class DashboardPalette(bool dark)
         _ => Neutral
     };
 
-    public Brush Priority(string priority) => priority switch
+    // By the priority's colour on the task file's list (PriorityColors holds each one's light and
+    // dark chart colour), not by its name - the user can rename, recolour and add priorities.
+    public Brush Priority(string colorKey)
     {
-        "High" => B(0xd03b3b),
-        "Medium" => dark ? B(0xc98500) : B(0xeda100),
-        "Low" => dark ? B(0x3987e5) : B(0x2a78d6),
-        _ => Neutral
-    };
+        var entry = KanbanApp.Models.PriorityColors.Get(colorKey);
+        return B(dark ? entry.ChartDark : entry.ChartLight);
+    }
 
     public Brush Neutral => dark ? B(0x6f6e69) : B(0x8a8984);
     public Brush Series => dark ? B(0x3987e5) : B(0x2a78d6);

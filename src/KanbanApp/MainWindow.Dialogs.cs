@@ -49,6 +49,8 @@ public partial class MainWindow
 
     private void ManageWaitingOn(MainViewModel viewModel) => new ManageWaitingOnWindow(viewModel) { Owner = this }.ShowDialog();
 
+    private void ManagePriorities(MainViewModel viewModel) => new ManagePrioritiesWindow(viewModel) { Owner = this }.ShowDialog();
+
     // Right-click the Waiting On button: the filter it normally applies, or the list behind the suggestions.
     private void WaitingOnButton_PreviewMouseRightButtonUp(object sender, MouseButtonEventArgs e)
     {
@@ -110,6 +112,11 @@ public partial class MainWindow
     private void ManageGoalsLabel_MouseLeftButtonUp(object sender, MouseButtonEventArgs e) => ManageGoals_Click(sender, e);
 
     private void ManageFlagsLabel_MouseLeftButtonUp(object sender, MouseButtonEventArgs e) => ManageFlags_Click(sender, e);
+
+    private void ManagePrioritiesLabel_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+    {
+        if (DataContext is MainViewModel viewModel) ManagePriorities(viewModel);
+    }
 
     private void ManageWaitingOnLabel_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
     {

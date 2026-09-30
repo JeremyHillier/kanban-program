@@ -37,8 +37,21 @@ public class ColumnViewModel(KanbanColumn model, Brush background) : ObservableO
             if (Model.DisplayName == value) return;
             Model.DisplayName = value;
             OnPropertyChanged();
+            OnPropertyChanged(nameof(MoveToolTip));
         }
     }
+
+    // The letter on every card's button for moving a task here, from the column's current name
+    // (ColumnLetters; MainViewModel sets it, since it depends on the other columns' names too).
+    // Done's button is always a tick, so it has none.
+    private string _quickLetter = string.Empty;
+    public string QuickLetter
+    {
+        get => _quickLetter;
+        set => SetField(ref _quickLetter, value);
+    }
+
+    public string MoveToolTip => Name == "Done" && DisplayName == "Done" ? "Mark Done" : $"Move to {DisplayName}";
 
     public ObservableCollection<CardViewModel> Cards { get; } = [];
 

@@ -62,6 +62,14 @@ public partial class MainViewModel
         }
     }
 
+    // For a change that Undo's saved copies of tasks can't survive (a priority renamed or deleted).
+    private void ClearUndoHistory()
+    {
+        if (_undoSteps.Count == 0) return;
+        _undoSteps.Clear();
+        NotifyUndoChanged();
+    }
+
     private void NotifyUndoChanged()
     {
         OnPropertyChanged(nameof(CanUndo));
@@ -247,6 +255,7 @@ public partial class MainViewModel
 
     private CardViewModel BuildCardViewModel(CardItem card) => new(card)
     {
+        PriorityList = Priorities,
         ProjectName = ResolveProjectName(card.ProjectId),
         GoalName = ResolveGoalName(card.GoalId),
         People = ResolvePeople(card.PeopleIds),

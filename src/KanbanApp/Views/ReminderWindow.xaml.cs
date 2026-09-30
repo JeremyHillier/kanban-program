@@ -28,6 +28,7 @@ public partial class ReminderWindow : Window
         public required string ProjectName { get; init; }
         public required string WhoName { get; init; }
         public required string Priority { get; init; }
+        public required Brush PriorityBrush { get; init; }
         public required string CategoryName { get; init; }
         public required string DueLabel { get; init; }
         public required Brush DueLabelBrush { get; init; }
@@ -85,6 +86,7 @@ public partial class ReminderWindow : Window
             ProjectName = card.ProjectName,
             WhoName = card.WhoName,
             Priority = card.Priority,
+            PriorityBrush = card.PriorityBrush,
             CategoryName = _columns.FirstOrDefault(c => c.Cards.Contains(card))?.DisplayName ?? string.Empty,
             DueLabel = isOverdue ? $"Overdue since {card.DueDateTime?.ToString("MMM d, yyyy h:mm tt") ?? card.DueDate.Value.ToString("MMM d, yyyy")}" : dueTodayLabel,
             DueLabelBrush = isOverdue || _isTimeAlert ? OverdueBrush : DueTodayBrush

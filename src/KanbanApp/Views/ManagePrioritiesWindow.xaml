@@ -1,0 +1,70 @@
+<Window x:Class="KanbanApp.Views.ManagePrioritiesWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Priorities" Width="500" Height="440" MinWidth="440" MinHeight="380"
+        WindowStartupLocation="CenterOwner" ShowInTaskbar="False"
+        Background="{DynamicResource WindowBackgroundBrush}">
+    <Window.Resources>
+        <Style x:Key="SideButtonStyle" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+            <Setter Property="Padding" Value="0,6"/>
+            <Setter Property="Margin" Value="0,0,0,6"/>
+            <Setter Property="Background" Value="{DynamicResource ButtonBackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
+        </Style>
+    </Window.Resources>
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="120"/>
+        </Grid.ColumnDefinitions>
+
+        <TextBlock Grid.Row="0" Grid.ColumnSpan="2" TextWrapping="Wrap" Margin="0,0,0,8" Foreground="{DynamicResource SecondaryTextStrongBrush}"
+                   Text="The highest priority is at the top. Menus, the filter list and Sort by Priority all use this order. Renaming a priority also rewords every task that has it."/>
+
+        <ListBox Grid.Row="1" Grid.Column="0" x:Name="PriorityListBox" SelectionChanged="PriorityListBox_SelectionChanged"
+                 MouseDoubleClick="Rename_Click" KeyDown="PriorityListBox_KeyDown" HorizontalContentAlignment="Stretch"
+                 Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                 BorderBrush="{DynamicResource CardBorderBrush}">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <Grid Margin="2,4">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <!-- The badge as it looks on a card, so the colour is judged with its white text on it. -->
+                        <Border Grid.Column="0" Background="{Binding Brush}" CornerRadius="3" Padding="6,2" VerticalAlignment="Center" MinWidth="64">
+                            <TextBlock Text="{Binding Entry.Name}" FontSize="11" Foreground="White" HorizontalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                        </Border>
+                        <TextBlock Grid.Column="1" Text="{Binding Entry.Detail}" Margin="10,0,0,0" VerticalAlignment="Center" FontSize="11"
+                                   Foreground="{DynamicResource SecondaryTextStrongBrush}" TextTrimming="CharacterEllipsis"/>
+                    </Grid>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+
+        <StackPanel Grid.Row="1" Grid.Column="1" Margin="10,0,0,0">
+            <Button Content="Add..." Style="{StaticResource SideButtonStyle}" Click="Add_Click"/>
+            <Button x:Name="RenameButton" Content="Rename..." Style="{StaticResource SideButtonStyle}" Click="Rename_Click"
+                    ToolTip="Rename it, on the list and on every task that has it (F2)"/>
+            <Button x:Name="ColorButton" Content="Colour ▾" Style="{StaticResource SideButtonStyle}" Click="Color_Click"
+                    ToolTip="The colour of its badge on cards, in Reminders, on the Timeline and on the Dashboard"/>
+            <Button x:Name="MoveUpButton" Content="Move Up" Style="{StaticResource SideButtonStyle}" Click="MoveUp_Click" Margin="0,10,0,6"
+                    ToolTip="Make it a higher priority (Alt+Up)"/>
+            <Button x:Name="MoveDownButton" Content="Move Down" Style="{StaticResource SideButtonStyle}" Click="MoveDown_Click"
+                    ToolTip="Make it a lower priority (Alt+Down)"/>
+            <Button x:Name="DefaultButton" Content="Make Default" Style="{StaticResource SideButtonStyle}" Click="MakeDefault_Click" Margin="0,10,0,6"
+                    ToolTip="The priority a new task starts with"/>
+            <Button x:Name="DeleteButton" Content="Delete" Style="{StaticResource SideButtonStyle}" Click="Delete_Click"
+                    ToolTip="Take it off the list (Delete key). Its tasks become the default priority."/>
+        </StackPanel>
+
+        <Button Grid.Row="2" Grid.Column="1" Content="Close" Padding="0,6" Margin="10,12,0,0" IsCancel="True" IsDefault="True"
+                Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+    </Grid>
+</Window>

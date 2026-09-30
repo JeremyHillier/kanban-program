@@ -86,10 +86,12 @@ public partial class MainWindow
         }
 
         var priority = AddSubmenu(menu, "_Priority");
-        foreach (var level in Priorities.All)
+        foreach (var level in viewModel.Priorities.Names)
         {
-            AddMenuItem(priority, level, () => viewModel.SetCardPriority(card, level), isChecked: card.Priority == level);
+            AddMenuItem(priority, MenuText(level), () => viewModel.SetCardPriority(card, level), isChecked: card.Priority == level);
         }
+        priority.Items.Add(new System.Windows.Controls.Separator());
+        AddMenuItem(priority, "Manage Priorities...", () => ManagePriorities(viewModel));
 
         var assign = AddSubmenu(menu, "_Assign To");
         AddMenuItem(assign, "Unassigned", () => viewModel.SetCardWho(card, null), isChecked: card.WhoId is null);
@@ -164,10 +166,12 @@ public partial class MainWindow
         }
 
         var priority = AddSubmenu(menu, "_Priority");
-        foreach (var level in Priorities.All)
+        foreach (var level in viewModel.Priorities.Names)
         {
-            AddMenuItem(priority, level, () => viewModel.SetCardsPriority(cards, level), isChecked: cards.All(c => c.Priority == level));
+            AddMenuItem(priority, MenuText(level), () => viewModel.SetCardsPriority(cards, level), isChecked: cards.All(c => c.Priority == level));
         }
+        priority.Items.Add(new System.Windows.Controls.Separator());
+        AddMenuItem(priority, "Manage Priorities...", () => ManagePriorities(viewModel));
 
         var assign = AddSubmenu(menu, "_Assign To");
         AddMenuItem(assign, "Unassigned", () => viewModel.SetCardsWho(cards, null), isChecked: cards.All(c => c.WhoId is null));

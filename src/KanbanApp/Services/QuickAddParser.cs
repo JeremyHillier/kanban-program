@@ -5,7 +5,8 @@ namespace KanbanApp.Services;
 // Reads the one line typed into Quick Add. Most of it is the task's title; a few short codes, each
 // its own word, set the things worth setting in a hurry:
 //
-//   !high !medium !normal !low   (or !h !m !n !l)      priority
+//   !high !medium !low (or !h !m !l)                   priority - the start of a priority's name, if
+//                                                      it matches exactly one on the list
 //   @sam                                               who - the start of a person's name, if it
 //                                                      matches exactly one person
 //   /today /tomorrow /fri /friday /+3 /10-15 /2026-10-15   due date
@@ -16,25 +17,23 @@ public sealed record QuickAddResult(string Title, string? Priority, string? WhoN
 
 public static class QuickAddParser
 {
-    public const string Hint = "!high   @name   /tomorrow  /fri  /+3  /10-15";
+    // The hint under the Quick Add box, naming the highest priority on this task file's list.
+    public static string HintFor(IEnumerable<string> priorityNames) =>
+        $"!{(priorityNames.FirstOrDefault() ?? "high").Replace(" ", "").ToLowerInvariant()}   @name   /tomorrow  /fri  /+3  /10-15";
 
-    private static readonly Dictionary<string, string> Priorities = new(StringComparer.OrdinalIgnoreCase)
-    {
-        ["!high"] = "High", ["!h"] = "High", ["!medium"] = "Medium", ["!med"] = "Medium", ["!m"] = "Medium",
-        ["!normal"] = "Normal", ["!n"] = "Normal", ["!low"] = "Low", ["!l"] = "Low"
-    };
-
-    public static QuickAddResult Parse(string text, IEnumerable<string> peopleNames, DateTime today)
+    // priorityNames is the task file's own list; left out, the standard four.
+    public static QuickAddResult Parse(string text, IEnumerable<string> peopleNames, DateTime today, IEnumerable<string>? priorityNames = null)
     {
         var people = peopleNames.ToList();
+        var priorities = (priorityNames ?? ViewModels.PriorityList.Fallback.Names).ToList();
         var titleWords = new List<string>();
         string? priority = null, who = null;
         DateTime? due = null;
 
         foreach (var word in text.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries))
         {
-            if (Priorities.TryGetValue(word, out var p)) priority = p;
-            else if (word.Length > 1 && word[0] == '@' && MatchPerson(word[1..], people) is { } person) who = person;
+            if (word.Length > 1 && word[0] == '!' && MatchName(word[1..], priorities) is { } level) priority = level;
+            else if (word.Length > 1 && word[0] == '@' && MatchName(word[1..], people) is { } person) who = person;
             else if (word.Length > 1 && word[0] == '/' && ParseDate(word[1..], today.Date) is { } date) due = date;
             else titleWords.Add(word);
         }
@@ -44,7 +43,8 @@ public static class QuickAddParser
 
     // The whole name with its spaces taken out ("@samlee"), or else the start of a name - but only
     // when that points at one person. "@s" with both Sam and Sara on the list matches nobody.
-    private static string? MatchPerson(string typed, List<string> people)
+    // Priorities are matched the same way ("!h", "!high").
+    private static string? MatchName(string typed, List<string> people)
     {
         var exact = people.Where(n => string.Equals(n.Replace(" ", ""), typed, StringComparison.OrdinalIgnoreCase)).ToList();
         if (exact.Count == 1) return exact[0];

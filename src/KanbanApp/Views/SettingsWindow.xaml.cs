@@ -44,6 +44,7 @@ public partial class SettingsWindow : Window
             ColumnNamesPanel.Children.Add(row);
         }
 
+        RefreshPrioritiesSummary();
         ButtonsOnRightCheckBox.IsChecked = viewModel.IsButtonsOnRight;
         ColumnWidthTextBox.Text = viewModel.ColumnWidth.ToString();
         FitColumnsCheckBox.IsChecked = viewModel.IsFitColumnsToWindow;
@@ -141,6 +142,31 @@ public partial class SettingsWindow : Window
         // The dialog has its own "show after every update" checkbox, so mirror any change back.
         ShowWhatsNewCheckBox.IsChecked = _viewModel.ShowWhatsNew;
     }
+
+    // A ready-made set of names for all five columns. Like typing them in, it is undone by Cancel.
+    private void UseGtdNames_Click(object sender, RoutedEventArgs e) => UseColumnNames(MainViewModel.GtdColumnNames);
+
+    private void UseStandardNames_Click(object sender, RoutedEventArgs e) => UseColumnNames(MainViewModel.StandardColumnNames);
+
+    private void UseColumnNames(IReadOnlyList<string> names)
+    {
+        _viewModel.UseColumnNames(names);
+        foreach (var box in ColumnNamesPanel.Children.OfType<Panel>().SelectMany(row => row.Children.OfType<TextBox>()))
+        {
+            if (box.Tag is ColumnViewModel column) box.Text = column.DisplayName;
+        }
+    }
+
+    // The priority list has its own screen, where each change is made straight away, as on the other
+    // Manage screens. It is not a Settings preference, so Cancel here does not take those changes back.
+    private void ManagePriorities_Click(object sender, RoutedEventArgs e)
+    {
+        new ManagePrioritiesWindow(_viewModel) { Owner = this }.ShowDialog();
+        RefreshPrioritiesSummary();
+    }
+
+    private void RefreshPrioritiesSummary() =>
+        PrioritiesSummaryText.Text = $"Highest first: {string.Join(", ", _viewModel.Priorities.Names)}. New tasks start at {_viewModel.Priorities.Default}.";
 
     private void ColumnDisplayNameTextBox_LostFocus(object sender, RoutedEventArgs e)
     {

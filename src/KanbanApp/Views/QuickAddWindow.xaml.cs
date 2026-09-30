@@ -74,11 +74,11 @@ public partial class QuickAddWindow : Window
         var parsed = _viewModel.ParseQuickAdd(TaskTextBox.Text);
         if (string.IsNullOrWhiteSpace(TaskTextBox.Text))
         {
-            PreviewText.Text = $"Goes into To Do. Optional codes:  {QuickAddParser.Hint}";
+            PreviewText.Text = $"Goes into {_viewModel.QuickAddColumnName}. Optional codes:  {QuickAddParser.HintFor(_viewModel.Priorities.Names)}";
             return;
         }
 
-        var parts = new List<string> { $"To Do  ·  {parsed.Priority ?? "Normal"} priority" };
+        var parts = new List<string> { $"{_viewModel.QuickAddColumnName}  ·  {parsed.Priority ?? _viewModel.Priorities.Default} priority" };
         if (parsed.WhoName is not null) parts.Add($"for {parsed.WhoName}");
         if (parsed.DueDate is { } due) parts.Add($"due {due:ddd, MMM d}");
         PreviewText.Text = string.Join("  ·  ", parts);

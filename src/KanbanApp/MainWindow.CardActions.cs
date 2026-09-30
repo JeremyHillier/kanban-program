@@ -200,8 +200,8 @@ public partial class MainWindow
     {
         if (sender is not FrameworkElement { DataContext: CardViewModel card } element || DataContext is not MainViewModel viewModel) return;
 
-        var items = Priorities.All
-            .Select(priority => (Header: priority, IsChecked: card.Priority == priority, Value: priority));
+        var items = viewModel.Priorities.Names
+            .Select(priority => (Header: MenuText(priority), IsChecked: card.Priority == priority, Value: priority));
         ShowQuickEditMenu(element, items, priority => viewModel.SetCardPriority(card, priority));
         e.Handled = true;
     }

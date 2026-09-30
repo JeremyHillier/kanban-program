@@ -82,7 +82,22 @@ public class CardViewModel(CardItem model) : ObservableObject
             if (Model.Priority == value) return;
             Model.Priority = value;
             OnPropertyChanged();
+            OnPropertyChanged(nameof(PriorityBrush));
         }
+    }
+
+    // The board's priority list, for the badge colour and the sort position. MainViewModel hands
+    // every card its own list; a card built without a board gets the standard four.
+    public PriorityList PriorityList { get; init; } = PriorityList.Fallback;
+
+    public System.Windows.Media.Brush PriorityBrush => PriorityList.Brush(Priority);
+    public int PriorityRank => PriorityList.Rank(Priority);
+
+    // After the list itself changed (a new colour, a rename).
+    public void RefreshPriority()
+    {
+        OnPropertyChanged(nameof(Priority));
+        OnPropertyChanged(nameof(PriorityBrush));
     }
 
     public DateTime? DueDate

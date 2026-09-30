@@ -15,6 +15,7 @@ namespace KanbanApp.Views;
 public partial class DashboardWindow : Window
 {
     private readonly DashboardPalette _palette;
+    private readonly PriorityList _priorities;
 
     public DashboardWindow(MainViewModel viewModel)
     {
@@ -26,8 +27,9 @@ public partial class DashboardWindow : Window
             .SelectMany(c => c.Cards.Select(card => new DashboardData.BoardCard(card, c.Name, c.DisplayName)))
             .ToList();
         var columns = viewModel.Columns.Select(c => new DashboardData.Status(c.Name, c.DisplayName)).ToList();
+        _priorities = viewModel.Priorities;
         var data = DashboardData.Build(cards, columns, viewModel.GetArchivedCompletionDates(), DateTime.Today,
-            CultureInfo.CurrentCulture.DateTimeFormat.FirstDayOfWeek);
+            CultureInfo.CurrentCulture.DateTimeFormat.FirstDayOfWeek, _priorities);
 
         AsOfText.Text = $"As of {DateTime.Now:MMM d, yyyy h:mm tt}";
         BuildTiles(data);
@@ -77,7 +79,7 @@ public partial class DashboardWindow : Window
     private void BuildCharts(DashboardData data)
     {
         // Open work: every column, each split by priority.
-        var priorityBrushes = data.Priorities.Select(p => (Name: p, Brush: _palette.Priority(p))).ToList();
+        var priorityBrushes = data.Priorities.Select(p => (Name: p, Brush: _palette.Priority(_priorities.ColorKey(p)))).ToList();
         var byPriority = data.StatusByPriority.Select(s => new Bar(s.Label,
             s.Counts.Select((n, i) => new Segment(priorityBrushes[i].Name, n, priorityBrushes[i].Brush)).ToList())).ToList();
         var statusCard = Card("Tasks by Status and Priority", "Every task on the board, by column",

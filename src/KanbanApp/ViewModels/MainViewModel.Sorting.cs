@@ -78,7 +78,7 @@ public partial class MainViewModel
     {
         SortKey.DueDate => cards.OrderBy(c => c.DueDate ?? DateTime.MaxValue),
         SortKey.Who => cards.OrderBy(c => c.LeadName, StringComparer.OrdinalIgnoreCase),
-        SortKey.Priority => cards.OrderBy(c => Priorities.Rank(c.Priority)),
+        SortKey.Priority => cards.OrderBy(c => c.PriorityRank),
         _ => cards.OrderBy(c => c.ProjectName, StringComparer.OrdinalIgnoreCase)
     };
 
@@ -86,7 +86,7 @@ public partial class MainViewModel
     {
         SortKey.DueDate => cards.ThenBy(c => c.DueDate ?? DateTime.MaxValue),
         SortKey.Who => cards.ThenBy(c => c.LeadName, StringComparer.OrdinalIgnoreCase),
-        SortKey.Priority => cards.ThenBy(c => Priorities.Rank(c.Priority)),
+        SortKey.Priority => cards.ThenBy(c => c.PriorityRank),
         _ => cards.ThenBy(c => c.ProjectName, StringComparer.OrdinalIgnoreCase)
     };
 

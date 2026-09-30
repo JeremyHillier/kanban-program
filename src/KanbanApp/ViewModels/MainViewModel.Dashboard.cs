@@ -36,7 +36,7 @@ public partial class MainViewModel
         Columns.Where(c => c.Name != "Done").SelectMany(c => c.Cards)
             .Where(c => c.DueDate is not null && c.DueDate.Value.Date <= DateTime.Today)
             .OrderBy(c => c.DueDate)
-            .ThenBy(c => Priorities.Rank(c.Priority))
+            .ThenBy(c => c.PriorityRank)
             .ThenBy(c => c.Title)
             .ToList();
 
@@ -46,7 +46,7 @@ public partial class MainViewModel
         Columns.Where(c => c.Name != "Done").SelectMany(c => c.Cards)
             .Where(c => c.DueDateTime is { } dueAt && dueAt <= DateTime.Now)
             .OrderBy(c => c.DueDateTime)
-            .ThenBy(c => Priorities.Rank(c.Priority))
+            .ThenBy(c => c.PriorityRank)
             .ThenBy(c => c.Title)
             .ToList();
 
