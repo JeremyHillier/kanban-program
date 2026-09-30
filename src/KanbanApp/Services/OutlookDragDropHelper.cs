@@ -11,7 +11,7 @@ namespace KanbanApp.Services;
 
 // Outlook (and similar apps) hand over dragged items as "virtual files" - CFSTR_FILEDESCRIPTOR
 // + CFSTR_FILECONTENTS OLE formats - rather than a real path, since no .msg exists on disk yet.
-public static class OutlookDragDropHelper
+public static partial class OutlookDragDropHelper
 {
     public static bool HasDroppableFiles(IDataObject data) =>
         data.GetDataPresent(DataFormats.FileDrop) || data.GetDataPresent("FileGroupDescriptorW");
@@ -358,7 +358,7 @@ public static class OutlookDragDropHelper
         void Stat(out System.Runtime.InteropServices.ComTypes.STATSTG pstatstg, uint grfStatFlag);
     }
 
-    private static class NativeMethods
+    private static partial class NativeMethods
     {
         [DllImport("kernel32.dll")]
         public static extern IntPtr GlobalLock(IntPtr hMem);

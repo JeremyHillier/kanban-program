@@ -254,7 +254,11 @@
                 <local:BulletItem Text="Right-click, Permanently Delete erases a task and its attachments. There is no undo."/>
 
                 <TextBlock Text="Importing tasks" Style="{StaticResource HelpSectionHeaderStyle}"/>
-                <local:BulletItem Text="Import Tasks reads an Excel .xlsx file. Save Template gives one laid out the right way."/>
+                <local:BulletItem Text="Import Tasks reads an Excel .xlsx file. Download Template gives one laid out the right way."/>
+                <local:BulletItem Text="Or drop the file on the Import Tasks window, from a folder or from Outlook."/>
+                <local:BulletItem Text="From Outlook, drop the attachment itself or the whole email; the Excel file inside is used."/>
+                <local:BulletItem Text="A task emailed from the app comes with an Excel file attached, ready to drop."/>
+                <local:BulletItem Text="The tasks found are listed for a yes before anything is imported."/>
                 <local:BulletItem Text="Only Title is required."/>
                 <local:BulletItem Text="Your own spreadsheet works too, with headings on any row, in any order."/>
                 <local:BulletItem Text="Other headings understood include Task, Status, Due, Assigned To and Start."/>

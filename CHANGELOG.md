@@ -6,6 +6,13 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.120.0 — 2026-09-30
+
+> - New: drop an Excel file on the Import Tasks window to import it. It can come from a folder or straight out of Outlook, as the attachment itself or as the whole email, in which case the Excel file attached to it is used.
+> - New: before anything is imported, the tasks found are listed for confirmation, whether the file was dropped or chosen.
+- A task emailed from the app comes with an Excel file attached, so the person receiving it can drop that email onto Import Tasks to add the task to their own board.
+- Anything dropped that is not an Excel file is left out and named, so it is clear why it was not imported.
+
 ## 0.119.0 — 2026-09-30
 
 > - New: priorities can be changed. Add priorities such as Urgent or Someday, rename the existing ones, put them in any order, and choose each one's colour.
