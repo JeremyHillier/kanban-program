@@ -91,6 +91,12 @@ public partial class AddTaskWindow
             return;
         }
 
+        if (AttachmentFiles.CanRunAProgram(path)
+            && !Dialogs.Confirm(ActiveWindow, AttachmentFiles.ProgramQuestion(path)))
+        {
+            return;
+        }
+
         try
         {
             Process.Start(new ProcessStartInfo(path) { UseShellExecute = true });

@@ -57,6 +57,36 @@ public static class AttachmentFiles
         }
     }
 
+    // Files Windows runs, or that can start something, rather than open in a program: programs and
+    // scripts, installers, shortcuts, and files that change settings. A task file can come from
+    // someone else, and an attachment is only a path, so one of these is asked about before opening.
+    private static readonly HashSet<string> ProgramExtensions = new(StringComparer.OrdinalIgnoreCase)
+    {
+        ".exe", ".com", ".scr", ".pif", ".cpl", ".msc", ".gadget",
+        ".bat", ".cmd", ".ps1", ".psm1", ".psd1", ".ps1xml", ".ps2", ".ps2xml", ".psc1", ".psc2",
+        ".vb", ".vbs", ".vbe", ".js", ".jse", ".ws", ".wsf", ".wsc", ".wsh", ".sct", ".hta", ".jar",
+        ".msi", ".msp", ".mst", ".appx", ".appxbundle", ".msix", ".msixbundle", ".application", ".appref-ms",
+        ".lnk", ".url", ".scf", ".shb", ".shs", ".settingcontent-ms", ".library-ms", ".searchconnector-ms",
+        ".reg", ".inf", ".chm", ".diagcab", ".xll",
+    };
+
+    // Windows ignores dots and spaces at the end of a name, so "run.bat." still runs; a colon past the
+    // drive letter names a hidden part of a file, which is no place for an ordinary attachment.
+    public static bool CanRunAProgram(string path)
+    {
+        var trimmed = path.Trim();
+        if (trimmed.Length > 2 && trimmed.IndexOf(':', 2) >= 0) return true;
+        return ProgramExtensions.Contains(Path.GetExtension(Path.GetFileName(trimmed).TrimEnd('.', ' ')));
+    }
+
+    // Asked before opening one. Enter and Esc both leave it unopened.
+    public static DialogMessage ProgramQuestion(string path) =>
+        DialogMessage.AskDanger("Open Program?",
+            "This attachment is a program, or a file that can start one. Open it anyway?\n\n" +
+            "Opening it runs it on this computer. Only go ahead if you know what it is and trust where it came from, " +
+            "especially in a task file someone else shared.",
+            "Open Anyway", "Don't Open") with { Detail = path };
+
     public static void ShowInFolder(string path) =>
         Process.Start(new ProcessStartInfo("explorer.exe", $"/select,\"{path}\"") { UseShellExecute = true });
 

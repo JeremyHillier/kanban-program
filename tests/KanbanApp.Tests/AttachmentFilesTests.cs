@@ -98,4 +98,46 @@ public sealed class AttachmentFilesTests(WpfDispatcherFixture wpf) : IDisposable
         Assert.False(AttachmentFiles.SaveCopy(source, source.ToUpperInvariant()));
         Assert.Equal("the invoice", File.ReadAllText(source));
     }
+
+    [Theory]
+    [InlineData(@"C:\Tools\setup.exe")]
+    [InlineData(@"\\server\share\run.bat")]
+    [InlineData(@"C:\Scripts\Clean Up.PS1")]
+    [InlineData(@"D:\Work\invoice.pdf.exe")]    // a document's name with a program's ending
+    [InlineData(@"D:\Work\run.bat.")]            // Windows drops the dot and runs it
+    [InlineData(@"D:\Work\run.cmd  ")]
+    [InlineData(@"C:\Users\Me\Desktop\App.lnk")]
+    [InlineData(@"C:\Links\site.url")]
+    [InlineData(@"C:\Setup\tool.msi")]
+    [InlineData(@"C:\Setup\fix.reg")]
+    [InlineData(@"C:\Setup\page.hta")]
+    [InlineData(@"C:\Setup\macro.vbs")]
+    [InlineData(@"D:\Work\notes.txt:hidden.exe")] // a hidden part of a file
+    public void AProgramOrScript_IsAskedAbout(string path) =>
+        Assert.True(AttachmentFiles.CanRunAProgram(path));
+
+    [Theory]
+    [InlineData(@"C:\Work\invoice.pdf")]
+    [InlineData(@"C:\Work\Budget.XLSX")]
+    [InlineData(@"C:\Work\letter.docx")]
+    [InlineData(@"C:\Work\photo.jpg")]
+    [InlineData(@"\\server\share\plan.png")]
+    [InlineData(@"C:\Work\readme.txt")]
+    [InlineData(@"C:\Work\archive.zip")]
+    [InlineData(@"C:\Work\exe files.pdf")]       // "exe" in the name isn't the ending
+    [InlineData(@"C:\Work\no extension")]
+    public void ADocumentOrPicture_OpensWithoutAQuestion(string path) =>
+        Assert.False(AttachmentFiles.CanRunAProgram(path));
+
+    [Fact]
+    public void TheQuestion_DefaultsToNotOpening_AndShowsThePath()
+    {
+        var question = AttachmentFiles.ProgramQuestion(@"\\server\share\run.bat");
+
+        Assert.True(question.IsDanger);             // Enter chooses the safe button
+        Assert.False(question.EnterChoosesMain);
+        Assert.Equal("Open Anyway", question.Yes);
+        Assert.Equal("Don't Open", question.No);
+        Assert.Equal(@"\\server\share\run.bat", question.Detail);
+    }
 }

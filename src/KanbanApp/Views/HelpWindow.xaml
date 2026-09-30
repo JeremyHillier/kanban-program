@@ -130,6 +130,7 @@
                 <local:BulletItem Text="Drag a file from Explorer, Outlook or an email onto a card or the attachments area."/>
                 <local:BulletItem Text="Paste Screenshot attaches the picture on the clipboard."/>
                 <local:BulletItem Text="Click a thumbnail or file name to open it."/>
+                <local:BulletItem Text="A program or script asks before it opens. Enter leaves it unopened."/>
                 <local:BulletItem Text="Right-click an attachment to open it, show its folder, copy it, save a copy or remove it."/>
                 <local:BulletItem Text="× removes an attachment and deletes its saved copy."/>
                 <local:BulletItem Text="Attachments move with the task into Done, Archived and Deleted folders, and back again."/>

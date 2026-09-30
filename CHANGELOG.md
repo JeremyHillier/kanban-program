@@ -6,6 +6,10 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.118.1 — 2026-09-30
+
+> - Improved: for your safety, opening an attachment that is a program or script (such as an .exe, .bat or shortcut) now asks first, so a task file shared by someone else can't run a program with a single click. Documents and pictures open as before.
+
 ## 0.118.0 — 2026-09-29
 
 > - New: a Waiting filter in the sidebar, between Flag and Keyword, lists who or what your tasks are waiting on, so you can show just the tasks waiting on one of them.
