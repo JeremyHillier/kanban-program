@@ -6,6 +6,11 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.120.1 — 2026-09-30
+
+> - Fixed: the buttons at the bottom of Settings, Report Builder and About stay on screen whatever the screen size. The content scrolls; the buttons do not.
+> - Improved: no window can now open taller or wider than the screen it is on, or hang off its edge.
+
 ## 0.120.0 — 2026-09-30
 
 > - New: drop an Excel file on the Import Tasks window to import it. It can come from a folder or straight out of Outlook, as the attachment itself or as the whole email, in which case the Excel file attached to it is used.

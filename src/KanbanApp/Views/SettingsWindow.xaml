@@ -26,8 +26,14 @@
             <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
         </Style>
     </Window.Resources>
-    <ScrollViewer VerticalScrollBarVisibility="Auto">
-    <StackPanel Margin="16">
+    <!-- The settings scroll; the button bar stays put underneath, whatever the screen height. -->
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+    <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto">
+    <StackPanel Margin="16,16,16,0">
         <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
@@ -288,8 +294,9 @@
                            Foreground="{DynamicResource SecondaryTextBrush}" TextWrapping="Wrap"/>
             </StackPanel>
         </Grid>
-
-        <Grid Margin="0,16,0,0">
+    </StackPanel>
+    </ScrollViewer>
+        <Grid Grid.Row="1" Margin="16,10,16,16">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
                 <Button Content="?" Width="32" Padding="0,6" Margin="0,0,8,0" Click="Help_Click" ToolTip="Help"
                         Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
@@ -304,6 +311,5 @@
                         Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
             </StackPanel>
         </Grid>
-    </StackPanel>
-    </ScrollViewer>
+    </Grid>
 </Window>

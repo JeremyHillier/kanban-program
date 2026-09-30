@@ -25,7 +25,13 @@
             <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
         </Style>
     </Window.Resources>
-    <StackPanel>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto">
+        <StackPanel>
         <!-- Identity band. Deliberately fixed dark navy in both themes (matching the report
              header's accent) - the white text on it is sized for this background specifically. -->
         <Border Background="#FF1E3A5F" Padding="24,20">
@@ -114,7 +120,9 @@
                        Foreground="{DynamicResource SecondaryTextStrongBrush}"/>
         </StackPanel>
 
-        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="24,20,24,20">
+        </StackPanel>
+        </ScrollViewer>
+        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="24,20,24,20">
             <Button Content="Copy details" Width="110" Padding="0,6" Margin="0,0,8,0" Click="CopyDetails_Click"
                     ToolTip="Copy the version and installation details to the clipboard"
                     Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
@@ -127,5 +135,5 @@
             <Button Content="Close" Width="90" Padding="0,6" IsCancel="True" IsDefault="True"
                     Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
         </StackPanel>
-    </StackPanel>
+    </Grid>
 </Window>

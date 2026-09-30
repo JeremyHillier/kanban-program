@@ -162,6 +162,17 @@ service or document, check this section and keep to it.
   "• " bullets; a path or an error in `Detail`; buttons named for what they do, never Yes/No) shown by
   `Dialogs` in `MessageWindow`. `AskDanger` makes the main button red and Enter choose the safe one. A
   test fails if `MessageBox.Show(` returns.
+- **Window buttons never leave the screen** (0.120.1; a standing rule across the user's apps, not just
+  this one). Every window is laid out as a Grid of two rows: the content in a `ScrollViewer` in a `*`
+  row, and the buttons (Close, Cancel, Save, OK, the default and cancel buttons) in an `Auto` row
+  beneath it, so a small screen or a large font scrolls the content and never the buttons. A
+  DockPanel with the buttons docked Bottom and the ScrollViewer last is the same thing. Never put
+  the buttons inside the ScrollViewer, and never rely on a fixed `Height` fitting. `Theming/WindowFit`
+  is the safety net: a class handler on `Window.Loaded` caps every window's `MaxHeight`/`MaxWidth` at
+  the work area of the monitor it is on (WPF units, DPI-aware) and moves a window that hangs past the
+  edge back in - which is exactly why the content must scroll, or it gets clipped instead.
+  `WindowLayoutTests` reads every window's XAML and fails on an action button inside a
+  `ScrollViewer`; `WindowFitTests` shows real windows against the work area.
 - **Main screen foot:** "Version x.y.z[ (Test)]", an About link, "© <year> Jeremy Hillier Consulting Inc".
   About shows the version, channel, file paths, both email addresses and the website. Every other dialog
   carries the copyright line bottom-right, stamped by a class handler on `Window.Loaded`

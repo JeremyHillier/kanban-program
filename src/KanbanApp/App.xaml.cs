@@ -40,6 +40,7 @@ public partial class App : Application
         // Must run before any window loads - it works by class handler, so it only affects windows
         // whose Loaded fires after this point.
         Theming.DialogCopyright.Register();
+        Theming.WindowFit.Register(); // every window stays inside its screen, buttons and all
 
         var db = new DatabaseService();
         if (db.IsFromNewerApp && !ConfirmOpenNewerTaskFile(db))
