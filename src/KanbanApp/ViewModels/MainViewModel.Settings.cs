@@ -193,27 +193,24 @@ public partial class MainViewModel
             ? ClampFilterListHeight(height)
             : DefaultFilterListHeight;
 
-    // The Timeline window's size as it was last left, stored as "width,height,maximized". The
-    // position isn't kept: the window always opens centred on the board.
-    public (double Width, double Height, bool Maximized)? TimelineWindowSize
+    // A window's size as it was last left (the Timeline, Settings), stored under "<key>WindowSize" as
+    // "width,height,maximized". The position isn't kept: these windows always open centred on the board.
+    public (double Width, double Height, bool Maximized)? WindowSize(string key)
     {
-        get
-        {
-            var parts = (_db.GetSetting("TimelineWindowSize") ?? string.Empty).Split(',');
-            if (parts.Length != 3) return null;
-            var invariant = System.Globalization.CultureInfo.InvariantCulture;
-            if (!double.TryParse(parts[0], System.Globalization.NumberStyles.Float, invariant, out var width)
-                || !double.TryParse(parts[1], System.Globalization.NumberStyles.Float, invariant, out var height)
-                || !double.IsFinite(width) || !double.IsFinite(height) || width <= 0 || height <= 0) return null;
-            return (width, height, parts[2] == "1");
-        }
+        var parts = (_db.GetSetting(key + "WindowSize") ?? string.Empty).Split(',');
+        if (parts.Length != 3) return null;
+        var invariant = System.Globalization.CultureInfo.InvariantCulture;
+        if (!double.TryParse(parts[0], System.Globalization.NumberStyles.Float, invariant, out var width)
+            || !double.TryParse(parts[1], System.Globalization.NumberStyles.Float, invariant, out var height)
+            || !double.IsFinite(width) || !double.IsFinite(height) || width <= 0 || height <= 0) return null;
+        return (width, height, parts[2] == "1");
     }
 
-    public void SaveTimelineWindowSize(double width, double height, bool maximized)
+    public void SaveWindowSize(string key, double width, double height, bool maximized)
     {
         if (!double.IsFinite(width) || !double.IsFinite(height) || width <= 0 || height <= 0) return;
         var invariant = System.Globalization.CultureInfo.InvariantCulture;
-        _db.SetSetting("TimelineWindowSize", $"{width.ToString(invariant)},{height.ToString(invariant)},{(maximized ? "1" : "0")}");
+        _db.SetSetting(key + "WindowSize", $"{width.ToString(invariant)},{height.ToString(invariant)},{(maximized ? "1" : "0")}");
     }
 
     // A window's size *and* position as it was last left, stored under "<key>WindowPlacement" as

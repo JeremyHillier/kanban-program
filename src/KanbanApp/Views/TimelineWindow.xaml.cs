@@ -52,7 +52,7 @@ public partial class TimelineWindow : Window
     // remembered size may have come from a larger monitor.
     private void RestoreSize()
     {
-        if (_viewModel.TimelineWindowSize is not { } size) return;
+        if (_viewModel.WindowSize("Timeline") is not { } size) return;
 
         var area = SystemParameters.WorkArea;
         Width = Math.Clamp(size.Width, MinWidth, Math.Max(MinWidth, area.Width));
@@ -67,7 +67,7 @@ public partial class TimelineWindow : Window
         var maximized = WindowState == WindowState.Maximized;
         var width = WindowState == WindowState.Normal ? Width : RestoreBounds.Width;
         var height = WindowState == WindowState.Normal ? Height : RestoreBounds.Height;
-        _viewModel.SaveTimelineWindowSize(width, height, maximized);
+        _viewModel.SaveWindowSize("Timeline", width, height, maximized);
     }
 
     private bool IsDayView => DayViewRadio.IsChecked == true;

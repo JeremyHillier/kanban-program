@@ -4,8 +4,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         mc:Ignorable="d"
-        Title="Settings" Width="820" SizeToContent="Height"
-        WindowStartupLocation="CenterOwner" ResizeMode="NoResize"
+        Title="Settings" Width="820" SizeToContent="Height" MinWidth="820" MinHeight="360"
+        WindowStartupLocation="CenterOwner" ResizeMode="CanResizeWithGrip"
         ShowInTaskbar="False"
         Background="{DynamicResource WindowBackgroundBrush}">
     <Window.Resources>
@@ -26,7 +26,10 @@
             <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
         </Style>
     </Window.Resources>
-    <!-- The settings scroll; the button bar stays put underneath, whatever the screen height. -->
+    <!-- The settings scroll; the button bar stays put underneath, whatever the screen or window height.
+         The window can be resized and remembers its size. MinWidth is the width the two columns
+         are laid out for (any narrower cuts off buttons and labels); it can be made as short as
+         MinHeight, with the settings scrolling. -->
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>

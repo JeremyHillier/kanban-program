@@ -10,6 +10,7 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 
 > - Improved: keyboard shortcuts in tooltips, such as Ctrl+N or Alt+B, are now shown in bold, so they are easy to spot.
 > - Improved: tooltips now open to the right of the mouse pointer instead of over what you are pointing at. Near the edge of the screen they open to the left or above instead, so they always stay in view.
+> - Improved: the Settings window can now be resized. Make it shorter and the settings scroll while the buttons stay in view; make it wider to spread them out. It opens at the size you last left it.
 
 ## 0.120.1 — 2026-09-30
 

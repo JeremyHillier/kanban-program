@@ -18,6 +18,8 @@ public partial class SettingsWindow : Window
         InitializeComponent();
         MaxHeight = SystemParameters.WorkArea.Height * 0.9;
         _viewModel = viewModel;
+        RestoreSize();
+        Closing += (_, _) => SaveSize();
 
         foreach (var column in viewModel.Columns)
         {
@@ -107,6 +109,30 @@ public partial class SettingsWindow : Window
         FocusManager.SetFocusedElement(this, null);
         _saved = true;
         Close();
+    }
+
+    // Until it is resized the window fits its content; once resized, it opens at that size again
+    // (never bigger than the screen - the size may have come from a larger monitor).
+    private void RestoreSize()
+    {
+        if (_viewModel.WindowSize("Settings") is not { } size) return;
+
+        var area = SystemParameters.WorkArea;
+        SizeToContent = SizeToContent.Manual;
+        Width = Math.Clamp(size.Width, MinWidth, Math.Max(MinWidth, area.Width));
+        Height = Math.Clamp(size.Height, MinHeight, Math.Max(MinHeight, area.Height));
+        MaxHeight = Math.Max(MaxHeight, Height);
+        if (size.Maximized) WindowState = WindowState.Maximized;
+    }
+
+    // Only a size the user chose: resizing turns SizeToContent off. A window never resized keeps
+    // fitting its content, so a setting added later still shows without scrolling.
+    private void SaveSize()
+    {
+        if (SizeToContent != SizeToContent.Manual && WindowState == WindowState.Normal) return;
+
+        var bounds = WindowState == WindowState.Normal ? new Rect(Left, Top, ActualWidth, ActualHeight) : RestoreBounds;
+        _viewModel.SaveWindowSize("Settings", bounds.Width, bounds.Height, WindowState == WindowState.Maximized);
     }
 
     protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
