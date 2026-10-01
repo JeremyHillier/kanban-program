@@ -1,7 +1,8 @@
 ﻿<Application x:Class="KanbanApp.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="clr-namespace:KanbanApp">
+             xmlns:local="clr-namespace:KanbanApp"
+             xmlns:views="clr-namespace:KanbanApp.Views">
     <Application.Resources>
         <SolidColorBrush x:Key="WindowBackgroundBrush" Color="#FFF1F2F5"/>
         <SolidColorBrush x:Key="CardBackgroundBrush" Color="White"/>
@@ -23,6 +24,17 @@
              at the foot of the button column and on About. The leaf from the Canadian flag (11 points and
              a stem), traced from the flag's proportions; it reads as that leaf even at 10-13 px. -->
         <Geometry x:Key="MapleLeafGeometry">M 50,0 L 58,15.1 L 67.3,12.5 L 63.2,36.9 L 76.3,26.6 L 78.2,33.3 L 92.4,31.1 L 88.5,45.9 L 94.3,50.2 L 72.6,68.5 L 73.9,77.6 L 52.3,75.3 L 51.6,100 L 48.4,100 L 47.7,75.3 L 26.1,77.6 L 27.4,68.5 L 5.7,50.2 L 11.5,45.9 L 7.6,31.1 L 21.8,33.3 L 23.7,26.6 L 36.8,36.9 L 32.7,12.5 L 42,15.1 Z</Geometry>
+
+        <!-- Every plain-text tooltip shows its keyboard shortcuts in bold (see Views/ShortcutText).
+             A selector rather than ContentTemplate, which would also replace tooltips built from
+             their own controls; the selector hands those back to WPF untouched. -->
+        <DataTemplate x:Key="ShortcutToolTipTemplate">
+            <TextBlock views:ShortcutText.Text="{Binding}"/>
+        </DataTemplate>
+        <views:ToolTipTextSelector x:Key="ToolTipTextSelector" TextTemplate="{StaticResource ShortcutToolTipTemplate}"/>
+        <Style TargetType="ToolTip">
+            <Setter Property="ContentTemplateSelector" Value="{StaticResource ToolTipTextSelector}"/>
+        </Style>
 
         <!-- The built-in (Fluent-theme) ComboBoxItem template paints its Highlighted/Selected states
              from its own internal resources, ignoring plain Background/Foreground setters and triggers,

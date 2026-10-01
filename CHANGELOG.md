@@ -6,6 +6,10 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.120.2 — 2026-10-01
+
+> - Improved: keyboard shortcuts in tooltips, such as Ctrl+N or Alt+B, are now shown in bold, so they are easy to spot.
+
 ## 0.120.1 — 2026-09-30
 
 > - Fixed: the buttons at the bottom of Settings, Report Builder and About stay on screen whatever the screen size. The content scrolls; the buttons do not.
