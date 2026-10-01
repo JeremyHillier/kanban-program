@@ -34,6 +34,8 @@
         <views:ToolTipTextSelector x:Key="ToolTipTextSelector" TextTemplate="{StaticResource ShortcutToolTipTemplate}"/>
         <Style TargetType="ToolTip">
             <Setter Property="ContentTemplateSelector" Value="{StaticResource ToolTipTextSelector}"/>
+            <!-- To the right of the pointer, or its left where the right would run off the screen. -->
+            <Setter Property="views:ToolTipPlacement.BesidePointer" Value="True"/>
         </Style>
 
         <!-- The built-in (Fluent-theme) ComboBoxItem template paints its Highlighted/Selected states
