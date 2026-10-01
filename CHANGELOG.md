@@ -6,6 +6,10 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.123.0 — 2026-10-01
+
+> - New: a task now remembers each time it is emailed. Open the task and the line under Last updated says when it was last emailed, to whom, and how many times; point at it for the full list.
+
 ## 0.122.0 — 2026-10-01
 
 > - New: if the app is running when an update is installed, Setup offers to close it and carry on. It will not close the app while a task is being added or edited, or while something is typed into Quick Add; finish that first, then click OK.

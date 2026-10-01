@@ -31,7 +31,11 @@ public static class OutlookEmailHelper
     {
         if (string.IsNullOrWhiteSpace(recipientEmail)) return;
 
-        if (TryComposeInClassicOutlook(owner, card, recipientEmail, viewModel)) return;
+        if (TryComposeInClassicOutlook(owner, card, recipientEmail, viewModel))
+        {
+            viewModel.RecordCardEmailed(card, recipientEmail, "in Outlook");
+            return;
+        }
         ComposeInDefaultMailApp(owner, card, recipientEmail.Trim(), viewModel);
     }
 
@@ -108,12 +112,14 @@ public static class OutlookEmailHelper
         try
         {
             Process.Start(new ProcessStartInfo(BuildMailtoUri(recipientEmail, subject, body)) { UseShellExecute = true });
+            viewModel.RecordCardEmailed(card, recipientEmail, "in your email app");
         }
         catch
         {
             try
             {
                 Clipboard.SetText($"To: {recipientEmail}\r\nSubject: {subject}\r\n\r\n{body}");
+                viewModel.RecordCardEmailed(card, recipientEmail, "copied to the clipboard");
             }
             catch
             {

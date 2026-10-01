@@ -96,6 +96,8 @@
                 <local:BulletItem Text="With classic Outlook, files are attached and your signature is kept."/>
                 <local:BulletItem Text="With no Outlook signature, one is built from Settings, Your Details."/>
                 <local:BulletItem Text="With another email app, a folder opens with the files to drag into the email."/>
+                <local:BulletItem Text="The task remembers each time it was emailed. Open it to see when, and to whom."/>
+                <local:BulletItem Text="Point at that line for every time. It records the email being opened, not sent."/>
 
                 <TextBlock Text="Quick Add from any program" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <local:BulletItem Text="Press Ctrl+Alt+N in any program for a small New Task box."/>

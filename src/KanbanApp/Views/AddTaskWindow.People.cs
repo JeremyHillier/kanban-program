@@ -123,6 +123,18 @@ public partial class AddTaskWindow
         if (_cardToEdit is null || SelectedPeopleEmails.Count == 0) return;
 
         OutlookEmailHelper.ComposeCardEmail(this, _cardToEdit, OutlookEmailHelper.JoinRecipients(SelectedPeopleEmails), _viewModel);
+        RefreshEmailedStamp();
+    }
+
+    // "Emailed <when> to <whom>" under the Last updated line, with every time in its tooltip.
+    private void RefreshEmailedStamp()
+    {
+        if (_cardToEdit is null) return;
+
+        var history = _viewModel.GetEmailHistory(_cardToEdit);
+        EmailedStampText.Text = MainViewModel.EmailStampText(history) ?? string.Empty;
+        EmailedStampText.ToolTip = history.Count > 1 ? MainViewModel.EmailHistoryText(history) : null;
+        EmailedStampText.Visibility = history.Count == 0 ? Visibility.Collapsed : Visibility.Visible;
     }
 
     private void NewWho_Click(object sender, RoutedEventArgs e)

@@ -465,6 +465,8 @@
                                Foreground="{DynamicResource SecondaryTextStrongBrush}"/>
                     <TextBlock x:Name="UpdatedStampText" FontSize="11"
                                Foreground="{DynamicResource SecondaryTextStrongBrush}"/>
+                    <TextBlock x:Name="EmailedStampText" FontSize="11" Visibility="Collapsed" ToolTipService.ShowDuration="30000"
+                               Foreground="{DynamicResource SecondaryTextStrongBrush}"/>
                 </StackPanel>
             </StackPanel>
             <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
