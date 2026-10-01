@@ -66,6 +66,9 @@ public partial class QuickAddWindow : Window
         TaskTextBox.Clear();
     }
 
+    // Something typed and not yet added: closing the app would lose it.
+    public bool HasText => !string.IsNullOrWhiteSpace(TaskTextBox.Text);
+
     private void TaskTextBox_TextChanged(object sender, TextChangedEventArgs e) => UpdatePreview();
 
     // Says back what the codes were understood as, so a mistyped one is caught before Enter.

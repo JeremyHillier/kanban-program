@@ -155,6 +155,7 @@
                 <local:BulletItem Text="The tag icon adds a flag."/>
                 <local:BulletItem Text="Click the project, priority, person or due date to change it on the board."/>
                 <local:BulletItem Text="The due date opens a month calendar: click a day, Today, or Clear Due Date."/>
+                <local:BulletItem Text="Over any calendar, the mouse wheel moves between months."/>
                 <local:BulletItem Text="In the right-click menu, point at Set Due Date and the calendar opens beside it, for one card or every picked card."/>
                 <local:BulletItem Text="Right-click a card for everything else: copy, duplicate, move, assign, email and more."/>
                 <local:BulletItem Text="Copy as Text copies the whole task, ready to paste anywhere."/>
@@ -382,6 +383,7 @@
                 <TextBlock Text="Updates" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <local:BulletItem Text="Once a day, at start-up, the app checks for a newer version."/>
                 <local:BulletItem Text="Get the Update opens the download page. The installer updates in place and keeps your tasks."/>
+                <local:BulletItem Text="If the app is running, Setup offers to close it. It will not close while a task is being edited."/>
                 <local:BulletItem Text="Remind Me Later waits a day. Skip This Version skips that version only."/>
                 <local:BulletItem Text="The check sends only the app's name and version. Nothing downloads unless you choose."/>
                 <local:BulletItem Text="To turn it off, untick 'Check for a newer version automatically' in Settings."/>

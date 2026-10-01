@@ -5,7 +5,8 @@ using System.Windows.Media;
 
 namespace KanbanApp.Services;
 
-// Lets the mouse wheel page through months in a DatePicker's popup calendar - not built into WPF
+// Lets the mouse wheel page through months in a calendar - a DatePicker's popup one, or a
+// Calendar shown on its own - not built into WPF
 // by default. An implicit Style targeting Calendar with an EventSetter (the obvious approach) does
 // NOT work here: the Fluent theme's DatePicker template assigns its internal Calendar an explicit
 // Style of its own, which bypasses normal type-based implicit style resolution entirely (confirmed
@@ -16,6 +17,13 @@ namespace KanbanApp.Services;
 // after the popup opens and attaches directly to it.
 public static class CalendarWheelSupport
 {
+    // A Calendar shown on its own (the due-date popup and the right-click submenu): no popup to wait for.
+    public static void Attach(Calendar calendar)
+    {
+        calendar.PreviewMouseWheel -= OnPreviewMouseWheel;
+        calendar.PreviewMouseWheel += OnPreviewMouseWheel;
+    }
+
     public static void Attach(DatePicker datePicker)
     {
         datePicker.CalendarOpened += (_, _) =>

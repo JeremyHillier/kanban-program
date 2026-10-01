@@ -31,6 +31,7 @@ public partial class MainWindow : Window
         _dueTimeTimer.Start();
 
         RestoreWindowBounds();
+        InitializeSetupCloseRequest();
         Closing += (_, _) =>
         {
             _dueTimeTimer.Stop();

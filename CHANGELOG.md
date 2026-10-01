@@ -6,6 +6,11 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.122.0 — 2026-10-01
+
+> - New: if the app is running when an update is installed, Setup offers to close it and carry on. It will not close the app while a task is being added or edited, or while something is typed into Quick Add; finish that first, then click OK.
+> - Improved: over any calendar, the mouse wheel moves between months, including the calendar on a card's due date and in the right-click menu.
+
 ## 0.121.1 — 2026-10-01
 
 > - Improved: in a card's right-click menu, pointing at Set Due Date now opens the month calendar beside it straight away, the way Move To and Priority open, with no extra click.

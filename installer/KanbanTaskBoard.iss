@@ -29,7 +29,8 @@ DefaultGroupName={#MyAppName}
 DisableProgramGroupPage=yes
 DisableWelcomePage=no
 PrivilegesRequired=lowest
-AppMutex=KanbanTaskBoard-{#Channel}
+; No AppMutex: Setup handles a running copy itself (PrepareToInstall below) - it offers to close the app,
+; which refuses while a task is being edited. CloseApplications stays as the fallback for anything else.
 CloseApplications=yes
 RestartApplications=yes
 UninstallDisplayIcon={app}\{#MyAppExeName}
@@ -116,6 +117,70 @@ begin
   Result := DataDirPage.Values[0];
 end;
 
+
+// ----- A running copy of the app -----
+// Checked once the user has clicked Install. The app is asked to close through a window message it
+// registers under the same name (MainWindow.SetupClose.cs); it answers 1 when it is closing, 2 when
+// a task is being edited and it will not. WM_CLOSE would not do: a modal task window would swallow it.
+const
+  MutexName = 'KanbanTaskBoard-{#Channel}';
+  CloseMessageName = 'KanbanTaskBoard.CloseForSetup';
+  AppClosing = 1;
+  AppRefused = 2;
+
+function RegisterWindowMessage(lpString: String): UINT;
+  external 'RegisterWindowMessageW@user32.dll stdcall';
+
+function AppHasExited(): Boolean;
+var
+  Tries: Integer;
+begin
+  // Up to 20 seconds: the app backs the task file up as it closes.
+  Tries := 0;
+  while CheckForMutexes(MutexName) and (Tries < 80) do
+  begin
+    Sleep(250);
+    Tries := Tries + 1;
+  end;
+  Result := not CheckForMutexes(MutexName);
+end;
+
+function PrepareToInstall(var NeedsRestart: Boolean): String;
+var
+  MainWindow: HWND;
+  Reply: LongInt;
+  CloseMessage: UINT;
+begin
+  Result := '';
+  CloseMessage := RegisterWindowMessage(CloseMessageName);
+
+  while CheckForMutexes(MutexName) do
+  begin
+    if MsgBox('{#MyAppName} is running.' + #13#10#13#10 +
+              'Setup can close it for you and then continue. Your tasks are saved as you go, so nothing is lost.' + #13#10#13#10 +
+              'Close {#MyAppName} and continue?', mbConfirmation, MB_YESNO) <> IDYES then
+    begin
+      Result := 'Setup cannot update {#MyAppName} while it is running. Close it, then run Setup again.';
+      exit;
+    end;
+
+    MainWindow := FindWindowByWindowName('{#MyAppName}');
+    Reply := 0;
+    if MainWindow <> 0 then
+      Reply := SendMessage(MainWindow, CloseMessage, 0, 0);
+
+    if Reply = AppRefused then
+    begin
+      MsgBox('A task is open in {#MyAppName}.' + #13#10#13#10 +
+             'Save or cancel it, then click OK to try again.', mbInformation, MB_OK);
+      continue;
+    end;
+
+    if (Reply <> AppClosing) or not AppHasExited() then
+      MsgBox('{#MyAppName} did not close.' + #13#10#13#10 +
+             'Close it yourself, then click OK to try again.', mbInformation, MB_OK);
+  end;
+end;
 procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
 begin
   if CurUninstallStep = usPostUninstall then

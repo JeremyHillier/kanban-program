@@ -31,6 +31,7 @@ public partial class MainWindow
             DisplayDate = shared ?? DateTime.Today,
             Margin = new Thickness(6, 6, 6, 0)
         };
+        Services.CalendarWheelSupport.Attach(calendar); // the wheel moves between months
 
         var todayButton = new Button { Content = "Today", Padding = new Thickness(10, 4, 10, 4), Margin = new Thickness(6, 4, 4, 6) };
         var clearButton = new Button { Content = "Clear Due Date", Padding = new Thickness(10, 4, 10, 4), Margin = new Thickness(4, 4, 6, 6) };
