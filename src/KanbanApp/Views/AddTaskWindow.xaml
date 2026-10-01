@@ -465,7 +465,7 @@
                                Foreground="{DynamicResource SecondaryTextStrongBrush}"/>
                     <TextBlock x:Name="UpdatedStampText" FontSize="11"
                                Foreground="{DynamicResource SecondaryTextStrongBrush}"/>
-                    <TextBlock x:Name="EmailedStampText" FontSize="11" Visibility="Collapsed" ToolTipService.ShowDuration="30000"
+                    <TextBlock x:Name="EmailedStampText" FontSize="11" Visibility="Collapsed" ToolTipService.ShowDuration="30000" TextTrimming="CharacterEllipsis" MaxWidth="430"
                                Foreground="{DynamicResource SecondaryTextStrongBrush}"/>
                 </StackPanel>
             </StackPanel>

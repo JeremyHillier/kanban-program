@@ -16,14 +16,22 @@ public partial class MainViewModel
 
     public List<CardEmailRecord> GetEmailHistory(CardViewModel card) => _db.GetCardEmailHistory(card.Id);
 
-    // The line on the task screen: the latest time, and how many times in all. Null when never.
+    // The line on the task screen: the latest time and recipients, and how many times in all. Null
+    // when never. The "how" is left to the tooltip (EmailHistoryText), to keep the line short.
     public static string? EmailStampText(IReadOnlyList<CardEmailRecord> history)
     {
         if (history.Count == 0) return null;
 
         var latest = history[0];
-        var text = $"Emailed {latest.When:MMM d, yyyy, h:mm tt} {latest.Details}";
-        return history.Count == 1 ? text : $"{text}  ·  {history.Count} times";
+        var text = $"Emailed {latest.When:MMM d, yyyy, h:mm tt} {Recipients(latest.Details)}";
+        return history.Count == 1 ? text : $"{text} ({history.Count} times)";
+    }
+
+    // "to sam@x.com, in Outlook" -> "to sam@x.com".
+    private static string Recipients(string details)
+    {
+        var comma = details.LastIndexOf(", ", StringComparison.Ordinal);
+        return comma > 0 ? details[..comma] : details;
     }
 
     // Every time, newest first, for the line's tooltip.

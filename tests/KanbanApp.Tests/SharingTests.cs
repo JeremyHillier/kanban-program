@@ -52,7 +52,7 @@ public sealed class SharingTests(WpfDispatcherFixture wpf) : IDisposable
         Assert.Null(MainViewModel.EmailStampText([]));
 
         var once = new List<CardEmailRecord> { new(new DateTime(2026, 9, 30, 14, 15, 0), "to sam@example.com, in Outlook") };
-        Assert.Equal("Emailed Sep 30, 2026, 2:15 PM to sam@example.com, in Outlook", MainViewModel.EmailStampText(once));
+        Assert.Equal("Emailed Sep 30, 2026, 2:15 PM to sam@example.com", MainViewModel.EmailStampText(once));
 
         var thrice = new List<CardEmailRecord>
         {
@@ -60,7 +60,7 @@ public sealed class SharingTests(WpfDispatcherFixture wpf) : IDisposable
             new(new DateTime(2026, 9, 30, 14, 15, 0), "to sam@example.com, in Outlook"),
             new(new DateTime(2026, 9, 29, 8, 5, 0), "to sam@example.com, in your email app"),
         };
-        Assert.Equal("Emailed Oct 1, 2026, 9:00 AM to priya@example.com, in Outlook  ·  3 times", MainViewModel.EmailStampText(thrice));
+        Assert.Equal("Emailed Oct 1, 2026, 9:00 AM to priya@example.com (3 times)", MainViewModel.EmailStampText(thrice));
         Assert.Equal(
             "Oct 1, 2026, 9:00 AM to priya@example.com, in Outlook\nSep 30, 2026, 2:15 PM to sam@example.com, in Outlook\nSep 29, 2026, 8:05 AM to sam@example.com, in your email app",
             MainViewModel.EmailHistoryText(thrice));

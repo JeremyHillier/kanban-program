@@ -8,7 +8,7 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 
 ## 0.123.0 — 2026-10-01
 
-> - New: a task now remembers each time it is emailed. Open the task and the line under Last updated says when it was last emailed, to whom, and how many times; point at it for the full list.
+> - New: a task now remembers each time it is emailed. Open the task and the line under Last updated says when it was last emailed, to whom, and how many times; point at it for the full list, including whether it opened in Outlook or another email app.
 
 ## 0.122.0 — 2026-10-01
 

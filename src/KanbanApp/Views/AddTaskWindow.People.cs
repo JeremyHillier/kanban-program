@@ -133,7 +133,7 @@ public partial class AddTaskWindow
 
         var history = _viewModel.GetEmailHistory(_cardToEdit);
         EmailedStampText.Text = MainViewModel.EmailStampText(history) ?? string.Empty;
-        EmailedStampText.ToolTip = history.Count > 1 ? MainViewModel.EmailHistoryText(history) : null;
+        EmailedStampText.ToolTip = history.Count == 0 ? null : MainViewModel.EmailHistoryText(history);
         EmailedStampText.Visibility = history.Count == 0 ? Visibility.Collapsed : Visibility.Visible;
     }
 
