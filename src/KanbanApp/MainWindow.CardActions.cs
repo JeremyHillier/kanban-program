@@ -227,113 +227,11 @@ public partial class MainWindow
         e.Handled = true;
     }
 
+    // The due-date calendar lives in MainWindow.DueDatePopup.cs, shared with the right-click menus.
     private void DueDateDisplay_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
     {
         if (sender is not FrameworkElement { DataContext: CardViewModel card } element || DataContext is not MainViewModel viewModel) return;
-
-        var datePicker = new System.Windows.Controls.DatePicker
-        {
-            SelectedDate = card.DueDate,
-            Width = 160,
-            Margin = new Thickness(8, 8, 8, 4)
-        };
-        CalendarWheelSupport.Attach(datePicker);
-        var clearButton = new System.Windows.Controls.Button
-        {
-            Content = "Clear Due Date",
-            Margin = new Thickness(8, 0, 8, 8),
-            Padding = new Thickness(4)
-        };
-
-        var panel = new System.Windows.Controls.StackPanel();
-        panel.Children.Add(datePicker);
-        panel.Children.Add(clearButton);
-
-        // StaysOpen="False" (the default for a transient popup) is what actually causes the freeze
-        // reported when picking a date from the calendar, not the collection-mutation timing the
-        // earlier BeginInvoke fixes addressed: DatePicker's own calendar dropdown is itself a nested
-        // Popup, and WPF's automatic "click outside closes it" logic on an outer StaysOpen=False
-        // Popup fires synchronously while that nested popup is still tearing down, racing two popup
-        // closes against each other. Typing a date never opens that nested popup, so it never hit
-        // this. ContextMenu (used by Priority/Who/Project) has its own correct handling of nested
-        // popups and isn't affected. Fix: StaysOpen="True" so WPF's racy auto-dismiss never engages,
-        // and close it ourselves only in response to an explicit action (date picked, Clear clicked,
-        // Escape, or a genuine outside click - detected via the Window's PreviewMouseDown, which a
-        // click inside this popup or its nested calendar popup never reaches, since popups are
-        // separate top-level windows that don't route input through their owner's event handlers).
-        var popup = new System.Windows.Controls.Primitives.Popup
-        {
-            PlacementTarget = element,
-            Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom,
-            StaysOpen = true,
-            AllowsTransparency = true,
-            Child = new System.Windows.Controls.Border
-            {
-                Background = System.Windows.Media.Brushes.White,
-                BorderBrush = System.Windows.Media.Brushes.Gray,
-                BorderThickness = new Thickness(1),
-                Child = panel
-            }
-        };
-
-        MouseButtonEventHandler onOutsideClick = null!;
-        onOutsideClick = (_, _) => ClosePopup();
-
-        void ClosePopup()
-        {
-            PreviewMouseDown -= onOutsideClick;
-            Deactivated -= OnDeactivatedClosePopup;
-            popup.IsOpen = false;
-
-            // DatePicker's calendar dropdown sets Win32 mouse capture on its own native popup window
-            // while open. If that window is destroyed (which IsOpen=false above does, for both the
-            // calendar popup and ours) without capture being released first, Windows can leave the
-            // capture "phantom" - pointing at a window that no longer exists - which silently
-            // swallows all further mouse input app-wide until something forces the OS to reset it
-            // (dragging the title bar does, via its own native modal move loop; that's the exact
-            // "only moving the window unfreezes it" symptom this was causing). Mouse.Capture(null) is
-            // the managed-WPF release; NativeMethods.ReleaseCapture() is the Win32-level one, needed
-            // in case the capture was set by native code below WPF that the managed call can't reach.
-            Mouse.Capture(null);
-            NativeMethods.ReleaseCapture();
-            Keyboard.Focus(this);
-        }
-
-        void OnDeactivatedClosePopup(object? _, EventArgs __) => ClosePopup();
-
-        // Deferred via BeginInvoke: mutating the card collection while this popup is still closing
-        // deadlocks WPF's layout engine (see PriorityBadge_MouseLeftButtonDown for the same pattern).
-        datePicker.SelectedDateChanged += (_, _) =>
-        {
-            var newDate = datePicker.SelectedDate;
-            Dispatcher.BeginInvoke(new Action(() =>
-            {
-                ClosePopup();
-                viewModel.SetCardDueDate(card, newDate);
-            }), DispatcherPriority.Background);
-        };
-        clearButton.Click += (_, _) =>
-        {
-            Dispatcher.BeginInvoke(new Action(() =>
-            {
-                ClosePopup();
-                viewModel.SetCardDueDate(card, null);
-            }), DispatcherPriority.Background);
-        };
-        panel.PreviewKeyDown += (_, keyArgs) =>
-        {
-            if (keyArgs.Key != Key.Escape) return;
-            ClosePopup();
-            keyArgs.Handled = true;
-        };
-        popup.Opened += (_, _) =>
-        {
-            datePicker.Focus();
-            PreviewMouseDown += onOutsideClick;
-            Deactivated += OnDeactivatedClosePopup;
-        };
-
-        popup.IsOpen = true;
+        ShowDueDateCalendar(element, [card], viewModel);
         e.Handled = true;
     }
 

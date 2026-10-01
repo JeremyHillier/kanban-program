@@ -159,4 +159,31 @@ public sealed class SelectionActionTests(WpfDispatcherFixture wpf) : IDisposable
 
         Assert.Empty(todo.Cards);
     });
+
+    [Fact]
+    public void DueDate_ChangesEverySelectedCard_InOneUndoStep_WithTheUsualRules() => wpf.Run(() =>
+    {
+        var board = OpenBoard();
+        var cards = AddMany(board, "To Do", "A", "B", "C");
+        board.EditCard(cards[0], "A", Column(board, "To Do"), board.Projects.First(), "Normal", new DateTime(2026, 10, 20), null,
+            false, null, null, null, null, null, null, false, null, "14:30", new DateTime(2026, 10, 18), null, null);
+        var group = new[] { cards[0], cards[1] };
+
+        board.SetCardsDueDate(group, new DateTime(2026, 10, 10));
+
+        Assert.Equal(new DateTime(2026, 10, 10), Find(board, "A").DueDate);
+        Assert.Equal(new DateTime(2026, 10, 10), Find(board, "A").StartDate); // pulled back: never after the due date
+        Assert.Equal("14:30", Find(board, "A").DueTime);                     // a date change keeps the time
+        Assert.Equal(new DateTime(2026, 10, 10), Find(board, "B").DueDate);
+        Assert.Null(Find(board, "C").DueDate);
+        Assert.Equal(new DateTime(2026, 10, 10), Find(OpenBoard(), "B").DueDate);
+
+        board.SetCardsDueDate(group, null);
+        Assert.Null(Find(board, "A").DueDate);
+        Assert.Null(Find(board, "A").DueTime);                                // no date, no time
+
+        board.Undo();
+        Assert.Equal(new DateTime(2026, 10, 10), Find(board, "A").DueDate);
+        Assert.Equal(new DateTime(2026, 10, 10), Find(board, "B").DueDate);   // one step for the group
+    });
 }

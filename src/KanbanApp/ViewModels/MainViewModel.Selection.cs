@@ -131,6 +131,15 @@ public partial class MainViewModel
         RefreshDashboardStats();
     }
 
+    // The same rules as SetCardDueDate: no date means no time, and a start date never stays after the due date.
+    public void SetCardsDueDate(IEnumerable<CardViewModel> cards, DateTime? dueDate) =>
+        ChangeCards("Change due date of", cards, c => c.DueDate != dueDate, c =>
+        {
+            c.DueDate = dueDate;
+            if (dueDate is null) c.DueTime = null;
+            if (dueDate is not null && c.StartDate > dueDate) c.StartDate = dueDate;
+        });
+
     public void SetCardsPriority(IEnumerable<CardViewModel> cards, string priority) =>
         ChangeCards("Change priority of", cards, c => c.Priority != priority, c => c.Priority = priority);
 
