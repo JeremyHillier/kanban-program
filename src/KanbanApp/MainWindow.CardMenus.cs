@@ -85,7 +85,7 @@ public partial class MainWindow
             AddMenuItem(moveTo, MenuText(column.DisplayName), () => MoveCardDeferred(card, column, viewModel), isEnabled: !isCurrent, isChecked: isCurrent);
         }
 
-        AddMenuItem(menu, "Set _Due Date...", () => ShowDueDateCalendar((FrameworkElement)menu.PlacementTarget, [card], viewModel));
+        AddDueDateSubmenu(menu, "Set _Due Date", [card], viewModel);
         var priority = AddSubmenu(menu, "_Priority");
         foreach (var level in viewModel.Priorities.Names)
         {
@@ -166,7 +166,7 @@ public partial class MainWindow
             }, isEnabled: !allHere, isChecked: allHere);
         }
 
-        AddMenuItem(menu, "Set _Due Date...", () => ShowDueDateCalendar((FrameworkElement)menu.PlacementTarget, cards.ToList(), viewModel));
+        AddDueDateSubmenu(menu, "Set _Due Date for All", cards.ToList(), viewModel);
         var priority = AddSubmenu(menu, "_Priority");
         foreach (var level in viewModel.Priorities.Names)
         {

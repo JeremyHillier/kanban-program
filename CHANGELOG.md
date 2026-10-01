@@ -6,6 +6,10 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.121.1 — 2026-10-01
+
+> - Improved: in a card's right-click menu, pointing at Set Due Date now opens the month calendar beside it straight away, the way Move To and Priority open, with no extra click.
+
 ## 0.121.0 — 2026-10-01
 
 > - New: Set Due Date in a card's right-click menu opens a month calendar: click a day, Today, or Clear Due Date. With several cards picked, it sets them all at once.
