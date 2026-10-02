@@ -18,7 +18,7 @@ public partial class MainViewModel
         bool ShowSplash, int SplashDelayMs,
         string DefaultExportPath, string DefaultImportPath, string LinkedFilesDefaultPath,
         string UserName, string UserTitle, string UserEmail, string UserPhone,
-        bool StartFullScreen, bool ConfirmDelete, bool ConfirmArchive, bool AddNoteOnComplete,
+        bool StartWithWindows, bool StartFullScreen, bool ConfirmDelete, bool ConfirmArchive, bool AddNoteOnComplete,
         bool ShowDueReminders, bool ShowTimeAlerts, bool RememberLastView, bool ShowWhatsNew, bool QuickAddHotkeyEnabled, bool CheckForUpdatesEnabled, bool IsCompactButtons, bool IsFitColumnsToWindow);
 
     private const char ColumnNameSeparator = ''; // can't be typed into a name
@@ -30,7 +30,7 @@ public partial class MainViewModel
         ShowSplash, SplashDelayMs,
         DefaultExportPath, DefaultImportPath, LinkedFilesDefaultPath,
         UserName, UserTitle, UserEmail, UserPhone,
-        StartFullScreen, ConfirmDelete, ConfirmArchive, AddNoteOnComplete,
+        StartWithWindows, StartFullScreen, ConfirmDelete, ConfirmArchive, AddNoteOnComplete,
         ShowDueReminders, ShowTimeAlerts, RememberLastView, ShowWhatsNew, QuickAddHotkeyEnabled, CheckForUpdatesEnabled, IsCompactButtons, IsFitColumnsToWindow);
 
     // Goes through the same setters the dialog uses, so each value is saved and the board reacts
@@ -54,6 +54,7 @@ public partial class MainViewModel
         SetUserTitle(snapshot.UserTitle);
         SetUserEmail(snapshot.UserEmail);
         SetUserPhone(snapshot.UserPhone);
+        SetStartWithWindows(snapshot.StartWithWindows);
         SetStartFullScreen(snapshot.StartFullScreen);
         SetConfirmDelete(snapshot.ConfirmDelete);
         SetConfirmArchive(snapshot.ConfirmArchive);

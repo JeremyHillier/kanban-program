@@ -78,6 +78,7 @@ public partial class SettingsWindow : Window
         UserEmailTextBox.Text = viewModel.UserEmail;
         UserPhoneTextBox.Text = viewModel.UserPhone;
 
+        StartWithWindowsCheckBox.IsChecked = viewModel.StartWithWindows;
         StartFullScreenCheckBox.IsChecked = viewModel.StartFullScreen;
         CompactButtonsCheckBox.IsChecked = viewModel.IsCompactButtons;
         ConfirmDeleteCheckBox.IsChecked = viewModel.ConfirmDelete;
@@ -211,6 +212,11 @@ public partial class SettingsWindow : Window
     private void CompactButtonsCheckBox_Changed(object sender, RoutedEventArgs e)
     {
         _viewModel.SetCompactButtons(CompactButtonsCheckBox.IsChecked == true);
+    }
+
+    private void StartWithWindowsCheckBox_Changed(object sender, RoutedEventArgs e)
+    {
+        _viewModel.SetStartWithWindows(StartWithWindowsCheckBox.IsChecked == true);
     }
 
     private void StartFullScreenCheckBox_Changed(object sender, RoutedEventArgs e)

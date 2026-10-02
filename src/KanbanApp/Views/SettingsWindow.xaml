@@ -97,6 +97,10 @@
                         <ComboBoxItem Content="4 seconds" Tag="4000"/>
                     </ComboBox>
                 </StackPanel>
+                <CheckBox x:Name="StartWithWindowsCheckBox" Content="Start when Windows starts"
+                          ToolTip="Opens the app when you sign in to Windows. This is a setting of this PC, so it is chosen on each PC separately."
+                          Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,8"
+                          Checked="StartWithWindowsCheckBox_Changed" Unchecked="StartWithWindowsCheckBox_Changed"/>
                 <CheckBox x:Name="StartFullScreenCheckBox" Content="Start in full screen"
                           Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,8"
                           Checked="StartFullScreenCheckBox_Changed" Unchecked="StartFullScreenCheckBox_Changed"/>

@@ -30,6 +30,7 @@ public sealed class SettingsCancelTests(WpfDispatcherFixture wpf) : IDisposable
         board.SetUserTitle("Manager");
         board.SetUserEmail("jane@example.com");
         board.SetUserPhone("555-0100");
+        board.SetStartWithWindows(!board.StartWithWindows);
         board.SetStartFullScreen(!board.StartFullScreen);
         board.SetConfirmDelete(!board.ConfirmDelete);
         board.SetConfirmArchive(!board.ConfirmArchive);

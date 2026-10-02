@@ -9,10 +9,12 @@
   #define MyAppName "Kanban Task Board (Test)"
   #define MyAppId "18423CD5-03AE-4CED-8914-EFD56BF5CF28"
   #define DataFolderName "KanbanApp.Test"
+  #define RunValueSuffix "-Test"
 #else
   #define MyAppName "Kanban Task Board"
   #define MyAppId "4172C30A-F96E-4741-B3A1-B16770195903"
   #define DataFolderName "KanbanApp"
+  #define RunValueSuffix ""
 #endif
 
 #define MyAppPublisher "Jeremy Hillier Consulting Inc"
@@ -60,6 +62,10 @@ Source: "..\publish\{#Channel}\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignore
 [Icons]
 Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
 Name: "{group}\Uninstall {#MyAppName}"; Filename: "{uninstallexe}"
+
+; "Start when Windows starts" (Settings) writes this value; Setup creates nothing here, but uninstalling removes it.
+[Registry]
+Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Run"; ValueName: "KanbanTaskBoard{#RunValueSuffix}"; Flags: uninsdeletevalue dontcreatekey
 
 [Run]
 Filename: "{app}\{#MyAppExeName}"; Parameters: "--seed-data-folder ""{code:GetDataFolder}"""; Flags: runhidden nowait skipifsilent; StatusMsg: "Setting up data storage..."

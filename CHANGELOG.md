@@ -6,6 +6,10 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.124.0 — 2026-10-02
+
+> - New: Start when Windows starts, in Settings under Startup, opens the app each time you sign in to Windows. It is set on each PC separately, and uninstalling the app turns it off.
+
 ## 0.123.0 — 2026-10-01
 
 > - New: a task now remembers each time it is emailed. Open the task and the line under Last updated says when it was last emailed, to whom, and how many times; point at it for the full list, including whether it opened in Outlook or another email app.

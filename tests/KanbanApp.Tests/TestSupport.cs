@@ -45,6 +45,7 @@ public sealed class WpfDispatcherFixture : IDisposable
         var thread = new Thread(() =>
         {
             dispatcher = Dispatcher.CurrentDispatcher;
+            KanbanApp.Services.WindowsStartup.UseInMemoryStore(); // never the real Run key
             _ = new Application { ShutdownMode = ShutdownMode.OnExplicitShutdown };
             ready.Set();
             Dispatcher.Run();

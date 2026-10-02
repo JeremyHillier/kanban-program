@@ -1,4 +1,5 @@
 using System.Windows.Controls;
+using KanbanApp.Services;
 using System.Windows.Media;
 
 namespace KanbanApp.ViewModels;
@@ -326,6 +327,15 @@ public partial class MainViewModel
     {
         BackupRetentionCount = Math.Clamp(value, 1, 200);
         _db.SetSetting("BackupRetentionCount", BackupRetentionCount.ToString());
+    }
+
+    // Of this PC, not the task file: read from and written to the Run key each time (WindowsStartup).
+    public bool StartWithWindows => WindowsStartup.IsEnabled;
+
+    public void SetStartWithWindows(bool value)
+    {
+        WindowsStartup.SetEnabled(value);
+        OnPropertyChanged(nameof(StartWithWindows));
     }
 
     public bool StartFullScreen { get; private set; }

@@ -347,6 +347,7 @@
                 <local:BulletItem Text="Move the button panel to the right."/>
                 <local:BulletItem Text="Fit the columns to the window, or set a fixed width of at least 240 pixels."/>
                 <local:BulletItem Text="Turn the splash screen on or off, and set how long it shows."/>
+                <local:BulletItem Text="Start when Windows starts opens the app when you sign in. It is set on each PC separately."/>
                 <local:BulletItem Text="Start in full screen. The window size and position are remembered."/>
                 <TextBlock Text="Prompts" Style="{StaticResource HelpSubHeaderStyle}"/>
                 <local:BulletItem Text="Ask before deleting, and before Archive Done."/>
