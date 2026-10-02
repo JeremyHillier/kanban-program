@@ -414,11 +414,14 @@
                 <!-- The title, with a quiet line under it saying what is filtering the board. The line's
                      row is always there (Hidden, not Collapsed, when nothing is filtering) so the
                      banner never changes height and the board never jumps as filters go on and off;
-                     the title gives up the empty space under its capitals to make room. -->
+                     the title gives up the empty space under its capitals to make room. The pill's
+                     2px nudge down (taken back off the bottom, so the height is unchanged) centres it
+                     between the foot of the title's letters and the bottom edge of the banner:
+                     5px above, 5px below, as measured. -->
                 <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
                     <TextBlock Text="KANBAN TASK BOARD" FontSize="36" FontWeight="Bold" Foreground="White"
                                HorizontalAlignment="Center" TextAlignment="Center" Margin="0,-5,0,-6"/>
-                    <Border x:Name="FilterSummaryPill" HorizontalAlignment="Center" Height="17" Padding="9,0" CornerRadius="8"
+                    <Border x:Name="FilterSummaryPill" HorizontalAlignment="Center" Height="17" Padding="9,0" CornerRadius="8" Margin="0,2,0,-2"
                             Background="#24FFFFFF" ToolTip="{Binding FilterSummaryToolTip}" ToolTipService.ShowDuration="30000">
                         <Border.Style>
                             <Style TargetType="Border">
