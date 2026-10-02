@@ -6,6 +6,16 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.127.0 — 2026-10-02
+
+> - Improved: importing a task you already have now updates it instead of adding a second copy. A task emailed to someone, changed by them and emailed back updates the original on your board.
+> - Improved: before importing, the list of tasks shows which ones will update a task you already have.
+- Emailed tasks carry a Task ID in their Excel file, given the first time each task is emailed. Leave this column as it is.
+- Importing the same email twice no longer gives two tasks.
+- A task you have since archived or deleted is imported as a new task.
+- Undo after an import puts updated tasks back as they were.
+- Once a task has been emailed, earlier versions of the app show a warning before opening the task file, as they do after other newer features have been used.
+
 ## 0.126.0 — 2026-10-02
 
 > - Improved: an emailed task now carries the whole task. The Excel file attached to the email includes whether it repeats and how many times are left, its due time, notes, sub-tasks, flags and website, and importing it puts all of these on the recipient's board.

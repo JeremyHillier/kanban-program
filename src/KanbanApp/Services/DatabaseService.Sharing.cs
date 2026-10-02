@@ -36,3 +36,24 @@ public partial class DatabaseService
         return result;
     }
 }
+
+// A shared task's permanent ID (see CardItem.ShareId).
+public partial class DatabaseService
+{
+    public const int ShareIdFileFormat = 5;
+
+    public void SetCardShareId(int cardId, string shareId)
+    {
+        using (var connection = OpenConnection())
+        using (var cmd = connection.CreateCommand())
+        {
+            cmd.CommandText = "UPDATE Cards SET ShareId = $shareId WHERE Id = $id;";
+            cmd.Parameters.AddWithValue("$shareId", shareId);
+            cmd.Parameters.AddWithValue("$id", cardId);
+            cmd.ExecuteNonQuery();
+        }
+
+        // From here on the file holds a shared task, which an older copy would import twice.
+        RaiseFileFormat(ShareIdFileFormat);
+    }
+}

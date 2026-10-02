@@ -313,6 +313,13 @@ public class CardViewModel(CardItem model) : ObservableObject
     // How many times the task still happens, counting this one. Null keeps it repeating until it is
     // deleted or Recurring is unticked; 1 means this is the last one and completing it creates no
     // more. Each new occurrence carries one fewer.
+    // See CardItem.ShareId. Never shown; only matched on import.
+    public string? ShareId
+    {
+        get => Model.ShareId;
+        set => Model.ShareId = value;
+    }
+
     public int? RecurrencesLeft
     {
         get => Model.RecurrencesLeft;
@@ -499,6 +506,7 @@ public class CardViewModel(CardItem model) : ObservableObject
         RecurrencePattern = other.RecurrencePattern;
         NextOccurrenceSpawned = other.NextOccurrenceSpawned;
         RecurrencesLeft = other.RecurrencesLeft;
+        ShareId = other.ShareId;
         LastUpdated = other.LastUpdated;
         CompletedAt = other.CompletedAt;
         Flags = other.Flags;

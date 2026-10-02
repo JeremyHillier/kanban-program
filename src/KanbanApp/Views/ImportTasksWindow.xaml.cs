@@ -150,7 +150,7 @@ public partial class ImportTasksWindow : Window
             return;
         }
 
-        var text = ImportDrop.DescribeForConfirm(files);
+        var text = ImportDrop.DescribeForConfirm(files, row => _viewModel.FindSharedCard(row.ShareId) is not null);
         if (ignored is { Count: > 0 }) text += $"\n\nLeft out, not being Excel files: {string.Join(", ", ignored)}.";
         if (!Dialogs.Confirm(this, DialogMessage.Ask("Import Tasks", text, "Import"))) return;
 

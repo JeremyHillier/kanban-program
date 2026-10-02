@@ -115,7 +115,7 @@ public sealed class WholeTaskFileTests : IDisposable
         using var workbook = new XLWorkbook(path);
         var headings = workbook.Worksheet("Tasks").Row(2).CellsUsed().Select(c => c.GetString()).ToList();
         Assert.Equal(["Title", "Category", "Priority", "Project", "Goal", "Due Date", "Who", "Start Date", "Waiting On",
-            "Due Time", "Repeats", "Repeat Times", "Flags", "Website", "Notes", "Sub-tasks"], headings);
+            "Due Time", "Repeats", "Repeat Times", "Flags", "Website", "Notes", "Sub-tasks", "Task ID"], headings);
         Assert.Contains(workbook.Worksheet("Tasks").DataValidations, v => v.Ranges.Any(r => r.FirstColumn().ColumnNumber() == 11));
     }
 }

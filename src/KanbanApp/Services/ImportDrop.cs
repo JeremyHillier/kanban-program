@@ -39,8 +39,9 @@ public static class ImportDrop
         return new Found(excel, ignored);
     }
 
-    // The question asked before anything is imported: which files, and the tasks in them.
-    public static string DescribeForConfirm(IReadOnlyList<(string File, List<ImportedTaskRow> Rows)> files)
+    // The question asked before anything is imported: which files, and the tasks in them. isUpdate
+    // says which rows are a task already on the board, which the import will update rather than add.
+    public static string DescribeForConfirm(IReadOnlyList<(string File, List<ImportedTaskRow> Rows)> files, Func<ImportedTaskRow, bool>? isUpdate = null)
     {
         const int titlesShown = 8;
         var rows = files.SelectMany(f => f.Rows).ToList();
@@ -49,9 +50,17 @@ public static class ImportDrop
             $"Import {rows.Count} task{(rows.Count == 1 ? "" : "s")} from {(files.Count == 1 ? Path.GetFileName(files[0].File) : $"{files.Count} files")}?",
             ""
         };
-        lines.AddRange(rows.Take(titlesShown).Select(r => $"• {r.Title.Trim()}{Describe(r)}"));
+        lines.AddRange(rows.Take(titlesShown).Select(r => $"• {r.Title.Trim()}{Describe(r)}{(isUpdate?.Invoke(r) == true ? " - updates your copy" : "")}"));
         if (rows.Count > titlesShown) lines.Add($"• and {rows.Count - titlesShown} more");
         lines.Add("");
+        var updates = isUpdate is null ? 0 : rows.Count(isUpdate);
+        if (updates > 0)
+        {
+            lines.Add(updates == rows.Count
+                ? $"{(updates == 1 ? "This is a task" : "These are tasks")} you already have, so {(updates == 1 ? "it" : "they")} will be updated rather than added again."
+                : $"{updates} of them {(updates == 1 ? "is a task" : "are tasks")} you already have, so {(updates == 1 ? "it" : "they")} will be updated rather than added again.");
+            lines.Add("");
+        }
         lines.Add("Each task can still be changed on the next screen.");
         return string.Join("\n", lines);
     }

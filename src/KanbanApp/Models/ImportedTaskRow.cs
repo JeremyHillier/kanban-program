@@ -20,4 +20,7 @@ public class ImportedTaskRow
     public string? WebsiteUrl { get; init; }
     public string? Notes { get; init; }
     public List<(string Title, bool IsDone)> SubTasks { get; init; } = [];
+    // The task's permanent ID when it came from the app (see CardItem.ShareId): importing a task
+    // already on the board updates it instead of adding a second copy.
+    public string? ShareId { get; init; }
 }

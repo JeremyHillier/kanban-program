@@ -17,12 +17,16 @@ public partial class DatabaseService
     // 3: Cards.RecurrencesLeft - a recurring task can stop after a number of times (0.111.0).
     // 4: the priority list can be changed, so a task's priority can be a name older copies don't
     //    offer - they would put it back to Normal on any task they edit (0.119.0).
+    // 5: Cards.ShareId - a task shared by email keeps one identity, so importing it again updates
+    //    it (0.127.0). Older copies leave the ID alone, but would import a returned task as a second
+    //    copy, so the file is only stamped 5 once a task in it has an ID (RaiseFileFormat).
     // The newest format this copy of the app understands.
-    public const int CurrentFileFormat = 4;
+    public const int CurrentFileFormat = 5;
 
-    // What every file is raised to just by being opened. Format 4 adds no table or column: a file
-    // whose priorities are still the standard four is no different from a format 3 file, so it is
-    // only stamped 4 once the list is actually changed (RaiseFileFormat). That keeps older copies
+    // What every file is raised to just by being opened. Formats 4 and 5 only matter once their
+    // feature is used: a file whose priorities are still the standard four, and with no shared
+    // task, is no different from a format 3 file. So 4 is stamped when the priority list is first
+    // changed and 5 when a task first gets a share ID (RaiseFileFormat). That keeps older copies
     // from warning about files they can still handle perfectly well.
     public const int FormatStampedOnOpen = 3;
 

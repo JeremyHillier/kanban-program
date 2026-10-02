@@ -95,6 +95,7 @@
                 <local:BulletItem Text="An Excel copy goes with it. Other Kanban Task Board users can import it."/>
                 <local:BulletItem Text="It carries the whole task: repeating, due time, notes, sub-tasks, flags and website."/>
                 <local:BulletItem Text="A repeating task keeps repeating on their board, with the same number of times left."/>
+                <local:BulletItem Text="If they change it and email it back, importing it updates your task rather than adding a copy."/>
                 <local:BulletItem Text="With classic Outlook, files are attached and your signature is kept."/>
                 <local:BulletItem Text="With no Outlook signature, one is built from Settings, Your Details."/>
                 <local:BulletItem Text="With another email app, a folder opens with the files to drag into the email."/>
@@ -276,6 +277,9 @@
                 <local:BulletItem Text="Optional columns: Due Time, Repeats, Repeat Times, Flags, Website, Notes and Sub-tasks."/>
                 <local:BulletItem Text="Sub-tasks go one per line in their cell; start a line [x] for one already done."/>
                 <local:BulletItem Text="New projects, goals, people and flags in the file are added."/>
+                <local:BulletItem Text="A task you already have is updated, not added again. The list before importing says which."/>
+                <local:BulletItem Text="The app knows it by the Task ID column. Leave that column alone."/>
+                <local:BulletItem Text="A task you have archived or deleted comes back as a new task."/>
                 <local:BulletItem Text="After import, a list opens to fix up the new tasks."/>
                 <local:BulletItem Text="Double-click Import Tasks to review tasks still marked Imported."/>
 

@@ -60,6 +60,7 @@ public partial class DatabaseService
                 "WaitingOn TEXT NULL",
                 "RecurrencesLeft INTEGER NULL",
                 "CompletedAt TEXT NULL",
+                "ShareId TEXT NULL",
             ],
             [
                 // A column with tasks in it cannot be deleted; a project, goal or person can, and

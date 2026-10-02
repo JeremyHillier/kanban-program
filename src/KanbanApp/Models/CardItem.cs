@@ -29,6 +29,10 @@ public class CardItem
     public bool NextOccurrenceSpawned { get; set; }
     // How many times the task still happens, counting this one; null repeats with no end.
     public int? RecurrencesLeft { get; set; }
+
+    // The task's permanent identity when shared: given the first time it is emailed, carried in the
+    // Excel file, kept by whoever imports it. Null for a task never shared.
+    public string? ShareId { get; set; }
     public bool IsDeleted { get; set; }
     public bool IsImported { get; set; }
     public bool ForceEditOnComplete { get; set; }

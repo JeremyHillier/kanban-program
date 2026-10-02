@@ -11,7 +11,7 @@ public static class ImportService
     // reading a newer file simply ignore the columns they don't know.
     private static readonly string[] Headers =
         ["Title", "Category", "Priority", "Project", "Goal", "Due Date", "Who", "Start Date", "Waiting On",
-         "Due Time", "Repeats", "Repeat Times", "Flags", "Website", "Notes", "Sub-tasks"];
+         "Due Time", "Repeats", "Repeat Times", "Flags", "Website", "Notes", "Sub-tasks", "Task ID"];
 
     private static int Col(string header) => Array.IndexOf(Headers, header) + 1;
 
@@ -26,7 +26,7 @@ public static class ImportService
         sheet.Cell(1, 1).Value = "One task per row below. Category, Priority and Repeats must be chosen from their dropdown. "
             + "Project, Goal, and Who offer a dropdown of existing values, but you can type a new one instead. For more than one person, type the names in the Who cell with a semicolon between them (Sam Lee; Priya Patel) - the first is the lead. Flags work the same way. "
             + "Due Date and Start Date (optional, the earliest the task can be worked on): enter as MM/DD/YYYY (year optional, defaults to this year) — shown as DD-MMM-YYYY. Due Time like 2:30 PM. "
-            + "Repeat Times: how many times the task happens in all, counting this one (blank keeps repeating). Sub-tasks: one per line, starting [x] for one already done. Only Title is required.";
+            + "Repeat Times: how many times the task happens in all, counting this one (blank keeps repeating). Sub-tasks: one per line, starting [x] for one already done. Task ID is filled in by the app - leave it blank. Only Title is required.";
         sheet.Cell(1, 1).Style.Font.Italic = true;
         sheet.Cell(1, 1).Style.Font.FontColor = XLColor.FromArgb(0x88, 0x88, 0x88);
         sheet.Cell(1, 1).Style.Alignment.WrapText = true;
@@ -38,7 +38,7 @@ public static class ImportService
         {
             ["Title"] = 40, ["Category"] = 16, ["Priority"] = 12, ["Project"] = 20, ["Goal"] = 20, ["Due Date"] = 14,
             ["Who"] = 14, ["Start Date"] = 14, ["Waiting On"] = 24, ["Due Time"] = 11, ["Repeats"] = 14, ["Repeat Times"] = 13,
-            ["Flags"] = 18, ["Website"] = 30, ["Notes"] = 40, ["Sub-tasks"] = 34
+            ["Flags"] = 18, ["Website"] = 30, ["Notes"] = 40, ["Sub-tasks"] = 34, ["Task ID"] = 12
         };
         foreach (var (header, width) in widths) sheet.Column(Col(header)).Width = width;
 
@@ -140,6 +140,7 @@ public static class ImportService
         Text("Website", row.WebsiteUrl);
         Text("Notes", row.Notes);
         Text("Sub-tasks", FormatSubTasks(row.SubTasks));
+        Text("Task ID", row.ShareId);
 
         sheet.Columns().AdjustToContents();
         foreach (var wrapped in new[] { "Notes", "Sub-tasks" })
@@ -199,10 +200,11 @@ public static class ImportService
     private static readonly string[] WebsiteHeadings = ["Website", "Link", "URL"];
     private static readonly string[] NotesHeadings = ["Notes", "Note", "Description"];
     private static readonly string[] SubTasksHeadings = ["Sub-tasks", "Subtasks", "Sub Tasks", "Checklist"];
+    private static readonly string[] TaskIdHeadings = ["Task ID"];
 
     private static readonly string[][] OtherHeadings =
         [CategoryHeadings, PriorityHeadings, ProjectHeadings, GoalHeadings, DueDateHeadings, WhoHeadings, StartDateHeadings, WaitingOnHeadings,
-         DueTimeHeadings, RepeatsHeadings, RepeatTimesHeadings, FlagsHeadings, WebsiteHeadings, NotesHeadings, SubTasksHeadings];
+         DueTimeHeadings, RepeatsHeadings, RepeatTimesHeadings, FlagsHeadings, WebsiteHeadings, NotesHeadings, SubTasksHeadings, TaskIdHeadings];
 
     private static bool IsHeading(IXLCell cell, string[] headings) =>
         headings.Contains(cell.GetString().Trim(), StringComparer.OrdinalIgnoreCase);
@@ -267,6 +269,7 @@ public static class ImportService
         var websiteCol = ColumnFor(WebsiteHeadings);
         var notesCol = ColumnFor(NotesHeadings);
         var subTasksCol = ColumnFor(SubTasksHeadings);
+        var taskIdCol = ColumnFor(TaskIdHeadings);
 
         var results = new List<ImportedTaskRow>();
         foreach (var row in sheet.RowsUsed().Where(r => r.RowNumber() > headerRow.RowNumber()))
@@ -295,7 +298,8 @@ public static class ImportService
                 Flags = TextOrNull(flagsCol),
                 WebsiteUrl = TextOrNull(websiteCol),
                 Notes = notesCol is null ? null : row.Cell(notesCol.Value).GetString() is { } notes && notes.Trim().Length > 0 ? notes.Trim() : null,
-                SubTasks = subTasksCol is null ? [] : ParseSubTasks(row.Cell(subTasksCol.Value).GetString())
+                SubTasks = subTasksCol is null ? [] : ParseSubTasks(row.Cell(subTasksCol.Value).GetString()),
+                ShareId = NormalizeShareId(Text(taskIdCol))
             });
         }
 
@@ -325,6 +329,11 @@ public static class ImportService
         }
         return DueTimeParser.Parse(cell.GetString(), preferPm: null);
     }
+
+    // A task ID the app wrote (a GUID), in one standard spelling; anything else is ignored, so a
+    // typed-in value can never point the import at the wrong task.
+    internal static string? NormalizeShareId(string? text) =>
+        Guid.TryParse(text?.Trim(), out var id) && id != Guid.Empty ? id.ToString("N") : null;
 
     // A whole number of 1 or more; anything else means "no end".
     private static int? ReadCount(IXLCell cell)

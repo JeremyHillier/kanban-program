@@ -364,6 +364,8 @@ public static class OutlookEmailHelper
         StartDate = card.StartDate,
         WaitingOn = card.WaitingOn,
         Who = card.People.Count == 0 ? null : string.Join("; ", card.People.Select(p => p.Name)), // semicolons: how the import reads several people
+        // Given the first time the task is shared, so a copy sent back updates this one.
+        ShareId = viewModel.EnsureShareId(card),
         // The rest of the task, so the person who imports it gets all of it, repeating included.
         DueTime = card.DueDate is null ? null : card.DueTime,
         RecurrencePattern = card.IsRecurring ? card.RecurrencePattern : null,
