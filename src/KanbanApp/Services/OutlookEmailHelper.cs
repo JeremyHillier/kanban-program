@@ -295,6 +295,9 @@ public static class OutlookEmailHelper
         CardTextFormatter.AppendProjectToDue(sb, card);
         if (HasGoal(card)) sb.Append("Goal: ").Append(card.GoalName).Append("\r\n");
         if (card.Flags.Count > 0) sb.Append("Flags: ").Append(string.Join(", ", card.Flags.Select(f => f.Name))).Append("\r\n");
+        if (card.People.Count > 0) sb.Append("Assigned to: ").Append(card.WhoName).Append("\r\n");
+        if (CardTextFormatter.RepeatsText(card) is { } repeats) sb.Append("Repeats: ").Append(repeats).Append("\r\n");
+        if (!string.IsNullOrWhiteSpace(card.WebsiteUrl)) sb.Append("Website: ").Append(card.WebsiteUrl.Trim()).Append("\r\n");
         CardTextFormatter.AppendNotesAndSubTasks(sb, card);
 
         sb.Append("\r\nIf an Excel file is attached, open Kanban Task Board and click Import Tasks to add this task to your own board.\r\n");
@@ -350,7 +353,7 @@ public static class OutlookEmailHelper
         }
     }
 
-    private static ImportedTaskRow BuildImportRow(CardViewModel card, MainViewModel viewModel) => new()
+    internal static ImportedTaskRow BuildImportRow(CardViewModel card, MainViewModel viewModel) => new()
     {
         Title = card.Title,
         Category = viewModel.Columns.FirstOrDefault(c => c.Id == card.ColumnId)?.DisplayName,
@@ -360,7 +363,15 @@ public static class OutlookEmailHelper
         DueDate = card.DueDate,
         StartDate = card.StartDate,
         WaitingOn = card.WaitingOn,
-        Who = card.People.Count == 0 ? null : string.Join("; ", card.People.Select(p => p.Name)) // semicolons: how the import reads several people
+        Who = card.People.Count == 0 ? null : string.Join("; ", card.People.Select(p => p.Name)), // semicolons: how the import reads several people
+        // The rest of the task, so the person who imports it gets all of it, repeating included.
+        DueTime = card.DueDate is null ? null : card.DueTime,
+        RecurrencePattern = card.IsRecurring ? card.RecurrencePattern : null,
+        RecurrenceCount = card.IsRecurring ? card.RecurrencesLeft : null,
+        Flags = card.Flags.Count == 0 ? null : string.Join("; ", card.Flags.Select(f => f.Name)),
+        WebsiteUrl = card.WebsiteUrl,
+        Notes = card.Notes,
+        SubTasks = card.SubTasks.Select(s => (s.Title, s.IsDone)).ToList()
     };
 
     private static string ImportFileName(string taskTitle) => $"KanbanTask_{SanitizeFileName(taskTitle)}.xlsx";
@@ -411,6 +422,9 @@ public static class OutlookEmailHelper
         if (card.DueDate.HasValue) AppendRow(sb, "Due", FormatDue(card));
         if (HasGoal(card)) AppendRow(sb, "Goal", card.GoalName);
         if (card.Flags.Count > 0) AppendRow(sb, "Flags", string.Join(", ", card.Flags.Select(f => f.Name)));
+        if (card.People.Count > 0) AppendRow(sb, "Assigned to", card.WhoName);
+        if (CardTextFormatter.RepeatsText(card) is { } repeats) AppendRow(sb, "Repeats", repeats);
+        if (!string.IsNullOrWhiteSpace(card.WebsiteUrl)) AppendRow(sb, "Website", card.WebsiteUrl.Trim());
         sb.Append("</table>");
 
         if (!string.IsNullOrWhiteSpace(card.Notes))

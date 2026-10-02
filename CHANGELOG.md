@@ -6,6 +6,15 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.126.0 — 2026-10-02
+
+> - Improved: an emailed task now carries the whole task. The Excel file attached to the email includes whether it repeats and how many times are left, its due time, notes, sub-tasks, flags and website, and importing it puts all of these on the recipient's board.
+> - Improved: a repeating task imported this way carries on repeating on the recipient's board.
+> - Improved: the email itself now also lists who the task is assigned to, how it repeats, and its website.
+- The Excel import template has new optional columns for these: Due Time, Repeats, Repeat Times, Flags, Website, Notes and Sub-tasks. Sub-tasks go one per line in their cell, with [x] at the start of any already done.
+- Files made by earlier versions import exactly as before, and earlier versions can still import the new files, leaving out the columns they do not know.
+- For safety, a website in an imported file is kept only if it is a web or email address.
+
 ## 0.125.0 — 2026-10-02
 
 > - New: while the board is filtered, a line under the title at the top says what is filtering it and how many tasks are showing, for example "Today · Priority: High · 3 of 40 tasks".

@@ -185,7 +185,7 @@ public sealed class StartDateTests(WpfDispatcherFixture wpf) : IDisposable
 
         using var workbook = new XLWorkbook(path);
         var headings = workbook.Worksheet(1).Row(2).CellsUsed().Select(c => c.GetString()).ToList();
-        Assert.Equal(["Who", "Start Date", "Waiting On"], headings.TakeLast(3)); // new columns go on the end; existing ones stay put
+        Assert.Equal(["Who", "Start Date", "Waiting On"], headings.Skip(6).Take(3)); // new columns go on the end; existing ones stay put
     });
 
     [Fact]

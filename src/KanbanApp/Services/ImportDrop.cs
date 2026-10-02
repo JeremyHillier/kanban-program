@@ -62,6 +62,7 @@ public static class ImportDrop
         if (!string.IsNullOrWhiteSpace(row.Project)) parts.Add(row.Project.Trim());
         if (!string.IsNullOrWhiteSpace(row.Priority)) parts.Add(row.Priority.Trim());
         if (row.DueDate is { } due) parts.Add($"due {due:MMM d}");
+        if (row.RecurrencePattern is { } pattern) parts.Add($"repeats {pattern.ToLowerInvariant()}");
         return parts.Count == 0 ? "" : $"  ({string.Join(", ", parts)})";
     }
 }

@@ -126,6 +126,10 @@ public sealed class EmailTests : IDisposable
             m.DueDate = new DateTime(2026, 9, 14);
             m.DueTime = "14:30";
             m.Notes = "Check figures\nwith Sam";
+            m.IsRecurring = true;
+            m.RecurrencePattern = "Weekly";
+            m.RecurrencesLeft = 3;
+            m.WebsiteUrl = "example.com/report";
         });
         card.GoalName = "Close the books";
         card.Flags = [new FlagViewModel(new Flag { Name = "Urgent" }), new FlagViewModel(new Flag { Name = "Client" })];
@@ -139,6 +143,8 @@ public sealed class EmailTests : IDisposable
         Assert.Contains("Due: 14-Sep-2026 2:30 PM\r\n", body);
         Assert.Contains("Goal: Close the books\r\n", body);
         Assert.Contains("Flags: Urgent, Client\r\n", body);
+        Assert.Contains("Repeats: Weekly (2 more after this one)\r\n", body);
+        Assert.Contains("Website: example.com/report\r\n", body);
         Assert.Contains("Notes:\r\nCheck figures\r\nwith Sam\r\n", body);
         Assert.Contains("[x] Draft\r\n[ ] Review\r\n", body);
         Assert.Contains("click Import Tasks", body);
@@ -155,6 +161,9 @@ public sealed class EmailTests : IDisposable
         Assert.DoesNotContain("Flags:", body);
         Assert.DoesNotContain("Notes:", body);
         Assert.DoesNotContain("Sub-tasks:", body);
+        Assert.DoesNotContain("Repeats:", body);
+        Assert.DoesNotContain("Website:", body);
+        Assert.DoesNotContain("Assigned to:", body);
         Assert.EndsWith("your own board.", body);
     }
 

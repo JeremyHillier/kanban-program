@@ -93,6 +93,8 @@
                 <local:BulletItem Text="The email holds the task's details. Nothing is sent until you click Send."/>
                 <local:BulletItem Text="A shared task's email goes to everyone with an address."/>
                 <local:BulletItem Text="An Excel copy goes with it. Other Kanban Task Board users can import it."/>
+                <local:BulletItem Text="It carries the whole task: repeating, due time, notes, sub-tasks, flags and website."/>
+                <local:BulletItem Text="A repeating task keeps repeating on their board, with the same number of times left."/>
                 <local:BulletItem Text="With classic Outlook, files are attached and your signature is kept."/>
                 <local:BulletItem Text="With no Outlook signature, one is built from Settings, Your Details."/>
                 <local:BulletItem Text="With another email app, a folder opens with the files to drag into the email."/>
@@ -271,7 +273,9 @@
                 <local:BulletItem Text="Other headings understood include Task, Status, Due, Assigned To and Start."/>
                 <local:BulletItem Text="For several people, separate names with semicolons. The first is the lead."/>
                 <local:BulletItem Text="Dates are MM/DD/YYYY. The year is optional."/>
-                <local:BulletItem Text="New projects, goals and people in the file are added."/>
+                <local:BulletItem Text="Optional columns: Due Time, Repeats, Repeat Times, Flags, Website, Notes and Sub-tasks."/>
+                <local:BulletItem Text="Sub-tasks go one per line in their cell; start a line [x] for one already done."/>
+                <local:BulletItem Text="New projects, goals, people and flags in the file are added."/>
                 <local:BulletItem Text="After import, a list opens to fix up the new tasks."/>
                 <local:BulletItem Text="Double-click Import Tasks to review tasks still marked Imported."/>
 
