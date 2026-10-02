@@ -37,6 +37,7 @@ public partial class MainViewModel
     {
         OnPropertyChanged(nameof(HiddenTaskCount));
         OnPropertyChanged(nameof(HiddenTasksLabel));
+        NotifyFilterSummaryChanged(); // the banner's line counts the tasks showing
     }
 }
 

@@ -6,6 +6,13 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.125.0 — 2026-10-02
+
+> - New: while the board is filtered, a line under the title at the top says what is filtering it and how many tasks are showing, for example "Today · Priority: High · 3 of 40 tasks".
+- Every kind of filter is named: the Today, Tomorrow, Within a Week, No Due Date and Waiting On buttons, the due date range, project, priority, who, goal, flag, waiting on and keyword, and whether future tasks are hidden.
+- When the board matches one of the saved custom filters, the line names it with its Alt key.
+- Point at the line for the full list and how to clear it. The line disappears when nothing is filtering.
+
 ## 0.124.0 — 2026-10-02
 
 > - New: Start when Windows starts, in Settings under Startup, opens the app each time you sign in to Windows. It is set on each PC separately, and uninstalling the app turns it off.

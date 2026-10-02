@@ -385,8 +385,8 @@
                 ToolTip="Double-click for the Dashboard"
                 Background="{DynamicResource AccentPanelBrush}" BorderBrush="{DynamicResource AccentPanelBorderBrush}" BorderThickness="1"
                 MouseLeftButtonDown="Header_MouseLeftButtonDown">
-            <Grid>
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
+            <Grid SizeChanged="HeaderGrid_SizeChanged">
+                <StackPanel x:Name="HeaderStats" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
                     <StackPanel Style="{StaticResource StatChipStyle}">
                         <TextBlock Text="{Binding OpenTaskCount}" Style="{StaticResource StatNumberStyle}" Foreground="White"/>
                         <TextBlock Text="Open" Style="{StaticResource StatLabelStyle}"/>
@@ -411,9 +411,30 @@
                         <TextBlock Text="Selected" Style="{StaticResource StatLabelStyle}"/>
                     </StackPanel>
                 </StackPanel>
-                <TextBlock Text="KANBAN TASK BOARD" FontSize="36" FontWeight="Bold" Foreground="White"
-                           HorizontalAlignment="Center" VerticalAlignment="Center"
-                           TextAlignment="Center"/>
+                <!-- The title, with a quiet line under it saying what is filtering the board. The line's
+                     row is always there (Hidden, not Collapsed, when nothing is filtering) so the
+                     banner never changes height and the board never jumps as filters go on and off;
+                     the title gives up the empty space under its capitals to make room. -->
+                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <TextBlock Text="KANBAN TASK BOARD" FontSize="36" FontWeight="Bold" Foreground="White"
+                               HorizontalAlignment="Center" TextAlignment="Center" Margin="0,-5,0,-6"/>
+                    <Border x:Name="FilterSummaryPill" HorizontalAlignment="Center" Height="17" Padding="9,0" CornerRadius="8"
+                            Background="#24FFFFFF" ToolTip="{Binding FilterSummaryToolTip}" ToolTipService.ShowDuration="30000">
+                        <Border.Style>
+                            <Style TargetType="Border">
+                                <Setter Property="Visibility" Value="Hidden"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding HasFilterSummary}" Value="True">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
+                        <TextBlock FontSize="11" Foreground="#FFE6EDF6" VerticalAlignment="Center" TextTrimming="CharacterEllipsis">
+                            <Run Text="Filtered" FontWeight="SemiBold"/><Run Text="   "/><Run Text="{Binding FilterSummaryText, Mode=OneWay}"/>
+                        </TextBlock>
+                    </Border>
+                </StackPanel>
                 <!-- Only the test-build badge sits here; the version, copyright and "Designed in Canada"
                      are at the foot of the button column, with the About link. -->
                 <TextBlock Text="TEST BUILD" FontSize="11" FontWeight="Bold" Foreground="#FFFFEB3B" Background="#FFB71C1C"

@@ -143,6 +143,15 @@ public partial class MainWindow : Window
         _statusMessageTimer.Start();
     }
 
+    // The banner's filter line is centred under the title. It may be as wide as the gap between the
+    // counts on the left and their mirror image on the right; past that it trims with "..." and the
+    // tooltip has the whole of it.
+    private void HeaderGrid_SizeChanged(object sender, SizeChangedEventArgs e)
+    {
+        if (sender is not FrameworkElement header) return;
+        FilterSummaryPill.MaxWidth = Math.Max(160, header.ActualWidth - 2 * (HeaderStats.ActualWidth + 16));
+    }
+
     private void Header_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
     {
         if (e.ClickCount != 2) return;

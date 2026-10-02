@@ -229,6 +229,8 @@
                 <local:BulletItem Text="Renaming or deleting a priority clears the Undo history."/>
                 <TextBlock Text="Filters" Style="{StaticResource HelpSubHeaderStyle}"/>
                 <local:BulletItem Text="Filter by project, priority, who, goal, flag, waiting on, due date or keyword."/>
+                <local:BulletItem Text="While anything is filtering, a line under the title at the top says what, and how many tasks show."/>
+                <local:BulletItem Text="It names a saved filter the board matches, and says when future tasks are hidden."/>
                 <local:BulletItem Text="Project, Priority and Who take several choices: Ctrl+click or Shift+click."/>
                 <local:BulletItem Text="Unassigned shows tasks with no person, goal or flag, or not waiting on anything."/>
                 <local:BulletItem Text="Waiting lists the answers on your tasks. Any shows every waiting task."/>

@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using System.Text.Json;
 using KanbanApp.Models;
+using KanbanApp.Services;
 
 namespace KanbanApp.ViewModels;
 
@@ -48,27 +49,82 @@ public partial class MainViewModel
 
     private static bool IsValidSlot(int slot) => slot >= 0 && slot < CustomFilterSlotCount;
 
+    // The board's filters as they stand, in the same shape a saved slot has.
+    private CustomFilter CurrentFilterState(string name = "") => new()
+    {
+        Name = name,
+        Project = ProjectFilterOptions.Where(o => o.IsSelected).Select(o => o.Name).ToList(),
+        Priority = PriorityFilterOptions.Where(o => o.IsSelected).Select(o => o.Name).ToList(),
+        Who = WhoFilterOptions.Where(o => o.IsSelected).Select(o => o.Name).ToList(),
+        Goal = SelectedGoalFilter,
+        Flag = SelectedFlagFilter,
+        WaitingOn = SelectedWaitingOnFilter,
+        Due = DueFilter,
+        DueFrom = DueRangeFrom?.ToString("yyyy-MM-dd"),
+        DueTo = DueRangeTo?.ToString("yyyy-MM-dd"),
+        Keyword = KeywordFilter
+    };
+
+    // ----- The line under the banner's title: what is filtering the board right now -----
+
+    // Empty when nothing is. Names the saved filter (and its Alt key) when the board matches one.
+    public string FilterSummaryText
+    {
+        get
+        {
+            var state = CurrentFilterState();
+            var total = Columns.Sum(c => c.Cards.Count);
+            return FilterSummary.Line(state, HideFutureTasks, MatchingSavedFilterLabel(state), total - HiddenTaskCount, total);
+        }
+    }
+
+    public bool HasFilterSummary => FilterSummaryText.Length > 0;
+
+    // The same, one filter to a line, with how to clear them.
+    public string FilterSummaryToolTip
+    {
+        get
+        {
+            var state = CurrentFilterState();
+            var parts = FilterSummary.Parts(state, HideFutureTasks);
+            if (parts.Count == 0) return string.Empty;
+
+            var lines = new List<string> { "The board is showing only tasks that match:" };
+            if (MatchingSavedFilterLabel(state) is { } saved) lines.Add($"Saved filter {saved}");
+            lines.AddRange(parts.Select(p => $"• {p}"));
+            lines.Add("");
+            lines.Add(HideFutureTasks && parts.Count == 1
+                ? "Click Show Future to bring future tasks back."
+                : "Esc or Clear Filters shows everything again" + (HideFutureTasks ? " (future tasks stay hidden until Show Future)." : "."));
+            return string.Join("\n", lines);
+        }
+    }
+
+    private string? MatchingSavedFilterLabel(CustomFilter state)
+    {
+        for (var slot = 0; slot < CustomFilters.Count; slot++)
+        {
+            if (CustomFilters[slot].IsDefined && FilterSummary.Same(CustomFilters[slot], state)) return $"\"{CustomFilters[slot].Name}\" (Alt+{slot})";
+        }
+        return null;
+    }
+
+    private void NotifyFilterSummaryChanged()
+    {
+        OnPropertyChanged(nameof(FilterSummaryText));
+        OnPropertyChanged(nameof(HasFilterSummary));
+        OnPropertyChanged(nameof(FilterSummaryToolTip));
+    }
+
     // Snapshots whatever the board is filtered by right now into the slot.
     public void CaptureCustomFilter(int slot, string name)
     {
         if (!IsValidSlot(slot)) return;
 
-        CustomFilters[slot] = new CustomFilter
-        {
-            Name = name.Trim(),
-            Project = ProjectFilterOptions.Where(o => o.IsSelected).Select(o => o.Name).ToList(),
-            Priority = PriorityFilterOptions.Where(o => o.IsSelected).Select(o => o.Name).ToList(),
-            Who = WhoFilterOptions.Where(o => o.IsSelected).Select(o => o.Name).ToList(),
-            Goal = SelectedGoalFilter,
-            Flag = SelectedFlagFilter,
-            WaitingOn = SelectedWaitingOnFilter,
-            Due = DueFilter,
-            DueFrom = DueRangeFrom?.ToString("yyyy-MM-dd"),
-            DueTo = DueRangeTo?.ToString("yyyy-MM-dd"),
-            Keyword = KeywordFilter
-        };
+        CustomFilters[slot] = CurrentFilterState(name.Trim());
 
         SaveCustomFilter(slot);
+        NotifyFilterSummaryChanged(); // the banner names a saved filter the board matches
     }
 
     public void RenameCustomFilter(int slot, string name)
@@ -77,6 +133,7 @@ public partial class MainViewModel
 
         CustomFilters[slot].Name = name.Trim();
         SaveCustomFilter(slot);
+        NotifyFilterSummaryChanged(); // the banner names a saved filter the board matches
 
         // The item instance is unchanged, so the list needs a nudge to re-read it.
         CustomFilters[slot] = CustomFilters[slot];
@@ -88,6 +145,7 @@ public partial class MainViewModel
 
         CustomFilters[slot] = new CustomFilter();
         _db.SetSetting(CustomFilterKey(slot), string.Empty);
+        NotifyFilterSummaryChanged();
     }
 
     // Applies slot N to the board. Returns false (leaving the board untouched) when the slot has
