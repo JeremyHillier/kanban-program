@@ -47,6 +47,29 @@ public partial class AddTaskWindow : Window
     public int? RecurrencesLeft { get; private set; } // times in all, counting this one; null has no end
     public bool ForceEditOnComplete { get; private set; }
 
+    // Saves what was entered, after Save: as a new task, or onto the task the window was opened
+    // for. The board and the Timeline both open this window, so a task field added later is passed
+    // on here, once, rather than at each place that opens it.
+    public void AddTo(MainViewModel viewModel)
+    {
+        if (SelectedColumn is null) return;
+        viewModel.AddCard(TaskDetails, SelectedColumn, SelectedProject,
+            SelectedPriority, SelectedDueDate, SelectedWho, IsRecurring, RecurrencePattern,
+            SelectedGoal, SelectedFlags, SelectedSubTasks, Notes, attachments: SelectedAttachments,
+            forceEditOnComplete: ForceEditOnComplete, websiteUrl: WebsiteUrl, dueTime: SelectedDueTime,
+            startDate: SelectedStartDate, waitingOn: WaitingOn, people: SelectedPeople, recurrencesLeft: RecurrencesLeft);
+    }
+
+    public void SaveTo(MainViewModel viewModel, CardViewModel card)
+    {
+        if (SelectedColumn is null) return;
+        viewModel.EditCard(card, TaskDetails, SelectedColumn, SelectedProject,
+            SelectedPriority, SelectedDueDate, SelectedPeople, IsRecurring, RecurrencePattern,
+            SelectedGoal, SelectedFlags, SelectedSubTasks, Notes, attachments: SelectedAttachments,
+            forceEditOnComplete: ForceEditOnComplete, websiteUrl: WebsiteUrl, dueTime: SelectedDueTime,
+            startDate: SelectedStartDate, waitingOn: WaitingOn, recurrencesLeft: RecurrencesLeft);
+    }
+
     public AddTaskWindow(MainViewModel viewModel)
     {
         InitializeComponent();

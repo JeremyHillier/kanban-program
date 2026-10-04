@@ -29,14 +29,7 @@ public partial class MainWindow
         if (initialColumn is not null) dialog.PreselectColumn(initialColumn);
         if (template is not null) dialog.StartFromTemplate(template);
 
-        if (dialog.ShowDialog() == true && dialog.SelectedColumn is not null)
-        {
-            viewModel.AddCard(dialog.TaskDetails, dialog.SelectedColumn, dialog.SelectedProject,
-                dialog.SelectedPriority, dialog.SelectedDueDate, dialog.SelectedWho, dialog.IsRecurring, dialog.RecurrencePattern,
-                dialog.SelectedGoal, dialog.SelectedFlags, dialog.SelectedSubTasks, dialog.Notes, attachments: dialog.SelectedAttachments,
-                forceEditOnComplete: dialog.ForceEditOnComplete, websiteUrl: dialog.WebsiteUrl, dueTime: dialog.SelectedDueTime,
-                startDate: dialog.SelectedStartDate, waitingOn: dialog.WaitingOn, people: dialog.SelectedPeople, recurrencesLeft: dialog.RecurrencesLeft);
-        }
+        if (dialog.ShowDialog() == true) dialog.AddTo(viewModel);
     }
 
     private void EditCard(CardViewModel card, MainViewModel viewModel, bool focusNotes = false)
@@ -46,14 +39,7 @@ public partial class MainWindow
 
         var dialog = new AddTaskWindow(viewModel, card, currentColumn) { Owner = this };
         if (focusNotes) dialog.FocusNotesField();
-        if (dialog.ShowDialog() == true && dialog.SelectedColumn is not null)
-        {
-            viewModel.EditCard(card, dialog.TaskDetails, dialog.SelectedColumn, dialog.SelectedProject,
-                dialog.SelectedPriority, dialog.SelectedDueDate, dialog.SelectedPeople, dialog.IsRecurring, dialog.RecurrencePattern,
-                dialog.SelectedGoal, dialog.SelectedFlags, dialog.SelectedSubTasks, dialog.Notes, attachments: dialog.SelectedAttachments,
-                forceEditOnComplete: dialog.ForceEditOnComplete, websiteUrl: dialog.WebsiteUrl, dueTime: dialog.SelectedDueTime,
-                startDate: dialog.SelectedStartDate, waitingOn: dialog.WaitingOn, recurrencesLeft: dialog.RecurrencesLeft);
-        }
+        if (dialog.ShowDialog() == true) dialog.SaveTo(viewModel, card);
     }
 
     private void WaitingOnDisplay_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
