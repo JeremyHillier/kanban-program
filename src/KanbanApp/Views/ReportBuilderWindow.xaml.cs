@@ -282,30 +282,7 @@ public partial class ReportBuilderWindow : Window
         var title = GetReportTitle();
         var rows = BuildRows();
 
-        var sanitizedTitle = string.Join("_", title.Split(Path.GetInvalidFileNameChars()));
-        var fileName = $"{sanitizedTitle}_{DateTime.Now:yyyyMMdd_HHmmss}.pdf";
-
-        string? filePath = null;
-
-        if (!string.IsNullOrWhiteSpace(_viewModel.DefaultExportPath) && Directory.Exists(_viewModel.DefaultExportPath))
-        {
-            filePath = Path.Combine(_viewModel.DefaultExportPath, fileName);
-        }
-        else
-        {
-            var dialog = new SaveFileDialog
-            {
-                Title = "Save Report as PDF",
-                Filter = "PDF File (*.pdf)|*.pdf",
-                FileName = fileName
-            };
-
-            if (dialog.ShowDialog(this) == true)
-            {
-                filePath = dialog.FileName;
-            }
-        }
-
+        var filePath = ReportPdfLocation.Choose(this, _viewModel.DefaultExportPath, title);
         if (filePath is null) return;
 
         ReportService.SavePdf(title, rows, GetGroupBy(), IncludeNotesCheckBox.IsChecked == true, IncludeSubTasksCheckBox.IsChecked == true, filePath,

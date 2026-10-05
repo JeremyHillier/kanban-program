@@ -62,17 +62,7 @@ public partial class QuickReportWindow : Window
     {
         if (Selected is not { } view) return;
 
-        var fileName = $"{string.Join("_", view.Title.Split(Path.GetInvalidFileNameChars()))}_{DateTime.Now:yyyyMMdd_HHmmss}.pdf";
-        string? filePath = null;
-        if (!string.IsNullOrWhiteSpace(_viewModel.DefaultExportPath) && Directory.Exists(_viewModel.DefaultExportPath))
-        {
-            filePath = Path.Combine(_viewModel.DefaultExportPath, fileName);
-        }
-        else
-        {
-            var save = new SaveFileDialog { Title = "Save Report as PDF", Filter = "PDF File (*.pdf)|*.pdf", FileName = fileName };
-            if (save.ShowDialog(this) == true) filePath = save.FileName;
-        }
+        var filePath = ReportPdfLocation.Choose(this, _viewModel.DefaultExportPath, view.Title);
         if (filePath is null) return;
 
         ReportRunner.SavePdf(_viewModel, view, DateTime.Today, filePath);
