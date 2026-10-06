@@ -58,6 +58,9 @@ WizardSmallImageFile=WizardSmallImage.bmp
 
 [Files]
 Source: "..\publish\{#Channel}\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
+; The release notes, rendered from CHANGELOG.md by render-whats-new.ps1 during the build. Carried
+; inside the setup and read by [Code] below; never installed.
+Source: "Output\WhatsNew.txt"; Flags: dontcopy
 
 [Icons]
 Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
@@ -88,10 +91,74 @@ begin
   RegQueryStringValue(HKLM, UninstallKey, 'DisplayVersion', Result);
 end;
 
+{ "0.127.1" against "0.120.2", part by part: 1 when the first is newer, -1 when older, 0 when
+  the same. A part that is not a number counts as 0, so an odd DisplayVersion still compares. }
+function CompareVersions(const A, B: String): Integer;
+var
+  PartA, PartB: Integer;
+  RestA, RestB: String;
+  DotA, DotB: Integer;
+begin
+  Result := 0;
+  RestA := A;
+  RestB := B;
+  while (RestA <> '') or (RestB <> '') do
+  begin
+    DotA := Pos('.', RestA);
+    if DotA > 0 then begin PartA := StrToIntDef(Copy(RestA, 1, DotA - 1), 0); Delete(RestA, 1, DotA); end
+    else begin PartA := StrToIntDef(RestA, 0); RestA := ''; end;
+    DotB := Pos('.', RestB);
+    if DotB > 0 then begin PartB := StrToIntDef(Copy(RestB, 1, DotB - 1), 0); Delete(RestB, 1, DotB); end
+    else begin PartB := StrToIntDef(RestB, 0); RestB := ''; end;
+    if PartA > PartB then begin Result := 1; exit; end;
+    if PartA < PartB then begin Result := -1; exit; end;
+  end;
+end;
+
+{ Every version newer than the one installed, as WhatsNew.txt lays them out: a "#version" marker
+  line starts each version, and what follows it is shown as written. The list is newest first, so
+  it stops at the first version that is not newer: the 1.0.0-1.2.0 entries at the very end predate
+  the move back to 0.x numbering and would otherwise count as newer than everything. Empty when
+  there is nothing newer to tell, or the file could not be read. }
+function WhatsNewSince(const InstalledVersion: String): String;
+var
+  Lines: TArrayOfString;
+  I: Integer;
+begin
+  Result := '';
+  ExtractTemporaryFile('WhatsNew.txt');
+  if not LoadStringsFromFile(ExpandConstant('{tmp}\WhatsNew.txt'), Lines) then exit;
+  for I := 0 to GetArrayLength(Lines) - 1 do
+  begin
+    if Copy(Lines[I], 1, 1) = '#' then
+    begin
+      if CompareVersions(Copy(Lines[I], 2, Length(Lines[I]) - 1), InstalledVersion) <= 0 then break;
+    end
+    else
+      Result := Result + Lines[I] + #13#10;
+  end;
+  Result := Trim(Result);
+end;
+
 procedure InitializeWizard;
+var
+  Notes: String;
 begin
   PreviousVersion := GetInstalledVersion();
   IsUpdate := PreviousVersion <> '';
+
+  { What changed between the version on this machine and this one, on its own page after Welcome.
+    Only on an update: a first install has nothing to compare against, and the app's own What's New
+    screen opens after an update anyway. }
+  if IsUpdate then
+  begin
+    Notes := WhatsNewSince(PreviousVersion);
+    if Notes <> '' then
+      CreateOutputMsgMemoPage(wpWelcome, 'What''s New',
+        'Changes since version ' + PreviousVersion,
+        'This update brings {#MyAppName} to version {#MyAppVersion}. Here is what has changed:',
+        Notes);
+  end;
 
   if IsUpdate then
     WizardForm.WelcomeLabel2.Caption :=

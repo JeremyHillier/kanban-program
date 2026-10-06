@@ -55,6 +55,12 @@ foreach ($channel in $channels) {
 
 New-Item -ItemType Directory -Force -Path (Join-Path $installerDir "Output") | Out-Null
 
+# The release notes the installer shows on an update, rendered from the same changelog the app
+# embeds. Rendered on every build so the setup always carries the entry for the version it installs.
+& (Join-Path $installerDir "render-whats-new.ps1") `
+    -ChangelogPath (Join-Path $repoRoot "CHANGELOG.md") `
+    -OutputPath (Join-Path $installerDir "Output\WhatsNew.txt")
+
 foreach ($channel in $channels) {
     Write-Output "`n=== Compiling installer for $channel ==="
     $isccArgs = @("/DChannel=$channel", "/DMyAppVersion=$version")
