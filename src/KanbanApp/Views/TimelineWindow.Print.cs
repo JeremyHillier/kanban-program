@@ -181,13 +181,17 @@ public partial class TimelineWindow
 
                 if (item.HasArrow)
                 {
-                    // Same arrow as on screen: from the box to the middle of the due column, or
-                    // to the right edge when the due date is beyond it. Level with the first line
-                    // of text.
+                    // Same arrow as on screen: from the box to the right-hand edge of the due
+                    // column, stopping against a short upright bar, or off the right edge with no
+                    // bar when the due date is beyond it. Level with the first line of text.
                     var arrowY = laneTop + chipPadding + lineHeight / 2;
                     var x1 = UnitLeft(item.ArrowFirstUnit);
-                    var x2 = UnitLeft(item.ArrowLastUnit + 1) - (item.DueAfterWindow ? 1 : unitColWidth / 2);
+                    var x2 = UnitLeft(item.ArrowLastUnit + 1) - (item.DueAfterWindow ? 1 : 2.5);
 
+                    if (!item.DueAfterWindow)
+                    {
+                        canvas.Children.Add(new Line { X1 = x2 + 0.75, Y1 = arrowY - 4.5, X2 = x2 + 0.75, Y2 = arrowY + 4.5, Stroke = Brushes.Black, StrokeThickness = 1.25 });
+                    }
                     canvas.Children.Add(new Line { X1 = x1, Y1 = arrowY, X2 = x2 - 5, Y2 = arrowY, Stroke = Brushes.Black, StrokeThickness = 1.25 });
                     canvas.Children.Add(new Polygon
                     {

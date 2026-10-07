@@ -137,7 +137,7 @@ public partial class TimelineWindow
                 var task = item.Card;
                 if (item.HasArrow)
                 {
-                    var arrow = BuildArrow(item, unitColWidth, brush);
+                    var arrow = BuildArrow(item, brush);
                     Grid.SetRow(arrow, item.Lane);
                     Grid.SetColumn(arrow, item.ArrowFirstUnit);
                     Grid.SetColumnSpan(arrow, item.ArrowLastUnit - item.ArrowFirstUnit + 1);
@@ -188,18 +188,26 @@ public partial class TimelineWindow
         }
     }
 
-    // The arrow from a task's box (at its start date) to its due date: a line and a head whose tip
-    // stops in the middle of the due column - or at the right edge when the due date is beyond it.
-    // Drawn in the text colour, so it is black on the light theme and light on the dark one. It
-    // sits level with the first line of text in the box.
-    private static FrameworkElement BuildArrow(TimelineItem item, double unitColWidth, Brush stroke)
+    // The arrow from a task's box (at its start date) to its due date: a line and a head running to
+    // the right-hand edge of the due column, where it stops against a short upright bar - the whole
+    // due day is covered. When the due date is beyond the right edge it runs off that edge with no
+    // bar. Drawn in the text colour, so it is black on the light theme and light on the dark one.
+    // It sits level with the first line of text in the box.
+    private static FrameworkElement BuildArrow(TimelineItem item, Brush stroke)
     {
-        const double arrowTop = 6;
+        const double arrowTop = 4; // the line's middle stays 11 below the lane's top, level with the box's first line
         var panel = new DockPanel
         {
-            Height = 10, VerticalAlignment = VerticalAlignment.Top, LastChildFill = true, IsHitTestVisible = false,
-            Margin = new Thickness(0, arrowTop, item.DueAfterWindow ? 0 : unitColWidth / 2, 0)
+            Height = 14, VerticalAlignment = VerticalAlignment.Top, LastChildFill = true, IsHitTestVisible = false,
+            Margin = new Thickness(0, arrowTop, item.DueAfterWindow ? 0 : 2, 0) // just inside the column's line
         };
+
+        if (!item.DueAfterWindow)
+        {
+            var bar = new Rectangle { Width = 2, Height = 14, Fill = stroke, VerticalAlignment = VerticalAlignment.Center };
+            DockPanel.SetDock(bar, Dock.Right);
+            panel.Children.Add(bar);
+        }
 
         var head = new Polygon { Points = [new Point(0, 0), new Point(9, 5), new Point(0, 10)], Fill = stroke, VerticalAlignment = VerticalAlignment.Center };
         DockPanel.SetDock(head, Dock.Right);
