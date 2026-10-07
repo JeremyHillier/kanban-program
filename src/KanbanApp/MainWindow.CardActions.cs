@@ -50,8 +50,9 @@ public partial class MainWindow
     }
 
     // Asks who or what the task (or group of tasks) is waiting on. The box starts with the current
-    // answer when they all share one; saving it empty clears it.
-    private void PromptWaitingOn(IReadOnlyList<CardViewModel> cards, MainViewModel viewModel)
+    // answer when they all share one; saving it empty clears it. Asked while moving tasks into
+    // Waiting, the move has already happened, so the way out is Skip rather than Cancel.
+    private void PromptWaitingOn(IReadOnlyList<CardViewModel> cards, MainViewModel viewModel, bool whileMoving = false)
     {
         if (cards.Count == 0) return;
 
@@ -59,18 +60,25 @@ public partial class MainWindow
         var question = cards.Count == 1 ? "Who or what is this task waiting on?" : $"Who or what are these {cards.Count} tasks waiting on?";
         var dialog = new PromptWindow("Waiting On", question, shared, "Save", viewModel.WaitingOnSuggestions, viewModel.ForgetWaitingOnSuggestion,
             owner => { new ManageWaitingOnWindow(viewModel) { Owner = owner }.ShowDialog(); return viewModel.WaitingOnSuggestions; }) { Owner = this };
+        if (whileMoving)
+        {
+            dialog.CancelText = "Skip";
+            dialog.CancelToolTip = cards.Count == 1
+                ? "Leave it in Waiting without saying what it is waiting on. You can add that later from the card."
+                : "Leave them in Waiting without saying what they are waiting on. You can add that later from the cards.";
+        }
         if (dialog.ShowDialog() != true) return;
 
         viewModel.SetCardsWaitingOn(cards, dialog.Value);
     }
 
     // Moving a task into the Waiting column is the natural moment to say what it's waiting on, so
-    // ask - once, for however many were moved, and only for tasks that don't already say. Cancel
+    // ask - once, for however many were moved, and only for tasks that don't already say. Skip
     // just leaves it blank.
     private void MaybePromptWaitingOn(IEnumerable<CardViewModel> moved, ColumnViewModel targetColumn, MainViewModel viewModel)
     {
         if (targetColumn.Name != "Waiting") return;
-        PromptWaitingOn(moved.Where(c => !c.IsWaiting).ToList(), viewModel);
+        PromptWaitingOn(moved.Where(c => !c.IsWaiting).ToList(), viewModel, whileMoving: true);
     }
 
     private void DeleteQuickAction_Click(object sender, RoutedEventArgs e)

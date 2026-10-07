@@ -9,6 +9,7 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 ## 0.128.1 — 2026-10-07
 
 > - Improved: when you edit a task, the button that saves your changes and closes the window now says Save & Close.
+> - Improved: when moving a task into Waiting asks what it is waiting on, the way out is now Skip, since the task still moves; it just isn't given an answer. Setting Waiting On from a card's menu still offers Cancel.
 > - Fixed: on a task that has been emailed, a long "Emailed ..." line at the bottom of the task window now ends in "..." instead of running under the buttons.
 
 ## 0.128.0 — 2026-10-06

@@ -34,6 +34,20 @@ public partial class PromptWindow : Window
         if (suggestions is not null) AttachSuggestions(suggestions);
     }
 
+    // The button that closes without saving: "Cancel", unless the prompt comes up in the middle of
+    // something already done (a task moved into Waiting), where it only skips the question.
+    public string CancelText
+    {
+        get => (string)CancelButton.Content;
+        set => CancelButton.Content = value;
+    }
+
+    public object? CancelToolTip
+    {
+        get => CancelButton.ToolTip;
+        set => CancelButton.ToolTip = value;
+    }
+
     private readonly Action<string>? _forgetSuggestion;
     private readonly Func<Window, IEnumerable<string>>? _manageSuggestions;
     private TextBoxSuggestions? _suggestions;
