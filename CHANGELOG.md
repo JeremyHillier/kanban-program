@@ -6,6 +6,11 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.128.1 — 2026-10-07
+
+> - Improved: when you edit a task, the button that saves your changes and closes the window now says Save & Close.
+> - Fixed: on a task that has been emailed, a long "Emailed ..." line at the bottom of the task window now ends in "..." instead of running under the buttons.
+
 ## 0.128.0 — 2026-10-06
 
 > - New: when you update, Setup now shows what has changed since the version you have, on a What's New page after the welcome page, so you can see what is new before installing.

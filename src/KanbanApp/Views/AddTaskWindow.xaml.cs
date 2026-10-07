@@ -180,7 +180,7 @@ public partial class AddTaskWindow : Window
     public AddTaskWindow(MainViewModel viewModel, CardViewModel cardToEdit, ColumnViewModel currentColumn) : this(viewModel)
     {
         Title = "Edit Task";
-        SubmitButton.Content = "Save";
+        SubmitButton.Content = "Save & Close";
 
         _cardToEdit = cardToEdit;
         RefreshTemplatePanel();

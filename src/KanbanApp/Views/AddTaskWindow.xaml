@@ -455,9 +455,15 @@
             </StackPanel>
         </ScrollViewer>
 
+        <!-- Two columns, so the stamps on the left end with "..." before the buttons rather than
+             running underneath them (a long "Emailed ..." line, with the Email button showing). -->
         <Grid Grid.Row="1" Margin="16,10,16,0">
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
-                <Button Content="?" Width="32" Padding="0,6" Click="Help_Click" ToolTip="Help"
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <DockPanel Grid.Column="0" HorizontalAlignment="Left" Margin="0,0,8,0">
+                <Button DockPanel.Dock="Left" Content="?" Width="32" Padding="0,6" Click="Help_Click" ToolTip="Help"
                         Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
                 <!-- Edit mode only: when the task was finished (if it has been) and last changed. -->
                 <StackPanel x:Name="TaskStampPanel" Margin="10,0,0,0" VerticalAlignment="Center" Visibility="Collapsed">
@@ -468,8 +474,8 @@
                     <TextBlock x:Name="EmailedStampText" FontSize="11" Visibility="Collapsed" ToolTipService.ShowDuration="30000" TextTrimming="CharacterEllipsis" MaxWidth="430"
                                Foreground="{DynamicResource SecondaryTextStrongBrush}"/>
                 </StackPanel>
-            </StackPanel>
-            <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
+            </DockPanel>
+            <StackPanel Grid.Column="1" HorizontalAlignment="Right" Orientation="Horizontal">
                 <Button Content="Save as Template..." Padding="12,6" Margin="0,0,8,0" Click="SaveAsTemplate_Click"
                         ToolTip="Save what is filled in here as a template for new tasks. Dates are kept as so many days from today; attachments and Waiting On are not kept."
                         Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
@@ -478,7 +484,7 @@
                         Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
                 <Button Content="Cancel" Width="80" Padding="0,6" IsCancel="True"
                         Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
-                <Button x:Name="SubmitButton" Content="Add Task" Width="90" Padding="0,6" Margin="8,0,0,0" IsDefault="True" Click="Add_Click"
+                <Button x:Name="SubmitButton" Content="Add Task" MinWidth="90" Padding="12,6" Margin="8,0,0,0" IsDefault="True" Click="Add_Click"
                         Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
             </StackPanel>
         </Grid>
