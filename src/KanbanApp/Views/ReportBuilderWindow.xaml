@@ -154,6 +154,8 @@
                     <CheckBox x:Name="StatsColumnTimesCheckBox" Content="Time in each column" Margin="0,0,18,4" Foreground="{DynamicResource PrimaryTextBrush}"
                               ToolTip="How long finished tasks spent in each column on the way to Done"/>
                 </WrapPanel>
+                <CheckBox x:Name="StatsChartsCheckBox" Content="Include charts" Margin="0,4,0,0" Foreground="{DynamicResource PrimaryTextBrush}"
+                          ToolTip="A chart in each section, with a line saying how to read it. Untick for the tables only."/>
             </StackPanel>
 
             <TextBlock Grid.Row="0" x:Name="GroupByLabel" Text="Group by" Style="{StaticResource FieldLabelStyle}"/>

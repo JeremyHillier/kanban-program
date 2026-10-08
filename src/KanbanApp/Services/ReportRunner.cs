@@ -83,7 +83,7 @@ public static class ReportRunner
     }
 
     private static ReportService.SavedStatisticsSections SectionsOf(SavedReportView view) =>
-        new(view.StatsShowSummary, view.StatsShowBreakdown, view.StatsShowOverTime, view.StatsShowColumnTimes);
+        new(view.StatsShowSummary, view.StatsShowBreakdown, view.StatsShowOverTime, view.StatsShowColumnTimes, view.StatsShowCharts);
 
     // The line under the report's title saying what it covers. Written from the saved view, so it
     // matches what the Report Builder would print for the same choices, with the dates as they

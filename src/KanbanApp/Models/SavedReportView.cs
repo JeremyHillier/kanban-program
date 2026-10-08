@@ -57,6 +57,7 @@ public class SavedReportView
     public bool StatsShowBreakdown { get; set; } = true;
     public bool StatsShowOverTime { get; set; } = true;
     public bool StatsShowColumnTimes { get; set; } = true;
+    public bool StatsShowCharts { get; set; } = true; // a view saved before charts existed gets them
 
     public const string TaskListType = "TaskList";
     public const string StatisticsType = "Statistics";

@@ -22,6 +22,14 @@ public static partial class ReportService
     private static readonly Color StatsMuted = Color.FromRgb(0x69, 0x69, 0x69);
     private static readonly Color StatsRule = Color.FromRgb(0xD3, 0xD3, 0xD3);
 
+    // The charts' colours, told apart by people with colour blindness: blue for what was finished
+    // (and on time), a pale blue for what was added beside it, orange for late, grey for still open.
+    private static readonly Color ChartFinished = Color.FromRgb(0x2A, 0x78, 0xD6);
+    private static readonly Color ChartAdded = Color.FromRgb(0xA8, 0xCB, 0xF0);
+    private static readonly Color ChartLate = Color.FromRgb(0xE0, 0x73, 0x2F);
+    private static readonly Color ChartOpen = Color.FromRgb(0xA6, 0xA6, 0xA6);
+    private static readonly Color ChartGrid = Color.FromRgb(0xE4, 0xE4, 0xE4);
+
     public static FixedDocument BuildStatisticsDocument(string title, TaskStatisticsResult result, SavedStatisticsSections sections, string breakdown,
         string overTime, bool isLandscape, string? parameterSummary)
     {
@@ -60,7 +68,7 @@ public static partial class ReportService
     }
 
     // Which sections a statistics report shows.
-    public sealed record SavedStatisticsSections(bool Summary, bool Breakdown, bool OverTime, bool ColumnTimes);
+    public sealed record SavedStatisticsSections(bool Summary, bool Breakdown, bool OverTime, bool ColumnTimes, bool Charts = true);
 
     // ----- Layout -----
 
@@ -116,7 +124,12 @@ public static partial class ReportService
             : TextWrap.Lines(parameterSummary, s => MeasureStats(s, 11, false), contentWidth * 0.55);
         var bandHeight = Math.Max(70, 44 + paramLines.Count * 15 + 12);
         items.Add(new StatsBox(0, 0, pageWidth, bandHeight, StatsAccent));
-        items.Add(new StatsText(margin, 12, FitStats(title, 20, true, contentWidth * 0.42), 20, true, false, Colors.White));
+        // A long title steps down in size to fit beside what the report covers, and is only shortened
+        // if it still doesn't fit at 14.
+        var titleWidth = contentWidth * 0.42;
+        var titleSize = 20.0;
+        while (titleSize > 14 && MeasureStats(title, titleSize, true) > titleWidth) titleSize--;
+        items.Add(new StatsText(margin, 12 + (20 - titleSize) / 2, FitStats(title, titleSize, true, titleWidth), titleSize, true, false, Colors.White));
         items.Add(new StatsText(margin, 44, $"Generated {DateTime.Now:MMM d, yyyy h:mm tt}", 10, false, false, StatsBand));
         var paramY = 44.0;
         foreach (var line in paramLines)
@@ -218,8 +231,130 @@ public static partial class ReportService
             y += 14;
         }
 
+        // ----- Charts. Each is drawn under a short title, with a line saying how to read it. -----
+
+        void ChartTitle(string text, double keepWithNext)
+        {
+            EnsureSpace(18 + keepWithNext);
+            items.Add(new StatsText(margin, y, text, 10.5, true, false, Colors.Black));
+            y += 16;
+        }
+
+        void Legend(IReadOnlyList<(string Label, Color Color)> entries)
+        {
+            var x = margin;
+            foreach (var (label, color) in entries)
+            {
+                items.Add(new StatsBox(x, y + 2, 9, 9, color));
+                items.Add(new StatsText(x + 13, y, label, 8.5, false, false, StatsMuted));
+                x += 13 + MeasureStats(label, 8.5, false) + 16;
+            }
+            y += 15;
+        }
+
+        // Up to five gridlines at a round step, so the scale reads at a glance.
+        static (double Top, double Step) Scale(double max)
+        {
+            if (max <= 0) return (1, 1);
+            var rough = max / 4;
+            var power = Math.Pow(10, Math.Floor(Math.Log10(rough)));
+            var step = new[] { 1, 2, 5, 10 }.Select(m => m * power).First(st => st >= rough);
+            step = Math.Max(step, 1);
+            return (Math.Ceiling(max / step) * step, step);
+        }
+
+        // Upright bars, one or more side by side for each label, against a scale on the left.
+        void ColumnChart(IReadOnlyList<(string Label, IReadOnlyList<int> Values)> groups, IReadOnlyList<Color> colors)
+        {
+            const double height = 120, axisWidth = 30, labelSize = 7.5;
+            EnsureSpace(height + 30);
+            y += 8; // room for the top figure on the scale
+            var (top, step) = Scale(groups.SelectMany(g => g.Values).DefaultIfEmpty(0).Max());
+            var plotLeft = margin + axisWidth;
+            var plotWidth = contentWidth - axisWidth;
+            var bottom = y + height;
+
+            for (var v = 0.0; v <= top + step / 2; v += step)
+            {
+                var gy = bottom - v / top * height;
+                items.Add(new StatsLine(plotLeft, gy, plotLeft + plotWidth, gy, v == 0 ? StatsMuted : ChartGrid, v == 0 ? 0.8 : 0.5));
+                items.Add(new StatsText(plotLeft - 5, gy - 5, v.ToString("0", CultureInfo.CurrentCulture), labelSize, false, false, StatsMuted, AlignRight: true));
+            }
+
+            var slot = plotWidth / Math.Max(groups.Count, 1);
+            var series = Math.Max(colors.Count, 1);
+            var barWidth = Math.Min(16, slot * 0.72 / series);
+            var every = (int)Math.Ceiling(groups.Count / Math.Max(1.0, Math.Floor(plotWidth / 46))); // labels at least ~46pt apart
+            for (var i = 0; i < groups.Count; i++)
+            {
+                var centre = plotLeft + slot * (i + 0.5);
+                var left = centre - barWidth * series / 2;
+                for (var k = 0; k < groups[i].Values.Count; k++)
+                {
+                    var h = groups[i].Values[k] / top * height;
+                    if (h > 0) items.Add(new StatsBox(left + k * barWidth, bottom - h, Math.Max(barWidth - 1, 1), h, colors[k % colors.Count]));
+                }
+                if (i % every == 0) items.Add(new StatsText(centre, bottom + 3, groups[i].Label, labelSize, false, false, StatsMuted, Centre: true));
+            }
+            y = bottom + 17;
+        }
+
+        // Sideways bars, one per label, each split into its parts, with the figure at the end.
+        void BarChart(IReadOnlyList<(string Label, IReadOnlyList<(double Value, Color Color)> Parts, string Figure)> bars)
+        {
+            const double rowHeight = 15, barHeight = 9, size = 8.5;
+            var labelWidth = contentWidth * 0.28;
+            var barLeft = margin + labelWidth;
+            var barSpace = contentWidth - labelWidth - 46;
+            var max = Math.Max(bars.Select(b => b.Parts.Sum(p => p.Value)).DefaultIfEmpty(0).Max(), 1e-9);
+            var axisTop = y;
+
+            foreach (var (label, parts, figure) in bars)
+            {
+                if (!Fits(rowHeight))
+                {
+                    items.Add(new StatsLine(barLeft, axisTop, barLeft, y, StatsMuted, 0.8));
+                    NewPage();
+                    axisTop = y;
+                }
+                items.Add(new StatsText(margin, y + 1, FitStats(label, size, false, labelWidth - 8), size, false, false, Colors.Black));
+                var x = barLeft;
+                foreach (var (value, color) in parts)
+                {
+                    var w = barSpace * value / max;
+                    if (w > 0) items.Add(new StatsBox(x, y + (rowHeight - barHeight) / 2, Math.Max(w, 1.5), barHeight, color));
+                    x += w;
+                }
+                items.Add(new StatsText(x + 5, y + 1, figure, size, false, false, StatsMuted));
+                y += rowHeight;
+            }
+            items.Add(new StatsLine(barLeft, axisTop, barLeft, y, StatsMuted, 0.8));
+            y += 6;
+        }
+
+        // One bar the full width, split into shares of a whole, each labelled inside when it fits.
+        void ShareBar(IReadOnlyList<(string Label, int Count, Color Color)> parts)
+        {
+            const double height = 18;
+            EnsureSpace(height + 22);
+            var total = Math.Max(parts.Sum(p => p.Count), 1);
+            var x = margin;
+            foreach (var (_, count, color) in parts)
+            {
+                var w = contentWidth * count / total;
+                if (w <= 0) continue;
+                items.Add(new StatsBox(x, y, w, height, color));
+                var share = $"{Math.Round(count * 100.0 / total):0}%";
+                if (MeasureStats(share, 9, true) + 8 < w) items.Add(new StatsText(x + w / 2, y + 3, share, 9, true, false, Colors.White, Centre: true));
+                x += w;
+            }
+            y += height + 5;
+            Legend(parts.Select(p => ($"{p.Label} ({p.Count})", p.Color)).ToList());
+        }
+
         var s = result.Summary;
         var period = StatisticsPeriods.Describe(result.From, result.To);
+        var charts = sections.Charts;
 
         if (result.TaskCount == 0)
         {
@@ -240,16 +375,42 @@ public static partial class ReportService
                     (s.OpenNow.ToString(CultureInfo.CurrentCulture), "Open now", "on the board, not in Done"),
                     (s.OverdueNow.ToString(CultureInfo.CurrentCulture), "Overdue now", "open, past the due date")
                 ]);
+
+                if (charts && s.FinishedWithDueDate > 0)
+                {
+                    ChartTitle("Finished on time", 40);
+                    ShareBar([("On time", s.FinishedOnTime, ChartFinished), ("Late", s.FinishedWithDueDate - s.FinishedOnTime, ChartLate)]);
+                    Note("Of the tasks finished in the period that had a due date: blue were finished on or before it, orange after it.");
+                }
+
+                if (charts && result.FinishTimes.Any(f => f.Tasks > 0))
+                {
+                    ChartTitle("How long finished tasks took", 140);
+                    ColumnChart(result.FinishTimes.Select(f => (f.Label, (IReadOnlyList<int>)[f.Tasks])).ToList(), [ChartFinished]);
+                    Note("Each bar counts the tasks finished in the period that took that long from being added to reaching Done. A tall bar on the left means most work is quick; bars on the right are the long-running tasks the typical figure doesn't show.");
+                }
             }
 
             if (sections.Breakdown && breakdown != "None")
             {
                 var label = breakdown switch { "Who" => "Person", _ => breakdown };
-                Heading($"By {label.ToLowerInvariant()}", 40);
+                Heading($"By {label.ToLowerInvariant()}", charts && result.Groups.Count > 0 ? 60 + 15 * Math.Min(result.Groups.Count, 15) : 40); // with its chart, if there is one
                 if (breakdown == "Who") Note("A shared task counts under each of its people.");
                 if (result.Groups.Count == 0) Note("Nothing to show for this period.");
                 else
                 {
+                    if (charts)
+                    {
+                        const int most = 15;
+                        var shown = result.Groups.OrderByDescending(g => g.Finished + g.OpenNow).ThenBy(g => g.Name, StringComparer.CurrentCultureIgnoreCase).Take(most).ToList();
+                        ChartTitle($"Finished and open now, by {label.ToLowerInvariant()}", 21 + 15 * shown.Count); // kept on one page
+                        Legend([("Finished in the period", ChartFinished), ("Open now", ChartOpen)]);
+                        BarChart(shown.Select(g => (g.Name, (IReadOnlyList<(double, Color)>)[(g.Finished, ChartFinished), (g.OpenNow, ChartOpen)],
+                            $"{g.Finished} + {g.OpenNow}")).ToList());
+                        Note((result.Groups.Count > most ? $"The {most} with the most tasks; the table below lists all {result.Groups.Count}. " : "")
+                            + "A long blue part is where work got done; a long grey part is where it is waiting to be done.");
+                    }
+
                     Table(
                     [
                         new(label, 0.32, false), new("Added", 0.10, true), new("Finished", 0.11, true), new("On time", 0.11, true),
@@ -266,14 +427,34 @@ public static partial class ReportService
 
             if (sections.OverTime)
             {
-                Heading(overTime == "Month" ? "Month by month" : "Week by week", 40);
-                Table(
-                [
-                    new(overTime == "Month" ? "Month" : "Week", 0.30, false), new("Added", 0.12, true), new("Finished", 0.12, true), new("", 0.46, false)
-                ],
-                result.Buckets.Select(b => (IReadOnlyList<string>)
-                    [b.Label, b.Added.ToString(CultureInfo.CurrentCulture), b.Finished.ToString(CultureInfo.CurrentCulture), ""]).ToList(),
-                barColumn: 3, barValues: result.Buckets.Select(b => b.Finished).ToList());
+                Heading(overTime == "Month" ? "Month by month" : "Week by week", charts ? 160 : 40);
+                if (charts)
+                {
+                    var spansYears = result.From.Year != result.To.Year;
+                    string Short(DateTime start) => overTime == "Month"
+                        ? start.ToString(spansYears ? "MMM yy" : "MMM", CultureInfo.CurrentCulture)
+                        : start.ToString(spansYears ? "MMM d yy" : "MMM d", CultureInfo.CurrentCulture);
+                    Legend([("Added", ChartAdded), ("Finished", ChartFinished)]);
+                    ColumnChart(result.Buckets.Select(b => (Short(b.Start), (IReadOnlyList<int>)[b.Added, b.Finished])).ToList(), [ChartAdded, ChartFinished]);
+                    Note($"Each pair is one {(overTime == "Month" ? "month" : "week, from its Monday")}: tasks added, then tasks finished. Where the blue bar is the taller, more was finished than came in and the backlog shrank.");
+                    Table(
+                    [
+                        new(overTime == "Month" ? "Month" : "Week", 0.40, false), new("Added", 0.20, true), new("Finished", 0.20, true), new("Backlog change", 0.20, true)
+                    ],
+                    result.Buckets.Select(b => (IReadOnlyList<string>)
+                        [b.Label, b.Added.ToString(CultureInfo.CurrentCulture), b.Finished.ToString(CultureInfo.CurrentCulture),
+                         (b.Added - b.Finished).ToString("+0;-0;0", CultureInfo.CurrentCulture)]).ToList());
+                }
+                else
+                {
+                    Table(
+                    [
+                        new(overTime == "Month" ? "Month" : "Week", 0.30, false), new("Added", 0.12, true), new("Finished", 0.12, true), new("", 0.46, false)
+                    ],
+                    result.Buckets.Select(b => (IReadOnlyList<string>)
+                        [b.Label, b.Added.ToString(CultureInfo.CurrentCulture), b.Finished.ToString(CultureInfo.CurrentCulture), ""]).ToList(),
+                    barColumn: 3, barValues: result.Buckets.Select(b => b.Finished).ToList());
+                }
             }
 
             if (sections.ColumnTimes)
@@ -283,6 +464,14 @@ public static partial class ReportService
                 if (result.ColumnTimes.Count == 0) Note("No tasks were finished in this period.");
                 else
                 {
+                    if (charts)
+                    {
+                        ChartTitle("Typical days in each column", 20 + 15 * result.ColumnTimes.Count);
+                        BarChart(result.ColumnTimes.Select(c => (c.Column, (IReadOnlyList<(double, Color)>)[(c.TypicalDays, ChartFinished)],
+                            c.TypicalDays < 1 ? "under 1 day" : $"{TaskStatistics.Days(c.TypicalDays)} days")).ToList());
+                        Note("The longest bar is where tasks wait longest on their way to Done.");
+                    }
+
                     Table(
                     [
                         new("Column", 0.34, false), new("Tasks", 0.16, true), new("Typical days", 0.25, true), new("Longest days", 0.25, true)

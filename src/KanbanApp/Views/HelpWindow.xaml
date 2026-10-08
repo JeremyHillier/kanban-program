@@ -301,6 +301,9 @@
                 <local:BulletItem Text="Over time: tasks added and finished, week by week or month by month."/>
                 <local:BulletItem Text="Time in each column: how long finished tasks spent in each column on the way to Done."/>
                 <local:BulletItem Text="Typical is the middle value, so one long-forgotten task doesn't skew it."/>
+                <local:BulletItem Text="Include charts adds a chart to each section, with a line on how to read it."/>
+                <local:BulletItem Text="Charts: on time against late, how long tasks took, and finished and open by group."/>
+                <local:BulletItem Text="Also: added against finished over time, and typical days in each column."/>
                 <local:BulletItem Text="The filters apply. Archived tasks count; deleted ones don't."/>
                 <local:BulletItem Text="A saved view keeps the period, so Last month is always last month."/>
                 <TextBlock Text="Output" Style="{StaticResource HelpSubHeaderStyle}"/>

@@ -6,6 +6,14 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.130.0 — 2026-10-08
+
+> - New: statistics reports now include charts, each with a line explaining how to read it: tasks finished on time against late, how long finished tasks took, finished and open tasks for each project or person, tasks added against finished week by week or month by month, and the typical days tasks spend in each column.
+> - New: an Include charts option in the Report Builder, for a report with the tables only.
+> - Improved: a long statistics report title now fits in the report's heading instead of being cut short.
+- Charts are drawn in colours that stay distinguishable for people with colour blindness, and print and save to PDF exactly as they appear in Preview.
+- The week-by-week and month-by-month table now shows how much the backlog grew or shrank in each period.
+
 ## 0.129.0 — 2026-10-08
 
 > - New: statistics reports. In the Report Builder, choose Statistics to see, for any period, how many tasks were added and finished, how many were finished on time, how many days tasks typically take, and how many are open or overdue now.

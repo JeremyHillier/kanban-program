@@ -70,8 +70,12 @@ public sealed record StatisticsBucket(string Label, DateTime Start, int Added, i
 
 public sealed record StatisticsColumnTime(string Column, int Tasks, double TypicalDays, double LongestDays);
 
+// How many of the tasks finished in the period took about this long, from added to Done.
+public sealed record StatisticsFinishTime(string Label, int Tasks);
+
 public sealed record TaskStatisticsResult(DateTime From, DateTime To, int TaskCount, StatisticsSummary Summary,
-    IReadOnlyList<StatisticsGroup> Groups, IReadOnlyList<StatisticsBucket> Buckets, IReadOnlyList<StatisticsColumnTime> ColumnTimes);
+    IReadOnlyList<StatisticsGroup> Groups, IReadOnlyList<StatisticsBucket> Buckets, IReadOnlyList<StatisticsColumnTime> ColumnTimes,
+    IReadOnlyList<StatisticsFinishTime> FinishTimes);
 
 // Works out a statistics report from the tasks a report's filters select (board and archived; a
 // deleted task is in neither) and their history:
@@ -95,7 +99,29 @@ public static class TaskStatistics
         var tasks = rows.Select(r => new TaskFacts(r, history.TryGetValue(r.CardId, out var events) ? events : [], options, today)).ToList();
 
         return new TaskStatisticsResult(options.From, options.To, tasks.Count, Summarise(tasks),
-            Groups(tasks, options.Breakdown), Buckets(tasks, options), ColumnTimes(tasks, columns));
+            Groups(tasks, options.Breakdown), Buckets(tasks, options), ColumnTimes(tasks, columns), FinishTimes(tasks));
+    }
+
+    // The spread behind "typical days to finish": a few long-running tasks show up here, where the
+    // middle value alone would hide them. Every band is listed, even an empty one, so the chart's
+    // shape reads the same from one report to the next.
+    private static readonly (string Label, double Under)[] FinishBands =
+    [
+        ("Same day", 1), ("1-2 days", 3), ("3-7 days", 8), ("1-2 weeks", 15), ("2-4 weeks", 31), ("Over a month", double.MaxValue)
+    ];
+
+    private static List<StatisticsFinishTime> FinishTimes(IReadOnlyList<TaskFacts> tasks)
+    {
+        var days = tasks.Where(t => t.DaysToFinish is not null).Select(t => t.DaysToFinish!.Value).ToList();
+        var from = 0.0;
+        var bands = new List<StatisticsFinishTime>();
+        foreach (var (label, under) in FinishBands)
+        {
+            var lower = from;
+            bands.Add(new StatisticsFinishTime(label, days.Count(d => d >= lower && d < under)));
+            from = under;
+        }
+        return bands;
     }
 
     private sealed class TaskFacts

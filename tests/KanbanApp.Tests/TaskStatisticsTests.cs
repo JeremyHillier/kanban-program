@@ -138,6 +138,28 @@ public sealed class TaskStatisticsTests(WpfDispatcherFixture wpf) : IDisposable
     }
 
     [Fact]
+    public void HowLongTasksTook_IsCountedInBands_AllListed()
+    {
+        var bands = Example().FinishTimes;
+        Assert.Equal(["Same day", "1-2 days", "3-7 days", "1-2 weeks", "2-4 weeks", "Over a month"], bands.Select(b => b.Label));
+        Assert.Equal([0, 0, 1, 0, 1, 0], bands.Select(b => b.Tasks)); // 5 days and 19 days
+    }
+
+    [Fact]
+    public void Charts_CanBeLeftOut_AndOlderViewsGetThem() => wpf.Run(() =>
+    {
+        var with = ReportService.BuildStatisticsDocument("S", Example(), new(true, true, true, true, Charts: true), "Project", "Week", false, null);
+        var without = ReportService.BuildStatisticsDocument("S", Example(), new(true, true, true, true, Charts: false), "Project", "Week", false, null);
+        Assert.True(with.Pages.Count >= without.Pages.Count);
+
+        static int Shapes(System.Windows.Documents.FixedDocument d) =>
+            d.Pages.Sum(p => ((System.Windows.Controls.Canvas)p.Child.Children[0]).Children.Count);
+        Assert.True(Shapes(with) > Shapes(without) + 20);
+
+        Assert.True(JsonSerializer.Deserialize<SavedReportView>("""{"Name":"Old","ReportType":"Statistics"}""")!.StatsShowCharts);
+    });
+
+    [Fact]
     public void Days_ReadPlainly() =>
         Assert.Equal(["under 1", "3", "12.5", "-"], new double?[] { 0.4, 3, 12.48, null }.Select(TaskStatistics.Days));
 

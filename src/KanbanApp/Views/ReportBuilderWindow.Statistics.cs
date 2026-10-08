@@ -29,6 +29,7 @@ public partial class ReportBuilderWindow
         SelectComboItemByTag(StatsBreakdownComboBox, "Project");
         SelectComboItemByTag(StatsOverTimeComboBox, "Week");
         StatsSummaryCheckBox.IsChecked = StatsBreakdownCheckBox.IsChecked = StatsOverTimeCheckBox.IsChecked = StatsColumnTimesCheckBox.IsChecked = true;
+        StatsChartsCheckBox.IsChecked = true;
         ShowPeriodDates();
     }
 
@@ -93,6 +94,7 @@ public partial class ReportBuilderWindow
         view.StatsShowBreakdown = StatsBreakdownCheckBox.IsChecked == true;
         view.StatsShowOverTime = StatsOverTimeCheckBox.IsChecked == true;
         view.StatsShowColumnTimes = StatsColumnTimesCheckBox.IsChecked == true;
+        view.StatsShowCharts = StatsChartsCheckBox.IsChecked == true;
     }
 
     private void ApplyStatisticsOptions(SavedReportView view)
@@ -110,6 +112,7 @@ public partial class ReportBuilderWindow
         StatsBreakdownCheckBox.IsChecked = view.StatsShowBreakdown;
         StatsOverTimeCheckBox.IsChecked = view.StatsShowOverTime;
         StatsColumnTimesCheckBox.IsChecked = view.StatsShowColumnTimes;
+        StatsChartsCheckBox.IsChecked = view.StatsShowCharts;
 
         // Checking a radio button that is already checked raises nothing, so the fields are shown here too.
         (view.IsStatistics ? StatisticsRadio : TaskListRadio).IsChecked = true;
