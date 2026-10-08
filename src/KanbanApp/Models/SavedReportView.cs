@@ -1,3 +1,6 @@
+using System.Text.Json.Serialization;
+using KanbanApp.Services;
+
 namespace KanbanApp.Models;
 
 // A named, full snapshot of every Report Builder field - broader than a CustomFilter slot (which
@@ -40,4 +43,24 @@ public class SavedReportView
     public bool IncludeNotes { get; set; } = true;
     public bool IncludeSubTasks { get; set; } = true;
     public bool IncludeSubTaskSummary { get; set; }
+
+    // "TaskList" or "Statistics". A view saved before statistics existed has none, so reads as a
+    // task list. The fields below are the statistics report's own options (see TaskStatistics);
+    // the filters above apply to both kinds.
+    public string ReportType { get; set; } = TaskListType;
+    public string StatsPeriod { get; set; } = StatisticsPeriods.Last30Days;
+    public string? StatsFrom { get; set; } // custom period only, yyyy-MM-dd
+    public string? StatsTo { get; set; }
+    public string StatsBreakdown { get; set; } = "Project";
+    public string StatsOverTime { get; set; } = "Week";
+    public bool StatsShowSummary { get; set; } = true;
+    public bool StatsShowBreakdown { get; set; } = true;
+    public bool StatsShowOverTime { get; set; } = true;
+    public bool StatsShowColumnTimes { get; set; } = true;
+
+    public const string TaskListType = "TaskList";
+    public const string StatisticsType = "Statistics";
+
+    [JsonIgnore]
+    public bool IsStatistics => ReportType == StatisticsType;
 }

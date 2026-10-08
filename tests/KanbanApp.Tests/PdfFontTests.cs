@@ -60,5 +60,19 @@ public sealed class PdfFontTests : IDisposable
         Assert.StartsWith("%PDF", pdf);
         Assert.Contains("Lato", pdf);
         Assert.DoesNotContain("Segoe", pdf);
+
+        // The statistics report too (here, for the same reason), with every section and a second page.
+        var statsPath = _temp.File("statistics.pdf");
+        var groups = Enumerable.Range(1, 60).Select(i => new StatisticsGroup($"Project {i}", i, i, i, i / 2, 2.5, 1, 0)).ToList();
+        var result = new TaskStatisticsResult(new DateTime(2026, 9, 1), new DateTime(2026, 9, 30), 120,
+            new StatisticsSummary(10, 8, 6, 5, 3.5, 4, 1), groups,
+            [new StatisticsBucket("Week of Sep 1, 2026", new DateTime(2026, 9, 1), 3, 2)],
+            [new StatisticsColumnTime("To Do", 8, 1.5, 6)]);
+        ReportService.SaveStatisticsPdf("Statistics", result, new ReportService.SavedStatisticsSections(true, true, true, true), "Project", "Week",
+            isLandscape: false, "Period: Last month", statsPath);
+
+        var statsPdf = Encoding.Latin1.GetString(File.ReadAllBytes(statsPath));
+        Assert.StartsWith("%PDF", statsPdf);
+        Assert.Contains("/Count 2", statsPdf); // the 60-row table runs onto a second page
     }
 }

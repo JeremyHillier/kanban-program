@@ -68,6 +68,17 @@
             <Button Grid.Column="3" Content="Delete View" Width="90" Padding="0,6" Click="DeleteReportView_Click"
                     Background="#FFE57373" Foreground="White"/>
         </Grid>
+        <!-- A list of tasks, or figures about them. The filters below apply to both; each has its own
+             options, and the ones that don't apply are hidden (see ShowOptionsForReportType). -->
+        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,12">
+            <TextBlock Text="Report type" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,14,0" Foreground="{DynamicResource PrimaryTextBrush}"/>
+            <RadioButton x:Name="TaskListRadio" Content="Task list" GroupName="ReportType" IsChecked="True" Margin="0,0,20,0"
+                         Checked="ReportType_Checked" Foreground="{DynamicResource PrimaryTextBrush}"
+                         ToolTip="A list of the tasks the filters pick"/>
+            <RadioButton x:Name="StatisticsRadio" Content="Statistics" GroupName="ReportType"
+                         Checked="ReportType_Checked" Foreground="{DynamicResource PrimaryTextBrush}"
+                         ToolTip="Figures about the tasks the filters pick, over a period: added, finished, on time, how long they take"/>
+        </StackPanel>
         <!-- Docked under the form, outside its scroll, so Preview and PDF never leave the screen. -->
         <Grid DockPanel.Dock="Bottom" Margin="0,12,0,0">
             <Grid.RowDefinitions>
@@ -87,7 +98,65 @@
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
-            <TextBlock Grid.Row="0" Text="Group by" Style="{StaticResource FieldLabelStyle}"/>
+            <!-- The statistics report's own options, in place of the task list's grouping, sort and
+                 scope (hidden while Statistics is chosen, and these while it isn't). -->
+            <StackPanel Grid.Row="0" x:Name="StatisticsOptionsPanel" Visibility="Collapsed">
+                <TextBlock Text="Period" Style="{StaticResource FieldLabelStyle}"/>
+                <StackPanel Orientation="Horizontal">
+                    <ComboBox x:Name="StatsPeriodComboBox" Padding="6" Width="170" SelectionChanged="StatsPeriodComboBox_SelectionChanged"
+                              ToolTip="The days the report covers. A saved view keeps the choice, so Last month is always last month."
+                              Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                              BorderBrush="{DynamicResource CardBorderBrush}"/>
+                    <TextBlock Text="From" VerticalAlignment="Center" Margin="16,0,6,0" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                    <DatePicker x:Name="StatsFromDatePicker" Padding="4" Width="140" Loaded="DatePicker_Loaded"
+                                ToolTip="Choose Custom dates to set your own period"
+                                Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                                BorderBrush="{DynamicResource CardBorderBrush}"/>
+                    <TextBlock Text="To" VerticalAlignment="Center" Margin="12,0,6,0" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                    <DatePicker x:Name="StatsToDatePicker" Padding="4" Width="140" Loaded="DatePicker_Loaded"
+                                ToolTip="Choose Custom dates to set your own period"
+                                Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                                BorderBrush="{DynamicResource CardBorderBrush}"/>
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal">
+                    <StackPanel Margin="0,0,24,0">
+                        <TextBlock Text="Break down by" Style="{StaticResource FieldLabelStyle}"/>
+                        <ComboBox x:Name="StatsBreakdownComboBox" Padding="6" Width="170"
+                                  ToolTip="One row each in the breakdown table. A shared task counts under each of its people."
+                                  Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                                  BorderBrush="{DynamicResource CardBorderBrush}">
+                            <ComboBoxItem Content="Project" Tag="Project"/>
+                            <ComboBoxItem Content="Person" Tag="Who"/>
+                            <ComboBoxItem Content="Priority" Tag="Priority"/>
+                            <ComboBoxItem Content="Goal" Tag="Goal"/>
+                        </ComboBox>
+                    </StackPanel>
+                    <StackPanel>
+                        <TextBlock Text="Over time" Style="{StaticResource FieldLabelStyle}"/>
+                        <ComboBox x:Name="StatsOverTimeComboBox" Padding="6" Width="170"
+                                  Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                                  BorderBrush="{DynamicResource CardBorderBrush}">
+                            <ComboBoxItem Content="Week by week" Tag="Week"/>
+                            <ComboBoxItem Content="Month by month" Tag="Month"/>
+                        </ComboBox>
+                    </StackPanel>
+                </StackPanel>
+
+                <TextBlock Text="Sections" Style="{StaticResource FieldLabelStyle}"/>
+                <WrapPanel>
+                    <CheckBox x:Name="StatsSummaryCheckBox" Content="Summary" Margin="0,0,18,4" Foreground="{DynamicResource PrimaryTextBrush}"
+                              ToolTip="Added, finished, finished on time, typical days to finish, open now and overdue now"/>
+                    <CheckBox x:Name="StatsBreakdownCheckBox" Content="Breakdown" Margin="0,0,18,4" Foreground="{DynamicResource PrimaryTextBrush}"
+                              ToolTip="The same figures for each project, person, priority or goal"/>
+                    <CheckBox x:Name="StatsOverTimeCheckBox" Content="Over time" Margin="0,0,18,4" Foreground="{DynamicResource PrimaryTextBrush}"
+                              ToolTip="Tasks added and finished in each week or month"/>
+                    <CheckBox x:Name="StatsColumnTimesCheckBox" Content="Time in each column" Margin="0,0,18,4" Foreground="{DynamicResource PrimaryTextBrush}"
+                              ToolTip="How long finished tasks spent in each column on the way to Done"/>
+                </WrapPanel>
+            </StackPanel>
+
+            <TextBlock Grid.Row="0" x:Name="GroupByLabel" Text="Group by" Style="{StaticResource FieldLabelStyle}"/>
             <ComboBox Grid.Row="1" x:Name="GroupByComboBox" Padding="6" HorizontalAlignment="Left" Width="200" SelectedIndex="0"
                       SelectionChanged="GroupByComboBox_SelectionChanged"
                       Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
@@ -100,8 +169,8 @@
                 <ComboBoxItem Content="Goal" Tag="Goal"/>
             </ComboBox>
 
-            <TextBlock Grid.Row="2" Text="Sort order" Style="{StaticResource FieldLabelStyle}"/>
-            <StackPanel Grid.Row="3" Orientation="Horizontal">
+            <TextBlock Grid.Row="2" x:Name="SortOrderLabel" Text="Sort order" Style="{StaticResource FieldLabelStyle}"/>
+            <StackPanel Grid.Row="3" x:Name="SortLevelsPanel" Orientation="Horizontal">
                 <StackPanel Orientation="Vertical" Margin="0,0,16,0">
                     <TextBlock Text="1st" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,0,0,2"/>
                     <ComboBox x:Name="SortLevel1ComboBox" Padding="6" Width="140" SelectedIndex="0" SelectionChanged="SortLevelComboBox_SelectionChanged"
@@ -149,8 +218,8 @@
                 </StackPanel>
             </StackPanel>
 
-            <TextBlock Grid.Row="4" Text="Task scope" Style="{StaticResource FieldLabelStyle}"/>
-            <StackPanel Grid.Row="5" Orientation="Horizontal">
+            <TextBlock Grid.Row="4" x:Name="TaskScopeLabel" Text="Task scope" Style="{StaticResource FieldLabelStyle}"/>
+            <StackPanel Grid.Row="5" x:Name="TaskScopePanel" Orientation="Horizontal">
                 <RadioButton x:Name="BoardOnlyRadio" Content="Board tasks" GroupName="ArchiveScope" IsChecked="True" Margin="0,0,20,0"
                              Foreground="{DynamicResource PrimaryTextBrush}"/>
                 <RadioButton x:Name="BoardAndArchivedRadio" Content="Board tasks + archived" GroupName="ArchiveScope" Margin="0,0,20,0"
@@ -167,8 +236,8 @@
                              Foreground="{DynamicResource PrimaryTextBrush}"/>
             </StackPanel>
 
-            <TextBlock Grid.Row="8" Text="Archived date range (applies to archived tasks only)" Style="{StaticResource FieldLabelStyle}"/>
-            <StackPanel Grid.Row="9" Orientation="Horizontal">
+            <TextBlock Grid.Row="8" x:Name="ArchivedRangeLabel" Text="Archived date range (applies to archived tasks only)" Style="{StaticResource FieldLabelStyle}"/>
+            <StackPanel Grid.Row="9" x:Name="ArchivedRangePanel" Orientation="Horizontal">
                 <TextBlock Text="From" VerticalAlignment="Center" Margin="0,0,6,0" Foreground="{DynamicResource PrimaryTextBrush}"/>
                 <DatePicker x:Name="ArchivedFromDatePicker" Padding="4" Width="140" Loaded="DatePicker_Loaded"
                             Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
@@ -248,7 +317,7 @@
                   Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
                   BorderBrush="{DynamicResource CardBorderBrush}"/>
 
-        <TextBlock Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" Text="Include Columns" Style="{StaticResource FieldLabelStyle}"/>
+        <TextBlock Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" x:Name="IncludeColumnsLabel" Text="Include Columns" Style="{StaticResource FieldLabelStyle}"/>
         <WrapPanel Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3" x:Name="ColumnsPanel"/>
 
         <TextBlock Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="3" Text="Filters" Style="{StaticResource SectionHeaderStyle}"/>
@@ -266,7 +335,7 @@
                   BorderBrush="{DynamicResource CardBorderBrush}"/>
 
         <TextBlock Grid.Row="9" Grid.Column="0" Text="Flag" Style="{StaticResource FieldLabelStyle}"/>
-        <TextBlock Grid.Row="9" Grid.Column="2" Text="Due" Style="{StaticResource FieldLabelStyle}"/>
+        <TextBlock Grid.Row="9" Grid.Column="2" x:Name="DueFilterLabel" Text="Due" Style="{StaticResource FieldLabelStyle}"/>
         <ComboBox Grid.Row="10" Grid.Column="0" x:Name="FlagFilterComboBox" Padding="6"
                   Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
                   BorderBrush="{DynamicResource CardBorderBrush}"/>
@@ -274,8 +343,8 @@
                   Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
                   BorderBrush="{DynamicResource CardBorderBrush}"/>
 
-        <TextBlock Grid.Row="11" Grid.Column="0" Grid.ColumnSpan="3" Text="Due date range (this report only)" Style="{StaticResource SectionHeaderStyle}"/>
-        <StackPanel Grid.Row="12" Grid.Column="0" Grid.ColumnSpan="3">
+        <TextBlock Grid.Row="11" Grid.Column="0" Grid.ColumnSpan="3" x:Name="DueRangeHeader" Text="Due date range (this report only)" Style="{StaticResource SectionHeaderStyle}"/>
+        <StackPanel Grid.Row="12" Grid.Column="0" Grid.ColumnSpan="3" x:Name="DueRangePanel">
         <StackPanel Orientation="Horizontal">
             <TextBlock Text="From" VerticalAlignment="Center" Margin="0,0,6,0" Foreground="{DynamicResource PrimaryTextBrush}"/>
             <DatePicker x:Name="DueFromDatePicker" Padding="4" Width="140" Loaded="DatePicker_Loaded"

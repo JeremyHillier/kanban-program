@@ -102,7 +102,7 @@ public sealed class PriorityBoardTests(WpfDispatcherFixture wpf) : IDisposable
 
         Assert.Equal("Critical", board.TaskTemplates.Single().Priority);
         Assert.Equal(["Critical"], board.CustomFilters[1].Priority);
-        Assert.Equal(["Critical", "Medium"], board.SavedReportViews.Single().Priority);
+        Assert.Equal(["Critical", "Medium"], board.SavedReportViews.Single(v => v.Name == "Hot").Priority);
         Assert.True(board.PriorityFilterOptions.Single(o => o.Name == "Critical").IsSelected); // still filtering
         Assert.True(card.IsVisible);
         Assert.False(Card(board, "hidden").IsVisible);
@@ -110,7 +110,7 @@ public sealed class PriorityBoardTests(WpfDispatcherFixture wpf) : IDisposable
         var reopened = OpenBoard();
         Assert.Equal("Critical", reopened.TaskTemplates.Single().Priority);
         Assert.Equal(["Critical"], reopened.CustomFilters[1].Priority);
-        Assert.Equal(["Critical", "Medium"], reopened.SavedReportViews.Single().Priority);
+        Assert.Equal(["Critical", "Medium"], reopened.SavedReportViews.Single(v => v.Name == "Hot").Priority);
     });
 
     [Fact]
@@ -135,7 +135,7 @@ public sealed class PriorityBoardTests(WpfDispatcherFixture wpf) : IDisposable
         Assert.True(board.DeletePriority("High"));
 
         Assert.Equal("Normal", card.Priority);
-        Assert.Equal(["Medium"], board.SavedReportViews.Single().Priority);
+        Assert.Equal(["Medium"], board.SavedReportViews.Single(v => v.Name == "Hot").Priority);
         Assert.Equal("Normal", board.TaskTemplates.Single().Priority);
         Assert.Equal(["Medium", "Normal", "Low"], board.PriorityFilterOptions.Select(o => o.Name));
         Assert.Equal("Normal", Card(OpenBoard(), "was high").Priority);

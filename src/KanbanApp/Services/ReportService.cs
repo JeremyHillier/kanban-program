@@ -42,7 +42,7 @@ public static partial class ReportService
                 {
                     if (!CardMatches(card)) continue;
 
-                    rows.Add(BuildRow(card, column.DisplayName, isArchived: false));
+                    rows.Add(BuildRow(card, column.DisplayName, isArchived: false, columnKey: column.Name));
                 }
             }
         }
@@ -79,10 +79,12 @@ public static partial class ReportService
             .ThenBy(s => s.SubTaskTitle, StringComparer.OrdinalIgnoreCase)
             .ToList();
 
-    private static ReportRow BuildRow(CardViewModel card, string columnName, bool isArchived) => new()
+    private static ReportRow BuildRow(CardViewModel card, string columnName, bool isArchived, string? columnKey = null) => new()
     {
+        CardId = card.Id,
         Title = card.Title,
         ColumnName = columnName,
+        ColumnKey = columnKey,
         ProjectName = card.ProjectName,
         Priority = card.Priority,
         PriorityRank = card.PriorityRank,

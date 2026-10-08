@@ -6,6 +6,15 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.129.0 — 2026-10-08
+
+> - New: statistics reports. In the Report Builder, choose Statistics to see, for any period, how many tasks were added and finished, how many were finished on time, how many days tasks typically take, and how many are open or overdue now.
+> - New: statistics can be broken down by project, person, priority or goal, shown week by week or month by month, and include how long tasks spend in each column on the way to Done.
+> - New: statistics reports use the same filters as task lists, can be saved as views and run from Quick Report, and print or save as a PDF.
+> - New: a set of standard reports, ready to run from Quick Report: Overdue and Due Today, Due Within a Week, Open Tasks by Person, Open Tasks by Project, and three statistics reports. They can be changed or deleted like your own.
+- A saved statistics view keeps its period rather than its dates, so Last month is always last month.
+- Typical days are the middle value, so one long-forgotten task does not skew them.
+
 ## 0.128.1 — 2026-10-07
 
 > - Improved: when you edit a task, the button that saves your changes and closes the window now says Save & Close.

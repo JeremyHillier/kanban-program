@@ -67,17 +67,21 @@ public partial class ReportBuilderWindow : Window
         }
 
         SavedViewsComboBox.ItemsSource = _viewModel.SavedReportViews;
+        SetUpStatisticsOptions();
 
         ResetFields();
 
         _initializing = false;
         UpdateSortLevelAvailability();
+        ShowOptionsForReportType();
     }
 
     // Shared by the constructor and the Reset button, so both restore exactly the same defaults.
     private void ResetFields()
     {
-        ReportTitleTextBox.Text = "Kanban Task Report";
+        TaskListRadio.IsChecked = true;
+        ReportTitleTextBox.Text = TaskListTitle;
+        ResetStatisticsOptions();
 
         foreach (var checkBox in _columnCheckBoxes) checkBox.IsChecked = (string)checkBox.Tag != "Done";
 
@@ -109,6 +113,7 @@ public partial class ReportBuilderWindow : Window
         IncludeSubTaskSummaryCheckBox.IsChecked = false;
 
         UpdateSortLevelAvailability();
+        ShowOptionsForReportType();
     }
 
     private void Reset_Click(object sender, RoutedEventArgs e)
@@ -161,7 +166,7 @@ public partial class ReportBuilderWindow : Window
     private string GetGroupBy() => (string)((ComboBoxItem)GroupByComboBox.SelectedItem).Tag;
 
     private string GetReportTitle() =>
-        string.IsNullOrWhiteSpace(ReportTitleTextBox.Text) ? "Kanban Task Report" : ReportTitleTextBox.Text.Trim();
+        !string.IsNullOrWhiteSpace(ReportTitleTextBox.Text) ? ReportTitleTextBox.Text.Trim() : IsStatistics ? StatisticsTitle : TaskListTitle;
 
     private ReportArchiveScope GetArchiveScope() =>
         ArchivedOnlyRadio.IsChecked == true ? ReportArchiveScope.ArchivedOnly
@@ -268,6 +273,13 @@ public partial class ReportBuilderWindow : Window
 
     private void Preview_Click(object sender, RoutedEventArgs e)
     {
+        if (IsStatistics)
+        {
+            if (!StatisticsHaveASection()) return;
+            new ReportPreviewWindow(ReportRunner.BuildDocument(_viewModel, CaptureCurrentAsView(GetReportTitle()), DateTime.Today)) { Owner = this }.ShowDialog();
+            return;
+        }
+
         var title = GetReportTitle();
         var rows = BuildRows();
         var document = ReportService.BuildFixedDocument(
@@ -280,10 +292,19 @@ public partial class ReportBuilderWindow : Window
     private void Pdf_Click(object sender, RoutedEventArgs e)
     {
         var title = GetReportTitle();
-        var rows = BuildRows();
+        if (IsStatistics && !StatisticsHaveASection()) return;
 
         var filePath = ReportPdfLocation.Choose(this, _viewModel.DefaultExportPath, title);
         if (filePath is null) return;
+
+        if (IsStatistics)
+        {
+            ReportRunner.SavePdf(_viewModel, CaptureCurrentAsView(title), DateTime.Today, filePath);
+            Dialogs.Tell(this, "Report Saved", "The report was saved as a PDF.", detail: filePath);
+            return;
+        }
+
+        var rows = BuildRows();
 
         ReportService.SavePdf(title, rows, GetGroupBy(), IncludeNotesCheckBox.IsChecked == true, IncludeSubTasksCheckBox.IsChecked == true, filePath,
             IncludeSubTaskSummaryCheckBox.IsChecked == true, LandscapeRadio.IsChecked == true, GetParameterSummary());

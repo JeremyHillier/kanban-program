@@ -70,7 +70,14 @@ public partial class ReportBuilderWindow
     // Captures every field this window exposes - broader than GetParameterSummary, which only
     // describes the filter/scope/sort choices that affect which rows match, not layout choices
     // like columns, orientation, or the Notes/Sub-tasks toggles.
-    private SavedReportView CaptureCurrentAsView(string name) => new()
+    private SavedReportView CaptureCurrentAsView(string name)
+    {
+        var view = CaptureTaskListFields(name);
+        CaptureStatisticsOptions(view);
+        return view;
+    }
+
+    private SavedReportView CaptureTaskListFields(string name) => new()
     {
         Name = name,
         Title = GetReportTitle(),
@@ -143,6 +150,7 @@ public partial class ReportBuilderWindow
         IncludeSubTaskSummaryCheckBox.IsChecked = view.IncludeSubTaskSummary;
 
         UpdateSortLevelAvailability();
+        ApplyStatisticsOptions(view);
     }
 
     private static void SelectComboItem(ComboBox combo, string value)

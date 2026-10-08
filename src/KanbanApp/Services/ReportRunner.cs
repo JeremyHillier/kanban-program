@@ -31,12 +31,59 @@ public static class ReportRunner
     }
 
     public static FixedDocument BuildDocument(MainViewModel board, SavedReportView view, DateTime today) =>
-        ReportService.BuildFixedDocument(view.Title, BuildRows(board, view, today), view.GroupBy, view.IncludeNotes, view.IncludeSubTasks,
-            view.IncludeSubTaskSummary, view.IsLandscape, Summarise(view, today));
+        view.IsStatistics
+            ? ReportService.BuildStatisticsDocument(view.Title, BuildStatistics(board, view, today), SectionsOf(view), view.StatsBreakdown,
+                view.StatsOverTime, view.IsLandscape, Summarise(view, today))
+            : ReportService.BuildFixedDocument(view.Title, BuildRows(board, view, today), view.GroupBy, view.IncludeNotes, view.IncludeSubTasks,
+                view.IncludeSubTaskSummary, view.IsLandscape, Summarise(view, today));
 
-    public static void SavePdf(MainViewModel board, SavedReportView view, DateTime today, string filePath) =>
+    public static void SavePdf(MainViewModel board, SavedReportView view, DateTime today, string filePath)
+    {
+        if (view.IsStatistics)
+        {
+            ReportService.SaveStatisticsPdf(view.Title, BuildStatistics(board, view, today), SectionsOf(view), view.StatsBreakdown,
+                view.StatsOverTime, view.IsLandscape, Summarise(view, today), filePath);
+            return;
+        }
+
         ReportService.SavePdf(view.Title, BuildRows(board, view, today), view.GroupBy, view.IncludeNotes, view.IncludeSubTasks, filePath,
             view.IncludeSubTaskSummary, view.IsLandscape, Summarise(view, today));
+    }
+
+    // A statistics report covers every task its filters pick, on the board and archived, whatever
+    // column it is in or when it is due - the period, not the due dates, decides what is counted.
+    public static TaskStatisticsResult BuildStatistics(MainViewModel board, SavedReportView view, DateTime today)
+    {
+        var unionFilters = board.CustomFilters
+            .Where(f => f is not null && view.CustomFilterNames.Contains(f.Name))
+            .Select(f => f!)
+            .ToList();
+
+        var rows = ReportService.BuildRows(
+            board.Columns,
+            board.Columns.Select(c => c.Name).ToHashSet(),
+            view.Project, view.Priority, view.Who, view.Goal, view.Flag, "All",
+            null, null, false,
+            unionFilters.Count > 0 ? unionFilters : null,
+            "None", "None", "None",
+            ReportArchiveScope.BoardAndArchived,
+            board.GetArchivedReportRows());
+
+        var history = board.GetStatisticsHistory();
+        var (from, to) = PeriodOf(view, today, history);
+        return TaskStatistics.Compute(rows, history, board.Columns.Select(c => (c.Name, c.DisplayName)).ToList(),
+            new StatisticsOptions(from, to, view.StatsBreakdown, view.StatsOverTime), today);
+    }
+
+    // All time starts from the first task ever added.
+    private static (DateTime From, DateTime To) PeriodOf(SavedReportView view, DateTime today, IReadOnlyDictionary<int, List<TaskEvent>>? history = null)
+    {
+        var earliest = history?.Values.SelectMany(e => e).Where(e => e.IsCreated).Select(e => (DateTime?)e.At).Min();
+        return StatisticsPeriods.Resolve(view.StatsPeriod, today, RelativeDate.Resolve(view.StatsFrom, today), RelativeDate.Resolve(view.StatsTo, today), earliest);
+    }
+
+    private static ReportService.SavedStatisticsSections SectionsOf(SavedReportView view) =>
+        new(view.StatsShowSummary, view.StatsShowBreakdown, view.StatsShowOverTime, view.StatsShowColumnTimes);
 
     // The line under the report's title saying what it covers. Written from the saved view, so it
     // matches what the Report Builder would print for the same choices, with the dates as they
@@ -44,6 +91,15 @@ public static class ReportRunner
     internal static string Summarise(SavedReportView view, DateTime today)
     {
         var parts = new List<string>();
+
+        if (view.IsStatistics)
+        {
+            // All time's real start needs the task file; "all time" says it plainly enough.
+            var (periodFrom, periodTo) = PeriodOf(view, today);
+            parts.Add(view.StatsPeriod == StatisticsPeriods.AllTime
+                ? "Period: all time"
+                : $"Period: {StatisticsPeriods.Label(view.StatsPeriod)}, {StatisticsPeriods.Describe(periodFrom, periodTo)}");
+        }
 
         if (view.CustomFilterNames.Count > 0) parts.Add($"Custom filters: {string.Join(", ", view.CustomFilterNames)}");
         else
@@ -56,6 +112,13 @@ public static class ReportRunner
             if (view.Flag != "All") filters.Add($"Flag: {view.Flag}");
             if (view.Due != "All") filters.Add($"Due: {view.Due}");
             if (filters.Count > 0) parts.Add("Filters: " + string.Join(", ", filters));
+        }
+
+        if (view.IsStatistics)
+        {
+            if (view.StatsShowBreakdown && view.StatsBreakdown != "None") parts.Add($"By: {(view.StatsBreakdown == "Who" ? "Person" : view.StatsBreakdown)}");
+            if (view.StatsShowOverTime) parts.Add(view.StatsOverTime == "Month" ? "Month by month" : "Week by week");
+            return "Statistics   |   " + string.Join("   |   ", parts);
         }
 
         var from = RelativeDate.Resolve(view.DueFrom, today);

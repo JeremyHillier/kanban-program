@@ -285,6 +285,7 @@
                 <local:BulletItem Text="Double-click Import Tasks to review tasks still marked Imported."/>
 
                 <TextBlock x:Name="HelpSection_ReportBuilder" Text="Report Builder" Style="{StaticResource HelpSectionHeaderStyle}"/>
+                <local:BulletItem Text="Report type: a Task list, or Statistics about your tasks."/>
                 <TextBlock Text="Building a report" Style="{StaticResource HelpSubHeaderStyle}"/>
                 <local:BulletItem Text="Choose the columns, filters, grouping, sort, notes and sub-tasks."/>
                 <local:BulletItem Text="Sort takes up to three levels."/>
@@ -293,6 +294,15 @@
                 <local:BulletItem Text="Custom Filters: tick saved filters to include any task matching one."/>
                 <local:BulletItem Text="The sub-task summary counts how often each sub-task was done. Useful for recurring tasks."/>
                 <local:BulletItem Text="Grouped by Who, a shared task is listed under each person."/>
+                <TextBlock Text="Statistics" Style="{StaticResource HelpSubHeaderStyle}"/>
+                <local:BulletItem Text="Pick a period: last 7 or 30 days, a month, quarter or year, all time, or your own dates."/>
+                <local:BulletItem Text="Summary: added, finished, finished on time, typical days to finish, open and overdue now."/>
+                <local:BulletItem Text="Breakdown: the same figures for each project, person, priority or goal."/>
+                <local:BulletItem Text="Over time: tasks added and finished, week by week or month by month."/>
+                <local:BulletItem Text="Time in each column: how long finished tasks spent in each column on the way to Done."/>
+                <local:BulletItem Text="Typical is the middle value, so one long-forgotten task doesn't skew it."/>
+                <local:BulletItem Text="The filters apply. Archived tasks count; deleted ones don't."/>
+                <local:BulletItem Text="A saved view keeps the period, so Last month is always last month."/>
                 <TextBlock Text="Output" Style="{StaticResource HelpSubHeaderStyle}"/>
                 <local:BulletItem Text="Preview shows the pages, with zoom and Print."/>
                 <local:BulletItem Text="PDF saves to the Default Export Path, or asks where."/>
@@ -304,6 +314,7 @@
                 <local:BulletItem Text="The Today buttons keep 'today' in a saved view, so it stays current."/>
                 <local:BulletItem Text="Right-click a Today button for so many days from today."/>
                 <local:BulletItem Text="Quick Report, Ctrl+Shift+P, runs a saved view in two clicks."/>
+                <local:BulletItem Text="Standard reports come ready to run. Change or delete them like your own."/>
                 <local:BulletItem Text="Reset all fields puts everything back to the defaults."/>
 
                 <TextBlock Text="Dashboard" Style="{StaticResource HelpSectionHeaderStyle}"/>
