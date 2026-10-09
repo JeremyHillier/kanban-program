@@ -53,11 +53,19 @@
                           ToolTip="The task columns share the width of the board and resize with the window. When the window is too narrow, the board scrolls sideways instead."
                           Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,8"
                           Checked="FitColumnsCheckBox_Changed" Unchecked="FitColumnsCheckBox_Changed"/>
+                <TextBlock x:Name="MinFittedWidthLabel" Text="Narrowest a fitted column can get (pixels)" Style="{StaticResource FieldLabelStyle}"/>
+                <TextBox x:Name="MinFittedWidthTextBox" Width="100" Padding="6" HorizontalAlignment="Left" Margin="0,0,0,10"
+                         LostFocus="MinFittedWidthTextBox_LostFocus"
+                         ToolTip="When the window is too narrow for the columns at this width, the board scrolls sideways instead. Lower it to fit more on a small screen."
+                         Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                         BorderBrush="{DynamicResource CardBorderBrush}"/>
                 <TextBlock x:Name="ColumnWidthLabel" Text="Task column width when not fitted (pixels)" Style="{StaticResource FieldLabelStyle}"/>
-                <TextBox x:Name="ColumnWidthTextBox" Width="100" Padding="6" HorizontalAlignment="Left" Margin="0,0,0,20"
+                <TextBox x:Name="ColumnWidthTextBox" Width="100" Padding="6" HorizontalAlignment="Left" Margin="0,0,0,6"
                          LostFocus="ColumnWidthTextBox_LostFocus"
                          Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
                          BorderBrush="{DynamicResource CardBorderBrush}"/>
+                <TextBlock x:Name="ColumnWidthHint" FontSize="11" Margin="0,0,0,20" TextWrapping="Wrap"
+                           Foreground="{DynamicResource SecondaryTextBrush}"/>
 
                 <TextBlock Text="Columns" Style="{StaticResource SectionHeaderStyle}"/>
                 <TextBlock Text="Rename any column's label. Its role on the board (e.g. what counts as &quot;done&quot;) doesn't change, and the letters on each card's move buttons follow the names."

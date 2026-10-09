@@ -178,6 +178,8 @@ public partial class MainWindow
         viewModel.ToggleCardSize();
     }
 
+    private void ToggleCardButtons_Click(object sender, RoutedEventArgs e) => (DataContext as MainViewModel)?.ToggleCardButtons();
+
     // Shared by every XAML-declared DatePicker in this window (the due-date range filter's From/To
     // pickers) - the board's own due-date quick-edit popup above builds its DatePicker in code and
     // wires CalendarWheelSupport.Attach directly instead, since it has no XAML element to hang a

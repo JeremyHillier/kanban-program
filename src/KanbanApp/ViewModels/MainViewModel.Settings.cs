@@ -102,13 +102,13 @@ public partial class MainViewModel
         get => _columnWidth;
         set
         {
-            if (SetField(ref _columnWidth, value)) OnPropertyChanged(nameof(EffectiveColumnWidth));
+            if (SetField(ref _columnWidth, value)) NotifyColumnWidthChanged();
         }
     }
 
     public void SetColumnWidth(int value)
     {
-        ColumnWidth = Math.Clamp(value, MinColumnWidth, 800);
+        ColumnWidth = Math.Clamp(value, SmallestColumnWidth, MaxColumnWidth);
         _db.SetSetting("ColumnWidth", ColumnWidth.ToString());
     }
 
@@ -116,10 +116,33 @@ public partial class MainViewModel
     // is resized or the button column is shown or hidden. Off, every column is ColumnWidth wide.
     // Either way a board too narrow for its columns scrolls sideways.
     public const double ColumnGap = 12;             // each column's right margin on the board
-    // The narrowest a task column can be, fitted or not: room for a card's six quick buttons (147px)
-    // plus the column and card padding and the list's scrollbar (59px), with some to spare. Below it,
-    // fitting gives way to scrolling sideways.
-    public const int MinColumnWidth = 240;
+    // The narrowest any task column can be. A card's six quick buttons need 147px plus the column and
+    // card padding and the list's scrollbar (59px), so below about 210 they wrap onto two rows - the
+    // four move buttons, then Done and Delete (two groups in a WrapPanel). At 160 the move buttons
+    // still fit on one row and the card's text still reads; narrower and it doesn't.
+    public const int SmallestColumnWidth = 160;
+    public const int MaxColumnWidth = 800;
+
+    // Fit to window shares the board out until each column would be narrower than this, and then
+    // scrolls sideways instead. 240 keeps the buttons on one row; users with a small screen can
+    // lower it (Settings) as far as SmallestColumnWidth to fit more on without scrolling.
+    public const int DefaultMinFittedColumnWidth = 240;
+
+    private int _minFittedColumnWidth = DefaultMinFittedColumnWidth;
+    public int MinFittedColumnWidth
+    {
+        get => _minFittedColumnWidth;
+        private set
+        {
+            if (SetField(ref _minFittedColumnWidth, value)) NotifyColumnWidthChanged();
+        }
+    }
+
+    public void SetMinFittedColumnWidth(int value)
+    {
+        MinFittedColumnWidth = Math.Clamp(value, SmallestColumnWidth, MaxColumnWidth);
+        _db.SetSetting("MinFittedColumnWidth", MinFittedColumnWidth.ToString());
+    }
 
     private bool _isFitColumnsToWindow = true;
     public bool IsFitColumnsToWindow
@@ -127,7 +150,7 @@ public partial class MainViewModel
         get => _isFitColumnsToWindow;
         private set
         {
-            if (SetField(ref _isFitColumnsToWindow, value)) OnPropertyChanged(nameof(EffectiveColumnWidth));
+            if (SetField(ref _isFitColumnsToWindow, value)) NotifyColumnWidthChanged();
         }
     }
 
@@ -144,17 +167,17 @@ public partial class MainViewModel
     {
         if (!double.IsFinite(width) || Math.Abs(width - _boardWidth) < 0.5) return;
         _boardWidth = width;
-        OnPropertyChanged(nameof(EffectiveColumnWidth));
+        NotifyColumnWidthChanged();
     }
 
     // What the board actually draws each column at. A pixel is kept back so rounding on a scaled
     // display can't tip the row over the edge and bring up a scrollbar for nothing.
-    public double EffectiveColumnWidth => FittedColumnWidth(IsFitColumnsToWindow, _boardWidth, Columns.Count, ColumnWidth);
+    public double EffectiveColumnWidth => FittedColumnWidth(IsFitColumnsToWindow, _boardWidth, Columns.Count, ColumnWidth, MinFittedColumnWidth);
 
-    internal static double FittedColumnWidth(bool fit, double boardWidth, int columnCount, int fixedWidth)
+    internal static double FittedColumnWidth(bool fit, double boardWidth, int columnCount, int fixedWidth, int minWidth = DefaultMinFittedColumnWidth)
     {
         if (!fit || boardWidth <= 0 || columnCount == 0) return fixedWidth;
-        return Math.Max(MinColumnWidth, Math.Floor((boardWidth - 1) / columnCount - ColumnGap));
+        return Math.Max(minWidth, Math.Floor((boardWidth - 1) / columnCount - ColumnGap));
     }
 
     // Heights of the sidebar's multi-select filter lists, adjusted by dragging the grip under each.

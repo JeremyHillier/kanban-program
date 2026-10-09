@@ -50,6 +50,7 @@
                 <local:BulletItem Text="Ctrl+Q: quit."/>
                 <local:BulletItem Text="Alt+A: archive done tasks."/>
                 <local:BulletItem Text="Alt+B: hide or show the button column."/>
+                <local:BulletItem Text="Alt+U: hide or show the buttons on the cards."/>
                 <local:BulletItem Text="Alt+P, Alt+G, Alt+F, Alt+W: manage Projects, Goals, Flags or Who."/>
                 <local:BulletItem Text="Alt+M: manage task templates."/>
                 <local:BulletItem Text="Alt+R: Reminders."/>
@@ -366,9 +367,15 @@
                 <local:BulletItem Text="Dark Mode or Light Mode switches the theme."/>
                 <local:BulletItem Text="Large or Compact Cards sets how much each card shows."/>
                 <local:BulletItem Text="Compact cards still show what a task is waiting on."/>
+                <local:BulletItem Text="Hide Buttons, or Alt+U, takes the buttons off every card. Right-click a card for the same actions."/>
                 <local:BulletItem Text="Hide, or Alt+B, folds the button column to a thin strip. Click the strip to bring it back."/>
                 <local:BulletItem Text="While folded, the strip warns when filters are hiding tasks."/>
                 <local:BulletItem Text="Compact buttons, in Settings, makes the button column smaller for small screens."/>
+                <TextBlock Text="Small screens" Style="{StaticResource HelpSubHeaderStyle}"/>
+                <local:BulletItem Text="Columns fit the window down to 240 pixels each, then the board scrolls sideways."/>
+                <local:BulletItem Text="In Settings, lower the narrowest a fitted column can get, down to 160, to fit more on."/>
+                <local:BulletItem Text="In a narrow column, a card's buttons go onto two rows and its lesser details are left off."/>
+                <local:BulletItem Text="Left off: goal, flags, attachments, the Updated line and the side buttons."/>
 
                 <TextBlock x:Name="HelpSection_Settings" Text="Settings" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <TextBlock Text="How it works" Style="{StaticResource HelpSubHeaderStyle}"/>

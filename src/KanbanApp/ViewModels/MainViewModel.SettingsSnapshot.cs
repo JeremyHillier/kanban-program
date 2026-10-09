@@ -13,7 +13,7 @@ public partial class MainViewModel
     // changed. Column names are flattened to one string for the same reason.
     public sealed record SettingsSnapshot(
         string ColumnDisplayNames,
-        bool IsButtonsOnRight, int ColumnWidth,
+        bool IsButtonsOnRight, int ColumnWidth, int MinFittedColumnWidth,
         bool AutoBackupEnabled, int BackupRetentionCount,
         bool ShowSplash, int SplashDelayMs,
         string DefaultExportPath, string DefaultImportPath, string LinkedFilesDefaultPath,
@@ -25,7 +25,7 @@ public partial class MainViewModel
 
     public SettingsSnapshot CaptureSettings() => new(
         string.Join(ColumnNameSeparator, Columns.Select(c => c.DisplayName)),
-        IsButtonsOnRight, ColumnWidth,
+        IsButtonsOnRight, ColumnWidth, MinFittedColumnWidth,
         AutoBackupEnabled, BackupRetentionCount,
         ShowSplash, SplashDelayMs,
         DefaultExportPath, DefaultImportPath, LinkedFilesDefaultPath,
@@ -42,6 +42,7 @@ public partial class MainViewModel
 
         if (IsButtonsOnRight != snapshot.IsButtonsOnRight) ToggleButtonPosition();
         SetColumnWidth(snapshot.ColumnWidth);
+        SetMinFittedColumnWidth(snapshot.MinFittedColumnWidth);
         SetFitColumnsToWindow(snapshot.IsFitColumnsToWindow);
         SetAutoBackupEnabled(snapshot.AutoBackupEnabled);
         SetBackupRetentionCount(snapshot.BackupRetentionCount);

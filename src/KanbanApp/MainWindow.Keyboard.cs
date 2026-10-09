@@ -108,6 +108,10 @@ public partial class MainWindow
                         (DataContext as MainViewModel)?.ToggleSidebar();
                         e.Handled = true;
                         break;
+                    case Key.U:
+                        (DataContext as MainViewModel)?.ToggleCardButtons();
+                        e.Handled = true;
+                        break;
                     case Key.T:
                         if (DataContext is MainViewModel todayViewModel) todayViewModel.ShowTodayOnly();
                         e.Handled = true;

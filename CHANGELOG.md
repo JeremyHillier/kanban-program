@@ -6,6 +6,14 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.132.0 — 2026-10-09
+
+> - New: task columns can now be as narrow as 160 pixels, to fit the whole board on a small screen. In Settings, set the narrowest a fitted column can get; the standard is still 240.
+> - New: in a narrow column, cards show less so what remains stays readable: their buttons go onto two rows, and the goal, flags, attachments, Updated line and side buttons are left off.
+> - New: a Hide Buttons button in the button column (Alt+U) takes the buttons off every card for a cleaner board. Everything they do is still on a card's right-click menu.
+- The fixed column width, used when columns are not fitted to the window, can also go down to 160 pixels.
+- Dates and other details on a card now wrap onto a second line instead of being cut off.
+
 ## 0.131.0 — 2026-10-09
 
 > - New: Schedule in Outlook puts a task in your calendar as an appointment, with its details and attachments. Find it on the task's right-click menu, as a calendar button on large cards, and as Schedule on the task screen.

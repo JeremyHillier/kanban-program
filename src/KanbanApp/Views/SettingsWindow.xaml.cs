@@ -49,6 +49,8 @@ public partial class SettingsWindow : Window
         RefreshPrioritiesSummary();
         ButtonsOnRightCheckBox.IsChecked = viewModel.IsButtonsOnRight;
         ColumnWidthTextBox.Text = viewModel.ColumnWidth.ToString();
+        MinFittedWidthTextBox.Text = viewModel.MinFittedColumnWidth.ToString();
+        ColumnWidthHint.Text = $"From {MainViewModel.SmallestColumnWidth} to {MainViewModel.MaxColumnWidth}. Below about 210, the buttons on each task go onto two rows.";
         FitColumnsCheckBox.IsChecked = viewModel.IsFitColumnsToWindow;
         RefreshColumnWidthBox();
         DbPathTextBox.Text = viewModel.CurrentDbPath;
@@ -294,6 +296,12 @@ public partial class SettingsWindow : Window
         ColumnWidthTextBox.Text = _viewModel.ColumnWidth.ToString();
     }
 
+    private void MinFittedWidthTextBox_LostFocus(object sender, RoutedEventArgs e)
+    {
+        if (int.TryParse(MinFittedWidthTextBox.Text.Trim(), out var width)) _viewModel.SetMinFittedColumnWidth(width);
+        MinFittedWidthTextBox.Text = _viewModel.MinFittedColumnWidth.ToString();
+    }
+
     private void FitColumnsCheckBox_Changed(object sender, RoutedEventArgs e)
     {
         if (!IsLoaded) return; // setting IsChecked in the constructor isn't a change
@@ -301,12 +309,14 @@ public partial class SettingsWindow : Window
         RefreshColumnWidthBox();
     }
 
-    // The pixel width only applies when the columns aren't fitted to the window.
+    // Fitted, the narrowest width applies; not fitted, the fixed width does. The other is greyed out.
     private void RefreshColumnWidthBox()
     {
         var fixedWidth = FitColumnsCheckBox.IsChecked != true;
         ColumnWidthTextBox.IsEnabled = fixedWidth;
         ColumnWidthLabel.Opacity = fixedWidth ? 1 : 0.5;
+        MinFittedWidthTextBox.IsEnabled = !fixedWidth;
+        MinFittedWidthLabel.Opacity = fixedWidth ? 0.5 : 1;
     }
 
     private void About_Click(object sender, RoutedEventArgs e)

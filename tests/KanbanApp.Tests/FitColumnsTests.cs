@@ -23,7 +23,7 @@ public sealed class FitColumnsTests(WpfDispatcherFixture wpf) : IDisposable
     public void TheBoardIsSharedEvenly_WithRoomForTheGaps_AndAMinimumWidth(double board, int columns, double expected)
     {
         Assert.Equal(expected, MainViewModel.FittedColumnWidth(true, board, columns, 310));
-        Assert.True(expected == MainViewModel.MinColumnWidth || columns * (expected + MainViewModel.ColumnGap) < board);
+        Assert.True(expected == MainViewModel.DefaultMinFittedColumnWidth || columns * (expected + MainViewModel.ColumnGap) < board);
     }
 
     [Theory]
@@ -69,5 +69,60 @@ public sealed class FitColumnsTests(WpfDispatcherFixture wpf) : IDisposable
         reopened.SetFitColumnsToWindow(true);
         Assert.Equal(340, reopened.EffectiveColumnWidth);
         Assert.True(OpenBoard().IsFitColumnsToWindow);
+    });
+
+    [Fact]
+    public void OnASmallScreen_TheNarrowestFittedWidthCanBeLowered_AndIsRemembered() => wpf.Run(() =>
+    {
+        var board = OpenBoard();
+        board.SetBoardWidth(900);                       // five columns of 168 would fit
+        Assert.Equal(240, board.EffectiveColumnWidth);  // held at the standard narrowest, so it scrolls
+        Assert.False(board.IsNarrowColumns);
+
+        board.SetMinFittedColumnWidth(160);
+        Assert.Equal(167, board.EffectiveColumnWidth);  // (899 / 5) - 12: everything on screen
+        Assert.True(board.IsNarrowColumns);
+        Assert.False(board.ShowCardExtras);
+
+        var reopened = OpenBoard();
+        Assert.Equal(160, reopened.MinFittedColumnWidth);
+        reopened.SetBoardWidth(1761);
+        Assert.False(reopened.IsNarrowColumns);         // plenty of room: the full card again
+        Assert.True(reopened.ShowCardExtras);
+    });
+
+    [Theory]
+    [InlineData(100, 160)]   // below the smallest a card can take
+    [InlineData(195, 195)]
+    [InlineData(5000, 800)]
+    public void ColumnWidths_StayWithinWhatACardCanTake(int typed, int kept) => wpf.Run(() =>
+    {
+        var board = OpenBoard();
+        board.SetMinFittedColumnWidth(typed);
+        board.SetColumnWidth(typed);
+        Assert.Equal(kept, board.MinFittedColumnWidth);
+        Assert.Equal(kept, board.ColumnWidth);
+    });
+
+    [Fact]
+    public void TheCardButtons_CanBeSwitchedOff_AndStaySo() => wpf.Run(() =>
+    {
+        var board = OpenBoard();
+        board.SetBoardWidth(1761);
+        Assert.True(board.ShowCardButtons);
+        Assert.True(board.ShowCardSideButtons);
+        Assert.Equal("Hide Buttons", board.CardButtonsButtonLabel);
+
+        board.ToggleCardButtons();
+        Assert.False(board.ShowCardButtons);
+        Assert.False(board.ShowCardSideButtons);
+        Assert.Equal("Show Buttons", board.CardButtonsButtonLabel);
+        Assert.False(OpenBoard().ShowCardButtons);
+
+        board.ToggleCardButtons();
+        board.SetMinFittedColumnWidth(160);
+        board.SetBoardWidth(900);
+        Assert.True(board.ShowCardButtons);             // the row stays, wrapped onto two lines
+        Assert.False(board.ShowCardSideButtons);        // but the side buttons go in a narrow column
     });
 }

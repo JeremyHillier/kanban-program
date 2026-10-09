@@ -93,7 +93,9 @@ public partial class MainViewModel : ObservableObject
         _isButtonsOnRight = _db.GetSetting("ButtonPosition") == "Right";
 
         _isCompactCards = _db.GetSetting("CardSize") == "Compact";
-        _columnWidth = Math.Clamp(_db.GetInt("ColumnWidth", 310), MinColumnWidth, 800);
+        LoadCardDisplay();
+        _columnWidth = Math.Clamp(_db.GetInt("ColumnWidth", 310), SmallestColumnWidth, MaxColumnWidth);
+        _minFittedColumnWidth = Math.Clamp(_db.GetInt("MinFittedColumnWidth", DefaultMinFittedColumnWidth), SmallestColumnWidth, MaxColumnWidth);
         _isFitColumnsToWindow = _db.GetFlag("FitColumnsToWindow", true);
         _projectFilterListHeight = LoadFilterListHeight(_db.GetSetting("ProjectFilterListHeight"));
         _priorityWhoFilterListHeight = LoadFilterListHeight(_db.GetSetting("PriorityWhoFilterListHeight"));
@@ -181,7 +183,7 @@ public partial class MainViewModel : ObservableObject
             }
             Columns.Add(columnVm);
         }
-        OnPropertyChanged(nameof(EffectiveColumnWidth)); // it divides the board by the number of columns
+        NotifyColumnWidthChanged(); // it divides the board by the number of columns
         RefreshColumnLetters();
         foreach (var property in (string[])[nameof(ToDoColumn), nameof(InProgressColumn), nameof(OnHoldColumn), nameof(WaitingColumn), nameof(DoneColumn)])
         {

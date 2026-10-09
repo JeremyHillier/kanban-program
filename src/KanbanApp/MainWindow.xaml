@@ -262,6 +262,18 @@
             </Style.Triggers>
         </Style>
 
+        <!-- Outlined like Hide Future while it is doing something: here, while the card buttons are hidden. -->
+        <Style x:Key="CardButtonsButtonStyle" BasedOn="{StaticResource SmallSquareButtonStyle}" TargetType="Button">
+            <Setter Property="BorderThickness" Value="1"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding ShowCardButtons}" Value="False">
+                    <Setter Property="BorderBrush" Value="White"/>
+                    <Setter Property="BorderThickness" Value="3"/>
+                    <Setter Property="FontWeight" Value="Bold"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
         <Style x:Key="SortButtonProject" BasedOn="{StaticResource SmallSquareButtonStyle}" TargetType="Button">
             <Setter Property="BorderThickness" Value="1"/>
             <Style.Triggers>
@@ -574,6 +586,10 @@
                                 <Button Style="{StaticResource SmallSquareButtonStyle}" Background="#FF537187" Foreground="White" Click="ToggleCardSize_Click"
                                         ToolTip="Toggle task cards between large (full detail) and small (compact) display">
                                     <TextBlock Text="{Binding CardSizeButtonLabel}" TextWrapping="Wrap" TextAlignment="Center"/>
+                                </Button>
+                                <Button Style="{StaticResource CardButtonsButtonStyle}" Background="#FF6D5E8C" Foreground="White" Click="ToggleCardButtons_Click"
+                                        ToolTip="Hide or show the buttons on each task card (Alt+U), for more room in narrow columns. Everything they do is still on a card's right-click menu.">
+                                    <TextBlock Text="{Binding CardButtonsButtonLabel}" TextWrapping="Wrap" TextAlignment="Center"/>
                                 </Button>
                                 <Button Style="{StaticResource UndoButtonStyle}" Background="#FF647E93" Foreground="White" Click="Undo_Click"
                                         IsEnabled="{Binding CanUndo}" ToolTip="{Binding UndoToolTip}" ToolTipService.ShowOnDisabled="True">
@@ -1014,15 +1030,18 @@
 
                                                             <StackPanel Grid.Column="0">
                                                                 <StackPanel Visibility="{Binding DataContext.IsLargeCards, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                                    <!-- Narrow columns leave these off (ShowCardExtras), with the Updated and attachments lines. -->
+                                                                    <StackPanel Visibility="{Binding DataContext.ShowCardExtras, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BooleanToVisibilityConverter}}">
                                                                     <TextBlock Text="{Binding GoalDisplay}" FontSize="10" Foreground="{DynamicResource SecondaryTextBrush}" FontStyle="Italic" Margin="0,3,0,0"
                                                                                Visibility="{Binding GoalDisplay, Converter={StaticResource EmptyStringToVisibilityConverter}}"/>
 
                                                                     <TextBlock Text="{Binding FlagsDisplay}" FontSize="10" Foreground="{DynamicResource SecondaryTextBrush}" FontStyle="Italic" Margin="0,3,0,0"
                                                                                Visibility="{Binding FlagsDisplay, Converter={StaticResource EmptyStringToVisibilityConverter}}"/>
+                                                                    </StackPanel>
 
                                                                     <!-- A WrapPanel, so a long list of people drops to its own line and wraps rather than being cut off. -->
                                                                     <WrapPanel Margin="0,3,0,0">
-                                                                        <TextBlock Text="{Binding DueDateDisplay}" FontSize="10" Margin="0,0,8,0"
+                                                                        <TextBlock Text="{Binding DueDateDisplay}" FontSize="10" Margin="0,0,8,0" TextWrapping="Wrap"
                                                                                    Cursor="Hand" ToolTip="Click to change due date"
                                                                                    MouseLeftButtonUp="DueDateDisplay_MouseLeftButtonUp"
                                                                                    Visibility="{Binding DueDateDisplay, Converter={StaticResource EmptyStringToVisibilityConverter}}">
@@ -1049,18 +1068,20 @@
                                                                                Cursor="Hand" ToolTip="Click to change or clear what this task is waiting on"
                                                                                MouseLeftButtonUp="WaitingOnDisplay_MouseLeftButtonUp"
                                                                                Visibility="{Binding WaitingOnDisplay, Converter={StaticResource EmptyStringToVisibilityConverter}}"/>
-                                                                    <TextBlock Text="{Binding StartDateDisplay}" FontSize="10" FontStyle="Italic"
+                                                                    <TextBlock Text="{Binding StartDateDisplay}" FontSize="10" FontStyle="Italic" TextWrapping="Wrap"
                                                                                Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,1,0,0"
                                                                                ToolTip="This task can't be started before this date"
                                                                                Visibility="{Binding StartDateDisplay, Converter={StaticResource EmptyStringToVisibilityConverter}}"/>
-                                                                    <TextBlock Text="{Binding RecurrenceDisplay}" FontSize="10" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,1,0,0"
+                                                                    <TextBlock Text="{Binding RecurrenceDisplay}" FontSize="10" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,1,0,0"
                                                                                Visibility="{Binding RecurrenceDisplay, Converter={StaticResource EmptyStringToVisibilityConverter}}"/>
-                                                                    <TextBlock Text="{Binding StatusStampDisplay}" FontSize="9" FontStyle="Italic"
+                                                                    <StackPanel Visibility="{Binding DataContext.ShowCardExtras, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                                    <TextBlock Text="{Binding StatusStampDisplay}" FontSize="9" FontStyle="Italic" TextWrapping="Wrap"
                                                                                Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,3,0,0"/>
 
                                                                     <TextBlock Text="{Binding AttachmentsCountDisplay}" FontSize="10"
                                                                                Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,3,0,0"
                                                                                Visibility="{Binding HasAttachments, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                                                    </StackPanel>
 
                                                                     <TextBlock Text="{Binding SubTaskProgressDisplay}" FontSize="10" FontWeight="SemiBold"
                                                                                Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,5,0,0"
@@ -1119,7 +1140,8 @@
                                                                 </TextBlock>
                                                             </StackPanel>
 
-                                                            <StackPanel Grid.Column="1" Margin="6,0,0,0" VerticalAlignment="Top">
+                                                            <StackPanel Grid.Column="1" Margin="6,0,0,0" VerticalAlignment="Top"
+                                                                        Visibility="{Binding DataContext.ShowCardSideButtons, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BooleanToVisibilityConverter}}">
                                                                 <Button Content="&#x1F3F7;" Background="#FF8D6E63"
                                                                         ToolTip="Add a flag" Click="AddFlagQuickAction_Click">
                                                                     <Button.Style>
@@ -1161,13 +1183,17 @@
                                                             </StackPanel>
                                                         </Grid>
 
-                                                        <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
+                                                        <WrapPanel Margin="0,6,0,-3" Visibility="{Binding DataContext.ShowCardButtons, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                            <!-- Two groups, so a narrow column wraps them as the four move buttons, then Done and
+                                                                 Delete - never one button alone on a second row. The groups' bottom margin spaces
+                                                                 the rows; the panel's -3 takes it back off a single row. -->
                                                             <!-- The letters and tooltips come from what the columns are called now (the user can
                                                                  rename them); Done is always a tick.
                                                                  Each quick-move button dims and disables itself when the card is already in
                                                                  that button's target column - clicking it there would be a no-op. The ancestor
                                                                  ItemsControl is this card's per-column Cards list, whose own DataContext is the
                                                                  enclosing ColumnViewModel, so its Name is the card's current column. -->
+                                                            <StackPanel Orientation="Horizontal" Margin="0,0,0,3">
                                                             <Button Content="{Binding DataContext.ToDoColumn.QuickLetter, RelativeSource={RelativeSource AncestorType=Window}}" Background="#FF42A5F5"
                                                                     Tag="To Do" ToolTip="{Binding DataContext.ToDoColumn.MoveToolTip, RelativeSource={RelativeSource AncestorType=Window}}" Click="QuickMove_Click">
                                                                 <Button.Style>
@@ -1220,6 +1246,8 @@
                                                                     </Style>
                                                                 </Button.Style>
                                                             </Button>
+                                                            </StackPanel>
+                                                            <StackPanel Orientation="Horizontal" Margin="0,0,0,3">
                                                             <Button Content="&#x2713;" Background="#FF66BB6A"
                                                                     Tag="Done" ToolTip="{Binding DataContext.DoneColumn.MoveToolTip, RelativeSource={RelativeSource AncestorType=Window}}" Click="QuickMove_Click">
                                                                 <Button.Style>
@@ -1236,7 +1264,8 @@
                                                             <Button Style="{StaticResource QuickActionButtonStyle}" Content="X" Background="#FFEF5350" Margin="0"
                                                                     ToolTip="Delete"
                                                                     Click="DeleteQuickAction_Click"/>
-                                                        </StackPanel>
+                                                            </StackPanel>
+                                                        </WrapPanel>
                                                     </StackPanel>
                                                 </Border>
                                             </DataTemplate>
