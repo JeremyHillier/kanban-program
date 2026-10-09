@@ -102,6 +102,15 @@
                 <local:BulletItem Text="The task remembers each time it was emailed. Open it to see when, and to whom."/>
                 <local:BulletItem Text="Point at that line for every time. It records the email being opened, not sent."/>
 
+                <TextBlock Text="Scheduling a task in Outlook" Style="{StaticResource HelpSectionHeaderStyle}"/>
+                <local:BulletItem Text="Right-click a task, Schedule in Outlook, for an appointment in your calendar."/>
+                <local:BulletItem Text="Large cards have a calendar button too; so does the task screen, as Schedule."/>
+                <local:BulletItem Text="It goes at the due time for half an hour, or all day on the due date if there is no time."/>
+                <local:BulletItem Text="With no due date, it goes at the next half hour. Move it in Outlook as you like."/>
+                <local:BulletItem Text="The task's details and attachments go in it. Nothing is saved until you save it in Outlook."/>
+                <local:BulletItem Text="Without classic Outlook, it opens as a calendar file in your calendar app."/>
+                <local:BulletItem Text="The task screen shows when it was last scheduled, and for when."/>
+
                 <TextBlock Text="Quick Add from any program" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <local:BulletItem Text="Press Ctrl+Alt+N in any program for a small New Task box."/>
                 <local:BulletItem Text="The app must be running. Minimised is fine."/>
@@ -148,7 +157,7 @@
                 <local:BulletItem Text="The card shows how many are still to come."/>
                 <local:BulletItem Text="Moving a recurring task to Done creates the next one in To Do, with sub-tasks unticked."/>
                 <local:BulletItem Text="Each task creates its next occurrence only once, even if finished again later."/>
-                <local:BulletItem Text="Deleting an unfinished recurring task asks whether to keep the series going."/>
+                <local:BulletItem Text="Deleting an unfinished recurring task asks: blue keeps the series going, red ends it."/>
                 <TextBlock Text="Semi-Monthly" Style="{StaticResource HelpSubHeaderStyle}"/>
                 <local:BulletItem Text="Twice a month, on the same two dates."/>
                 <local:BulletItem Text="Due on the 3rd: the 3rd and 18th. Due on the 20th: the 5th and 20th."/>
@@ -347,7 +356,9 @@
                 <local:BulletItem Text="A task with a due time alerts, with a sound, when the time comes."/>
                 <local:BulletItem Text="Alerts need the app running. Minimised is fine."/>
                 <local:BulletItem Text="Each task alerts once. Moving the time later alerts again."/>
-                <local:BulletItem Text="Snooze for 15 minutes up to 1 day. It snoozes every task still listed."/>
+                <local:BulletItem Text="Clear beside the time on the task screen removes the time and its alert."/>
+                <local:BulletItem Text="Each task has its own Snooze, for 15 minutes up to 1 day."/>
+                <local:BulletItem Text="With several tasks listed, Snooze All snoozes them all at once."/>
                 <local:BulletItem Text="Completing or rescheduling a task cancels its snooze."/>
                 <local:BulletItem Text="Times missed while the app was closed show in the startup list instead."/>
 

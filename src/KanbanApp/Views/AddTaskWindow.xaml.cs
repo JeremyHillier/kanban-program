@@ -193,6 +193,8 @@ public partial class AddTaskWindow : Window
             CompletedStampText.Visibility = Visibility.Visible;
         }
         RefreshEmailedStamp();
+        RefreshScheduledStamp();
+        ScheduleButton.Visibility = Visibility.Visible;
 
         DetailsTextBox.Text = cardToEdit.Title;
         CategoryComboBox.SelectedItem = currentColumn;

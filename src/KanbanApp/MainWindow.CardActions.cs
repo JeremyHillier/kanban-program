@@ -190,6 +190,13 @@ public partial class MainWindow
         OutlookEmailHelper.ComposeCardEmail(this, card, OutlookEmailHelper.JoinRecipients(card.PeopleEmails), viewModel);
     }
 
+    private void ScheduleCardQuickAction_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is not FrameworkElement { DataContext: CardViewModel card } || DataContext is not MainViewModel viewModel) return;
+
+        OutlookCalendarHelper.ScheduleCard(this, card, viewModel);
+    }
+
     private void PriorityBadge_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
     {
         if (sender is not FrameworkElement { DataContext: CardViewModel card } element || DataContext is not MainViewModel viewModel) return;

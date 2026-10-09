@@ -4,27 +4,71 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         mc:Ignorable="d"
-        Title="Delete Recurring Task" Width="420" SizeToContent="Height"
+        Title="Delete Recurring Task" Width="440" SizeToContent="Height"
         WindowStartupLocation="CenterOwner" ResizeMode="NoResize"
         ShowInTaskbar="False"
         Background="{DynamicResource WindowBackgroundBrush}">
-    <StackPanel Margin="20">
-        <TextBlock x:Name="MessageText" TextWrapping="Wrap" Margin="0,0,0,16"
-                   Foreground="{DynamicResource PrimaryTextBrush}"/>
+    <!-- The two choices are told apart at a glance: blue with a circling arrow keeps the series,
+         red with a stop square ends it, each with its explanation inside the button itself. Both
+         colours carry white text at better than 5:1. Neither is the default, so Enter does nothing
+         and Esc cancels. -->
+    <Window.Resources>
+        <Style x:Key="ChoiceButtonStyle" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="Padding" Value="12,10"/>
+            <Setter Property="Margin" Value="0,0,0,10"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+        </Style>
+    </Window.Resources>
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
 
-        <Button x:Name="KeepSeriesButton" Content="Delete This Occurrence, Keep Series Going" Padding="10,10" Margin="0,0,0,8"
-                HorizontalContentAlignment="Left" Click="KeepSeries_Click"
-                Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
-        <TextBlock x:Name="KeepSeriesNote" Text="Removes just this one occurrence and creates the next one right away." FontSize="11" Margin="0,0,0,12"
-                   Foreground="{DynamicResource SecondaryTextBrush}" TextWrapping="Wrap"/>
+        <!-- Only the message scrolls; the choices and Cancel stay on screen whatever the font size. -->
+        <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto">
+            <TextBlock x:Name="MessageText" TextWrapping="Wrap" Margin="0,0,0,16"
+                       Foreground="{DynamicResource PrimaryTextBrush}"/>
+        </ScrollViewer>
 
-        <Button x:Name="EndSeriesButton" Content="Delete This Occurrence, End Series" Padding="10,10" Margin="0,0,0,8"
-                HorizontalContentAlignment="Left" Click="EndSeries_Click"
-                Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
-        <TextBlock x:Name="EndSeriesNote" Text="Removes this occurrence and stops the series - no further occurrences will be created." FontSize="11" Margin="0,0,0,16"
-                   Foreground="{DynamicResource SecondaryTextBrush}" TextWrapping="Wrap"/>
+        <StackPanel Grid.Row="1">
 
-        <Button Content="Cancel" Width="100" Padding="0,6" HorizontalAlignment="Right" IsCancel="True"
+                <Button x:Name="KeepSeriesButton" Style="{StaticResource ChoiceButtonStyle}" Background="#FF1F6AA5" Click="KeepSeries_Click">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="↻" FontSize="24" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                        <StackPanel Grid.Column="1">
+                            <TextBlock x:Name="KeepSeriesText" Text="Delete this one, keep the series going" FontWeight="SemiBold" FontSize="14" TextWrapping="Wrap"/>
+                            <TextBlock x:Name="KeepSeriesNote" Text="Removes just this occurrence and creates the next one right away."
+                                       FontSize="11.5" Opacity="0.9" Margin="0,3,0,0" TextWrapping="Wrap"/>
+                        </StackPanel>
+                    </Grid>
+                </Button>
+
+                <Button x:Name="EndSeriesButton" Style="{StaticResource ChoiceButtonStyle}" Background="#FFC0392B" Click="EndSeries_Click">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <!-- Same width as the arrow, so the two headings line up. -->
+                        <Border Width="15" Height="15" Background="White" CornerRadius="2" VerticalAlignment="Center" Margin="2,0,14,0"/>
+                        <StackPanel Grid.Column="1">
+                            <TextBlock x:Name="EndSeriesText" Text="Delete this one and end the series" FontWeight="SemiBold" FontSize="14" TextWrapping="Wrap"/>
+                            <TextBlock x:Name="EndSeriesNote" Text="Removes this occurrence and stops the series - no more occurrences will be created."
+                                       FontSize="11.5" Opacity="0.9" Margin="0,3,0,0" TextWrapping="Wrap"/>
+                        </StackPanel>
+                    </Grid>
+                </Button>
+        </StackPanel>
+
+        <Button Grid.Row="2" Content="Cancel" Width="100" Padding="0,6" Margin="0,6,0,0" HorizontalAlignment="Right" IsCancel="True"
                 Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
-    </StackPanel>
+    </Grid>
 </Window>

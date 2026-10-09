@@ -21,9 +21,9 @@ public partial class DeleteRecurringTaskWindow : Window
         Title = "Delete Tasks";
         var repeat = recurringCount == 1 ? "1 of them is a recurring task" : $"{recurringCount} of them are recurring tasks";
         MessageText.Text = $"Delete {taskCount} tasks? You can take this back with Undo (Ctrl+Z).\n\n{repeat}. What would you like to do with {(recurringCount == 1 ? "it" : "those")}?";
-        KeepSeriesButton.Content = "Delete All, Keep Recurring Series Going";
+        KeepSeriesText.Text = "Delete them all, keep the series going";
         KeepSeriesNote.Text = "Deletes every selected task, and creates the next occurrence of each recurring one right away.";
-        EndSeriesButton.Content = "Delete All, End Recurring Series";
+        EndSeriesText.Text = "Delete them all and end the series";
         EndSeriesNote.Text = "Deletes every selected task and stops each recurring series - no further occurrences will be created.";
     }
 

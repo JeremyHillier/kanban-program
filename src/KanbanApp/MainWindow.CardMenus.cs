@@ -129,6 +129,7 @@ public partial class MainWindow
         Separator();
         AddMenuItem(menu, "Open _Website", () => UrlLauncher.Open(card.WebsiteUrl, this), isEnabled: !string.IsNullOrWhiteSpace(card.WebsiteUrl));
         AddMenuItem(menu, "E_mail Task...", () => OutlookEmailHelper.ComposeCardEmail(this, card, OutlookEmailHelper.JoinRecipients(card.PeopleEmails), viewModel), isEnabled: card.CanEmailCard);
+        AddMenuItem(menu, "_Schedule in Outlook...", () => OutlookCalendarHelper.ScheduleCard(this, card, viewModel));
         Separator();
         AddMenuItem(menu, "_Delete...", () => DeleteCardWithConfirm(card, viewModel));
     }

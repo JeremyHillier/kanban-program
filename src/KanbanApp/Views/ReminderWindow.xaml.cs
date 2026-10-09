@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading;
@@ -32,11 +33,12 @@ public partial class ReminderWindow : Window
         public required string CategoryName { get; init; }
         public required string DueLabel { get; init; }
         public required Brush DueLabelBrush { get; init; }
+        public required Visibility SnoozeVisibility { get; init; }
     }
 
     // isTimeAlert: the same list, raised mid-session by the due-time timer for tasks whose time has
     // just arrived, rather than the startup/on-demand overdue-and-due-today roundup.
-    // onSnooze: given only for time alerts; receives the tasks still listed and the chosen duration.
+    // onSnooze: given only for time alerts; receives the tasks snoozed (one row, or all of them) and the chosen duration.
     public ReminderWindow(List<CardViewModel> dueCards, IEnumerable<ColumnViewModel> columns, Action<CardViewModel> onOpenTask,
         Action<CardViewModel> onMarkDone, Func<CardViewModel, bool> isStillDue, bool isTimeAlert = false,
         Action<List<CardViewModel>, TimeSpan>? onSnooze = null)
@@ -53,15 +55,8 @@ public partial class ReminderWindow : Window
 
         if (onSnooze is not null)
         {
-            SnoozeButton.Visibility = Visibility.Visible;
-            var menu = new ContextMenu { PlacementTarget = SnoozeButton, Placement = System.Windows.Controls.Primitives.PlacementMode.Top };
-            foreach (var (label, duration) in TimeAlertTracker.SnoozeOptions)
-            {
-                var item = new MenuItem { Header = label, Tag = duration };
-                item.Click += SnoozeOption_Click;
-                menu.Items.Add(item);
-            }
-            SnoozeButton.ContextMenu = menu;
+            SnoozeButton.ContextMenu = BuildSnoozeMenu(SnoozeButton, PlacementMode.Top, duration =>
+                Snooze(_rows.Select(row => _rowsToCards[row]).ToList(), duration));
         }
 
         foreach (var card in dueCards)
@@ -89,7 +84,8 @@ public partial class ReminderWindow : Window
             PriorityBrush = card.PriorityBrush,
             CategoryName = _columns.FirstOrDefault(c => c.Cards.Contains(card))?.DisplayName ?? string.Empty,
             DueLabel = isOverdue ? $"Overdue since {card.DueDateTime?.ToString("MMM d, yyyy h:mm tt") ?? card.DueDate.Value.ToString("MMM d, yyyy")}" : dueTodayLabel,
-            DueLabelBrush = isOverdue || _isTimeAlert ? OverdueBrush : DueTodayBrush
+            DueLabelBrush = isOverdue || _isTimeAlert ? OverdueBrush : DueTodayBrush,
+            SnoozeVisibility = _onSnooze is null ? Visibility.Collapsed : Visibility.Visible
         };
     }
 
@@ -97,10 +93,11 @@ public partial class ReminderWindow : Window
     {
         if (_isTimeAlert)
         {
-            SnoozeButton.IsEnabled = _rows.Count > 0;
+            // Each row has its own Snooze; the one at the foot is for snoozing them all at once.
+            SnoozeButton.Visibility = _onSnooze is not null && _rows.Count > 1 ? Visibility.Visible : Visibility.Collapsed;
             IntroText.Text = _rows.Count == 0
                 ? "All caught up."
-                : $"{(_rows.Count == 1 ? "This task's" : $"These {_rows.Count} tasks'")} due time has arrived. Check a task off to mark it Done, double-click to open it, or Snooze to be reminded again later.";
+                : $"{(_rows.Count == 1 ? "This task's" : $"These {_rows.Count} tasks'")} due time has arrived. Check a task off to mark it Done, double-click to open it, or Snooze to be reminded about it again later.";
             return;
         }
 
@@ -118,7 +115,7 @@ public partial class ReminderWindow : Window
 
     private void ReminderList_MouseDoubleClick(object sender, MouseButtonEventArgs e)
     {
-        if (e.OriginalSource is DependencyObject source && FindAncestor<CheckBox>(source) is not null) return;
+        if (e.OriginalSource is DependencyObject source && (FindAncestor<CheckBox>(source) is not null || FindAncestor<Button>(source) is not null)) return;
         if (ReminderList.SelectedItem is not ReminderRow row || !_rowsToCards.TryGetValue(row, out var card)) return;
 
         // Deliberately left open: the user may want to review or act on other reminders after this one.
@@ -165,18 +162,45 @@ public partial class ReminderWindow : Window
 
     private void Snooze_Click(object sender, RoutedEventArgs e) => SnoozeButton.ContextMenu!.IsOpen = true;
 
-    private void SnoozeOption_Click(object sender, RoutedEventArgs e)
+    private void RowSnooze_Click(object sender, RoutedEventArgs e)
     {
-        if (sender is not MenuItem { Tag: TimeSpan duration } || _onSnooze is null) return;
+        if (sender is not Button { DataContext: ReminderRow row } button || !_rowsToCards.TryGetValue(row, out var card)) return;
 
-        var cards = _rows.Select(row => _rowsToCards[row]).ToList();
+        button.ContextMenu = BuildSnoozeMenu(button, PlacementMode.Bottom, duration => Snooze([card], duration));
+        button.ContextMenu.IsOpen = true;
+    }
 
-        // Deferred via BeginInvoke: closing the window from inside the menu's own Click, while that
-        // menu is still closing, is the same re-entrancy the board's quick-edit menus steer around.
+    private ContextMenu BuildSnoozeMenu(UIElement target, PlacementMode placement, Action<TimeSpan> onChosen)
+    {
+        var menu = new ContextMenu { PlacementTarget = target, Placement = placement };
+        foreach (var (label, duration) in TimeAlertTracker.SnoozeOptions)
+        {
+            var item = new MenuItem { Header = label };
+            item.Click += (_, _) => onChosen(duration);
+            menu.Items.Add(item);
+        }
+        return menu;
+    }
+
+    // Snoozed tasks leave the list; the window closes once nothing is left in it.
+    private void Snooze(List<CardViewModel> cards, TimeSpan duration)
+    {
+        if (_onSnooze is null) return;
+
+        // Deferred via BeginInvoke: changing the list, or closing the window, from inside the menu's
+        // own Click while that menu is still closing is the same re-entrancy the board's quick-edit
+        // menus steer around.
         Dispatcher.BeginInvoke(new Action(() =>
         {
             _onSnooze(cards, duration);
-            Close();
+            foreach (var row in _rowsToCards.Where(pair => cards.Contains(pair.Value)).Select(pair => pair.Key).ToList())
+            {
+                _rowsToCards.Remove(row);
+                _rows.Remove(row);
+            }
+
+            if (_rows.Count == 0) Close();
+            else UpdateIntro();
         }), DispatcherPriority.Background);
     }
 

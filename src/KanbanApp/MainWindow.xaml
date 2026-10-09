@@ -1145,6 +1145,19 @@
                                                                         </Style>
                                                                     </Button.Style>
                                                                 </Button>
+                                                                <!-- Large cards only, like the flag button: compact cards keep it in the right-click menu. -->
+                                                                <Button Content="&#x1F4C5;" Background="#FF5C6BC0" Margin="0,4,0,0"
+                                                                        ToolTip="Schedule this task in Outlook" Click="ScheduleCardQuickAction_Click">
+                                                                    <Button.Style>
+                                                                        <Style TargetType="Button" BasedOn="{StaticResource QuickActionButtonStyle}">
+                                                                            <Style.Triggers>
+                                                                                <DataTrigger Binding="{Binding DataContext.IsLargeCards, RelativeSource={RelativeSource AncestorType=Window}}" Value="False">
+                                                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                                                </DataTrigger>
+                                                                            </Style.Triggers>
+                                                                        </Style>
+                                                                    </Button.Style>
+                                                                </Button>
                                                             </StackPanel>
                                                         </Grid>
 

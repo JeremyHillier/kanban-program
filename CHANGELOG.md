@@ -6,6 +6,17 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.131.0 — 2026-10-09
+
+> - New: Schedule in Outlook puts a task in your calendar as an appointment, with its details and attachments. Find it on the task's right-click menu, as a calendar button on large cards, and as Schedule on the task screen.
+> - Improved: each task in a Task Due Now alert has its own Snooze button, so one task can be snoozed while the others stay listed. Snooze All still snoozes them together.
+> - Improved: the two choices when deleting a recurring task are now clearly different: blue keeps the series going and red ends it, each with its explanation on the button.
+> - New: a Clear button beside the due time on the task screen removes the time and its alert, keeping the due date.
+- The appointment goes at the task's due time for half an hour, or all day on the due date when there is no time, and opens for review: nothing is saved until it is saved in Outlook.
+- On the task screen, Schedule uses the title, due date and time as they are on screen, even before saving.
+- Without classic Outlook, the appointment opens as a calendar file in the calendar app set up on the PC.
+- The task screen shows when the task was last scheduled, and for when.
+
 ## 0.130.0 — 2026-10-08
 
 > - New: statistics reports now include charts, each with a line explaining how to read it: tasks finished on time against late, how long finished tasks took, finished and open tasks for each project or person, tasks added against finished week by week or month by month, and the typical days tasks spend in each column.

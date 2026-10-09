@@ -292,6 +292,17 @@ public static class OutlookEmailHelper
     {
         var sb = new StringBuilder();
         sb.Append(card.Title).Append("\r\n\r\n");
+        AppendPlainTextDetails(sb, card);
+
+        sb.Append("\r\nIf an Excel file is attached, open Kanban Task Board and click Import Tasks to add this task to your own board.\r\n");
+
+        if (signature is not null) sb.Append("\r\n").Append(signature);
+        return sb.ToString().TrimEnd();
+    }
+
+    // Everything about the task but its title, one line each - shared with the calendar appointment.
+    internal static void AppendPlainTextDetails(StringBuilder sb, CardViewModel card)
+    {
         CardTextFormatter.AppendProjectToDue(sb, card);
         if (HasGoal(card)) sb.Append("Goal: ").Append(card.GoalName).Append("\r\n");
         if (card.Flags.Count > 0) sb.Append("Flags: ").Append(string.Join(", ", card.Flags.Select(f => f.Name))).Append("\r\n");
@@ -299,11 +310,6 @@ public static class OutlookEmailHelper
         if (CardTextFormatter.RepeatsText(card) is { } repeats) sb.Append("Repeats: ").Append(repeats).Append("\r\n");
         if (!string.IsNullOrWhiteSpace(card.WebsiteUrl)) sb.Append("Website: ").Append(card.WebsiteUrl.Trim()).Append("\r\n");
         CardTextFormatter.AppendNotesAndSubTasks(sb, card);
-
-        sb.Append("\r\nIf an Excel file is attached, open Kanban Task Board and click Import Tasks to add this task to your own board.\r\n");
-
-        if (signature is not null) sb.Append("\r\n").Append(signature);
-        return sb.ToString().TrimEnd();
     }
 
     private static string? BuildPlainTextSignature(MainViewModel viewModel)

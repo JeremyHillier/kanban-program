@@ -26,6 +26,38 @@ public partial class AddTaskWindow
     private void ClearDueDate_Click(object sender, RoutedEventArgs e)
     {
         DueDatePicker.SelectedDate = null;
+        ClearDueTime();
+    }
+
+    // Schedule in Outlook, with the title and due date and time as they are on screen now.
+    private void Schedule_Click(object sender, RoutedEventArgs e)
+    {
+        if (_cardToEdit is null) return;
+
+        var title = string.IsNullOrWhiteSpace(DetailsTextBox.Text) ? _cardToEdit.Title : DetailsTextBox.Text.Trim();
+        var dueDate = DueDatePicker.SelectedDate?.Date;
+        DateTime? dueAt = dueDate is { } date && CurrentDueTime() is { } time ? date + TimeSpan.Parse(time) : null;
+
+        OutlookCalendarHelper.ScheduleCard(this, _cardToEdit, _viewModel, title, dueDate, dueAt);
+        RefreshScheduledStamp();
+    }
+
+    // "Scheduled <when> for <the appointment>" under the emailed line, with every time in its tooltip.
+    private void RefreshScheduledStamp()
+    {
+        if (_cardToEdit is null) return;
+
+        var history = _viewModel.GetScheduleHistory(_cardToEdit);
+        ScheduledStampText.Text = MainViewModel.ScheduleStampText(history) ?? string.Empty;
+        ScheduledStampText.ToolTip = history.Count == 0 ? null : MainViewModel.EmailHistoryText(history);
+        ScheduledStampText.Visibility = history.Count == 0 ? Visibility.Collapsed : Visibility.Visible;
+    }
+
+    // Takes the time off, and with it the alert; the due date stays.
+    private void ClearDueTime_Click(object sender, RoutedEventArgs e) => ClearDueTime();
+
+    private void ClearDueTime()
+    {
         _chosenPm = null;
         DueTimeTextBox.Text = string.Empty;
         UpdateMeridiemButtons();

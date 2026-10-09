@@ -42,6 +42,7 @@
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto"/>
                                 <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
                             <CheckBox Grid.Column="0" VerticalAlignment="Center" Margin="4,0,10,0"
                                       ToolTip="Mark this task Done"
@@ -65,6 +66,11 @@
                                     <Run Text="{Binding DueLabel, Mode=OneWay}" Foreground="{Binding DueLabelBrush, Mode=OneWay}" FontWeight="Bold"/>
                                 </TextBlock>
                             </StackPanel>
+                            <!-- Time alerts only: snoozes just this task. -->
+                            <Button Grid.Column="2" Content="Snooze ▾" Padding="10,4" Margin="8,0,4,0" VerticalAlignment="Center"
+                                    Visibility="{Binding SnoozeVisibility}" Click="RowSnooze_Click"
+                                    ToolTip="Remind me about this task again later"
+                                    Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
                         </Grid>
                     </Border>
                 </DataTemplate>
@@ -72,10 +78,10 @@
         </ListBox>
 
         <Grid Grid.Row="2" Margin="0,12,0,0">
-            <!-- Time alerts only. Its menu is filled in code from TimeAlertTracker.SnoozeOptions. -->
-            <Button x:Name="SnoozeButton" Content="Snooze ▾" Width="90" Padding="0,6" HorizontalAlignment="Left"
+            <!-- Time alerts only. Shown only while more than one task is listed; each row has its own Snooze. Its menu is filled in code from TimeAlertTracker.SnoozeOptions. -->
+            <Button x:Name="SnoozeButton" Content="Snooze All ▾" Width="110" Padding="0,6" HorizontalAlignment="Left"
                     Visibility="Collapsed" Click="Snooze_Click"
-                    ToolTip="Remind me about the tasks still listed here again later"
+                    ToolTip="Remind me about every task still listed here again later"
                     Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
             <!-- IsCancel alone only closes a window opened with ShowDialog; the time alert is opened with
                  Show so it doesn't block the board, so Close needs its own Click handler. -->
