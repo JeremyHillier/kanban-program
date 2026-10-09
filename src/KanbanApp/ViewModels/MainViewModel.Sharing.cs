@@ -8,9 +8,15 @@ namespace KanbanApp.ViewModels;
 public partial class MainViewModel
 {
     // how: where the email ended up - "in Outlook", "in your email app", "on the clipboard".
-    public void RecordCardEmailed(CardViewModel card, string recipients, string how)
+    // groupSize: how many tasks went in the one email, when several did (Email These Tasks); a group
+    // email can go out with nobody in To yet, for the user to fill in.
+    public void RecordCardEmailed(CardViewModel card, string recipients, string how, int groupSize = 1)
     {
-        var details = $"to {recipients.Trim()}, {how}";
+        var parts = new List<string>();
+        if (!string.IsNullOrWhiteSpace(recipients)) parts.Add($"to {recipients.Trim()}");
+        if (groupSize > 1) parts.Add($"with {groupSize - 1} other task{(groupSize == 2 ? "" : "s")}");
+        parts.Add(how);
+        var details = string.Join(", ", parts);
         _db.RecordCardEmailed(card.Id, card.Title, details);
     }
 
@@ -53,4 +59,12 @@ public partial class MainViewModel
     // Every time, newest first, for the line's tooltip (either kind).
     public static string EmailHistoryText(IReadOnlyList<CardEmailRecord> history) =>
         string.Join("\n", history.Select(h => $"{h.When:MMM d, yyyy, h:mm tt} {h.Details}"));
+}
+
+// Email All <Project> Tasks: the project's tasks still on the board and not yet done, in board
+// order (column by column, top to bottom).
+public partial class MainViewModel
+{
+    public List<CardViewModel> OpenTasksInProject(int? projectId) =>
+        Columns.Where(c => c.Name != "Done").SelectMany(c => c.Cards).Where(c => c.ProjectId == projectId).ToList();
 }

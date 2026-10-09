@@ -15,7 +15,7 @@ namespace KanbanApp.Services;
 // and PCs without Outlook have no automation to drive, so they get a mailto: link opened in the default
 // email app instead, with the files that can't be attached that way put in a folder to drag in.
 // Either way a compose window opens for the user to review - nothing is ever sent automatically.
-public static class OutlookEmailHelper
+public static partial class OutlookEmailHelper
 {
     // Mail apps and Windows itself cut off, or refuse to open, very long mailto: links.
     internal const int MaxMailtoLength = 2000;

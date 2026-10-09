@@ -6,6 +6,16 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.133.0 — 2026-10-09
+
+> - New: email a whole project's tasks at once. Right-click any task and choose Email All Tasks for its project to send every open task of that project in one email.
+> - New: email a group of tasks. Select several tasks with Ctrl+click, right-click them, and choose Email These Tasks.
+> - New: the email lists the tasks in a table and attaches one Excel file holding all of them, which the recipient imports in a single step. Sent back after changes, they update the original tasks instead of adding copies.
+- The email is addressed to everyone assigned to the tasks who has an email address, and can be changed before sending.
+- Tasks already in Done are left out of a project's email.
+- Files attached to the tasks are not included in a group email; each task can still be emailed on its own with its files.
+- Each task remembers being emailed, and with how many other tasks.
+
 ## 0.132.0 — 2026-10-09
 
 > - New: task columns can now be as narrow as 160 pixels, to fit the whole board on a small screen. In Settings, set the narrowest a fitted column can get; the standard is still 240.

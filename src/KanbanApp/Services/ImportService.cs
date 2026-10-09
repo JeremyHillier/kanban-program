@@ -106,22 +106,38 @@ public static class ImportService
         }
     }
 
-    // Single-row version of the import template, used to attach one task to an email so the
-    // recipient can pull it into their own board via the same Import Tasks feature - just the
-    // headers ReadTasks looks for plus one data row, no instructions banner or dropdown validation
-    // (the recipient's Category/Project/Goal/Who lists won't match the sender's anyway).
-    public static void SaveSingleTaskFile(string filePath, ImportedTaskRow row)
+    // The import template without its instructions banner or drop-down lists, holding real tasks: what
+    // goes with an emailed task (or a group of them) so the recipient can pull them into their own
+    // board through Import Tasks. Just the headings ReadTasks looks for and a row per task (the
+    // recipient's Category/Project/Goal/Who lists won't match the sender's anyway).
+    public static void SaveSingleTaskFile(string filePath, ImportedTaskRow row) => SaveTasksFile(filePath, [row]);
+
+    public static void SaveTasksFile(string filePath, IReadOnlyList<ImportedTaskRow> rows)
     {
         using var workbook = new XLWorkbook();
         var sheet = workbook.AddWorksheet("Tasks");
         WriteHeaderRow(sheet, row: 1);
+        for (var i = 0; i < rows.Count; i++) WriteTaskRow(sheet, i + 2, rows[i]);
 
-        void Text(string header, string? value) => sheet.Cell(2, Col(header)).Value = value ?? string.Empty;
+        sheet.Columns().AdjustToContents();
+        foreach (var wrapped in new[] { "Notes", "Sub-tasks" })
+        {
+            // A long note would otherwise make one column as wide as the whole note.
+            if (sheet.Column(Col(wrapped)).Width > 50) sheet.Column(Col(wrapped)).Width = 50;
+            for (var i = 0; i < rows.Count; i++) sheet.Cell(i + 2, Col(wrapped)).Style.Alignment.WrapText = true;
+        }
+
+        workbook.SaveAs(filePath);
+    }
+
+    private static void WriteTaskRow(IXLWorksheet sheet, int line, ImportedTaskRow row)
+    {
+        void Text(string header, string? value) => sheet.Cell(line, Col(header)).Value = value ?? string.Empty;
         void Date(string header, DateTime? value)
         {
             if (value is null) return;
-            sheet.Cell(2, Col(header)).Value = value.Value;
-            sheet.Cell(2, Col(header)).Style.DateFormat.Format = "dd-mmm-yyyy";
+            sheet.Cell(line, Col(header)).Value = value.Value;
+            sheet.Cell(line, Col(header)).Style.DateFormat.Format = "dd-mmm-yyyy";
         }
 
         Text("Title", row.Title);
@@ -135,22 +151,12 @@ public static class ImportService
         Text("Waiting On", row.WaitingOn);
         Text("Due Time", FormatTime(row.DueTime));
         Text("Repeats", row.RecurrencePattern);
-        if (row.RecurrencePattern is not null && row.RecurrenceCount is { } count) sheet.Cell(2, Col("Repeat Times")).Value = count;
+        if (row.RecurrencePattern is not null && row.RecurrenceCount is { } count) sheet.Cell(line, Col("Repeat Times")).Value = count;
         Text("Flags", row.Flags);
         Text("Website", row.WebsiteUrl);
         Text("Notes", row.Notes);
         Text("Sub-tasks", FormatSubTasks(row.SubTasks));
         Text("Task ID", row.ShareId);
-
-        sheet.Columns().AdjustToContents();
-        foreach (var wrapped in new[] { "Notes", "Sub-tasks" })
-        {
-            // A long note would otherwise make one column as wide as the whole note.
-            if (sheet.Column(Col(wrapped)).Width > 50) sheet.Column(Col(wrapped)).Width = 50;
-            sheet.Cell(2, Col(wrapped)).Style.Alignment.WrapText = true;
-        }
-
-        workbook.SaveAs(filePath);
     }
 
     // "14:30" -> "2:30 PM", the same in every language Windows runs in, so any copy reads it back.

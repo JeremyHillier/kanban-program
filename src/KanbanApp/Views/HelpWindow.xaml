@@ -102,6 +102,14 @@
                 <local:BulletItem Text="With another email app, a folder opens with the files to drag into the email."/>
                 <local:BulletItem Text="The task remembers each time it was emailed. Open it to see when, and to whom."/>
                 <local:BulletItem Text="Point at that line for every time. It records the email being opened, not sent."/>
+                <TextBlock Text="Several tasks in one email" Style="{StaticResource HelpSubHeaderStyle}"/>
+                <local:BulletItem Text="Right-click a task, Email All ... Tasks, for every open task of its project in one email."/>
+                <local:BulletItem Text="Tasks in Done are left out of it."/>
+                <local:BulletItem Text="Or select tasks with Ctrl+click, right-click them, and choose Email These Tasks."/>
+                <local:BulletItem Text="It goes to everyone on the tasks with an email address. Change that in the email as you like."/>
+                <local:BulletItem Text="The email lists the tasks; one Excel file with all of them is attached, ready to import."/>
+                <local:BulletItem Text="Sent back after changes, they update your tasks rather than adding copies."/>
+                <local:BulletItem Text="Files attached to the tasks are not included. Email a task on its own to send its files."/>
 
                 <TextBlock Text="Scheduling a task in Outlook" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <local:BulletItem Text="Right-click a task, Schedule in Outlook, for an appointment in your calendar."/>

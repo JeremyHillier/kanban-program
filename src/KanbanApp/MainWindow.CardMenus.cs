@@ -129,6 +129,10 @@ public partial class MainWindow
         Separator();
         AddMenuItem(menu, "Open _Website", () => UrlLauncher.Open(card.WebsiteUrl, this), isEnabled: !string.IsNullOrWhiteSpace(card.WebsiteUrl));
         AddMenuItem(menu, "E_mail Task...", () => OutlookEmailHelper.ComposeCardEmail(this, card, OutlookEmailHelper.JoinRecipients(card.PeopleEmails), viewModel), isEnabled: card.CanEmailCard);
+        // Every open task of this card's project in one email, with one Excel file to import them all.
+        var projectTasks = viewModel.OpenTasksInProject(card.ProjectId);
+        var projectLabel = string.IsNullOrWhiteSpace(card.ProjectName) ? "Email All Tas_ks With No Project" : $"Email All {MenuText(card.ProjectName)} Tas_ks";
+        AddMenuItem(menu, $"{projectLabel} ({projectTasks.Count})...", () => OutlookEmailHelper.ComposeTasksEmail(this, projectTasks, viewModel), isEnabled: projectTasks.Count > 0);
         AddMenuItem(menu, "_Schedule in Outlook...", () => OutlookCalendarHelper.ScheduleCard(this, card, viewModel));
         Separator();
         AddMenuItem(menu, "_Delete...", () => DeleteCardWithConfirm(card, viewModel));
@@ -210,6 +214,8 @@ public partial class MainWindow
             AddMenuItem(addFlag, MenuText(flag.Name), () => viewModel.AddFlagToCards(cards, flag));
         }
 
+        Separator();
+        AddMenuItem(menu, $"Emai_l These {cards.Count} Tasks...", () => OutlookEmailHelper.ComposeTasksEmail(this, cards, viewModel));
         Separator();
         AddMenuItem(menu, "Clear _Selection", viewModel.ClearCardSelection, gesture: "Esc");
         Separator();
