@@ -6,6 +6,11 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.133.2 — 2026-10-10
+
+> - Improved: the small buttons on each card are larger, with clearer icons and a defined edge, so they are easier to see and to click. This covers the move letters, Done and Delete along the bottom, and the flag, email and schedule buttons on the right.
+> - Fixed: the buttons down a card's right side now line up with the priority badge above them.
+
 ## 0.133.1 — 2026-10-10
 
 > - Maintenance: internal improvements to keep the app reliable and easy to update; no change to how the app looks or works.
