@@ -13,17 +13,12 @@ public static class ReportRunner
     public static List<ReportRow> BuildRows(MainViewModel board, SavedReportView view, DateTime today)
     {
         var scope = Enum.TryParse<ReportArchiveScope>(view.ArchiveScope, out var parsed) ? parsed : ReportArchiveScope.BoardOnly;
-        var unionFilters = board.CustomFilters
-            .Where(f => f is not null && view.CustomFilterNames.Contains(f.Name))
-            .Select(f => f!)
-            .ToList();
-
         return ReportService.BuildRows(
             board.Columns,
             view.IncludedColumns.ToHashSet(),
             view.Project, view.Priority, view.Who, view.Goal, view.Flag, view.Due,
             RelativeDate.Resolve(view.DueFrom, today), RelativeDate.Resolve(view.DueTo, today), view.IncludeNoDueDate,
-            unionFilters.Count > 0 ? unionFilters : null,
+            UnionFiltersOf(board, view),
             view.SortLevel1, view.SortLevel2, view.SortLevel3,
             scope,
             scope == ReportArchiveScope.BoardOnly ? null : board.GetArchivedReportRows(),
@@ -54,17 +49,12 @@ public static class ReportRunner
     // column it is in or when it is due - the period, not the due dates, decides what is counted.
     public static TaskStatisticsResult BuildStatistics(MainViewModel board, SavedReportView view, DateTime today)
     {
-        var unionFilters = board.CustomFilters
-            .Where(f => f is not null && view.CustomFilterNames.Contains(f.Name))
-            .Select(f => f!)
-            .ToList();
-
         var rows = ReportService.BuildRows(
             board.Columns,
             board.Columns.Select(c => c.Name).ToHashSet(),
             view.Project, view.Priority, view.Who, view.Goal, view.Flag, "All",
             null, null, false,
-            unionFilters.Count > 0 ? unionFilters : null,
+            UnionFiltersOf(board, view),
             "None", "None", "None",
             ReportArchiveScope.BoardAndArchived,
             board.GetArchivedReportRows());
@@ -73,6 +63,18 @@ public static class ReportRunner
         var (from, to) = PeriodOf(view, today, history);
         return TaskStatistics.Compute(rows, history, board.Columns.Select(c => (c.Name, c.DisplayName)).ToList(),
             new StatisticsOptions(from, to, view.StatsBreakdown, view.StatsOverTime), today);
+    }
+
+    // The saved view's custom filters as they are defined now, matched by name - one renamed or
+    // cleared since the view was saved simply drops out. Null when none apply, which BuildRows
+    // reads as "no custom filter".
+    private static List<CustomFilter>? UnionFiltersOf(MainViewModel board, SavedReportView view)
+    {
+        var filters = board.CustomFilters
+            .Where(f => f is not null && view.CustomFilterNames.Contains(f.Name))
+            .Select(f => f!)
+            .ToList();
+        return filters.Count > 0 ? filters : null;
     }
 
     // All time starts from the first task ever added.
