@@ -584,12 +584,12 @@
                                         </Border>
                                     </Grid>
                                 </Button>
-                            </StackPanel>
-                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,4,0,0">
                                 <Button Style="{StaticResource SmallSquareButtonStyle}" Background="#FF579C70" Foreground="White" Click="AddTask_Click" PreviewMouseRightButtonUp="NewTaskButton_PreviewMouseRightButtonUp"
                                         ToolTip="Create a new task (Ctrl+N). Right-click to start from a template, or to manage templates (Alt+M).">
                                     <TextBlock Text="New Task" TextWrapping="Wrap" TextAlignment="Center"/>
                                 </Button>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,4,0,0">
                                 <Button Style="{StaticResource SmallSquareButtonStyle}" Background="#FF537187" Foreground="White" Click="ToggleCardSize_Click"
                                         ToolTip="Toggle task cards between large (full detail) and small (compact) display">
                                     <TextBlock Text="{Binding CardSizeButtonLabel}" TextWrapping="Wrap" TextAlignment="Center"/>
@@ -598,13 +598,13 @@
                                         ToolTip="Hide or show the buttons on each task card (Alt+U), for more room in narrow columns. Everything they do is still on a card's right-click menu.">
                                     <TextBlock Text="{Binding CardButtonsButtonLabel}" TextWrapping="Wrap" TextAlignment="Center"/>
                                 </Button>
-                                <Button Style="{StaticResource UndoButtonStyle}" Background="#FF647E93" Foreground="White" Click="Undo_Click"
-                                        IsEnabled="{Binding CanUndo}" ToolTip="{Binding UndoToolTip}" ToolTipService.ShowOnDisabled="True">
-                                    <TextBlock Text="Undo" TextWrapping="Wrap" TextAlignment="Center"/>
-                                </Button>
                                 <Button Style="{StaticResource HideFutureButtonStyle}" Background="#FF2A8E91" Foreground="White" Click="HideFuture_Click"
                                         ToolTip="Hide tasks whose start date hasn't arrived yet, so only what you can work on now is showing. Click again to show them. Clear Filters doesn't change this.">
                                     <TextBlock Text="{Binding HideFutureButtonLabel}" TextWrapping="Wrap" TextAlignment="Center"/>
+                                </Button>
+                                <Button Style="{StaticResource UndoButtonStyle}" Background="#FF647E93" Foreground="White" Click="Undo_Click"
+                                        IsEnabled="{Binding CanUndo}" ToolTip="{Binding UndoToolTip}" ToolTipService.ShowOnDisabled="True">
+                                    <TextBlock Text="Undo" TextWrapping="Wrap" TextAlignment="Center"/>
                                 </Button>
                             </StackPanel>
                         </StackPanel>

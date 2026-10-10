@@ -10,6 +10,7 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 
 > - Improved: the small buttons on each card are larger, with clearer icons and a defined edge, so they are easier to see and to click. This covers the move letters, Done and Delete along the bottom, and the flag, email and schedule buttons on the right.
 > - Fixed: the buttons down a card's right side now line up with the priority badge above them.
+> - Improved: in the button column, New Task now sits at the end of the sort row, and Undo at the end of the row below it.
 
 ## 0.133.1 — 2026-10-10
 
