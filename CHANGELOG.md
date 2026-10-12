@@ -13,7 +13,6 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > - Improved: in the Manage Templates and Manage Waiting On windows the Delete button now sits beside Help at the left, away from Close.
 > - Improved: every Close, Cancel and Exit button's tooltip says that Esc does the same.
 
-- `Views/HelpKey` is now one class handler for F1 on every window and a window-to-section map, with `HelpKey.ShowCommand` for the Help buttons; the four per-window F1 bindings are gone. Twelve more Help sections are named so a window can open on them. `HelpButtonTests` reads every window's XAML: one Help button at the left of each working window, none on the prompts, every Close/Cancel/Exit naming Esc, and every topic a real section.
 
 ## 0.134.1 — 2026-10-12
 
