@@ -250,6 +250,7 @@ internal static class DemoRecorder
             await Idle(400);
             log.Add($"content {_mainContent.ActualWidth}x{_mainContent.ActualHeight}");
             foreach (var badge in Walk(_main).OfType<TextBlock>().Where(t => t.Text == "TEST BUILD")) badge.Visibility = Visibility.Collapsed; // the released app has no badge
+            foreach (var t in Walk(_main).OfType<TextBlock>().Where(t => t.Text.StartsWith("Version ", StringComparison.Ordinal) && t.Text.EndsWith(" (Test)", StringComparison.Ordinal))) t.Text = t.Text[..^7]; // nor "(Test)" after the version
             vm.SetFitColumnsToWindow(false); // the recording is laid out for this exact width
             vm.SetColumnWidth(240); // the narrowest the app allows
 
@@ -298,6 +299,8 @@ internal static class DemoRecorder
             _caption = "Pick a project and type what needs doing";
             var projectBox = (ComboBox)_dialog.FindName("ProjectComboBox");
             var initialProject = projectBox.SelectedItem;
+            var priority = (ComboBox)_dialog.FindName("PriorityComboBox");
+            var initialPriority = priority.SelectedIndex; // the board's default priority, whatever it is
             MoveTo(OnDialog(projectBox, 0.3), 700);
             Click();
             projectBox.SelectedItem = projectBox.Items.Cast<object>().First(i => (i as ProjectViewModel)?.Name == "Website Redesign");
@@ -319,10 +322,9 @@ internal static class DemoRecorder
             Hold(600);
 
             _caption = "Set a priority and a due date if you like - everything else is optional";
-            var priority = (ComboBox)_dialog.FindName("PriorityComboBox");
             MoveTo(OnDialog(priority, 0.4), 700);
             Click();
-            priority.SelectedIndex = 0; // High
+            priority.SelectedIndex = priority.Items.Cast<ComboBoxItem>().ToList().FindIndex(i => (i.Content as string) == "High");
             await Refresh();
             Hold(600);
             var due = (DatePicker)_dialog.FindName("DueDatePicker");
@@ -337,7 +339,7 @@ internal static class DemoRecorder
             MoveTo(OnDialog(submit), 800);
             Click();
             var added = vm.AddCard(title, Column("To Do"), Project("Website Redesign"), "High", today, null, false, null, null);
-            details.Text = string.Empty; projectBox.SelectedItem = initialProject; priority.SelectedIndex = 2; due.SelectedDate = null; // back as it opened, so it closes without asking
+            details.Text = string.Empty; projectBox.SelectedItem = initialProject; priority.SelectedIndex = initialPriority; due.SelectedDate = null; // back as it opened, so it closes without asking
             _dialog.Close();
             _dialog = null; _dialogShot = null;
             await Refresh();

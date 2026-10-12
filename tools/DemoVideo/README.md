@@ -42,6 +42,8 @@ dotnet run -c Release --project tools/DemoVideo/Encoder -- <framesDir> <output.m
 - `--allkey` makes every frame a key frame (default 8 Mbps, about 32 MB for 38 s at 1080p).
   Without it the file is about 5 MB (2.5 Mbps). `--bitrate N` and `--height 720` adjust either.
 - `--sizes <video.mp4> <first> <count>` prints per-frame sizes and the key frames, without decoding.
+- The file on the website (kanban-demo.mp4, about 3.5 MB for 46 s) is the ordinary 1080p encode at
+  `--bitrate 750000`; the poster beside it is the frame held after Clear Filters, saved as JPEG.
 
 ## The playback fault, and why `--allkey` exists
 
