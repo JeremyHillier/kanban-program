@@ -22,7 +22,6 @@ public partial class SettingsWindow : Window
             Save_Click(this, new RoutedEventArgs()); // Ctrl+S saves, as everywhere in Windows
             e.Handled = true;
         };
-        HelpKey.Bind(this, () => Help_Click(this, new RoutedEventArgs()));
         MaxHeight = SystemParameters.WorkArea.Height * 0.9;
         _viewModel = viewModel;
         RestoreSize();

@@ -202,7 +202,7 @@
                 <local:BulletItem Text="Without classic Outlook, it opens as a calendar file in your calendar app."/>
                 <local:BulletItem Text="The task screen shows when it was last scheduled, and for when."/>
 
-                <TextBlock Text="Quick Add from any program" Style="{StaticResource HelpSectionHeaderStyle}"/>
+                <TextBlock x:Name="HelpSection_QuickAdd" Text="Quick Add from any program" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <local:BulletItem Text="Press Ctrl+Alt+N in any program for a small New Task box."/>
                 <local:BulletItem Text="The app must be running. Minimised is fine."/>
                 <local:BulletItem Text="Type the task and press Enter. The box stays open for more; Esc closes it."/>
@@ -214,7 +214,7 @@
                 <local:BulletItem Text="Anything else stays in the title, so an email address or 50/50 is safe."/>
                 <local:BulletItem Text="Settings shows if another program already uses Ctrl+Alt+N, and can switch Quick Add off."/>
 
-                <TextBlock Text="Task templates" Style="{StaticResource HelpSectionHeaderStyle}"/>
+                <TextBlock x:Name="HelpSection_TaskTemplates" Text="Task templates" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <local:BulletItem Text="A template is a saved starting point for a task you create often."/>
                 <local:BulletItem Text="It keeps the project, priority, who, goal, flags, sub-tasks, notes, website and recurring settings."/>
                 <local:BulletItem Text="To save one: Save as Template on the task screen, or right-click a card."/>
@@ -241,7 +241,7 @@
                 <local:BulletItem Text="× removes an attachment and deletes its saved copy."/>
                 <local:BulletItem Text="Attachments move with the task into Done, Archived and Deleted folders, and back again."/>
 
-                <TextBlock Text="Recurring tasks" Style="{StaticResource HelpSectionHeaderStyle}"/>
+                <TextBlock x:Name="HelpSection_RecurringTasks" Text="Recurring tasks" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <local:BulletItem Text="Tick Recurring and pick a pattern, from Daily to Annually."/>
                 <local:BulletItem Text="To stop after a number of times, enter it under the pattern, counting this task."/>
                 <local:BulletItem Text="Leave it empty, shown as ∞, to repeat with no end."/>
@@ -268,7 +268,7 @@
                 <local:BulletItem Text="Past-due tasks show their title and due date in yellow."/>
                 <local:BulletItem Text="The stamp at the bottom shows the last update, or when it was completed."/>
 
-                <TextBlock Text="Waiting On" Style="{StaticResource HelpSectionHeaderStyle}"/>
+                <TextBlock x:Name="HelpSection_WaitingOn" Text="Waiting On" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <local:BulletItem Text="Say who or what a task is held up by, such as Sam's quote."/>
                 <local:BulletItem Text="Leave it empty when nothing is holding it up."/>
                 <local:BulletItem Text="The card shows it in a highlighted line. Click the line to change it."/>
@@ -296,7 +296,7 @@
                 <local:BulletItem Text="The last 30 actions are kept until the app closes. There is no redo."/>
                 <local:BulletItem Text="Not covered: the Manage lists, Settings, attachments, and the Archived and Deleted screens."/>
 
-                <TextBlock Text="Projects, Goals, Flags and Who" Style="{StaticResource HelpSectionHeaderStyle}"/>
+                <TextBlock x:Name="HelpSection_ProjectsGoals" Text="Projects, Goals, Flags and Who" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <local:BulletItem Text="The Manage screens add, rename or delete entries."/>
                 <local:BulletItem Text="Click the coloured label beside a filter to open its Manage screen."/>
                 <local:BulletItem Text="A task can carry several flags."/>
@@ -320,7 +320,7 @@
                 <local:BulletItem Text="In Assign To, each person switches on or off without changing the others."/>
                 <local:BulletItem Text="Esc, or a plain click on another card, clears the selection."/>
                 <local:BulletItem Text="Moving several to Done skips the completion note question."/>
-                <TextBlock Text="Priorities" Style="{StaticResource HelpSubHeaderStyle}"/>
+                <TextBlock x:Name="HelpSection_Priorities" Text="Priorities" Style="{StaticResource HelpSubHeaderStyle}"/>
                 <local:BulletItem Text="Click the Priority label beside the filter list to open the priority list."/>
                 <local:BulletItem Text="It is also in Settings, and under Priority when you right-click a card."/>
                 <local:BulletItem Text="Add priorities of your own, such as Urgent or Someday."/>
@@ -346,7 +346,7 @@
                 <local:BulletItem Text="Hide Future hides tasks until their start date, and shows how many are hidden."/>
                 <local:BulletItem Text="Clear Filters resets every filter to All."/>
 
-                <TextBlock Text="Custom filters (Alt+0 to Alt+9)" Style="{StaticResource HelpSectionHeaderStyle}"/>
+                <TextBlock x:Name="HelpSection_CustomFilters" Text="Custom filters (Alt+0 to Alt+9)" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <local:BulletItem Text="Ten slots hold filter combinations you use often."/>
                 <local:BulletItem Text="Set the filters, click Custom Filters, pick a slot and save it under a name."/>
                 <local:BulletItem Text="Press Alt and the slot's number to apply it. The number row and keypad both work."/>
@@ -354,7 +354,7 @@
                 <local:BulletItem Text="An empty slot's key does nothing."/>
                 <local:BulletItem Text="Hover over Custom Filters to see every slot."/>
 
-                <TextBlock Text="Archiving and deleting" Style="{StaticResource HelpSectionHeaderStyle}"/>
+                <TextBlock x:Name="HelpSection_ArchivingDeleting" Text="Archiving and deleting" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <local:BulletItem Text="Archive Done moves every task in Done off the board."/>
                 <local:BulletItem Text="Deleted tasks are kept out of sight, not erased."/>
                 <local:BulletItem Text="View Archived shows archived tasks. Double-click it for deleted tasks."/>
@@ -364,7 +364,7 @@
                 <local:BulletItem Text="From and To narrow either list by date. Clear Dates resets it."/>
                 <local:BulletItem Text="Right-click, Permanently Delete erases a task and its attachments. There is no undo."/>
 
-                <TextBlock Text="Importing tasks" Style="{StaticResource HelpSectionHeaderStyle}"/>
+                <TextBlock x:Name="HelpSection_ImportingTasks" Text="Importing tasks" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <local:BulletItem Text="Import Tasks reads an Excel .xlsx file. Download Template gives one laid out the right way."/>
                 <local:BulletItem Text="Or drop the file on the Import Tasks window, from a folder or from Outlook."/>
                 <local:BulletItem Text="From Outlook, drop the attachment itself or the whole email; the Excel file inside is used."/>
@@ -406,7 +406,7 @@
                 <local:BulletItem Text="Also: added against finished over time, and typical days in each column."/>
                 <local:BulletItem Text="The filters apply. Archived tasks count; deleted ones don't."/>
                 <local:BulletItem Text="A saved view keeps the period, so Last month is always last month."/>
-                <TextBlock Text="Output" Style="{StaticResource HelpSubHeaderStyle}"/>
+                <TextBlock x:Name="HelpSection_ReportOutput" Text="Output" Style="{StaticResource HelpSubHeaderStyle}"/>
                 <local:BulletItem Text="Preview shows the pages, with zoom and Print."/>
                 <local:BulletItem Text="PDF saves to the Default Export Path, or asks where."/>
                 <local:BulletItem Text="Choose Portrait or Landscape."/>
@@ -420,7 +420,7 @@
                 <local:BulletItem Text="Standard reports come ready to run. Change or delete them like your own."/>
                 <local:BulletItem Text="Reset all fields puts everything back to the defaults."/>
 
-                <TextBlock Text="Dashboard" Style="{StaticResource HelpSectionHeaderStyle}"/>
+                <TextBlock x:Name="HelpSection_Dashboard" Text="Dashboard" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <local:BulletItem Text="The banner shows Open, Overdue, Due Today and Due This Week."/>
                 <local:BulletItem Text="Double-click the banner for the full Dashboard."/>
                 <local:BulletItem Text="Seven tiles and six charts cover status, due dates, completions, stalled work, projects and people."/>
@@ -439,7 +439,7 @@
                 <local:BulletItem Text="Print previews what is showing, on landscape pages."/>
                 <local:BulletItem Text="It opens at the size and view last used."/>
 
-                <TextBlock Text="Reminders" Style="{StaticResource HelpSectionHeaderStyle}"/>
+                <TextBlock x:Name="HelpSection_Reminders" Text="Reminders" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <local:BulletItem Text="Opening the app lists anything overdue or due today."/>
                 <local:BulletItem Text="Tick a task to mark it Done. Double-click to edit it."/>
                 <local:BulletItem Text="Alt+R brings the list back any time."/>
@@ -555,7 +555,7 @@
                     Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
             </StackPanel>
             <Button Content="Close" Width="90" Padding="0,6" HorizontalAlignment="Right" IsCancel="True" IsDefault="True"
-                    Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                    Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}" ToolTip="Close this window. (Esc)"/>
         </Grid>
     </Grid>
 </Window>

@@ -52,7 +52,6 @@ public partial class TimelineWindow : Window
             }
             e.Handled = true;
         };
-        HelpKey.Bind(this, () => Help_Click(this, new RoutedEventArgs()));
         _viewModel = viewModel;
         _windowStart = MondayOf(DateTime.Today);
         RestoreSize();

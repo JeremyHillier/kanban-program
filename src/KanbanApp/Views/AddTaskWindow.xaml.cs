@@ -80,7 +80,6 @@ public partial class AddTaskWindow : Window
             Add_Click(this, new RoutedEventArgs()); // Ctrl+S saves, as everywhere in Windows; Enter can't from the Notes box
             e.Handled = true;
         };
-        HelpKey.Bind(this, () => Help_Click(this, new RoutedEventArgs()));
         MaxHeight = SystemParameters.WorkArea.Height * 0.9;
         // Constrains the scrollable form area directly, rather than relying on the Grid row it
         // sits in to propagate the window's MaxHeight down during a SizeToContent="Height" measure

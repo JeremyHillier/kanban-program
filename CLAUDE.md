@@ -192,8 +192,9 @@ service or document, check this section and keep to it.
   About shows the version, channel, file paths, both email addresses and the website. Every other dialog
   carries the copyright line bottom-right, stamped by a class handler on `Window.Loaded`
   (`Theming/DialogCopyright`).
-- **Help:** short bullets under headings, one idea per bullet, never a paragraph; the ? buttons land on
-  their topic.
+- **Help:** short bullets under headings, one idea per bullet, never a paragraph. F1 in any window, and the
+  Help button at the bottom left of every working window, open Help at that window's section (`Views/HelpKey`,
+  one class handler and a window-to-section map; `HelpButtonTests` reads every window).
 - **Changelog:** newest first; `## <version> — <date>`; the summary as `> - ` lines (one point per line,
   no wrapping or bold, starting "New:", "Improved:" or "Fixed:" where it helps), then optional `- `
   detail. What's New shows the `> - ` lines only. Bump `<Version>` in the app csproj with every change;

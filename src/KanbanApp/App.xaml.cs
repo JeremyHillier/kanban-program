@@ -46,6 +46,7 @@ public partial class App : Application
         // whose Loaded fires after this point.
         Theming.DialogCopyright.Register();
         Theming.WindowFit.Register(); // every window stays inside its screen, buttons and all
+        Views.HelpKey.Register(); // F1 opens Help from any window, at the section about it
 
         var db = new DatabaseService();
         if (db.IsFromNewerApp && !ConfirmOpenNewerTaskFile(db))
