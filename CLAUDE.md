@@ -1,6 +1,6 @@
 # Kanban Task Board
 
-WPF (.NET, `net10.0-windows`) desktop kanban app, SQLite-backed via `Microsoft.Data.Sqlite`. Personal project, developed from two computers with this folder synced via OneDrive and pushed to GitHub (`origin` = `JeremyHillier/kanban-program`).
+WPF (.NET, `net10.0-windows`) desktop kanban app, SQLite-backed via `Microsoft.Data.Sqlite`. Personal project, developed from two computers with this folder synced via OneDrive and pushed to GitHub (`origin` = `JeremyHillier/kanban-program`, a public repo).
 
 ## Working across two computers
 
@@ -51,7 +51,7 @@ Public download page: https://hillierconsulting.ca/kanban.html. It reads the lat
   `awk '/^## <Version> /{f=1;next} /^## /{if(f)exit} f && /^(> )?- /{sub(/^> /,""); sub(/\r$/,""); print}' CHANGELOG.md > <temp file>`
 - Publish with:
   `gh release create v<Version> "installer/Output/Kanban Task Board-Setup-<Version>.exe" --repo JeremyHillier/kanban-task-board-downloads --title "Kanban Task Board <Version>" --notes-file <temp file> --latest`
-- Never mark it `--prerelease` or `--draft` (the page only picks up the latest full release). Never push source code or anything other than the installer to that repo; the code repo `kanban-program` stays private.
+- Never mark it `--prerelease` or `--draft` (the page only picks up the latest full release). Never push source code or anything other than the installer to that repo; the code lives in `kanban-program` (public on GitHub since 2026-10).
 - Afterwards confirm with `gh release view` and tell the user it is live at https://hillierconsulting.ca/kanban.html.
 
 
