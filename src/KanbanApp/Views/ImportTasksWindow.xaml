@@ -62,7 +62,7 @@
                    Foreground="{DynamicResource SecondaryTextBrush}"/>
 
         <Button Grid.Row="6" Content="Close" Width="90" Padding="0,6" Margin="0,16,0,0"
-                HorizontalAlignment="Right" IsCancel="True"
+                HorizontalAlignment="Right" IsCancel="True" IsDefault="True"
                 Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
     </Grid>
 </Window>

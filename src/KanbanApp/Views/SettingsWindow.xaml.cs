@@ -16,6 +16,7 @@ public partial class SettingsWindow : Window
     public SettingsWindow(MainViewModel viewModel)
     {
         InitializeComponent();
+        HelpKey.Bind(this, () => Help_Click(this, new RoutedEventArgs()));
         MaxHeight = SystemParameters.WorkArea.Height * 0.9;
         _viewModel = viewModel;
         RestoreSize();

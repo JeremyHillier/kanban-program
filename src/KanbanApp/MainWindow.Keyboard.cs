@@ -14,6 +14,14 @@ public partial class MainWindow
 {
     private void MainWindow_PreviewKeyDown(object sender, KeyEventArgs e)
     {
+        // F1 opens Help, as it does across Windows (Alt+H below does too).
+        if (e.Key == Key.F1 && Keyboard.Modifiers == ModifierKeys.None)
+        {
+            Help_Click(sender, e);
+            e.Handled = true;
+            return;
+        }
+
         // Handled at the Window level (tunneling PreviewKeyDown, fires before any focused control's
         // own Escape handling) so it's a single, reliable "reset the view" regardless of which
         // filter control happens to have focus — a focused ComboBox's own "just close the dropdown"

@@ -892,7 +892,7 @@
                                 <TextBlock Text="Settings" TextWrapping="Wrap" TextAlignment="Center"/>
                             </Button>
                             <Button Style="{StaticResource LargeSquareButtonStyle}" Background="#FF2AA4BE" Foreground="White" Click="Help_Click"
-                                    ToolTip="Open the help screen">
+                                    ToolTip="Open the help screen (F1 or Alt+H)">
                                 <TextBlock Text="Help" TextWrapping="Wrap" TextAlignment="Center"/>
                             </Button>
                             <Button Style="{StaticResource LargeSquareButtonStyle}" Background="#FFB06A76" Foreground="White" Click="Close_Click"

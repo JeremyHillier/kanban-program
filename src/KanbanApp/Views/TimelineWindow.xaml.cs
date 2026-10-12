@@ -39,6 +39,7 @@ public partial class TimelineWindow : Window
     public TimelineWindow(MainViewModel viewModel)
     {
         InitializeComponent();
+        HelpKey.Bind(this, () => Help_Click(this, new RoutedEventArgs()));
         _viewModel = viewModel;
         _windowStart = MondayOf(DateTime.Today);
         RestoreSize();

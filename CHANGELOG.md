@@ -6,6 +6,15 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.134.0 — 2026-10-12
+
+> - Improved: every window now lays out its buttons the Windows way. The main action comes first and Cancel or Close is always the last button on the right, so the button you reach for is in the same place in every window.
+> - Improved: buttons that act on the content, such as Reactivate, Copy, Report a Problem and the task actions Save as Template, Email and Schedule, now sit on the left of the footer, away from the main action and Cancel.
+> - New: F1 opens Help from the board and from the task, report, timeline and settings windows, alongside Alt+H on the board.
+- In the manage-list windows the closing button now says Close, since every change there is saved as it happens.
+- In Manage Custom Filters, Apply is now Use on Board, which is what it does.
+- In Imported Tasks the closing button is now Cancel, since unsaved edits are not kept; it still asks before discarding them.
+
 ## 0.133.2 — 2026-10-10
 
 > - Improved: the small buttons on each card are larger, with clearer icons and a defined edge, so they are easier to see and to click. This covers the move letters, Done and Delete along the bottom, and the flag, email and schedule buttons on the right.

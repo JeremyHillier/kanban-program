@@ -26,14 +26,14 @@
                     ToolTip="Open the full Report Builder to change a view or make a new one"
                     Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button x:Name="PreviewButton" Content="Preview" Width="90" Padding="0,6" Margin="0,0,8,0" IsDefault="True" Click="Preview_Click"
+                        ToolTip="Show the report on screen; it can be printed from there too"
+                        Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
                 <Button x:Name="PdfButton" Content="PDF" Width="70" Padding="0,6" Margin="0,0,8,0" Click="Pdf_Click"
                         ToolTip="Save the report as a PDF file"
                         Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
                 <Button x:Name="PrintButton" Content="Print" Width="80" Padding="0,6" Margin="0,0,8,0" Click="Print_Click"
                         ToolTip="Send the report straight to a printer"
-                        Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
-                <Button x:Name="PreviewButton" Content="Preview" Width="90" Padding="0,6" Margin="0,0,8,0" IsDefault="True" Click="Preview_Click"
-                        ToolTip="Show the report on screen; it can be printed from there too"
                         Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
                 <Button Content="Close" Width="80" Padding="0,6" IsCancel="True"
                         Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>

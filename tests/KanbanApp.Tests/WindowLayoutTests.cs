@@ -47,6 +47,40 @@ public class WindowLayoutTests
             "These buttons sit inside a ScrollViewer, so they can scroll off the screen. Put the content in the ScrollViewer and the buttons in a row beneath it:\n" +
             string.Join("\n", offenders));
     }
+
+    // Windows puts the main action first and Cancel (or Close) last in a row of commit buttons, with
+    // Enter on the main action and Esc on the way out. Every window follows that, so the button a
+    // person reaches for is in the same place each time.
+    [Fact]
+    public void InEveryCommitRow_TheCancelOrCloseButtonComesLast()
+    {
+        var root = SourceRoot();
+        var windows = Directory.EnumerateFiles(Path.Combine(root, "Views"), "*.xaml").Append(Path.Combine(root, "MainWindow.xaml"));
+        var offenders = new List<string>();
+
+        foreach (var file in windows)
+        {
+            var doc = XDocument.Load(file);
+            if (doc.Root?.Name.LocalName != "Window") continue;
+
+            foreach (var row in doc.Descendants().Where(e => e.Name.LocalName == "StackPanel"))
+            {
+                var buttons = row.Elements().Where(e => e.Name.LocalName == "Button").ToList();
+                var escape = buttons.FirstOrDefault(b => b.Attribute("IsCancel")?.Value == "True");
+                if (escape is null || buttons.Count < 2) continue;
+
+                if (buttons[^1] != escape)
+                    offenders.Add($"{Path.GetFileName(file)}: {escape.Attribute("Content")?.Value ?? escape.Attribute("x:Name")?.Value} is not the last button in its row");
+
+                var main = buttons.FirstOrDefault(b => b.Attribute("IsDefault")?.Value == "True");
+                if (main is not null && buttons.IndexOf(main) > buttons.IndexOf(escape))
+                    offenders.Add($"{Path.GetFileName(file)}: the default button sits after {escape.Attribute("Content")?.Value}");
+            }
+        }
+
+        Assert.True(offenders.Count == 0,
+            "Commit buttons go main action first, Cancel or Close last:\n" + string.Join("\n", offenders));
+    }
 }
 
 [Collection(WpfCollection.Name)]

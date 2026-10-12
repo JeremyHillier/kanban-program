@@ -46,9 +46,9 @@
                 </Button.Template>
             </Button>
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                <Button x:Name="CancelButton" Content="Cancel" Width="80" Padding="0,6" IsCancel="True"
+                <Button x:Name="OkButton" Content="Add" Width="80" Padding="0,6" IsDefault="True" Click="Add_Click"
                         Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
-                <Button x:Name="OkButton" Content="Add" Width="80" Padding="0,6" Margin="8,0,0,0" IsDefault="True" Click="Add_Click"
+                <Button x:Name="CancelButton" Content="Cancel" Width="80" Padding="0,6" Margin="8,0,0,0" IsCancel="True"
                         Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
             </StackPanel>
         </Grid>
