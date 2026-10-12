@@ -10,6 +10,9 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 
 > - Improved: tooltips now wrap into a few short lines instead of one long one, and stay up long enough to read.
 > - Improved: every button that does more than its label says now has a tooltip, including the Report Builder, Settings file and backup buttons, Import Tasks and the date helpers in the task window.
+> - Improved: Help has a new look, with a header, a Quick keys table and What's New as a tab beside How it works. After an update it opens on What's New.
+- Help now describes Semi-Monthly as it works: a day in the first half of the month pairs with the same day plus 15, a later day with the same day less 15, and a month's last day with the 15th.
+- Import Tasks names the required column Title, as the template does.
 - Tooltips use the same words everywhere: tasks rather than cards, person rather than assignee, and the shortcut in brackets at the end of the first sentence.
 - The Reminders button says it opens Reminders, rather than reading like a filter.
 

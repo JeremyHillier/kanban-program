@@ -5,8 +5,8 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:local="clr-namespace:KanbanApp.Views"
         mc:Ignorable="d"
-        Title="Help" Height="640" Width="560"
-        WindowStartupLocation="CenterOwner" ResizeMode="NoResize"
+        Title="Help" Height="820" Width="900" MinHeight="500" MinWidth="640"
+        WindowStartupLocation="CenterOwner" ResizeMode="CanResize"
         ShowInTaskbar="False"
         Background="{DynamicResource WindowBackgroundBrush}">
     <Window.Resources>
@@ -32,43 +32,116 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <TextBlock Grid.Row="0" Text="Kanban Task Board — Help" FontWeight="Bold" FontSize="18" Margin="0,0,0,4"
-                   Foreground="{DynamicResource PrimaryTextBrush}"/>
+        <!-- The header band, as on the board: the heading, and the version at the right. -->
+        <Border Grid.Row="0" Background="{DynamicResource AccentPanelBrush}" BorderBrush="{DynamicResource AccentPanelBorderBrush}"
+                BorderThickness="0,0,0,2" CornerRadius="4" Padding="16,10" Margin="0,0,0,10">
+            <DockPanel>
+                <TextBlock x:Name="VersionText" DockPanel.Dock="Right" FontSize="12" Foreground="White" Opacity="0.8" VerticalAlignment="Center"/>
+                <TextBlock x:Name="HeadingText" Text="HELP" FontSize="17" FontWeight="Bold" Foreground="White" VerticalAlignment="Center"/>
+            </DockPanel>
+        </Border>
 
-        <ScrollViewer x:Name="ContentScrollViewer" Grid.Row="1" VerticalScrollBarVisibility="Auto" Margin="0,4,0,8">
-            <StackPanel x:Name="ContentPanel">
+        <TabControl x:Name="Tabs" Grid.Row="1" Background="{DynamicResource WindowBackgroundBrush}" BorderBrush="{DynamicResource CardBorderBrush}">
+            <TabItem Header="How it works">
+        <ScrollViewer x:Name="ContentScrollViewer" VerticalScrollBarVisibility="Auto" Padding="16,8">
+            <StackPanel x:Name="ContentPanel" MaxWidth="780" HorizontalAlignment="Left">
                 <local:BulletItem Text="Tasks sit in five columns: To Do, In Progress, On Hold, Waiting and Done. You can rename them."/>
                 <local:BulletItem Text="Drag a card to another column, or use its move buttons."/>
                 <local:BulletItem Text="Each move button shows a letter from its column's name. The tick is always Done."/>
 
-                <TextBlock Text="Keyboard shortcuts" Style="{StaticResource HelpSectionHeaderStyle}"/>
-                <local:BulletItem Text="On the board:"/>
-                <local:BulletItem Text="Ctrl+N: new task. Ctrl+Alt+N: Quick Add, from any program."/>
-                <local:BulletItem Text="Ctrl+F: go to the Keyword filter."/>
-                <local:BulletItem Text="Ctrl+Z: undo the last change to a task. In a text box, it undoes typing."/>
-                <local:BulletItem Text="Ctrl+P: Report Builder. Ctrl+Shift+P: Quick Report."/>
-                <local:BulletItem Text="Ctrl+Q: quit."/>
-                <local:BulletItem Text="Alt+A: archive done tasks."/>
-                <local:BulletItem Text="Alt+P, Alt+G, Alt+F, Alt+W: manage Projects, Goals, Flags or Who."/>
-                <local:BulletItem Text="Alt+M: manage task templates."/>
-                <local:BulletItem Text="Alt+R: Reminders. Alt+S: Settings. Alt+L: Timeline. Alt+H: this Help screen."/>
-                <local:BulletItem Text="Alt+B: hide or show the button column. Alt+U: hide or show the buttons on the cards."/>
-                <local:BulletItem Text="Alt+T: only what is due today or overdue."/>
-                <local:BulletItem Text="Alt+0 to Alt+9: apply a saved custom filter."/>
-                <local:BulletItem Text="Ctrl+click picks cards; Shift+click picks a range in one column. Delete deletes the picked cards, after asking."/>
-                <local:BulletItem Text="Esc: clears the selection, then the filters."/>
-                <local:BulletItem Text="Double-click a card to edit it, or a column heading to add a task there."/>
-                <local:BulletItem Text="In every window:"/>
-                <local:BulletItem Text="F1: Help, from the board and from the task, report, timeline and settings windows."/>
-                <local:BulletItem Text="Enter: the main button. Esc: Cancel or Close."/>
-                <local:BulletItem Text="Ctrl+S: Save and Close, in the task and settings windows."/>
-                <local:BulletItem Text="Alt+underlined letter: presses that button."/>
-                <local:BulletItem Text="Ctrl+C in a message: copies the message."/>
-                <local:BulletItem Text="In the Timeline: Left and Right arrows move a period; Home returns to today."/>
-                <local:BulletItem Text="In lists (priorities, templates, Waiting On answers, custom filters):"/>
-                <local:BulletItem Text="F2: rename. Delete: delete, after asking."/>
-                <local:BulletItem Text="Alt+Up, Alt+Down: move a priority up or down the list."/>
-                <local:BulletItem Text="Shift+Delete on a Waiting On suggestion: stop it being suggested."/>
+                <TextBlock Text="Quick keys" Style="{StaticResource HelpSectionHeaderStyle}" Margin="0,2,0,4"/>
+                <Border Background="{DynamicResource InputBackgroundBrush}" BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="1" CornerRadius="4" Padding="12,8" Margin="0,0,0,12">
+                    <StackPanel>
+                        <TextBlock Text="Main screen" FontWeight="SemiBold" Margin="0,6,0,2" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="230"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/></Grid.RowDefinitions>
+                            <TextBlock Grid.Row="0" Text="Ctrl+N" FontFamily="Consolas" Margin="10,1,0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                            <TextBlock Grid.Row="0" Grid.Column="1" Text="New task" TextWrapping="Wrap" Margin="0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                            <TextBlock Grid.Row="1" Text="Ctrl+Alt+N" FontFamily="Consolas" Margin="10,1,0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                            <TextBlock Grid.Row="1" Grid.Column="1" Text="Quick Add, from any program" TextWrapping="Wrap" Margin="0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                            <TextBlock Grid.Row="2" Text="Ctrl+F" FontFamily="Consolas" Margin="10,1,0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                            <TextBlock Grid.Row="2" Grid.Column="1" Text="Go to the Keyword filter" TextWrapping="Wrap" Margin="0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                            <TextBlock Grid.Row="3" Text="Ctrl+Z" FontFamily="Consolas" Margin="10,1,0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                            <TextBlock Grid.Row="3" Grid.Column="1" Text="Undo the last change to a task. In a text box, it undoes typing" TextWrapping="Wrap" Margin="0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                            <TextBlock Grid.Row="4" Text="Ctrl+P" FontFamily="Consolas" Margin="10,1,0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                            <TextBlock Grid.Row="4" Grid.Column="1" Text="Report Builder" TextWrapping="Wrap" Margin="0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                            <TextBlock Grid.Row="5" Text="Ctrl+Shift+P" FontFamily="Consolas" Margin="10,1,0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                            <TextBlock Grid.Row="5" Grid.Column="1" Text="Quick Report" TextWrapping="Wrap" Margin="0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                            <TextBlock Grid.Row="6" Text="Ctrl+Q" FontFamily="Consolas" Margin="10,1,0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                            <TextBlock Grid.Row="6" Grid.Column="1" Text="Close the program" TextWrapping="Wrap" Margin="0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                            <TextBlock Grid.Row="7" Text="Alt+A" FontFamily="Consolas" Margin="10,1,0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                            <TextBlock Grid.Row="7" Grid.Column="1" Text="Archive done tasks" TextWrapping="Wrap" Margin="0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                            <TextBlock Grid.Row="8" Text="Alt+P, Alt+G, Alt+F, Alt+W" FontFamily="Consolas" Margin="10,1,0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                            <TextBlock Grid.Row="8" Grid.Column="1" Text="Manage Projects, Goals, Flags or Who" TextWrapping="Wrap" Margin="0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                            <TextBlock Grid.Row="9" Text="Alt+M" FontFamily="Consolas" Margin="10,1,0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                            <TextBlock Grid.Row="9" Grid.Column="1" Text="Manage task templates" TextWrapping="Wrap" Margin="0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                            <TextBlock Grid.Row="10" Text="Alt+R" FontFamily="Consolas" Margin="10,1,0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                            <TextBlock Grid.Row="10" Grid.Column="1" Text="Reminders" TextWrapping="Wrap" Margin="0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                            <TextBlock Grid.Row="11" Text="Alt+S" FontFamily="Consolas" Margin="10,1,0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                            <TextBlock Grid.Row="11" Grid.Column="1" Text="Settings" TextWrapping="Wrap" Margin="0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                            <TextBlock Grid.Row="12" Text="Alt+L" FontFamily="Consolas" Margin="10,1,0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                            <TextBlock Grid.Row="12" Grid.Column="1" Text="Timeline" TextWrapping="Wrap" Margin="0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                            <TextBlock Grid.Row="13" Text="Alt+H" FontFamily="Consolas" Margin="10,1,0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                            <TextBlock Grid.Row="13" Grid.Column="1" Text="Help" TextWrapping="Wrap" Margin="0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                            <TextBlock Grid.Row="14" Text="Alt+B" FontFamily="Consolas" Margin="10,1,0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                            <TextBlock Grid.Row="14" Grid.Column="1" Text="Hide or show the button column" TextWrapping="Wrap" Margin="0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                            <TextBlock Grid.Row="15" Text="Alt+U" FontFamily="Consolas" Margin="10,1,0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                            <TextBlock Grid.Row="15" Grid.Column="1" Text="Hide or show the buttons on the cards" TextWrapping="Wrap" Margin="0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                            <TextBlock Grid.Row="16" Text="Alt+T" FontFamily="Consolas" Margin="10,1,0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                            <TextBlock Grid.Row="16" Grid.Column="1" Text="Only what is due today or overdue" TextWrapping="Wrap" Margin="0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                            <TextBlock Grid.Row="17" Text="Alt+0 to Alt+9" FontFamily="Consolas" Margin="10,1,0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                            <TextBlock Grid.Row="17" Grid.Column="1" Text="Apply a saved custom filter" TextWrapping="Wrap" Margin="0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                            <TextBlock Grid.Row="18" Text="Ctrl+click, Shift+click" FontFamily="Consolas" Margin="10,1,0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                            <TextBlock Grid.Row="18" Grid.Column="1" Text="Pick cards, or a range of them in one column" TextWrapping="Wrap" Margin="0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                            <TextBlock Grid.Row="19" Text="Delete" FontFamily="Consolas" Margin="10,1,0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                            <TextBlock Grid.Row="19" Grid.Column="1" Text="Delete the picked cards, after asking" TextWrapping="Wrap" Margin="0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                            <TextBlock Grid.Row="20" Text="Esc" FontFamily="Consolas" Margin="10,1,0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                            <TextBlock Grid.Row="20" Grid.Column="1" Text="Clear the selection, then the filters" TextWrapping="Wrap" Margin="0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                            <TextBlock Grid.Row="21" Text="Double-click" FontFamily="Consolas" Margin="10,1,0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                            <TextBlock Grid.Row="21" Grid.Column="1" Text="Edit a card; on a column heading, add a task there" TextWrapping="Wrap" Margin="0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                        </Grid>
+                        <TextBlock Text="Every window" FontWeight="SemiBold" Margin="0,6,0,2" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="230"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/></Grid.RowDefinitions>
+                            <TextBlock Grid.Row="0" Text="F1" FontFamily="Consolas" Margin="10,1,0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                            <TextBlock Grid.Row="0" Grid.Column="1" Text="Help, at the section about that window" TextWrapping="Wrap" Margin="0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                            <TextBlock Grid.Row="1" Text="Enter" FontFamily="Consolas" Margin="10,1,0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                            <TextBlock Grid.Row="1" Grid.Column="1" Text="The main button" TextWrapping="Wrap" Margin="0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                            <TextBlock Grid.Row="2" Text="Esc" FontFamily="Consolas" Margin="10,1,0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                            <TextBlock Grid.Row="2" Grid.Column="1" Text="Cancel or Close" TextWrapping="Wrap" Margin="0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                            <TextBlock Grid.Row="3" Text="Ctrl+S" FontFamily="Consolas" Margin="10,1,0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                            <TextBlock Grid.Row="3" Grid.Column="1" Text="Save and Close, in the task and settings windows" TextWrapping="Wrap" Margin="0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                            <TextBlock Grid.Row="4" Text="Alt+underlined letter" FontFamily="Consolas" Margin="10,1,0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                            <TextBlock Grid.Row="4" Grid.Column="1" Text="Press that button" TextWrapping="Wrap" Margin="0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                            <TextBlock Grid.Row="5" Text="Ctrl+C" FontFamily="Consolas" Margin="10,1,0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                            <TextBlock Grid.Row="5" Grid.Column="1" Text="In a message, copy the message" TextWrapping="Wrap" Margin="0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                        </Grid>
+                        <TextBlock Text="Timeline" FontWeight="SemiBold" Margin="0,6,0,2" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="230"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions><RowDefinition/><RowDefinition/></Grid.RowDefinitions>
+                            <TextBlock Grid.Row="0" Text="Left, Right" FontFamily="Consolas" Margin="10,1,0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                            <TextBlock Grid.Row="0" Grid.Column="1" Text="Earlier or later" TextWrapping="Wrap" Margin="0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                            <TextBlock Grid.Row="1" Text="Home" FontFamily="Consolas" Margin="10,1,0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                            <TextBlock Grid.Row="1" Grid.Column="1" Text="Back to today" TextWrapping="Wrap" Margin="0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                        </Grid>
+                        <TextBlock Text="Lists: priorities, templates, Waiting On answers, custom filters" FontWeight="SemiBold" Margin="0,6,0,2" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="230"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/></Grid.RowDefinitions>
+                            <TextBlock Grid.Row="0" Text="F2" FontFamily="Consolas" Margin="10,1,0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                            <TextBlock Grid.Row="0" Grid.Column="1" Text="Rename" TextWrapping="Wrap" Margin="0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                            <TextBlock Grid.Row="1" Text="Delete" FontFamily="Consolas" Margin="10,1,0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                            <TextBlock Grid.Row="1" Grid.Column="1" Text="Delete, after asking" TextWrapping="Wrap" Margin="0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                            <TextBlock Grid.Row="2" Text="Alt+Up, Alt+Down" FontFamily="Consolas" Margin="10,1,0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                            <TextBlock Grid.Row="2" Grid.Column="1" Text="Move a priority up or down the list" TextWrapping="Wrap" Margin="0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                            <TextBlock Grid.Row="3" Text="Shift+Delete" FontFamily="Consolas" Margin="10,1,0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                            <TextBlock Grid.Row="3" Grid.Column="1" Text="On a Waiting On suggestion, stop it being suggested" TextWrapping="Wrap" Margin="0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                        </Grid>
+                    </StackPanel>
+                </Border>
 
                 <TextBlock x:Name="HelpSection_AddEditTask" Text="Adding and editing tasks" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <TextBlock Text="Creating" Style="{StaticResource HelpSubHeaderStyle}"/>
@@ -178,8 +251,8 @@
                 <local:BulletItem Text="Deleting an unfinished recurring task asks: blue keeps the series going, red ends it."/>
                 <TextBlock Text="Semi-Monthly" Style="{StaticResource HelpSubHeaderStyle}"/>
                 <local:BulletItem Text="Twice a month, on the same two dates."/>
-                <local:BulletItem Text="Due on the 3rd: the 3rd and 18th. Due on the 20th: the 5th and 20th."/>
-                <local:BulletItem Text="Due from the 13th to 15th, or 28th to 31st: the 15th and the last day of the month."/>
+                <local:BulletItem Text="Due on the 1st to 15th: that day and 15 days later, so the 3rd gives the 3rd and 18th."/>
+                <local:BulletItem Text="Due on the 16th or later: that day and 15 days earlier, so the 20th gives the 5th and 20th. The last day of a month pairs with the 15th."/>
 
                 <TextBlock Text="Quick actions on a card" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <local:BulletItem Text="The letter buttons move a card to To Do, In Progress, On Hold or Waiting."/>
@@ -438,6 +511,8 @@
 
                 <TextBlock Text="Getting help" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <local:BulletItem Text="The ? button on a screen opens Help at its topic."/>
+                <local:BulletItem Text="The What's New tab lists the changes in the last five versions."/>
+                <local:BulletItem Text="It opens once after each update. To stop that, untick Show What's New in Settings."/>
                 <local:BulletItem Text="Report a Problem emails support with the error log attached."/>
                 <local:BulletItem Text="Nothing is sent until you click Send."/>
                 <local:BulletItem Text="An unexpected error also offers to open that email."/>
@@ -461,14 +536,19 @@
 
             </StackPanel>
         </ScrollViewer>
+            </TabItem>
+            <TabItem x:Name="WhatsNewTab" Header="What's New">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="16,8">
+                    <!-- Filled in code from the changelog embedded in the exe (ReleaseNotes). -->
+                    <StackPanel x:Name="WhatsNewPanel" MaxWidth="780" HorizontalAlignment="Left"/>
+                </ScrollViewer>
+            </TabItem>
+        </TabControl>
 
-        <Grid Grid.Row="2">
+        <Grid Grid.Row="2" Margin="0,10,0,0">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
             <Button Content="_Report a Problem" Width="130" Padding="0,6" Margin="0,0,8,0" Click="ReportProblem_Click"
                     ToolTip="Open an email to support with the app's error log attached"
-                    Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
-            <Button Content="What's _New" Width="100" Padding="0,6" Margin="0,0,8,0" Click="WhatsNew_Click"
-                    ToolTip="What changed in the last five updates"
                     Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
             <Button Content="_About" Width="90" Padding="0,6" Click="About_Click"
                     ToolTip="Version, ownership, and where this installation keeps its files"

@@ -15,7 +15,7 @@ public partial class MainWindow
 {
     private void ShowWhatsNew(MainViewModel viewModel)
     {
-        var dialog = new WhatsNewWindow(viewModel) { Owner = this };
+        var dialog = new HelpWindow(viewModel, showWhatsNew: true) { Owner = this };
         dialog.ShowDialog();
 
         // Recorded even if the user turns the screen off from inside it, so switching it back on

@@ -23,7 +23,7 @@
                    Foreground="{DynamicResource PrimaryTextBrush}"/>
         <TextBlock Grid.Row="1" TextWrapping="Wrap" Margin="0,0,0,16"
                    Foreground="{DynamicResource SecondaryTextBrush}"
-                   Text="Start from the template so your columns line up, fill in one task per row, then choose the file to import. Only Task Details is required."/>
+                   Text="Start from the template so your columns line up, fill in one task per row, then choose the file to import. Only Title is required."/>
 
         <Button Grid.Row="2" Content="Download Template..." ToolTip="Save an empty Excel template to fill in" Padding="0,10" HorizontalAlignment="Stretch" Margin="0,0,0,10"
                 Click="DownloadTemplate_Click"

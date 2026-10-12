@@ -172,11 +172,9 @@ public partial class SettingsWindow : Window
 
     private void ShowWhatsNew_Click(object sender, RoutedEventArgs e)
     {
-        var dialog = new WhatsNewWindow(_viewModel) { Owner = this };
+        var dialog = new HelpWindow(_viewModel, showWhatsNew: true) { Owner = this };
         dialog.ShowDialog();
 
-        // The dialog has its own "show after every update" checkbox, so mirror any change back.
-        ShowWhatsNewCheckBox.IsChecked = _viewModel.ShowWhatsNew;
     }
 
     // A ready-made set of names for all five columns. Like typing them in, it is undone by Cancel.

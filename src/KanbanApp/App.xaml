@@ -38,6 +38,17 @@
             <Setter Property="views:ToolTipPlacement.BesidePointer" Value="True"/>
         </Style>
 
+        <Style TargetType="TabItem">
+            <Setter Property="Padding" Value="12,5"/>
+            <Setter Property="HeaderTemplate">
+                <Setter.Value>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding}" FontWeight="SemiBold"/>
+                    </DataTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
         <!-- The built-in (Fluent-theme) ComboBoxItem template paints its Highlighted/Selected states
              from its own internal resources, ignoring plain Background/Foreground setters and triggers,
              and ignoring SystemColors.Highlight overrides too. A full custom template is the only
