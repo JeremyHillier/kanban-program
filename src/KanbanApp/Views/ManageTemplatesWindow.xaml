@@ -14,16 +14,16 @@
         <TextBlock Grid.Row="0" TextWrapping="Wrap" Margin="0,0,0,8" Foreground="{DynamicResource SecondaryTextBrush}"
                    Text="Templates are starting points for new tasks. To make one, fill in a task and click Save as Template, or right-click a task on the board."/>
 
-        <ListBox Grid.Row="1" x:Name="TemplateList" DisplayMemberPath="Name" SelectionChanged="TemplateList_SelectionChanged"
+        <ListBox Grid.Row="1" x:Name="TemplateList" DisplayMemberPath="Name" SelectionChanged="TemplateList_SelectionChanged" KeyDown="TemplateList_KeyDown"
                  MouseDoubleClick="Rename_Click"
                  Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
                  BorderBrush="{DynamicResource CardBorderBrush}"/>
 
         <Grid Grid.Row="2" Margin="0,12,0,0">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
-                <Button x:Name="RenameButton" Content="Rename..." Width="90" Padding="0,6" Click="Rename_Click" IsEnabled="False"
+                <Button x:Name="RenameButton" Content="_Rename..." ToolTip="Give the template a new name (F2)" Width="90" Padding="0,6" Click="Rename_Click" IsEnabled="False"
                         Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
-                <Button x:Name="DeleteButton" Content="Delete" Width="80" Padding="0,6" Margin="8,0,0,0" Click="Delete_Click" IsEnabled="False"
+                <Button x:Name="DeleteButton" Content="_Delete" ToolTip="Remove the template (Delete key). It asks first." Width="80" Padding="0,6" Margin="8,0,0,0" Click="Delete_Click" IsEnabled="False"
                         Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
             </StackPanel>
             <Button Content="Close" Width="80" Padding="0,6" HorizontalAlignment="Right" IsCancel="True" IsDefault="True"

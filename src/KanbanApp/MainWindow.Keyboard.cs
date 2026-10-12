@@ -14,6 +14,18 @@ public partial class MainWindow
 {
     private void MainWindow_PreviewKeyDown(object sender, KeyEventArgs e)
     {
+        // Delete removes the picked cards, after asking, unless a text box has the key for its own text.
+        if (e.Key == Key.Delete && Keyboard.Modifiers == ModifierKeys.None
+            && Keyboard.FocusedElement is not System.Windows.Controls.Primitives.TextBoxBase
+            && DataContext is MainViewModel deleteViewModel && deleteViewModel.SelectedCardCount > 0)
+        {
+            var picked = deleteViewModel.SelectedCards;
+            if (picked.Count == 1) DeleteCardWithConfirm(picked[0], deleteViewModel);
+            else DeleteCardsWithConfirm(picked, deleteViewModel);
+            e.Handled = true;
+            return;
+        }
+
         // F1 opens Help, as it does across Windows (Alt+H below does too).
         if (e.Key == Key.F1 && Keyboard.Modifiers == ModifierKeys.None)
         {
@@ -48,6 +60,12 @@ public partial class MainWindow
             case ModifierKeys.Control:
                 switch (e.Key)
                 {
+                    case Key.F:
+                        // Find: the Keyword filter is where text is searched for on the board.
+                        KeywordFilterTextBox.Focus();
+                        KeywordFilterTextBox.SelectAll();
+                        e.Handled = true;
+                        break;
                     case Key.Q:
                         Close();
                         e.Handled = true;

@@ -24,7 +24,7 @@
                        Text="Set the board's filters how you want them, then save them to a slot below. Pressing that slot's Alt key from the board applies them again instantly."/>
         </StackPanel>
 
-        <ListBox x:Name="SlotList" Grid.Row="1" BorderThickness="1"
+        <ListBox x:Name="SlotList" Grid.Row="1" KeyDown="SlotList_KeyDown" BorderThickness="1"
                  BorderBrush="{DynamicResource CardBorderBrush}"
                  Background="{DynamicResource InputBackgroundBrush}"
                  ScrollViewer.VerticalScrollBarVisibility="Auto"
@@ -59,18 +59,18 @@
         </ListBox>
 
         <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,10,0,0">
-            <Button x:Name="SaveCurrentButton" Content="Save current filters here..." Padding="10,6" Margin="0,0,8,0"
+            <Button x:Name="SaveCurrentButton" Content="_Save current filters here..." Padding="10,6" Margin="0,0,8,0"
                     Click="SaveCurrent_Click"
                     ToolTip="Store the board's current filters in the selected slot"
                     Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
-            <Button x:Name="RenameButton" Content="Rename..." Padding="10,6" Margin="0,0,8,0"
+            <Button x:Name="RenameButton" Content="_Rename..." ToolTip="Give the slot a new name (F2)" Padding="10,6" Margin="0,0,8,0"
                     Click="Rename_Click"
                     Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
-            <Button x:Name="ApplyButton" Content="Use on Board" Padding="10,6" Margin="0,0,8,0"
+            <Button x:Name="ApplyButton" Content="_Use on Board" Padding="10,6" Margin="0,0,8,0"
                     Click="Apply_Click"
                     ToolTip="Apply this slot to the board now"
                     Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
-            <Button x:Name="ClearButton" Content="Clear" Padding="10,6"
+            <Button x:Name="ClearButton" Content="_Clear" Padding="10,6"
                     Click="Clear_Click"
                     ToolTip="Empty this slot"
                     Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>

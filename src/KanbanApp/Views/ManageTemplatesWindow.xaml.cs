@@ -1,5 +1,6 @@
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using KanbanApp.Models;
 using KanbanApp.Services;
 using KanbanApp.ViewModels;
@@ -15,8 +16,17 @@ public partial class ManageTemplatesWindow : Window
     public ManageTemplatesWindow(MainViewModel viewModel)
     {
         InitializeComponent();
+        AccessKeys.Bind(this);
         _viewModel = viewModel;
         TemplateList.ItemsSource = viewModel.TaskTemplates;
+    }
+
+    private void TemplateList_KeyDown(object sender, KeyEventArgs e)
+    {
+        if (e.Key == Key.Delete && DeleteButton.IsEnabled) Delete_Click(sender, e);
+        else if (e.Key == Key.F2 && RenameButton.IsEnabled) Rename_Click(sender, e);
+        else return;
+        e.Handled = true;
     }
 
     private void TemplateList_SelectionChanged(object sender, SelectionChangedEventArgs e)

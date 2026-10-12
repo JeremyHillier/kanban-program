@@ -11,6 +11,12 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > - Improved: every window now lays out its buttons the Windows way. The main action comes first and Cancel or Close is always the last button on the right, so the button you reach for is in the same place in every window.
 > - Improved: buttons that act on the content, such as Reactivate, Copy, Report a Problem and the task actions Save as Template, Email and Schedule, now sit on the left of the footer, away from the main action and Cancel.
 > - New: F1 opens Help from the board and from the task, report, timeline and settings windows, alongside Alt+H on the board.
+> - New: more of the keys Windows users expect. Ctrl+S saves and closes the task and settings windows, Ctrl+F jumps to the Keyword filter, and Delete removes the picked cards after asking.
+> - New: Alt plus an underlined letter presses that button in a window, and the message boxes underline a letter on each of their buttons.
+> - New: the Help screen now lists every shortcut in one place.
+- F2 renames and Delete deletes in the Manage Templates list, as they already did for priorities and Waiting On answers; F2 also renames a custom filter slot.
+- In the Timeline, the Left and Right arrows move a period and Home returns to today.
+- Tooltips show each shortcut beside the button it belongs to.
 - In the manage-list windows the closing button now says Close, since every change there is saved as it happens.
 - In Manage Custom Filters, Apply is now Use on Board, which is what it does.
 - In Imported Tasks the closing button is now Cancel, since unsaved edits are not kept; it still asks before discarding them.

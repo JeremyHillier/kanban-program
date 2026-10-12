@@ -15,6 +15,7 @@ public partial class ManageCustomFiltersWindow : Window
     public ManageCustomFiltersWindow(MainViewModel viewModel)
     {
         InitializeComponent();
+        AccessKeys.Bind(this);
         _viewModel = viewModel;
         RefreshList(selectSlot: 0);
     }
@@ -35,6 +36,13 @@ public partial class ManageCustomFiltersWindow : Window
     }
 
     private SlotRow? Selected => SlotList.SelectedItem as SlotRow;
+
+    private void SlotList_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+    {
+        if (e.Key != System.Windows.Input.Key.F2 || !RenameButton.IsEnabled) return;
+        Rename_Click(sender, e);
+        e.Handled = true;
+    }
 
     private void SlotList_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
     {

@@ -42,24 +42,33 @@
                 <local:BulletItem Text="Each move button shows a letter from its column's name. The tick is always Done."/>
 
                 <TextBlock Text="Keyboard shortcuts" Style="{StaticResource HelpSectionHeaderStyle}"/>
-                <local:BulletItem Text="Ctrl+N: new task."/>
-                <local:BulletItem Text="Ctrl+Alt+N: Quick Add, from any program."/>
+                <local:BulletItem Text="On the board:"/>
+                <local:BulletItem Text="Ctrl+N: new task. Ctrl+Alt+N: Quick Add, from any program."/>
+                <local:BulletItem Text="Ctrl+F: go to the Keyword filter."/>
                 <local:BulletItem Text="Ctrl+Z: undo the last change to a task. In a text box, it undoes typing."/>
-                <local:BulletItem Text="Ctrl+P: Report Builder."/>
-                <local:BulletItem Text="Ctrl+Shift+P: Quick Report."/>
+                <local:BulletItem Text="Ctrl+P: Report Builder. Ctrl+Shift+P: Quick Report."/>
                 <local:BulletItem Text="Ctrl+Q: quit."/>
                 <local:BulletItem Text="Alt+A: archive done tasks."/>
-                <local:BulletItem Text="Alt+B: hide or show the button column."/>
-                <local:BulletItem Text="Alt+U: hide or show the buttons on the cards."/>
                 <local:BulletItem Text="Alt+P, Alt+G, Alt+F, Alt+W: manage Projects, Goals, Flags or Who."/>
                 <local:BulletItem Text="Alt+M: manage task templates."/>
-                <local:BulletItem Text="Alt+R: Reminders."/>
-                <local:BulletItem Text="Alt+S: Settings."/>
-                <local:BulletItem Text="F1 or Alt+H: this Help screen. F1 also opens Help from the task, report, timeline and settings windows."/>
-                <local:BulletItem Text="Alt+L: Timeline."/>
+                <local:BulletItem Text="Alt+R: Reminders. Alt+S: Settings. Alt+L: Timeline. Alt+H: this Help screen."/>
+                <local:BulletItem Text="Alt+B: hide or show the button column. Alt+U: hide or show the buttons on the cards."/>
                 <local:BulletItem Text="Alt+T: only what is due today or overdue."/>
                 <local:BulletItem Text="Alt+0 to Alt+9: apply a saved custom filter."/>
-                <local:BulletItem Text="Esc: close a dialog. On the board, it clears the selection, then the filters."/>
+                <local:BulletItem Text="Ctrl+click picks cards; Shift+click picks a range in one column. Delete deletes the picked cards, after asking."/>
+                <local:BulletItem Text="Esc: clears the selection, then the filters."/>
+                <local:BulletItem Text="Double-click a card to edit it, or a column heading to add a task there."/>
+                <local:BulletItem Text="In every window:"/>
+                <local:BulletItem Text="F1: Help, from the board and from the task, report, timeline and settings windows."/>
+                <local:BulletItem Text="Enter: the main button. Esc: Cancel or Close."/>
+                <local:BulletItem Text="Ctrl+S: Save and Close, in the task and settings windows."/>
+                <local:BulletItem Text="Alt+underlined letter: presses that button."/>
+                <local:BulletItem Text="Ctrl+C in a message: copies the message."/>
+                <local:BulletItem Text="In the Timeline: Left and Right arrows move a period; Home returns to today."/>
+                <local:BulletItem Text="In lists (priorities, templates, Waiting On answers, custom filters):"/>
+                <local:BulletItem Text="F2: rename. Delete: delete, after asking."/>
+                <local:BulletItem Text="Alt+Up, Alt+Down: move a priority up or down the list."/>
+                <local:BulletItem Text="Shift+Delete on a Waiting On suggestion: stop it being suggested."/>
 
                 <TextBlock x:Name="HelpSection_AddEditTask" Text="Adding and editing tasks" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <TextBlock Text="Creating" Style="{StaticResource HelpSubHeaderStyle}"/>
@@ -455,13 +464,13 @@
 
         <Grid Grid.Row="2">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
-            <Button Content="Report a Problem" Width="130" Padding="0,6" Margin="0,0,8,0" Click="ReportProblem_Click"
+            <Button Content="_Report a Problem" Width="130" Padding="0,6" Margin="0,0,8,0" Click="ReportProblem_Click"
                     ToolTip="Open an email to support with the app's error log attached"
                     Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
-            <Button Content="What's New" Width="100" Padding="0,6" Margin="0,0,8,0" Click="WhatsNew_Click"
+            <Button Content="What's _New" Width="100" Padding="0,6" Margin="0,0,8,0" Click="WhatsNew_Click"
                     ToolTip="What changed in the last five updates"
                     Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
-            <Button Content="About" Width="90" Padding="0,6" Click="About_Click"
+            <Button Content="_About" Width="90" Padding="0,6" Click="About_Click"
                     ToolTip="Version, ownership, and where this installation keeps its files"
                     Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
             </StackPanel>

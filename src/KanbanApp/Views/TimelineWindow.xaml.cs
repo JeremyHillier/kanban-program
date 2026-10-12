@@ -39,6 +39,19 @@ public partial class TimelineWindow : Window
     public TimelineWindow(MainViewModel viewModel)
     {
         InitializeComponent();
+        AccessKeys.Bind(this);
+        PreviewKeyDown += (_, e) =>
+        {
+            if (Keyboard.Modifiers != ModifierKeys.None || Keyboard.FocusedElement is System.Windows.Controls.Primitives.TextBoxBase) return;
+            switch (e.Key)
+            {
+                case Key.Left: Prev_Click(this, new RoutedEventArgs()); break;
+                case Key.Right: Next_Click(this, new RoutedEventArgs()); break;
+                case Key.Home: Today_Click(this, new RoutedEventArgs()); break;
+                default: return;
+            }
+            e.Handled = true;
+        };
         HelpKey.Bind(this, () => Help_Click(this, new RoutedEventArgs()));
         _viewModel = viewModel;
         _windowStart = MondayOf(DateTime.Today);

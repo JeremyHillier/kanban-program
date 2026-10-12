@@ -425,7 +425,7 @@
                     <!-- Only while cards are picked for a multi-card drag. -->
                     <StackPanel Style="{StaticResource StatChipStyle}" Background="Transparent"
                                 Visibility="{Binding SelectedCardCount, Converter={StaticResource GreaterThanZeroToVisibilityConverter}}"
-                                ToolTip="Cards picked with Ctrl+click or Shift+click. Drag any of them to move them all together. Esc clears the selection.">
+                                ToolTip="Cards picked with Ctrl+click or Shift+click. Drag any of them to move them all together. Delete deletes them, after asking. Esc clears the selection.">
                         <TextBlock Text="{Binding SelectedCardCount}" Style="{StaticResource StatNumberStyle}" Foreground="#FF90CAF9"/>
                         <TextBlock Text="Selected" Style="{StaticResource StatLabelStyle}"/>
                     </StackPanel>
@@ -613,7 +613,7 @@
 
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,6">
                             <Button Style="{StaticResource DueFilterButtonToday}" Background="#FF3E8DD1" Foreground="White" Click="DueToday_Click"
-                                    ToolTip="Show only cards due today or earlier (overdue). Clears every other filter first.">
+                                    ToolTip="Show only cards due today or earlier (overdue). Clears every other filter first. (Alt+T)">
                                 <TextBlock Text="Today" TextWrapping="Wrap" TextAlignment="Center"/>
                             </Button>
                             <Button Style="{StaticResource DueFilterButtonTomorrow}" Background="#FF2A8E91" Foreground="White" Click="DueTomorrow_Click"
@@ -796,9 +796,9 @@
                             </Border>
                             <!-- Goal, Flag and Keyword share a fixed 26px height: a ComboBox and a TextBox
                                  with the same padding still render a few pixels apart. -->
-                            <TextBox Grid.Column="1" Text="{Binding KeywordFilter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                            <TextBox Grid.Column="1" x:Name="KeywordFilterTextBox" Text="{Binding KeywordFilter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                      Padding="4,0" Margin="0" Height="26" VerticalContentAlignment="Center"
-                                     ToolTip="Show only cards whose title, project, who, or notes contain this text"
+                                     ToolTip="Show only cards whose title, project, who, or notes contain this text (Ctrl+F)"
                                      Style="{StaticResource HoverTextBoxStyle}"
                                      Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
                         </Grid>

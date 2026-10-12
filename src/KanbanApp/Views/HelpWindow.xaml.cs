@@ -13,6 +13,7 @@ public partial class HelpWindow : Window
     public HelpWindow(MainViewModel viewModel, string? scrollToSection = null)
     {
         InitializeComponent();
+        AccessKeys.Bind(this);
         _viewModel = viewModel;
         DataContext = viewModel;
 

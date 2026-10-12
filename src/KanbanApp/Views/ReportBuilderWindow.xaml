@@ -274,13 +274,13 @@
                 <StackPanel Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Left">
                     <Button Content="?" Width="32" Padding="0,6" Margin="0,0,8,0" Click="Help_Click" ToolTip="Help (F1)"
                             Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
-                    <Button Content="Reset all fields" Width="120" Padding="0,6" Click="Reset_Click"
+                    <Button Content="_Reset all fields" Width="120" Padding="0,6" Click="Reset_Click"
                             Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
                 </StackPanel>
                 <StackPanel Grid.Column="1" Orientation="Horizontal">
-                    <Button Content="PDF" Width="90" Padding="0,6" IsDefault="True" Click="Pdf_Click"
+                    <Button Content="P_DF" Width="90" Padding="0,6" IsDefault="True" Click="Pdf_Click"
                             Background="#FF66BB6A" Foreground="White"/>
-                    <Button Content="Preview" Width="90" Padding="0,6" Margin="8,0,0,0" Click="Preview_Click"
+                    <Button Content="_Preview" Width="90" Padding="0,6" Margin="8,0,0,0" Click="Preview_Click"
                             Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
                     <Button Content="Close" Width="80" Padding="0,6" Margin="8,0,0,0" IsCancel="True"
                             Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>

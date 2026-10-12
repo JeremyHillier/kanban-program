@@ -49,18 +49,18 @@
         </ListBox>
 
         <StackPanel Grid.Row="1" Grid.Column="1" Margin="10,0,0,0">
-            <Button Content="Add..." Style="{StaticResource SideButtonStyle}" Click="Add_Click"/>
-            <Button x:Name="RenameButton" Content="Rename..." Style="{StaticResource SideButtonStyle}" Click="Rename_Click"
+            <Button Content="_Add..." Style="{StaticResource SideButtonStyle}" Click="Add_Click"/>
+            <Button x:Name="RenameButton" Content="_Rename..." Style="{StaticResource SideButtonStyle}" Click="Rename_Click"
                     ToolTip="Rename it, on the list and on every task that has it (F2)"/>
-            <Button x:Name="ColorButton" Content="Colour ▾" Style="{StaticResource SideButtonStyle}" Click="Color_Click"
+            <Button x:Name="ColorButton" Content="_Colour ▾" Style="{StaticResource SideButtonStyle}" Click="Color_Click"
                     ToolTip="The colour of its badge on cards, in Reminders, on the Timeline and on the Dashboard"/>
-            <Button x:Name="MoveUpButton" Content="Move Up" Style="{StaticResource SideButtonStyle}" Click="MoveUp_Click" Margin="0,10,0,6"
+            <Button x:Name="MoveUpButton" Content="Move _Up" Style="{StaticResource SideButtonStyle}" Click="MoveUp_Click" Margin="0,10,0,6"
                     ToolTip="Make it a higher priority (Alt+Up)"/>
-            <Button x:Name="MoveDownButton" Content="Move Down" Style="{StaticResource SideButtonStyle}" Click="MoveDown_Click"
+            <Button x:Name="MoveDownButton" Content="Move Dow_n" Style="{StaticResource SideButtonStyle}" Click="MoveDown_Click"
                     ToolTip="Make it a lower priority (Alt+Down)"/>
-            <Button x:Name="DefaultButton" Content="Make Default" Style="{StaticResource SideButtonStyle}" Click="MakeDefault_Click" Margin="0,10,0,6"
+            <Button x:Name="DefaultButton" Content="Make De_fault" Style="{StaticResource SideButtonStyle}" Click="MakeDefault_Click" Margin="0,10,0,6"
                     ToolTip="The priority a new task starts with"/>
-            <Button x:Name="DeleteButton" Content="Delete" Style="{StaticResource SideButtonStyle}" Click="Delete_Click"
+            <Button x:Name="DeleteButton" Content="_Delete" Style="{StaticResource SideButtonStyle}" Click="Delete_Click"
                     ToolTip="Take it off the list (Delete key). Its tasks become the default priority."/>
         </StackPanel>
 

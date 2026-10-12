@@ -14,6 +14,7 @@ public partial class UpdateAvailableWindow : Window
     public UpdateAvailableWindow(MainViewModel viewModel, UpdateInfo update)
     {
         InitializeComponent();
+        AccessKeys.Bind(this);
         _viewModel = viewModel;
         _update = update;
 

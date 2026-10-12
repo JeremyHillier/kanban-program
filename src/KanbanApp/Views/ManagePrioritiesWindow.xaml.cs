@@ -20,6 +20,7 @@ public partial class ManagePrioritiesWindow : Window
     public ManagePrioritiesWindow(MainViewModel viewModel)
     {
         InitializeComponent();
+        AccessKeys.Bind(this);
         _viewModel = viewModel;
         Reload();
     }

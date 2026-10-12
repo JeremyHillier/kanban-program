@@ -108,12 +108,12 @@
                 <Run Text="Your tasks stay on this PC - see the Privacy Note."/>
             </TextBlock>
             <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
-                <Button x:Name="CheckUpdatesButton" Content="Check for Updates" Width="140" Padding="0,5" Margin="0,0,8,0" Click="CheckForUpdates_Click"
+                <Button x:Name="CheckUpdatesButton" Content="Check for _Updates" Width="140" Padding="0,5" Margin="0,0,8,0" Click="CheckForUpdates_Click"
                         ToolTip="Ask our download list whether a newer version is available"
                         Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
-                <Button Content="Licence Agreement" Width="140" Padding="0,5" Margin="0,0,8,0" Click="Eula_Click"
+                <Button Content="_Licence Agreement" Width="140" Padding="0,5" Margin="0,0,8,0" Click="Eula_Click"
                         Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
-                <Button Content="Privacy Note" Width="110" Padding="0,5" Click="Privacy_Click"
+                <Button Content="_Privacy Note" Width="110" Padding="0,5" Click="Privacy_Click"
                         Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
             </StackPanel>
             <TextBlock x:Name="UpdateStatusText" FontSize="11" Margin="0,6,0,0" TextWrapping="Wrap" Visibility="Collapsed"
@@ -124,13 +124,13 @@
         </ScrollViewer>
         <Grid Grid.Row="1" Margin="24,20,24,20">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
-            <Button Content="Copy details" Width="110" Padding="0,6" Margin="0,0,8,0" Click="CopyDetails_Click"
+            <Button Content="_Copy details" Width="110" Padding="0,6" Margin="0,0,8,0" Click="CopyDetails_Click"
                     ToolTip="Copy the version and installation details to the clipboard"
                     Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
-            <Button Content="Report a Problem" Width="130" Padding="0,6" Margin="0,0,8,0" Click="ReportProblem_Click"
+            <Button Content="_Report a Problem" Width="130" Padding="0,6" Margin="0,0,8,0" Click="ReportProblem_Click"
                     ToolTip="Open an email to support with the app's error log attached"
                     Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
-            <Button Content="Website" Width="90" Padding="0,6" Click="Website_Click"
+            <Button Content="_Website" Width="90" Padding="0,6" Click="Website_Click"
                     ToolTip="Open the app's page on hillierconsulting.ca in your browser"
                     Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
             </StackPanel>

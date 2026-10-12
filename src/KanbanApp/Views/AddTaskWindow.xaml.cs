@@ -73,6 +73,13 @@ public partial class AddTaskWindow : Window
     public AddTaskWindow(MainViewModel viewModel)
     {
         InitializeComponent();
+        AccessKeys.Bind(this);
+        PreviewKeyDown += (_, e) =>
+        {
+            if (e.Key != Key.S || Keyboard.Modifiers != ModifierKeys.Control) return;
+            Add_Click(this, new RoutedEventArgs()); // Ctrl+S saves, as everywhere in Windows; Enter can't from the Notes box
+            e.Handled = true;
+        };
         HelpKey.Bind(this, () => Help_Click(this, new RoutedEventArgs()));
         MaxHeight = SystemParameters.WorkArea.Height * 0.9;
         // Constrains the scrollable form area directly, rather than relying on the Grid row it
@@ -181,7 +188,7 @@ public partial class AddTaskWindow : Window
     public AddTaskWindow(MainViewModel viewModel, CardViewModel cardToEdit, ColumnViewModel currentColumn) : this(viewModel)
     {
         Title = "Edit Task";
-        SubmitButton.Content = "Save & Close";
+        SubmitButton.Content = "Save & Close"; // Ctrl+S, see the constructor
 
         _cardToEdit = cardToEdit;
         RefreshTemplatePanel();

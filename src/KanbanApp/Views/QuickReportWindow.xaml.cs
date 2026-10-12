@@ -18,6 +18,7 @@ public partial class QuickReportWindow : Window
     public QuickReportWindow(MainViewModel viewModel)
     {
         InitializeComponent();
+        AccessKeys.Bind(this);
         _viewModel = viewModel;
         LoadViews(viewModel.QuickReportLastView);
     }

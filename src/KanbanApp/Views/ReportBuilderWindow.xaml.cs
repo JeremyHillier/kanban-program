@@ -24,6 +24,7 @@ public partial class ReportBuilderWindow : Window
     public ReportBuilderWindow(MainViewModel viewModel)
     {
         InitializeComponent();
+        AccessKeys.Bind(this);
         HelpKey.Bind(this, () => Help_Click(this, new RoutedEventArgs()));
         _viewModel = viewModel;
 

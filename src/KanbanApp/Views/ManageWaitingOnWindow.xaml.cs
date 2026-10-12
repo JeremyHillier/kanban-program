@@ -15,6 +15,7 @@ public partial class ManageWaitingOnWindow : Window
     public ManageWaitingOnWindow(MainViewModel viewModel)
     {
         InitializeComponent();
+        AccessKeys.Bind(this);
         _viewModel = viewModel;
         Reload();
     }

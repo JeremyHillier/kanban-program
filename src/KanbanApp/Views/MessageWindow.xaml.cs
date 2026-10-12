@@ -27,17 +27,18 @@ public partial class MessageWindow : Window
         };
         Layout(message);
 
-        YesButton.Content = message.Yes;
+        YesButton.Content = WithAccessKey(message.Yes, null);
         if (message.IsDanger)
         {
             YesButton.Background = Brush("#FFC0392B");
             YesButton.Foreground = Brushes.White;
             YesButton.FontWeight = FontWeights.SemiBold;
         }
-        NoButton.Content = message.No;
+        NoButton.Content = message.No is null ? null : WithAccessKey(message.No, message.Yes);
         NoButton.Visibility = message.No is null ? Visibility.Collapsed : Visibility.Visible;
         CancelButton.Content = message.Cancel;
         CancelButton.Visibility = message.Cancel is null ? Visibility.Collapsed : Visibility.Visible;
+        AccessKeys.Bind(this);
 
         // Esc and the X: the safest way out. Enter: the main button, unless it does damage (then the safest
         // way out too, unless the message says the damage is undoable and Enter may stay on the main button).
@@ -138,6 +139,19 @@ public partial class MessageWindow : Window
         Grid.SetColumn(body, 1);
         grid.Children.Add(body);
         return grid;
+    }
+
+    // Alt+letter presses a verb, as in a Windows dialog: the first letter, or for the second button the
+    // first letter that differs from the first button's. OK and Cancel keep Enter and Esc instead.
+    private static string WithAccessKey(string label, string? taken)
+    {
+        if (label is "OK" or "Cancel") return label;
+        var avoid = taken is { Length: > 0 } ? char.ToUpperInvariant(taken[0]) : '\0';
+        for (var i = 0; i < label.Length; i++)
+        {
+            if (char.IsLetter(label[i]) && char.ToUpperInvariant(label[i]) != avoid) return label.Insert(i, "_");
+        }
+        return label;
     }
 
     private void Yes_Click(object sender, RoutedEventArgs e) => Finish(DialogChoice.Yes);

@@ -20,11 +20,11 @@
                    Foreground="{DynamicResource PrimaryTextBrush}"/>
 
         <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,10">
-            <Button x:Name="PrevButton" Padding="10,6" Click="Prev_Click"
+            <Button x:Name="PrevButton" Padding="10,6" Click="Prev_Click" ToolTip="Earlier (Left arrow)"
                     Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
-            <Button Content="Today" Padding="10,6" Margin="6,0,0,0" Click="Today_Click"
+            <Button Content="Today" Padding="10,6" Margin="6,0,0,0" Click="Today_Click" ToolTip="Back to today (Home)"
                     Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
-            <Button x:Name="NextButton" Padding="10,6" Margin="6,0,0,0" Click="Next_Click"
+            <Button x:Name="NextButton" Padding="10,6" Margin="6,0,0,0" Click="Next_Click" ToolTip="Later (Right arrow)"
                     Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
             <TextBlock x:Name="RangeLabel" VerticalAlignment="Center" Margin="16,0,0,0" FontWeight="SemiBold"
                        Foreground="{DynamicResource PrimaryTextBrush}"/>
@@ -66,7 +66,7 @@
             <Button Content="?" Width="32" Padding="0,6" HorizontalAlignment="Left" Click="Help_Click" ToolTip="Help (F1)"
                     Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                <Button Content="Print" Width="90" Padding="0,6" Click="Print_Click"
+                <Button Content="_Print" Width="90" Padding="0,6" Click="Print_Click"
                         Background="#FF66BB6A" Foreground="White"/>
                 <Button Content="Close" Width="90" Padding="0,6" Margin="8,0,0,0"
                         IsCancel="True" IsDefault="True"

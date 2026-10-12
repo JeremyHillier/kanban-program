@@ -16,6 +16,12 @@ public partial class SettingsWindow : Window
     public SettingsWindow(MainViewModel viewModel)
     {
         InitializeComponent();
+        PreviewKeyDown += (_, e) =>
+        {
+            if (e.Key != Key.S || Keyboard.Modifiers != ModifierKeys.Control) return;
+            Save_Click(this, new RoutedEventArgs()); // Ctrl+S saves, as everywhere in Windows
+            e.Handled = true;
+        };
         HelpKey.Bind(this, () => Help_Click(this, new RoutedEventArgs()));
         MaxHeight = SystemParameters.WorkArea.Height * 0.9;
         _viewModel = viewModel;

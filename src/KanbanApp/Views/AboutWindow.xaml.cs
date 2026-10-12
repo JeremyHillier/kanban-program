@@ -13,6 +13,7 @@ public partial class AboutWindow : Window
     public AboutWindow(MainViewModel viewModel)
     {
         InitializeComponent();
+        AccessKeys.Bind(this);
         _viewModel = viewModel;
 
         VersionText.Text = $"Version {viewModel.AppVersion.TrimStart('v')}";
