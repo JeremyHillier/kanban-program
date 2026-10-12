@@ -6,6 +6,13 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.134.1 — 2026-10-12
+
+> - Improved: tooltips now wrap into a few short lines instead of one long one, and stay up long enough to read.
+> - Improved: every button that does more than its label says now has a tooltip, including the Report Builder, Settings file and backup buttons, Import Tasks and the date helpers in the task window.
+- Tooltips use the same words everywhere: tasks rather than cards, person rather than assignee, and the shortcut in brackets at the end of the first sentence.
+- The Reminders button says it opens Reminders, rather than reading like a filter.
+
 ## 0.134.0 — 2026-10-12
 
 > - Improved: every window now lays out its buttons the Windows way. The main action comes first and Cancel or Close is always the last button on the right, so the button you reach for is in the same place in every window.

@@ -25,7 +25,7 @@
 
         <Grid Grid.Row="2" Margin="0,12,0,0">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
-                <Button Content="_Add..." Width="80" Padding="0,6" Click="Add_Click"
+                <Button Content="_Add..." ToolTip="Add an answer to suggest" Width="80" Padding="0,6" Click="Add_Click"
                         Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
                 <Button x:Name="RenameButton" Content="_Rename..." ToolTip="Give the answer a new name (F2)" Width="90" Padding="0,6" Margin="8,0,0,0" Click="Rename_Click" IsEnabled="False"
                         Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>

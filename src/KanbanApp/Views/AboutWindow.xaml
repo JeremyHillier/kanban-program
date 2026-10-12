@@ -111,9 +111,9 @@
                 <Button x:Name="CheckUpdatesButton" Content="Check for _Updates" Width="140" Padding="0,5" Margin="0,0,8,0" Click="CheckForUpdates_Click"
                         ToolTip="Ask our download list whether a newer version is available"
                         Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
-                <Button Content="_Licence Agreement" Width="140" Padding="0,5" Margin="0,0,8,0" Click="Eula_Click"
+                <Button Content="_Licence Agreement" Width="140" Padding="0,5" Margin="0,0,8,0" Click="Eula_Click" ToolTip="Read the licence agreement"
                         Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
-                <Button Content="_Privacy Note" Width="110" Padding="0,5" Click="Privacy_Click"
+                <Button Content="_Privacy Note" Width="110" Padding="0,5" Click="Privacy_Click" ToolTip="Read what the app sends and keeps"
                         Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
             </StackPanel>
             <TextBlock x:Name="UpdateStatusText" FontSize="11" Margin="0,6,0,0" TextWrapping="Wrap" Visibility="Collapsed"

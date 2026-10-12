@@ -66,7 +66,7 @@
             <Button Content="?" Width="32" Padding="0,6" HorizontalAlignment="Left" Click="Help_Click" ToolTip="Help (F1)"
                     Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                <Button Content="_Print" Width="90" Padding="0,6" Click="Print_Click"
+                <Button Content="_Print" Width="90" Padding="0,6" Click="Print_Click" ToolTip="Print the timeline as shown"
                         Background="#FF66BB6A" Foreground="White"/>
                 <Button Content="Close" Width="90" Padding="0,6" Margin="8,0,0,0"
                         IsCancel="True" IsDefault="True"

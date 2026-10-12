@@ -425,7 +425,7 @@
                     <!-- Only while cards are picked for a multi-card drag. -->
                     <StackPanel Style="{StaticResource StatChipStyle}" Background="Transparent"
                                 Visibility="{Binding SelectedCardCount, Converter={StaticResource GreaterThanZeroToVisibilityConverter}}"
-                                ToolTip="Cards picked with Ctrl+click or Shift+click. Drag any of them to move them all together. Delete deletes them, after asking. Esc clears the selection.">
+                                ToolTip="Tasks picked with Ctrl+click or Shift+click. Drag any of them to move them all together. Delete deletes them, after asking. Esc clears the selection.">
                         <TextBlock Text="{Binding SelectedCardCount}" Style="{StaticResource StatNumberStyle}" Foreground="#FF90CAF9"/>
                         <TextBlock Text="Selected" Style="{StaticResource StatLabelStyle}"/>
                     </StackPanel>
@@ -441,7 +441,7 @@
                     <TextBlock Text="KANBAN TASK BOARD" FontSize="36" FontWeight="Bold" Foreground="White"
                                HorizontalAlignment="Center" TextAlignment="Center" Margin="0,-5,0,-6"/>
                     <Border x:Name="FilterSummaryPill" HorizontalAlignment="Center" Height="17" Padding="9,0" CornerRadius="8" Margin="0,2,0,-2"
-                            Background="#24FFFFFF" ToolTip="{Binding FilterSummaryToolTip}" ToolTipService.ShowDuration="30000">
+                            Background="#24FFFFFF" ToolTip="{Binding FilterSummaryToolTip}">
                         <Border.Style>
                             <Style TargetType="Border">
                                 <Setter Property="Visibility" Value="Hidden"/>
@@ -561,7 +561,7 @@
                                     </Grid>
                                 </Button>
                                 <Button Style="{StaticResource SortButtonWho}" Background="#FF6856AD" Foreground="White" Click="SortByWho_Click"
-                                        ToolTip="Click to sort by assignee alone. Ctrl+click to add or remove assignee as a sort key alongside others.">
+                                        ToolTip="Click to sort by person alone. Ctrl+click to add or remove person as a sort key alongside others.">
                                     <Grid>
                                         <TextBlock Text="Sort by Who" TextWrapping="Wrap" TextAlignment="Center"/>
                                         <Border Background="White" CornerRadius="7" Width="14" Height="14" Margin="0,-4,-4,0"
@@ -613,21 +613,21 @@
 
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,6">
                             <Button Style="{StaticResource DueFilterButtonToday}" Background="#FF3E8DD1" Foreground="White" Click="DueToday_Click"
-                                    ToolTip="Show only cards due today or earlier (overdue). Clears every other filter first. (Alt+T)">
+                                    ToolTip="Show only tasks due today or overdue (Alt+T). Clears every other filter first.">
                                 <TextBlock Text="Today" TextWrapping="Wrap" TextAlignment="Center"/>
                             </Button>
                             <Button Style="{StaticResource DueFilterButtonTomorrow}" Background="#FF2A8E91" Foreground="White" Click="DueTomorrow_Click"
-                                    ToolTip="Show only cards due tomorrow. Clears every other filter first.">
+                                    ToolTip="Show only tasks due tomorrow. Clears every other filter first.">
                                 <Viewbox Stretch="Uniform" StretchDirection="DownOnly">
                                     <TextBlock Text="Tomorrow" TextAlignment="Center"/>
                                 </Viewbox>
                             </Button>
                             <Button Style="{StaticResource DueFilterButtonWithinWeek}" Background="#FF6856AD" Foreground="White" Click="DueWithinWeek_Click"
-                                    ToolTip="Show only cards due within a week. Clears every other filter first.">
+                                    ToolTip="Show only tasks due within a week. Clears every other filter first.">
                                 <TextBlock Text="Within a Week" TextWrapping="Wrap" TextAlignment="Center"/>
                             </Button>
                             <Button Style="{StaticResource DueFilterButtonNone}" Background="#FF537187" Foreground="White" Click="DueNone_Click"
-                                    ToolTip="Show only cards with no due date. Clears every other filter first.">
+                                    ToolTip="Show only tasks with no due date. Clears every other filter first.">
                                 <TextBlock Text="No Due Date" TextWrapping="Wrap" TextAlignment="Center"/>
                             </Button>
                             <Button Style="{StaticResource DueFilterButtonWaitingOn}" Background="#FFBF7C26" Foreground="White" Click="WaitingOn_Click" PreviewMouseRightButtonUp="WaitingOnButton_PreviewMouseRightButtonUp"
@@ -690,7 +690,7 @@
                             </Border>
                             <ListBox Grid.Column="1" Margin="0" Style="{StaticResource MultiSelectFilterListBoxStyle}"
                                      ItemsSource="{Binding ProjectFilterOptions}" Height="{Binding ProjectFilterListHeight}"
-                                     ToolTip="Show only cards belonging to the selected project(s)"
+                                     ToolTip="Show only tasks in the selected projects"
                                      SelectionChanged="ProjectFilterListBox_SelectionChanged"/>
                         </Grid>
 
@@ -713,7 +713,7 @@
                                    DragDelta="FilterResizeGrip_DragDelta" DragCompleted="FilterResizeGrip_DragCompleted"
                                    MouseDoubleClick="FilterResizeGrip_MouseDoubleClick"/>
                             <Border Grid.Column="0" Background="#FFB7545E" Style="{StaticResource FilterLabelRotatedBoxStyle}"
-                                    Cursor="Hand" ToolTip="Click to manage the priority list" MouseLeftButtonUp="ManagePrioritiesLabel_MouseLeftButtonUp">
+                                    Cursor="Hand" ToolTip="Click to manage priorities" MouseLeftButtonUp="ManagePrioritiesLabel_MouseLeftButtonUp">
                                 <TextBlock Text="Priority" Style="{StaticResource FilterLabelTextStyle}">
                                     <TextBlock.LayoutTransform>
                                         <RotateTransform Angle="-90"/>
@@ -722,7 +722,7 @@
                             </Border>
                             <ListBox Grid.Column="1" Margin="0" Style="{StaticResource MultiSelectFilterListBoxStyle}"
                                      ItemsSource="{Binding PriorityFilterOptions}" Height="{Binding PriorityWhoFilterListHeight}"
-                                     ToolTip="Show only cards with the selected priorities"
+                                     ToolTip="Show only tasks with the selected priorities"
                                      SelectionChanged="PriorityFilterListBox_SelectionChanged"/>
                             <Border Grid.Column="3" Background="#FF6856AD" Style="{StaticResource FilterLabelRotatedBoxStyle}"
                                     Cursor="Hand" ToolTip="Click to manage people" MouseLeftButtonUp="ManageWhoLabel_MouseLeftButtonUp">
@@ -734,7 +734,7 @@
                             </Border>
                             <ListBox Grid.Column="4" Margin="0" Style="{StaticResource MultiSelectFilterListBoxStyle}"
                                      ItemsSource="{Binding WhoFilterOptions}" Height="{Binding PriorityWhoFilterListHeight}"
-                                     ToolTip="Show only cards assigned to the selected people"
+                                     ToolTip="Show only tasks assigned to the selected people"
                                      SelectionChanged="WhoFilterListBox_SelectionChanged"/>
                         </Grid>
 
@@ -748,7 +748,7 @@
                                 <TextBlock Text="Goal" Style="{StaticResource FilterLabelTextStyle}"/>
                             </Border>
                             <ComboBox Grid.Column="1" ItemsSource="{Binding GoalFilterOptions}" SelectedItem="{Binding SelectedGoalFilter, Mode=TwoWay}"
-                                      Padding="4,0" Margin="0" Height="26" VerticalContentAlignment="Center" ToolTip="Show only cards linked to this goal"
+                                      Padding="4,0" Margin="0" Height="26" VerticalContentAlignment="Center" ToolTip="Show only tasks linked to this goal"
                                       Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
                                       BorderBrush="{DynamicResource CardBorderBrush}"/>
                         </Grid>
@@ -763,7 +763,7 @@
                                 <TextBlock Text="Flag" Style="{StaticResource FilterLabelTextStyle}"/>
                             </Border>
                             <ComboBox Grid.Column="1" ItemsSource="{Binding FlagFilterOptions}" SelectedItem="{Binding SelectedFlagFilter, Mode=TwoWay}"
-                                      Padding="4,0" Margin="0" Height="26" VerticalContentAlignment="Center" ToolTip="Show only cards carrying this flag"
+                                      Padding="4,0" Margin="0" Height="26" VerticalContentAlignment="Center" ToolTip="Show only tasks carrying this flag"
                                       Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
                                       BorderBrush="{DynamicResource CardBorderBrush}"/>
                         </Grid>
@@ -781,7 +781,7 @@
                             </Border>
                             <ComboBox Grid.Column="1" ItemsSource="{Binding WaitingOnFilterOptions}" SelectedItem="{Binding SelectedWaitingOnFilter, Mode=TwoWay}"
                                       Padding="4,0" Margin="0" Height="26" VerticalContentAlignment="Center"
-                                      ToolTip="Show only cards waiting on this. Any shows every waiting card; Unassigned, cards not waiting on anything."
+                                      ToolTip="Show only tasks waiting on this. Any shows every waiting task; Unassigned, tasks not waiting on anything."
                                       Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
                                       BorderBrush="{DynamicResource CardBorderBrush}"/>
                         </Grid>
@@ -798,7 +798,7 @@
                                  with the same padding still render a few pixels apart. -->
                             <TextBox Grid.Column="1" x:Name="KeywordFilterTextBox" Text="{Binding KeywordFilter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                      Padding="4,0" Margin="0" Height="26" VerticalContentAlignment="Center"
-                                     ToolTip="Show only cards whose title, project, who, or notes contain this text (Ctrl+F)"
+                                     ToolTip="Show only tasks whose title, project, who, or notes contain this text (Ctrl+F)"
                                      Style="{StaticResource HoverTextBoxStyle}"
                                      Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
                         </Grid>
@@ -846,7 +846,7 @@
                             </StackPanel>
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                                 <Button Style="{StaticResource LargeSquareButtonStyle}" Background="#FFB7545E" Foreground="White" Click="Reminders_Click"
-                                        ToolTip="Show tasks that are overdue or due today (Alt+R)">
+                                        ToolTip="Open Reminders: tasks overdue or due today (Alt+R)">
                                     <TextBlock Text="Reminders" TextWrapping="Wrap" TextAlignment="Center"/>
                                 </Button>
                                 <Button Style="{StaticResource LargeSquareButtonStyle}" Background="#FF4A667B" Foreground="White" Click="ToggleTheme_Click"

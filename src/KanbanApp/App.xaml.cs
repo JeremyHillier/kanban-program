@@ -1,5 +1,6 @@
 using System.IO;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Threading;
 using KanbanApp.Services;
 using KanbanApp.Views;
@@ -21,6 +22,10 @@ public partial class App : Application
         // and WPF would otherwise make it the main window and close the app with it.
         // OnMainWindowClose is set once the board is showing.
         ShutdownMode = ShutdownMode.OnExplicitShutdown;
+
+        // Tooltips stay up long enough to read a few lines; WPF's own 5 seconds hides the longer ones
+        // mid-sentence. One value for every control, so none needs its own.
+        ToolTipService.ShowDurationProperty.OverrideMetadata(typeof(DependencyObject), new FrameworkPropertyMetadata(20000));
 
         if (e.Args.Length > 1 && e.Args[0] == "--seed-data-folder")
         {

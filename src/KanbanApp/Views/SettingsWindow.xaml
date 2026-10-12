@@ -165,7 +165,7 @@
                          BorderBrush="{DynamicResource CardBorderBrush}"/>
 
                 <StackPanel VerticalAlignment="Top" Margin="0,0,0,20">
-                    <Button Content="Change Location..." Padding="10,6" HorizontalAlignment="Left" Click="ChangeLocation_Click"
+                    <Button Content="Change Location..." Padding="10,6" HorizontalAlignment="Left" Click="ChangeLocation_Click" ToolTip="Move the task file to another folder. The app restarts with it there."
                             Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
                     <TextBlock Text="Changing the location moves the database file, restarts the app, and removes the old file once the new one is confirmed working." FontSize="11" Margin="0,6,0,0"
                                Foreground="{DynamicResource SecondaryTextBrush}" TextWrapping="Wrap"/>
@@ -189,15 +189,15 @@
                     </ListBox.ItemTemplate>
                 </ListBox>
                 <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                    <Button Content="Switch to Selected" Padding="10,6" Margin="0,0,8,0" Click="SwitchToSelected_Click"
+                    <Button Content="Switch to Selected" Padding="10,6" Margin="0,0,8,0" Click="SwitchToSelected_Click" ToolTip="Open the selected task file in place of the current one"
                             Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
-                    <Button Content="Remove from List" Padding="10,6" Click="RemoveFromRecent_Click"
+                    <Button Content="Remove from List" Padding="10,6" Click="RemoveFromRecent_Click" ToolTip="Forget the selected file here. The file itself is not touched."
                             Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" Margin="0,0,0,20">
-                    <Button Content="Open Existing File..." Padding="10,6" Margin="0,0,8,0" Click="OpenExistingFile_Click"
+                    <Button Content="Open Existing File..." Padding="10,6" Margin="0,0,8,0" Click="OpenExistingFile_Click" ToolTip="Switch to a task file from another folder"
                             Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
-                    <Button Content="New File..." Padding="10,6" Click="NewFile_Click"
+                    <Button Content="New File..." Padding="10,6" Click="NewFile_Click" ToolTip="Start an empty task file and switch to it"
                             Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
                 </StackPanel>
 
@@ -217,9 +217,9 @@
                          Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
                          BorderBrush="{DynamicResource CardBorderBrush}"/>
                 <StackPanel Orientation="Horizontal" Margin="0,0,0,20">
-                    <Button Content="Back Up Now" Padding="10,6" Margin="0,0,8,0" Click="BackupNow_Click"
+                    <Button Content="Back Up Now" Padding="10,6" Margin="0,0,8,0" Click="BackupNow_Click" ToolTip="Copy the task file to the Backups folder now"
                             Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
-                    <Button Content="Open Backups Folder" Padding="10,6" Click="OpenBackupsFolder_Click"
+                    <Button Content="Open Backups Folder" Padding="10,6" Click="OpenBackupsFolder_Click" ToolTip="Show the backup copies in File Explorer"
                             Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
                 </StackPanel>
 
@@ -233,7 +233,7 @@
                     <TextBox Grid.Column="0" x:Name="ExportPathTextBox" Padding="6" LostFocus="ExportPathTextBox_LostFocus"
                              Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
                              BorderBrush="{DynamicResource CardBorderBrush}"/>
-                    <Button Grid.Column="1" Content="Browse..." Style="{StaticResource BrowseButtonStyle}" Click="BrowseExportPath_Click"/>
+                    <Button Grid.Column="1" Content="Browse..." Style="{StaticResource BrowseButtonStyle}" Click="BrowseExportPath_Click" ToolTip="Choose the folder reports and exports are saved to"/>
                 </Grid>
 
                 <TextBlock Text="Default Import Path" Style="{StaticResource FieldLabelStyle}"/>
@@ -245,7 +245,7 @@
                     <TextBox Grid.Column="0" x:Name="ImportPathTextBox" Padding="6" LostFocus="ImportPathTextBox_LostFocus"
                              Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
                              BorderBrush="{DynamicResource CardBorderBrush}"/>
-                    <Button Grid.Column="1" Content="Browse..." Style="{StaticResource BrowseButtonStyle}" Click="BrowseImportPath_Click"/>
+                    <Button Grid.Column="1" Content="Browse..." Style="{StaticResource BrowseButtonStyle}" Click="BrowseImportPath_Click" ToolTip="Choose the folder the import file picker opens in"/>
                 </Grid>
 
                 <TextBlock Text="Attachments" Style="{StaticResource SectionHeaderStyle}"/>
@@ -258,7 +258,7 @@
                     <TextBox Grid.Column="0" x:Name="LinkedFilesPathTextBox" Padding="6" LostFocus="LinkedFilesPathTextBox_LostFocus"
                              Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
                              BorderBrush="{DynamicResource CardBorderBrush}"/>
-                    <Button Grid.Column="1" Content="Browse..." Style="{StaticResource BrowseButtonStyle}" Click="BrowseLinkedFilesPath_Click"/>
+                    <Button Grid.Column="1" Content="Browse..." Style="{StaticResource BrowseButtonStyle}" Click="BrowseLinkedFilesPath_Click" ToolTip="Choose the folder the file picker opens in when attaching a file"/>
                 </Grid>
 
                 <TextBlock Text="Where the '+ File...' picker opens by default when attaching a file to a task. The chosen file is copied into that task's Attachments folder, not linked from here."
@@ -315,11 +315,11 @@
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
                 <Button Content="?" Width="32" Padding="0,6" Margin="0,0,8,0" Click="Help_Click" ToolTip="Help (F1)"
                         Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
-                <Button Content="About" Width="90" Padding="0,6" Click="About_Click"
+                <Button Content="About" Width="90" Padding="0,6" Click="About_Click" ToolTip="Version, ownership, and where this installation keeps its files"
                         Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
             </StackPanel>
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                <Button Content="Save &amp; Close" Width="120" Padding="0,6" IsDefault="True" Click="Save_Click" ToolTip="Enter or Ctrl+S"
+                <Button Content="Save &amp; Close" Width="120" Padding="0,6" IsDefault="True" Click="Save_Click" ToolTip="Save and close (Enter or Ctrl+S)"
                         Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
                 <Button Content="Cancel" Width="90" Padding="0,6" Margin="8,0,0,0" IsCancel="True"
                         ToolTip="Close and put every setting back to how it was when this window opened"

@@ -21,7 +21,7 @@
             <TextBox x:Name="NewNameTextBox" Width="220" Padding="6"
                      Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
                      BorderBrush="{DynamicResource CardBorderBrush}"/>
-            <Button Content="Add" Width="80" Margin="8,0,0,0" Padding="0,6" Click="Add_Click" IsDefault="True"
+            <Button Content="Add" Width="80" Margin="8,0,0,0" Padding="0,6" Click="Add_Click" ToolTip="Add the name typed on the left" IsDefault="True"
                     Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
         </StackPanel>
 
@@ -47,7 +47,7 @@
                                               Foreground="{DynamicResource PrimaryTextBrush}"
                                               ToolTip="{Binding ActiveToolTip, RelativeSource={RelativeSource AncestorType=Window}}"
                                               Checked="Active_Changed" Unchecked="Active_Changed"/>
-                                    <Button Grid.Column="2" Content="Delete" Padding="10,4" Click="Delete_Click"
+                                    <Button Grid.Column="2" Content="Delete" Padding="10,4" Click="Delete_Click" ToolTip="Take it off the list"
                                             Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
                                 </Grid>
                                 <TextBox Padding="6" Margin="0,4,0,0"

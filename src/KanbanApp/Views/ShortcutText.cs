@@ -11,7 +11,8 @@ namespace KanbanApp.Views;
 public static partial class ShortcutText
 {
     // A key combination (Ctrl+N, Ctrl+Shift+P, Alt+Up, Shift+Delete, Ctrl+click), with an optional
-    // range after it (Alt+0 - Alt+9, Alt+0-9); a function key (F2); Esc; "Delete key"; "press Enter".
+    // range after it (Alt+0 - Alt+9, Alt+0-9); a function key (F2); Esc; "Delete key"; "press Enter";
+    // and Enter, Home, End or an arrow when named inside parentheses, "(Enter or Ctrl+S)".
     // Only capitals or digits count as a single key, so "Alt+{slot}" in a sentence isn't taken for one.
     private const string Key = @"(?:F\d{1,2}|Up|Down|Left|Right|Delete|Del|Enter|Esc|Tab|Space|Home|End|click|[A-Z0-9])";
     private const string Combo = @"(?:(?:Ctrl|Alt|Shift|Windows)\+)+" + Key;
@@ -20,7 +21,8 @@ public static partial class ShortcutText
         + @"|(?<![\w+])F\d{1,2}(?![\w+])"
         + @"|\bEsc\b"
         + @"|\bDelete(?= key\b)"
-        + @"|(?<=\bpress )(?:Enter|Tab)\b")]
+        + @"|(?<=\bpress )(?:Enter|Tab)\b"
+        + @"|(?<=\([^()]*)\b(?:Enter|Home|End|(?:Left|Right|Up|Down) arrow)\b(?=[^()]*\))")]
     private static partial Regex ShortcutPattern();
 
     // The text in order, each piece marked as a shortcut or not.

@@ -27,6 +27,9 @@ public sealed class ShortcutTextTests(WpfDispatcherFixture wpf)
     [InlineData("Undo: Move \"Order parts\" (Ctrl+Z)", "Ctrl+Z")]
     [InlineData("Type the task and press Enter.", "Enter")]
     [InlineData("Quick add (Ctrl+Alt+N)", "Ctrl+Alt+N")]
+    [InlineData("Add the task (Enter or Ctrl+S)", "Enter|Ctrl+S")]
+    [InlineData("Earlier (Left arrow)", "Left arrow")]
+    [InlineData("Back to today (Home)", "Home")]
     public void TheShortcutsAreBold(string tooltip, string expected) =>
         Assert.Equal(expected.Split('|'), Bold(tooltip));
 

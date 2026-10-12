@@ -61,11 +61,11 @@
                       ToolTip="Saved report views - Load applies every field below, Save View captures them"
                       Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
                       BorderBrush="{DynamicResource CardBorderBrush}"/>
-            <Button Grid.Column="1" Content="Load" Width="70" Padding="0,6" Margin="0,0,8,0" Click="LoadReportView_Click"
+            <Button Grid.Column="1" Content="Load" Width="70" Padding="0,6" Margin="0,0,8,0" Click="LoadReportView_Click" ToolTip="Fill every field below from the selected view"
                     Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
-            <Button Grid.Column="2" Content="Save View..." Width="90" Padding="0,6" Margin="0,0,8,0" Click="SaveReportView_Click"
+            <Button Grid.Column="2" Content="Save View..." Width="90" Padding="0,6" Margin="0,0,8,0" Click="SaveReportView_Click" ToolTip="Save every field below as a view, to run again here or from Quick Report"
                     Background="#FF66BB6A" Foreground="White"/>
-            <Button Grid.Column="3" Content="Delete View" Width="90" Padding="0,6" Click="DeleteReportView_Click"
+            <Button Grid.Column="3" Content="Delete View" Width="90" Padding="0,6" Click="DeleteReportView_Click" ToolTip="Remove the selected view"
                     Background="#FFE57373" Foreground="White"/>
         </Grid>
         <!-- A list of tasks, or figures about them. The filters below apply to both; each has its own
@@ -244,17 +244,17 @@
                 <DatePicker x:Name="ArchivedFromDatePicker" Padding="4" Width="140" Loaded="DatePicker_Loaded"
                             Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
                             BorderBrush="{DynamicResource CardBorderBrush}"/>
-                <Button Content="Today" Padding="8,4" Margin="6,0,0,0" Click="TodayArchivedFrom_Click"
+                <Button Content="Today" Padding="8,4" Margin="6,0,0,0" Click="TodayArchivedFrom_Click" ToolTip="Today, whenever the report is run"
                         Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
-                <Button Content="Clear" Padding="8,4" Margin="6,0,0,0" Click="ClearArchivedFrom_Click"
+                <Button Content="Clear" Padding="8,4" Margin="6,0,0,0" Click="ClearArchivedFrom_Click" ToolTip="No start to the range"
                         Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
                 <TextBlock Text="To" VerticalAlignment="Center" Margin="16,0,6,0" Foreground="{DynamicResource PrimaryTextBrush}"/>
                 <DatePicker x:Name="ArchivedToDatePicker" Padding="4" Width="140" Loaded="DatePicker_Loaded"
                             Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
                             BorderBrush="{DynamicResource CardBorderBrush}"/>
-                <Button Content="Today" Padding="8,4" Margin="6,0,0,0" Click="TodayArchivedTo_Click"
+                <Button Content="Today" Padding="8,4" Margin="6,0,0,0" Click="TodayArchivedTo_Click" ToolTip="Today, whenever the report is run"
                         Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
-                <Button Content="Clear" Padding="8,4" Margin="6,0,0,0" Click="ClearArchivedTo_Click"
+                <Button Content="Clear" Padding="8,4" Margin="6,0,0,0" Click="ClearArchivedTo_Click" ToolTip="No end to the range"
                         Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
             </StackPanel>
 
@@ -274,13 +274,13 @@
                 <StackPanel Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Left">
                     <Button Content="?" Width="32" Padding="0,6" Margin="0,0,8,0" Click="Help_Click" ToolTip="Help (F1)"
                             Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
-                    <Button Content="_Reset all fields" Width="120" Padding="0,6" Click="Reset_Click"
+                    <Button Content="_Reset all fields" Width="120" Padding="0,6" Click="Reset_Click" ToolTip="Put every field back to its starting value"
                             Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
                 </StackPanel>
                 <StackPanel Grid.Column="1" Orientation="Horizontal">
-                    <Button Content="P_DF" Width="90" Padding="0,6" IsDefault="True" Click="Pdf_Click"
+                    <Button Content="P_DF" Width="90" Padding="0,6" IsDefault="True" Click="Pdf_Click" ToolTip="Save the report as a PDF file"
                             Background="#FF66BB6A" Foreground="White"/>
-                    <Button Content="_Preview" Width="90" Padding="0,6" Margin="8,0,0,0" Click="Preview_Click"
+                    <Button Content="_Preview" Width="90" Padding="0,6" Margin="8,0,0,0" Click="Preview_Click" ToolTip="Show the report on screen; it can be printed from there too"
                             Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
                     <Button Content="Close" Width="80" Padding="0,6" Margin="8,0,0,0" IsCancel="True"
                             Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
@@ -356,7 +356,7 @@
                     ToolTip="Today, whenever the report is run. Saved in a view, it stays 'today' rather than becoming a fixed date. Right-click for so many days from today."
                     PreviewMouseRightButtonUp="TodayDueFrom_RightClick"
                     Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
-            <Button Content="Clear" Padding="8,4" Margin="6,0,0,0" Click="ClearDueFrom_Click"
+            <Button Content="Clear" Padding="8,4" Margin="6,0,0,0" Click="ClearDueFrom_Click" ToolTip="No start to the range"
                     Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
             <TextBlock Text="To" VerticalAlignment="Center" Margin="16,0,6,0" Foreground="{DynamicResource PrimaryTextBrush}"/>
             <DatePicker x:Name="DueToDatePicker" Padding="4" Width="140" Loaded="DatePicker_Loaded"
@@ -366,7 +366,7 @@
                     ToolTip="Today, whenever the report is run. Saved in a view, it stays 'today' rather than becoming a fixed date. Right-click for so many days from today."
                     PreviewMouseRightButtonUp="TodayDueTo_RightClick"
                     Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
-            <Button Content="Clear" Padding="8,4" Margin="6,0,0,0" Click="ClearDueTo_Click"
+            <Button Content="Clear" Padding="8,4" Margin="6,0,0,0" Click="ClearDueTo_Click" ToolTip="No end to the range"
                     Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
         </StackPanel>
         <!-- Says what a saved view will keep for each date: the word today (worked out afresh each

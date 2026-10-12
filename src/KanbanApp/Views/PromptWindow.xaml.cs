@@ -66,7 +66,7 @@ public partial class PromptWindow : Window
 
         SuggestionsHost.Visibility = Visibility.Visible;
         ValueTextBox.ToolTip = _forgetSuggestion is null
-            ? "Start typing, or press the Down arrow, to pick an earlier answer."
+            ? "Start typing, or press the Down arrow, to pick an earlier answer"
             : "Start typing, or press the Down arrow, to pick an earlier answer. Shift+Delete on a highlighted one forgets it.";
     }
 

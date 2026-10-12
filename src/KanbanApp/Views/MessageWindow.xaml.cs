@@ -116,7 +116,7 @@ public partial class MessageWindow : Window
                 FontSize = 12,
                 Padding = new Thickness(6, 4, 6, 4),
                 Margin = new Thickness(0, 10, 0, 0),
-                ToolTip = "Select it to copy it.",
+                ToolTip = "Select it to copy it",
             };
             box.SetResourceReference(BackgroundProperty, "InputBackgroundBrush");
             box.SetResourceReference(ForegroundProperty, "PrimaryTextBrush");

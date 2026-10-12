@@ -24,7 +24,7 @@
             <DatePicker x:Name="FromDatePicker" Width="120" SelectedDateChanged="DateRange_Changed" Loaded="DatePicker_Loaded"/>
             <TextBlock Text="to" VerticalAlignment="Center" Foreground="{DynamicResource PrimaryTextBrush}" Margin="10,0,6,0"/>
             <DatePicker x:Name="ToDatePicker" Width="120" SelectedDateChanged="DateRange_Changed" Loaded="DatePicker_Loaded"/>
-            <Button Content="Clear Dates" Padding="8,4" Margin="12,0,0,0" Click="ClearDates_Click"
+            <Button Content="Clear Dates" Padding="8,4" Margin="12,0,0,0" Click="ClearDates_Click" ToolTip="Show every deleted task, whatever its date"
                     Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
         </StackPanel>
 
@@ -55,7 +55,7 @@
                    Visibility="Collapsed"/>
 
         <Grid Grid.Row="3" Margin="0,12,0,0">
-            <Button Content="Reactivate to To Do" Padding="10,6" HorizontalAlignment="Left" Click="Reactivate_Click"
+            <Button Content="Reactivate to To Do" Padding="10,6" HorizontalAlignment="Left" Click="Reactivate_Click" ToolTip="Put the selected tasks back on the board, in To Do"
                     Background="#FF66BB6A" Foreground="White"/>
             <Button Content="Close" Width="90" Padding="0,6" HorizontalAlignment="Right"
                     IsCancel="True" IsDefault="True"

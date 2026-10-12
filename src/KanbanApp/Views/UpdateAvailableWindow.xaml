@@ -45,12 +45,12 @@
 
         <Grid Grid.Row="3" Margin="0,12,0,0">
             <Button x:Name="SkipButton" Content="_Skip This Version" Width="140" Padding="0,6" HorizontalAlignment="Left" Click="Skip_Click"
-                    ToolTip="Don't tell me about this version again. The next one will still be offered."
+                    ToolTip="Skip this version. The next one will still be offered."
                     Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                <Button Content="_Get the Update" Width="130" Padding="0,6" IsDefault="True" Click="GetUpdate_Click"
+                <Button Content="_Get the Update" Width="130" Padding="0,6" IsDefault="True" Click="GetUpdate_Click" ToolTip="Open the download page in your browser"
                         Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
-                <Button Content="_Remind Me Later" Width="130" Padding="0,6" Margin="8,0,0,0" IsCancel="True"
+                <Button Content="_Remind Me Later" ToolTip="Close for now. The update is offered again at the next daily check." Width="130" Padding="0,6" Margin="8,0,0,0" IsCancel="True"
                         Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
             </StackPanel>
         </Grid>

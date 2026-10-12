@@ -25,11 +25,11 @@
                    Foreground="{DynamicResource SecondaryTextBrush}"
                    Text="Start from the template so your columns line up, fill in one task per row, then choose the file to import. Only Task Details is required."/>
 
-        <Button Grid.Row="2" Content="Download Template..." Padding="0,10" HorizontalAlignment="Stretch" Margin="0,0,0,10"
+        <Button Grid.Row="2" Content="Download Template..." ToolTip="Save an empty Excel template to fill in" Padding="0,10" HorizontalAlignment="Stretch" Margin="0,0,0,10"
                 Click="DownloadTemplate_Click"
                 Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
 
-        <Button Grid.Row="3" Content="Choose File to Import..." Padding="0,10" HorizontalAlignment="Stretch"
+        <Button Grid.Row="3" Content="Choose File to Import..." ToolTip="Pick a filled-in Excel file and add its tasks to the board" Padding="0,10" HorizontalAlignment="Stretch"
                 Click="ChooseFile_Click"
                 Background="#FF66BB6A" Foreground="White"/>
 

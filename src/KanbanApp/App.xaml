@@ -29,7 +29,7 @@
              A selector rather than ContentTemplate, which would also replace tooltips built from
              their own controls; the selector hands those back to WPF untouched. -->
         <DataTemplate x:Key="ShortcutToolTipTemplate">
-            <TextBlock views:ShortcutText.Text="{Binding}"/>
+            <TextBlock views:ShortcutText.Text="{Binding}" MaxWidth="420" TextWrapping="Wrap"/>
         </DataTemplate>
         <views:ToolTipTextSelector x:Key="ToolTipTextSelector" TextTemplate="{StaticResource ShortcutToolTipTemplate}"/>
         <Style TargetType="ToolTip">

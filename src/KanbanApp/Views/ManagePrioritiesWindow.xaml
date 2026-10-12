@@ -49,7 +49,7 @@
         </ListBox>
 
         <StackPanel Grid.Row="1" Grid.Column="1" Margin="10,0,0,0">
-            <Button Content="_Add..." Style="{StaticResource SideButtonStyle}" Click="Add_Click"/>
+            <Button Content="_Add..." ToolTip="Add a priority" Style="{StaticResource SideButtonStyle}" Click="Add_Click"/>
             <Button x:Name="RenameButton" Content="_Rename..." Style="{StaticResource SideButtonStyle}" Click="Rename_Click"
                     ToolTip="Rename it, on the list and on every task that has it (F2)"/>
             <Button x:Name="ColorButton" Content="_Colour ▾" Style="{StaticResource SideButtonStyle}" Click="Color_Click"

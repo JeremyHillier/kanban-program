@@ -234,7 +234,7 @@
                                             ToolTip="Optional. The earliest date this task can be worked on. Hide Future on the main screen keeps the task off the board until then."
                                             Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
                                             BorderBrush="{DynamicResource CardBorderBrush}"/>
-                                <Button Grid.Column="2" Content="Clear" Padding="8,4" Margin="6,0,0,0" Click="ClearStartDate_Click" IsTabStop="False"
+                                <Button Grid.Column="2" Content="Clear" Padding="8,4" Margin="6,0,0,0" Click="ClearStartDate_Click" ToolTip="No start date" IsTabStop="False"
                                         Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
                             </Grid>
 
@@ -251,9 +251,9 @@
                                 <DatePicker Grid.Column="1" x:Name="DueDatePicker" Padding="4"
                                             Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
                                             BorderBrush="{DynamicResource CardBorderBrush}"/>
-                                <Button Grid.Column="2" Content="Today" Padding="8,4" Margin="6,0,0,0" Click="TodayDueDate_Click"
+                                <Button Grid.Column="2" Content="Today" Padding="8,4" Margin="6,0,0,0" Click="TodayDueDate_Click" ToolTip="Due today"
                                         Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
-                                <Button Grid.Column="3" Content="Clear" Padding="8,4" Margin="6,0,0,0" Click="ClearDueDate_Click"
+                                <Button Grid.Column="3" Content="Clear" Padding="8,4" Margin="6,0,0,0" Click="ClearDueDate_Click" ToolTip="No due date"
                                         Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
                             </Grid>
 
@@ -401,7 +401,7 @@
                                  Style="{StaticResource HoverTextBoxStyle}"
                                  ToolTip="Who or what is holding this task up, e.g. Sam's quote, or the client's sign-off. Leave it empty if nothing is. The card shows it, and the Waiting On button on the main screen lists every task that has one. It is cleared when the task is finished."
                                  Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
-                        <Button Grid.Column="1" Content="Clear" Padding="10,4" Margin="6,0,0,0" Click="ClearWaitingOn_Click" IsTabStop="False"
+                        <Button Grid.Column="1" Content="Clear" Padding="10,4" Margin="6,0,0,0" Click="ClearWaitingOn_Click" ToolTip="Nothing is holding this task up" IsTabStop="False"
                                 Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
                         <Button Grid.Column="2" Content="List..." Padding="10,4" Margin="6,0,0,0" Click="ManageWaitingOn_Click" IsTabStop="False"
                                 ToolTip="Add to, reword or prune the answers suggested here"
@@ -485,14 +485,14 @@
                                Foreground="{DynamicResource SecondaryTextStrongBrush}"/>
                     <TextBlock x:Name="UpdatedStampText" FontSize="11"
                                Foreground="{DynamicResource SecondaryTextStrongBrush}"/>
-                    <TextBlock x:Name="EmailedStampText" FontSize="11" Visibility="Collapsed" ToolTipService.ShowDuration="30000" TextTrimming="CharacterEllipsis" MaxWidth="430"
+                    <TextBlock x:Name="EmailedStampText" FontSize="11" Visibility="Collapsed" TextTrimming="CharacterEllipsis" MaxWidth="430"
                                Foreground="{DynamicResource SecondaryTextStrongBrush}"/>
-                    <TextBlock x:Name="ScheduledStampText" FontSize="11" Visibility="Collapsed" ToolTipService.ShowDuration="30000" TextTrimming="CharacterEllipsis" MaxWidth="430"
+                    <TextBlock x:Name="ScheduledStampText" FontSize="11" Visibility="Collapsed" TextTrimming="CharacterEllipsis" MaxWidth="430"
                                Foreground="{DynamicResource SecondaryTextStrongBrush}"/>
                 </StackPanel>
             </DockPanel>
             <StackPanel Grid.Column="1" HorizontalAlignment="Right" Orientation="Horizontal">
-                <Button x:Name="SubmitButton" Content="Add Task" MinWidth="90" Padding="12,6" IsDefault="True" Click="Add_Click" ToolTip="Enter or Ctrl+S"
+                <Button x:Name="SubmitButton" Content="Add Task" MinWidth="90" Padding="12,6" IsDefault="True" Click="Add_Click" ToolTip="Add the task (Enter or Ctrl+S)"
                         Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
                 <Button Content="Cancel" Width="80" Padding="0,6" Margin="8,0,0,0" IsCancel="True"
                         Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
