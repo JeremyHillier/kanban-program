@@ -438,8 +438,22 @@
                      between the foot of the title's letters and the bottom edge of the banner:
                      5px above, 5px below, as measured. -->
                 <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-                    <TextBlock Text="KANBAN TASK BOARD" FontSize="36" FontWeight="Bold" Foreground="White"
-                               HorizontalAlignment="Center" TextAlignment="Center" Margin="0,-5,0,-6"/>
+                    <!-- The Beta pill hangs off the title's right end from a zero-size Canvas, so the
+                         title stays centred on the banner with or without it. Same quiet look as the
+                         Filtered pill below. -->
+                    <Grid HorizontalAlignment="Center">
+                        <TextBlock Text="KANBAN TASK BOARD" FontSize="36" FontWeight="Bold" Foreground="White"
+                                   HorizontalAlignment="Center" TextAlignment="Center" Margin="0,-5,0,-6"/>
+                        <Canvas HorizontalAlignment="Right" VerticalAlignment="Center" Width="0" Height="0"
+                                Visibility="{Binding IsBeta, Converter={StaticResource BooleanToVisibilityConverter}}">
+                            <Border x:Name="BetaPill" Canvas.Left="12" Canvas.Top="-6" Height="17" Padding="8,0" CornerRadius="8"
+                                    Background="#24FFFFFF" BorderBrush="#40FFFFFF" BorderThickness="1"
+                                    ToolTip="This is a beta: free while the beta lasts, and still changing. The terms are in the Licence Agreement, under About.">
+                                <TextBlock Text="BETA" FontSize="10" FontWeight="SemiBold" Foreground="#FFE6EDF6"
+                                           VerticalAlignment="Center"/>
+                            </Border>
+                        </Canvas>
+                    </Grid>
                     <Border x:Name="FilterSummaryPill" HorizontalAlignment="Center" Height="17" Padding="9,0" CornerRadius="8" Margin="0,2,0,-2"
                             Background="#24FFFFFF" ToolTip="{Binding FilterSummaryToolTip}">
                         <Border.Style>

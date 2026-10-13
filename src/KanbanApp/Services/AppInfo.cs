@@ -12,6 +12,11 @@ public static class AppInfo
     // Never a year behind: the year comes from the clock.
     public static string Copyright => $"© {DateTime.Today.Year} {Company}";
 
+    // While the app is in beta, a small Beta pill sits beside the title in the header. Set this to false
+    // when the beta ends, together with "#define Beta" in the installer script and the beta section of
+    // the licence; LegalDocumentTests keeps the three in step.
+    public const bool IsBeta = true;
+
     // Shown, with a maple leaf, in the header and on the About screen.
     public const string MadeIn = "Designed in Canada";
 

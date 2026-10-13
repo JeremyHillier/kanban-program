@@ -8,6 +8,7 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 
 ## 0.135.2 — 2026-10-13
 
+> - New: a small Beta label beside the title at the top of the board. Point at it for a reminder of the beta terms.
 > - Improved: Setup now shows clearly that this is a beta, in its title bar, on its Welcome and Finished pages, and in the Windows list of installed apps.
 - The Welcome page explains that the beta is free, may contain errors and may change between versions, and suggests keeping a backup of your task data.
 

@@ -19,6 +19,7 @@ public partial class MainViewModel : ObservableObject
     // "Version 0.116.5", with " (Test)" on a Test build.
     public string VersionLine => $"Version {AppVersion.TrimStart('v')}{(AppChannel.IsTest ? $" ({AppChannel.Name})" : "")}";
     public bool IsTestChannel => AppChannel.IsTest;
+    public bool IsBeta => AppInfo.IsBeta;
     public string WindowTitle => AppChannel.DisplayName;
 
     public string CurrentDbPath => _db.DbPath;
