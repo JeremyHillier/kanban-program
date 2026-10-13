@@ -6,6 +6,12 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.135.2 — 2026-10-13
+
+> - Improved: Setup now shows clearly that this is a beta, in its title bar, on its Welcome and Finished pages, and in the Windows list of installed apps.
+- The Welcome page explains that the beta is free, may contain errors and may change between versions, and suggests keeping a backup of your task data.
+
+
 ## 0.135.1 — 2026-10-13
 
 > - Improved: the Licence Agreement now sets out the beta terms. The beta is free, and a version you have installed keeps working when the beta ends.

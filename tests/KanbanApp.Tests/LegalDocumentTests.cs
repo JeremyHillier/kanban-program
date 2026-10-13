@@ -62,6 +62,22 @@ public sealed class LegalDocumentTests
         Assert.Contains("Content=\"Check for a newer version automatically\"", settings);
     }
 
+    // While the licence has beta terms, Setup must say it is a beta too. When the beta ends, delete
+    // "#define Beta" in the script, the beta section in EULA.txt, and this test together.
+    [Fact]
+    public void WhileTheLicenceHasBetaTerms_SetupSaysItIsABeta()
+    {
+        var root = FindRepoRoot();
+        var script = File.ReadAllText(Path.Combine(root, "installer", "KanbanTaskBoard.iss"));
+
+        Assert.Contains("BETA VERSIONS", LegalDocuments.Eula);
+        Assert.Contains("\n#define Beta\n", script.Replace("\r\n", "\n"));
+        Assert.Contains("AppVerName={#MyAppName} {#MyAppVersion}{#BetaSuffix}", script);
+        Assert.Contains("SetupWindowTitle=Setup - %1{#BetaSuffix}", script);
+        Assert.Contains("WelcomeLabel1=Welcome to the [name]{#BetaSuffix} Setup Wizard", script);
+        Assert.Contains("BetaNotice() +", script);
+    }
+
     private static string Normalise(string text) => text.Replace("\r\n", "\n").Trim();
 
     private static string FindRepoRoot()

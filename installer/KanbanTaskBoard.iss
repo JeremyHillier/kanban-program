@@ -20,11 +20,21 @@
 #define MyAppPublisher "Jeremy Hillier Consulting Inc"
 #define MyAppExeName "KanbanApp.exe"
 
+; While the app is in beta, Setup says so in its title bar, on its Welcome and Finished pages and in
+; the Windows list of installed apps. Delete this line when the beta ends. MyAppName itself stays
+; plain: it names the install folder and is how Setup finds the running app's window.
+#define Beta
+#ifdef Beta
+  #define BetaSuffix " Beta"
+#else
+  #define BetaSuffix ""
+#endif
+
 [Setup]
 AppId={{{#MyAppId}}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
-AppVerName={#MyAppName} {#MyAppVersion}
+AppVerName={#MyAppName} {#MyAppVersion}{#BetaSuffix}
 AppPublisher={#MyAppPublisher}
 DefaultDirName={userpf}\{#MyAppName}
 DefaultGroupName={#MyAppName}
@@ -55,6 +65,13 @@ SetupIconFile=..\src\KanbanApp\Assets\app.ico
 LicenseFile=..\src\KanbanApp\Legal\EULA.txt
 WizardImageFile=WizardImage.bmp
 WizardSmallImageFile=WizardSmallImage.bmp
+
+#ifdef Beta
+[Messages]
+SetupWindowTitle=Setup - %1{#BetaSuffix}
+WelcomeLabel1=Welcome to the [name]{#BetaSuffix} Setup Wizard
+FinishedHeadingLabel=Completing the [name]{#BetaSuffix} Setup Wizard
+#endif
 
 [Files]
 Source: "..\publish\{#Channel}\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
@@ -140,6 +157,17 @@ begin
   Result := Trim(Result);
 end;
 
+{ The paragraph the Welcome page adds while the app is in beta; empty after it. }
+function BetaNotice(): String;
+begin
+#ifdef Beta
+  Result := 'This is a beta: an early version released for testing and feedback, and free while the beta lasts. ' +
+            'It may contain errors and may change from one version to the next, so keep a backup of your task data.' + #13#10#13#10;
+#else
+  Result := '';
+#endif
+end;
+
 procedure InitializeWizard;
 var
   Notes: String;
@@ -156,17 +184,19 @@ begin
     if Notes <> '' then
       CreateOutputMsgMemoPage(wpWelcome, 'What''s New',
         'Changes since version ' + PreviousVersion,
-        'This update brings {#MyAppName} to version {#MyAppVersion}. Here is what has changed:',
+        'This update brings {#MyAppName} to version {#MyAppVersion}{#BetaSuffix}. Here is what has changed:',
         Notes);
   end;
 
   if IsUpdate then
     WizardForm.WelcomeLabel2.Caption :=
-      'Setup will update {#MyAppName} from version ' + PreviousVersion + ' to version {#MyAppVersion}.' + #13#10#13#10 +
+      'Setup will update {#MyAppName} from version ' + PreviousVersion + ' to version {#MyAppVersion}{#BetaSuffix}.' + #13#10#13#10 +
+      BetaNotice() +
       'It is recommended that you close all other applications before continuing.'
   else
     WizardForm.WelcomeLabel2.Caption :=
-      'Setup will install {#MyAppName} version {#MyAppVersion} on your computer.' + #13#10#13#10 +
+      'Setup will install {#MyAppName} version {#MyAppVersion}{#BetaSuffix} on your computer.' + #13#10#13#10 +
+      BetaNotice() +
       'It is recommended that you close all other applications before continuing.';
 
   DataDirPage := CreateInputDirPage(wpSelectDir,
