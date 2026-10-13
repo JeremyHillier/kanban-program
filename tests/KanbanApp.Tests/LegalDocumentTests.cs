@@ -29,6 +29,12 @@ public sealed class LegalDocumentTests
         Assert.Contains("One licence is for one person", eula);
         Assert.Contains("Province of Ontario", eula);
         Assert.Contains("\"as is\"", eula);
+
+        // The beta terms the user chose: free now, notice before any charge, installed copies keep working.
+        Assert.Contains("Beta versions are free of charge", eula);
+        Assert.Contains("may require a paid licence", eula);
+        Assert.Contains("announce this on our download page before it happens", eula);
+        Assert.Contains("does not stop a version you have already installed from working", eula);
     }
 
     [Fact]

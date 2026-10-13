@@ -6,6 +6,14 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.135.1 — 2026-10-13
+
+> - Improved: the Licence Agreement now sets out the beta terms. The beta is free, and a version you have installed keeps working when the beta ends.
+- Later versions may need a paid licence. This will be announced on the download page before it happens.
+- To share the app, please send people to the download page rather than passing on the installer, so each person gets the current version.
+- Feedback and ideas you send may be used to improve the app.
+
+
 ## 0.135.0 — 2026-10-13
 
 > - New: a Help button at the bottom left of every working window, the place Windows puts it: the task window, Archived and Deleted Tasks, Import Tasks, Imported Tasks, the Dashboard, Timeline, Reminders, Quick Report, Report Builder, the report preview, Settings, and the Manage windows for priorities, templates, Waiting On answers, custom filters and the other lists. It opens Help at the section about that window.
