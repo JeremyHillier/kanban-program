@@ -30,6 +30,13 @@ public sealed class LegalDocumentTests
         Assert.Contains("Province of Ontario", eula);
         Assert.Contains("\"as is\"", eula);
 
+        // The plain-English summary opens the licence, and states the three points users most need.
+        Assert.True(eula.IndexOf("THE MAIN POINTS", StringComparison.Ordinal) < eula.IndexOf("1. YOUR LICENCE", StringComparison.Ordinal));
+        Assert.Contains("at your own risk", eula);
+        Assert.Contains("CAD $50", eula);
+        Assert.Contains("Nothing in this agreement limits any rights you have under consumer protection law", eula);
+        Assert.Contains("Your tasks are not sent to us", eula);
+
         // The beta terms the user chose: free now, notice before any charge, installed copies keep working.
         Assert.Contains("Beta versions are free of charge", eula);
         Assert.Contains("may require a paid licence", eula);

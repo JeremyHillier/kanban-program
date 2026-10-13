@@ -6,6 +6,13 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.135.3 — 2026-10-13
+
+> - Improved: the Licence Agreement opens with the main points in plain language: the beta may contain errors, your tasks are kept only on your PC so backups are your responsibility, and the limit on our liability.
+- The data section now says what the app sends over the internet, and that data can be lost through a fault, a computer failure or a moved or synchronised folder.
+- The warranty and liability sections say what the beta risk means in practice, and that the liability limit works out to CAD $50 while the beta is free.
+
+
 ## 0.135.2 — 2026-10-13
 
 > - New: a small Beta label beside the title at the top of the board. Point at it for a reminder of the beta terms.
