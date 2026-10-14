@@ -89,6 +89,9 @@ public partial class SettingsWindow : Window
         StartWithWindowsCheckBox.IsChecked = viewModel.StartWithWindows;
         StartFullScreenCheckBox.IsChecked = viewModel.StartFullScreen;
         CompactButtonsCheckBox.IsChecked = viewModel.IsCompactButtons;
+        AutoCorrectCheckBox.IsChecked = viewModel.AutoCorrectEnabled;
+        AutoCorrectEntriesTextBox.Text = viewModel.AutoCorrectEntries;
+        AutoCorrectEntriesTextBox.IsEnabled = viewModel.AutoCorrectEnabled;
         ConfirmDeleteCheckBox.IsChecked = viewModel.ConfirmDelete;
         ConfirmArchiveCheckBox.IsChecked = viewModel.ConfirmArchive;
         AddNoteOnCompleteCheckBox.IsChecked = viewModel.AddNoteOnComplete;
@@ -214,6 +217,16 @@ public partial class SettingsWindow : Window
         _viewModel.RenameColumnDisplayName(column, textBox.Text);
         textBox.Text = column.DisplayName;
     }
+
+    private void AutoCorrectCheckBox_Changed(object sender, RoutedEventArgs e)
+    {
+        if (!IsLoaded) return;
+        _viewModel.SetAutoCorrectEnabled(AutoCorrectCheckBox.IsChecked == true);
+        AutoCorrectEntriesTextBox.IsEnabled = AutoCorrectCheckBox.IsChecked == true;
+    }
+
+    private void AutoCorrectEntriesTextBox_LostFocus(object sender, RoutedEventArgs e) =>
+        _viewModel.SetAutoCorrectEntries(AutoCorrectEntriesTextBox.Text);
 
     private void CompactButtonsCheckBox_Changed(object sender, RoutedEventArgs e)
     {

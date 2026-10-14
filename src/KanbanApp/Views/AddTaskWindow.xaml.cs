@@ -95,6 +95,9 @@ public partial class AddTaskWindow : Window
         SpellCheck.GetCustomDictionaries(DetailsTextBox).Add(americanVariantsDictionary);
         SpellCheck.GetCustomDictionaries(NotesTextBox).Add(americanVariantsDictionary);
 
+        AutoCorrectBox.Attach(DetailsTextBox, () => viewModel.AutoCorrectEnabled, () => viewModel.AutoCorrectOwn);
+        AutoCorrectBox.Attach(NotesTextBox, () => viewModel.AutoCorrectEnabled, () => viewModel.AutoCorrectOwn);
+
         _viewModel = viewModel;
         CalendarWheelSupport.Attach(DueDatePicker);
         CalendarWheelSupport.Attach(StartDatePicker);

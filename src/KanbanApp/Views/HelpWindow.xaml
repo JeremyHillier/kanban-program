@@ -170,6 +170,9 @@
                 <local:BulletItem Text="Links to files, folders or programs are refused, for your safety."/>
                 <local:BulletItem Text="Closing with unsaved changes asks first."/>
                 <local:BulletItem Text="Spell check accepts Canadian and American spellings."/>
+                <local:BulletItem Text="Auto-correct fixes common slips like teh as you finish a word, in the task and notes boxes."/>
+                <local:BulletItem Text="Press Ctrl+Z straight after a correction to put back what you typed."/>
+                <local:BulletItem Text="Settings turns it off and takes your own corrections, one per line, like kbp = Kanban Program."/>
 
                 <TextBlock Text="Emailing a task" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <local:BulletItem Text="The envelope button shows when the person has an email address, set in Manage Who."/>

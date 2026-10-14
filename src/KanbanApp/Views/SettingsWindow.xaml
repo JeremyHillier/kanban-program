@@ -117,6 +117,16 @@
                           ToolTip="Makes the button column narrower and shorter: lower buttons, the large buttons brought down to the same size as the rest, and less padding. The text stays the same size. Useful on a smaller screen. To hide the column altogether, press Alt+B."
                           Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,8"
                           Checked="CompactButtonsCheckBox_Changed" Unchecked="CompactButtonsCheckBox_Changed"/>
+                <CheckBox x:Name="AutoCorrectCheckBox" Content="Auto-correct common typing mistakes in the task and notes boxes"
+                          ToolTip="Swaps a word like teh for the as you finish typing it. Press Ctrl+Z straight away to put back what you typed."
+                          Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,8"
+                          Checked="AutoCorrectCheckBox_Changed" Unchecked="AutoCorrectCheckBox_Changed"/>
+                <TextBlock x:Name="AutoCorrectEntriesLabel" Text="Your own corrections, one per line, like  teh = the" Style="{StaticResource FieldLabelStyle}"/>
+                <TextBox x:Name="AutoCorrectEntriesTextBox" Height="70" Padding="6" Margin="0,0,0,12" AcceptsReturn="True"
+                         VerticalScrollBarVisibility="Auto" TextWrapping="NoWrap" LostFocus="AutoCorrectEntriesTextBox_LostFocus"
+                         ToolTip="Words you often mistype, or short forms to spell out, such as kbp = Kanban Program. They are added to the built-in list and win over it."
+                         Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                         BorderBrush="{DynamicResource CardBorderBrush}"/>
                 <CheckBox x:Name="ShowWhatsNewCheckBox" Content="Show what's new after an update"
                           Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,8"
                           Checked="ShowWhatsNewCheckBox_Changed" Unchecked="ShowWhatsNewCheckBox_Changed"/>

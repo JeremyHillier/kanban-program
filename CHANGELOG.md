@@ -6,6 +6,13 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.136.0 — 2026-10-14
+
+> - New: auto-correct in the task and notes boxes. Common typing slips, such as teh or tomorow, are corrected as each word is finished, and Ctrl+Z straight afterwards puts back exactly what was typed.
+> - New: in Settings, auto-correct can be turned off, and your own corrections can be added, one per line, for example kbp = Kanban Program.
+- Only whole words are corrected, never part of a web address, email address, file path or number.
+- Capitals are kept: Teh becomes The, and TEH becomes THE.
+
 ## 0.135.3 — 2026-10-13
 
 > - Improved: the Licence Agreement opens with the main points in plain language: the beta may contain errors, your tasks are kept only on your PC so backups are your responsibility, and the limit on our liability.

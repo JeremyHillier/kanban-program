@@ -19,7 +19,8 @@ public partial class MainViewModel
         string DefaultExportPath, string DefaultImportPath, string LinkedFilesDefaultPath,
         string UserName, string UserTitle, string UserEmail, string UserPhone,
         bool StartWithWindows, bool StartFullScreen, bool ConfirmDelete, bool ConfirmArchive, bool AddNoteOnComplete,
-        bool ShowDueReminders, bool ShowTimeAlerts, bool RememberLastView, bool ShowWhatsNew, bool QuickAddHotkeyEnabled, bool CheckForUpdatesEnabled, bool IsCompactButtons, bool IsFitColumnsToWindow);
+        bool ShowDueReminders, bool ShowTimeAlerts, bool RememberLastView, bool ShowWhatsNew, bool QuickAddHotkeyEnabled, bool CheckForUpdatesEnabled, bool IsCompactButtons, bool IsFitColumnsToWindow,
+        bool AutoCorrectEnabled, string AutoCorrectEntries);
 
     private const char ColumnNameSeparator = ''; // can't be typed into a name
 
@@ -31,7 +32,8 @@ public partial class MainViewModel
         DefaultExportPath, DefaultImportPath, LinkedFilesDefaultPath,
         UserName, UserTitle, UserEmail, UserPhone,
         StartWithWindows, StartFullScreen, ConfirmDelete, ConfirmArchive, AddNoteOnComplete,
-        ShowDueReminders, ShowTimeAlerts, RememberLastView, ShowWhatsNew, QuickAddHotkeyEnabled, CheckForUpdatesEnabled, IsCompactButtons, IsFitColumnsToWindow);
+        ShowDueReminders, ShowTimeAlerts, RememberLastView, ShowWhatsNew, QuickAddHotkeyEnabled, CheckForUpdatesEnabled, IsCompactButtons, IsFitColumnsToWindow,
+        AutoCorrectEnabled, AutoCorrectEntries);
 
     // Goes through the same setters the dialog uses, so each value is saved and the board reacts
     // (column width, button side, column headings) exactly as if the user had typed it back.
@@ -67,5 +69,7 @@ public partial class MainViewModel
         SetQuickAddHotkeyEnabled(snapshot.QuickAddHotkeyEnabled);
         SetCheckForUpdatesEnabled(snapshot.CheckForUpdatesEnabled);
         SetCompactButtons(snapshot.IsCompactButtons);
+        SetAutoCorrectEnabled(snapshot.AutoCorrectEnabled);
+        SetAutoCorrectEntries(snapshot.AutoCorrectEntries);
     }
 }
