@@ -134,7 +134,7 @@ public class RecurrencePatternTests
             && e.Attributes().Any(a => a.Name.LocalName == "Name" && a.Value == "RecurrenceComboBox"));
         var items = combo.Elements().Where(e => e.Name.LocalName == "ComboBoxItem").Select(e => e.Attribute("Content")!.Value);
 
-        Assert.Equal(RecurrencePatterns.All, items);
+        Assert.Equal([.. RecurrencePatterns.All, MonthDayRange.ChoiceName], items);
     }
 
     [Theory]

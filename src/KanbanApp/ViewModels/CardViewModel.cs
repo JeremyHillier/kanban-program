@@ -333,15 +333,20 @@ public class CardViewModel(CardItem model) : ObservableObject
     }
 
     // Whether finishing (or skipping) this task should put the next one on the board.
+    // For Days of each month the count is months, so the last month still has its remaining days.
     public bool HasNextOccurrence =>
-        IsRecurring && !string.IsNullOrWhiteSpace(RecurrencePattern) && !NextOccurrenceSpawned && RecurrencesLeft is null or > 1;
+        IsRecurring && !string.IsNullOrWhiteSpace(RecurrencePattern) && !NextOccurrenceSpawned
+        && (RecurrencesLeft is null or > 1 || MonthDayRange.Parse(RecurrencePattern) is { } range
+            && !MonthDayRange.IsLaterMonth(DueDate, range.NextAfter(DueDate, DateTime.Today), DateTime.Today));
 
     public string RecurrenceDisplay => !IsRecurring || string.IsNullOrWhiteSpace(RecurrencePattern) ? string.Empty
         : RecurrencesLeft switch
         {
             null => $"↻ Repeats {RecurrencePattern}",
-            <= 1 => $"↻ Repeats {RecurrencePattern} · last one",
-            var left => $"↻ Repeats {RecurrencePattern} · {left - 1} more"
+            <= 1 => $"↻ Repeats {RecurrencePattern} · last {(MonthDayRange.Parse(RecurrencePattern) is null ? "one" : "month")}",
+            var left => MonthDayRange.Parse(RecurrencePattern) is null
+                ? $"↻ Repeats {RecurrencePattern} · {left - 1} more"
+                : $"↻ Repeats {RecurrencePattern} · {left - 1} more month{(left == 2 ? "" : "s")}"
         };
 
     // True once this specific card has already spawned its next occurrence on completion - prevents

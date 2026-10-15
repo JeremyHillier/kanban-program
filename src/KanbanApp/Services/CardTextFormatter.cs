@@ -59,13 +59,14 @@ internal static class CardTextFormatter
     // "Weekly (3 more after this one)", or null for a task that does not repeat. Shared by Copy as
     // Text and both kinds of task email.
     internal static string? RepeatsText(CardViewModel card) =>
-        card.IsRecurring && !string.IsNullOrWhiteSpace(card.RecurrencePattern) ? card.RecurrencePattern + RepeatsLeftText(card.RecurrencesLeft) : null;
+        card.IsRecurring && !string.IsNullOrWhiteSpace(card.RecurrencePattern) ? card.RecurrencePattern + RepeatsLeftText(card.RecurrencesLeft, Models.MonthDayRange.Parse(card.RecurrencePattern) is not null) : null;
 
     // After the pattern: nothing for a task with no end, otherwise how many are still to come.
-    internal static string RepeatsLeftText(int? recurrencesLeft) => recurrencesLeft switch
+    // months: a Days of each month task, whose count is of months rather than single tasks.
+    internal static string RepeatsLeftText(int? recurrencesLeft, bool months = false) => recurrencesLeft switch
     {
         null => string.Empty,
-        <= 1 => " (this is the last one)",
-        var left => $" ({left - 1} more after this one)"
+        <= 1 => months ? " (this is the last month)" : " (this is the last one)",
+        var left => months ? $" ({left - 1} more month{(left == 2 ? "" : "s")} after this one)" : $" ({left - 1} more after this one)"
     };
 }

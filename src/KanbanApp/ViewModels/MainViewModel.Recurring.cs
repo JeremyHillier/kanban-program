@@ -13,7 +13,20 @@ public partial class MainViewModel
         var toDoColumn = Columns.FirstOrDefault(c => c.Name == "To Do");
         if (toDoColumn is null) return;
 
-        var nextDueDate = CalculateNextDueDate(completedCard.DueDate ?? DateTime.Today, completedCard.RecurrencePattern!);
+        var range = MonthDayRange.Parse(completedCard.RecurrencePattern);
+        var nextDueDate = range is not null
+            ? range.NextAfter(completedCard.DueDate, DateTime.Today)
+            : CalculateNextDueDate(completedCard.DueDate ?? DateTime.Today, completedCard.RecurrencePattern!);
+
+        // Days of each month: one copy per day, so a start date is simply that day; and a count
+        // counts months, going down only when the next copy is in a later month.
+        var recurrencesLeft = completedCard.RecurrencesLeft - 1;
+        if (range is not null)
+        {
+            var laterMonth = MonthDayRange.IsLaterMonth(completedCard.DueDate, nextDueDate, DateTime.Today);
+            if (!laterMonth) recurrencesLeft = completedCard.RecurrencesLeft;
+            else if (completedCard.RecurrencesLeft is <= 1) return; // the last month is over
+        }
 
         // A start date moves on with the task, keeping the same lead time before the due date.
         // (With no due date to measure from, it simply steps forward by the pattern.)
@@ -21,6 +34,7 @@ public partial class MainViewModel
             : completedCard.DueDate is { } due ? nextDueDate - (due.Date - start.Date)
             : CalculateNextDueDate(start, completedCard.RecurrencePattern!);
         if (nextStartDate > nextDueDate) nextStartDate = nextDueDate;
+        if (range is not null && nextStartDate is not null) nextStartDate = nextDueDate;
 
         var project = Projects.FirstOrDefault(p => p.Id == completedCard.ProjectId);
         var goal = Goals.FirstOrDefault(g => g.Id == completedCard.GoalId);
@@ -32,7 +46,7 @@ public partial class MainViewModel
         AddCard(completedCard.Title, toDoColumn, project, completedCard.Priority, nextDueDate, who,
             true, completedCard.RecurrencePattern, goal, completedCard.Flags, freshSubTasks, completedCard.Notes,
             forceEditOnComplete: completedCard.ForceEditOnComplete, websiteUrl: completedCard.WebsiteUrl, dueTime: completedCard.DueTime,
-            startDate: nextStartDate, people: [.. completedCard.People], recurrencesLeft: completedCard.RecurrencesLeft - 1);
+            startDate: nextStartDate, people: [.. completedCard.People], recurrencesLeft: recurrencesLeft);
     }
 
     internal static DateTime CalculateNextDueDate(DateTime anchor, string pattern) => pattern switch
@@ -85,4 +99,14 @@ public partial class MainViewModel
     // the 28th in February - which is how AddMonths already behaves for the Monthly patterns above.
     private static DateTime OnDayOfMonth(int year, int month, int day, TimeSpan timeOfDay) =>
         new DateTime(year, month, Math.Min(day, DateTime.DaysInMonth(year, month))).Add(timeOfDay);
+}
+
+// A Days of each month task means nothing to copies of the app from before it: they would repeat
+// it daily for ever. So the file is stamped with the format that knows it the first time one is saved.
+public partial class MainViewModel
+{
+    private void StampDayRange(bool isRecurring, string? recurrencePattern)
+    {
+        if (isRecurring && MonthDayRange.Parse(recurrencePattern) is not null) _db.RaiseFileFormat(Services.DatabaseService.DayRangeFileFormat);
+    }
 }

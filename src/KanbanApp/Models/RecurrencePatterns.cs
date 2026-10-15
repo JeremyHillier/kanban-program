@@ -2,16 +2,21 @@ namespace KanbanApp.Models;
 
 // The ways a recurring task can repeat, in the order the task screen lists them. The names are
 // what a task stores and what MainViewModel.CalculateNextDueDate works from, so they must match
-// it (and the task screen's list - RecurrencePatternTests checks both).
+// it (and the task screen's list - RecurrencePatternTests checks both). The task screen's list
+// ends with one more entry, MonthDayRange.ChoiceName, whose stored form is the range itself
+// ("Days 5-12 of each month"), so it is not in All.
 public static class RecurrencePatterns
 {
     public static readonly string[] All =
         ["Daily", "Weekday", "Weekly", "Bi-Weekly", "Semi-Monthly", "Monthly", "Bi-Monthly", "Quarterly", "Annually"];
 
-    // The pattern as the list spells it, whatever capitals or spaces were typed; null when it is not one.
+    // The pattern as the list spells it, whatever capitals or spaces were typed (a day range in its
+    // stored form); null when it is not one.
     public static string? Find(string? text)
     {
         var typed = (text ?? string.Empty).Trim();
-        return typed.Length == 0 ? null : All.FirstOrDefault(p => string.Equals(p, typed, StringComparison.OrdinalIgnoreCase));
+        if (typed.Length == 0) return null;
+        return All.FirstOrDefault(p => string.Equals(p, typed, StringComparison.OrdinalIgnoreCase))
+            ?? MonthDayRange.Parse(typed)?.ToString();
     }
 }

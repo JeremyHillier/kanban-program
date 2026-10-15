@@ -219,6 +219,7 @@
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="10"/>
                                 <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
 
                             <!-- Start -->
@@ -258,8 +259,8 @@
                                         Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
                             </Grid>
 
-                            <!-- Recurring: the pattern beside the tick box, and how many times on a line under the
-                                 pattern (only while Recurring is ticked - there's no room for both on one line). -->
+                            <!-- Recurring: the pattern beside the tick box; how many times (and, for Days of month, which
+                                 days) go on the line under the box, while Recurring is ticked. -->
                             <Grid Grid.Row="2" Grid.Column="0" VerticalAlignment="Top">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto"/>
@@ -269,10 +270,10 @@
                                     <RowDefinition Height="Auto" MinHeight="30"/> <!-- as tall as the Time line beside it, so the two stay level -->
                                     <RowDefinition Height="Auto"/>
                                 </Grid.RowDefinitions>
-                                <CheckBox Grid.Column="0" x:Name="RecurringCheckBox" Content="Recurring task" VerticalAlignment="Center"
+                                <CheckBox Grid.Column="0" x:Name="RecurringCheckBox" Content="Recurring" VerticalAlignment="Center"
                                           Foreground="{DynamicResource PrimaryTextBrush}"
                                           Checked="RecurringCheckBox_Changed" Unchecked="RecurringCheckBox_Changed"/>
-                                <ComboBox Grid.Column="1" x:Name="RecurrenceComboBox" Padding="8,4" MinWidth="100" SelectedIndex="0" Visibility="Collapsed"
+                                <ComboBox Grid.Column="1" x:Name="RecurrenceComboBox" Padding="8,4" MinWidth="118" SelectedIndex="0" Visibility="Collapsed" SelectionChanged="RecurrenceComboBox_SelectionChanged"
                                           VerticalAlignment="Center" Margin="10,0,0,0"
                                           Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
                                           BorderBrush="{DynamicResource CardBorderBrush}">
@@ -285,34 +286,63 @@
                                     <ComboBoxItem Content="Bi-Monthly"/>
                                     <ComboBoxItem Content="Quarterly"/>
                                     <ComboBoxItem Content="Annually"/>
+                                    <ComboBoxItem Content="Days of month" ToolTip="Every day within part of each month, such as the 5th to the 12th or the first 10 working days, then nothing until next month"/>
                                 </ComboBox>
-                                <!-- How many times in all, counting this task; blank (shown as ∞) repeats with no end. -->
-                                <StackPanel x:Name="RecurrenceCountPanel" Grid.Row="1" Grid.Column="1" Orientation="Horizontal" Margin="10,6,0,0"
-                                            Visibility="{Binding Visibility, ElementName=RecurrenceComboBox}"
-                                            ToolTip="How many times this task happens in all, counting this one. Leave blank to keep repeating until you delete the task or untick Recurring.">
-                                    <TextBlock Text="for" VerticalAlignment="Center" Margin="0,0,6,0" Foreground="{DynamicResource PrimaryTextBrush}"/>
-                                    <Grid Width="46">
-                                        <TextBox x:Name="RecurrenceCountTextBox" Padding="4" MaxLength="3" HorizontalContentAlignment="Center"
-                                                 Style="{StaticResource HoverTextBoxStyle}" PreviewTextInput="RecurrenceCountTextBox_PreviewTextInput"
-                                                 AutomationProperties.Name="Number of times"
-                                                 Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
-                                        <TextBlock Text="∞" IsHitTestVisible="False" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="15"
-                                                   Foreground="{DynamicResource SecondaryTextBrush}">
-                                            <TextBlock.Style>
-                                                <Style TargetType="TextBlock">
-                                                    <Setter Property="Visibility" Value="Collapsed"/>
-                                                    <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding Text, ElementName=RecurrenceCountTextBox}" Value="">
-                                                            <Setter Property="Visibility" Value="Visible"/>
-                                                        </DataTrigger>
-                                                    </Style.Triggers>
-                                                </Style>
-                                            </TextBlock.Style>
-                                        </TextBlock>
-                                    </Grid>
-                                    <TextBlock Text="times" VerticalAlignment="Center" Margin="6,0,0,0" Foreground="{DynamicResource PrimaryTextBrush}"/>
-                                </StackPanel>
                             </Grid>
+
+                            <!-- How it repeats, on a line of its own under Recurring and Time: the day range (Days of
+                                 month only) and how many times or months in all. -->
+                            <StackPanel Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3" Orientation="Horizontal">
+                                <!-- Days of each month only: which days. Days are dates of the month; working days count
+                                     Monday to Friday from the 1st (the 1st to the 10th working day). -->
+                                <StackPanel x:Name="RecurrenceRangePanel" Orientation="Horizontal" Margin="0,6,14,0"
+                                            Visibility="Collapsed"
+                                            ToolTip="The task comes back every day in this part of each month, then waits for the next month. Working days are Monday to Friday; holidays are not known.">
+                                    <ComboBox x:Name="RecurrenceRangeKindComboBox" Padding="6,3" MinWidth="116" SelectedIndex="0" VerticalAlignment="Center"
+                                              AutomationProperties.Name="Calendar or working days"
+                                              Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                                              BorderBrush="{DynamicResource CardBorderBrush}">
+                                        <ComboBoxItem Content="Days"/>
+                                        <ComboBoxItem Content="Working days"/>
+                                    </ComboBox>
+                                    <TextBox x:Name="RecurrenceRangeFromTextBox" Width="34" Padding="4" Margin="6,0,0,0" MaxLength="2" HorizontalContentAlignment="Center"
+                                             Style="{StaticResource HoverTextBoxStyle}" PreviewTextInput="RecurrenceCountTextBox_PreviewTextInput"
+                                             AutomationProperties.Name="First day"
+                                             Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                                    <TextBlock Text="to" VerticalAlignment="Center" Margin="6,0" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                                    <TextBox x:Name="RecurrenceRangeToTextBox" Width="34" Padding="4" MaxLength="2" HorizontalContentAlignment="Center"
+                                             Style="{StaticResource HoverTextBoxStyle}" PreviewTextInput="RecurrenceCountTextBox_PreviewTextInput"
+                                             AutomationProperties.Name="Last day"
+                                             Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                                    <TextBlock Text="of the month" VerticalAlignment="Center" Margin="6,0,0,0" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                            </StackPanel>
+                            <!-- How many times in all, counting this task; blank (shown as ∞) repeats with no end. -->
+                            <StackPanel x:Name="RecurrenceCountPanel" Orientation="Horizontal" Margin="0,6,0,0"
+                                        Visibility="{Binding Visibility, ElementName=RecurrenceComboBox}"
+                                        ToolTip="How many times this task happens in all, counting this one. Leave blank to keep repeating until you delete the task or untick Recurring.">
+                                <TextBlock Text="for" VerticalAlignment="Center" Margin="0,0,6,0" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                                <Grid Width="46">
+                                    <TextBox x:Name="RecurrenceCountTextBox" Padding="4" MaxLength="3" HorizontalContentAlignment="Center"
+                                             Style="{StaticResource HoverTextBoxStyle}" PreviewTextInput="RecurrenceCountTextBox_PreviewTextInput"
+                                             AutomationProperties.Name="Number of times"
+                                             Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                                    <TextBlock Text="∞" IsHitTestVisible="False" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="15"
+                                               Foreground="{DynamicResource SecondaryTextBrush}">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Text, ElementName=RecurrenceCountTextBox}" Value="">
+                                                        <Setter Property="Visibility" Value="Visible"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </Grid>
+                                <TextBlock x:Name="RecurrenceCountUnitText" Text="times" VerticalAlignment="Center" Margin="6,0,0,0" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                            </StackPanel>
+                            </StackPanel>
 
                             <!-- Alert time -->
                             <StackPanel Grid.Row="2" Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Top">

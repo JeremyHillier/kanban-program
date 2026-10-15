@@ -20,10 +20,15 @@ public partial class DatabaseService
     // 5: Cards.ShareId - a task shared by email keeps one identity, so importing it again updates
     //    it (0.127.0). Older copies leave the ID alone, but would import a returned task as a second
     //    copy, so the file is only stamped 5 once a task in it has an ID (RaiseFileFormat).
+    // 6: "Days of each month" repeating (0.137.0) - a new meaning for Cards.RecurrencePattern that
+    //    older copies would repeat daily for ever, so the file is only stamped 6 once such a task is
+    //    saved (DayRangeFileFormat). No table changed.
     // The newest format this copy of the app understands.
-    public const int CurrentFileFormat = 5;
+    public const int CurrentFileFormat = 6;
 
-    // What every file is raised to just by being opened. Formats 4 and 5 only matter once their
+    public const int DayRangeFileFormat = 6;
+
+    // What every file is raised to just by being opened. Formats 4, 5 and 6 only matter once their
     // feature is used: a file whose priorities are still the standard four, and with no shared
     // task, is no different from a format 3 file. So 4 is stamped when the priority list is first
     // changed and 5 when a task first gets a share ID (RaiseFileFormat). That keeps older copies

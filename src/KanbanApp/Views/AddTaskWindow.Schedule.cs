@@ -118,6 +118,58 @@ public partial class AddTaskWindow
     private void RecurringCheckBox_Changed(object sender, RoutedEventArgs e)
     {
         RecurrenceComboBox.Visibility = RecurringCheckBox.IsChecked == true ? Visibility.Visible : Visibility.Collapsed;
+        UpdateRecurrenceRange();
+    }
+
+    private void RecurrenceComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e) => UpdateRecurrenceRange();
+
+    private bool IsDayRangeChosen =>
+        RecurringCheckBox.IsChecked == true && (RecurrenceComboBox.SelectedItem as ComboBoxItem)?.Content as string == MonthDayRange.ChoiceName;
+
+    // Days of each month shows its From/To line, and the count becomes a count of months.
+    private void UpdateRecurrenceRange()
+    {
+        if (RecurrenceRangePanel is null) return; // still loading
+        var range = IsDayRangeChosen;
+        RecurrenceRangePanel.Visibility = range ? Visibility.Visible : Visibility.Collapsed;
+        RecurrenceCountUnitText.Text = range ? "months" : "times";
+        if (range && RecurrenceRangeFromTextBox.Text.Length == 0 && RecurrenceRangeToTextBox.Text.Length == 0)
+        {
+            RecurrenceRangeFromTextBox.Text = "1";
+            RecurrenceRangeToTextBox.Text = "10";
+        }
+    }
+
+    // What the Repeats list says now, as a task stores it: a pattern name, or the day range in full.
+    // Null when not recurring, or the range is half typed (TryReadRecurrenceRange says why).
+    private string? ChosenRecurrencePattern()
+    {
+        if (RecurringCheckBox.IsChecked != true) return null;
+        if (!IsDayRangeChosen) return (RecurrenceComboBox.SelectedItem as ComboBoxItem)?.Content as string;
+        return TryReadRecurrenceRange(out var range) ? range!.ToString() : null;
+    }
+
+    private bool TryReadRecurrenceRange(out MonthDayRange? range)
+    {
+        range = MonthDayRange.Parse(
+            $"{(RecurrenceRangeKindComboBox.SelectedIndex == 1 ? "Working days" : "Days")} {RecurrenceRangeFromTextBox.Text.Trim()}-{RecurrenceRangeToTextBox.Text.Trim()} of each month");
+        return range is not null;
+    }
+
+    // Puts a stored pattern back on screen - a name from the list, or a day range.
+    private void ShowRecurrencePattern(string? pattern)
+    {
+        var range = MonthDayRange.Parse(pattern);
+        var name = range is null ? pattern : MonthDayRange.ChoiceName;
+        var item = RecurrenceComboBox.Items.OfType<ComboBoxItem>().FirstOrDefault(i => (string)i.Content == name);
+        if (item is not null) RecurrenceComboBox.SelectedItem = item;
+        if (range is not null)
+        {
+            RecurrenceRangeKindComboBox.SelectedIndex = range.WorkingDays ? 1 : 0;
+            RecurrenceRangeFromTextBox.Text = range.From.ToString(System.Globalization.CultureInfo.InvariantCulture);
+            RecurrenceRangeToTextBox.Text = range.To.ToString(System.Globalization.CultureInfo.InvariantCulture);
+        }
+        UpdateRecurrenceRange();
     }
 
     // The times box takes digits only; anything pasted in is still checked on save.

@@ -96,7 +96,7 @@ public sealed class FileFormatTests : IDisposable
     [Fact]
     public void ChangingTheTables_MeansRaisingTheFileFormat()
     {
-        const int formatTheFingerprintBelongsTo = 5; // 5: Cards.ShareId (4 changed no table)
+        const int formatTheFingerprintBelongsTo = 6; // 5: Cards.ShareId (4 and 6 changed no table)
         const string fingerprint = "27DDB865EF0E78CB";
 
         Open();

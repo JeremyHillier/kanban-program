@@ -143,7 +143,8 @@ public partial class AddTaskWindow : Window
             string.Join(",", _selectedPeople.Select(p => p.Id)),
             (GoalComboBox.SelectedItem as GoalViewModel)?.Id.ToString() ?? "-",
             RecurringCheckBox.IsChecked == true,
-            (RecurrenceComboBox.SelectedItem as ComboBoxItem)?.Content as string ?? "-",
+            ((RecurrenceComboBox.SelectedItem as ComboBoxItem)?.Content as string ?? "-")
+                + $"|{RecurrenceRangeKindComboBox.SelectedIndex}|{RecurrenceRangeFromTextBox.Text.Trim()}|{RecurrenceRangeToTextBox.Text.Trim()}",
             RecurrenceCountTextBox.Text.Trim(),
             ForceEditOnCompleteCheckBox.IsChecked == true,
             NotesTextBox.Text,
@@ -227,14 +228,7 @@ public partial class AddTaskWindow : Window
         RecurringCheckBox.IsChecked = cardToEdit.IsRecurring;
         RecurrenceComboBox.Visibility = cardToEdit.IsRecurring ? Visibility.Visible : Visibility.Collapsed;
         RecurrenceCountTextBox.Text = cardToEdit.IsRecurring ? cardToEdit.RecurrencesLeft?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? string.Empty : string.Empty;
-        foreach (var item in RecurrenceComboBox.Items.OfType<ComboBoxItem>())
-        {
-            if ((string)item.Content == cardToEdit.RecurrencePattern)
-            {
-                RecurrenceComboBox.SelectedItem = item;
-                break;
-            }
-        }
+        ShowRecurrencePattern(cardToEdit.RecurrencePattern);
 
         RebuildFlagCheckboxes(forceCheckedIds: cardToEdit.Flags.Select(f => f.Id));
 
@@ -321,6 +315,15 @@ public partial class AddTaskWindow : Window
             return;
         }
 
+        if (IsDayRangeChosen && !TryReadRecurrenceRange(out _))
+        {
+            Dialogs.Tell(this, "Days of the Month",
+                $"Enter the first and last day of the month for this task to repeat on, from 1 to {MonthDayRange.Largest}, with the first no later than the last.\n\nFor example 1 to 10, or 5 to 12.", DialogTone.Warning);
+            RecurrenceRangeFromTextBox.Focus();
+            RecurrenceRangeFromTextBox.SelectAll();
+            return;
+        }
+
         if (!TryReadRecurrenceCount(out var recurrencesLeft))
         {
             Dialogs.Tell(this, "Number of Times",
@@ -344,9 +347,14 @@ public partial class AddTaskWindow : Window
         WaitingOn = string.IsNullOrWhiteSpace(WaitingOnTextBox.Text) ? null : WaitingOnTextBox.Text.Trim();
 
         IsRecurring = RecurringCheckBox.IsChecked == true;
-        RecurrencePattern = IsRecurring && RecurrenceComboBox.SelectedItem is ComboBoxItem recurrenceItem
-            ? (string)recurrenceItem.Content
-            : null;
+        RecurrencePattern = ChosenRecurrencePattern();
+
+        // A day range is due on one of its own days: a date outside it moves to the next one in it.
+        if (MonthDayRange.Parse(RecurrencePattern) is { } dayRange && (SelectedDueDate is not { } due || !dayRange.Contains(due)))
+        {
+            SelectedDueDate = dayRange.FirstOnOrAfter(SelectedDueDate ?? DateTime.Today);
+            if (SelectedStartDate is not null) SelectedStartDate = SelectedDueDate;
+        }
         RecurrencesLeft = IsRecurring ? recurrencesLeft : null;
         ForceEditOnComplete = ForceEditOnCompleteCheckBox.IsChecked == true;
 

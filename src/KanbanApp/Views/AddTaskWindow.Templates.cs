@@ -70,11 +70,7 @@ public partial class AddTaskWindow
         RecurringCheckBox.IsChecked = template.IsRecurring;
         RecurrenceComboBox.Visibility = template.IsRecurring ? Visibility.Visible : Visibility.Collapsed;
         RecurrenceCountTextBox.Text = template.IsRecurring ? template.RecurrenceCount?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? string.Empty : string.Empty;
-        if (template.IsRecurring)
-        {
-            RecurrenceComboBox.SelectedItem = RecurrenceComboBox.Items.OfType<ComboBoxItem>().FirstOrDefault(i => (string)i.Content == template.RecurrencePattern)
-                ?? RecurrenceComboBox.SelectedItem;
-        }
+        if (template.IsRecurring) ShowRecurrencePattern(template.RecurrencePattern);
 
         RebuildFlagCheckboxes(forceCheckedIds: template.FlagIds);
 
@@ -101,7 +97,7 @@ public partial class AddTaskWindow
             SubTasks = SubTasksPanel.Children.OfType<Grid>().Select(row => ((TextBox)row.Children[2]).Text.Trim()).Where(t => t.Length > 0).ToList(),
             Notes = string.IsNullOrWhiteSpace(NotesTextBox.Text) ? null : NotesTextBox.Text.Trim(),
             IsRecurring = isRecurring,
-            RecurrencePattern = isRecurring ? (RecurrenceComboBox.SelectedItem as ComboBoxItem)?.Content as string : null,
+            RecurrencePattern = isRecurring ? ChosenRecurrencePattern() : null,
             RecurrenceCount = isRecurring ? recurrenceCount : null,
             ForceEditOnComplete = ForceEditOnCompleteCheckBox.IsChecked == true,
             WebsiteUrl = string.IsNullOrWhiteSpace(WebsiteUrlTextBox.Text) ? null : WebsiteUrlTextBox.Text.Trim(),

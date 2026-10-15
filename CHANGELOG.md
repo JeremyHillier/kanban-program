@@ -6,6 +6,16 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.137.0 — 2026-10-15
+
+> - New: a recurring task can repeat every day within part of each month, then wait for the next month. Choose Days of month under Recurring, then the days: for example days 5 to 12, or working days 1 to 10.
+> - New: working days count Monday to Friday from the start of the month, so working days 1 to 10 always means the first ten, whatever dates they fall on.
+- Finishing one day's task brings back the next day. A task that falls behind comes back for today rather than for each missed day.
+- The number of times becomes a number of months: for 6 months, then it stops.
+- In a short month the days stop at the month's end, and a month the chosen days do not reach is skipped.
+- Public holidays are not known, so they count as working days.
+- Earlier versions of the app show a warning before opening a task file that uses this.
+
 ## 0.136.0 — 2026-10-14
 
 > - New: auto-correct in the task and notes boxes. Common typing slips, such as teh or tomorow, are corrected as each word is finished, and Ctrl+Z straight afterwards puts back exactly what was typed.

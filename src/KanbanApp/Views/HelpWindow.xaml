@@ -252,6 +252,15 @@
                 <local:BulletItem Text="Moving a recurring task to Done creates the next one in To Do, with sub-tasks unticked."/>
                 <local:BulletItem Text="Each task creates its next occurrence only once, even if finished again later."/>
                 <local:BulletItem Text="Deleting an unfinished recurring task asks: blue keeps the series going, red ends it."/>
+                <TextBlock Text="Days of month" Style="{StaticResource HelpSubHeaderStyle}"/>
+                <local:BulletItem Text="Repeats every day within part of each month, then waits for the next month."/>
+                <local:BulletItem Text="Choose Days for dates of the month: Days 5 to 12 is the 5th to the 12th."/>
+                <local:BulletItem Text="Choose Working days to count Monday to Friday: Working days 1 to 10 is the first ten."/>
+                <local:BulletItem Text="Public holidays are not known, so they count as working days."/>
+                <local:BulletItem Text="Finishing one brings back the next day. Fall behind and it comes back for today instead."/>
+                <local:BulletItem Text="The count under it is in months: for 6 months, then it stops."/>
+                <local:BulletItem Text="A due date outside the days chosen moves to the next day inside them."/>
+                <local:BulletItem Text="A short month stops at its end; a month the days don't reach is skipped."/>
                 <TextBlock Text="Semi-Monthly" Style="{StaticResource HelpSubHeaderStyle}"/>
                 <local:BulletItem Text="Twice a month, on the same two dates."/>
                 <local:BulletItem Text="Due on the 1st to 15th: that day and 15 days later, so the 3rd gives the 3rd and 18th."/>
