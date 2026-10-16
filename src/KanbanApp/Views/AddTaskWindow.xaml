@@ -405,18 +405,24 @@
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
-                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Website" Style="{StaticResource FieldLabelStyle}"/>
+                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Link" Style="{StaticResource FieldLabelStyle}"
+                               ToolTip="A web address, an email address, or a file or folder on this PC or a network share"/>
                     <Grid Grid.Row="1" Grid.Column="0">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                         <TextBox Grid.Column="0" x:Name="WebsiteUrlTextBox" Padding="6"
                                  Style="{StaticResource HoverTextBoxStyle}"
-                                 ToolTip="An optional web link or email address for this task - paste it, then click Open to launch it"
+                                 AllowDrop="True" PreviewDragOver="LinkTextBox_PreviewDragOver" PreviewDrop="LinkTextBox_PreviewDrop"
+                                 ToolTip="An optional link for this task: a web address, an email address, or a file or folder (paste it, drag one here, or use Browse). Then click Open to launch it"
                                  Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
-                        <Button Grid.Column="1" Content="Open" Padding="10,4" Margin="6,0,0,0" Click="OpenWebsite_Click"
-                                ToolTip="Open this link in your default browser"
+                        <Button Grid.Column="1" Content="Browse" Padding="10,4" Margin="6,0,0,0" Click="BrowseLink_Click"
+                                ToolTip="Choose a file or folder to link to"
+                                Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                        <Button Grid.Column="2" Content="Open" Padding="10,4" Margin="6,0,0,0" Click="OpenWebsite_Click"
+                                ToolTip="Open this link: a web address in your browser, a file or folder in Windows"
                                 Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
                     </Grid>
 

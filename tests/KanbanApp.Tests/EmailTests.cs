@@ -144,7 +144,7 @@ public sealed class EmailTests : IDisposable
         Assert.Contains("Goal: Close the books\r\n", body);
         Assert.Contains("Flags: Urgent, Client\r\n", body);
         Assert.Contains("Repeats: Weekly (2 more after this one)\r\n", body);
-        Assert.Contains("Website: example.com/report\r\n", body);
+        Assert.Contains("Link: example.com/report\r\n", body);
         Assert.Contains("Notes:\r\nCheck figures\r\nwith Sam\r\n", body);
         Assert.Contains("[x] Draft\r\n[ ] Review\r\n", body);
         Assert.Contains("click Import Tasks", body);
@@ -162,7 +162,7 @@ public sealed class EmailTests : IDisposable
         Assert.DoesNotContain("Notes:", body);
         Assert.DoesNotContain("Sub-tasks:", body);
         Assert.DoesNotContain("Repeats:", body);
-        Assert.DoesNotContain("Website:", body);
+        Assert.DoesNotContain("Link:", body);
         Assert.DoesNotContain("Assigned to:", body);
         Assert.EndsWith("your own board.", body);
     }

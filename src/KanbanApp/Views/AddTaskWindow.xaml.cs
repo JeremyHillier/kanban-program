@@ -265,6 +265,53 @@ public partial class AddTaskWindow : Window
         else _waitingOnSuggestions.Replace(_viewModel.WaitingOnSuggestions);
     }
 
+    // Browse: pick a file, or - from the second choice - a folder. The path goes into the box as a link.
+    private void BrowseLink_Click(object sender, RoutedEventArgs e)
+    {
+        var menu = new ContextMenu { PlacementTarget = (UIElement)sender, Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom };
+        var file = new MenuItem { Header = "Choose a _File..." };
+        var folder = new MenuItem { Header = "Choose a F_older..." };
+        // Deferred: the dialog opens after the menu has closed, the same re-entrancy care as the board's menus.
+        file.Click += (_, _) => Dispatcher.BeginInvoke(new Action(() =>
+        {
+            var dialog = new Microsoft.Win32.OpenFileDialog { Title = "Choose a File to Link To", CheckFileExists = true };
+            if (dialog.ShowDialog(this) == true) SetLinkText(dialog.FileName);
+        }));
+        folder.Click += (_, _) => Dispatcher.BeginInvoke(new Action(() =>
+        {
+            var dialog = new Microsoft.Win32.OpenFolderDialog { Title = "Choose a Folder to Link To" };
+            if (dialog.ShowDialog(this) == true) SetLinkText(dialog.FolderName);
+        }));
+        menu.Items.Add(file);
+        menu.Items.Add(folder);
+        menu.IsOpen = true;
+    }
+
+    private void SetLinkText(string text)
+    {
+        WebsiteUrlTextBox.Text = text;
+        WebsiteUrlTextBox.CaretIndex = text.Length;
+    }
+
+    // A file or folder dragged from Explorer fills the box with its path. Only the first one is
+    // taken; anything that is not a file drop is left to the box as ordinary text.
+    private static bool HasDroppedPath(DragEventArgs e) =>
+        e.Data.GetDataPresent(DataFormats.FileDrop) && e.Data.GetData(DataFormats.FileDrop) is string[] { Length: > 0 };
+
+    private void LinkTextBox_PreviewDragOver(object sender, DragEventArgs e)
+    {
+        if (!HasDroppedPath(e)) return;
+        e.Effects = DragDropEffects.Link;
+        e.Handled = true;
+    }
+
+    private void LinkTextBox_PreviewDrop(object sender, DragEventArgs e)
+    {
+        if (!HasDroppedPath(e)) return;
+        SetLinkText(((string[])e.Data.GetData(DataFormats.FileDrop))[0]);
+        e.Handled = true;
+    }
+
     // Opens whatever is currently typed, not the card's saved value, so a link pasted in during
     // this edit can be tried out before saving.
     private void OpenWebsite_Click(object sender, RoutedEventArgs e)
@@ -307,9 +354,9 @@ public partial class AddTaskWindow : Window
             StartDatePicker.Focus();
             return;
         }
-        if (!string.IsNullOrWhiteSpace(WebsiteUrlTextBox.Text) && !UrlLauncher.TryNormalize(WebsiteUrlTextBox.Text, out _))
+        if (!string.IsNullOrWhiteSpace(WebsiteUrlTextBox.Text) && UrlLauncher.ValidLink(WebsiteUrlTextBox.Text) is null)
         {
-            Dialogs.Tell(this, "Website Not Allowed", "The Website field cannot be saved as it is.\n\n" + UrlLauncher.AllowedLinksMessage + " Fix the field, or clear it.", DialogTone.Warning);
+            Dialogs.Tell(this, "Link Not Allowed", "The Link field cannot be saved as it is.\n\n" + UrlLauncher.AllowedLinksMessage + " Fix the field, or clear it.", DialogTone.Warning);
             WebsiteUrlTextBox.Focus();
             WebsiteUrlTextBox.SelectAll();
             return;
@@ -343,7 +390,7 @@ public partial class AddTaskWindow : Window
         SelectedStartDate = StartDatePicker.SelectedDate;
         SelectedPeople = [.. _selectedPeople];
         Notes = string.IsNullOrWhiteSpace(NotesTextBox.Text) ? null : NotesTextBox.Text.Trim();
-        WebsiteUrl = string.IsNullOrWhiteSpace(WebsiteUrlTextBox.Text) ? null : WebsiteUrlTextBox.Text.Trim();
+        WebsiteUrl = UrlLauncher.ValidLink(WebsiteUrlTextBox.Text);
         WaitingOn = string.IsNullOrWhiteSpace(WaitingOnTextBox.Text) ? null : WaitingOnTextBox.Text.Trim();
 
         IsRecurring = RecurringCheckBox.IsChecked == true;

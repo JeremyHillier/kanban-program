@@ -6,6 +6,15 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.138.0 — 2026-10-16
+
+> - New: a task's Website field is now Link, and it can open a file or a folder as well as a web address or an email address. Choose Browse, drag a file or folder onto the box, or paste its path, then click Open.
+> - Improved: programs and scripts, such as .exe, .bat and .ps1 files, can never be used as a link, so a task received from someone else cannot start one. A link to a network location asks before it opens.
+- A file opens in the app Windows uses for that kind of file, and a folder opens in Explorer.
+- A path copied with Explorer's Copy as path, or a file:// link, is tidied into a plain path.
+- If a file or folder cannot be found, for example because it is on another PC, a message says so and shows the path.
+- Earlier versions of the app show a warning before opening a task file that holds a file or folder link.
+
 ## 0.137.0 — 2026-10-15
 
 > - New: a recurring task can repeat every day within part of each month, then wait for the next month. Choose Days of month under Recurring, then the days: for example days 5 to 12, or working days 1 to 10.

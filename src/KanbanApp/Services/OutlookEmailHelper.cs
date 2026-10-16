@@ -308,7 +308,7 @@ public static partial class OutlookEmailHelper
         if (card.Flags.Count > 0) sb.Append("Flags: ").Append(string.Join(", ", card.Flags.Select(f => f.Name))).Append("\r\n");
         if (card.People.Count > 0) sb.Append("Assigned to: ").Append(card.WhoName).Append("\r\n");
         if (CardTextFormatter.RepeatsText(card) is { } repeats) sb.Append("Repeats: ").Append(repeats).Append("\r\n");
-        if (!string.IsNullOrWhiteSpace(card.WebsiteUrl)) sb.Append("Website: ").Append(card.WebsiteUrl.Trim()).Append("\r\n");
+        if (!string.IsNullOrWhiteSpace(card.WebsiteUrl)) sb.Append("Link: ").Append(card.WebsiteUrl.Trim()).Append("\r\n");
         CardTextFormatter.AppendNotesAndSubTasks(sb, card);
     }
 
@@ -432,7 +432,7 @@ public static partial class OutlookEmailHelper
         if (card.Flags.Count > 0) AppendRow(sb, "Flags", string.Join(", ", card.Flags.Select(f => f.Name)));
         if (card.People.Count > 0) AppendRow(sb, "Assigned to", card.WhoName);
         if (CardTextFormatter.RepeatsText(card) is { } repeats) AppendRow(sb, "Repeats", repeats);
-        if (!string.IsNullOrWhiteSpace(card.WebsiteUrl)) AppendRow(sb, "Website", card.WebsiteUrl.Trim());
+        if (!string.IsNullOrWhiteSpace(card.WebsiteUrl)) AppendRow(sb, "Link", card.WebsiteUrl.Trim());
         sb.Append("</table>");
 
         if (!string.IsNullOrWhiteSpace(card.Notes))

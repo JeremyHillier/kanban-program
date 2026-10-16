@@ -154,10 +154,9 @@ public partial class MainViewModel
         (cell ?? string.Empty).Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
             .Distinct(StringComparer.OrdinalIgnoreCase).ToList();
 
-    // A file can come from anyone: a link that isn't a web or email address (a program, a file share)
-    // is left off, the same rule the task screen applies when saving.
-    private static string? SafeWebsite(string? text) =>
-        !string.IsNullOrWhiteSpace(text) && Services.UrlLauncher.TryNormalize(text, out _) ? text.Trim() : null;
+    // A file can come from anyone: a link that isn't a web address, an email address or a file or folder
+    // path (a program or script, say) is left off, the same rule the task screen applies when saving.
+    private static string? SafeWebsite(string? text) => Services.UrlLauncher.ValidLink(text);
 
     // A spreadsheet can say anything. A start date after the due date makes no sense on the board
     // (the task dialog refuses it), so it is pulled back to the due date rather than rejected.

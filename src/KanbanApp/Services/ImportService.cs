@@ -203,7 +203,7 @@ public static class ImportService
     private static readonly string[] RepeatsHeadings = ["Repeats", "Recurring", "Recurrence", "Repeat"];
     private static readonly string[] RepeatTimesHeadings = ["Repeat Times", "Times", "Occurrences"];
     private static readonly string[] FlagsHeadings = ["Flags", "Flag", "Tags"];
-    private static readonly string[] WebsiteHeadings = ["Website", "Link", "URL"];
+    private static readonly string[] WebsiteHeadings = ["Website", "Link", "URL", "Path", "File", "Folder"];
     private static readonly string[] NotesHeadings = ["Notes", "Note", "Description"];
     private static readonly string[] SubTasksHeadings = ["Sub-tasks", "Subtasks", "Sub Tasks", "Checklist"];
     private static readonly string[] TaskIdHeadings = ["Task ID"];

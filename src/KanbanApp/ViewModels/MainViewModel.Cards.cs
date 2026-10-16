@@ -24,6 +24,7 @@ public partial class MainViewModel
             string.IsNullOrWhiteSpace(waitingOn) ? null : waitingOn.Trim(), isRecurring ? recurrencesLeft : null);
         RememberWaitingOn(waitingOn);
         StampDayRange(isRecurring, recurrencePattern);
+        StampPathLink(websiteUrl);
         _db.SetCardFlags(card.Id, flags.Select(f => f.Id));
         _db.SetCardPeople(card.Id, people.Select(p => p.Id));
         var subTaskItems = _db.SetCardSubTasks(card.Id, subTasks.Select(s => (s.Title, s.IsDone)).ToList());
@@ -58,6 +59,7 @@ public partial class MainViewModel
 
         using var undo = RecordUndo(DescribeAction("Edit", [card]), [card]);
         StampDayRange(isRecurring, recurrencePattern);
+        StampPathLink(websiteUrl);
 
         flags ??= [];
         subTasks ??= [];

@@ -166,7 +166,12 @@
                 <local:BulletItem Text="The board's Project, Priority and Who filter lists also jump as you type."/>
                 <local:BulletItem Text="A shared task lists everyone on the card, lead first."/>
                 <TextBlock Text="Also on the task screen" Style="{StaticResource HelpSubHeaderStyle}"/>
-                <local:BulletItem Text="Website takes a web link or an email address. Open launches it."/>
+                <local:BulletItem Text="Link takes a web address, an email address, or a file or folder. Open launches it."/>
+                <local:BulletItem Text="Browse picks a file or folder. Or drag one onto the box, or paste its path."/>
+                <local:BulletItem Text="A file opens in its usual app, and a folder opens in Explorer."/>
+                <local:BulletItem Text="Programs and scripts (.exe, .bat, .ps1 and the like) are never allowed."/>
+                <local:BulletItem Text="A network path asks first, because opening it tells that computer who you are."/>
+                <local:BulletItem Text="A file path only works on a PC that has the file, so a link sent to someone else may not open."/>
                 <local:BulletItem Text="Links to files, folders or programs are refused, for your safety."/>
                 <local:BulletItem Text="Closing with unsaved changes asks first."/>
                 <local:BulletItem Text="Spell check accepts Canadian and American spellings."/>
@@ -179,7 +184,7 @@
                 <local:BulletItem Text="The email holds the task's details. Nothing is sent until you click Send."/>
                 <local:BulletItem Text="A shared task's email goes to everyone with an address."/>
                 <local:BulletItem Text="An Excel copy goes with it. Other Kanban Task Board users can import it."/>
-                <local:BulletItem Text="It carries the whole task: repeating, due time, notes, sub-tasks, flags and website."/>
+                <local:BulletItem Text="It carries the whole task: repeating, due time, notes, sub-tasks, flags and link."/>
                 <local:BulletItem Text="A repeating task keeps repeating on their board, with the same number of times left."/>
                 <local:BulletItem Text="If they change it and email it back, importing it updates your task rather than adding a copy."/>
                 <local:BulletItem Text="With classic Outlook, files are attached and your signature is kept."/>
@@ -219,7 +224,7 @@
 
                 <TextBlock x:Name="HelpSection_TaskTemplates" Text="Task templates" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <local:BulletItem Text="A template is a saved starting point for a task you create often."/>
-                <local:BulletItem Text="It keeps the project, priority, who, goal, flags, sub-tasks, notes, website and recurring settings."/>
+                <local:BulletItem Text="It keeps the project, priority, who, goal, flags, sub-tasks, notes, link and recurring settings."/>
                 <local:BulletItem Text="To save one: Save as Template on the task screen, or right-click a card."/>
                 <local:BulletItem Text="To use one: pick it from the Template list, or right-click New Task."/>
                 <local:BulletItem Text="Everything it fills in can still be changed."/>
@@ -387,7 +392,7 @@
                 <local:BulletItem Text="Other headings understood include Task, Status, Due, Assigned To and Start."/>
                 <local:BulletItem Text="For several people, separate names with semicolons. The first is the lead."/>
                 <local:BulletItem Text="Dates are MM/DD/YYYY. The year is optional."/>
-                <local:BulletItem Text="Optional columns: Due Time, Repeats, Repeat Times, Flags, Website, Notes and Sub-tasks."/>
+                <local:BulletItem Text="Optional columns: Due Time, Repeats, Repeat Times, Flags, Link (or Website), Notes and Sub-tasks."/>
                 <local:BulletItem Text="Sub-tasks go one per line in their cell; start a line [x] for one already done."/>
                 <local:BulletItem Text="New projects, goals, people and flags in the file are added."/>
                 <local:BulletItem Text="A task you already have is updated, not added again. The list before importing says which."/>

@@ -127,7 +127,7 @@ public partial class MainWindow
         }
 
         Separator();
-        AddMenuItem(menu, "Open _Website", () => UrlLauncher.Open(card.WebsiteUrl, this), isEnabled: !string.IsNullOrWhiteSpace(card.WebsiteUrl));
+        AddMenuItem(menu, "Open _Link", () => UrlLauncher.Open(card.WebsiteUrl, this), isEnabled: !string.IsNullOrWhiteSpace(card.WebsiteUrl));
         AddMenuItem(menu, "E_mail Task...", () => OutlookEmailHelper.ComposeCardEmail(this, card, OutlookEmailHelper.JoinRecipients(card.PeopleEmails), viewModel), isEnabled: card.CanEmailCard);
         // Every open task of this card's project in one email, with one Excel file to import them all.
         var projectTasks = viewModel.OpenTasksInProject(card.ProjectId);
@@ -138,7 +138,7 @@ public partial class MainWindow
         AddMenuItem(menu, "_Delete...", () => DeleteCardWithConfirm(card, viewModel));
     }
 
-    // The same menu for a whole selection. One-card-only entries (Edit, Open Website, Email) are
+    // The same menu for a whole selection. One-card-only entries (Edit, Open Link, Email) are
     // left out. A tick means every selected card already has that value; choosing an entry changes
     // only the cards that differ. The cards are captured when the menu opens, so the action applies
     // to what was highlighted at that moment.

@@ -21,7 +21,7 @@ internal static class CardTextFormatter
         if (card.Flags.Count > 0) sb.Append("Flags: ").Append(string.Join(", ", card.Flags.Select(f => f.Name))).Append("\r\n");
         if (RepeatsText(card) is { } repeats) sb.Append("Repeats: ").Append(repeats).Append("\r\n");
         if (card.CompletedFullDisplay is { } completed) sb.Append(completed).Append("\r\n");
-        if (!string.IsNullOrWhiteSpace(card.WebsiteUrl)) sb.Append("Website: ").Append(card.WebsiteUrl.Trim()).Append("\r\n");
+        if (!string.IsNullOrWhiteSpace(card.WebsiteUrl)) sb.Append("Link: ").Append(card.WebsiteUrl.Trim()).Append("\r\n");
 
         AppendNotesAndSubTasks(sb, card);
 

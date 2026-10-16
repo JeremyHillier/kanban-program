@@ -1,27 +1,52 @@
 using System.Diagnostics;
+using System.IO;
 using System.Windows;
 
 namespace KanbanApp.Services;
 
-// Opens a URL in the user's default browser. Shared by the task dialog's Website field and the
-// About dialog's Website button, both of which hand over whatever the user typed/was configured -
-// hence the scheme fix-up (people paste "example.com" far more often than "https://example.com",
-// and ShellExecute treats a scheme-less string as a file path rather than a web address).
+// Opens a task's link: a web address in the default browser, an email address in the mail app, or a
+// file or folder on this PC or a network share. Shared by the task dialog's Link field and the About
+// dialog's buttons, which hand over whatever the user typed/was configured - hence the scheme
+// fix-up (people paste "example.com" far more often than "https://example.com", and ShellExecute
+// treats a scheme-less string as a file path rather than a web address).
 //
-// Only web (http/https) and email (mailto) links are ever handed to Windows. A task file can come
-// from someone else, and ShellExecute will happily run a program, open a file share, or trigger any
-// registered protocol handler, so anything else is refused here at launch time as well as when the
-// task is saved.
+// A task file can come from someone else, and ShellExecute will happily run a program or trigger any
+// registered protocol handler, so only three kinds of link are ever handed to Windows: web
+// (http/https), email (mailto), and a plain Windows path (drive letter or \\server\share) that is
+// not a program or script type. Anything else is refused here at launch time as well as when the
+// task is saved or imported. A network path asks first: opening one tells that computer who you are.
 public static class UrlLauncher
 {
     public const string AllowedLinksMessage =
-        "Only web links (like example.com or https://example.com) and email addresses can be used as a task's website.";
+        "A task's link can be a web address (like example.com), an email address, or a file or folder on this PC or a network share. Programs and scripts cannot be used.";
+
+    // What opens a program, runs a script, installs something, mounts an image or changes settings.
+    // Compared without case, after Windows' own trailing dots and spaces are dropped.
+    private static readonly HashSet<string> ProgramTypes = new(StringComparer.OrdinalIgnoreCase)
+    {
+        ".exe", ".com", ".scr", ".pif", ".bat", ".cmd", ".ps1", ".psm1", ".psd1", ".ps1xml", ".ps2", ".vbs", ".vbe",
+        ".js", ".jse", ".wsf", ".wsh", ".msi", ".msp", ".mst", ".hta", ".reg", ".cpl", ".inf", ".lnk", ".url",
+        ".jar", ".dll", ".sys", ".ocx", ".application", ".gadget", ".appref-ms", ".msc", ".scf", ".chm", ".library-ms",
+        ".search-ms", ".settingcontent-ms", ".diagcab", ".website", ".xll", ".wll", ".appx", ".msix", ".appxbundle",
+        ".msixbundle", ".iso", ".img", ".vhd", ".vhdx", ".py", ".pyw", ".rb", ".pl", ".sh", ".msh", ".msh1", ".msh2",
+        ".mshxml", ".msh1xml", ".msh2xml", ".ws", ".ade", ".adp", ".mde", ".mdb", ".accde", ".bas", ".cer", ".crt", ".der",
+        ".ins", ".isp", ".job", ".lnk", ".mad", ".maf", ".mag", ".mam", ".maq", ".mar", ".mas", ".mat", ".mau", ".mav",
+        ".maw", ".mda", ".mdt", ".mdw", ".mdz", ".ops", ".prf", ".prg", ".pst", ".shb", ".shs", ".tmp", ".vb", ".vsmacros",
+        ".vsw", ".xnk"
+    };
 
     public static void Open(string? url, Window? owner = null)
     {
         if (string.IsNullOrWhiteSpace(url)) return;
 
-        if (!TryNormalize(url, out var target))
+        var cleaned = Clean(url);
+        if (TryParsePath(cleaned, out var path))
+        {
+            OpenPath(path, owner);
+            return;
+        }
+
+        if (!TryNormalize(cleaned, out var target))
         {
             Dialogs.Tell(owner, "Link Not Allowed", $"This link cannot be opened.\n\n{AllowedLinksMessage}", DialogTone.Warning, url.Trim());
             return;
@@ -37,6 +62,97 @@ public static class UrlLauncher
                 DialogTone.Error, $"{target}\n\n{ex.Message}");
         }
     }
+
+    private static void OpenPath(string path, Window? owner)
+    {
+        if (IsNetworkPath(path) && !Dialogs.Confirm(owner, DialogMessage.Ask("Open Network Location",
+                "Open this network location?\n\nA link can point to another computer, and opening it tells that computer who you are. " +
+                "Only continue if you know where the link goes.", "Open") with { Detail = path }))
+        {
+            return;
+        }
+
+        try
+        {
+            if (!Directory.Exists(path) && !File.Exists(path))
+            {
+                Dialogs.Tell(owner, "Not Found",
+                    "That file or folder cannot be found.\n\nIt may have been moved or renamed, or it may be on another PC or a drive that is not connected.",
+                    DialogTone.Warning, path);
+                return;
+            }
+
+            Process.Start(new ProcessStartInfo(path) { UseShellExecute = true });
+        }
+        catch (Exception ex)
+        {
+            Dialogs.Tell(owner, "Could Not Open", "Windows could not open this file or folder. There may be no app set up for this kind of file.",
+                DialogTone.Error, $"{path}\n\n{ex.Message}");
+        }
+    }
+
+    // What the user typed, tidied: Explorer's "Copy as path" wraps the path in quotes, and a link
+    // copied from a browser or Office may be file:///C:/... - both become the plain path.
+    public static string Clean(string? text)
+    {
+        var trimmed = (text ?? string.Empty).Trim();
+        if (trimmed.Length >= 2 && trimmed[0] == '"' && trimmed[^1] == '"') trimmed = trimmed[1..^1].Trim();
+        if (trimmed.StartsWith("file:", StringComparison.OrdinalIgnoreCase)
+            && Uri.TryCreate(trimmed, UriKind.Absolute, out var uri) && uri.IsFile && !string.IsNullOrEmpty(uri.LocalPath))
+        {
+            trimmed = uri.LocalPath;
+        }
+        return trimmed;
+    }
+
+    // The link as it is stored, or null when it is not one that may be used: a web or email address,
+    // or a file or folder path that is not a program or script. Used when saving and importing.
+    public static string? ValidLink(string? text)
+    {
+        var cleaned = Clean(text);
+        if (cleaned.Length == 0) return null;
+        return TryParsePath(cleaned, out _) || TryNormalize(cleaned, out _) ? cleaned : null;
+    }
+
+    public static bool IsPathLink(string? text) => TryParsePath(Clean(text), out _);
+
+    // A Windows path on a drive (C:\Folder\file.pdf) or a network share (\\server\share\file.pdf).
+    // Pure text rules, so a path that does not exist (yet, or on another PC) can still be saved.
+    // Refused: device and WebDAV forms, stream names, wildcards, and the program and script types.
+    internal static bool TryParsePath(string? text, out string path)
+    {
+        path = string.Empty;
+        if (string.IsNullOrWhiteSpace(text)) return false;
+
+        var candidate = text.Trim().Replace('/', '\\');
+        if (candidate.Length is < 3 or > 400) return false;
+        if (candidate.Any(c => char.IsControl(c) || c is '<' or '>' or '"' or '|' or '?' or '*')) return false;
+
+        var drive = char.IsAsciiLetter(candidate[0]) && candidate[1] == ':' && candidate[2] == '\\';
+        var share = candidate.StartsWith(@"\\", StringComparison.Ordinal);
+        if (!drive && !share) return false;
+
+        if (share)
+        {
+            var parts = candidate[2..].Split('\\', StringSplitOptions.RemoveEmptyEntries);
+            if (parts.Length < 2) return false;                            // a server and a share, at least
+            if (parts[0] is "?" or "." || parts[0].Contains('@')) return false; // \\?\ and \\.\ device paths, \\host@SSL WebDAV
+            if (candidate.Contains(':')) return false;
+        }
+        else if (candidate.IndexOf(':', 2) >= 0)
+        {
+            return false;                                                  // C:\file.txt:stream
+        }
+
+        // Windows ignores trailing dots and spaces, so "run.exe." is still run.exe.
+        var name = candidate.TrimEnd().TrimEnd('.', ' ');
+        if (ProgramTypes.Contains(Path.GetExtension(name))) return false;
+
+        path = candidate;
+        return true;
+    }
+
+    public static bool IsNetworkPath(string path) => path.StartsWith(@"\\", StringComparison.Ordinal);
 
     // Turns what the user typed into a link that's safe to hand to ShellExecute, or returns false.
     // "name@example.com" becomes a mailto: link, a bare "example.com" gets https:// in front.

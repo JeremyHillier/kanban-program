@@ -45,7 +45,7 @@ public sealed class CardTextFormatterTests
             "Flags: Urgent, Client\r\n" +
             "Repeats: Semi-Monthly\r\n" +
             "Completed Sep 15, 2026, 3:25 PM\r\n" +
-            "Website: example.com/report\r\n" +
+            "Link: example.com/report\r\n" +
             "\r\nNotes:\r\nCheck figures\r\nwith Sam\r\n" +
             "\r\nSub-tasks:\r\n[x] Draft\r\n[ ] Review",
             text);
