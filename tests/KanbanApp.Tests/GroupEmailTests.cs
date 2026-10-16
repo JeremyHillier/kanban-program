@@ -53,7 +53,8 @@ public sealed class GroupEmailTests(WpfDispatcherFixture wpf) : IDisposable
         Assert.Equal("Tasks (2)", OutlookEmailHelper.GroupSubject([cards[0], board.AddCard("Other", col, board.Projects.First(), "Normal", null, null, false, null, null)]));
 
         var html = OutlookEmailHelper.BuildGroupHtmlBody(cards, board);
-        Assert.Contains("<b>Paint</b>", html);
+        Assert.Contains(">Paint</a></b>", html);                          // the title is a link that opens the task
+        Assert.Contains("href=\"kanbantask-test://task/", html);
         Assert.Contains("20-Oct-2026", html);
         Assert.Contains("the landlord", html);
         Assert.Contains("Priya, Sam", html);

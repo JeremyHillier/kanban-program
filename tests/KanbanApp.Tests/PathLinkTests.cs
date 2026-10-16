@@ -94,7 +94,7 @@ public sealed class PathLinkTaskTests(WpfDispatcherFixture wpf) : IDisposable
         var board = OpenBoard();
         var col = board.Columns.First();
         board.AddCard("Web", col, board.Projects.First(), "Normal", null, null, false, null, null, websiteUrl: "example.com");
-        Assert.Equal("3", FileFormat());
+        Assert.Equal("5", FileFormat());
 
         board.AddCard("Contract", col, board.Projects.First(), "Normal", null, null, false, null, null, websiteUrl: @"C:\Clients\Acme\Contract.pdf");
         Assert.Equal("7", FileFormat());

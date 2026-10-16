@@ -141,7 +141,8 @@ public static partial class OutlookEmailHelper
                 $"<td style=\"{cell}\">{(bold ? "<b>" : "")}{WebUtility.HtmlEncode(text ?? string.Empty)}{(bold ? "</b>" : "")}</td>";
 
             sb.Append("<tr>");
-            sb.Append(Td(card.Title, bold: true));
+            // The title opens the task in the app, on the PC and task file it came from.
+            sb.Append($"<td style=\"{cell}\"><b><a href=\"{WebUtility.HtmlEncode(viewModel.TaskLinkFor(card))}\">{WebUtility.HtmlEncode(card.Title)}</a></b></td>");
             sb.Append(Td(ColumnName(card, viewModel)));
             sb.Append(Td(card.DueDate.HasValue ? FormatDue(card) : null));
             sb.Append(Td(card.Priority));

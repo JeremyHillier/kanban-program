@@ -46,6 +46,7 @@ public sealed class WpfDispatcherFixture : IDisposable
         {
             dispatcher = Dispatcher.CurrentDispatcher;
             KanbanApp.Services.WindowsStartup.UseInMemoryStore(); // never the real Run key
+            KanbanApp.Services.TaskLinks.UseInMemoryRegistry(out _); // nor the real link registration
             _ = new Application { ShutdownMode = ShutdownMode.OnExplicitShutdown };
             ready.Set();
             Dispatcher.Run();

@@ -157,7 +157,7 @@ public sealed class SharedSyncTests(WpfDispatcherFixture wpf) : IDisposable
                     Assert.Equal("Alice's wording", original.Title);
                     var other = Assert.Single(All(alice), c => c != original);
                     Assert.Equal("Bob's wording (theirs)", other.Title);
-                    Assert.Null(other.ShareId);                     // a task of its own, not linked to the original
+                    Assert.NotEqual(original.ShareId, other.ShareId);  // a task of its own, not linked to the original
                     break;
             }
         }
@@ -211,7 +211,7 @@ public sealed class SharedSyncTests(WpfDispatcherFixture wpf) : IDisposable
         Assert.Contains(original, Column(alice, "Done").Cards);
         var next = Assert.Single(Column(alice, "To Do").Cards, c => c.Title == "Pay the rent");
         Assert.Equal(new DateTime(2030, 3, 8), next.DueDate);
-        Assert.Null(next.ShareId);                                  // the next one is a new task
+        Assert.NotEqual(original.ShareId, next.ShareId);             // the next one is a new task
     });
 
     [Fact]

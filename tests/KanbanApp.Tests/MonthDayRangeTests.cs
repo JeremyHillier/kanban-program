@@ -130,7 +130,7 @@ public sealed class MonthDayRangeTaskTests(WpfDispatcherFixture wpf) : IDisposab
         Assert.Equal("3", new DatabaseService(_temp.File("board.db")).GetSetting("FileFormat"));
 
         board.AddCard("Plain", Column(board, "To Do"), board.Projects.First(), "Normal", null, null, true, "Daily", null);
-        Assert.Equal("3", new DatabaseService(_temp.File("board.db")).GetSetting("FileFormat"));
+        Assert.Equal("5", new DatabaseService(_temp.File("board.db")).GetSetting("FileFormat"));
 
         board.AddCard("Range", Column(board, "To Do"), board.Projects.First(), "Normal", Jan2030, null, true, "Working days 1-10 of each month", null);
         Assert.Equal("6", new DatabaseService(_temp.File("board.db")).GetSetting("FileFormat"));

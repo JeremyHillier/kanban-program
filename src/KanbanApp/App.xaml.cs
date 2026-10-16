@@ -34,9 +34,18 @@ public partial class App : Application
             return;
         }
 
+        // A task link clicked in Outlook or an email: Windows starts this copy with the link as its argument.
+        var taskLink = e.Args.FirstOrDefault(TaskLinks.IsLink);
+
         _instanceMutex = new Mutex(true, $"KanbanTaskBoard-{AppChannel.Name}", out var createdNew);
         if (!createdNew)
         {
+            if (taskLink is not null && TaskLinkForwarder.TrySend(taskLink))
+            {
+                Shutdown(); // the open copy has it
+                return;
+            }
+
             Dialogs.Tell(null, "Already Open", $"{AppChannel.DisplayName} is already open.\n\nLook for it on the taskbar.");
             Shutdown();
             return;
@@ -48,12 +57,16 @@ public partial class App : Application
         Theming.WindowFit.Register(); // every window stays inside its screen, buttons and all
         Views.HelpKey.Register(); // F1 opens Help from any window, at the section about it
 
+        TaskLinks.Register(); // so a link to a task opens this copy
+
         var db = new DatabaseService();
         if (db.IsFromNewerApp && !ConfirmOpenNewerTaskFile(db))
         {
             Shutdown();
             return;
         }
+
+        GiveEveryTaskAnId(db);
 
         if (db.ForeignKeyUpgradeProblem is { } upgradeProblem)
         {
@@ -106,6 +119,7 @@ public partial class App : Application
             main.Show();
             ShutdownMode = ShutdownMode.OnMainWindowClose;
             if (startFullScreen) main.WindowState = WindowState.Maximized;
+            OpenLinkWhenReady(main, taskLink);
             return;
         }
 
@@ -122,10 +136,36 @@ public partial class App : Application
             main.Show();
             ShutdownMode = ShutdownMode.OnMainWindowClose;
             if (startFullScreen) main.WindowState = WindowState.Maximized;
+            OpenLinkWhenReady(main, taskLink);
 
             splash.Close();
         };
         timer.Start();
+    }
+
+    // The link that started this copy opens its task once the board is up and idle.
+    private static void OpenLinkWhenReady(MainWindow main, string? taskLink)
+    {
+        if (taskLink is null) return;
+        main.Dispatcher.BeginInvoke(() => main.OpenTaskLink(taskLink), DispatcherPriority.ApplicationIdle);
+    }
+
+    // A task file from before every task had a permanent ID is given them all, once, after a backup
+    // (the ID is what a link to a task is made of). With no backup the IDs are simply made as they are
+    // needed, so nothing is changed that could not be put back.
+    private static void GiveEveryTaskAnId(DatabaseService db)
+    {
+        try
+        {
+            if (db.CountTasksWithoutId() == 0) return;
+
+            BackupService.CreateBackupBeforeUpdate(db.DbPath);
+            db.EnsureEveryTaskHasAnId();
+        }
+        catch
+        {
+            // Not worth stopping the app for: a task gets its ID the first time one is asked of it.
+        }
     }
 
     // A newer copy of the app has used this task file (another PC, or a downgrade). This copy

@@ -215,6 +215,15 @@
                 <local:BulletItem Text="The task's details and attachments go in it. Nothing is saved until you save it in Outlook."/>
                 <local:BulletItem Text="Without classic Outlook, it opens as a calendar file in your calendar app."/>
                 <local:BulletItem Text="The task screen shows when it was last scheduled, and for when."/>
+                <TextBlock Text="Link back to the task" Style="{StaticResource HelpSubHeaderStyle}"/>
+                <local:BulletItem Text="The event has an Open in Kanban Task Board link. Click it to open that task here."/>
+                <local:BulletItem Text="Emails about a task carry the same link, and a group email links each task by its title."/>
+                <local:BulletItem Text="The app opens, or comes forward if it is open, shows the task highlighted and opens it."/>
+                <local:BulletItem Text="Filters that would hide the task are cleared so it can be seen."/>
+                <local:BulletItem Text="A task that was archived or deleted says so, and when, instead."/>
+                <local:BulletItem Text="It only works on a PC with the app, and only for the task file it came from."/>
+                <local:BulletItem Text="Outlook may ask before opening a link of this kind. Choose to allow it."/>
+                <local:BulletItem Text="Every task has a permanent ID, which is what the link is made of. It holds nothing else."/>
 
                 <TextBlock x:Name="HelpSection_QuickAdd" Text="Quick Add from any program" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <local:BulletItem Text="Press Ctrl+Alt+N in any program for a small New Task box."/>

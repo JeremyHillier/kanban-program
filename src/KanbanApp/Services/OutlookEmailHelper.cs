@@ -51,7 +51,7 @@ public static partial class OutlookEmailHelper
         {
             string outlookHtml = mailItem.HTMLBody ?? string.Empty;
 
-            var content = BuildHtmlBody(card, StatusOf(card, viewModel));
+            var content = BuildHtmlBody(card, StatusOf(card, viewModel), viewModel.TaskLinkFor(card));
             if (!HasVisibleContent(outlookHtml))
             {
                 var fallbackSignature = BuildFallbackSignature(viewModel);
@@ -108,7 +108,7 @@ public static partial class OutlookEmailHelper
         }
 
         var subject = EmailSubject(card);
-        var body = BuildPlainTextBody(card, BuildPlainTextSignature(viewModel), StatusOf(card, viewModel));
+        var body = BuildPlainTextBody(card, BuildPlainTextSignature(viewModel), StatusOf(card, viewModel), viewModel.TaskLinkFor(card));
         try
         {
             Process.Start(new ProcessStartInfo(BuildMailtoUri(recipientEmail, subject, body)) { UseShellExecute = true });
@@ -308,7 +308,7 @@ public static partial class OutlookEmailHelper
         return folder;
     }
 
-    internal static string BuildPlainTextBody(CardViewModel card, string? signature, string? status = null)
+    internal static string BuildPlainTextBody(CardViewModel card, string? signature, string? status = null, string? taskLink = null)
     {
         var sb = new StringBuilder();
         sb.Append(card.Title).Append("\r\n\r\n");
@@ -316,6 +316,7 @@ public static partial class OutlookEmailHelper
         if (!string.IsNullOrWhiteSpace(status)) sb.Append("Status: ").Append(status).Append("\r\n");
         AppendPlainTextDetails(sb, card);
 
+        if (!string.IsNullOrWhiteSpace(taskLink)) sb.Append("\r\nOpen in Kanban Task Board: ").Append(taskLink).Append("\r\n");
         sb.Append("\r\nIf an Excel file is attached, open Kanban Task Board and click Import Tasks to add this task to your own board.\r\n");
 
         if (signature is not null) sb.Append("\r\n").Append(signature);
@@ -443,7 +444,7 @@ public static partial class OutlookEmailHelper
             string.Join("<br/>", lines) + "</p>";
     }
 
-    private static string BuildHtmlBody(CardViewModel card, string? status = null)
+    private static string BuildHtmlBody(CardViewModel card, string? status = null, string? taskLink = null)
     {
         var sb = new StringBuilder();
         sb.Append("<div style=\"font-family: Segoe UI, sans-serif; font-size: 11pt;\">");
@@ -483,6 +484,9 @@ public static partial class OutlookEmailHelper
         {
             sb.Append($"<p style=\"color: #777;\">{card.Attachments.Count} attachment(s) included.</p>");
         }
+
+        // Opens the task in the app, on the PC and task file it came from (anyone else is told it is another task file).
+        if (!string.IsNullOrWhiteSpace(taskLink)) sb.Append($"<p><a href=\"{WebUtility.HtmlEncode(taskLink)}\">Open in Kanban Task Board</a></p>");
 
         sb.Append("<p style=\"color: #777;\">This task is also attached as an Excel file - if you use Kanban Task Board, "
             + "click Import Tasks and select it to add this task to your own board directly.</p>");

@@ -10,11 +10,13 @@
   #define MyAppId "18423CD5-03AE-4CED-8914-EFD56BF5CF28"
   #define DataFolderName "KanbanApp.Test"
   #define RunValueSuffix "-Test"
+  #define LinkScheme "kanbantask-test"
 #else
   #define MyAppName "Kanban Task Board"
   #define MyAppId "4172C30A-F96E-4741-B3A1-B16770195903"
   #define DataFolderName "KanbanApp"
   #define RunValueSuffix ""
+  #define LinkScheme "kanbantask"
 #endif
 
 #define MyAppPublisher "Jeremy Hillier Consulting Inc"
@@ -86,6 +88,13 @@ Name: "{group}\Uninstall {#MyAppName}"; Filename: "{uninstallexe}"
 ; "Start when Windows starts" (Settings) writes this value; Setup creates nothing here, but uninstalling removes it.
 [Registry]
 Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Run"; ValueName: "KanbanTaskBoard{#RunValueSuffix}"; Flags: uninsdeletevalue dontcreatekey
+
+; Links to a task (kanbantask://task/...) put in Outlook events and emails open the app. The app writes the same
+; keys each time it starts (Services/TaskLinks), so Setup only gives it a head start; uninstalling removes them.
+Root: HKCU; Subkey: "Software\Classes\{#LinkScheme}"; ValueType: string; ValueData: "URL:{#MyAppName}"; Flags: uninsdeletekey
+Root: HKCU; Subkey: "Software\Classes\{#LinkScheme}"; ValueType: string; ValueName: "URL Protocol"; ValueData: ""
+Root: HKCU; Subkey: "Software\Classes\{#LinkScheme}\DefaultIcon"; ValueType: string; ValueData: """{app}\{#MyAppExeName}"",0"
+Root: HKCU; Subkey: "Software\Classes\{#LinkScheme}\shell\open\command"; ValueType: string; ValueData: """{app}\{#MyAppExeName}"" ""%1"""
 
 [Run]
 Filename: "{app}\{#MyAppExeName}"; Parameters: "--seed-data-folder ""{code:GetDataFolder}"""; Flags: runhidden nowait skipifsilent; StatusMsg: "Setting up data storage..."

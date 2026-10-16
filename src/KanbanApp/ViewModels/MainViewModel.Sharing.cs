@@ -1,4 +1,5 @@
 using KanbanApp.Models;
+using KanbanApp.Services;
 
 namespace KanbanApp.ViewModels;
 
@@ -91,4 +92,16 @@ public partial class MainViewModel
             .GroupBy(p => Services.ImportService.NormalizeEmail(p.Sender!.SenderEmail)!, StringComparer.OrdinalIgnoreCase)
             .Select(g => (g.First().Sender!, g.Select(p => p.Card).ToList()))
             .ToList();
+}
+
+// Links to tasks (Services/TaskLinks): what a task's link is made of, and where the task is now.
+public partial class MainViewModel
+{
+    public string TaskFileId => _db.GetTaskFileId();
+
+    // The link to put in an Outlook event or an email for this task. Every task has its ID from the
+    // start; one from before that has been given its ID at start-up, and EnsureShareId covers the rest.
+    public string TaskLinkFor(CardViewModel card) => TaskLinks.Build(EnsureShareId(card), TaskFileId);
+
+    public TaskLocation? FindTask(string shareId) => _db.FindTask(shareId);
 }

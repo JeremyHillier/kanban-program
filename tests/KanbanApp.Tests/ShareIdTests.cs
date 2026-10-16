@@ -73,24 +73,25 @@ public sealed class ShareIdTests(WpfDispatcherFixture wpf) : IDisposable
     });
 
     [Fact]
-    public void ATaskKeepsItsID_EverySending_AndOnlyWhenShared() => wpf.Run(() =>
+    public void ATaskHasItsIDFromTheStart_AndKeepsItWhenSent() => wpf.Run(() =>
     {
         var board = OpenBoard("board.db");
         var card = Add(board, "a");
-        Assert.Null(card.ShareId);
-        Assert.Equal("3", new DatabaseService(_temp.File("board.db")).GetSetting("FileFormat")); // nothing shared yet
+        var id = card.ShareId;
+        Assert.NotNull(id);                                         // every task has one from the start
+        Assert.Matches("^[0-9a-f]{32}$", id);
+        Assert.Equal("5", new DatabaseService(_temp.File("board.db")).GetSetting("FileFormat")); // so older copies warn from the start
 
         var first = Email(card, board).Single().ShareId;
         var second = Email(card, board).Single().ShareId;
 
-        Assert.NotNull(first);
+        Assert.Equal(id, first);
         Assert.Equal(first, second);
         Assert.Equal(first, All(OpenBoard("board.db")).Single().ShareId);                           // saved
-        Assert.Equal("5", new DatabaseService(_temp.File("board.db")).GetSetting("FileFormat"));  // older copies warned from now on
     });
 
     [Fact]
-    public void ADuplicate_AndTheNextOccurrence_AreNewTasks_WithoutTheID() => wpf.Run(() =>
+    public void ADuplicate_AndTheNextOccurrence_AreNewTasks_WithTheirOwnID() => wpf.Run(() =>
     {
         var board = OpenBoard("board.db");
         var card = board.AddCard("Weekly report", Column(board, "To Do"), board.Projects.First(), "Normal", new DateTime(2026, 11, 2), null, true, "Weekly", null);
@@ -100,8 +101,9 @@ public sealed class ShareIdTests(WpfDispatcherFixture wpf) : IDisposable
         board.MoveCardCommand.Execute((card, Column(board, "Done")));
         var next = Column(board, "To Do").Cards.Single(c => c.Title == "Weekly report" && c != copy);
 
-        Assert.Null(copy.ShareId);
-        Assert.Null(next.ShareId);
+        Assert.NotNull(copy.ShareId);
+        Assert.NotNull(next.ShareId);
+        Assert.Equal(3, new[] { card.ShareId, copy.ShareId, next.ShareId }.Distinct().Count()); // three different tasks
     });
 
     [Fact]

@@ -24,14 +24,15 @@ public static class OutlookCalendarHelper
     {
         var appointment = CalendarFile.For(dueDate, dueDateTime, DateTime.Now);
         var body = BuildBody(card);
+        var link = viewModel.TaskLinkFor(card); // a click on it in the event opens the task here
 
-        if (TryOpenInClassicOutlook(owner, title, card, appointment, body))
+        if (TryOpenInClassicOutlook(owner, title, card, appointment, body, link))
         {
             viewModel.RecordCardScheduled(card, CalendarFile.Describe(appointment), "in Outlook");
             return;
         }
 
-        OpenCalendarFile(owner, title, card, appointment, body, viewModel);
+        OpenCalendarFile(owner, title, card, appointment, body, link, viewModel);
     }
 
     internal static string BuildBody(CardViewModel card)
@@ -44,7 +45,7 @@ public static class OutlookCalendarHelper
 
     // False only when Outlook couldn't make an appointment at all, so the caller can fall back. Once
     // it is on screen any later trouble is reported instead - falling back then would open two.
-    private static bool TryOpenInClassicOutlook(Window owner, string title, CardViewModel card, CalendarFile.Appointment appointment, string body)
+    private static bool TryOpenInClassicOutlook(Window owner, string title, CardViewModel card, CalendarFile.Appointment appointment, string body, string link)
     {
         dynamic item;
         try
@@ -90,6 +91,8 @@ public static class OutlookCalendarHelper
             return false;
         }
 
+        AddTaskLink(item, link);
+
         if (attachProblem is not null)
         {
             Dialogs.Tell(owner, "Schedule in Outlook",
@@ -100,7 +103,36 @@ public static class OutlookCalendarHelper
         return true;
     }
 
-    private static void OpenCalendarFile(Window owner, string title, CardViewModel card, CalendarFile.Appointment appointment, string body, MainViewModel viewModel)
+    // Outlook only makes web and email addresses into links by itself, so the task link is put in as a real
+    // hyperlink through the appointment's own Word editor, with plain words as its text. If that is not
+    // possible the address goes in as plain text, which can still be copied. The appointment is already
+    // open on screen, so a failure here must never lose it.
+    private static void AddTaskLink(dynamic item, string link)
+    {
+        const string text = "Open in Kanban Task Board";
+        try
+        {
+            dynamic document = item.GetInspector.WordEditor;
+            dynamic range = document.Content;
+            range.InsertAfter("\r\n\r\n");
+            range = document.Content;
+            range.Collapse(0); // wdCollapseEnd: after everything already in the body
+            document.Hyperlinks.Add(range, link, "", "Open this task in Kanban Task Board", text);
+        }
+        catch
+        {
+            try
+            {
+                item.Body = (string)item.Body + "\r\n\r\n" + text + ": " + link;
+            }
+            catch
+            {
+                // Leave the appointment as it is.
+            }
+        }
+    }
+
+    private static void OpenCalendarFile(Window owner, string title, CardViewModel card, CalendarFile.Appointment appointment, string body, string link, MainViewModel viewModel)
     {
         string path;
         try
@@ -108,7 +140,7 @@ public static class OutlookCalendarHelper
             Directory.CreateDirectory(CalendarFilesRoot);
             path = Path.Combine(CalendarFilesRoot, OutlookEmailHelper.SanitizeFileName(title) + ".ics");
             var uid = $"{Guid.NewGuid():N}@kanban-task-board";
-            File.WriteAllText(path, CalendarFile.BuildIcs(title, body, appointment, DateTime.UtcNow, uid), new UTF8Encoding(false));
+            File.WriteAllText(path, CalendarFile.BuildIcs(title, body, appointment, DateTime.UtcNow, uid, link), new UTF8Encoding(false));
         }
         catch (Exception ex)
         {

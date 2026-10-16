@@ -6,6 +6,17 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.140.0 — 2026-10-16
+
+> - New: an Outlook event made with Schedule in Outlook now has an Open in Kanban Task Board link. Clicking it opens the app, or brings it forward, and shows that task, highlighted and open for editing.
+> - New: emails about a task carry the same link, and a group email links each task by its title.
+> - Improved: a link to a task that has since been archived or deleted says so, with the date, and a link into a different task file says that instead.
+> - Improved: every task now has a permanent ID of its own from the moment it is created, which is what the link is made of. Tasks that already exist are given theirs once, after a backup.
+- If filters were hiding the task, they are cleared so it can be seen.
+- The link works on a PC that has the app installed, for the task file it came from. The Test version uses its own link type, so the two never open each other's tasks.
+- Outlook may ask before opening a link of this kind the first time.
+- Earlier versions of the app show a warning before opening a task file that has these IDs.
+
 ## 0.139.1 — 2026-10-16
 
 > - Fixed: auto-correct now works however text reaches the task and notes boxes, including the Windows touch keyboard, text suggestions, dictation and pasting, not only keys typed one at a time. A word such as one of your own corrections is replaced as soon as a space or punctuation mark follows it.

@@ -30,7 +30,9 @@ public static class CalendarFile
 
     // Times are written without a time zone ("floating"), so a calendar app reads them as local time,
     // which is what the task's due time means. utcNow is the file's own stamp.
-    public static string BuildIcs(string title, string description, Appointment appointment, DateTime utcNow, string uid)
+    // link: the task's link, added as the event's URL and as a line of the description, so the calendar app
+    // can offer it (it may only show it as text).
+    public static string BuildIcs(string title, string description, Appointment appointment, DateTime utcNow, string uid, string? link = null)
     {
         var lines = new List<string>
         {
@@ -56,7 +58,9 @@ public static class CalendarFile
         }
 
         lines.Add($"SUMMARY:{Escape(title)}");
-        if (!string.IsNullOrWhiteSpace(description)) lines.Add($"DESCRIPTION:{Escape(description)}");
+        var details = string.IsNullOrWhiteSpace(link) ? description : $"{description}\n\nOpen in Kanban Task Board: {link}".Trim();
+        if (!string.IsNullOrWhiteSpace(details)) lines.Add($"DESCRIPTION:{Escape(details)}");
+        if (!string.IsNullOrWhiteSpace(link)) lines.Add($"URL:{link}");
         lines.Add("END:VEVENT");
         lines.Add("END:VCALENDAR");
 

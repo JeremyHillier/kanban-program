@@ -32,6 +32,7 @@ public partial class MainWindow : Window
 
         RestoreWindowBounds();
         InitializeSetupCloseRequest();
+        InitializeTaskLinkReceiver();
         Closing += (_, _) =>
         {
             _dueTimeTimer.Stop();

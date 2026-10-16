@@ -128,3 +128,73 @@ public partial class DatabaseService
         RaiseFileFormat(SharedTasksFileFormat);
     }
 }
+
+// A permanent ID for every task, and an identity for the task file itself - what a link to a task
+// (Services/TaskLinks) is made of. Every new task is given its ID when it is added; a task file from
+// before that is given them all once, after a backup (App, at start-up).
+public partial class DatabaseService
+{
+    private const string TaskFileIdKey = "TaskFileId";
+
+    // The tasks (board, archived and deleted) that have no ID yet.
+    public int CountTasksWithoutId()
+    {
+        using var connection = OpenConnection();
+        using var cmd = connection.CreateCommand();
+        cmd.CommandText = "SELECT COUNT(*) FROM Cards WHERE ShareId IS NULL OR ShareId = '';";
+        return (int)(long)cmd.ExecuteScalar()!;
+    }
+
+    // 32 random hex digits, the same form as a new task's ID; true when any were given.
+    public bool EnsureEveryTaskHasAnId()
+    {
+        using var connection = OpenConnection();
+        using var cmd = connection.CreateCommand();
+        cmd.CommandText = "UPDATE Cards SET ShareId = lower(hex(randomblob(16))) WHERE ShareId IS NULL OR ShareId = '';";
+        var changed = cmd.ExecuteNonQuery() > 0;
+        if (changed) RaiseFileFormat(ShareIdFileFormat);
+        return changed;
+    }
+
+    // Tells this task file from any other: kept in the file, so a copy on another PC has the same one.
+    // Made the first time it is asked for.
+    public string GetTaskFileId()
+    {
+        var stored = GetSetting(TaskFileIdKey);
+        if (!string.IsNullOrWhiteSpace(stored)) return stored;
+
+        var id = Guid.NewGuid().ToString("N");
+        SetSetting(TaskFileIdKey, id);
+        return id;
+    }
+
+    // A task by its ID, wherever it is - on the board, archived or deleted - for a link to open.
+    public TaskLocation? FindTask(string shareId)
+    {
+        using var connection = OpenConnection();
+        using var cmd = connection.CreateCommand();
+        cmd.CommandText = "SELECT Id, Title, IsArchived, IsDeleted FROM Cards WHERE ShareId = $id LIMIT 1;";
+        cmd.Parameters.AddWithValue("$id", shareId);
+        using var reader = cmd.ExecuteReader();
+        if (!reader.Read()) return null;
+
+        var id = reader.GetInt32(0);
+        var title = reader.GetString(1);
+        var archived = reader.GetInt64(2) != 0;
+        var deleted = reader.GetInt64(3) != 0;
+        reader.Close();
+
+        // When it was put away: the latest Archived or Deleted line in its history.
+        DateTime? when = null;
+        if (archived || deleted)
+        {
+            using var historyCmd = connection.CreateCommand();
+            historyCmd.CommandText = "SELECT MAX(Timestamp) FROM CardHistory WHERE CardId = $id AND EventType IN ('Archived', 'Deleted');";
+            historyCmd.Parameters.AddWithValue("$id", id);
+            if (historyCmd.ExecuteScalar() is string text
+                && DateTime.TryParseExact(text, "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsed)) when = parsed;
+        }
+
+        return new TaskLocation(id, title, archived, deleted, when);
+    }
+}

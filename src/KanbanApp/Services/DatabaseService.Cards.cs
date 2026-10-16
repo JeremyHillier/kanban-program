@@ -133,6 +133,7 @@ public partial class DatabaseService
         maxCmd.Parameters.AddWithValue("$columnId", columnId);
         var sortOrder = (long)maxCmd.ExecuteScalar()!;
 
+        var shareId = Guid.NewGuid().ToString("N");
         var now = NowStamp();
         var completedAt = columnName == "Done" ? now : null; // created straight into Done counts as completed
 
@@ -140,7 +141,8 @@ public partial class DatabaseService
         (string Column, object Value)[] placement =
         [
             ("ColumnId", columnId), ("SortOrder", sortOrder), ("LastUpdated", now),
-            ("IsImported", isImported ? 1 : 0), ("CompletedAt", (object?)completedAt ?? DBNull.Value)
+            ("IsImported", isImported ? 1 : 0), ("CompletedAt", (object?)completedAt ?? DBNull.Value),
+            ("ShareId", shareId) // every task has a permanent ID from the start: a link to it, and its identity when shared
         ];
         var columns = placement.Concat(fields.Columns()).ToList();
 
@@ -151,10 +153,11 @@ public partial class DatabaseService
         var id = (long)insertCmd.ExecuteScalar()!;
 
         LogHistory(connection, (int)id, title, "Created", $"Added to {columnName}");
+        RaiseFileFormat(ShareIdFileFormat); // older copies know nothing of the ID, so they warn before opening this file
 
         var card = new CardItem
         {
-            Id = (int)id, ColumnId = columnId, SortOrder = (int)sortOrder, LastUpdated = DateTime.Parse(now), IsImported = isImported,
+            Id = (int)id, ColumnId = columnId, SortOrder = (int)sortOrder, LastUpdated = DateTime.Parse(now), IsImported = isImported, ShareId = shareId,
             CompletedAt = completedAt is null ? null : DateTime.Parse(completedAt)
         };
         fields.CopyTo(card);
