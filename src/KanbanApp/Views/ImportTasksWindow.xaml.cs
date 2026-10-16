@@ -154,10 +154,46 @@ public partial class ImportTasksWindow : Window
         if (ignored is { Count: > 0 }) text += $"\n\nLeft out, not being Excel files: {string.Join(", ", ignored)}.";
         if (!Dialogs.Confirm(this, DialogMessage.Ask("Import Tasks", text, "Import"))) return;
 
-        _viewModel.ImportCards(rows);
+        var changed = _viewModel.ImportCards(rows, AskAboutConflict);
+        var summary = _viewModel.LastImport;
+        if (changed.Count == 0)
+        {
+            Dialogs.Tell(this, "Nothing to Change", ImportSummaryText(summary) ?? "No tasks were added or changed.");
+            return;
+        }
+
         Close();
+        if (ImportSummaryText(summary) is { } skipped) Dialogs.Tell(Owner, "Import Tasks", skipped);
 
         var reviewWindow = new ImportedTasksWindow(_viewModel) { Owner = Owner };
         reviewWindow.ShowDialog();
+    }
+
+    // A task changed both on the board and in the file: the user decides. Esc is Keep Mine, so nothing
+    // is lost to a stray key.
+    private ConflictChoice AskAboutConflict(ImportConflict conflict)
+    {
+        var choice = Dialogs.Show(this, new DialogMessage("Changed in Two Places", conflict.Describe())
+        {
+            Tone = DialogTone.Warning,
+            Yes = "Use Theirs",
+            No = "Keep Both",
+            Cancel = "Keep Mine"
+        });
+        return choice switch
+        {
+            DialogChoice.Yes => ConflictChoice.UseTheirs,
+            DialogChoice.No => ConflictChoice.KeepBoth,
+            _ => ConflictChoice.KeepMine
+        };
+    }
+
+    // What was left alone, in words; null when nothing was.
+    internal static string? ImportSummaryText(ImportSummary summary)
+    {
+        var lines = new List<string>();
+        if (summary.Unchanged > 0) lines.Add($"• {summary.Unchanged} task{(summary.Unchanged == 1 ? " was" : "s were")} already up to date, so nothing changed.");
+        if (summary.KeptMine > 0) lines.Add($"• {summary.KeptMine} task{(summary.KeptMine == 1 ? "" : "s")} kept as yours.");
+        return lines.Count == 0 ? null : "These were left as they are:\n\n" + string.Join("\n", lines);
     }
 }

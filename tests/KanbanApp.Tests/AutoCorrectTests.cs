@@ -1,3 +1,4 @@
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -135,6 +136,33 @@ public sealed class AutoCorrectBoxTests(WpfDispatcherFixture wpf)
         var box = Box(own: "kbp = Kanban Program");
         Type(box, "Work on kbp, then ");
         Assert.Equal("Work on Kanban Program, then ", box.Text);
+    });
+
+    // The entry exactly as a user typed it in Settings, saved the way Settings saves it.
+    [Fact]
+    public void ANoteToSelfEntry_FromSettings_IsUsed() => wpf.Run(() =>
+    {
+        var board = new KanbanApp.ViewModels.MainViewModel(new KanbanApp.Services.DatabaseService(Path.Combine(Path.GetTempPath(), $"ac-{Guid.NewGuid():N}.db")));
+        board.SetAutoCorrectEntries("nts = Note to Self");
+
+        var box = new TextBox();
+        AutoCorrectBox.Attach(box, () => board.AutoCorrectEnabled, () => board.AutoCorrectOwn);
+
+        Type(box, "Call Sam nts ");
+        Assert.Equal("Call Sam Note to Self ", box.Text);
+    });
+
+    [Fact]
+    public void ASlipEndingTheBox_IsFixedWhenTheUserMovesOnOrSaves() => wpf.Run(() =>
+    {
+        var box = new TextBox();
+        var fixTheEnd = AutoCorrectBox.Attach(box, () => true, () => AutoCorrector.ParseEntries("nts = Note to Self"));
+
+        Type(box, "Call Sam nts");
+        Assert.Equal("Call Sam nts", box.Text);          // nothing typed after it yet
+
+        fixTheEnd();                                      // what Save does
+        Assert.Equal("Call Sam Note to Self", box.Text);
     });
 }
 

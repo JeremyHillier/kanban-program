@@ -515,6 +515,9 @@
                 <Button DockPanel.Dock="Left" x:Name="ScheduleButton" Content="&#x1F4C5; Sc_hedule" Padding="12,6" Margin="8,0,0,0" Click="Schedule_Click"
                         Visibility="Collapsed" ToolTip="Put this task in your Outlook calendar, at the due date and time shown here. Nothing is saved until you save it in Outlook."
                         Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                <Button DockPanel.Dock="Left" x:Name="SendBackButton" Content="&#x21A9; Send Bac_k" Padding="12,6" Margin="8,0,0,0" Click="SendBack_Click"
+                        Visibility="Collapsed" ToolTip="Email this task back to the person who sent it, with its status. Their copy is updated when they import it."
+                        Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
                 <!-- Edit mode only: when the task was finished (if it has been) and last changed. -->
                 <StackPanel x:Name="TaskStampPanel" Margin="10,0,0,0" VerticalAlignment="Center" Visibility="Collapsed">
                     <TextBlock x:Name="CompletedStampText" FontSize="11" FontWeight="SemiBold" Visibility="Collapsed"

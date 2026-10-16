@@ -87,6 +87,7 @@ public partial class DatabaseService
         MigrateColumn(connection, "Cards", "WaitingOn", "TEXT NULL");
         MigrateColumn(connection, "Cards", "RecurrencesLeft", "INTEGER NULL");
         EnsureTaskTemplatesTable(connection);
+        EnsureSharedTasksTable(connection);
         MigrateColumn(connection, "Cards", "CompletedAt", "TEXT NULL");
         MigrateColumn(connection, "Cards", "ShareId", "TEXT NULL");
         MigrateColumn(connection, "Projects", "IsActive", "INTEGER NOT NULL DEFAULT 1");

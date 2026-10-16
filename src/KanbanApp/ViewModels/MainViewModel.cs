@@ -96,6 +96,7 @@ public partial class MainViewModel : ObservableObject
         _isCompactCards = _db.GetSetting("CardSize") == "Compact";
         LoadCardDisplay();
         LoadAutoCorrect();
+        LoadSharing();
         _columnWidth = Math.Clamp(_db.GetInt("ColumnWidth", 310), SmallestColumnWidth, MaxColumnWidth);
         _minFittedColumnWidth = Math.Clamp(_db.GetInt("MinFittedColumnWidth", DefaultMinFittedColumnWidth), SmallestColumnWidth, MaxColumnWidth);
         _isFitColumnsToWindow = _db.GetFlag("FitColumnsToWindow", true);

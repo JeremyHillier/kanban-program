@@ -180,6 +180,7 @@ public partial class MainWindow
                 var askForNote = dragged.Count == 1;
                 foreach (var card in moved) MaybePromptCompletionNote(card, column, viewModel, askForNote);
                 MaybePromptWaitingOn(moved, column, viewModel);
+                MaybePromptNotifySender(moved, column, viewModel);
             }), DispatcherPriority.Background);
         }
     }

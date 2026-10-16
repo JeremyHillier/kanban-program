@@ -69,3 +69,62 @@ public partial class DatabaseService
         RaiseFileFormat(ShareIdFileFormat);
     }
 }
+
+// Who sent a shared task here, and what it looked like when last exchanged (Models/SharedTaskInfo).
+// Its own small table keyed by the Task ID, not columns on Cards: it only exists for tasks that were
+// shared, and older copies simply ignore it. Stamped lazily - the first row written raises the file.
+public partial class DatabaseService
+{
+    public const int SharedTasksFileFormat = 8;
+
+    private static void EnsureSharedTasksTable(Microsoft.Data.Sqlite.SqliteConnection connection)
+    {
+        using var cmd = connection.CreateCommand();
+        cmd.CommandText = "CREATE TABLE IF NOT EXISTS SharedTasks (ShareId TEXT PRIMARY KEY, SenderName TEXT NULL, SenderEmail TEXT NULL, Fingerprint TEXT NULL);";
+        cmd.ExecuteNonQuery();
+    }
+
+    public SharedTaskInfo? GetSharedTask(string? shareId)
+    {
+        if (string.IsNullOrWhiteSpace(shareId)) return null;
+
+        using var connection = OpenConnection();
+        using var cmd = connection.CreateCommand();
+        cmd.CommandText = "SELECT ShareId, SenderName, SenderEmail, Fingerprint FROM SharedTasks WHERE ShareId = $id;";
+        cmd.Parameters.AddWithValue("$id", shareId);
+        using var reader = cmd.ExecuteReader();
+        if (!reader.Read()) return null;
+
+        string? Text(int i) => reader.IsDBNull(i) ? null : reader.GetString(i);
+        return new SharedTaskInfo(reader.GetString(0), Text(1), Text(2), Text(3));
+    }
+
+    public void SaveSharedSender(string shareId, string? name, string? email)
+    {
+        using var connection = OpenConnection();
+        using var cmd = connection.CreateCommand();
+        cmd.CommandText = """
+            INSERT INTO SharedTasks (ShareId, SenderName, SenderEmail) VALUES ($id, $name, $email)
+            ON CONFLICT(ShareId) DO UPDATE SET SenderName = excluded.SenderName, SenderEmail = excluded.SenderEmail;
+            """;
+        cmd.Parameters.AddWithValue("$id", shareId);
+        cmd.Parameters.AddWithValue("$name", (object?)name ?? DBNull.Value);
+        cmd.Parameters.AddWithValue("$email", (object?)email ?? DBNull.Value);
+        cmd.ExecuteNonQuery();
+        RaiseFileFormat(SharedTasksFileFormat);
+    }
+
+    public void SaveSharedFingerprint(string shareId, string fingerprint)
+    {
+        using var connection = OpenConnection();
+        using var cmd = connection.CreateCommand();
+        cmd.CommandText = """
+            INSERT INTO SharedTasks (ShareId, Fingerprint) VALUES ($id, $fp)
+            ON CONFLICT(ShareId) DO UPDATE SET Fingerprint = excluded.Fingerprint;
+            """;
+        cmd.Parameters.AddWithValue("$id", shareId);
+        cmd.Parameters.AddWithValue("$fp", fingerprint);
+        cmd.ExecuteNonQuery();
+        RaiseFileFormat(SharedTasksFileFormat);
+    }
+}

@@ -25,13 +25,15 @@ public partial class DatabaseService
     //    saved (DayRangeFileFormat). No table changed.
     // 7: a task's link can be a file or folder (0.138.0) - older copies refuse to save such a link, so
     //    the file is only stamped 7 once one is saved (PathLinkFileFormat). No table changed.
+    // 8: SharedTasks - who sent a shared task, and what it looked like when last exchanged, so a returned
+    //    copy can be told from a clash (0.139.0). A new table older copies ignore, stamped on first write.
     // The newest format this copy of the app understands.
-    public const int CurrentFileFormat = 7;
+    public const int CurrentFileFormat = 8;
 
     public const int DayRangeFileFormat = 6;
     public const int PathLinkFileFormat = 7;
 
-    // What every file is raised to just by being opened. Formats 4, 5, 6 and 7 only matter once their
+    // What every file is raised to just by being opened. Formats 4 to 8 only matter once their
     // feature is used: a file whose priorities are still the standard four, and with no shared
     // task, is no different from a format 3 file. So 4 is stamped when the priority list is first
     // changed and 5 when a task first gets a share ID (RaiseFileFormat). That keeps older copies

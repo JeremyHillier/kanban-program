@@ -134,6 +134,12 @@ public partial class MainWindow
         var projectLabel = string.IsNullOrWhiteSpace(card.ProjectName) ? "Email All Tas_ks With No Project" : $"Email All {MenuText(card.ProjectName)} Tas_ks";
         AddMenuItem(menu, $"{projectLabel} ({projectTasks.Count})...", () => OutlookEmailHelper.ComposeTasksEmail(this, projectTasks, viewModel), isEnabled: projectTasks.Count > 0);
         AddMenuItem(menu, "_Schedule in Outlook...", () => OutlookCalendarHelper.ScheduleCard(this, card, viewModel));
+        // A task someone sent here can go back to them with its status; their copy updates when they import it.
+        if (viewModel.SenderOf(card) is { } sentBy)
+        {
+            AddMenuItem(menu, $"Send Bac_k to {MenuText(sentBy.SenderLabel)}...", () => OutlookEmailHelper.SendBack(this, card, viewModel),
+                isEnabled: ImportService.NormalizeEmail(sentBy.SenderEmail) is not null);
+        }
         Separator();
         AddMenuItem(menu, "_Delete...", () => DeleteCardWithConfirm(card, viewModel));
     }
@@ -168,6 +174,7 @@ public partial class MainWindow
                 var movedCards = viewModel.MoveCards(cards, column);
                 foreach (var moved in movedCards) MaybePromptCompletionNote(moved, column, viewModel, askForNote: false);
                 MaybePromptWaitingOn(movedCards, column, viewModel);
+                MaybePromptNotifySender(movedCards, column, viewModel);
             }, isEnabled: !allHere, isChecked: allHere);
         }
 

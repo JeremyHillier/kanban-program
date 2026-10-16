@@ -95,6 +95,7 @@ public partial class SettingsWindow : Window
         ConfirmDeleteCheckBox.IsChecked = viewModel.ConfirmDelete;
         ConfirmArchiveCheckBox.IsChecked = viewModel.ConfirmArchive;
         AddNoteOnCompleteCheckBox.IsChecked = viewModel.AddNoteOnComplete;
+        NotifySenderCheckBox.IsChecked = viewModel.NotifySenderOnDone;
         ShowDueRemindersCheckBox.IsChecked = viewModel.ShowDueReminders;
         ShowTimeAlertsCheckBox.IsChecked = viewModel.ShowTimeAlerts;
         QuickAddHotkeyCheckBox.Content = $"Quick Add: {MainWindow.QuickAddHotkeyText} opens a New Task box from any program";
@@ -225,8 +226,12 @@ public partial class SettingsWindow : Window
         AutoCorrectEntriesTextBox.IsEnabled = AutoCorrectCheckBox.IsChecked == true;
     }
 
-    private void AutoCorrectEntriesTextBox_LostFocus(object sender, RoutedEventArgs e) =>
-        _viewModel.SetAutoCorrectEntries(AutoCorrectEntriesTextBox.Text);
+    // Saved as it is typed, like every other control here: waiting for the box to lose focus lost an entry
+    // typed just before Ctrl+S or closing the window.
+    private void AutoCorrectEntriesTextBox_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
+    {
+        if (IsLoaded) _viewModel.SetAutoCorrectEntries(AutoCorrectEntriesTextBox.Text);
+    }
 
     private void CompactButtonsCheckBox_Changed(object sender, RoutedEventArgs e)
     {
@@ -251,6 +256,12 @@ public partial class SettingsWindow : Window
     private void ConfirmArchiveCheckBox_Changed(object sender, RoutedEventArgs e)
     {
         _viewModel.SetConfirmArchive(ConfirmArchiveCheckBox.IsChecked == true);
+    }
+
+    private void NotifySenderCheckBox_Changed(object sender, RoutedEventArgs e)
+    {
+        if (!IsLoaded) return;
+        _viewModel.SetNotifySenderOnDone(NotifySenderCheckBox.IsChecked == true);
     }
 
     private void AddNoteOnCompleteCheckBox_Changed(object sender, RoutedEventArgs e)

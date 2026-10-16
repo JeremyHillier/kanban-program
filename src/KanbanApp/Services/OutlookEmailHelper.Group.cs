@@ -14,11 +14,11 @@ namespace KanbanApp.Services;
 // single task: classic Outlook, else the default email app with the Excel file in a folder to drag in.
 public static partial class OutlookEmailHelper
 {
-    public static void ComposeTasksEmail(Window owner, IReadOnlyList<CardViewModel> cards, MainViewModel viewModel)
+    public static void ComposeTasksEmail(Window owner, IReadOnlyList<CardViewModel> cards, MainViewModel viewModel, string? recipientsOverride = null)
     {
         if (cards.Count == 0) return;
 
-        var recipients = GroupRecipients(cards);
+        var recipients = recipientsOverride ?? GroupRecipients(cards); // a reply to a sender names them
         var subject = GroupSubject(cards);
         var rows = cards.Select(card => BuildImportRow(card, viewModel)).ToList();
         var fileName = $"KanbanTasks_{SanitizeFileName(SingleProject(cards) ?? "Tasks")}.xlsx";

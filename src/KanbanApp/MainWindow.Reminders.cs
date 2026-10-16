@@ -71,6 +71,7 @@ public partial class MainWindow
 
         viewModel.MoveCardCommand.Execute((card, doneColumn));
         MaybePromptCompletionNote(card, doneColumn, viewModel);
+        MaybePromptNotifySender([card], doneColumn, viewModel);
     }
 
     private void Reminders_Click(object sender, RoutedEventArgs e)

@@ -23,4 +23,7 @@ public class ImportedTaskRow
     // The task's permanent ID when it came from the app (see CardItem.ShareId): importing a task
     // already on the board updates it instead of adding a second copy.
     public string? ShareId { get; init; }
+    // Who sent it (their Your Details), so it can be sent back; only a task that arrives new records them.
+    public string? SenderName { get; init; }
+    public string? SenderEmail { get; init; }
 }

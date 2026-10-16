@@ -178,6 +178,7 @@
                 <local:BulletItem Text="Auto-correct fixes common slips like teh as you finish a word, in the task and notes boxes."/>
                 <local:BulletItem Text="Press Ctrl+Z straight after a correction to put back what you typed."/>
                 <local:BulletItem Text="Settings turns it off and takes your own corrections, one per line, like kbp = Kanban Program."/>
+                <local:BulletItem Text="A slip at the very end of the box is fixed when you click away or save."/>
 
                 <TextBlock Text="Emailing a task" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <local:BulletItem Text="The envelope button shows when the person has an email address, set in Manage Who."/>
@@ -187,6 +188,11 @@
                 <local:BulletItem Text="It carries the whole task: repeating, due time, notes, sub-tasks, flags and link."/>
                 <local:BulletItem Text="A repeating task keeps repeating on their board, with the same number of times left."/>
                 <local:BulletItem Text="If they change it and email it back, importing it updates your task rather than adding a copy."/>
+                <TextBlock Text="Sending a task back" Style="{StaticResource HelpSubHeaderStyle}"/>
+                <local:BulletItem Text="A task someone sent you remembers who sent it. Their name and address come from their Settings, Your Details."/>
+                <local:BulletItem Text="Right-click it, Send Back, or use Send Back on the task screen, to email it to them with its status."/>
+                <local:BulletItem Text="Status is the column: To Do, In Progress, On Hold, Waiting or Done, whatever each person has renamed them."/>
+                <local:BulletItem Text="Marking a task they sent you Done offers to email them. Settings can switch that off."/>
                 <local:BulletItem Text="With classic Outlook, files are attached and your signature is kept."/>
                 <local:BulletItem Text="With no Outlook signature, one is built from Settings, Your Details."/>
                 <local:BulletItem Text="With another email app, a folder opens with the files to drag into the email."/>
@@ -398,6 +404,9 @@
                 <local:BulletItem Text="A task you already have is updated, not added again. The list before importing says which."/>
                 <local:BulletItem Text="The app knows it by the Task ID column. Leave that column alone."/>
                 <local:BulletItem Text="A task you have archived or deleted comes back as a new task."/>
+                <local:BulletItem Text="A task changed on both sides asks you: Use Theirs, Keep Mine (Esc), or Keep Both."/>
+                <local:BulletItem Text="Keep Both adds theirs as a separate task, marked (theirs), with no link to yours."/>
+                <local:BulletItem Text="A copy that only came back unchanged leaves your newer edits alone."/>
                 <local:BulletItem Text="After import, a list opens to fix up the new tasks."/>
                 <local:BulletItem Text="Double-click Import Tasks to review tasks still marked Imported."/>
 

@@ -1,4 +1,5 @@
 using KanbanApp.Models;
+using KanbanApp.Services;
 
 namespace KanbanApp.ViewModels;
 
@@ -35,14 +36,35 @@ public partial class MainViewModel
         return id;
     }
 
+    // What the last ImportCards did, for the message the window shows afterwards.
+    public ImportSummary LastImport { get; private set; } = ImportSummary.None;
+
+    // A column a file names: by the column's own name (To Do, In Progress, On Hold, Waiting, Done), which
+    // is the same on every board whatever it has been renamed to, else by what this board calls it.
+    public ColumnViewModel? FindColumnForImport(string? text)
+    {
+        var name = text?.Trim();
+        if (string.IsNullOrEmpty(name)) return null;
+
+        return Columns.FirstOrDefault(c => string.Equals(c.Name, name, StringComparison.OrdinalIgnoreCase))
+            ?? Columns.FirstOrDefault(c => string.Equals(c.DisplayName, name, StringComparison.OrdinalIgnoreCase));
+    }
+
+    private string? ColumnKey(string? text) => FindColumnForImport(text)?.Name ?? text?.Trim();
+
     // Returns every task the import added or updated. A row carrying the ID of a task already on
     // the board updates that task (everything the file says, except its attachments and the
     // edit-when-done setting, which are this board's own); any other row adds a new task.
-    public List<CardViewModel> ImportCards(IEnumerable<ImportedTaskRow> rows)
+    //
+    // A returned task that has changed on both sides is a clash (ShareSync): onConflict says what to do,
+    // and with none given the file wins, as it always did. Their copy only changes the board when it
+    // has something new: one identical to the board's, or still the copy that went out, changes nothing.
+    public List<CardViewModel> ImportCards(IEnumerable<ImportedTaskRow> rows, Func<ImportConflict, ConflictChoice>? onConflict = null)
     {
         var toDoColumn = Columns.FirstOrDefault(c => c.Name == "To Do") ?? Columns.First();
         var imported = new List<CardViewModel>();
         var importing = rows.Where(r => !string.IsNullOrWhiteSpace(r.Title)).ToList();
+        int added = 0, updated = 0, unchanged = 0, keptMine = 0, keptBoth = 0;
 
         // One Undo step for the whole import. It takes new tasks away again and puts updated ones
         // back as they were; any project, goal, person or flag the import added to the lists stays.
@@ -53,14 +75,40 @@ public partial class MainViewModel
             if (string.IsNullOrWhiteSpace(row.Title)) continue;
 
             var existing = FindSharedCard(row.ShareId);
-
-            // A column this board doesn't have (renamed, say) leaves an updated task where it is.
-            var column = existing is null ? toDoColumn : Columns.FirstOrDefault(c => c.Cards.Contains(existing)) ?? toDoColumn;
-            if (!string.IsNullOrWhiteSpace(row.Category))
+            var asCopy = false;
+            if (existing is not null)
             {
-                var match = Columns.FirstOrDefault(c => string.Equals(c.DisplayName, row.Category.Trim(), StringComparison.OrdinalIgnoreCase));
-                if (match is not null) column = match;
+                var mine = OutlookEmailHelper.BuildImportRow(existing, this);
+                var mineFingerprint = ShareSync.Fingerprint(mine, ColumnKey);
+                var theirFingerprint = ShareSync.Fingerprint(row, ColumnKey);
+                var exchanged = _db.GetSharedTask(existing.ShareId)?.Fingerprint;
+
+                if (theirFingerprint == mineFingerprint || exchanged is not null && exchanged == theirFingerprint)
+                {
+                    unchanged++; // the same task, or the very copy that went out: nothing new in it
+                    continue;
+                }
+
+                if (exchanged is not null && exchanged != mineFingerprint)
+                {
+                    var choice = onConflict?.Invoke(new ImportConflict(existing, row, ShareSync.Differences(mine, row, ColumnKey), FromLabel(row)))
+                        ?? ConflictChoice.UseTheirs;
+                    if (choice == ConflictChoice.KeepMine)
+                    {
+                        keptMine++;
+                        continue;
+                    }
+                    if (choice == ConflictChoice.KeepBoth)
+                    {
+                        existing = null;
+                        asCopy = true;
+                    }
+                }
             }
+
+            // A column this board doesn't have leaves an updated task where it is.
+            var column = existing is null ? toDoColumn : Columns.FirstOrDefault(c => c.Cards.Contains(existing)) ?? toDoColumn;
+            if (FindColumnForImport(row.Category) is { } named) column = named;
 
             // A priority that is not on this task file's list becomes the default one.
             var priority = Priorities.Resolve(row.Priority);
@@ -127,26 +175,53 @@ public partial class MainViewModel
                     pattern is not null, pattern, goal, flags, subTasks, notes, existing.Attachments, existing.ForceEditOnComplete,
                     website, dueTime, startDate, row.WaitingOn, recurrencesLeft);
                 SetCardImported(existing, true); // listed on the review screen with the new tasks
+                RememberExchanged(existing);
                 imported.Add(existing);
+                updated++;
                 continue;
             }
 
-            var cardVm = AddCard(row.Title.Trim(), column, project, priority, row.DueDate, people.FirstOrDefault(),
+            var title = row.Title.Trim() + (asCopy ? " (theirs)" : "");
+            var cardVm = AddCard(title, column, project, priority, row.DueDate, people.FirstOrDefault(),
                 pattern is not null, pattern, goal, flags, subTasks,
                 notes: notes, isImported: true, websiteUrl: website, dueTime: dueTime, startDate: startDate,
                 waitingOn: row.WaitingOn, people: people, recurrencesLeft: recurrencesLeft);
 
-            // Keeps the sender's ID, so a later update of the same task finds this one.
-            if (row.ShareId is { } shareId)
+            // Keeps the sender's ID, so a later update of the same task finds this one, and who sent it,
+            // so it can be sent back. A copy kept beside the board's own task is a task of its own.
+            if (!asCopy && row.ShareId is { } shareId)
             {
                 cardVm.ShareId = shareId;
                 _db.SetCardShareId(cardVm.Id, shareId);
+                if (row.SenderName is not null || row.SenderEmail is not null) _db.SaveSharedSender(shareId, row.SenderName, row.SenderEmail);
+                RememberExchanged(cardVm);
             }
+
             imported.Add(cardVm);
+            if (asCopy) keptBoth++; else added++;
         }
 
+        LastImport = new ImportSummary(added, updated, unchanged, keptMine, keptBoth);
         return imported;
     }
+
+    private static string FromLabel(ImportedTaskRow row) =>
+        !string.IsNullOrWhiteSpace(row.SenderName) ? $"{row.SenderName.Trim()}'s" : "the returned";
+
+    // What the board's copy looked like when it last went out or came in, kept so a returned copy can
+    // be told from a clash. Only for a task that has a Task ID: one never shared has nothing to compare.
+    private void RememberExchanged(CardViewModel card)
+    {
+        if (string.IsNullOrWhiteSpace(card.ShareId)) return;
+
+        _db.SaveSharedFingerprint(card.ShareId, ShareSync.Fingerprint(OutlookEmailHelper.BuildImportRow(card, this), ColumnKey));
+    }
+
+    // Who sent this task here, if it was shared with this board; null for a task that began here.
+    public SharedTaskInfo? GetSharedTaskInfo(CardViewModel card) => _db.GetSharedTask(card.ShareId);
+
+    // The same, only when there is somebody to send it back to.
+    public SharedTaskInfo? SenderOf(CardViewModel card) => GetSharedTaskInfo(card) is { HasSender: true } info ? info : null;
 
     // "Sam Lee; Priya Patel" -> the names, trimmed, blanks and repeats dropped. A name with a comma
     // in it ("Lee, Sam") stays whole, which is why the separator is a semicolon.

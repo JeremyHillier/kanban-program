@@ -51,7 +51,7 @@ public static partial class OutlookEmailHelper
         {
             string outlookHtml = mailItem.HTMLBody ?? string.Empty;
 
-            var content = BuildHtmlBody(card);
+            var content = BuildHtmlBody(card, StatusOf(card, viewModel));
             if (!HasVisibleContent(outlookHtml))
             {
                 var fallbackSignature = BuildFallbackSignature(viewModel);
@@ -108,7 +108,7 @@ public static partial class OutlookEmailHelper
         }
 
         var subject = EmailSubject(card);
-        var body = BuildPlainTextBody(card, BuildPlainTextSignature(viewModel));
+        var body = BuildPlainTextBody(card, BuildPlainTextSignature(viewModel), StatusOf(card, viewModel));
         try
         {
             Process.Start(new ProcessStartInfo(BuildMailtoUri(recipientEmail, subject, body)) { UseShellExecute = true });
@@ -241,6 +241,26 @@ public static partial class OutlookEmailHelper
     private static void ShowMessage(Window? owner, string message, string title, DialogTone tone, string? detail = null) =>
         Dialogs.Tell(owner, title, message, tone, detail);
 
+    // The column the task is in, as this board calls it.
+    internal static string StatusOf(CardViewModel card, MainViewModel viewModel) =>
+        viewModel.Columns.FirstOrDefault(c => c.Id == card.ColumnId)?.DisplayName ?? string.Empty;
+
+    // The task, emailed back to whoever sent it here: the task as it is now, with its status, and the
+    // Excel file that updates their copy. Nothing is sent until the user sends it.
+    public static void SendBack(Window owner, CardViewModel card, MainViewModel viewModel)
+    {
+        if (viewModel.SenderOf(card) is not { } sender) return;
+
+        if (ImportService.NormalizeEmail(sender.SenderEmail) is not { } address)
+        {
+            Dialogs.Tell(owner, "Send Back",
+                $"{sender.SenderLabel} did not include an email address with this task.\n\nUse Email Task to send it to them by hand.", DialogTone.Info);
+            return;
+        }
+
+        ComposeCardEmail(owner, card, address, viewModel);
+    }
+
     internal static string EmailSubject(CardViewModel card) => $"Task: {card.Title}";
 
     // Several recipients arrive as "a@x.com; b@y.com" (how Outlook wants them). A mailto link
@@ -288,10 +308,12 @@ public static partial class OutlookEmailHelper
         return folder;
     }
 
-    internal static string BuildPlainTextBody(CardViewModel card, string? signature)
+    internal static string BuildPlainTextBody(CardViewModel card, string? signature, string? status = null)
     {
         var sb = new StringBuilder();
         sb.Append(card.Title).Append("\r\n\r\n");
+        // status: the column the task is in, as this board calls it - what a returned task tells the sender.
+        if (!string.IsNullOrWhiteSpace(status)) sb.Append("Status: ").Append(status).Append("\r\n");
         AppendPlainTextDetails(sb, card);
 
         sb.Append("\r\nIf an Excel file is attached, open Kanban Task Board and click Import Tasks to add this task to your own board.\r\n");
@@ -362,7 +384,9 @@ public static partial class OutlookEmailHelper
     internal static ImportedTaskRow BuildImportRow(CardViewModel card, MainViewModel viewModel) => new()
     {
         Title = card.Title,
-        Category = viewModel.Columns.FirstOrDefault(c => c.Id == card.ColumnId)?.DisplayName,
+        // The column's own name (To Do, In Progress, On Hold, Waiting, Done), the same on every board
+        // whatever it has been renamed to, so a task returned from another PC lands in the right column.
+        Category = viewModel.Columns.FirstOrDefault(c => c.Id == card.ColumnId)?.Name,
         Priority = card.Priority,
         Project = card.ProjectName,
         Goal = HasGoal(card) ? card.GoalName : null,
@@ -372,6 +396,9 @@ public static partial class OutlookEmailHelper
         Who = card.People.Count == 0 ? null : string.Join("; ", card.People.Select(p => p.Name)), // semicolons: how the import reads several people
         // Given the first time the task is shared, so a copy sent back updates this one.
         ShareId = viewModel.EnsureShareId(card),
+        // Who it is from (Settings, Your Details), so the person receiving it can send it back.
+        SenderName = string.IsNullOrWhiteSpace(viewModel.UserName) ? null : viewModel.UserName.Trim(),
+        SenderEmail = ImportService.NormalizeEmail(viewModel.UserEmail),
         // The rest of the task, so the person who imports it gets all of it, repeating included.
         DueTime = card.DueDate is null ? null : card.DueTime,
         RecurrencePattern = card.IsRecurring ? card.RecurrencePattern : null,
@@ -416,13 +443,14 @@ public static partial class OutlookEmailHelper
             string.Join("<br/>", lines) + "</p>";
     }
 
-    private static string BuildHtmlBody(CardViewModel card)
+    private static string BuildHtmlBody(CardViewModel card, string? status = null)
     {
         var sb = new StringBuilder();
         sb.Append("<div style=\"font-family: Segoe UI, sans-serif; font-size: 11pt;\">");
         sb.Append($"<p style=\"font-size: 13pt;\"><b>{WebUtility.HtmlEncode(card.Title)}</b></p>");
 
         sb.Append("<table style=\"border-collapse: collapse;\">");
+        if (!string.IsNullOrWhiteSpace(status)) AppendRow(sb, "Status", status);
         AppendRow(sb, "Project", card.ProjectName);
         AppendRow(sb, "Priority", card.Priority);
         if (card.IsWaiting) AppendRow(sb, "Waiting on", card.WaitingOn!);

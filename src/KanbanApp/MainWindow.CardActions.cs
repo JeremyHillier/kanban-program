@@ -270,7 +270,29 @@ public partial class MainWindow
             viewModel.MoveCardCommand.Execute((card, targetColumn));
             MaybePromptCompletionNote(card, targetColumn, viewModel);
             MaybePromptWaitingOn([card], targetColumn, viewModel);
+            MaybePromptNotifySender([card], targetColumn, viewModel);
         }), DispatcherPriority.Background);
+    }
+
+    // A task someone sent here, now Done: offer to tell them. The email carries the task with its new
+    // status in the Excel file that updates their copy. One question per sender, however many of their
+    // tasks were finished; Settings can switch it off.
+    private void MaybePromptNotifySender(IReadOnlyList<CardViewModel> moved, ColumnViewModel targetColumn, MainViewModel viewModel)
+    {
+        if (targetColumn.Name != "Done" || !viewModel.NotifySenderOnDone) return;
+
+        foreach (var (sender, cards) in viewModel.SendersToTell(moved))
+        {
+            var one = cards.Count == 1;
+            var text = one
+                ? $"\"{cards[0].Title}\" was sent to you by {sender.SenderLabel}.\n\nEmail them that it is done? Their copy is updated when they import the attached file."
+                : $"{cards.Count} of the tasks {sender.SenderLabel} sent you are now done.\n\nEmail them? Their copies are updated when they import the attached file.";
+            if (!Dialogs.Confirm(this, DialogMessage.Ask("Let the Sender Know", text, "Email Them", "Not Now"))) continue;
+
+            var address = ImportService.NormalizeEmail(sender.SenderEmail)!;
+            if (one) OutlookEmailHelper.ComposeCardEmail(this, cards[0], address, viewModel);
+            else OutlookEmailHelper.ComposeTasksEmail(this, cards, viewModel, address);
+        }
     }
 
     private void MaybePromptCompletionNote(CardViewModel card, ColumnViewModel targetColumn, MainViewModel viewModel, bool askForNote = true)

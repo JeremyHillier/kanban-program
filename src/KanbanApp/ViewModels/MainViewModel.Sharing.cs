@@ -18,6 +18,7 @@ public partial class MainViewModel
         parts.Add(how);
         var details = string.Join(", ", parts);
         _db.RecordCardEmailed(card.Id, card.Title, details);
+        RememberExchanged(card); // what went out, so a returned copy can be told from a clash
     }
 
     public List<CardEmailRecord> GetEmailHistory(CardViewModel card) => _db.GetCardEmailHistory(card.Id);
@@ -67,4 +68,27 @@ public partial class MainViewModel
 {
     public List<CardViewModel> OpenTasksInProject(int? projectId) =>
         Columns.Where(c => c.Name != "Done").SelectMany(c => c.Cards).Where(c => c.ProjectId == projectId).ToList();
+}
+
+// Telling the person who sent a task here that it is finished (Settings can switch the offer off).
+public partial class MainViewModel
+{
+    public bool NotifySenderOnDone { get; private set; } = true;
+
+    public void SetNotifySenderOnDone(bool value)
+    {
+        NotifySenderOnDone = value;
+        _db.SetFlag("NotifySenderOnDone", value);
+    }
+
+    private void LoadSharing() => NotifySenderOnDone = _db.GetFlag("NotifySenderOnDone", true);
+
+    // For the tasks just moved into Done: those that were sent here by someone with an email address,
+    // grouped by sender, so each sender is asked about once however many of their tasks were finished.
+    public List<(SharedTaskInfo Sender, List<CardViewModel> Cards)> SendersToTell(IEnumerable<CardViewModel> finished) =>
+        finished.Select(c => (Card: c, Sender: SenderOf(c)))
+            .Where(p => p.Sender is { } s && Services.ImportService.NormalizeEmail(s.SenderEmail) is not null)
+            .GroupBy(p => Services.ImportService.NormalizeEmail(p.Sender!.SenderEmail)!, StringComparer.OrdinalIgnoreCase)
+            .Select(g => (g.First().Sender!, g.Select(p => p.Card).ToList()))
+            .ToList();
 }

@@ -41,6 +41,8 @@ public partial class AddTaskWindow : Window
     public PersonViewModel? SelectedWho => SelectedPeople.FirstOrDefault();
     public string? Notes { get; private set; }
     public string? WebsiteUrl { get; private set; }
+
+    private readonly Action _fixEndsOfAutoCorrectBoxes;
     public string? WaitingOn { get; private set; }
     public bool IsRecurring { get; private set; }
     public string? RecurrencePattern { get; private set; }
@@ -95,8 +97,9 @@ public partial class AddTaskWindow : Window
         SpellCheck.GetCustomDictionaries(DetailsTextBox).Add(americanVariantsDictionary);
         SpellCheck.GetCustomDictionaries(NotesTextBox).Add(americanVariantsDictionary);
 
-        AutoCorrectBox.Attach(DetailsTextBox, () => viewModel.AutoCorrectEnabled, () => viewModel.AutoCorrectOwn);
-        AutoCorrectBox.Attach(NotesTextBox, () => viewModel.AutoCorrectEnabled, () => viewModel.AutoCorrectOwn);
+        var fixTaskEnd = AutoCorrectBox.Attach(DetailsTextBox, () => viewModel.AutoCorrectEnabled, () => viewModel.AutoCorrectOwn);
+        var fixNotesEnd = AutoCorrectBox.Attach(NotesTextBox, () => viewModel.AutoCorrectEnabled, () => viewModel.AutoCorrectOwn);
+        _fixEndsOfAutoCorrectBoxes = () => { fixTaskEnd(); fixNotesEnd(); };
 
         _viewModel = viewModel;
         CalendarWheelSupport.Attach(DueDatePicker);
@@ -207,6 +210,7 @@ public partial class AddTaskWindow : Window
         RefreshEmailedStamp();
         RefreshScheduledStamp();
         ScheduleButton.Visibility = Visibility.Visible;
+        RefreshSendBackButton();
 
         DetailsTextBox.Text = cardToEdit.Title;
         CategoryComboBox.SelectedItem = currentColumn;
@@ -321,6 +325,7 @@ public partial class AddTaskWindow : Window
 
     private void Add_Click(object sender, RoutedEventArgs e)
     {
+        _fixEndsOfAutoCorrectBoxes(); // Ctrl+S and Enter move no focus, so a slip ending the box is fixed here
         var details = DetailsTextBox.Text.Trim();
         if (string.IsNullOrWhiteSpace(details) ||
             CategoryComboBox.SelectedItem is not ColumnViewModel column ||

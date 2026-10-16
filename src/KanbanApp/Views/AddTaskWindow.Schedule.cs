@@ -29,6 +29,22 @@ public partial class AddTaskWindow
         ClearDueTime();
     }
 
+    // Send Back: shown only for a task that someone else sent here (they are named in its tooltip).
+    private void RefreshSendBackButton()
+    {
+        var sender = _cardToEdit is null ? null : _viewModel.SenderOf(_cardToEdit);
+        SendBackButton.Visibility = sender is null ? Visibility.Collapsed : Visibility.Visible;
+        if (sender is not null) SendBackButton.ToolTip = $"Email this task back to {sender.SenderLabel}, with its status. Their copy is updated when they import it.";
+    }
+
+    private void SendBack_Click(object sender, RoutedEventArgs e)
+    {
+        if (_cardToEdit is null) return;
+
+        OutlookEmailHelper.SendBack(this, _cardToEdit, _viewModel);
+        RefreshEmailedStamp();
+    }
+
     // Schedule in Outlook, with the title and due date and time as they are on screen now.
     private void Schedule_Click(object sender, RoutedEventArgs e)
     {

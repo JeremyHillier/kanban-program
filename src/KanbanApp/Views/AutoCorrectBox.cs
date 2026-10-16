@@ -8,7 +8,8 @@ namespace KanbanApp.Views;
 // correction puts back exactly what was typed, and nothing else is touched.
 public static class AutoCorrectBox
 {
-    public static void Attach(TextBox box, Func<bool> isOn, Func<IReadOnlyDictionary<string, string>> ownEntries)
+    // Returns what to call to fix a slip that ends the box (Save does, since Ctrl+S moves no focus).
+    public static Action Attach(TextBox box, Func<bool> isOn, Func<IReadOnlyDictionary<string, string>> ownEntries)
     {
         (int Start, string Typed, string Fixed)? last = null;
 
@@ -25,6 +26,18 @@ public static class AutoCorrectBox
             box.CaretIndex = start + replacement.Length; // the typed space or punctuation goes in after it
             last = (start, typed, replacement);
         };
+
+        // A slip that ends the box has no space typed after it, so it is fixed when the user moves on or saves.
+        void FixTheEnd()
+        {
+            last = null;
+            if (!isOn() || !AutoCorrector.TryCorrect(box.Text, box.Text.Length, ownEntries(), out var start, out var length, out var replacement)) return;
+            if (box.MaxLength > 0 && box.Text.Length - length + replacement.Length > box.MaxLength) return;
+
+            box.Select(start, length);
+            box.SelectedText = replacement;
+        }
+        box.LostFocus += (_, _) => FixTheEnd();
 
         box.PreviewKeyDown += (_, e) =>
         {
@@ -47,5 +60,7 @@ public static class AutoCorrectBox
             }
             last = null;
         };
+
+        return FixTheEnd;
     }
 }

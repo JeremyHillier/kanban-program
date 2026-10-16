@@ -6,6 +6,17 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.139.0 — 2026-10-16
+
+> - New: a task sent to someone can now be sent back. A task you receive remembers who sent it; right-click it and choose Send Back, or use Send Back on the task screen, to email it to them with its status. Their copy is updated when they import it.
+> - New: finishing a task someone sent you offers to email them that it is done. This can be switched off in Settings.
+> - Improved: a returned task that has changed in both places is no longer overwritten. You are asked to use theirs, keep yours, or keep both, with the differences listed.
+> - Improved: a task's status follows its column, not what each person has called it, so a task moved to In Progress arrives in In Progress even where that column has been renamed.
+> - Fixed: your own auto-correct entries are now saved as you type them, and a slip at the very end of the task box is corrected when you save or click away.
+- A task that comes back identical, or unchanged since you sent it, leaves your own newer edits alone.
+- The sender's name and email come from Settings, Your Details, and are sent in the task's Excel file only when filled in.
+- Earlier versions of the app show a warning before opening a task file that holds this information.
+
 ## 0.138.0 — 2026-10-16
 
 > - New: a task's Website field is now Link, and it can open a file or a folder as well as a web address or an email address. Choose Browse, drag a file or folder onto the box, or paste its path, then click Open.
