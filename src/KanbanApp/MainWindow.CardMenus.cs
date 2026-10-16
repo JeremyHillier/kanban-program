@@ -74,6 +74,8 @@ public partial class MainWindow
         AddMenuItem(menu, "_Edit Task...", () => EditCard(card, viewModel), gesture: "Double-click");
         AddMenuItem(menu, "_Copy as Text", () => CopyToClipboard(CardTextFormatter.Format(card, currentColumn?.DisplayName ?? string.Empty)));
         AddMenuItem(menu, "Copy _Title", () => CopyToClipboard(card.Title));
+        // The link Outlook events and emails carry: pasted anywhere, it opens this task (on this PC, in this task file).
+        AddMenuItem(menu, "Cop_y Link", () => { CopyToClipboard(viewModel.TaskLinkFor(card)); ShowStatusMessage("Link to the task copied"); });
         AddMenuItem(menu, "D_uplicate", () => viewModel.DuplicateCard(card));
         AddMenuItem(menu, "Save as Temp_late...", () => TemplatePrompts.SaveAs(this, viewModel, MainViewModel.TemplateFromCard(card)));
         Separator();

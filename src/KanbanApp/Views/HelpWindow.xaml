@@ -224,6 +224,7 @@
                 <local:BulletItem Text="It only works on a PC with the app, and only for the task file it came from."/>
                 <local:BulletItem Text="Outlook may ask before opening a link of this kind. Choose to allow it."/>
                 <local:BulletItem Text="Every task has a permanent ID, which is what the link is made of. It holds nothing else."/>
+                <local:BulletItem Text="Right-click a task, Copy Link, to paste its link into a note, a chat or any email."/>
 
                 <TextBlock x:Name="HelpSection_QuickAdd" Text="Quick Add from any program" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <local:BulletItem Text="Press Ctrl+Alt+N in any program for a small New Task box."/>

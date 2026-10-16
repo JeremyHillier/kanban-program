@@ -6,6 +6,10 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.140.1 — 2026-10-16
+
+> - New: Copy Link on a task's right-click menu copies the link to that task, to paste into a note, a chat or an email. Clicking it opens the task in the app.
+
 ## 0.140.0 — 2026-10-16
 
 > - New: an Outlook event made with Schedule in Outlook now has an Open in Kanban Task Board link. Clicking it opens the app, or brings it forward, and shows that task, highlighted and open for editing.
