@@ -6,6 +6,15 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.141.0 — 2026-10-16
+
+> - New: your own spelling dictionary. Right-click a word that is flagged as misspelled and choose Add to Dictionary, and it is never flagged again, in any task, the next time you open it or the next time you start the app.
+> - New: Settings lists the words you have added, one per line, so you can add several at once or take one out to have it flagged again. The words are kept in the task file, so every PC that uses it has them.
+> - Improved: the right-click menu on a flagged word keeps the suggestions and Ignore All, and adds the editing commands, in the same menu.
+- It works in the task, notes and sub-task boxes and in Quick Add.
+- A word added in lower case is accepted in any capitals; one added with a capital is accepted as written.
+- Ignore All still only lasts while that box is open.
+
 ## 0.140.1 — 2026-10-16
 
 > - New: Copy Link on a task's right-click menu copies the link to that task, to paste into a note, a chat or an email. Clicking it opens the task in the app.

@@ -97,6 +97,7 @@ public partial class MainViewModel : ObservableObject
         LoadCardDisplay();
         LoadAutoCorrect();
         LoadSharing();
+        LoadDictionary();
         _columnWidth = Math.Clamp(_db.GetInt("ColumnWidth", 310), SmallestColumnWidth, MaxColumnWidth);
         _minFittedColumnWidth = Math.Clamp(_db.GetInt("MinFittedColumnWidth", DefaultMinFittedColumnWidth), SmallestColumnWidth, MaxColumnWidth);
         _isFitColumnsToWindow = _db.GetFlag("FitColumnsToWindow", true);

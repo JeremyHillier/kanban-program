@@ -96,6 +96,7 @@ public partial class SettingsWindow : Window
         ConfirmArchiveCheckBox.IsChecked = viewModel.ConfirmArchive;
         AddNoteOnCompleteCheckBox.IsChecked = viewModel.AddNoteOnComplete;
         NotifySenderCheckBox.IsChecked = viewModel.NotifySenderOnDone;
+        CustomDictionaryTextBox.Text = viewModel.CustomDictionaryText;
         ShowDueRemindersCheckBox.IsChecked = viewModel.ShowDueReminders;
         ShowTimeAlertsCheckBox.IsChecked = viewModel.ShowTimeAlerts;
         QuickAddHotkeyCheckBox.Content = $"Quick Add: {MainWindow.QuickAddHotkeyText} opens a New Task box from any program";
@@ -256,6 +257,12 @@ public partial class SettingsWindow : Window
     private void ConfirmArchiveCheckBox_Changed(object sender, RoutedEventArgs e)
     {
         _viewModel.SetConfirmArchive(ConfirmArchiveCheckBox.IsChecked == true);
+    }
+
+    // Saved as it is typed, like every other control here, so Ctrl+S or closing straight after loses nothing.
+    private void CustomDictionaryTextBox_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
+    {
+        if (IsLoaded) _viewModel.SetCustomDictionary(CustomDictionaryTextBox.Text);
     }
 
     private void NotifySenderCheckBox_Changed(object sender, RoutedEventArgs e)

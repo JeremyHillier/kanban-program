@@ -127,6 +127,14 @@
                          ToolTip="Words you often mistype, or short forms to spell out, such as kbp = Kanban Program. They are added to the built-in list and win over it."
                          Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
                          BorderBrush="{DynamicResource CardBorderBrush}"/>
+                <TextBlock x:Name="CustomDictionaryLabel" Text="Your spelling dictionary - words that are never flagged, one per line" Style="{StaticResource FieldLabelStyle}"/>
+                <TextBox x:Name="CustomDictionaryTextBox" Height="90" Padding="6" Margin="0,0,0,4" AcceptsReturn="True"
+                         VerticalScrollBarVisibility="Auto" TextWrapping="NoWrap" TextChanged="CustomDictionaryTextBox_TextChanged"
+                         ToolTip="Names, terms and abbreviations you use. Right-click a flagged word in a task and choose Add to Dictionary to put it here. Take a word out to have it flagged again."
+                         Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                         BorderBrush="{DynamicResource CardBorderBrush}"/>
+                <TextBlock Text="A word you type in capitals only is accepted in that form; in lower case it is accepted in any."
+                           FontSize="11" Margin="0,0,0,12" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryTextBrush}"/>
                 <CheckBox x:Name="ShowWhatsNewCheckBox" Content="Show what's new after an update"
                           Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,8"
                           Checked="ShowWhatsNewCheckBox_Changed" Unchecked="ShowWhatsNewCheckBox_Changed"/>

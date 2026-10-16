@@ -81,6 +81,7 @@ public partial class AddTaskWindow
             Language = System.Windows.Markup.XmlLanguage.GetLanguage("en-US")
         };
         SpellCheck.SetIsEnabled(textBox, true);
+        _viewModel.Dictionary.Attach(textBox);
         Grid.SetColumn(textBox, 2);
 
         var deleteButton = new Button

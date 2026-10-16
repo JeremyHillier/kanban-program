@@ -22,6 +22,7 @@ public partial class QuickAddWindow : Window
     {
         InitializeComponent();
         _viewModel = viewModel;
+        viewModel.Dictionary.Attach(TaskTextBox);
 
         ProjectComboBox.ItemsSource = viewModel.Projects.Where(p => p.IsActive).ToList();
         ProjectComboBox.SelectedItem = viewModel.QuickAddDefaultProject;

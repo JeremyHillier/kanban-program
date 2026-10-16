@@ -94,8 +94,9 @@ public partial class AddTaskWindow : Window
         // spelling variants (color, favorite, traveled, ...) on top so both are accepted instead of
         // one dialect flagging the other as misspelled.
         var americanVariantsDictionary = new Uri("pack://application:,,,/Assets/AmericanSpellingVariants.lex", UriKind.Absolute);
-        SpellCheck.GetCustomDictionaries(DetailsTextBox).Add(americanVariantsDictionary);
-        SpellCheck.GetCustomDictionaries(NotesTextBox).Add(americanVariantsDictionary);
+        // The user's own words come with the American spellings: Add to Dictionary on a flagged word's menu.
+        viewModel.Dictionary.Attach(DetailsTextBox, americanVariantsDictionary);
+        viewModel.Dictionary.Attach(NotesTextBox, americanVariantsDictionary);
 
         var fixTaskEnd = AutoCorrectBox.Attach(DetailsTextBox, () => viewModel.AutoCorrectEnabled, () => viewModel.AutoCorrectOwn);
         var fixNotesEnd = AutoCorrectBox.Attach(NotesTextBox, () => viewModel.AutoCorrectEnabled, () => viewModel.AutoCorrectOwn);

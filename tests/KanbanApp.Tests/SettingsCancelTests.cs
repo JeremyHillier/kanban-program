@@ -46,6 +46,7 @@ public sealed class SettingsCancelTests(WpfDispatcherFixture wpf) : IDisposable
         board.SetAutoCorrectEnabled(!board.AutoCorrectEnabled);
         board.SetAutoCorrectEntries("kbp = Kanban Program");
         board.SetNotifySenderOnDone(!board.NotifySenderOnDone);
+        board.SetCustomDictionary("Hillier\nKanbanish");
     }
 
     [Fact]
