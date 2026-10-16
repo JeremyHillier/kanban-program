@@ -6,6 +6,11 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.139.1 — 2026-10-16
+
+> - Fixed: auto-correct now works however text reaches the task and notes boxes, including the Windows touch keyboard, text suggestions, dictation and pasting, not only keys typed one at a time. A word such as one of your own corrections is replaced as soon as a space or punctuation mark follows it.
+- Opening a task never changes its title: auto-correct only acts on what is typed or pasted into the box.
+
 ## 0.139.0 — 2026-10-16
 
 > - New: a task sent to someone can now be sent back. A task you receive remembers who sent it; right-click it and choose Send Back, or use Send Back on the task screen, to email it to them with its status. Their copy is updated when they import it.

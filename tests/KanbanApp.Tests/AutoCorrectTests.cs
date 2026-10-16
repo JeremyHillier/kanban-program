@@ -74,27 +74,28 @@ public class AutoCorrectorTests
 [Collection(WpfCollection.Name)]
 public sealed class AutoCorrectBoxTests(WpfDispatcherFixture wpf)
 {
-    // Types one character the way the keyboard does: the preview event, then the text going in.
+    // Types one character at a time the way a keyboard does: a plain insertion at the caret.
     private static void Type(TextBox box, string text)
     {
         foreach (var c in text)
         {
-            var args = new TextCompositionEventArgs(Keyboard.PrimaryDevice, new TextComposition(InputManager.Current, box, c.ToString()))
-            {
-                RoutedEvent = UIElement.PreviewTextInputEvent
-            };
-            box.RaiseEvent(args);
-            if (!args.Handled && (box.MaxLength == 0 || box.Text.Length < box.MaxLength))
-            {
-                var at = box.CaretIndex;
-                box.Text = box.Text.Insert(at, c.ToString());
-                box.CaretIndex = at + 1;
-            }
+            if (box.MaxLength > 0 && box.Text.Length >= box.MaxLength) continue;
+            Insert(box, c.ToString());
         }
     }
 
+    // Text arriving as it does from a touch keyboard, a picked suggestion, dictation or a paste.
+    private static void Insert(TextBox box, string text)
+    {
+        var at = box.CaretIndex;
+        var before = box.Text.Length;
+        box.Select(at, 0);
+        box.SelectedText = text;
+        box.CaretIndex = at + (box.Text.Length - before); // after what went in, whatever a correction did to its length
+    }
+
     private static TextBox Box(bool on = true, string own = "") => new TextBox().Also(b =>
-        AutoCorrectBox.Attach(b, () => on, () => AutoCorrector.ParseEntries(own)));
+        AutoCorrectBox.Attach(b, () => on, () => AutoCorrector.ParseEntries(own), requireFocus: false));
 
     [Fact]
     public void TypingASlipAndASpace_FixesIt() => wpf.Run(() =>
@@ -146,17 +147,58 @@ public sealed class AutoCorrectBoxTests(WpfDispatcherFixture wpf)
         board.SetAutoCorrectEntries("nts = Note to Self");
 
         var box = new TextBox();
-        AutoCorrectBox.Attach(box, () => board.AutoCorrectEnabled, () => board.AutoCorrectOwn);
+        AutoCorrectBox.Attach(box, () => board.AutoCorrectEnabled, () => board.AutoCorrectOwn, requireFocus: false);
 
         Type(box, "Call Sam nts ");
         Assert.Equal("Call Sam Note to Self ", box.Text);
+    });
+
+
+    [Fact]
+    public void TextArrivingAWordAtATime_IsCorrectedToo() => wpf.Run(() =>
+    {
+        var box = Box(own: "nts = Note to Self");
+        Type(box, "test ");
+        Insert(box, "nts ");                     // the touch keyboard, a picked suggestion, dictation or a paste
+        Assert.Equal("test Note to Self ", box.Text);
+        Assert.Equal(box.Text.Length, box.CaretIndex);
+
+        Insert(box, "and teh.");
+        Assert.Equal("test Note to Self and the.", box.Text);
+    });
+
+    [Fact]
+    public void LoadingATitle_IsNotTypingAWord_AndTypingOverASelectionIsNotEither() => wpf.Run(() =>
+    {
+        // The default rule: only a box the user is in (it has the keyboard) is corrected.
+        var loaded = new TextBox();
+        AutoCorrectBox.Attach(loaded, () => true, () => AutoCorrector.ParseEntries("nts = Note to Self"));
+        loaded.Text = "call nts.";
+        Assert.Equal("call nts.", loaded.Text);
+
+        var box = Box(own: "nts = Note to Self");
+        box.Text = "xx nts yy";
+        box.Select(6, 2);
+        box.SelectedText = " ";                  // replaces a selection: nothing was put in after a word
+        Assert.Equal("xx nts y", box.Text);
+    });
+
+    [Fact]
+    public void TheCursorStaysWhereTheUserWas_AfterACorrectionInTheMiddle() => wpf.Run(() =>
+    {
+        var box = Box(own: "nts = Note to Self");
+        box.Text = "start end";
+        box.CaretIndex = 6;                      // after "start " - typing a word before "end"
+        Type(box, "nts ");
+        Assert.Equal("start Note to Self end", box.Text);
+        Assert.Equal("start Note to Self ".Length, box.CaretIndex);
     });
 
     [Fact]
     public void ASlipEndingTheBox_IsFixedWhenTheUserMovesOnOrSaves() => wpf.Run(() =>
     {
         var box = new TextBox();
-        var fixTheEnd = AutoCorrectBox.Attach(box, () => true, () => AutoCorrector.ParseEntries("nts = Note to Self"));
+        var fixTheEnd = AutoCorrectBox.Attach(box, () => true, () => AutoCorrector.ParseEntries("nts = Note to Self"), requireFocus: false);
 
         Type(box, "Call Sam nts");
         Assert.Equal("Call Sam nts", box.Text);          // nothing typed after it yet
