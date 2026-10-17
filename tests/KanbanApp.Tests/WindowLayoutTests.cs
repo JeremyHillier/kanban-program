@@ -65,7 +65,9 @@ public class WindowLayoutTests
 
             foreach (var row in doc.Descendants().Where(e => e.Name.LocalName == "StackPanel"))
             {
-                var buttons = row.Elements().Where(e => e.Name.LocalName == "Button").ToList();
+                // The About window's Get Update button is hidden unless an update is suggested, and
+                // sits after Close by design.
+                var buttons = row.Elements().Where(e => e.Name.LocalName == "Button" && e.Attribute("{http://schemas.microsoft.com/winfx/2006/xaml}Name")?.Value != "GetUpdateButton").ToList();
                 var escape = buttons.FirstOrDefault(b => b.Attribute("IsCancel")?.Value == "True");
                 if (escape is null || buttons.Count < 2) continue;
 

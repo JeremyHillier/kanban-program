@@ -6,6 +6,11 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.143.0 — 2026-10-17
+
+> - New: when a newer version is found, a Get Update button appears in About, to the right of Close. It opens the download page, and is not there when you are up to date.
+
+
 ## 0.142.1 — 2026-10-17
 
 > - Maintenance: internal improvements to keep the app reliable and easy to update; no change to how the app looks or works.

@@ -42,6 +42,20 @@ public partial class MainViewModel
 
     // The automatic check stays quiet about a version the user chose to skip; a newer one after
     // that is offered again. Checking by hand from About ignores the skip.
+    // The newer version either check has found and that is still worth offering, for as long as the
+    // app runs: About shows a Get Update button while this is set. A version the user chose to skip
+    // is not kept by the automatic check, so it stays quiet; checking by hand from About finds it again.
+    public UpdateInfo? AvailableUpdate { get; private set; }
+
+    // Called with what a check found. A check that could not reach the list (null) says nothing
+    // new, so it leaves what is known alone; one that found nothing newer clears it.
+    public void NoteUpdateCheck(UpdateInfo? update, bool askedByHand = false)
+    {
+        if (update is null) return;
+        AvailableUpdate = ShouldOfferUpdate(update, askedByHand) ? update : null;
+        OnPropertyChanged(nameof(AvailableUpdate));
+    }
+
     public bool ShouldOfferUpdate(UpdateInfo? update, bool askedByHand = false) =>
         update is not null
         && UpdateChecker.IsNewer(update.Version, AppVersion)

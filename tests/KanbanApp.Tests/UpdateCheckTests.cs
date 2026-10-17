@@ -138,6 +138,37 @@ public sealed class UpdateCheckTests(WpfDispatcherFixture wpf) : IDisposable
     });
 
     [Fact]
+    public void AnUpdateFound_IsKeptForAbout_UntilACheckFindsNothingNewer() => wpf.Run(() =>
+    {
+        var board = OpenBoard();
+        var newer = new UpdateInfo("999.0.0", ["New: something"]);
+        Assert.Null(board.AvailableUpdate);
+
+        board.NoteUpdateCheck(newer);
+        Assert.Same(newer, board.AvailableUpdate);
+
+        board.NoteUpdateCheck(null); // couldn't reach the list: nothing new to say
+        Assert.Same(newer, board.AvailableUpdate);
+
+        board.NoteUpdateCheck(new UpdateInfo(board.AppVersion, [])); // already up to date
+        Assert.Null(board.AvailableUpdate);
+    });
+
+    [Fact]
+    public void ASkippedVersion_IsNotKeptByTheAutomaticCheck_ButIsByAskingByHand() => wpf.Run(() =>
+    {
+        var board = OpenBoard();
+        var newer = new UpdateInfo("999.0.0", []);
+        board.SkipUpdateVersion("999.0.0");
+
+        board.NoteUpdateCheck(newer);
+        Assert.Null(board.AvailableUpdate);
+
+        board.NoteUpdateCheck(newer, askedByHand: true);
+        Assert.Same(newer, board.AvailableUpdate);
+    });
+
+    [Fact]
     public void TheCheckAsksOnlyThePublicDownloadsList_AndSendsPeopleOnlyToTheDownloadPage()
     {
         Assert.Equal("https://api.github.com/repos/JeremyHillier/kanban-task-board-downloads/releases/latest", UpdateChecker.LatestReleaseUrl);

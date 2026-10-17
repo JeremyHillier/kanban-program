@@ -18,6 +18,7 @@ public partial class MainWindow
         if (update is null || !IsLoaded) return; // couldn't find out: try again next start, say nothing
 
         viewModel.RecordUpdateCheck(DateTime.Now);
+        viewModel.NoteUpdateCheck(update);
         if (viewModel.ShouldOfferUpdate(update)) ShowUpdateWhenQuiet(viewModel, update);
     }
 
