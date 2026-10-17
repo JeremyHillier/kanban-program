@@ -6,6 +6,10 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.142.1 — 2026-10-17
+
+> - Maintenance: internal improvements to keep the app reliable and easy to update; no change to how the app looks or works.
+
 ## 0.142.0 — 2026-10-17
 
 > - New: Mark as Done at the top of a task's right-click menu. With several tasks selected, Mark All as Done. It works like the check mark button, prompts included.

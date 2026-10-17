@@ -114,12 +114,7 @@ public partial class App : Application
 
         if (!showSplash)
         {
-            var main = new MainWindow(db);
-            MainWindow = main;
-            main.Show();
-            ShutdownMode = ShutdownMode.OnMainWindowClose;
-            if (startFullScreen) main.WindowState = WindowState.Maximized;
-            OpenLinkWhenReady(main, taskLink);
+            ShowBoard(db, startFullScreen, taskLink);
             return;
         }
 
@@ -131,16 +126,22 @@ public partial class App : Application
         {
             timer.Stop();
 
-            var main = new MainWindow(db);
-            MainWindow = main;
-            main.Show();
-            ShutdownMode = ShutdownMode.OnMainWindowClose;
-            if (startFullScreen) main.WindowState = WindowState.Maximized;
-            OpenLinkWhenReady(main, taskLink);
+            ShowBoard(db, startFullScreen, taskLink);
 
             splash.Close();
         };
         timer.Start();
+    }
+
+    // The board becomes the main window, and closing it from now on ends the app.
+    private void ShowBoard(DatabaseService db, bool startFullScreen, string? taskLink)
+    {
+        var main = new MainWindow(db);
+        MainWindow = main;
+        main.Show();
+        ShutdownMode = ShutdownMode.OnMainWindowClose;
+        if (startFullScreen) main.WindowState = WindowState.Maximized;
+        OpenLinkWhenReady(main, taskLink);
     }
 
     // The link that started this copy opens its task once the board is up and idle.
