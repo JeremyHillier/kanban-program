@@ -295,6 +295,7 @@
                 <TextBlock Text="Quick actions on a card" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <local:BulletItem Text="The letter buttons move a card to To Do, In Progress, On Hold or Waiting."/>
                 <local:BulletItem Text="The check mark moves it to Done. X deletes it."/>
+                <local:BulletItem Text="Or right-click a task and choose Mark as Done, at the top of the menu. With several selected, Mark All as Done."/>
                 <local:BulletItem Text="The tag icon adds a flag."/>
                 <local:BulletItem Text="Click the project, priority, person or due date to change it on the board."/>
                 <local:BulletItem Text="The due date opens a month calendar: click a day, Today, or Clear Due Date."/>

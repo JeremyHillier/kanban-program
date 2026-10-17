@@ -6,6 +6,12 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.142.0 — 2026-10-17
+
+> - New: Mark as Done at the top of a task's right-click menu. With several tasks selected, Mark All as Done. It works like the check mark button, prompts included.
+> - Improved: the buttons on each task card are a little smaller, so cards take less room while the buttons stay easy to see.
+
+
 ## 0.141.0 — 2026-10-16
 
 > - New: your own spelling dictionary. Right-click a word that is flagged as misspelled and choose Add to Dictionary, and it is never flagged again, in any task, the next time you open it or the next time you start the app.

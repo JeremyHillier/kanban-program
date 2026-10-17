@@ -34,6 +34,16 @@ public partial class MainWindow
     // would lose it to WPF's access-key handling.
     private static string MenuText(string name) => name.Replace("_", "__");
 
+    // "Mark as Done", or the Done column's own name if it was renamed. The access key is O: D is
+    // already Set Due Date and Delete.
+    internal static string DoneLabel(ColumnViewModel done, bool all = false)
+    {
+        var prefix = all ? "Mark All as " : "Mark as ";
+        var name = MenuText(done.DisplayName);
+        var o = name.IndexOf('o', StringComparison.OrdinalIgnoreCase);
+        return prefix + (o >= 0 ? name.Insert(o, "_") : name);
+    }
+
     // The card's right-click menu. Built fresh on every open so it reflects the card as it is now
     // (its column, priority, assignee, remaining flags, whether it has a website or an email).
     // Every entry reuses the path its button or quick-edit already takes, so a right-click Delete
@@ -70,6 +80,14 @@ public partial class MainWindow
     {
         var currentColumn = viewModel.Columns.FirstOrDefault(c => c.Cards.Contains(card));
         void Separator() => menu.Items.Add(new System.Windows.Controls.Separator());
+
+        // First, because finishing a task is the commonest thing done from this menu. Same path as
+        // the check-mark button, prompts included.
+        if (viewModel.DoneColumn is { } done)
+        {
+            AddMenuItem(menu, DoneLabel(done), () => MoveCardDeferred(card, done, viewModel), isEnabled: currentColumn != done);
+            Separator();
+        }
 
         AddMenuItem(menu, "_Edit Task...", () => EditCard(card, viewModel), gesture: "Double-click");
         AddMenuItem(menu, "_Copy as Text", () => CopyToClipboard(CardTextFormatter.Format(card, currentColumn?.DisplayName ?? string.Empty)));
@@ -158,6 +176,22 @@ public partial class MainWindow
         menu.Items.Add(new System.Windows.Controls.MenuItem { Header = $"{cards.Count} tasks selected", IsEnabled = false, FontWeight = FontWeights.Bold });
         Separator();
 
+        // As with dragging a group: no "add a note?" per card, but a task set to force an edit on
+        // completion still opens.
+        void MoveAll(ColumnViewModel column)
+        {
+            var movedCards = viewModel.MoveCards(cards, column);
+            foreach (var moved in movedCards) MaybePromptCompletionNote(moved, column, viewModel, askForNote: false);
+            MaybePromptWaitingOn(movedCards, column, viewModel);
+            MaybePromptNotifySender(movedCards, column, viewModel);
+        }
+
+        if (viewModel.DoneColumn is { } done)
+        {
+            AddMenuItem(menu, DoneLabel(done, all: true), () => MoveAll(done), isEnabled: !cards.All(done.Cards.Contains));
+            Separator();
+        }
+
         const string divider = "\r\n----------------------------------------\r\n\r\n";
         AddMenuItem(menu, "_Copy All as Text", () => CopyToClipboard(string.Join(divider,
             cards.Select(c => CardTextFormatter.Format(c, ColumnOf(c)?.DisplayName ?? string.Empty)))));
@@ -169,15 +203,7 @@ public partial class MainWindow
         foreach (var column in viewModel.Columns)
         {
             var allHere = cards.All(column.Cards.Contains);
-            AddMenuItem(moveTo, MenuText(column.DisplayName), () =>
-            {
-                // As with dragging a group: no "add a note?" per card, but a task set to force an
-                // edit on completion still opens.
-                var movedCards = viewModel.MoveCards(cards, column);
-                foreach (var moved in movedCards) MaybePromptCompletionNote(moved, column, viewModel, askForNote: false);
-                MaybePromptWaitingOn(movedCards, column, viewModel);
-                MaybePromptNotifySender(movedCards, column, viewModel);
-            }, isEnabled: !allHere, isChecked: allHere);
+            AddMenuItem(moveTo, MenuText(column.DisplayName), () => MoveAll(column), isEnabled: !allHere, isChecked: allHere);
         }
 
         AddDueDateSubmenu(menu, "Set _Due Date for All", cards.ToList(), viewModel);

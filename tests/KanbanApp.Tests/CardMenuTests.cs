@@ -168,3 +168,20 @@ public sealed class DuplicateCardTests(WpfDispatcherFixture wpf) : IDisposable
         Assert.Equal(countBefore, board.Columns.Sum(c => c.Cards.Count));
     });
 }
+
+// The "Mark as Done" entry at the top of the right-click menu: named after the Done column as the
+// user sees it, with O as its access key because D is taken by Set Due Date and Delete.
+public sealed class DoneMenuLabelTests
+{
+    private static ColumnViewModel Done(string displayName) =>
+        new(new KanbanColumn { Name = "Done", DisplayName = displayName }, System.Windows.Media.Brushes.White);
+
+    [Theory]
+    [InlineData("Done", false, "Mark as D_one")]
+    [InlineData("Done", true, "Mark All as D_one")]
+    [InlineData("Complete", false, "Mark as C_omplete")]
+    [InlineData("Filed", false, "Mark as Filed")]
+    [InlineData("To_Do", false, "Mark as T_o__Do")]
+    public void TheLabel_UsesTheColumnsNameAndUnderlinesTheFirstO(string displayName, bool all, string expected) =>
+        Assert.Equal(expected, MainWindow.DoneLabel(Done(displayName), all));
+}
