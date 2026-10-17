@@ -10,6 +10,7 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 
 > - New: Mark as Done at the top of a task's right-click menu. With several tasks selected, Mark All as Done. It works like the check mark button, prompts included.
 > - Improved: the buttons on each task card are a little smaller, so cards take less room while the buttons stay easy to see.
+> - Improved: pointing at a button on a task card outlines it in dark blue, so it is clear which one a click will press.
 
 
 ## 0.141.0 — 2026-10-16
