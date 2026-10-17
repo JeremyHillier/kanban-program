@@ -916,6 +916,12 @@
                                     ToolTip="Close the application (Ctrl+Q)">
                                 <TextBlock Text="Close" TextWrapping="Wrap" TextAlignment="Center"/>
                             </Button>
+                            <!-- Only while a check has found a newer version. -->
+                            <Button Style="{StaticResource LargeSquareButtonStyle}" Background="#FF3E9E5A" Foreground="White" Click="GetUpdate_Click"
+                                    Visibility="{Binding HasAvailableUpdate, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                    ToolTip="{Binding AvailableUpdate.Version, StringFormat='Version {0} is available. Click to see what is new and get it'}">
+                                <TextBlock Text="Update Version" TextWrapping="Wrap" TextAlignment="Center" FontWeight="SemiBold"/>
+                            </Button>
                         </StackPanel>
                     </StackPanel>
                 </ScrollViewer>

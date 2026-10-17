@@ -26,19 +26,6 @@ public partial class AboutWindow : Window
         SupportEmailRun.Text = AppInfo.SupportEmail;
         InfoEmailRun.Text = AppInfo.InfoEmail;
         MadeInText.Text = AppInfo.MadeIn;
-        ShowGetUpdate(viewModel.AvailableUpdate);
-    }
-
-    // The Get Update button is there only while a newer version is suggested.
-    private void ShowGetUpdate(UpdateInfo? update)
-    {
-        GetUpdateButton.Visibility = update is null ? Visibility.Collapsed : Visibility.Visible;
-        if (update is not null) GetUpdateButton.ToolTip = $"Version {update.Version} is available. Open the download page in your browser";
-    }
-
-    private void GetUpdate_Click(object sender, RoutedEventArgs e)
-    {
-        UrlLauncher.Open(AppInfo.DownloadPageUrl, this);
     }
 
     /// <summary>The app's own page, where the download and its notes live, not the company's home page.</summary>
@@ -79,8 +66,7 @@ public partial class AboutWindow : Window
         if (!IsLoaded) return; // closed while waiting
 
         CheckUpdatesButton.IsEnabled = true;
-        _viewModel.NoteUpdateCheck(update, askedByHand: true);
-        ShowGetUpdate(_viewModel.AvailableUpdate);
+        _viewModel.NoteUpdateCheck(update, askedByHand: true); // lights the Update button on the board
         if (update is null)
         {
             UpdateStatusText.Text = "Couldn't check just now. Make sure this PC is connected to the internet and try again.";

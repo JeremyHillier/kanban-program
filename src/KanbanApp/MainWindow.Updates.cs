@@ -22,6 +22,16 @@ public partial class MainWindow
         if (viewModel.ShouldOfferUpdate(update)) ShowUpdateWhenQuiet(viewModel, update);
     }
 
+    // The Update button on the board: the same notice the automatic check shows, for a newer
+    // version already found. Skipping it there takes the button away.
+    private void GetUpdate_Click(object sender, RoutedEventArgs e)
+    {
+        if (DataContext is not MainViewModel viewModel || viewModel.AvailableUpdate is not { } update) return;
+
+        new UpdateAvailableWindow(viewModel, update) { Owner = this }.ShowDialog();
+        viewModel.NoteUpdateCheck(update);
+    }
+
     // What's New, the reminder list or a task may be open by the time the answer comes back. The
     // notice waits its turn rather than landing on top of them.
     private void ShowUpdateWhenQuiet(MainViewModel viewModel, UpdateInfo update)

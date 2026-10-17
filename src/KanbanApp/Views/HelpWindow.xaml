@@ -568,7 +568,7 @@
                 <local:BulletItem Text="The check sends only the app's name and version. Nothing downloads unless you choose."/>
                 <local:BulletItem Text="To turn it off, untick 'Check for a newer version automatically' in Settings."/>
                 <local:BulletItem Text="To check any time, click Check for Updates in About."/>
-                <local:BulletItem Text="When a newer version is found, About shows a Get Update button beside Close."/>
+                <local:BulletItem Text="When a newer version is found, an Update button appears beside Close in the button column."/>
 
                 <TextBlock Text="Privacy, licence and support" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <local:BulletItem Text="Everything stays in your task file on this PC. No account, no cloud, no tracking."/>

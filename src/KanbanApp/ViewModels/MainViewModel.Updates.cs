@@ -46,6 +46,7 @@ public partial class MainViewModel
     // app runs: About shows a Get Update button while this is set. A version the user chose to skip
     // is not kept by the automatic check, so it stays quiet; checking by hand from About finds it again.
     public UpdateInfo? AvailableUpdate { get; private set; }
+    public bool HasAvailableUpdate => AvailableUpdate is not null;
 
     // Called with what a check found. A check that could not reach the list (null) says nothing
     // new, so it leaves what is known alone; one that found nothing newer clears it.
@@ -54,6 +55,7 @@ public partial class MainViewModel
         if (update is null) return;
         AvailableUpdate = ShouldOfferUpdate(update, askedByHand) ? update : null;
         OnPropertyChanged(nameof(AvailableUpdate));
+        OnPropertyChanged(nameof(HasAvailableUpdate));
     }
 
     public bool ShouldOfferUpdate(UpdateInfo? update, bool askedByHand = false) =>
