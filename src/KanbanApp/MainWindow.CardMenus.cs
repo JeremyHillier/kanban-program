@@ -78,6 +78,8 @@ public partial class MainWindow
 
     private void BuildCardMenu(System.Windows.Controls.ContextMenu menu, CardViewModel card, MainViewModel viewModel)
     {
+        // Every entry has its own underlined letter, as in a Windows menu: D is Delete's, so Set Due Date
+        // uses S, Schedule H, Open Link N, Email Task I, Email All K and Send Back B.
         var currentColumn = viewModel.Columns.FirstOrDefault(c => c.Cards.Contains(card));
         void Separator() => menu.Items.Add(new System.Windows.Controls.Separator());
 
@@ -105,7 +107,7 @@ public partial class MainWindow
             AddMenuItem(moveTo, MenuText(column.DisplayName), () => MoveCardDeferred(card, column, viewModel), isEnabled: !isCurrent, isChecked: isCurrent);
         }
 
-        AddDueDateSubmenu(menu, "Set _Due Date", [card], viewModel);
+        AddDueDateSubmenu(menu, "_Set Due Date", [card], viewModel);
         var priority = AddSubmenu(menu, "_Priority");
         foreach (var level in viewModel.Priorities.Names)
         {
@@ -147,17 +149,17 @@ public partial class MainWindow
         }
 
         Separator();
-        AddMenuItem(menu, "Open _Link", () => UrlLauncher.Open(card.WebsiteUrl, this), isEnabled: !string.IsNullOrWhiteSpace(card.WebsiteUrl));
-        AddMenuItem(menu, "E_mail Task...", () => OutlookEmailHelper.ComposeCardEmail(this, card, OutlookEmailHelper.JoinRecipients(card.PeopleEmails), viewModel), isEnabled: card.CanEmailCard);
+        AddMenuItem(menu, "Ope_n Link", () => UrlLauncher.Open(card.WebsiteUrl, this), isEnabled: !string.IsNullOrWhiteSpace(card.WebsiteUrl));
+        AddMenuItem(menu, "Ema_il Task...", () => OutlookEmailHelper.ComposeCardEmail(this, card, OutlookEmailHelper.JoinRecipients(card.PeopleEmails), viewModel), isEnabled: card.CanEmailCard);
         // Every open task of this card's project in one email, with one Excel file to import them all.
         var projectTasks = viewModel.OpenTasksInProject(card.ProjectId);
         var projectLabel = string.IsNullOrWhiteSpace(card.ProjectName) ? "Email All Tas_ks With No Project" : $"Email All {MenuText(card.ProjectName)} Tas_ks";
         AddMenuItem(menu, $"{projectLabel} ({projectTasks.Count})...", () => OutlookEmailHelper.ComposeTasksEmail(this, projectTasks, viewModel), isEnabled: projectTasks.Count > 0);
-        AddMenuItem(menu, "_Schedule in Outlook...", () => OutlookCalendarHelper.ScheduleCard(this, card, viewModel));
+        AddMenuItem(menu, "Sc_hedule in Outlook...", () => OutlookCalendarHelper.ScheduleCard(this, card, viewModel));
         // A task someone sent here can go back to them with its status; their copy updates when they import it.
         if (viewModel.SenderOf(card) is { } sentBy)
         {
-            AddMenuItem(menu, $"Send Bac_k to {MenuText(sentBy.SenderLabel)}...", () => OutlookEmailHelper.SendBack(this, card, viewModel),
+            AddMenuItem(menu, $"Send _Back to {MenuText(sentBy.SenderLabel)}...", () => OutlookEmailHelper.SendBack(this, card, viewModel),
                 isEnabled: ImportService.NormalizeEmail(sentBy.SenderEmail) is not null);
         }
         Separator();
@@ -206,7 +208,7 @@ public partial class MainWindow
             AddMenuItem(moveTo, MenuText(column.DisplayName), () => MoveAll(column), isEnabled: !allHere, isChecked: allHere);
         }
 
-        AddDueDateSubmenu(menu, "Set _Due Date for All", cards.ToList(), viewModel);
+        AddDueDateSubmenu(menu, "_Set Due Date for All", cards.ToList(), viewModel);
         var priority = AddSubmenu(menu, "_Priority");
         foreach (var level in viewModel.Priorities.Names)
         {
@@ -252,7 +254,7 @@ public partial class MainWindow
         Separator();
         AddMenuItem(menu, $"Emai_l These {cards.Count} Tasks...", () => OutlookEmailHelper.ComposeTasksEmail(this, cards, viewModel));
         Separator();
-        AddMenuItem(menu, "Clear _Selection", viewModel.ClearCardSelection, gesture: "Esc");
+        AddMenuItem(menu, "Clear Selectio_n", viewModel.ClearCardSelection, gesture: "Esc");
         Separator();
         AddMenuItem(menu, $"_Delete {cards.Count} Tasks...", () => DeleteCardsWithConfirm(cards, viewModel));
     }

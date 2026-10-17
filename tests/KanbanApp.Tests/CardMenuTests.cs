@@ -185,3 +185,47 @@ public sealed class DoneMenuLabelTests
     public void TheLabel_UsesTheColumnsNameAndUnderlinesTheFirstO(string displayName, bool all, string expected) =>
         Assert.Equal(expected, MainWindow.DoneLabel(Done(displayName), all));
 }
+
+// In a Windows menu every entry has its own underlined letter; where two share one, pressing it only
+// moves between them. The menus are built in code that needs a live window, so this reads the letters
+// out of the source of each menu.
+public sealed class MenuAccessKeyTests
+{
+    private static string MenuSource()
+    {
+        var dir = new System.IO.DirectoryInfo(AppContext.BaseDirectory);
+        while (dir is not null && !System.IO.File.Exists(System.IO.Path.Combine(dir.FullName, "KanbanApp.slnx"))) dir = dir.Parent;
+        return System.IO.File.ReadAllText(System.IO.Path.Combine(dir!.FullName, "src", "KanbanApp", "MainWindow.CardMenus.cs"));
+    }
+
+    private static string Between(string source, string start, string end)
+    {
+        var from = source.IndexOf(start, StringComparison.Ordinal);
+        var to = source.IndexOf(end, from, StringComparison.Ordinal);
+        Assert.True(from >= 0 && to > from, start);
+        return source[from..to];
+    }
+
+    private static List<string> Letters(string method)
+    {
+        // "Email All ... Tasks" has two wordings, one for tasks with no project; only one is ever shown.
+        var letters = System.Text.RegularExpressions.Regex.Matches(method, "\"[^\"\n]*?(?<!_)_([A-Za-z])[^\"\n]*\"")
+            .Where(m => !m.Value.Contains("With No Project"))
+            .Select(m => m.Groups[1].Value.ToUpperInvariant()).ToList();
+        // Mark as Done takes the first O of the Done column's name.
+        letters.AddRange(System.Text.RegularExpressions.Regex.Matches(method, @"DoneLabel\(").Select(_ => "O"));
+        return letters;
+    }
+
+    [Theory]
+    [InlineData("private void BuildCardMenu(", "private void BuildSelectionMenu(")]
+    [InlineData("private void BuildSelectionMenu(", "private void CopyToClipboard(")]
+    public void NoTwoEntriesOfAMenu_ShareAnUnderlinedLetter(string start, string end)
+    {
+        var letters = Letters(Between(MenuSource(), start, end));
+
+        Assert.True(letters.Count >= 12, "The menu's underlined letters were not found.");
+        var repeated = letters.GroupBy(l => l).Where(g => g.Count() > 1).Select(g => g.Key).ToList();
+        Assert.True(repeated.Count == 0, "Underlined letters used twice in one menu: " + string.Join(", ", repeated));
+    }
+}
