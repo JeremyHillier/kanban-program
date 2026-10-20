@@ -225,6 +225,17 @@ public partial class MainViewModel
         RefreshAfterCardChange(card);
     }
 
+    public void SetCardGoal(CardViewModel card, GoalViewModel? goal)
+    {
+        if (card.GoalId == goal?.Id) return;
+
+        using var undo = RecordUndo(DescribeAction(goal is null ? "Clear goal of" : "Change goal of", [card]), [card]);
+        card.GoalId = goal?.Id;
+        card.GoalName = goal?.Name ?? "No Goal";
+        PersistCard(card);
+        RefreshAfterCardChange(card);
+    }
+
     // spawnNextOccurrence lets deleting an incomplete recurring task ("skip today, but keep the
     // series going") behave like the MoveCard-to-Done completion path below, without requiring the
     // card to ever actually reach Done. Guarded the same way: only recurring, only if it hasn't

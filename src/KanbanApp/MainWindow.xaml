@@ -1062,8 +1062,9 @@
                                                                 <StackPanel Visibility="{Binding DataContext.IsLargeCards, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BooleanToVisibilityConverter}}">
                                                                     <!-- Narrow columns leave these off (ShowCardExtras), with the Updated and attachments lines. -->
                                                                     <StackPanel Visibility="{Binding DataContext.ShowCardExtras, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BooleanToVisibilityConverter}}">
-                                                                    <TextBlock Text="{Binding GoalDisplay}" FontSize="10" Foreground="{DynamicResource SecondaryTextBrush}" FontStyle="Italic" Margin="0,3,0,0"
-                                                                               Visibility="{Binding GoalDisplay, Converter={StaticResource EmptyStringToVisibilityConverter}}"/>
+                                                                    <TextBlock Text="{Binding GoalClickText}" FontSize="10" Foreground="{DynamicResource SecondaryTextBrush}" FontStyle="Italic" Margin="0,3,0,0"
+                                                                               Cursor="Hand" ToolTip="Click to change goal" HorizontalAlignment="Left"
+                                                                               MouseLeftButtonUp="GoalDisplay_MouseLeftButtonUp"/>
 
                                                                     <TextBlock Text="{Binding FlagsDisplay}" FontSize="10" Foreground="{DynamicResource SecondaryTextBrush}" FontStyle="Italic" Margin="0,3,0,0"
                                                                                Visibility="{Binding FlagsDisplay, Converter={StaticResource EmptyStringToVisibilityConverter}}"/>

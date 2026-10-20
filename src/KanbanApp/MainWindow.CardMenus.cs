@@ -131,7 +131,14 @@ public partial class MainWindow
             AddMenuItem(project, MenuText(option.Name), () => viewModel.SetCardProject(card, option), isChecked: card.ProjectId == option.Id);
         }
 
-        var waiting = AddSubmenu(menu, "Waitin_g On");
+        var goal = AddSubmenu(menu, "_Goal");
+        AddMenuItem(goal, "No Goal", () => viewModel.SetCardGoal(card, null), isChecked: card.GoalId is null);
+        foreach (var option in viewModel.Goals.Where(g => g.IsActive))
+        {
+            AddMenuItem(goal, MenuText(option.Name), () => viewModel.SetCardGoal(card, option), isChecked: card.GoalId == option.Id);
+        }
+
+        var waiting = AddSubmenu(menu, "_Waiting On");
         AddMenuItem(waiting, card.IsWaiting ? "Change..." : "Set...", () => PromptWaitingOn([card], viewModel));
         AddMenuItem(waiting, "Clear", () => viewModel.SetCardWaitingOn(card, null), isEnabled: card.IsWaiting);
         waiting.Items.Add(new System.Windows.Controls.Separator());
@@ -233,7 +240,14 @@ public partial class MainWindow
             AddMenuItem(project, MenuText(option.Name), () => viewModel.SetCardsProject(cards, option), isChecked: cards.All(c => c.ProjectId == option.Id));
         }
 
-        var waiting = AddSubmenu(menu, "Waitin_g On");
+        var goal = AddSubmenu(menu, "_Goal");
+        AddMenuItem(goal, "No Goal", () => viewModel.SetCardsGoal(cards, null), isChecked: cards.All(c => c.GoalId is null));
+        foreach (var option in viewModel.Goals.Where(g => g.IsActive))
+        {
+            AddMenuItem(goal, MenuText(option.Name), () => viewModel.SetCardsGoal(cards, option), isChecked: cards.All(c => c.GoalId == option.Id));
+        }
+
+        var waiting = AddSubmenu(menu, "_Waiting On");
         AddMenuItem(waiting, "Set...", () => PromptWaitingOn(cards, viewModel));
         AddMenuItem(waiting, "Clear", () => viewModel.SetCardsWaitingOn(cards, null), isEnabled: cards.Any(c => c.IsWaiting));
         waiting.Items.Add(new System.Windows.Controls.Separator());

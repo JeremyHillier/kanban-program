@@ -339,6 +339,7 @@
                 <local:BulletItem Text="The Manage screens add, rename or delete entries."/>
                 <local:BulletItem Text="Click the coloured label beside a filter to open its Manage screen."/>
                 <local:BulletItem Text="A task can carry several flags."/>
+                <local:BulletItem Text="Click a task's goal line, or right-click it and choose Goal, to change its goal."/>
                 <local:BulletItem Text="Lists are always alphabetical."/>
                 <local:BulletItem Text="Untick Active to retire an entry. Tasks already using it keep it."/>
                 <local:BulletItem Text="Names are unique, whatever their capitals."/>

@@ -6,6 +6,12 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.145.0 — 2026-10-20
+
+> - New: right-click a task, or a selection of tasks, and choose Goal to give it a goal or clear it.
+> - Improved: the goal line on a large card can be clicked to pick a different goal, like the project. A task without a goal shows "Goal: none" there to click.
+
+
 ## 0.144.0 — 2026-10-17
 
 > - Improved: when a newer version is found, an Update Version button now appears at the bottom of the button column, beside Close. It opens the notice with what is new and a button to get it. It takes the place of the Get Update button in About, and is not shown when you are up to date.

@@ -68,9 +68,13 @@ public class CardViewModel(CardItem model) : ObservableObject
             if (SetField(ref _goalName, value))
             {
                 OnPropertyChanged(nameof(GoalDisplay));
+                OnPropertyChanged(nameof(GoalClickText));
             }
         }
     }
+
+    // What the card's goal line shows: the goal, or a quiet prompt so a task without one can be given one by clicking.
+    public string GoalClickText => string.IsNullOrEmpty(GoalDisplay) ? "Goal: none" : GoalDisplay;
 
     public string GoalDisplay => string.IsNullOrWhiteSpace(GoalName) || GoalName == "No Goal" ? string.Empty : $"Goal: {GoalName}";
 

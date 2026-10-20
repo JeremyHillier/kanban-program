@@ -175,6 +175,13 @@ public partial class MainViewModel
         });
 
 
+    public void SetCardsGoal(IEnumerable<CardViewModel> cards, GoalViewModel? goal) =>
+        ChangeCards(goal is null ? "Clear goal of" : "Change goal of", cards, c => c.GoalId != goal?.Id, c =>
+        {
+            c.GoalId = goal?.Id;
+            c.GoalName = goal?.Name ?? "No Goal";
+        });
+
     public void SetCardsWaitingOn(IEnumerable<CardViewModel> cards, string? waitingOn)
     {
         var cleaned = string.IsNullOrWhiteSpace(waitingOn) ? null : waitingOn.Trim();
