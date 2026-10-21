@@ -6,6 +6,11 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.146.0 — 2026-10-21
+
+> - New: when a task is open for editing, a large green Mark as Done button at the top saves any changes and finishes the task in one click.
+
+
 ## 0.145.0 — 2026-10-20
 
 > - New: right-click a task, or a selection of tasks, and choose Goal to give it a goal or clear it.

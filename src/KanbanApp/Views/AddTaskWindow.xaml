@@ -124,6 +124,13 @@
                     </Grid>
                 </Border>
 
+                <!-- Edit mode only, and not for a task already in Done: saves what is on screen and finishes the task. -->
+                <Button x:Name="MarkDoneButton" Visibility="Collapsed" Margin="0,0,0,12" Padding="12,10" HorizontalAlignment="Stretch"
+                        Click="MarkDone_Click" Background="#FF2E7D32" Foreground="White" BorderBrush="#FF1B5E20"
+                        ToolTip="Save any changes and mark the task as done">
+                    <TextBlock Text="&#x2714;  Mark as Done" FontSize="20" FontWeight="Bold"/>
+                </Button>
+
                 <!-- Project -->
                 <StackPanel Style="{StaticResource FieldLabelRowStyle}" Margin="0,0,0,4">
                     <TextBlock Text="Project *" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Center" ToolTip="Required"/>

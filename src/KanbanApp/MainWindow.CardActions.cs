@@ -39,7 +39,10 @@ public partial class MainWindow
 
         var dialog = new AddTaskWindow(viewModel, card, currentColumn) { Owner = this };
         if (focusNotes) dialog.FocusNotesField();
-        if (dialog.ShowDialog() == true) dialog.SaveTo(viewModel, card);
+        if (dialog.ShowDialog() != true) return;
+
+        dialog.SaveTo(viewModel, card);
+        if (dialog.MarkDoneRequested && viewModel.DoneColumn is { } done) MoveCardDeferred(card, done, viewModel);
     }
 
     private void WaitingOnDisplay_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)

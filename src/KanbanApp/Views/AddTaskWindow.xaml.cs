@@ -62,6 +62,17 @@ public partial class AddTaskWindow : Window
             startDate: SelectedStartDate, waitingOn: WaitingOn, people: SelectedPeople, recurrencesLeft: RecurrencesLeft);
     }
 
+    // True when the task was closed with Mark as Done: the board saves it, then moves it to Done the same
+    // way its Done button does (completion note, next occurrence, telling the sender).
+    public bool MarkDoneRequested { get; private set; }
+
+    private void MarkDone_Click(object sender, RoutedEventArgs e)
+    {
+        MarkDoneRequested = true;
+        Add_Click(sender, e);
+        if (DialogResult != true) MarkDoneRequested = false; // the form was not complete, so nothing was saved
+    }
+
     public void SaveTo(MainViewModel viewModel, CardViewModel card)
     {
         if (SelectedColumn is null) return;
@@ -212,6 +223,7 @@ public partial class AddTaskWindow : Window
         RefreshScheduledStamp();
         ScheduleButton.Visibility = Visibility.Visible;
         RefreshSendBackButton();
+        MarkDoneButton.Visibility = currentColumn.Name == "Done" ? Visibility.Collapsed : Visibility.Visible;
 
         DetailsTextBox.Text = cardToEdit.Title;
         CategoryComboBox.SelectedItem = currentColumn;
