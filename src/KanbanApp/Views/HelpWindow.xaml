@@ -149,7 +149,7 @@
                 <local:BulletItem Text="Double-click a column heading to create a task in that column."/>
                 <local:BulletItem Text="Double-click a card to edit it."/>
                 <local:BulletItem Text="Project is required. Everything else is optional."/>
-                <local:BulletItem Text="When editing, the green Mark as Done button saves your changes and finishes the task."/>
+                <local:BulletItem Text="When editing, the green check mark beside Save and Close saves your changes and finishes the task."/>
                 <TextBlock Text="Dates and times" Style="{StaticResource HelpSubHeaderStyle}"/>
                 <local:BulletItem Text="A due time needs a due date. Type it as 2:30 PM, 2pm or 14:30."/>
                 <local:BulletItem Text="Clearing the date clears the time."/>

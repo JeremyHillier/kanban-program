@@ -8,7 +8,7 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 
 ## 0.146.0 — 2026-10-21
 
-> - New: when a task is open for editing, a large green Mark as Done button at the top saves any changes and finishes the task in one click.
+> - New: when a task is open for editing, a large green check mark beside Save & Close saves any changes and finishes the task in one click.
 
 
 ## 0.145.0 — 2026-10-20
