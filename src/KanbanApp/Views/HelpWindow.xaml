@@ -481,7 +481,7 @@
                 <local:BulletItem Text="Beside each name: how many tasks are open, overdue (in red) and undated."/>
                 <local:BulletItem Text="Click a name or its bar to show or hide its tasks. Detail shows every task."/>
                 <local:BulletItem Text="Group by Project or Goal."/>
-                <local:BulletItem Text="A goal with a target date (set in Manage Goals) shows a diamond on its row."/>
+                <local:BulletItem Text="A goal with a target date (set in Manage Goals) shows a diamond on its row, with a dashed line from the left."/>
                 <local:BulletItem Text="If its open tasks run past the target, the bar turns red from the target on."/>
                 <local:BulletItem Text="Page with the arrow buttons. Today jumps back."/>
                 <local:BulletItem Text="Include Done tasks brings finished tasks back in."/>

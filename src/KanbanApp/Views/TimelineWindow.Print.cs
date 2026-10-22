@@ -216,14 +216,20 @@ public partial class TimelineWindow
                 AddText(canvas, fitted, barLeft + 4, rowTop + 4, boldTypeface, 7.5, Brushes.White);
             }
 
-            // A goal's target date: a diamond and a thin line down the row, at the day within its month.
+            // A goal's target date: a dashed line from the left edge of the dates to a diamond, and a thin
+            // line down the row from it, at the day within its month. It sits just under a Summary bar.
             if (row.Target is { } target && TimelineLayout.TargetPosition(target, unitStarts, rangeEnd) is { } at)
             {
                 var targetX = UnitLeft(at.Unit) + Math.Clamp(at.Fraction * unitColWidth, 1, unitColWidth - 1);
-                canvas.Children.Add(new Line { X1 = targetX, Y1 = rowTop, X2 = targetX, Y2 = rowTop + rowHeight, Stroke = TargetBrush, StrokeThickness = 1 });
+                var targetY = rowTop + 2 + barHeight + 4;
+                canvas.Children.Add(new Line
+                {
+                    X1 = UnitLeft(0), Y1 = targetY, X2 = targetX, Y2 = targetY, Stroke = TargetBrush, StrokeThickness = 1, StrokeDashArray = [4, 3]
+                });
+                canvas.Children.Add(new Line { X1 = targetX, Y1 = targetY, X2 = targetX, Y2 = rowTop + rowHeight, Stroke = TargetBrush, StrokeThickness = 1 });
                 canvas.Children.Add(new Polygon
                 {
-                    Points = [new Point(targetX, rowTop + 1), new Point(targetX + 4, rowTop + 5), new Point(targetX, rowTop + 9), new Point(targetX - 4, rowTop + 5)],
+                    Points = [new Point(targetX, targetY - 4.5), new Point(targetX + 4.5, targetY), new Point(targetX, targetY + 4.5), new Point(targetX - 4.5, targetY)],
                     Fill = TargetBrush
                 });
             }

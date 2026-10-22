@@ -6,6 +6,11 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.148.1 — 2026-10-22
+
+> - Improved: on the Timeline, a goal's target date now has a dashed line running from the left edge to its diamond, so the distance to the target can be read at a glance. It prints too.
+
+
 ## 0.148.0 — 2026-10-22
 
 > - New: goals can have a target date, set in Manage Goals. Clear removes it again.

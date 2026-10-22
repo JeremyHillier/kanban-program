@@ -141,6 +141,12 @@ public partial class TimelineWindow
                 Grid.SetRowSpan(marker, row.Lanes);
                 Grid.SetColumn(marker, at.Unit);
                 laneGrid.Children.Add(marker);
+
+                var leadIn = BuildTargetLeadIn(at.Fraction, unitColWidth);
+                Grid.SetRow(leadIn, 0);
+                Grid.SetColumn(leadIn, 0);
+                Grid.SetColumnSpan(leadIn, at.Unit + 1);
+                laneGrid.Children.Insert(0, leadIn);
             }
 
             foreach (var item in row.Items)
@@ -275,17 +281,28 @@ public partial class TimelineWindow
     private static readonly Brush OverrunBarBrush = new SolidColorBrush(OverrunColor);
     private static readonly Brush TargetBrush = new SolidColorBrush(Color.FromRgb(0xE0, 0x8A, 0x00));
 
-    // The target date on a goal's row: a diamond at the top and a thin line down the row, at the day within
-    // its month column.
+    // How far down the row the target's line runs: just under a Summary bar, so the line is not hidden by it.
+    private const double TargetLineY = 26;
+
+    // The dashed line from the left edge of the dates to the diamond, behind the bar and the tasks.
+    private static FrameworkElement BuildTargetLeadIn(double fraction, double unitColWidth) => new Line
+    {
+        X1 = 0, X2 = 1, Y1 = 0, Y2 = 0, Stretch = Stretch.Fill, Stroke = TargetBrush, StrokeThickness = 1.5, StrokeDashArray = [4, 3],
+        VerticalAlignment = VerticalAlignment.Top, Margin = new Thickness(0, TargetLineY - 0.75, Math.Max(0, unitColWidth - Math.Clamp(fraction * unitColWidth, 1, unitColWidth - 1)), 0),
+        IsHitTestVisible = false
+    };
+
+    // The target date on a goal's row: a diamond on that line and a thin line down the row below it, at the day
+    // within its month column.
     private static FrameworkElement BuildTargetMarker(TimelineRow row, DateTime target, double fraction, double unitColWidth)
     {
         var x = Math.Clamp(fraction * unitColWidth, 1, unitColWidth - 1);
         var marker = new Grid { HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(x - 6, 0, 0, 0), Width = 12 };
-        marker.Children.Add(new Rectangle { Width = 1.5, Fill = TargetBrush, HorizontalAlignment = HorizontalAlignment.Center, IsHitTestVisible = false });
+        marker.Children.Add(new Rectangle { Width = 1.5, Fill = TargetBrush, HorizontalAlignment = HorizontalAlignment.Center, Margin = new Thickness(0, TargetLineY, 0, 0), IsHitTestVisible = false });
         marker.Children.Add(new TextBlock
         {
             Text = "◆", Foreground = TargetBrush, FontSize = 14, VerticalAlignment = VerticalAlignment.Top, HorizontalAlignment = HorizontalAlignment.Center,
-            Margin = new Thickness(0, -3, 0, 0), Cursor = Cursors.Help,
+            Margin = new Thickness(0, TargetLineY - 9, 0, 0), Cursor = Cursors.Help,
             ToolTip = $"{row.Name}\nTarget: {target:MMM d, yyyy}"
         });
         return marker;
