@@ -25,7 +25,7 @@ public sealed record TimelineItem(CardViewModel Card, int FirstUnit, int LastUni
 // A Summary view bar: where it runs (in columns, clamped to the window like a task's arrow) and what
 // the project or goal holds.
 public sealed record TimelineSummary(DateTime Start, DateTime End, int FirstUnit, int LastUnit, bool StartsBeforeWindow, bool EndsAfterWindow,
-    int OpenTasks, int Overdue, int Undated)
+    int OpenTasks, int Overdue, int Undated, DateTime? Target = null, double? OverrunFrom = null)
 {
     public string OpenText => $"{OpenTasks} open task{(OpenTasks == 1 ? "" : "s")}";
 
@@ -34,6 +34,19 @@ public sealed record TimelineSummary(DateTime Start, DateTime End, int FirstUnit
     public string UndatedText => Undated > 0 ? $"{Undated} undated" : string.Empty;
 
     public string CountsText => string.Join(" · ", new[] { OpenText, OverdueText, UndatedText }.Where(s => s.Length > 0));
+
+    // How far the last open task runs past the goal's target date, in words ("" when it does not).
+    public string OverrunText
+    {
+        get
+        {
+            if (Target is not { } target || End.Date <= target.Date) return string.Empty;
+
+            var days = (End.Date - target.Date).Days;
+            var amount = days >= 14 ? $"{days / 7} weeks" : $"{days} day{(days == 1 ? "" : "s")}";
+            return $"ends {amount} after target";
+        }
+    }
 
     public string DatesText =>
         Start == End ? Start.ToString("MMM d, yyyy")
@@ -109,7 +122,7 @@ public static class TimelineLayout
     // The Summary view's one bar for a project or goal: from the earliest start or due date of its open
     // tasks to the latest. Null when none of them has a date, or the bar would fall outside the window.
     // The counts cover all of the group's open tasks, not just the ones in the window.
-    public static TimelineSummary? Summarise(IEnumerable<CardViewModel> openCards, DateTime today, IReadOnlyList<DateTime> unitStarts, DateTime windowEnd)
+    public static TimelineSummary? Summarise(IEnumerable<CardViewModel> openCards, DateTime today, IReadOnlyList<DateTime> unitStarts, DateTime windowEnd, DateTime? target = null)
     {
         var cards = openCards.ToList();
         var spans = cards.Select(SpanOf).OfType<(DateTime Start, DateTime End)>().ToList();
@@ -122,13 +135,37 @@ public static class TimelineLayout
 
         var before = start < windowStart;
         var after = end >= windowEnd;
-        return new TimelineSummary(start, end,
-            before ? 0 : TimelineScale.UnitIndex(unitStarts, start),
-            after ? unitStarts.Count - 1 : TimelineScale.UnitIndex(unitStarts, end),
-            before, after,
+        var first = before ? 0 : TimelineScale.UnitIndex(unitStarts, start);
+        var last = after ? unitStarts.Count - 1 : TimelineScale.UnitIndex(unitStarts, end);
+
+        // Where the bar turns red: the part of it after the goal's target date, as a share of its width.
+        // Null when it does not run past the target, or the target is beyond the right edge.
+        double? overrunFrom = null;
+        if (target is { } day && end.Date > day.Date)
+        {
+            if (day.Date < windowStart) overrunFrom = 0;
+            else if (TargetPosition(day, unitStarts, windowEnd) is { } position)
+                overrunFrom = Math.Clamp((position.Unit - first + position.Fraction) / (last - first + 1), 0, 1);
+        }
+
+        return new TimelineSummary(start, end, first, last, before, after,
             cards.Count,
             cards.Count(c => c.DueDate is { } due && due.Date < today.Date),
-            cards.Count - spans.Count);
+            cards.Count - spans.Count,
+            target, overrunFrom is >= 1 ? null : overrunFrom);
+    }
+
+    // The column a goal's target date falls in and how far through that column it is (0 to 1), for the
+    // diamond marker. Null when the date is outside the window.
+    public static (int Unit, double Fraction)? TargetPosition(DateTime target, IReadOnlyList<DateTime> unitStarts, DateTime windowEnd)
+    {
+        var day = target.Date;
+        if (day < unitStarts[0] || day >= windowEnd) return null;
+
+        var unit = TimelineScale.UnitIndex(unitStarts, day);
+        var unitEnd = unit + 1 < unitStarts.Count ? unitStarts[unit + 1] : windowEnd;
+        var length = (unitEnd - unitStarts[unit]).TotalDays;
+        return (unit, length <= 0 ? 0 : (day - unitStarts[unit]).TotalDays / length);
     }
 
     // "Oct 20"; "Oct 3 to Oct 20" with a start date; "starts Oct 3" with only a start date.

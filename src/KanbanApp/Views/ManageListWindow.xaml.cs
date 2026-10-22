@@ -15,6 +15,7 @@ public partial class ManageListWindow : Window
     // Read by the row template, so they are set before InitializeComponent builds it.
     public string ActiveToolTip { get; }
     public Visibility EmailVisibility { get; }
+    public Visibility TargetVisibility { get; }
 
     internal ManageListWindow(MainViewModel viewModel, ManagedListKind kind)
     {
@@ -22,6 +23,7 @@ public partial class ManageListWindow : Window
         _kind = kind;
         ActiveToolTip = $"When off, this {kind.Noun} is hidden from filters and from selection on new/edited tasks. Tasks already using it are unaffected.";
         EmailVisibility = kind.HasEmail ? Visibility.Visible : Visibility.Collapsed;
+        TargetVisibility = kind.HasTarget ? Visibility.Visible : Visibility.Collapsed;
 
         InitializeComponent();
         Title = kind.Title;
@@ -61,6 +63,19 @@ public partial class ManageListWindow : Window
         // Doesn't re-sort the list (email isn't a sort key), so unlike Name_LostFocus this
         // is safe to apply synchronously - no risk of tearing down this TextBox's own row mid-dispatch.
         _kind.SetEmail(item, textBox.Text);
+    }
+
+    // A goal's target date. The picker also raises this when the row is first drawn, so only a real change is saved.
+    private void Target_Changed(object sender, SelectionChangedEventArgs e)
+    {
+        if (sender is not DatePicker { DataContext: GoalViewModel goal } picker || goal.TargetDate == picker.SelectedDate?.Date) return;
+
+        _kind.SetTarget(goal, picker.SelectedDate);
+    }
+
+    private void ClearTarget_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is FrameworkElement { DataContext: GoalViewModel goal }) _kind.SetTarget(goal, null);
     }
 
     private void Active_Changed(object sender, RoutedEventArgs e)

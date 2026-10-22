@@ -92,6 +92,7 @@ public partial class DatabaseService
         MigrateColumn(connection, "Cards", "ShareId", "TEXT NULL");
         MigrateColumn(connection, "Projects", "IsActive", "INTEGER NOT NULL DEFAULT 1");
         MigrateColumn(connection, "Goals", "IsActive", "INTEGER NOT NULL DEFAULT 1");
+        MigrateColumn(connection, "Goals", "TargetDate", "TEXT NULL");
         MigrateColumn(connection, "Flags", "IsActive", "INTEGER NOT NULL DEFAULT 1");
         MigrateColumn(connection, "Columns", "DisplayName", "TEXT");
         MigrateColumn(connection, "People", "Email", "TEXT NULL");

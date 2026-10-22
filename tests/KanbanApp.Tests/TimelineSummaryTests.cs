@@ -85,4 +85,50 @@ public sealed class TimelineSummaryTests
         Assert.Null(TimelineLayout.Summarise([Task(null, new DateTime(2027, 5, 1))], Today, starts, new DateTime(2027, 4, 1)));
         Assert.Null(TimelineLayout.Summarise([], Today, starts, new DateTime(2027, 4, 1)));
     }
+
+    [Fact]
+    public void ABarRunningPastTheTarget_TurnsRedFromTheTarget_AndSaysHowFar()
+    {
+        var starts = Months(new DateTime(2026, 10, 1));
+        var cards = new[] { Task(null, new DateTime(2026, 11, 10)), Task(null, new DateTime(2027, 1, 12)) };
+
+        var bar = TimelineLayout.Summarise(cards, Today, starts, new DateTime(2027, 4, 1), target: new DateTime(2026, 12, 1))!;
+
+        Assert.Equal((1, 3), (bar.FirstUnit, bar.LastUnit));
+        Assert.Equal(1d / 3, bar.OverrunFrom!.Value, 3); // the bar covers Nov, Dec, Jan; red starts where December does
+        Assert.Equal("ends 6 weeks after target", bar.OverrunText);
+    }
+
+    [Fact]
+    public void ABarEndingOnOrBeforeTheTarget_IsNotFlagged()
+    {
+        var starts = Months(new DateTime(2026, 10, 1));
+        var bar = TimelineLayout.Summarise([Task(null, new DateTime(2026, 12, 1))], Today, starts, new DateTime(2027, 4, 1), target: new DateTime(2026, 12, 1))!;
+
+        Assert.Null(bar.OverrunFrom);
+        Assert.Equal(string.Empty, bar.OverrunText);
+    }
+
+    [Fact]
+    public void ATargetBeforeTheWindow_MakesTheWholeBarRed_AndOneBeyondItNone()
+    {
+        var starts = Months(new DateTime(2026, 10, 1));
+        var cards = new[] { Task(null, new DateTime(2026, 11, 20)) };
+
+        Assert.Equal(0d, TimelineLayout.Summarise(cards, Today, starts, new DateTime(2027, 4, 1), target: new DateTime(2026, 9, 1))!.OverrunFrom);
+        Assert.Null(TimelineLayout.Summarise(cards, Today, starts, new DateTime(2027, 4, 1), target: new DateTime(2027, 9, 1))!.OverrunFrom);
+        Assert.Equal("ends 1 day after target", TimelineLayout.Summarise([Task(null, new DateTime(2026, 11, 2))], Today, starts, new DateTime(2027, 4, 1), target: new DateTime(2026, 11, 1))!.OverrunText);
+    }
+
+    [Fact]
+    public void TheTargetMarker_SitsInItsMonth_PartWayAcrossIt()
+    {
+        var starts = Months(new DateTime(2026, 10, 1));
+        var position = TimelineLayout.TargetPosition(new DateTime(2026, 11, 16), starts, new DateTime(2027, 4, 1))!.Value;
+
+        Assert.Equal(1, position.Unit);
+        Assert.Equal(15d / 30, position.Fraction, 3);
+        Assert.Null(TimelineLayout.TargetPosition(new DateTime(2027, 4, 1), starts, new DateTime(2027, 4, 1)));
+        Assert.Null(TimelineLayout.TargetPosition(new DateTime(2026, 9, 30), starts, new DateTime(2027, 4, 1)));
+    }
 }

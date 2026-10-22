@@ -22,10 +22,10 @@ public partial class TimelineWindow : Window
 
     // One row of the Timeline: a project or goal. Summary is its bar (Summary view only); Items are its
     // tasks, laid out by TimelineLayout - every row in Detail view, only opened rows in Summary view.
-    private sealed record TimelineRow(string Name, bool IsExpanded, TimelineSummary? Summary, List<TimelineItem> Items)
+    private sealed record TimelineRow(string Name, bool IsExpanded, TimelineSummary? Summary, List<TimelineItem> Items, DateTime? Target = null)
     {
         public int FirstTaskLane => Summary is null ? 0 : 1;
-        public int Lanes => FirstTaskLane + (Items.Count == 0 ? 0 : Items.Max(i => i.Lane) + 1);
+        public int Lanes => Math.Max(1, FirstTaskLane + (Items.Count == 0 ? 0 : Items.Max(i => i.Lane) + 1));
     }
 
     // The same colours as the priority badge on the board: both come from the task file's priority list.
@@ -232,17 +232,23 @@ public partial class TimelineWindow : Window
         foreach (var name in order)
         {
             var groupTasks = tasks.GetValueOrDefault(name) ?? [];
+
+            // A goal's target date (Group by Goal only). A goal whose target falls in the window gets a row
+            // even if none of its tasks are showing, so the target is never lost.
+            var target = IsByGoal ? _viewModel.Goals.FirstOrDefault(g => g.Name == name)?.TargetDate : null;
+            var targetShows = target is { } day && TimelineLayout.TargetPosition(day, unitStarts, rangeEnd) is not null;
+
             if (IsSummary)
             {
-                var summary = TimelineLayout.Summarise(open.GetValueOrDefault(name) ?? [], DateTime.Today, unitStarts, rangeEnd);
-                if (summary is null) continue;
+                var summary = TimelineLayout.Summarise(open.GetValueOrDefault(name) ?? [], DateTime.Today, unitStarts, rangeEnd, target);
+                if (summary is null && !targetShows) continue;
 
                 var expanded = _expanded.Contains(name);
-                rows.Add(new TimelineRow(name, expanded, summary, expanded ? TimelineLayout.Place(groupTasks, unitStarts, rangeEnd) : []));
+                rows.Add(new TimelineRow(name, expanded, summary, expanded ? TimelineLayout.Place(groupTasks, unitStarts, rangeEnd) : [], target));
             }
-            else if (groupTasks.Count > 0)
+            else if (groupTasks.Count > 0 || targetShows)
             {
-                rows.Add(new TimelineRow(name, true, null, TimelineLayout.Place(groupTasks, unitStarts, rangeEnd)));
+                rows.Add(new TimelineRow(name, true, null, TimelineLayout.Place(groupTasks, unitStarts, rangeEnd), target));
             }
         }
 

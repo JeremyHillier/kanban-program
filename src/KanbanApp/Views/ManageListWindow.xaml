@@ -58,6 +58,17 @@
                                          ToolTip="Email address (optional) - lets you email this person's tasks to them directly from a card"
                                          Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
                                          BorderBrush="{DynamicResource CardBorderBrush}"/>
+                                <!-- Goals only: when it should be finished (optional). -->
+                                <StackPanel Orientation="Horizontal" Margin="0,4,0,0"
+                                            Visibility="{Binding TargetVisibility, RelativeSource={RelativeSource AncestorType=Window}}">
+                                    <TextBlock Text="Target date" VerticalAlignment="Center" Margin="2,0,8,0" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                                    <DatePicker Width="150" Padding="4"
+                                                SelectedDate="{Binding TargetDate, Mode=OneWay}"
+                                                SelectedDateChanged="Target_Changed"
+                                                ToolTip="When this goal should be finished (optional). Shown on the Timeline when grouped by goal, which flags a goal whose open tasks run past it."/>
+                                    <Button Content="Clear" Padding="10,4" Margin="6,0,0,0" Click="ClearTarget_Click" ToolTip="Take the target date off"
+                                            Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                                </StackPanel>
                             </StackPanel>
                         </Border>
                     </DataTemplate>

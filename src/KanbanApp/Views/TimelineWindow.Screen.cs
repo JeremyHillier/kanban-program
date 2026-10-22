@@ -134,6 +134,15 @@ public partial class TimelineWindow
                 laneGrid.Children.Add(bar);
             }
 
+            if (row.Target is { } target && TimelineLayout.TargetPosition(target, unitStarts, rangeEnd) is { } at)
+            {
+                var marker = BuildTargetMarker(row, target, at.Fraction, unitColWidth);
+                Grid.SetRow(marker, 0);
+                Grid.SetRowSpan(marker, row.Lanes);
+                Grid.SetColumn(marker, at.Unit);
+                laneGrid.Children.Add(marker);
+            }
+
             foreach (var item in row.Items)
             {
                 var task = item.Card;
@@ -197,9 +206,31 @@ public partial class TimelineWindow
     private FrameworkElement BuildNameCell(TimelineRow row, Brush brush, Brush secondaryBrush)
     {
         var panel = new StackPanel { Margin = new Thickness(6), VerticalAlignment = VerticalAlignment.Top };
+
+        // A goal's target date, and (Summary) how far its open tasks run past it.
+        void AddTargetLines(TimelineSummary? summary)
+        {
+            if (row.Target is not { } target) return;
+
+            var line = new TextBlock { FontSize = 11, Foreground = secondaryBrush, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(row.Summary is null ? 0 : 12, 2, 0, 0) };
+            line.Inlines.Add(new Run("◆ ") { Foreground = TargetBrush });
+            line.Inlines.Add(new Run($"Target {target:MMM d, yyyy}"));
+            panel.Children.Add(line);
+
+            if (summary?.OverrunText is { Length: > 0 } overrun)
+            {
+                panel.Children.Add(new TextBlock
+                {
+                    Text = overrun, FontSize = 11, Foreground = OverdueBrush, FontWeight = FontWeights.SemiBold, TextWrapping = TextWrapping.Wrap,
+                    Margin = new Thickness(12, 1, 0, 0)
+                });
+            }
+        }
+
         if (row.Summary is not { } summary)
         {
             panel.Children.Add(new TextBlock { Text = row.Name, FontWeight = FontWeights.SemiBold, Foreground = brush, TextWrapping = TextWrapping.Wrap });
+            AddTargetLines(null);
             return panel;
         }
 
@@ -217,12 +248,47 @@ public partial class TimelineWindow
         }
         if (summary.Undated > 0) counts.Inlines.Add(new Run($" · {summary.UndatedText}"));
         panel.Children.Add(counts);
+        AddTargetLines(summary);
 
         panel.Background = Brushes.Transparent; // so the whole cell takes the click, not just the text
         panel.Cursor = Cursors.Hand;
         panel.ToolTip = row.IsExpanded ? "Hide its tasks" : "Show its tasks";
         panel.MouseLeftButtonUp += (_, _) => ToggleRow(row.Name);
         return panel;
+    }
+
+    // The bar's colour; red from the goal's target date onward when its open tasks run past it (a hard
+    // stop in a gradient, so it is one bar with two colours).
+    private Brush BarBrush(TimelineSummary summary)
+    {
+        var color = SummaryBarColor;
+        if (summary.OverrunFrom is not { } from) return new SolidColorBrush(color);
+        if (from <= 0) return OverrunBarBrush;
+
+        return new LinearGradientBrush(
+        [
+            new GradientStop(color, 0), new GradientStop(color, from), new GradientStop(OverrunColor, from), new GradientStop(OverrunColor, 1)
+        ], new Point(0, 0), new Point(1, 0));
+    }
+
+    private static readonly Color OverrunColor = Color.FromRgb(0xC6, 0x28, 0x28);
+    private static readonly Brush OverrunBarBrush = new SolidColorBrush(OverrunColor);
+    private static readonly Brush TargetBrush = new SolidColorBrush(Color.FromRgb(0xE0, 0x8A, 0x00));
+
+    // The target date on a goal's row: a diamond at the top and a thin line down the row, at the day within
+    // its month column.
+    private static FrameworkElement BuildTargetMarker(TimelineRow row, DateTime target, double fraction, double unitColWidth)
+    {
+        var x = Math.Clamp(fraction * unitColWidth, 1, unitColWidth - 1);
+        var marker = new Grid { HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(x - 6, 0, 0, 0), Width = 12 };
+        marker.Children.Add(new Rectangle { Width = 1.5, Fill = TargetBrush, HorizontalAlignment = HorizontalAlignment.Center, IsHitTestVisible = false });
+        marker.Children.Add(new TextBlock
+        {
+            Text = "◆", Foreground = TargetBrush, FontSize = 14, VerticalAlignment = VerticalAlignment.Top, HorizontalAlignment = HorizontalAlignment.Center,
+            Margin = new Thickness(0, -3, 0, 0), Cursor = Cursors.Help,
+            ToolTip = $"{row.Name}\nTarget: {target:MMM d, yyyy}"
+        });
+        return marker;
     }
 
     // A Summary bar: the dates its open tasks run between, square-ended with a ◀ or ▶ where it runs past
@@ -232,7 +298,7 @@ public partial class TimelineWindow
         var text = $"{(summary.StartsBeforeWindow ? "◀ " : "")}{summary.DatesText}{(summary.EndsAfterWindow ? " ▶" : "")}";
         var bar = new Border
         {
-            Background = new SolidColorBrush(SummaryBarColor),
+            Background = BarBrush(summary),
             CornerRadius = new CornerRadius(summary.StartsBeforeWindow ? 0 : 4, summary.EndsAfterWindow ? 0 : 4, summary.EndsAfterWindow ? 0 : 4, summary.StartsBeforeWindow ? 0 : 4),
             Padding = new Thickness(6, 4, 6, 4),
             Margin = new Thickness(summary.StartsBeforeWindow ? 0 : 3, 0, summary.EndsAfterWindow ? 0 : 3, 4),

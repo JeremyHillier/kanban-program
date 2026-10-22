@@ -161,7 +161,10 @@ public partial class TimelineWindow
             // The name column: the name, and in Summary view the counts under it.
             var nameLines = WrapWords(projectName, boldTypeface, 9, projectColWidth - 8);
             var countLines = row.Summary is { } counted ? WrapWords(counted.CountsText, regularTypeface, 7.5, projectColWidth - 8) : [];
-            var nameHeight = (nameLines.Count + countLines.Count) * lineHeight + 4;
+            var targetLines = new List<string>();
+            if (row.Target is { } goalTarget) targetLines.Add($"Target {goalTarget:MMM d, yyyy}");
+            if (row.Summary?.OverrunText is { Length: > 0 } overrunText) targetLines.Add(overrunText);
+            var nameHeight = (nameLines.Count + countLines.Count + targetLines.Count) * lineHeight + 4;
             var rowHeight = Math.Max(Math.Max(rowMinHeight, nameHeight), laneHeights.Sum()) + 4;
 
             if (y + rowHeight > bottomLimit) NewPage();
@@ -184,6 +187,12 @@ public partial class TimelineWindow
                 AddText(canvas, line, margin + 4, labelY, regularTypeface, 7.5, Brushes.DimGray);
                 labelY += lineHeight;
             }
+            foreach (var line in targetLines)
+            {
+                var isOverrun = line.StartsWith("ends ", StringComparison.Ordinal);
+                AddText(canvas, line, margin + 4, labelY, isOverrun ? boldTypeface : regularTypeface, 7.5, isOverrun ? new SolidColorBrush(OverrunColor) : Brushes.DimGray);
+                labelY += lineHeight;
+            }
 
             double UnitLeft(int unit) => margin + projectColWidth + unit * unitColWidth;
 
@@ -194,7 +203,7 @@ public partial class TimelineWindow
                 var barRight = UnitLeft(summary.LastUnit + 1) - (summary.EndsAfterWindow ? 0 : 1.5);
                 var barRect = new Rectangle
                 {
-                    Width = barRight - barLeft, Height = barHeight, Fill = new SolidColorBrush(SummaryBarColor),
+                    Width = barRight - barLeft, Height = barHeight, Fill = BarBrush(summary),
                     RadiusX = summary.StartsBeforeWindow || summary.EndsAfterWindow ? 0 : 3,
                     RadiusY = summary.StartsBeforeWindow || summary.EndsAfterWindow ? 0 : 3
                 };
@@ -205,6 +214,18 @@ public partial class TimelineWindow
                 var barText = $"{(summary.StartsBeforeWindow ? "◀ " : "")}{summary.DatesText}{(summary.EndsAfterWindow ? " ▶" : "")}";
                 var fitted = WrapWords(barText, boldTypeface, 7.5, Math.Max(10, barRight - barLeft - 8)).FirstOrDefault() ?? string.Empty;
                 AddText(canvas, fitted, barLeft + 4, rowTop + 4, boldTypeface, 7.5, Brushes.White);
+            }
+
+            // A goal's target date: a diamond and a thin line down the row, at the day within its month.
+            if (row.Target is { } target && TimelineLayout.TargetPosition(target, unitStarts, rangeEnd) is { } at)
+            {
+                var targetX = UnitLeft(at.Unit) + Math.Clamp(at.Fraction * unitColWidth, 1, unitColWidth - 1);
+                canvas.Children.Add(new Line { X1 = targetX, Y1 = rowTop, X2 = targetX, Y2 = rowTop + rowHeight, Stroke = TargetBrush, StrokeThickness = 1 });
+                canvas.Children.Add(new Polygon
+                {
+                    Points = [new Point(targetX, rowTop + 1), new Point(targetX + 4, rowTop + 5), new Point(targetX, rowTop + 9), new Point(targetX - 4, rowTop + 5)],
+                    Fill = TargetBrush
+                });
             }
 
             foreach (var item in items)

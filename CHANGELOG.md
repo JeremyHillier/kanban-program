@@ -6,6 +6,12 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.148.0 — 2026-10-22
+
+> - New: goals can have a target date, set in Manage Goals. Clear removes it again.
+> - New: when the Timeline is grouped by goal, the target appears as a diamond on the goal's row. If the goal's open tasks run past it, the bar turns red from the target onward and the row says how far past it they end.
+
+
 ## 0.147.0 — 2026-10-22
 
 > - New: the Timeline has a Month view, showing six months at a time with one column per month.

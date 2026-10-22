@@ -27,11 +27,14 @@ public partial class DatabaseService
     //    the file is only stamped 7 once one is saved (PathLinkFileFormat). No table changed.
     // 8: SharedTasks - who sent a shared task, and what it looked like when last exchanged, so a returned
     //    copy can be told from a clash (0.139.0). A new table older copies ignore, stamped on first write.
+    // 9: Goals.TargetDate (0.148.0) - older copies ignore the column but would lose it if they rewrote the
+    //    list, so the file is only stamped 9 once a target date has been set (GoalTargetFileFormat).
     // The newest format this copy of the app understands.
-    public const int CurrentFileFormat = 8;
+    public const int CurrentFileFormat = 9;
 
     public const int DayRangeFileFormat = 6;
     public const int PathLinkFileFormat = 7;
+    public const int GoalTargetFileFormat = 9;
 
     // What every file is raised to just by being opened. Formats 4 to 8 only matter once their
     // feature is used: a file whose priorities are still the standard four, and with no shared
