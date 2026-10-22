@@ -262,10 +262,19 @@ public partial class MainViewModel
             left.ToString(invariant), top.ToString(invariant), width.ToString(invariant), height.ToString(invariant), maximized ? "1" : "0"));
     }
 
-    // Whether the Timeline was last left in Day view (otherwise Week view, which is also the default).
-    public bool TimelineDayView => _db.GetSetting("TimelineView") == "Day";
+    // How the Timeline was last left: Week, Day or Month view (Week by default), Summary or Detail
+    // (Summary by default), and grouped by project (default) or goal. Each is saved as soon as it is switched.
+    public TimelineZoom TimelineView => TimelineScale.Parse(_db.GetSetting("TimelineView"));
 
-    public void SaveTimelineDayView(bool dayView) => _db.SetSetting("TimelineView", dayView ? "Day" : "Week");
+    public void SaveTimelineView(TimelineZoom zoom) => _db.SetSetting("TimelineView", zoom.ToString());
+
+    public bool TimelineSummary => _db.GetFlag("TimelineSummary", true);
+
+    public void SaveTimelineSummary(bool summary) => _db.SetFlag("TimelineSummary", summary);
+
+    public bool TimelineByGoal => _db.GetFlag("TimelineByGoal", false);
+
+    public void SaveTimelineByGoal(bool byGoal) => _db.SetFlag("TimelineByGoal", byGoal);
 
     public bool ShowSplash { get; private set; }
     public int SplashDelayMs { get; private set; }

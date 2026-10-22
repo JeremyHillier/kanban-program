@@ -20,26 +20,49 @@
         <TextBlock Grid.Row="0" Text="Timeline" FontWeight="Bold" FontSize="20" Margin="0,0,0,10"
                    Foreground="{DynamicResource PrimaryTextBrush}"/>
 
-        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,10">
-            <Button x:Name="PrevButton" Padding="10,6" Click="Prev_Click" ToolTip="Earlier (Left arrow)"
-                    Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
-            <Button Content="Today" Padding="10,6" Margin="6,0,0,0" Click="Today_Click" ToolTip="Back to today (Home)"
-                    Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
-            <Button x:Name="NextButton" Padding="10,6" Margin="6,0,0,0" Click="Next_Click" ToolTip="Later (Right arrow)"
-                    Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
-            <TextBlock x:Name="RangeLabel" VerticalAlignment="Center" Margin="16,0,0,0" FontWeight="SemiBold"
-                       Foreground="{DynamicResource PrimaryTextBrush}"/>
-
-            <StackPanel Orientation="Horizontal" Margin="24,0,0,0">
-                <RadioButton x:Name="WeekViewRadio" Content="Week view" GroupName="ZoomLevel" IsChecked="True" VerticalAlignment="Center" Margin="0,0,12,0"
-                             Checked="ZoomLevel_Changed" Foreground="{DynamicResource PrimaryTextBrush}"/>
-                <RadioButton x:Name="DayViewRadio" Content="Day view" GroupName="ZoomLevel" VerticalAlignment="Center"
-                             Checked="ZoomLevel_Changed" Foreground="{DynamicResource PrimaryTextBrush}"/>
+        <StackPanel Grid.Row="1" Margin="0,0,0,10">
+            <StackPanel Orientation="Horizontal">
+                <Button x:Name="PrevButton" Padding="10,6" Click="Prev_Click" ToolTip="Earlier (Left arrow)"
+                        Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                <Button Content="Today" Padding="10,6" Margin="6,0,0,0" Click="Today_Click" ToolTip="Back to today (Home)"
+                        Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                <Button x:Name="NextButton" Padding="10,6" Margin="6,0,0,0" Click="Next_Click" ToolTip="Later (Right arrow)"
+                        Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                <TextBlock x:Name="RangeLabel" VerticalAlignment="Center" Margin="16,0,0,0" FontWeight="SemiBold"
+                           Foreground="{DynamicResource PrimaryTextBrush}"/>
             </StackPanel>
 
-            <CheckBox x:Name="IncludeDoneCheckBox" Content="Include Done tasks" VerticalAlignment="Center"
-                      Margin="24,0,0,0" Checked="IncludeDoneCheckBox_Changed" Unchecked="IncludeDoneCheckBox_Changed"
-                      Foreground="{DynamicResource PrimaryTextBrush}"/>
+            <WrapPanel Margin="0,10,0,0">
+                <StackPanel Orientation="Horizontal" Margin="0,0,28,0">
+                    <RadioButton x:Name="MonthViewRadio" Content="Month view" GroupName="ZoomLevel" VerticalAlignment="Center" Margin="0,0,12,0"
+                                 Checked="ZoomLevel_Changed" Foreground="{DynamicResource PrimaryTextBrush}" ToolTip="Six months, one column a month"/>
+                    <RadioButton x:Name="WeekViewRadio" Content="Week view" GroupName="ZoomLevel" IsChecked="True" VerticalAlignment="Center" Margin="0,0,12,0"
+                                 Checked="ZoomLevel_Changed" Foreground="{DynamicResource PrimaryTextBrush}" ToolTip="Twelve weeks, one column a week"/>
+                    <RadioButton x:Name="DayViewRadio" Content="Day view" GroupName="ZoomLevel" VerticalAlignment="Center"
+                                 Checked="ZoomLevel_Changed" Foreground="{DynamicResource PrimaryTextBrush}" ToolTip="Three weeks, one column a day"/>
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal" Margin="0,0,28,0">
+                    <RadioButton x:Name="SummaryRadio" Content="Summary" GroupName="Detail" IsChecked="True" VerticalAlignment="Center" Margin="0,0,12,0"
+                                 Checked="Mode_Changed" Foreground="{DynamicResource PrimaryTextBrush}"
+                                 ToolTip="One bar for each project or goal, from the first date of its open tasks to the last. Click a name or bar to show its tasks."/>
+                    <RadioButton x:Name="DetailRadio" Content="Detail" GroupName="Detail" VerticalAlignment="Center"
+                                 Checked="Mode_Changed" Foreground="{DynamicResource PrimaryTextBrush}" ToolTip="Every task, with its dates"/>
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal" Margin="0,0,28,0">
+                    <TextBlock Text="Group by" VerticalAlignment="Center" Margin="0,0,10,0" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                    <RadioButton x:Name="ByProjectRadio" Content="Project" GroupName="GroupBy" IsChecked="True" VerticalAlignment="Center" Margin="0,0,12,0"
+                                 Checked="GroupBy_Changed" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                    <RadioButton x:Name="ByGoalRadio" Content="Goal" GroupName="GroupBy" VerticalAlignment="Center"
+                                 Checked="GroupBy_Changed" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                </StackPanel>
+
+                <CheckBox x:Name="IncludeDoneCheckBox" Content="Include Done tasks" VerticalAlignment="Center"
+                          Checked="IncludeDoneCheckBox_Changed" Unchecked="IncludeDoneCheckBox_Changed"
+                          Foreground="{DynamicResource PrimaryTextBrush}"
+                          ToolTip="Show finished tasks among the tasks. Summary bars always cover open tasks only."/>
+            </WrapPanel>
         </StackPanel>
 
         <Grid Grid.Row="2">

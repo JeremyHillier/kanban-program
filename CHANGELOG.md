@@ -6,6 +6,14 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.147.0 — 2026-10-22
+
+> - New: the Timeline has a Month view, showing six months at a time with one column per month.
+> - New: a Summary view on the Timeline shows one bar per project, running from the first to the last date of its open tasks, with how many are open, overdue and undated. Click a project to show its tasks.
+> - New: the Timeline can group by goal as well as by project.
+> - Improved: the Timeline opens in Summary view and remembers the view and grouping last used.
+
+
 ## 0.146.0 — 2026-10-21
 
 > - New: when a task is open for editing, a large green check mark beside Save & Close saves any changes and finishes the task in one click.

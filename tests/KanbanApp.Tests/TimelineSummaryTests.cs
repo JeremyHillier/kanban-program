@@ -1,0 +1,88 @@
+using KanbanApp.Models;
+using KanbanApp.Services;
+using KanbanApp.ViewModels;
+
+namespace KanbanApp.Tests;
+
+// Month view's columns and the Summary view's one bar per project or goal.
+public sealed class TimelineSummaryTests
+{
+    private static readonly DateTime Today = new(2026, 10, 22);
+
+    private static CardViewModel Task(DateTime? start, DateTime? due) =>
+        new(new CardItem { Title = "T", StartDate = start, DueDate = due, Priority = "Normal" });
+
+    private static List<DateTime> Months(DateTime start) => TimelineScale.UnitStarts(TimelineZoom.Month, start);
+
+    [Fact]
+    public void MonthView_IsSixCalendarMonths_FromThe1st_PagedThreeAtATime()
+    {
+        var start = TimelineScale.Snap(TimelineZoom.Month, Today);
+
+        Assert.Equal(new DateTime(2026, 10, 1), start);
+        Assert.Equal(6, Months(start).Count);
+        Assert.Equal(new DateTime(2027, 3, 1), Months(start)[5]);
+        Assert.Equal(new DateTime(2027, 4, 1), TimelineScale.End(TimelineZoom.Month, start));
+        Assert.Equal(new DateTime(2027, 1, 1), TimelineScale.Step(TimelineZoom.Month, start, 1));
+        Assert.Equal(new DateTime(2026, 7, 1), TimelineScale.Step(TimelineZoom.Month, start, -1));
+    }
+
+    [Fact]
+    public void SwitchingBackFromMonths_SnapsToAMonday()
+    {
+        Assert.Equal(new DateTime(2026, 9, 28), TimelineScale.Snap(TimelineZoom.Week, new DateTime(2026, 10, 1)));
+        Assert.Equal(TimelineZoom.Month, TimelineScale.Parse("Month"));
+        Assert.Equal(TimelineZoom.Week, TimelineScale.Parse(null));
+    }
+
+    [Fact]
+    public void InMonthView_ATaskRunsFromItsStartMonthToItsDueMonth()
+    {
+        var starts = Months(new DateTime(2026, 10, 1));
+        var item = Assert.Single(TimelineLayout.Place([Task(new DateTime(2026, 10, 31), new DateTime(2026, 12, 1))], starts, new DateTime(2027, 4, 1)));
+
+        Assert.Equal((0, 2), (item.FirstUnit, item.LastUnit));
+        Assert.True(item.HasArrow);
+    }
+
+    [Fact]
+    public void TheBar_RunsFromTheEarliestDateToTheLatest_AndCountsOverdueAndUndated()
+    {
+        var starts = Months(new DateTime(2026, 10, 1));
+        var cards = new[]
+        {
+            Task(null, new DateTime(2026, 10, 15)),                    // overdue
+            Task(new DateTime(2026, 11, 2), new DateTime(2027, 1, 20)),
+            Task(null, null),                                          // undated
+        };
+
+        var bar = TimelineLayout.Summarise(cards, Today, starts, new DateTime(2027, 4, 1))!;
+
+        Assert.Equal((new DateTime(2026, 10, 15), new DateTime(2027, 1, 20)), (bar.Start, bar.End));
+        Assert.Equal((0, 3), (bar.FirstUnit, bar.LastUnit));
+        Assert.Equal((3, 1, 1), (bar.OpenTasks, bar.Overdue, bar.Undated));
+        Assert.Equal("3 open tasks · 1 overdue · 1 undated", bar.CountsText);
+        Assert.Equal("Oct 15, 2026 – Jan 20, 2027", bar.DatesText);
+    }
+
+    [Fact]
+    public void ABarRunningPastEitherEdge_IsClampedAndSaysSo()
+    {
+        var starts = Months(new DateTime(2026, 10, 1));
+        var bar = TimelineLayout.Summarise([Task(new DateTime(2026, 8, 1), new DateTime(2027, 6, 1))], Today, starts, new DateTime(2027, 4, 1))!;
+
+        Assert.Equal((0, 5), (bar.FirstUnit, bar.LastUnit));
+        Assert.True(bar.StartsBeforeWindow);
+        Assert.True(bar.EndsAfterWindow);
+    }
+
+    [Fact]
+    public void NoBar_WhenNothingHasADate_OrItIsAllOutsideTheWindow()
+    {
+        var starts = Months(new DateTime(2026, 10, 1));
+
+        Assert.Null(TimelineLayout.Summarise([Task(null, null)], Today, starts, new DateTime(2027, 4, 1)));
+        Assert.Null(TimelineLayout.Summarise([Task(null, new DateTime(2027, 5, 1))], Today, starts, new DateTime(2027, 4, 1)));
+        Assert.Null(TimelineLayout.Summarise([], Today, starts, new DateTime(2027, 4, 1)));
+    }
+}

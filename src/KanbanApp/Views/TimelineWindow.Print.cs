@@ -36,7 +36,10 @@ public partial class TimelineWindow
         const double chipPadding = 4;
         const double chipGap = 2;
 
-        var (rowProjects, byProject, unitsToShow, unitDays, rangeEnd) = GetVisibleData();
+        const double barHeight = 16;
+
+        var (rows, unitStarts, rangeEnd) = GetVisibleData();
+        var unitsToShow = unitStarts.Count;
 
         var contentWidth = pageWidth - 2 * margin;
         var unitColWidth = (contentWidth - projectColWidth) / unitsToShow;
@@ -97,15 +100,14 @@ public partial class TimelineWindow
             canvas.Children.Add(band);
             AddText(canvas, "Timeline", margin, 10, boldTypeface, 18, Brushes.White);
             AddText(canvas,
-                $"{_windowStart:MMM d} – {rangeEnd.AddDays(-1):MMM d, yyyy}   •   {(IsDayView ? "Day view" : "Week view")}   •   Generated {DateTime.Now:MMM d, yyyy}",
+                $"{_windowStart:MMM d} – {rangeEnd.AddDays(-1):MMM d, yyyy}   •   {TimelineScale.ViewName(Zoom)}, {(IsSummary ? "summary" : "detail")}, by {(IsByGoal ? "goal" : "project")}   •   Generated {DateTime.Now:MMM d, yyyy}",
                 margin, 32, regularTypeface, 10, subtitleBrush);
 
             var headerY = headerBandHeight + 4;
-            AddText(canvas, "Projects", margin + 4, headerY + 6, boldTypeface, 10, accentBrush);
+            AddText(canvas, GroupHeading, margin + 4, headerY + 6, boldTypeface, 10, accentBrush);
             for (var w = 0; w < unitsToShow; w++)
             {
-                var unitStart = _windowStart.AddDays(w * unitDays);
-                var label = IsDayView ? unitStart.ToString("ddd d-MMM") : unitStart.ToString("d-MMM");
+                var label = UnitLabel(unitStarts[w], print: true);
                 var colCenterX = margin + projectColWidth + w * unitColWidth + unitColWidth / 2;
                 AddText(canvas, label, colCenterX, headerY + 6, boldTypeface, 8, accentBrush, TextAlignment.Center);
             }
@@ -127,21 +129,24 @@ public partial class TimelineWindow
 
         NewPage();
 
-        if (rowProjects.Count == 0)
+        if (rows.Count == 0)
         {
-            AddText(canvas, "No tasks with a due or start date in this range.", margin, y, regularTypeface, 11, Brushes.Gray);
+            AddText(canvas, EmptyText, margin, y, regularTypeface, 11, Brushes.Gray);
         }
 
-        for (var r = 0; r < rowProjects.Count; r++)
+        for (var r = 0; r < rows.Count; r++)
         {
-            var projectName = rowProjects[r];
-            var items = TimelineLayout.Place(byProject[projectName], _windowStart, unitDays, unitsToShow);
+            var row = rows[r];
+            var projectName = row.Name;
+            var items = row.Items;
 
             // Wrap every box's text and work out each lane's height (its tallest box) before
             // anything is drawn, so the row height is known and a row that doesn't fit can start a
             // new page (with the header redrawn) before any of it is committed to the current one.
+            // A Summary bar takes the first lane.
             var boxLines = new Dictionary<TimelineItem, List<string>>();
-            var laneHeights = new double[items.Max(i => i.Lane) + 1];
+            var laneHeights = new double[Math.Max(1, row.Lanes)];
+            if (row.Summary is not null) laneHeights[0] = barHeight + chipGap;
             foreach (var item in items)
             {
                 var task = item.Card;
@@ -151,9 +156,13 @@ public partial class TimelineWindow
 
                 var lines = WrapWords(string.Join(" - ", parts), regularTypeface, 7.5, unitColWidth - 2 * chipPadding - 4);
                 boxLines[item] = lines;
-                laneHeights[item.Lane] = Math.Max(laneHeights[item.Lane], lines.Count * lineHeight + 2 * chipPadding + chipGap);
+                laneHeights[row.FirstTaskLane + item.Lane] = Math.Max(laneHeights[row.FirstTaskLane + item.Lane], lines.Count * lineHeight + 2 * chipPadding + chipGap);
             }
-            var rowHeight = Math.Max(rowMinHeight, laneHeights.Sum()) + 4;
+            // The name column: the name, and in Summary view the counts under it.
+            var nameLines = WrapWords(projectName, boldTypeface, 9, projectColWidth - 8);
+            var countLines = row.Summary is { } counted ? WrapWords(counted.CountsText, regularTypeface, 7.5, projectColWidth - 8) : [];
+            var nameHeight = (nameLines.Count + countLines.Count) * lineHeight + 4;
+            var rowHeight = Math.Max(Math.Max(rowMinHeight, nameHeight), laneHeights.Sum()) + 4;
 
             if (y + rowHeight > bottomLimit) NewPage();
 
@@ -165,17 +174,42 @@ public partial class TimelineWindow
 
             var rowTop = y;
             var labelY = rowTop + 4;
-            foreach (var line in WrapWords(projectName, boldTypeface, 9, projectColWidth - 8))
+            foreach (var line in nameLines)
             {
                 AddText(canvas, line, margin + 4, labelY, boldTypeface, 9, Brushes.Black);
+                labelY += lineHeight;
+            }
+            foreach (var line in countLines)
+            {
+                AddText(canvas, line, margin + 4, labelY, regularTypeface, 7.5, Brushes.DimGray);
                 labelY += lineHeight;
             }
 
             double UnitLeft(int unit) => margin + projectColWidth + unit * unitColWidth;
 
+            // The Summary bar: square-ended where it runs past the edge, with its dates in white.
+            if (row.Summary is { } summary)
+            {
+                var barLeft = UnitLeft(summary.FirstUnit) + (summary.StartsBeforeWindow ? 0 : 1.5);
+                var barRight = UnitLeft(summary.LastUnit + 1) - (summary.EndsAfterWindow ? 0 : 1.5);
+                var barRect = new Rectangle
+                {
+                    Width = barRight - barLeft, Height = barHeight, Fill = new SolidColorBrush(SummaryBarColor),
+                    RadiusX = summary.StartsBeforeWindow || summary.EndsAfterWindow ? 0 : 3,
+                    RadiusY = summary.StartsBeforeWindow || summary.EndsAfterWindow ? 0 : 3
+                };
+                Canvas.SetLeft(barRect, barLeft);
+                Canvas.SetTop(barRect, rowTop + 2);
+                canvas.Children.Add(barRect);
+
+                var barText = $"{(summary.StartsBeforeWindow ? "◀ " : "")}{summary.DatesText}{(summary.EndsAfterWindow ? " ▶" : "")}";
+                var fitted = WrapWords(barText, boldTypeface, 7.5, Math.Max(10, barRight - barLeft - 8)).FirstOrDefault() ?? string.Empty;
+                AddText(canvas, fitted, barLeft + 4, rowTop + 4, boldTypeface, 7.5, Brushes.White);
+            }
+
             foreach (var item in items)
             {
-                var laneTop = rowTop + 2 + laneHeights.Take(item.Lane).Sum();
+                var laneTop = rowTop + 2 + laneHeights.Take(row.FirstTaskLane + item.Lane).Sum();
                 var lines = boxLines[item];
                 var priorityColor = GetPriorityColor(item.Card.Priority);
 

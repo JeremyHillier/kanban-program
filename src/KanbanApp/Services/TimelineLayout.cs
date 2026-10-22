@@ -22,6 +22,25 @@ public sealed record TimelineItem(CardViewModel Card, int FirstUnit, int LastUni
     public int ArrowLastUnit => LastUnit;
 }
 
+// A Summary view bar: where it runs (in columns, clamped to the window like a task's arrow) and what
+// the project or goal holds.
+public sealed record TimelineSummary(DateTime Start, DateTime End, int FirstUnit, int LastUnit, bool StartsBeforeWindow, bool EndsAfterWindow,
+    int OpenTasks, int Overdue, int Undated)
+{
+    public string OpenText => $"{OpenTasks} open task{(OpenTasks == 1 ? "" : "s")}";
+
+    public string OverdueText => Overdue > 0 ? $"{Overdue} overdue" : string.Empty;
+
+    public string UndatedText => Undated > 0 ? $"{Undated} undated" : string.Empty;
+
+    public string CountsText => string.Join(" · ", new[] { OpenText, OverdueText, UndatedText }.Where(s => s.Length > 0));
+
+    public string DatesText =>
+        Start == End ? Start.ToString("MMM d, yyyy")
+        : Start.Year == End.Year ? $"{Start:MMM d} – {End:MMM d, yyyy}"
+        : $"{Start:MMM d, yyyy} – {End:MMM d, yyyy}";
+}
+
 public static class TimelineLayout
 {
     // A task with no start date spans just its due date; one with only a start date, just that.
@@ -42,9 +61,13 @@ public static class TimelineLayout
     // Lays out one row's tasks in lanes so that nothing overlaps: tasks with an arrow are placed
     // first (so long arrows sit together at the top of the row rather than being pushed down by
     // single boxes), then the rest, each into the first lane with room.
-    public static List<TimelineItem> Place(IEnumerable<CardViewModel> cards, DateTime windowStart, int unitDays, int unitsToShow)
+    public static List<TimelineItem> Place(IEnumerable<CardViewModel> cards, DateTime windowStart, int unitDays, int unitsToShow) =>
+        Place(cards, Enumerable.Range(0, unitsToShow).Select(u => windowStart.AddDays(u * unitDays)).ToList(), windowStart.AddDays(unitDays * unitsToShow));
+
+    // The same, for columns of any length (Month view): each column is known by the day it starts.
+    public static List<TimelineItem> Place(IEnumerable<CardViewModel> cards, IReadOnlyList<DateTime> unitStarts, DateTime windowEnd)
     {
-        var windowEnd = windowStart.AddDays(unitDays * unitsToShow);
+        var windowStart = unitStarts[0];
         var spans = new List<(CardViewModel Card, int First, int Last, bool Before, bool After)>();
 
         foreach (var card in cards)
@@ -53,8 +76,8 @@ public static class TimelineLayout
 
             var before = span.Start < windowStart;
             var after = span.End >= windowEnd;
-            var first = before ? 0 : (span.Start - windowStart).Days / unitDays;
-            var last = after ? unitsToShow - 1 : (span.End - windowStart).Days / unitDays;
+            var first = before ? 0 : TimelineScale.UnitIndex(unitStarts, span.Start);
+            var last = after ? unitStarts.Count - 1 : TimelineScale.UnitIndex(unitStarts, span.End);
             spans.Add((card, first, last, before, after));
         }
 
@@ -81,6 +104,31 @@ public static class TimelineLayout
         }
 
         return result;
+    }
+
+    // The Summary view's one bar for a project or goal: from the earliest start or due date of its open
+    // tasks to the latest. Null when none of them has a date, or the bar would fall outside the window.
+    // The counts cover all of the group's open tasks, not just the ones in the window.
+    public static TimelineSummary? Summarise(IEnumerable<CardViewModel> openCards, DateTime today, IReadOnlyList<DateTime> unitStarts, DateTime windowEnd)
+    {
+        var cards = openCards.ToList();
+        var spans = cards.Select(SpanOf).OfType<(DateTime Start, DateTime End)>().ToList();
+        if (spans.Count == 0) return null;
+
+        var start = spans.Min(s => s.Start);
+        var end = spans.Max(s => s.End);
+        var windowStart = unitStarts[0];
+        if (start >= windowEnd || end < windowStart) return null;
+
+        var before = start < windowStart;
+        var after = end >= windowEnd;
+        return new TimelineSummary(start, end,
+            before ? 0 : TimelineScale.UnitIndex(unitStarts, start),
+            after ? unitStarts.Count - 1 : TimelineScale.UnitIndex(unitStarts, end),
+            before, after,
+            cards.Count,
+            cards.Count(c => c.DueDate is { } due && due.Date < today.Date),
+            cards.Count - spans.Count);
     }
 
     // "Oct 20"; "Oct 3 to Oct 20" with a start date; "starts Oct 3" with only a start date.

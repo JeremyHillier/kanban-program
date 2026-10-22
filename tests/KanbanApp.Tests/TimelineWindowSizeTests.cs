@@ -60,14 +60,26 @@ public sealed class TimelineWindowSizeTests(WpfDispatcherFixture wpf) : IDisposa
     });
 
     [Fact]
-    public void TheDayOrWeekView_IsRemembered_AndStartsAsWeek() => wpf.Run(() =>
+    public void TheView_IsRemembered_AndStartsAsWeek() => wpf.Run(() =>
     {
-        Assert.False(OpenBoard().TimelineDayView);
+        Assert.Equal(TimelineZoom.Week, OpenBoard().TimelineView);
 
-        OpenBoard().SaveTimelineDayView(true);
-        Assert.True(OpenBoard().TimelineDayView);
+        foreach (var zoom in new[] { TimelineZoom.Month, TimelineZoom.Day, TimelineZoom.Week })
+        {
+            OpenBoard().SaveTimelineView(zoom);
+            Assert.Equal(zoom, OpenBoard().TimelineView);
+        }
+    });
 
-        OpenBoard().SaveTimelineDayView(false);
-        Assert.False(OpenBoard().TimelineDayView);
+    [Fact]
+    public void SummaryAndGroupBy_AreRemembered_AndStartAsSummaryByProject() => wpf.Run(() =>
+    {
+        Assert.True(OpenBoard().TimelineSummary);
+        Assert.False(OpenBoard().TimelineByGoal);
+
+        OpenBoard().SaveTimelineSummary(false);
+        OpenBoard().SaveTimelineByGoal(true);
+        Assert.False(OpenBoard().TimelineSummary);
+        Assert.True(OpenBoard().TimelineByGoal);
     });
 }

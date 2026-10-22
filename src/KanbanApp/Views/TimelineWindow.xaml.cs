@@ -1,11 +1,7 @@
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Markup;
 using System.Windows.Media;
-using System.Windows.Shapes;
-using KanbanApp.Converters;
 using KanbanApp.Services;
 using KanbanApp.ViewModels;
 
@@ -13,18 +9,24 @@ namespace KanbanApp.Views;
 
 public partial class TimelineWindow : Window
 {
-    // Week view: 12 weekly columns, paged 4 weeks (28 days) at a time. Day view: 21 daily columns
-    // (three weeks), paged 1 week (7 days) at a time. Both step sizes are multiples of 7, so
-    // _windowStart stays Monday-aligned regardless of which view is active or how much the user has
-    // paged - switching views mid-navigation never needs to re-snap the range.
-    private const int WeekViewUnits = 12;
-    private const int DayViewUnits = 21;
-    private const int WeekViewStepDays = 28;
-    private const int DayViewStepDays = 7;
-
+    // The columns for each view (Month, Week, Day) and how far the arrows page are in TimelineScale.
+    // _windowStart is the first day of the first column: the 1st of a month in Month view, else a
+    // Monday; switching view snaps it to the new view's kind of start.
     private readonly MainViewModel _viewModel;
     private DateTime _windowStart;
+    private DateTime _windowEnd; // the first day after what is showing, as last drawn
     private bool _initializing = true;
+
+    // Summary rows the user has opened to show their tasks, by name. Kept for as long as the window is open.
+    private readonly HashSet<string> _expanded = new(StringComparer.Ordinal);
+
+    // One row of the Timeline: a project or goal. Summary is its bar (Summary view only); Items are its
+    // tasks, laid out by TimelineLayout - every row in Detail view, only opened rows in Summary view.
+    private sealed record TimelineRow(string Name, bool IsExpanded, TimelineSummary? Summary, List<TimelineItem> Items)
+    {
+        public int FirstTaskLane => Summary is null ? 0 : 1;
+        public int Lanes => FirstTaskLane + (Items.Count == 0 ? 0 : Items.Max(i => i.Lane) + 1);
+    }
 
     // The same colours as the priority badge on the board: both come from the task file's priority list.
     private Brush GetPriorityBrush(string priority) => _viewModel.Priorities.Brush(priority);
@@ -35,6 +37,11 @@ public partial class TimelineWindow : Window
         (byte)(color.R + (255 - color.R) * whiteAmount),
         (byte)(color.G + (255 - color.G) * whiteAmount),
         (byte)(color.B + (255 - color.B) * whiteAmount));
+
+    // The Summary bars: a project blue, or a goal purple, both dark enough for white text.
+    private Color SummaryBarColor => IsByGoal ? Color.FromRgb(0x5B, 0x4A, 0x9E) : Color.FromRgb(0x2F, 0x6F, 0xA8);
+
+    private static readonly Brush OverdueBrush = new SolidColorBrush(Color.FromRgb(0xC6, 0x28, 0x28));
 
     public TimelineWindow(MainViewModel viewModel)
     {
@@ -53,9 +60,11 @@ public partial class TimelineWindow : Window
             e.Handled = true;
         };
         _viewModel = viewModel;
-        _windowStart = MondayOf(DateTime.Today);
         RestoreSize();
-        if (_viewModel.TimelineDayView) DayViewRadio.IsChecked = true;
+        (_viewModel.TimelineView switch { TimelineZoom.Month => MonthViewRadio, TimelineZoom.Day => DayViewRadio, _ => WeekViewRadio }).IsChecked = true;
+        (_viewModel.TimelineSummary ? SummaryRadio : DetailRadio).IsChecked = true;
+        (_viewModel.TimelineByGoal ? ByGoalRadio : ByProjectRadio).IsChecked = true;
+        _windowStart = TimelineScale.Snap(Zoom, DateTime.Today);
         Closing += (_, _) => SaveSize();
         _initializing = false;
         BuildGrid();
@@ -83,16 +92,27 @@ public partial class TimelineWindow : Window
         _viewModel.SaveWindowSize("Timeline", width, height, maximized);
     }
 
-    private bool IsDayView => DayViewRadio.IsChecked == true;
-    private int UnitDays => IsDayView ? 1 : 7;
-    private int UnitsToShow => IsDayView ? DayViewUnits : WeekViewUnits;
-    private int StepDays => IsDayView ? DayViewStepDays : WeekViewStepDays;
+    private TimelineZoom Zoom =>
+        MonthViewRadio.IsChecked == true ? TimelineZoom.Month
+        : DayViewRadio.IsChecked == true ? TimelineZoom.Day
+        : TimelineZoom.Week;
 
-    private static DateTime MondayOf(DateTime date)
+    private bool IsSummary => SummaryRadio.IsChecked == true;
+
+    private bool IsByGoal => ByGoalRadio.IsChecked == true;
+
+    private string GroupHeading => IsByGoal ? "Goals" : "Projects";
+
+    private string UnitLabel(DateTime unitStart, bool print) => Zoom switch
     {
-        var diff = (7 + (date.DayOfWeek - DayOfWeek.Monday)) % 7;
-        return date.Date.AddDays(-diff);
-    }
+        TimelineZoom.Month => unitStart.ToString(print ? "MMM yyyy" : "MMMM\nyyyy"),
+        TimelineZoom.Day => unitStart.ToString(print ? "ddd d-MMM" : "ddd\nd-MMM"),
+        _ => unitStart.ToString("d-MMM")
+    };
+
+    private string EmptyText => IsSummary
+        ? "No open tasks with a due or start date in this range."
+        : "No tasks with a due or start date in this range.";
 
     private void Help_Click(object sender, RoutedEventArgs e)
     {
@@ -101,23 +121,26 @@ public partial class TimelineWindow : Window
 
     private void Prev_Click(object sender, RoutedEventArgs e)
     {
-        _windowStart = _windowStart.AddDays(-StepDays);
+        _windowStart = TimelineScale.Step(Zoom, _windowStart, -1);
         BuildGrid();
     }
 
     private void Next_Click(object sender, RoutedEventArgs e)
     {
-        _windowStart = _windowStart.AddDays(StepDays);
+        _windowStart = TimelineScale.Step(Zoom, _windowStart, 1);
         BuildGrid();
     }
 
     private void Today_Click(object sender, RoutedEventArgs e)
     {
-        _windowStart = MondayOf(DateTime.Today);
+        _windowStart = TimelineScale.Snap(Zoom, DateTime.Today);
         BuildGrid();
     }
 
-    private void IncludeDoneCheckBox_Changed(object sender, RoutedEventArgs e) => BuildGrid();
+    private void IncludeDoneCheckBox_Changed(object sender, RoutedEventArgs e)
+    {
+        if (!_initializing) BuildGrid();
+    }
 
     // The header row lives in its own ScrollViewer (frozen vertically, no scrollbar of its own) so
     // it stays visible while the body scrolls; this keeps its horizontal offset locked to the
@@ -130,7 +153,34 @@ public partial class TimelineWindow : Window
     private void ZoomLevel_Changed(object sender, RoutedEventArgs e)
     {
         if (_initializing) return;
-        _viewModel.SaveTimelineDayView(IsDayView);
+        _viewModel.SaveTimelineView(Zoom);
+        // Kept on today when it was showing (a week starting on Sep 28 should become October, not
+        // September); otherwise on where the window started.
+        var today = DateTime.Today;
+        var anchor = today >= _windowStart && today < _windowEnd ? today : _windowStart;
+        _windowStart = TimelineScale.Snap(Zoom, anchor);
+        BuildGrid();
+    }
+
+    private void Mode_Changed(object sender, RoutedEventArgs e)
+    {
+        if (_initializing) return;
+        _viewModel.SaveTimelineSummary(IsSummary);
+        BuildGrid();
+    }
+
+    private void GroupBy_Changed(object sender, RoutedEventArgs e)
+    {
+        if (_initializing) return;
+        _viewModel.SaveTimelineByGoal(IsByGoal);
+        _expanded.Clear(); // the names now mean other rows
+        BuildGrid();
+    }
+
+    // Opens or closes a Summary row's tasks.
+    private void ToggleRow(string name)
+    {
+        if (!_expanded.Remove(name)) _expanded.Add(name);
         BuildGrid();
     }
 
@@ -149,26 +199,53 @@ public partial class TimelineWindow : Window
         BuildGrid();
     }
 
-    // Shared by BuildGrid and BuildPrintDocument so both work from identical data: which projects
-    // get a row, which cards land in each, and the current unit/day math for the visible window.
-    private (List<string> RowProjects, Dictionary<string, List<CardViewModel>> ByProject, int UnitsToShow, int UnitDays, DateTime RangeEnd) GetVisibleData()
-    {
-        var unitDays = UnitDays;
-        var unitsToShow = UnitsToShow;
-        var rangeEnd = _windowStart.AddDays(unitsToShow * unitDays);
+    private string GroupOf(CardViewModel card) => IsByGoal
+        ? (string.IsNullOrWhiteSpace(card.GoalName) ? "No Goal" : card.GoalName)
+        : card.ProjectName;
 
+    // Shared by BuildGrid and BuildPrintDocument so both work from identical data: which projects or
+    // goals get a row, their bars, the tasks in each, and the columns of the visible window.
+    private (List<TimelineRow> Rows, List<DateTime> UnitStarts, DateTime RangeEnd) GetVisibleData()
+    {
+        var unitStarts = TimelineScale.UnitStarts(Zoom, _windowStart);
+        var rangeEnd = _windowEnd = TimelineScale.End(Zoom, _windowStart);
         var includeDone = IncludeDoneCheckBox.IsChecked == true;
-        var cards = _viewModel.Columns
+
+        var tasks = _viewModel.Columns
             .Where(c => includeDone || c.Name != "Done")
             .SelectMany(c => c.Cards)
             .Where(c => TimelineLayout.IsInWindow(c, _windowStart, rangeEnd))
-            .ToList();
+            .GroupBy(GroupOf).ToDictionary(g => g.Key, g => g.ToList());
 
-        var byProject = cards.GroupBy(c => c.ProjectName).ToDictionary(g => g.Key, g => g.ToList());
+        // Summary bars cover open tasks only, all of them, so the bar is the whole project or goal.
+        var open = _viewModel.Columns.Where(c => c.Name != "Done").SelectMany(c => c.Cards)
+            .GroupBy(GroupOf).ToDictionary(g => g.Key, g => g.ToList());
 
-        var rowProjects = _viewModel.Projects.Select(p => p.Name).Where(byProject.ContainsKey).ToList();
-        if (byProject.ContainsKey("No Project")) rowProjects.Add("No Project");
+        // The Manage list's order, then "No Project" / "No Goal", then anything else a task names.
+        var noneName = IsByGoal ? "No Goal" : "No Project";
+        var listed = (IsByGoal ? _viewModel.Goals.Select(g => g.Name) : _viewModel.Projects.Select(p => p.Name)).ToList();
+        var order = listed.Where(n => n != noneName).Append(noneName)
+            .Concat(tasks.Keys.Concat(open.Keys).Except(listed).Where(n => n != noneName).OrderBy(n => n, StringComparer.OrdinalIgnoreCase))
+            .Distinct().ToList();
 
-        return (rowProjects, byProject, unitsToShow, unitDays, rangeEnd);
+        var rows = new List<TimelineRow>();
+        foreach (var name in order)
+        {
+            var groupTasks = tasks.GetValueOrDefault(name) ?? [];
+            if (IsSummary)
+            {
+                var summary = TimelineLayout.Summarise(open.GetValueOrDefault(name) ?? [], DateTime.Today, unitStarts, rangeEnd);
+                if (summary is null) continue;
+
+                var expanded = _expanded.Contains(name);
+                rows.Add(new TimelineRow(name, expanded, summary, expanded ? TimelineLayout.Place(groupTasks, unitStarts, rangeEnd) : []));
+            }
+            else if (groupTasks.Count > 0)
+            {
+                rows.Add(new TimelineRow(name, true, null, TimelineLayout.Place(groupTasks, unitStarts, rangeEnd)));
+            }
+        }
+
+        return (rows, unitStarts, rangeEnd);
     }
 }

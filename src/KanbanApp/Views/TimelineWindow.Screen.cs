@@ -2,24 +2,21 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Markup;
 using System.Windows.Media;
 using System.Windows.Shapes;
-using KanbanApp.Converters;
 using KanbanApp.Services;
 using KanbanApp.ViewModels;
 
 namespace KanbanApp.Views;
 
-// Drawing the Timeline on screen: the date header, a row per project, and each task as a box or
-// an arrow laid out by TimelineLayout.
+// Drawing the Timeline on screen: the date header, a row per project or goal, its Summary bar, and
+// each task as a box or an arrow laid out by TimelineLayout.
 public partial class TimelineWindow
 {
     // Rebuilds both grids from scratch on every navigation/toggle rather than trying to update them
-    // in place - the row/column count changes with the data (only projects with a due task in the
-    // visible window get a row), so an incremental update would need the same "figure out which
-    // rows/columns are needed" logic anyway. The header row lives in HeaderGrid (its own frozen
-    // ScrollViewer) and the project rows live in TimelineGrid (the scrollable body) - both get
+    // in place - the row/column count changes with the data, so an incremental update would need the
+    // same "figure out which rows/columns are needed" logic anyway. The header row lives in HeaderGrid
+    // (its own frozen ScrollViewer) and the rows live in TimelineGrid (the scrollable body) - both get
     // identical column definitions built by AddColumns so their cells stay lined up.
     private void BuildGrid()
     {
@@ -29,12 +26,15 @@ public partial class TimelineWindow
         var panelBrush = (Brush)FindResource("PanelBackgroundBrush");
         var alternateRowBrush = (Brush)FindResource("AlternateRowBrush");
 
-        var stepLabel = IsDayView ? "1 Week" : "4 Weeks";
+        var stepLabel = TimelineScale.StepLabel(Zoom);
         PrevButton.Content = $"◀ {stepLabel}";
         NextButton.Content = $"{stepLabel} ▶";
 
-        var (rowProjects, byProject, unitsToShow, unitDays, rangeEnd) = GetVisibleData();
-        RangeLabel.Text = $"{_windowStart:MMM d} – {rangeEnd.AddDays(-1):MMM d, yyyy}";
+        var (rows, unitStarts, rangeEnd) = GetVisibleData();
+        var unitsToShow = unitStarts.Count;
+        RangeLabel.Text = Zoom == TimelineZoom.Month
+            ? $"{_windowStart:MMMM yyyy} – {rangeEnd.AddDays(-1):MMMM yyyy}"
+            : $"{_windowStart:MMM d} – {rangeEnd.AddDays(-1):MMM d, yyyy}";
 
         HeaderGrid.Children.Clear();
         HeaderGrid.RowDefinitions.Clear();
@@ -44,12 +44,12 @@ public partial class TimelineWindow
         TimelineGrid.RowDefinitions.Clear();
         TimelineGrid.ColumnDefinitions.Clear();
 
-        const double projectColWidth = 150;
-        var unitColWidth = IsDayView ? 90 : 150;
+        const double nameColWidth = 170;
+        var unitColWidth = Zoom switch { TimelineZoom.Day => 90, TimelineZoom.Month => 180, _ => 150 };
 
         void AddColumns(Grid grid)
         {
-            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(projectColWidth) });
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(nameColWidth) });
             for (var w = 0; w < unitsToShow; w++)
             {
                 grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(unitColWidth) });
@@ -76,69 +76,72 @@ public partial class TimelineWindow
 
         AddCell(HeaderGrid, 0, 0, new TextBlock
         {
-            Text = "Projects", FontWeight = FontWeights.Bold, Foreground = brush,
+            Text = GroupHeading, FontWeight = FontWeights.Bold, Foreground = brush,
             Margin = new Thickness(6), VerticalAlignment = VerticalAlignment.Center
         }, panelBrush);
 
         for (var w = 0; w < unitsToShow; w++)
         {
-            var unitStart = _windowStart.AddDays(w * unitDays);
-            var headerText = IsDayView ? unitStart.ToString("ddd\nd-MMM") : unitStart.ToString("d-MMM");
             AddCell(HeaderGrid, 0, w + 1, new TextBlock
             {
-                Text = headerText, FontWeight = FontWeights.Bold, Foreground = brush,
+                Text = UnitLabel(unitStarts[w], print: false), FontWeight = FontWeights.Bold, Foreground = brush,
                 Margin = new Thickness(4, 6, 4, 6), VerticalAlignment = VerticalAlignment.Center,
                 HorizontalAlignment = HorizontalAlignment.Center, TextAlignment = TextAlignment.Center
             }, panelBrush);
         }
 
-        if (rowProjects.Count == 0)
+        if (rows.Count == 0)
         {
             TimelineGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto, MinHeight = 50 });
             AddCell(TimelineGrid, 0, 0, new TextBlock
             {
-                Text = "No tasks with a due or start date in this range.", Foreground = secondaryBrush,
-                FontStyle = FontStyles.Italic, Margin = new Thickness(6)
+                Text = EmptyText, Foreground = secondaryBrush,
+                FontStyle = FontStyles.Italic, Margin = new Thickness(6), TextWrapping = TextWrapping.Wrap
             });
             for (var w = 0; w < unitsToShow; w++) AddCell(TimelineGrid, 0, w + 1, new Border());
             return;
         }
 
-        for (var r = 0; r < rowProjects.Count; r++)
+        for (var r = 0; r < rows.Count; r++)
         {
-            TimelineGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto, MinHeight = 50 });
+            var row = rows[r];
+            TimelineGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto, MinHeight = row.Summary is not null && !row.IsExpanded ? 44 : 50 });
 
             // Alternating shading, matching the app's existing AlternateRowBrush convention.
             var rowBackground = r % 2 == 1 ? alternateRowBrush : null;
 
-            var projectName = rowProjects[r];
-            AddCell(TimelineGrid, r, 0, new TextBlock
-            {
-                Text = projectName, FontWeight = FontWeights.SemiBold, Foreground = brush,
-                Margin = new Thickness(6), VerticalAlignment = VerticalAlignment.Center, TextWrapping = TextWrapping.Wrap
-            }, rowBackground);
+            AddCell(TimelineGrid, r, 0, BuildNameCell(row, brush, secondaryBrush), rowBackground);
 
-            // The row's date cells are just the background and grid lines now; the tasks sit in a
-            // lane grid laid over them (same column widths, one auto-height row per lane), because
-            // an arrow has to run across several columns.
+            // The row's date cells are just the background and grid lines; the bar and the tasks sit
+            // in a lane grid laid over them (same column widths, one auto-height row per lane),
+            // because a bar or an arrow has to run across several columns.
             for (var w = 0; w < unitsToShow; w++) AddCell(TimelineGrid, r, w + 1, new Border(), rowBackground);
 
-            var items = TimelineLayout.Place(byProject[projectName], _windowStart, unitDays, unitsToShow);
             var laneGrid = new Grid { Margin = new Thickness(0, 3, 0, 0), VerticalAlignment = VerticalAlignment.Top };
             for (var w = 0; w < unitsToShow; w++) laneGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(unitColWidth) });
-            for (var lane = 0; lane <= items.Max(i => i.Lane); lane++) laneGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+            for (var lane = 0; lane < row.Lanes; lane++) laneGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
             Grid.SetRow(laneGrid, r);
             Grid.SetColumn(laneGrid, 1);
             Grid.SetColumnSpan(laneGrid, unitsToShow);
             TimelineGrid.Children.Add(laneGrid);
 
-            foreach (var item in items)
+            if (row.Summary is { } summary)
+            {
+                var bar = BuildSummaryBar(row, summary);
+                Grid.SetRow(bar, 0);
+                Grid.SetColumn(bar, summary.FirstUnit);
+                Grid.SetColumnSpan(bar, summary.LastUnit - summary.FirstUnit + 1);
+                laneGrid.Children.Add(bar);
+            }
+
+            foreach (var item in row.Items)
             {
                 var task = item.Card;
+                var lane = row.FirstTaskLane + item.Lane;
                 if (item.HasArrow)
                 {
                     var arrow = BuildArrow(item, brush);
-                    Grid.SetRow(arrow, item.Lane);
+                    Grid.SetRow(arrow, lane);
                     Grid.SetColumn(arrow, item.ArrowFirstUnit);
                     Grid.SetColumnSpan(arrow, item.ArrowLastUnit - item.ArrowFirstUnit + 1);
                     laneGrid.Children.Add(arrow);
@@ -149,7 +152,8 @@ public partial class TimelineWindow
                 parts.Add(TimelineLayout.DateLabel(task));
 
                 var priorityBrush = GetPriorityBrush(task.Priority);
-                var tooltip = $"{task.Title}\nPriority: {task.Priority}\n{(task.WhoName != "Unassigned" ? $"Who: {task.WhoName}\n" : "")}"
+                var otherGroup = IsByGoal ? $"Project: {task.ProjectName}\n" : (string.IsNullOrEmpty(task.GoalDisplay) ? "" : $"{task.GoalDisplay}\n");
+                var tooltip = $"{task.Title}\n{otherGroup}Priority: {task.Priority}\n{(task.WhoName != "Unassigned" ? $"Who: {task.WhoName}\n" : "")}"
                     + $"{(task.StartDate is not null ? $"Start: {task.StartDate:MMM d, yyyy}\n" : "")}"
                     + $"{(task.DueDate is not null ? $"Due: {task.DueDate:MMM d, yyyy}{(task.DueDateTime is { } dueAt ? $" at {dueAt:h:mm tt}" : "")}\n" : "")}"
                     + $"{(task.IsWaiting ? $"{task.WaitingOnDisplay}\n" : "")}\nDouble-click to open";
@@ -181,11 +185,64 @@ public partial class TimelineWindow
                     if (args.ClickCount != 2) return;
                     OpenCardForEdit(task);
                 };
-                Grid.SetRow(block, item.Lane);
+                Grid.SetRow(block, lane);
                 Grid.SetColumn(block, item.BoxUnit);
                 laneGrid.Children.Add(block);
             }
         }
+    }
+
+    // The row's name; in Summary view with a triangle that opens or closes its tasks, and the counts
+    // under it (overdue in red).
+    private FrameworkElement BuildNameCell(TimelineRow row, Brush brush, Brush secondaryBrush)
+    {
+        var panel = new StackPanel { Margin = new Thickness(6), VerticalAlignment = VerticalAlignment.Top };
+        if (row.Summary is not { } summary)
+        {
+            panel.Children.Add(new TextBlock { Text = row.Name, FontWeight = FontWeights.SemiBold, Foreground = brush, TextWrapping = TextWrapping.Wrap });
+            return panel;
+        }
+
+        panel.Children.Add(new TextBlock
+        {
+            Text = $"{(row.IsExpanded ? "▾" : "▸")} {row.Name}", FontWeight = FontWeights.SemiBold, Foreground = brush, TextWrapping = TextWrapping.Wrap
+        });
+
+        var counts = new TextBlock { FontSize = 11, Foreground = secondaryBrush, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(12, 2, 0, 0) };
+        counts.Inlines.Add(new Run(summary.OpenText));
+        if (summary.Overdue > 0)
+        {
+            counts.Inlines.Add(new Run(" · "));
+            counts.Inlines.Add(new Run(summary.OverdueText) { Foreground = OverdueBrush, FontWeight = FontWeights.SemiBold });
+        }
+        if (summary.Undated > 0) counts.Inlines.Add(new Run($" · {summary.UndatedText}"));
+        panel.Children.Add(counts);
+
+        panel.Background = Brushes.Transparent; // so the whole cell takes the click, not just the text
+        panel.Cursor = Cursors.Hand;
+        panel.ToolTip = row.IsExpanded ? "Hide its tasks" : "Show its tasks";
+        panel.MouseLeftButtonUp += (_, _) => ToggleRow(row.Name);
+        return panel;
+    }
+
+    // A Summary bar: the dates its open tasks run between, square-ended with a ◀ or ▶ where it runs past
+    // the edge of what is showing. Clicking it opens or closes the row's tasks.
+    private FrameworkElement BuildSummaryBar(TimelineRow row, TimelineSummary summary)
+    {
+        var text = $"{(summary.StartsBeforeWindow ? "◀ " : "")}{summary.DatesText}{(summary.EndsAfterWindow ? " ▶" : "")}";
+        var bar = new Border
+        {
+            Background = new SolidColorBrush(SummaryBarColor),
+            CornerRadius = new CornerRadius(summary.StartsBeforeWindow ? 0 : 4, summary.EndsAfterWindow ? 0 : 4, summary.EndsAfterWindow ? 0 : 4, summary.StartsBeforeWindow ? 0 : 4),
+            Padding = new Thickness(6, 4, 6, 4),
+            Margin = new Thickness(summary.StartsBeforeWindow ? 0 : 3, 0, summary.EndsAfterWindow ? 0 : 3, 4),
+            Cursor = Cursors.Hand,
+            VerticalAlignment = VerticalAlignment.Top,
+            Child = new TextBlock { Text = text, Foreground = Brushes.White, FontSize = 11, FontWeight = FontWeights.SemiBold, TextTrimming = TextTrimming.CharacterEllipsis },
+            ToolTip = $"{row.Name}\n{summary.DatesText}\n{summary.CountsText}\n\n{(row.IsExpanded ? "Click to hide its tasks" : "Click to show its tasks")}"
+        };
+        bar.MouseLeftButtonUp += (_, _) => ToggleRow(row.Name);
+        return bar;
     }
 
     // The arrow from a task's box (at its start date) to its due date: a line and a head running to
