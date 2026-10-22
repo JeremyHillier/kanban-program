@@ -272,6 +272,16 @@ public partial class MainViewModel
 
     public void SaveTimelineSummary(bool summary) => _db.SetFlag("TimelineSummary", summary);
 
+    // How many months Month view shows (one of TimelineScale.MonthChoices; 6 by default).
+    public int TimelineMonths => TimelineScale.ValidMonths(_db.GetInt("TimelineMonths", TimelineScale.MonthUnits));
+
+    public void SaveTimelineMonths(int months) => _db.SetSetting("TimelineMonths", TimelineScale.ValidMonths(months).ToString(System.Globalization.CultureInfo.InvariantCulture));
+
+    // The paper and orientation the Timeline was last printed on (this PC's usual paper, landscape, at first).
+    public PageSetup TimelinePageSetup => PageSetup.Parse(_db.GetSetting("TimelinePageSetup"), System.Globalization.RegionInfo.CurrentRegion);
+
+    public void SaveTimelinePageSetup(PageSetup setup) => _db.SetSetting("TimelinePageSetup", setup.ToSetting());
+
     public bool TimelineByGoal => _db.GetFlag("TimelineByGoal", false);
 
     public void SaveTimelineByGoal(bool byGoal) => _db.SetFlag("TimelineByGoal", byGoal);

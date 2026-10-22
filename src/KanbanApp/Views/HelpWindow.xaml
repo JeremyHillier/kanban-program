@@ -476,7 +476,7 @@
                 <local:BulletItem Text="Alt+L shows tasks with dates: projects or goals down the side, dates across the top."/>
                 <local:BulletItem Text="A task with a start date has a box at the start and an arrow to its due date."/>
                 <local:BulletItem Text="A dashed box started before the dates shown. An arrow off the right is due later."/>
-                <local:BulletItem Text="Month view shows 6 months. Week view shows 12 weeks. Day view shows 21 days."/>
+                <local:BulletItem Text="Month view shows 3 to 24 months (pick beside it). Week view shows 12 weeks. Day view shows 21 days."/>
                 <local:BulletItem Text="Summary shows one bar per project or goal, from the first to the last date of its open tasks."/>
                 <local:BulletItem Text="Beside each name: how many tasks are open, overdue (in red) and undated."/>
                 <local:BulletItem Text="Click a name or its bar to show or hide its tasks. Detail shows every task."/>
@@ -486,7 +486,8 @@
                 <local:BulletItem Text="Page with the arrow buttons. Today jumps back."/>
                 <local:BulletItem Text="Include Done tasks brings finished tasks back in."/>
                 <local:BulletItem Text="Blocks use the priority colours. Hover for details; double-click to open."/>
-                <local:BulletItem Text="Print previews what is showing, on landscape pages."/>
+                <local:BulletItem Text="Print previews what is showing. Pick the paper and Landscape or Portrait at the top."/>
+                <local:BulletItem Text="Print... in the preview asks the printer for that paper. The choice is remembered."/>
                 <local:BulletItem Text="It opens at the size, view and grouping last used, in Summary the first time."/>
 
                 <TextBlock x:Name="HelpSection_Reminders" Text="Reminders" Style="{StaticResource HelpSectionHeaderStyle}"/>

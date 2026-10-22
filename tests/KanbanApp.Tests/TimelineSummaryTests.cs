@@ -131,4 +131,25 @@ public sealed class TimelineSummaryTests
         Assert.Null(TimelineLayout.TargetPosition(new DateTime(2027, 4, 1), starts, new DateTime(2027, 4, 1)));
         Assert.Null(TimelineLayout.TargetPosition(new DateTime(2026, 9, 30), starts, new DateTime(2027, 4, 1)));
     }
+
+    [Theory]
+    [InlineData(12, 6, "6 Months")]
+    [InlineData(24, 12, "12 Months")]
+    [InlineData(3, 1, "1 Month")]
+    public void MonthView_CanShowMoreMonths_PagingHalfOfThem(int months, int step, string label)
+    {
+        var start = new DateTime(2026, 10, 1);
+
+        Assert.Equal(months, TimelineScale.UnitStarts(TimelineZoom.Month, start, months).Count);
+        Assert.Equal(start.AddMonths(months), TimelineScale.End(TimelineZoom.Month, start, months));
+        Assert.Equal(start.AddMonths(step), TimelineScale.Step(TimelineZoom.Month, start, 1, months));
+        Assert.Equal(label, TimelineScale.StepLabel(TimelineZoom.Month, months));
+    }
+
+    [Fact]
+    public void AnUnknownNumberOfMonths_IsTheDefaultSix()
+    {
+        Assert.Equal(6, TimelineScale.ValidMonths(7));
+        Assert.Equal(18, TimelineScale.ValidMonths(18));
+    }
 }

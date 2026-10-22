@@ -10,17 +10,34 @@
         Background="{DynamicResource WindowBackgroundBrush}">
     <Grid Margin="16">
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <Border Grid.Row="0" Background="White" BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="1">
+        <!-- Only for a document that can be laid out again for other paper (the Timeline): the paper and
+             which way round. Changing either lays the pages out again; printing asks the printer for the same. -->
+        <WrapPanel x:Name="PageSetupPanel" Grid.Row="0" Margin="0,0,0,10" Visibility="Collapsed">
+            <TextBlock Text="Paper" VerticalAlignment="Center" Margin="0,0,8,0" Foreground="{DynamicResource PrimaryTextBrush}"/>
+            <ComboBox x:Name="PaperComboBox" Width="190" Padding="6" SelectionChanged="PageSetup_Changed"
+                      ToolTip="The paper to lay the pages out for. Printing asks the printer for the same paper."/>
+            <RadioButton x:Name="LandscapeRadio" Content="Landscape" GroupName="Orientation" VerticalAlignment="Center" Margin="20,0,12,0"
+                         Checked="PageSetup_Changed" Foreground="{DynamicResource PrimaryTextBrush}" ToolTip="Wider than it is tall"/>
+            <RadioButton x:Name="PortraitRadio" Content="Portrait" GroupName="Orientation" VerticalAlignment="Center"
+                         Checked="PageSetup_Changed" Foreground="{DynamicResource PrimaryTextBrush}" ToolTip="Taller than it is wide"/>
+        </WrapPanel>
+
+        <Border Grid.Row="1" Background="White" BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="1">
             <DocumentViewer x:Name="Viewer"/>
         </Border>
 
-        <Button Content="Help" Command="{x:Static views:HelpKey.ShowCommand}" CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}" Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}" ToolTip="Help for this window. (F1)" Grid.Row="1" Margin="0,12,0,0" HorizontalAlignment="Left"/>
-        <Button Grid.Row="1" Content="Close" Width="90" Padding="0,6" Margin="0,12,0,0"
-                HorizontalAlignment="Right" IsCancel="True" IsDefault="True"
-                Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}" ToolTip="Close this window. (Esc)"/>
+        <Button Content="Help" Command="{x:Static views:HelpKey.ShowCommand}" CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}" Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}" ToolTip="Help for this window. (F1)" Grid.Row="2" Margin="0,12,0,0" HorizontalAlignment="Left"/>
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,12,0,0">
+            <Button x:Name="PrintButton" Content="_Print..." Width="90" Padding="0,6" Margin="0,0,8,0" Click="Print_Click" Visibility="Collapsed"
+                    ToolTip="Choose a printer and print these pages on the paper chosen above (Ctrl+P)"
+                    Background="#FF66BB6A" Foreground="White"/>
+            <Button Content="Close" Width="90" Padding="0,6" IsCancel="True" IsDefault="True"
+                    Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}" ToolTip="Close this window. (Esc)"/>
+        </StackPanel>
     </Grid>
 </Window>

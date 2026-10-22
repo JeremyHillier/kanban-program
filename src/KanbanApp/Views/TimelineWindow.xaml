@@ -35,7 +35,10 @@
             <WrapPanel Margin="0,10,0,0">
                 <StackPanel Orientation="Horizontal" Margin="0,0,28,0">
                     <RadioButton x:Name="MonthViewRadio" Content="Month view" GroupName="ZoomLevel" VerticalAlignment="Center" Margin="0,0,12,0"
-                                 Checked="ZoomLevel_Changed" Foreground="{DynamicResource PrimaryTextBrush}" ToolTip="Six months, one column a month"/>
+                                 Checked="ZoomLevel_Changed" Foreground="{DynamicResource PrimaryTextBrush}" ToolTip="One column a month, for as many months as chosen beside it"/>
+                    <ComboBox x:Name="MonthsComboBox" Width="58" Padding="6,3" Margin="-4,0,16,0" VerticalAlignment="Center"
+                              IsEnabled="{Binding IsChecked, ElementName=MonthViewRadio}" SelectionChanged="Months_Changed"
+                              ToolTip="How many months Month view shows"/>
                     <RadioButton x:Name="WeekViewRadio" Content="Week view" GroupName="ZoomLevel" IsChecked="True" VerticalAlignment="Center" Margin="0,0,12,0"
                                  Checked="ZoomLevel_Changed" Foreground="{DynamicResource PrimaryTextBrush}" ToolTip="Twelve weeks, one column a week"/>
                     <RadioButton x:Name="DayViewRadio" Content="Day view" GroupName="ZoomLevel" VerticalAlignment="Center"

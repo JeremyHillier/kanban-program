@@ -14,19 +14,19 @@ namespace KanbanApp.Views;
 // Printing the Timeline: the same layout rules (TimelineLayout) drawn by hand onto pages.
 public partial class TimelineWindow
 {
+    // The preview offers the paper and orientation (remembered), and lays the pages out again for them.
     private void Print_Click(object sender, RoutedEventArgs e) =>
-        new ReportPreviewWindow(BuildPrintDocument()) { Owner = this }.ShowDialog();
+        new ReportPreviewWindow(BuildPrintDocument, _viewModel.TimelinePageSetup, _viewModel.SaveTimelinePageSetup) { Owner = this, Title = "Timeline Preview" }.ShowDialog();
 
     // Builds a print-friendly, paginated rendering of exactly what's currently on screen (same
-    // range, zoom level, and Include Done setting) via GetVisibleData. Reuses ReportPreviewWindow's
-    // DocumentViewer for preview and its built-in Print button, the same as Report Builder, rather
-    // than any separate print plumbing. Landscape A4 with print-specific column widths (recomputed
-    // to exactly fill the page width for however many units are showing) rather than the on-screen
-    // pixel widths, and paginates by project row, repeating the title/date-header band on every page.
-    private FixedDocument BuildPrintDocument()
+    // range, zoom level, and Include Done setting) via GetVisibleData, on the paper chosen in the
+    // preview, with print-specific column widths (recomputed to exactly fill the page width for
+    // however many units are showing) rather than the on-screen pixel widths, and paginates by row,
+    // repeating the title/date-header band on every page.
+    private FixedDocument BuildPrintDocument(PageSetup setup)
     {
-        const double pageWidth = 1122.24;
-        const double pageHeight = 793.92;
+        var pageWidth = setup.PageWidth;
+        var pageHeight = setup.PageHeight;
         const double margin = 40;
         const double headerBandHeight = 54;
         const double dateHeaderHeight = 30;
@@ -107,9 +107,23 @@ public partial class TimelineWindow
             AddText(canvas, GroupHeading, margin + 4, headerY + 6, boldTypeface, 10, accentBrush);
             for (var w = 0; w < unitsToShow; w++)
             {
-                var label = UnitLabel(unitStarts[w], print: true);
+                // A heading that does not fit its column goes on two shorter lines (month over year, or day
+                // over weekday), the year only where it starts or changes.
+                var unitStart = unitStarts[w];
+                var label = UnitLabel(unitStart, print: true);
+                string? second = null;
+                if (MakeText(label, boldTypeface, 8, accentBrush).Width > unitColWidth - 4)
+                {
+                    (label, second) = Zoom switch
+                    {
+                        TimelineZoom.Month => (unitStart.ToString("MMM"), w == 0 || unitStart.Month == 1 ? unitStart.ToString("yyyy") : null),
+                        TimelineZoom.Day => (unitStart.ToString("ddd"), unitStart.ToString("d-MMM")),
+                        _ => (unitStart.ToString("d"), unitStart.ToString("MMM"))
+                    };
+                }
                 var colCenterX = margin + projectColWidth + w * unitColWidth + unitColWidth / 2;
-                AddText(canvas, label, colCenterX, headerY + 6, boldTypeface, 8, accentBrush, TextAlignment.Center);
+                AddText(canvas, label, colCenterX, second is null ? headerY + 6 : headerY + 2, boldTypeface, 8, accentBrush, TextAlignment.Center);
+                if (second is not null) AddText(canvas, second, colCenterX, headerY + 14, regularTypeface, 7, accentBrush, TextAlignment.Center);
             }
             var headerRule = new Line
             {

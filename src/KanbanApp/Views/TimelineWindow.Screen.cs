@@ -26,7 +26,7 @@ public partial class TimelineWindow
         var panelBrush = (Brush)FindResource("PanelBackgroundBrush");
         var alternateRowBrush = (Brush)FindResource("AlternateRowBrush");
 
-        var stepLabel = TimelineScale.StepLabel(Zoom);
+        var stepLabel = TimelineScale.StepLabel(Zoom, _months);
         PrevButton.Content = $"◀ {stepLabel}";
         NextButton.Content = $"{stepLabel} ▶";
 
@@ -45,7 +45,8 @@ public partial class TimelineWindow
         TimelineGrid.ColumnDefinitions.Clear();
 
         const double nameColWidth = 170;
-        var unitColWidth = Zoom switch { TimelineZoom.Day => 90, TimelineZoom.Month => 180, _ => 150 };
+        // Month columns narrow as more months are shown, so a year or two still fits a wide screen.
+        var unitColWidth = Zoom switch { TimelineZoom.Day => 90, TimelineZoom.Month => _months <= 6 ? 180 : _months <= 12 ? 120 : 90, _ => 150 };
 
         void AddColumns(Grid grid)
         {

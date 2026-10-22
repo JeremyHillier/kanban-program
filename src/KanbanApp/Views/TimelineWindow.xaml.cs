@@ -16,6 +16,7 @@ public partial class TimelineWindow : Window
     private DateTime _windowStart;
     private DateTime _windowEnd; // the first day after what is showing, as last drawn
     private bool _initializing = true;
+    private int _months = TimelineScale.MonthUnits; // how many months Month view shows
 
     // Summary rows the user has opened to show their tasks, by name. Kept for as long as the window is open.
     private readonly HashSet<string> _expanded = new(StringComparer.Ordinal);
@@ -61,6 +62,9 @@ public partial class TimelineWindow : Window
         };
         _viewModel = viewModel;
         RestoreSize();
+        _months = _viewModel.TimelineMonths;
+        MonthsComboBox.ItemsSource = TimelineScale.MonthChoices;
+        MonthsComboBox.SelectedItem = _months;
         (_viewModel.TimelineView switch { TimelineZoom.Month => MonthViewRadio, TimelineZoom.Day => DayViewRadio, _ => WeekViewRadio }).IsChecked = true;
         (_viewModel.TimelineSummary ? SummaryRadio : DetailRadio).IsChecked = true;
         (_viewModel.TimelineByGoal ? ByGoalRadio : ByProjectRadio).IsChecked = true;
@@ -121,13 +125,13 @@ public partial class TimelineWindow : Window
 
     private void Prev_Click(object sender, RoutedEventArgs e)
     {
-        _windowStart = TimelineScale.Step(Zoom, _windowStart, -1);
+        _windowStart = TimelineScale.Step(Zoom, _windowStart, -1, _months);
         BuildGrid();
     }
 
     private void Next_Click(object sender, RoutedEventArgs e)
     {
-        _windowStart = TimelineScale.Step(Zoom, _windowStart, 1);
+        _windowStart = TimelineScale.Step(Zoom, _windowStart, 1, _months);
         BuildGrid();
     }
 
@@ -159,6 +163,14 @@ public partial class TimelineWindow : Window
         var today = DateTime.Today;
         var anchor = today >= _windowStart && today < _windowEnd ? today : _windowStart;
         _windowStart = TimelineScale.Snap(Zoom, anchor);
+        BuildGrid();
+    }
+
+    private void Months_Changed(object sender, SelectionChangedEventArgs e)
+    {
+        if (_initializing || MonthsComboBox.SelectedItem is not int months) return;
+        _months = months;
+        _viewModel.SaveTimelineMonths(months);
         BuildGrid();
     }
 
@@ -207,8 +219,8 @@ public partial class TimelineWindow : Window
     // goals get a row, their bars, the tasks in each, and the columns of the visible window.
     private (List<TimelineRow> Rows, List<DateTime> UnitStarts, DateTime RangeEnd) GetVisibleData()
     {
-        var unitStarts = TimelineScale.UnitStarts(Zoom, _windowStart);
-        var rangeEnd = _windowEnd = TimelineScale.End(Zoom, _windowStart);
+        var unitStarts = TimelineScale.UnitStarts(Zoom, _windowStart, _months);
+        var rangeEnd = _windowEnd = TimelineScale.End(Zoom, _windowStart, _months);
         var includeDone = IncludeDoneCheckBox.IsChecked == true;
 
         var tasks = _viewModel.Columns

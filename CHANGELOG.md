@@ -6,6 +6,12 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.149.0 — 2026-10-22
+
+> - New: the Timeline's Month view can show 3, 6, 9, 12, 18 or 24 months. Pick the number beside Month view; it is remembered.
+> - New: printing the Timeline offers a choice of paper (Letter, Legal, Tabloid, A4 or A3) and Landscape or Portrait. The pages are laid out for that paper, the printer is asked for it, and the choice is remembered.
+
+
 ## 0.148.1 — 2026-10-22
 
 > - Improved: on the Timeline, a goal's target date now has a dashed line running from the left edge to its diamond, so the distance to the target can be read at a glance. When the target is later than the dates showing, the line runs to the right edge and ends in an arrow, and the goal keeps its row. It prints too.
