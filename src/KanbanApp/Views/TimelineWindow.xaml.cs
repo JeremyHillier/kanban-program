@@ -233,10 +233,10 @@ public partial class TimelineWindow : Window
         {
             var groupTasks = tasks.GetValueOrDefault(name) ?? [];
 
-            // A goal's target date (Group by Goal only). A goal whose target falls in the window gets a row
+            // A goal's target date (Group by Goal only). A goal whose target is in the window or later gets a row
             // even if none of its tasks are showing, so the target is never lost.
             var target = IsByGoal ? _viewModel.Goals.FirstOrDefault(g => g.Name == name)?.TargetDate : null;
-            var targetShows = target is { } day && TimelineLayout.TargetPosition(day, unitStarts, rangeEnd) is not null;
+            var targetShows = target is { } day && day.Date >= unitStarts[0]; // in the window, or still to come
 
             if (IsSummary)
             {

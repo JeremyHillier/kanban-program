@@ -148,6 +148,25 @@ public partial class TimelineWindow
                 Grid.SetColumnSpan(leadIn, at.Unit + 1);
                 laneGrid.Children.Insert(0, leadIn);
             }
+            else if (row.Target is { } later && later.Date >= rangeEnd)
+            {
+                // The target is beyond the right edge: the line runs right across, ending in an arrowhead.
+                var leadIn = BuildTargetLeadIn(1, unitColWidth, toEdge: true);
+                Grid.SetRow(leadIn, 0);
+                Grid.SetColumn(leadIn, 0);
+                Grid.SetColumnSpan(leadIn, unitsToShow);
+                laneGrid.Children.Insert(0, leadIn);
+
+                var head = new TextBlock
+                {
+                    Text = "▶", Foreground = TargetBrush, FontSize = 11, HorizontalAlignment = HorizontalAlignment.Right, VerticalAlignment = VerticalAlignment.Top,
+                    Margin = new Thickness(0, TargetLineY - 8, 0, 0), Cursor = Cursors.Help,
+                    ToolTip = $"{row.Name}\nTarget: {later:MMM d, yyyy} (later than the dates showing)"
+                };
+                Grid.SetRow(head, 0);
+                Grid.SetColumn(head, unitsToShow - 1);
+                laneGrid.Children.Add(head);
+            }
 
             foreach (var item in row.Items)
             {
@@ -285,10 +304,10 @@ public partial class TimelineWindow
     private const double TargetLineY = 26;
 
     // The dashed line from the left edge of the dates to the diamond, behind the bar and the tasks.
-    private static FrameworkElement BuildTargetLeadIn(double fraction, double unitColWidth) => new Line
+    private static FrameworkElement BuildTargetLeadIn(double fraction, double unitColWidth, bool toEdge = false) => new Line
     {
         X1 = 0, X2 = 1, Y1 = 0, Y2 = 0, Stretch = Stretch.Fill, Stroke = TargetBrush, StrokeThickness = 1.5, StrokeDashArray = [4, 3],
-        VerticalAlignment = VerticalAlignment.Top, Margin = new Thickness(0, TargetLineY - 0.75, Math.Max(0, unitColWidth - Math.Clamp(fraction * unitColWidth, 1, unitColWidth - 1)), 0),
+        VerticalAlignment = VerticalAlignment.Top, Margin = new Thickness(0, TargetLineY - 0.75, toEdge ? 6 : Math.Max(0, unitColWidth - Math.Clamp(fraction * unitColWidth, 1, unitColWidth - 1)), 0),
         IsHitTestVisible = false
     };
 

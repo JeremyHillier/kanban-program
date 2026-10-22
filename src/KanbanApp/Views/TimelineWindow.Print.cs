@@ -233,6 +233,20 @@ public partial class TimelineWindow
                     Fill = TargetBrush
                 });
             }
+            else if (row.Target is { } later && later.Date >= rangeEnd)
+            {
+                // Beyond the right edge: the line runs right across to an arrowhead.
+                var edgeX = UnitLeft(unitsToShow) - 1;
+                var targetY = rowTop + 2 + barHeight + 4;
+                canvas.Children.Add(new Line
+                {
+                    X1 = UnitLeft(0), Y1 = targetY, X2 = edgeX - 5, Y2 = targetY, Stroke = TargetBrush, StrokeThickness = 1, StrokeDashArray = [4, 3]
+                });
+                canvas.Children.Add(new Polygon
+                {
+                    Points = [new Point(edgeX - 6, targetY - 3.5), new Point(edgeX, targetY), new Point(edgeX - 6, targetY + 3.5)], Fill = TargetBrush
+                });
+            }
 
             foreach (var item in items)
             {

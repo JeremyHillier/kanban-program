@@ -8,7 +8,7 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 
 ## 0.148.1 — 2026-10-22
 
-> - Improved: on the Timeline, a goal's target date now has a dashed line running from the left edge to its diamond, so the distance to the target can be read at a glance. It prints too.
+> - Improved: on the Timeline, a goal's target date now has a dashed line running from the left edge to its diamond, so the distance to the target can be read at a glance. When the target is later than the dates showing, the line runs to the right edge and ends in an arrow, and the goal keeps its row. It prints too.
 
 
 ## 0.148.0 — 2026-10-22
