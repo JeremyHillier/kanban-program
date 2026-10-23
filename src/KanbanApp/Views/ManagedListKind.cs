@@ -25,6 +25,7 @@ internal abstract class ManagedListKind
     public abstract void Delete(IManagedItem item);
     public virtual void SetEmail(IManagedItem item, string? email) { }
     public virtual void SetTarget(IManagedItem item, DateTime? target) { }
+    public virtual void SetStart(IManagedItem item, DateTime? start) { }
 
     public string DeleteQuestion(string name) => NounInDeleteQuestion ? $"Delete {Noun} \"{name}\"?" : $"Delete \"{name}\"?";
 
@@ -33,7 +34,7 @@ internal abstract class ManagedListKind
         { Title = "Manage Projects", Noun = "project", IfDeleted = "they'll show as having no project." };
 
     public static ManagedListKind Goals(MainViewModel vm) =>
-        new Of<GoalViewModel>(vm.Goals, vm.AddGoal, vm.RenameGoal, vm.SetGoalActive, vm.CountTasksUsingGoal, vm.DeleteGoal, setTarget: vm.SetGoalTarget)
+        new Of<GoalViewModel>(vm.Goals, vm.AddGoal, vm.RenameGoal, vm.SetGoalActive, vm.CountTasksUsingGoal, vm.DeleteGoal, setTarget: vm.SetGoalTarget, setStart: vm.SetGoalStart)
         { Title = "Manage Goals", Noun = "goal", IfDeleted = "they'll show as having no goal." };
 
     public static ManagedListKind Flags(MainViewModel vm) =>
@@ -54,7 +55,8 @@ internal abstract class ManagedListKind
         Func<T, int> countUsage,
         Action<T> delete,
         Action<T, string?>? setEmail = null,
-        Action<T, DateTime?>? setTarget = null) : ManagedListKind where T : IManagedItem
+        Action<T, DateTime?>? setTarget = null,
+        Action<T, DateTime?>? setStart = null) : ManagedListKind where T : IManagedItem
     {
         public override bool HasEmail => setEmail is not null;
         public override bool HasTarget => setTarget is not null;
@@ -66,5 +68,6 @@ internal abstract class ManagedListKind
         public override void Delete(IManagedItem item) => delete((T)item);
         public override void SetEmail(IManagedItem item, string? email) => setEmail?.Invoke((T)item, email);
         public override void SetTarget(IManagedItem item, DateTime? target) => setTarget?.Invoke((T)item, target);
+        public override void SetStart(IManagedItem item, DateTime? start) => setStart?.Invoke((T)item, start);
     }
 }

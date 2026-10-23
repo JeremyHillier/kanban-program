@@ -253,6 +253,7 @@ public partial class TimelineWindow : Window
             // A goal's target date (Group by Goal only). A goal whose target is in the window or later gets a row
             // even if none of its tasks are showing, so the target is never lost.
             var target = IsByGoal ? _viewModel.Goals.FirstOrDefault(g => g.Name == name)?.TargetDate : null;
+            var goalStart = IsByGoal ? _viewModel.Goals.FirstOrDefault(g => g.Name == name)?.StartDate : null;
             var targetShows = target is { } day && day.Date >= unitStarts[0]; // in the window, or still to come
 
             // Its milestones that fall in the window (Group by Goal only). They too give a goal its row.
@@ -263,7 +264,7 @@ public partial class TimelineWindow : Window
 
             if (IsSummary)
             {
-                var summary = TimelineLayout.Summarise(open.GetValueOrDefault(name) ?? [], DateTime.Today, unitStarts, rangeEnd, target);
+                var summary = TimelineLayout.Summarise(open.GetValueOrDefault(name) ?? [], DateTime.Today, unitStarts, rangeEnd, target, goalStart);
                 if (summary is null && !targetShows && !hasMilestones) continue;
 
                 var expanded = _expanded.Contains(RowKey(name));

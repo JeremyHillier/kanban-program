@@ -122,13 +122,14 @@ public static class TimelineLayout
     // The Summary view's one bar for a project or goal: from the earliest start or due date of its open
     // tasks to the latest. Null when none of them has a date, or the bar would fall outside the window.
     // The counts cover all of the group's open tasks, not just the ones in the window.
-    public static TimelineSummary? Summarise(IEnumerable<CardViewModel> openCards, DateTime today, IReadOnlyList<DateTime> unitStarts, DateTime windowEnd, DateTime? target = null)
+    public static TimelineSummary? Summarise(IEnumerable<CardViewModel> openCards, DateTime today, IReadOnlyList<DateTime> unitStarts, DateTime windowEnd, DateTime? target = null, DateTime? goalStart = null)
     {
         var cards = openCards.ToList();
         var spans = cards.Select(SpanOf).OfType<(DateTime Start, DateTime End)>().ToList();
         if (spans.Count == 0) return null;
 
         var start = spans.Min(s => s.Start);
+        if (goalStart is { } begun && begun.Date < start) start = begun.Date; // the goal began before its first task
         var end = spans.Max(s => s.End);
         var windowStart = unitStarts[0];
         if (start >= windowEnd || end < windowStart) return null;

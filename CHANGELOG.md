@@ -6,6 +6,12 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.151.0 — 2026-10-23
+
+> - New: goals can have a start date as well as a target date. Manage Goals is wider, with each goal on a single row: name, Active, start date, target date, Milestones and Delete.
+> - Improved: on the Timeline, grouped by goal, a goal's bar begins at its start date when that is earlier than its first task.
+
+
 ## 0.150.1 — 2026-10-23
 
 > - Fixed: a word in the spelling dictionary with a capital letter inside it, such as "PayWorks", was still underlined as misspelled.

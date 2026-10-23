@@ -77,4 +77,22 @@ public sealed class GoalTargetTests : IDisposable
         db.AddGoalMilestone(goal.Id, "Keys handed back", new DateTime(2027, 1, 5));
         Assert.Equal(DatabaseService.GoalMilestoneFileFormat.ToString(), db.GetSetting("FileFormat"));
     }
+
+    [Fact]
+    public void AStartDate_IsKept_ClearedAndStampsTheFileOnlyOnceSet()
+    {
+        var db = Open();
+        var goal = db.AddGoal("Grow revenue");
+        db.SetGoalTarget(goal.Id, new DateTime(2027, 3, 31));
+        db.SetGoalStart(goal.Id, null);
+        Assert.Equal(DatabaseService.GoalTargetFileFormat.ToString(), db.GetSetting("FileFormat")); // still only the target's stamp
+
+        db.SetGoalStart(goal.Id, new DateTime(2026, 11, 2));
+        var saved = Assert.Single(Open().GetGoals());
+        Assert.Equal((new DateTime(2026, 11, 2), new DateTime(2027, 3, 31)), (saved.StartDate!.Value, saved.TargetDate!.Value));
+        Assert.Equal(DatabaseService.GoalStartFileFormat.ToString(), db.GetSetting("FileFormat"));
+
+        db.SetGoalStart(goal.Id, null);
+        Assert.Null(Assert.Single(Open().GetGoals()).StartDate);
+    }
 }

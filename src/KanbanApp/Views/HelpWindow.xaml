@@ -481,7 +481,8 @@
                 <local:BulletItem Text="Beside each name: how many tasks are open, overdue (in red) and undated."/>
                 <local:BulletItem Text="Click a name or its bar to show or hide its tasks. Detail shows every task. Opened rows are remembered."/>
                 <local:BulletItem Text="Group by Project or Goal."/>
-                <local:BulletItem Text="A goal with a target date (set in Manage Goals) shows a diamond on its row, with a dashed line from the left. A later target runs the line off the right edge."/>
+                <local:BulletItem Text="A goal can have a start and a target date (Manage Goals). The bar starts at the start date if that is earlier than its first task."/>
+                <local:BulletItem Text="The target shows as a diamond on its row, with a dashed line from the left. A later target runs the line off the right edge."/>
                 <local:BulletItem Text="If its open tasks run past the target, the bar turns red from the target on."/>
                 <local:BulletItem Text="Milestones (a description and a date, from Manage Goals) show as a teal line on the goal's row."/>
                 <local:BulletItem Text="Right-click a project or goal to rename it, edit a goal's milestones, or open its Manage list."/>

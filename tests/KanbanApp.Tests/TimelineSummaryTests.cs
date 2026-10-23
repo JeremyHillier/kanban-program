@@ -152,4 +152,14 @@ public sealed class TimelineSummaryTests
         Assert.Equal(6, TimelineScale.ValidMonths(7));
         Assert.Equal(18, TimelineScale.ValidMonths(18));
     }
+
+    [Fact]
+    public void AGoalsStartDate_PullsTheBarEarlier_ButNeverLater()
+    {
+        var starts = Months(new DateTime(2026, 10, 1));
+        var cards = new[] { Task(null, new DateTime(2026, 12, 10)) };
+
+        Assert.Equal(new DateTime(2026, 11, 2), TimelineLayout.Summarise(cards, Today, starts, new DateTime(2027, 4, 1), goalStart: new DateTime(2026, 11, 2))!.Start);
+        Assert.Equal(new DateTime(2026, 12, 10), TimelineLayout.Summarise(cards, Today, starts, new DateTime(2027, 4, 1), goalStart: new DateTime(2027, 1, 5))!.Start);
+    }
 }

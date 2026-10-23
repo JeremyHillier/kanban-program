@@ -31,13 +31,15 @@ public partial class DatabaseService
     //    list, so the file is only stamped 9 once a target date has been set (GoalTargetFileFormat).
     // 10: GoalMilestones (0.150.0) - a goal's dated milestones, in a table older copies ignore; stamped on the
     //     first milestone saved (GoalMilestoneFileFormat).
+    // 11: Goals.StartDate (0.151.0) - older copies ignore the column; stamped when a start date is first set (GoalStartFileFormat).
     // The newest format this copy of the app understands.
-    public const int CurrentFileFormat = 10;
+    public const int CurrentFileFormat = 11;
 
     public const int DayRangeFileFormat = 6;
     public const int PathLinkFileFormat = 7;
     public const int GoalTargetFileFormat = 9;
     public const int GoalMilestoneFileFormat = 10;
+    public const int GoalStartFileFormat = 11;
 
     // What every file is raised to just by being opened. Formats 4 to 8 only matter once their
     // feature is used: a file whose priorities are still the standard four, and with no shared

@@ -33,6 +33,15 @@ public partial class MainViewModel
         UpdateMatchingCards(c => c.IsAssignedTo(person.Id), c => c.RefreshPeople());
     }
 
+    public void SetGoalStart(GoalViewModel goal, DateTime? start)
+    {
+        var day = start?.Date;
+        if (goal.StartDate == day) return;
+
+        goal.StartDate = day;
+        _db.SetGoalStart(goal.Id, day);
+    }
+
     public void SetGoalTarget(GoalViewModel goal, DateTime? target)
     {
         var day = target?.Date;

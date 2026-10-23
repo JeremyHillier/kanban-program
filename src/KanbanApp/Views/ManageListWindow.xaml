@@ -37,6 +37,7 @@
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="Auto"/>
                                         <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
                                     <TextBox Grid.Column="0" Padding="6" Margin="0,0,8,0"
                                              Text="{Binding Name, Mode=OneWay}"
@@ -48,7 +49,26 @@
                                               Foreground="{DynamicResource PrimaryTextBrush}"
                                               ToolTip="{Binding ActiveToolTip, RelativeSource={RelativeSource AncestorType=Window}}"
                                               Checked="Active_Changed" Unchecked="Active_Changed"/>
-                                    <Button Grid.Column="2" Content="Delete" Padding="10,4" Click="Delete_Click" ToolTip="Take it off the list"
+                                    <!-- Goals only: when work starts and when it should be finished (both optional), and its milestones. -->
+                                    <StackPanel Grid.Column="2" Orientation="Horizontal" Margin="0,0,8,0"
+                                                Visibility="{Binding TargetVisibility, RelativeSource={RelativeSource AncestorType=Window}}">
+                                        <TextBlock Text="Start" VerticalAlignment="Center" Margin="0,0,6,0" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                                        <DatePicker Width="130" Padding="4" Loaded="TargetPicker_Loaded" SelectedDate="{Binding StartDate, Mode=OneWay}"
+                                                    SelectedDateChanged="Start_Changed"
+                                                    ToolTip="When work on this goal begins (optional). On the Timeline, grouped by goal, its bar starts here if that is before its first task."/>
+                                        <Button Content="&#x2715;" Padding="6,4" Margin="3,0,0,0" Click="ClearStart_Click" ToolTip="Take the start date off"
+                                                Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                                        <TextBlock Text="Target" VerticalAlignment="Center" Margin="12,0,6,0" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                                        <DatePicker Width="130" Padding="4" Loaded="TargetPicker_Loaded" SelectedDate="{Binding TargetDate, Mode=OneWay}"
+                                                    SelectedDateChanged="Target_Changed"
+                                                    ToolTip="When this goal should be finished (optional). Shown on the Timeline when grouped by goal, which flags a goal whose open tasks run past it."/>
+                                        <Button Content="&#x2715;" Padding="6,4" Margin="3,0,0,0" Click="ClearTarget_Click" ToolTip="Take the target date off"
+                                                Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                                        <Button Content="Milestones..." Padding="10,4" Margin="12,0,0,0" Click="Milestones_Click"
+                                                ToolTip="The dated milestones on the way to this goal. Each is drawn on the Timeline when it is grouped by goal."
+                                                Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                                    </StackPanel>
+                                    <Button Grid.Column="3" Content="Delete" Padding="10,4" Click="Delete_Click" ToolTip="Take it off the list"
                                             Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
                                 </Grid>
                                 <TextBox Padding="6" Margin="0,4,0,0"
@@ -58,20 +78,6 @@
                                          ToolTip="Email address (optional) - lets you email this person's tasks to them directly from a card"
                                          Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
                                          BorderBrush="{DynamicResource CardBorderBrush}"/>
-                                <!-- Goals only: when it should be finished (optional). -->
-                                <StackPanel Orientation="Horizontal" Margin="0,4,0,0"
-                                            Visibility="{Binding TargetVisibility, RelativeSource={RelativeSource AncestorType=Window}}">
-                                    <TextBlock Text="Target date" VerticalAlignment="Center" Margin="2,0,8,0" Foreground="{DynamicResource PrimaryTextBrush}"/>
-                                    <DatePicker Width="150" Padding="4" Loaded="TargetPicker_Loaded"
-                                                SelectedDate="{Binding TargetDate, Mode=OneWay}"
-                                                SelectedDateChanged="Target_Changed"
-                                                ToolTip="When this goal should be finished (optional). Shown on the Timeline when grouped by goal, which flags a goal whose open tasks run past it."/>
-                                    <Button Content="Clear" Padding="10,4" Margin="6,0,0,0" Click="ClearTarget_Click" ToolTip="Take the target date off"
-                                            Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
-                                    <Button Content="Milestones..." Padding="10,4" Margin="14,0,0,0" Click="Milestones_Click"
-                                            ToolTip="The dated milestones on the way to this goal. Each is drawn on the Timeline when it is grouped by goal."
-                                            Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
-                                </StackPanel>
                             </StackPanel>
                         </Border>
                     </DataTemplate>

@@ -27,7 +27,7 @@ public partial class ManageListWindow : Window
 
         InitializeComponent();
         Title = kind.Title;
-        if (kind.HasTarget) Width = 520; // room for the target date and the milestones button
+        if (kind.HasTarget) Width = 900; // a goal is one row: name, Active, start and target dates, Milestones, Delete
         MaxHeight = SystemParameters.WorkArea.Height * 0.9;
         DataContext = viewModel;
         ItemsList.ItemsSource = kind.Items;
@@ -80,6 +80,18 @@ public partial class ManageListWindow : Window
     private void Milestones_Click(object sender, RoutedEventArgs e)
     {
         if (sender is FrameworkElement { DataContext: GoalViewModel goal }) new GoalMilestonesWindow(_viewModel, goal) { Owner = this }.ShowDialog();
+    }
+
+    private void Start_Changed(object sender, SelectionChangedEventArgs e)
+    {
+        if (sender is not DatePicker { DataContext: GoalViewModel goal } picker || goal.StartDate == picker.SelectedDate?.Date) return;
+
+        _kind.SetStart(goal, picker.SelectedDate);
+    }
+
+    private void ClearStart_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is FrameworkElement { DataContext: GoalViewModel goal }) _kind.SetStart(goal, null);
     }
 
     private void ClearTarget_Click(object sender, RoutedEventArgs e)
