@@ -80,16 +80,33 @@ public partial class TimelineWindow
         Canvas canvas = null!;
         double y = 0;
 
+        var subLines = Enumerable.Range(0, unitsToShow)
+            .Select(w => TimelineLayout.SubDivisions(Zoom, unitStarts[w], w + 1 < unitsToShow ? unitStarts[w + 1] : rangeEnd)).ToList();
+
         void DrawColumnLines(double top, double height)
         {
-            void VLine(double x)
+            void VLine(double x, double thickness = 0.5)
             {
-                var line = new Line { X1 = x, Y1 = top, X2 = x, Y2 = top + height, Stroke = columnLineBrush, StrokeThickness = 0.5 };
+                var line = new Line { X1 = x, Y1 = top, X2 = x, Y2 = top + height, Stroke = columnLineBrush, StrokeThickness = thickness };
                 canvas.Children.Add(line);
             }
             VLine(margin + projectColWidth);
-            for (var w = 1; w < unitsToShow; w++)
-                VLine(margin + projectColWidth + w * unitColWidth);
+            for (var w = 0; w < unitsToShow; w++)
+            {
+                var left = margin + projectColWidth + w * unitColWidth;
+                if (w > 0) VLine(left, 0.9); // between weeks, months or days: a little heavier
+                foreach (var fraction in subLines[w])
+                    VLine(left + fraction * unitColWidth, 0.3); // each day of a week, each Monday of a month
+            }
+        }
+
+        // Today, if it is showing: a thin blue line down the row.
+        void DrawToday(double top, double height)
+        {
+            if (DateTime.Today < unitStarts[0] || DateTime.Today >= rangeEnd) return;
+
+            var x = margin + projectColWidth + (TimelineLayout.Offset(DateTime.Today, unitStarts, rangeEnd) + TimelineLayout.EndOffset(DateTime.Today, unitStarts, rangeEnd)) / 2 * unitColWidth;
+            canvas.Children.Add(new Line { X1 = x, Y1 = top, X2 = x, Y2 = top + height, Stroke = TodayBrush, StrokeThickness = 1 });
         }
 
         void DrawHeaderBand()
@@ -213,8 +230,9 @@ public partial class TimelineWindow
             // The Summary bar: square-ended where it runs past the edge, with its dates in white.
             if (row.Summary is { } summary)
             {
-                var barLeft = UnitLeft(summary.FirstUnit) + (summary.StartsBeforeWindow ? 0 : 1.5);
-                var barRight = UnitLeft(summary.LastUnit + 1) - (summary.EndsAfterWindow ? 0 : 1.5);
+                // To the day, as on screen: from the start of its first day to the end of its last, never under 6 wide.
+                var barLeft = summary.StartsBeforeWindow ? UnitLeft(0) : UnitLeft(0) + summary.StartAt * unitColWidth + 0.5;
+                var barRight = Math.Max(barLeft + 6, summary.EndsAfterWindow ? UnitLeft(unitsToShow) : UnitLeft(0) + summary.EndAt * unitColWidth - 0.5);
                 var barRect = new Rectangle
                 {
                     Width = barRight - barLeft, Height = barHeight, Fill = BarBrush(summary),
@@ -287,7 +305,8 @@ public partial class TimelineWindow
                     // bar when the due date is beyond it. Level with the first line of text.
                     var arrowY = laneTop + chipPadding + lineHeight / 2;
                     var x1 = UnitLeft(item.ArrowFirstUnit);
-                    var x2 = UnitLeft(item.ArrowLastUnit + 1) - (item.DueAfterWindow ? 1 : 2.5);
+                    // The head stops at the end of the due day, as on screen.
+                    var x2 = Math.Max(x1 + 10, item.DueAfterWindow ? UnitLeft(unitsToShow) - 1 : UnitLeft(0) + item.EndAt * unitColWidth - 1);
 
                     if (!item.DueAfterWindow)
                     {
@@ -322,6 +341,7 @@ public partial class TimelineWindow
                 }
             }
 
+            DrawToday(rowTop, rowHeight);
             y = rowTop + rowHeight;
         }
 

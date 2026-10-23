@@ -62,12 +62,13 @@ public partial class TimelineWindow
 
         HeaderGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
 
+        // The line between columns (weeks, months, days) is a little heavier than the light lines inside them.
         void AddCell(Grid grid, int row, int col, UIElement content, Brush? background = null)
         {
             var border = new Border
             {
                 BorderBrush = borderBrush,
-                BorderThickness = new Thickness(0, 0, 1, 1),
+                BorderThickness = new Thickness(0, 0, col == 0 ? 1 : 1.75, 1),
                 Background = background,
                 Child = content
             };
@@ -75,6 +76,30 @@ public partial class TimelineWindow
             Grid.SetColumn(border, col);
             grid.Children.Add(border);
         }
+
+        // The light lines inside a column: each day of a week, each Monday of a month.
+        var subLines = Enumerable.Range(0, unitsToShow)
+            .Select(w => TimelineLayout.SubDivisions(Zoom, unitStarts[w], w + 1 < unitsToShow ? unitStarts[w + 1] : rangeEnd))
+            .ToList();
+        var subLineBrush = new SolidColorBrush(((SolidColorBrush)borderBrush).Color) { Opacity = 0.45 };
+        UIElement SubLines(int w)
+        {
+            var lines = new Grid();
+            foreach (var fraction in subLines[w])
+            {
+                lines.Children.Add(new Rectangle
+                {
+                    Width = 1, Fill = subLineBrush, HorizontalAlignment = HorizontalAlignment.Left,
+                    Margin = new Thickness(fraction * unitColWidth - 0.5, 0, 0, 0)
+                });
+            }
+            return lines;
+        }
+
+        // Where today falls, if it is showing: a thin blue line down every row, so the plan reads against now.
+        var todayAt = DateTime.Today >= unitStarts[0] && DateTime.Today < rangeEnd
+            ? TimelineLayout.Offset(DateTime.Today, unitStarts, rangeEnd) + 0.5 * (TimelineLayout.EndOffset(DateTime.Today, unitStarts, rangeEnd) - TimelineLayout.Offset(DateTime.Today, unitStarts, rangeEnd))
+            : (double?)null;
 
         AddCell(HeaderGrid, 0, 0, new TextBlock
         {
@@ -92,6 +117,41 @@ public partial class TimelineWindow
             }, panelBrush);
         }
 
+        // A second header row naming the light lines: the days of each week (M T W ...) in Week view, the date of
+        // each Monday in Month view when there is room for it. Day view has no inner lines, so no second row.
+        if (Zoom != TimelineZoom.Day && (Zoom == TimelineZoom.Week || unitColWidth >= 100))
+        {
+            HeaderGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+            AddCell(HeaderGrid, 1, 0, new TextBlock
+            {
+                Text = Zoom == TimelineZoom.Week ? "Days" : "Weeks from", FontSize = 10, Foreground = secondaryBrush, Margin = new Thickness(6, 2, 6, 2)
+            }, panelBrush);
+            for (var w = 0; w < unitsToShow; w++)
+            {
+                var labels = new Grid { Height = 16 };
+                var unitStart = unitStarts[w];
+                var unitEnd = w + 1 < unitsToShow ? unitStarts[w + 1] : rangeEnd;
+                var length = (unitEnd - unitStart).TotalDays;
+                for (var d = 0; d < length; d++)
+                {
+                    var day = unitStart.AddDays(d);
+                    if (Zoom == TimelineZoom.Month && (day.DayOfWeek != DayOfWeek.Monday || d / length * unitColWidth > unitColWidth - 16)) continue; // no room for a late Monday
+
+                    labels.Children.Add(new TextBlock
+                    {
+                        Text = Zoom == TimelineZoom.Week ? day.ToString("ddd")[..1] : day.Day.ToString(), FontSize = 9.5, Foreground = secondaryBrush,
+                        HorizontalAlignment = HorizontalAlignment.Left, VerticalAlignment = VerticalAlignment.Center,
+                        Margin = new Thickness(d / length * unitColWidth + (Zoom == TimelineZoom.Week ? unitColWidth / length / 2 - 3 : 2), 0, 0, 0),
+                        ToolTip = day.ToString("dddd, MMM d, yyyy")
+                    });
+                }
+                var cell = new Grid();
+                cell.Children.Add(SubLines(w));
+                cell.Children.Add(labels);
+                AddCell(HeaderGrid, 1, w + 1, cell, panelBrush);
+            }
+        }
+
         if (rows.Count == 0)
         {
             TimelineGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto, MinHeight = 50 });
@@ -100,7 +160,7 @@ public partial class TimelineWindow
                 Text = EmptyText, Foreground = secondaryBrush,
                 FontStyle = FontStyles.Italic, Margin = new Thickness(6), TextWrapping = TextWrapping.Wrap
             });
-            for (var w = 0; w < unitsToShow; w++) AddCell(TimelineGrid, 0, w + 1, new Border());
+            for (var w = 0; w < unitsToShow; w++) AddCell(TimelineGrid, 0, w + 1, SubLines(w));
             return;
         }
 
@@ -117,7 +177,7 @@ public partial class TimelineWindow
             // The row's date cells are just the background and grid lines; the bar and the tasks sit
             // in a lane grid laid over them (same column widths, one auto-height row per lane),
             // because a bar or an arrow has to run across several columns.
-            for (var w = 0; w < unitsToShow; w++) AddCell(TimelineGrid, r, w + 1, new Border(), rowBackground);
+            for (var w = 0; w < unitsToShow; w++) AddCell(TimelineGrid, r, w + 1, SubLines(w), rowBackground);
 
             var laneGrid = new Grid { Margin = new Thickness(0, 3, 0, 0), VerticalAlignment = VerticalAlignment.Top };
             for (var w = 0; w < unitsToShow; w++) laneGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(unitColWidth) });
@@ -129,7 +189,7 @@ public partial class TimelineWindow
 
             if (row.Summary is { } summary)
             {
-                var bar = BuildSummaryBar(row, summary);
+                var bar = BuildSummaryBar(row, summary, unitColWidth);
                 Grid.SetRow(bar, 0);
                 Grid.SetColumn(bar, summary.FirstUnit);
                 Grid.SetColumnSpan(bar, summary.LastUnit - summary.FirstUnit + 1);
@@ -188,7 +248,7 @@ public partial class TimelineWindow
                 var lane = row.FirstTaskLane + item.Lane;
                 if (item.HasArrow)
                 {
-                    var arrow = BuildArrow(item, brush);
+                    var arrow = BuildArrow(item, brush, unitColWidth);
                     Grid.SetRow(arrow, lane);
                     Grid.SetColumn(arrow, item.ArrowFirstUnit);
                     Grid.SetColumnSpan(arrow, item.ArrowLastUnit - item.ArrowFirstUnit + 1);
@@ -237,6 +297,21 @@ public partial class TimelineWindow
                 Grid.SetColumn(block, item.BoxUnit);
                 laneGrid.Children.Add(block);
             }
+        }
+
+        // Today: one thin blue line down every row, in front, so where things stand reads at a glance.
+        if (todayAt is { } now)
+        {
+            var todayLine = new Rectangle
+            {
+                Width = 2, Fill = TodayBrush, Opacity = 0.75, HorizontalAlignment = HorizontalAlignment.Left,
+                Margin = new Thickness(now * unitColWidth - 1, 0, 0, 0), ToolTip = $"Today, {DateTime.Today:MMM d, yyyy}"
+            };
+            Grid.SetRow(todayLine, 0);
+            Grid.SetRowSpan(todayLine, rows.Count);
+            Grid.SetColumn(todayLine, 1);
+            Grid.SetColumnSpan(todayLine, unitsToShow);
+            TimelineGrid.Children.Add(todayLine);
         }
     }
 
@@ -297,6 +372,7 @@ public partial class TimelineWindow
     }
 
     // Milestones are a teal line, apart from the purple or blue bar, the orange target and the red overrun.
+    private static readonly Brush TodayBrush = new SolidColorBrush(Color.FromRgb(0x1E, 0x88, 0xE5));
     private static readonly Brush MilestoneBrush = new SolidColorBrush(Color.FromRgb(0x00, 0x89, 0x7B));
 
     // A goal's milestone: a vertical line down the row at its day within the month column, with what it is
@@ -363,7 +439,18 @@ public partial class TimelineWindow
 
     // A Summary bar: the dates its open tasks run between, square-ended with a ◀ or ▶ where it runs past
     // the edge of what is showing. Clicking it opens or closes the row's tasks.
-    private FrameworkElement BuildSummaryBar(TimelineRow row, TimelineSummary summary)
+    // The bar spans whole columns in the grid; its margins pull its ends in to the start of its first day and the end
+    // of its last, keeping it at least 8 wide so a one-day bar can still be seen and clicked.
+    private static Thickness BarMargin(TimelineSummary summary, double unitColWidth)
+    {
+        var span = (summary.LastUnit - summary.FirstUnit + 1) * unitColWidth;
+        var left = summary.StartsBeforeWindow ? 0 : Math.Max(0, (summary.StartAt - summary.FirstUnit) * unitColWidth);
+        var right = summary.EndsAfterWindow ? 0 : Math.Max(0, (summary.LastUnit + 1 - summary.EndAt) * unitColWidth);
+        if (span - left - right < 8) right = Math.Max(0, span - left - 8);
+        return new Thickness(left, 0, right, 4);
+    }
+
+    private FrameworkElement BuildSummaryBar(TimelineRow row, TimelineSummary summary, double unitColWidth)
     {
         var text = $"{(summary.StartsBeforeWindow ? "◀ " : "")}{summary.DatesText}{(summary.EndsAfterWindow ? " ▶" : "")}";
         var bar = new Border
@@ -371,7 +458,8 @@ public partial class TimelineWindow
             Background = BarBrush(summary),
             CornerRadius = new CornerRadius(summary.StartsBeforeWindow ? 0 : 4, summary.EndsAfterWindow ? 0 : 4, summary.EndsAfterWindow ? 0 : 4, summary.StartsBeforeWindow ? 0 : 4),
             Padding = new Thickness(6, 4, 6, 4),
-            Margin = new Thickness(summary.StartsBeforeWindow ? 0 : 3, 0, summary.EndsAfterWindow ? 0 : 3, 4),
+            // To the day: it starts where its first day starts and ends where its last day ends, inside the columns it spans.
+            Margin = BarMargin(summary, unitColWidth),
             Cursor = Cursors.Hand,
             VerticalAlignment = VerticalAlignment.Top,
             Child = new TextBlock { Text = text, Foreground = Brushes.White, FontSize = 11, FontWeight = FontWeights.SemiBold, TextTrimming = TextTrimming.CharacterEllipsis },
@@ -382,18 +470,20 @@ public partial class TimelineWindow
         return bar;
     }
 
-    // The arrow from a task's box (at its start date) to its due date: a line and a head running to
-    // the right-hand edge of the due column, where it stops against a short upright bar - the whole
+    // The arrow from a task's box (at its start date) to its due date: a line and a head running to the end
+    // of the due day within its column, where it stops against a short upright bar - the whole
     // due day is covered. When the due date is beyond the right edge it runs off that edge with no
     // bar. Drawn in the text colour, so it is black on the light theme and light on the dark one.
     // It sits level with the first line of text in the box.
-    private static FrameworkElement BuildArrow(TimelineItem item, Brush stroke)
+    private static FrameworkElement BuildArrow(TimelineItem item, Brush stroke, double unitColWidth)
     {
         const double arrowTop = 4; // the line's middle stays 11 below the lane's top, level with the box's first line
         var panel = new DockPanel
         {
             Height = 14, VerticalAlignment = VerticalAlignment.Top, LastChildFill = true, IsHitTestVisible = false,
-            Margin = new Thickness(0, arrowTop, item.DueAfterWindow ? 0 : 2, 0) // just inside the column's line
+            // The head stops at the end of the due day: a task due on the first day of a week stops a seventh of
+            // the way into that week, not at its far edge. Never shorter than its head and bar.
+            Margin = new Thickness(0, arrowTop, item.DueAfterWindow ? 0 : Math.Clamp((item.ArrowLastUnit + 1 - item.EndAt) * unitColWidth, 0, (item.ArrowLastUnit - item.ArrowFirstUnit + 1) * unitColWidth - 16), 0)
         };
 
         if (!item.DueAfterWindow)

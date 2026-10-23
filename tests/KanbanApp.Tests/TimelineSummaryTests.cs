@@ -95,7 +95,11 @@ public sealed class TimelineSummaryTests
         var bar = TimelineLayout.Summarise(cards, Today, starts, new DateTime(2027, 4, 1), target: new DateTime(2026, 12, 1))!;
 
         Assert.Equal((1, 3), (bar.FirstUnit, bar.LastUnit));
-        Assert.Equal(1d / 3, bar.OverrunFrom!.Value, 3); // the bar covers Nov, Dec, Jan; red starts where December does
+        // To the day: the bar runs from the start of Nov 10 (1 + 9/30 columns) to the end of Jan 12 (3 + 12/31), and
+        // turns red at the end of Dec 1 (2 + 1/31).
+        Assert.Equal((2 + 1 / 31d - (1 + 9 / 30d)) / (3 + 12 / 31d - (1 + 9 / 30d)), bar.OverrunFrom!.Value, 6);
+        Assert.Equal(1 + 9 / 30d, bar.StartAt, 6);
+        Assert.Equal(3 + 12 / 31d, bar.EndAt, 6);
         Assert.Equal("ends 6 weeks after target", bar.OverrunText);
     }
 
@@ -127,7 +131,7 @@ public sealed class TimelineSummaryTests
         var position = TimelineLayout.TargetPosition(new DateTime(2026, 11, 16), starts, new DateTime(2027, 4, 1))!.Value;
 
         Assert.Equal(1, position.Unit);
-        Assert.Equal(15d / 30, position.Fraction, 3);
+        Assert.Equal(16d / 30, position.Fraction, 6); // the end of Nov 16, so it lines up with an arrow due that day
         Assert.Null(TimelineLayout.TargetPosition(new DateTime(2027, 4, 1), starts, new DateTime(2027, 4, 1)));
         Assert.Null(TimelineLayout.TargetPosition(new DateTime(2026, 9, 30), starts, new DateTime(2027, 4, 1)));
     }
@@ -161,5 +165,26 @@ public sealed class TimelineSummaryTests
 
         Assert.Equal(new DateTime(2026, 11, 2), TimelineLayout.Summarise(cards, Today, starts, new DateTime(2027, 4, 1), goalStart: new DateTime(2026, 11, 2))!.Start);
         Assert.Equal(new DateTime(2026, 12, 10), TimelineLayout.Summarise(cards, Today, starts, new DateTime(2027, 4, 1), goalStart: new DateTime(2027, 1, 5))!.Start);
+    }
+
+    [Fact]
+    public void AnArrowDueOnTheFirstDayOfAWeek_StopsAtTheEndOfThatDay_NotTheEndOfTheWeek()
+    {
+        // Weeks from Mon Nov 2; a task from Nov 4 due Mon Nov 30, the first day of the fifth week.
+        var starts = TimelineScale.UnitStarts(TimelineZoom.Week, new DateTime(2026, 11, 2));
+        var item = Assert.Single(TimelineLayout.Place([Task(new DateTime(2026, 11, 4), new DateTime(2026, 11, 30))], starts, starts[0].AddDays(84)));
+
+        Assert.Equal(4, item.LastUnit);
+        Assert.Equal(4 + 1 / 7d, item.EndAt, 6);
+    }
+
+    [Fact]
+    public void ColumnsAreDividedByDay_InWeekView_AndByMonday_InMonthView()
+    {
+        Assert.Equal([1 / 7d, 2 / 7d, 3 / 7d, 4 / 7d, 5 / 7d, 6 / 7d], TimelineLayout.SubDivisions(TimelineZoom.Week, new DateTime(2026, 11, 2), new DateTime(2026, 11, 9)));
+
+        // November 2026: Mondays on the 2nd, 9th, 16th, 23rd and 30th.
+        Assert.Equal([1 / 30d, 8 / 30d, 15 / 30d, 22 / 30d, 29 / 30d], TimelineLayout.SubDivisions(TimelineZoom.Month, new DateTime(2026, 11, 1), new DateTime(2026, 12, 1)));
+        Assert.Empty(TimelineLayout.SubDivisions(TimelineZoom.Day, new DateTime(2026, 11, 2), new DateTime(2026, 11, 3)));
     }
 }

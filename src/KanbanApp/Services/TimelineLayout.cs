@@ -10,7 +10,9 @@ namespace KanbanApp.Services;
 // When the start is before the left edge there is no start column to put the box in, so the box
 // goes in the first visible column instead, drawn dashed to show it isn't at its real start. When
 // the due date is past the right edge, the arrow simply runs off that edge.
-public sealed record TimelineItem(CardViewModel Card, int FirstUnit, int LastUnit, int Lane, bool StartsBeforeWindow, bool DueAfterWindow)
+// EndAt is where the arrow's head stops, in columns from the left edge (2.43 = 43% across the third column):
+// the end of the due day, so a task due on the first day of a week stops a seventh of the way into it.
+public sealed record TimelineItem(CardViewModel Card, int FirstUnit, int LastUnit, int Lane, bool StartsBeforeWindow, bool DueAfterWindow, double EndAt = 0)
 {
     public int BoxUnit => FirstUnit;
 
@@ -22,10 +24,11 @@ public sealed record TimelineItem(CardViewModel Card, int FirstUnit, int LastUni
     public int ArrowLastUnit => LastUnit;
 }
 
-// A Summary view bar: where it runs (in columns, clamped to the window like a task's arrow) and what
+// A Summary view bar: where it runs (in columns, clamped to the window like a task's arrow; StartAt and EndAt to the
+// day, as fractions of columns: from the start of its first day to the end of its last) and what
 // the project or goal holds.
 public sealed record TimelineSummary(DateTime Start, DateTime End, int FirstUnit, int LastUnit, bool StartsBeforeWindow, bool EndsAfterWindow,
-    int OpenTasks, int Overdue, int Undated, DateTime? Target = null, double? OverrunFrom = null)
+    int OpenTasks, int Overdue, int Undated, DateTime? Target = null, double? OverrunFrom = null, double StartAt = 0, double EndAt = 0)
 {
     public string OpenText => $"{OpenTasks} open task{(OpenTasks == 1 ? "" : "s")}";
 
@@ -113,7 +116,8 @@ public static class TimelineLayout
             }
 
             lanes[lane].Add((s.First, s.Last));
-            result.Add(new TimelineItem(s.Card, s.First, s.Last, lane, s.Before, s.After));
+            var endAt = s.After ? unitStarts.Count : EndOffset(SpanOf(s.Card)!.Value.End, unitStarts, windowEnd);
+            result.Add(new TimelineItem(s.Card, s.First, s.Last, lane, s.Before, s.After, endAt));
         }
 
         return result;
@@ -139,34 +143,69 @@ public static class TimelineLayout
         var first = before ? 0 : TimelineScale.UnitIndex(unitStarts, start);
         var last = after ? unitStarts.Count - 1 : TimelineScale.UnitIndex(unitStarts, end);
 
-        // Where the bar turns red: the part of it after the goal's target date, as a share of its width.
-        // Null when it does not run past the target, or the target is beyond the right edge.
+        // The bar to the day: from the start of its first day to the end of its last.
+        var startAt = before ? 0 : Offset(start, unitStarts, windowEnd);
+        var endAt = after ? unitStarts.Count : EndOffset(end, unitStarts, windowEnd);
+
+        // Where the bar turns red: the part of it after the end of the goal's target day, as a share of its
+        // width. Null when it does not run past the target, or the target is beyond the right edge.
         double? overrunFrom = null;
         if (target is { } day && end.Date > day.Date)
         {
             if (day.Date < windowStart) overrunFrom = 0;
-            else if (TargetPosition(day, unitStarts, windowEnd) is { } position)
-                overrunFrom = Math.Clamp((position.Unit - first + position.Fraction) / (last - first + 1), 0, 1);
+            else if (day.Date < windowEnd && endAt > startAt)
+                overrunFrom = Math.Clamp((EndOffset(day, unitStarts, windowEnd) - startAt) / (endAt - startAt), 0, 1);
         }
 
         return new TimelineSummary(start, end, first, last, before, after,
             cards.Count,
             cards.Count(c => c.DueDate is { } due && due.Date < today.Date),
             cards.Count - spans.Count,
-            target, overrunFrom is >= 1 ? null : overrunFrom);
+            target, overrunFrom is >= 1 ? null : overrunFrom, startAt, endAt);
     }
 
-    // The column a goal's target date falls in and how far through that column it is (0 to 1), for the
-    // diamond marker. Null when the date is outside the window.
+    // Where the start of a day falls, in columns from the left edge (clamped to the window): 2.5 is halfway
+    // through the third column. Columns can differ in length (months), so each is measured on its own.
+    public static double Offset(DateTime day, IReadOnlyList<DateTime> unitStarts, DateTime windowEnd)
+    {
+        var date = day.Date;
+        if (date <= unitStarts[0]) return 0;
+        if (date >= windowEnd) return unitStarts.Count;
+
+        var unit = TimelineScale.UnitIndex(unitStarts, date);
+        var unitEnd = unit + 1 < unitStarts.Count ? unitStarts[unit + 1] : windowEnd;
+        var length = (unitEnd - unitStarts[unit]).TotalDays;
+        return unit + (length <= 0 ? 0 : (date - unitStarts[unit]).TotalDays / length);
+    }
+
+    // Where the end of a day falls: a due date is the whole of that day.
+    public static double EndOffset(DateTime day, IReadOnlyList<DateTime> unitStarts, DateTime windowEnd) =>
+        Offset(day.Date.AddDays(1), unitStarts, windowEnd);
+
+    // The column a goal's target date (or a milestone) falls in and how far through that column the end of
+    // that day is (0 to 1), for its marker - so it lines up with an arrow due the same day. Null when the
+    // date is outside the window.
     public static (int Unit, double Fraction)? TargetPosition(DateTime target, IReadOnlyList<DateTime> unitStarts, DateTime windowEnd)
     {
         var day = target.Date;
         if (day < unitStarts[0] || day >= windowEnd) return null;
 
         var unit = TimelineScale.UnitIndex(unitStarts, day);
-        var unitEnd = unit + 1 < unitStarts.Count ? unitStarts[unit + 1] : windowEnd;
-        var length = (unitEnd - unitStarts[unit]).TotalDays;
-        return (unit, length <= 0 ? 0 : (day - unitStarts[unit]).TotalDays / length);
+        return (unit, EndOffset(day, unitStarts, windowEnd) - unit);
+    }
+
+    // The light lines inside a column: each day in a week column, each Monday in a month column (none in
+    // Day view), as fractions across it.
+    public static List<double> SubDivisions(TimelineZoom zoom, DateTime unitStart, DateTime unitEnd)
+    {
+        var length = (unitEnd - unitStart).TotalDays;
+        return zoom switch
+        {
+            TimelineZoom.Week => Enumerable.Range(1, 6).Select(d => d / 7.0).ToList(),
+            TimelineZoom.Month => Enumerable.Range(1, (int)length - 1).Select(d => unitStart.AddDays(d))
+                .Where(d => d.DayOfWeek == DayOfWeek.Monday).Select(d => (d - unitStart).TotalDays / length).ToList(),
+            _ => []
+        };
     }
 
     // "Oct 20"; "Oct 3 to Oct 20" with a start date; "starts Oct 3" with only a start date.

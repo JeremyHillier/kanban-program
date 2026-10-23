@@ -6,6 +6,13 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.152.0 — 2026-10-23
+
+> - Improved: on the Timeline, arrows, bars, targets and milestones now line up with their exact day inside a week or month column, instead of the column's edge.
+> - New: Week view shows a light line for each day, with the days named under the dates; Month view shows a light line for each week, with each Monday's date. The lines between weeks and months are a little heavier.
+> - New: a blue line marks today on the Timeline, on screen and in print.
+
+
 ## 0.151.0 — 2026-10-23
 
 > - New: goals can have a start date as well as a target date. Manage Goals is wider, with each goal on a single row: name, Active, start date, target date, Milestones and Delete.
