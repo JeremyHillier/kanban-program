@@ -6,6 +6,11 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.153.1 — 2026-10-23
+
+> - New: add a task without leaving the Timeline: New Task... on its toolbar (or Ctrl+N), or right-click a project or goal and choose New Task Here to start in it. The Timeline updates when the task is saved.
+
+
 ## 0.153.0 — 2026-10-23
 
 > - New: the Timeline has a Filters button to show only chosen people, priorities or flags. The choice is remembered, and a filtered Timeline says so when printed.

@@ -55,6 +55,13 @@ public partial class TimelineWindow : Window
         AccessKeys.Bind(this);
         PreviewKeyDown += (_, e) =>
         {
+            if (e.Key == Key.N && Keyboard.Modifiers == ModifierKeys.Control)
+            {
+                NewTask_Click(this, new RoutedEventArgs());
+                e.Handled = true;
+                return;
+            }
+
             if (Keyboard.Modifiers != ModifierKeys.None || Keyboard.FocusedElement is System.Windows.Controls.Primitives.TextBoxBase) return;
             switch (e.Key)
             {
@@ -178,6 +185,19 @@ public partial class TimelineWindow : Window
         if (_initializing || MonthsComboBox.SelectedItem is not int months) return;
         _months = months;
         _viewModel.SaveTimelineMonths(months);
+        BuildGrid();
+    }
+
+    // Adds a task from here; the Timeline redraws when it is saved. From a row it starts in that project or goal.
+    private void NewTask_Click(object sender, RoutedEventArgs e) => AddTask(null);
+
+    private void AddTask(IPlannedItem? row)
+    {
+        var dialog = new AddTaskWindow(_viewModel) { Owner = this };
+        if (row is ProjectViewModel project) dialog.PreselectPlan(project, null);
+        else if (row is GoalViewModel goal) dialog.PreselectPlan(null, goal);
+
+        if (dialog.ShowDialog() == true) dialog.AddTo(_viewModel);
         BuildGrid();
     }
 

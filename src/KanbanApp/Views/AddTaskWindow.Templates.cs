@@ -38,6 +38,13 @@ public partial class AddTaskWindow
     // Called before the window shows, so the filled-in form is what "unchanged" means on closing.
     public void StartFromTemplate(TaskTemplate template) => TemplateComboBox.SelectedItem = template;
 
+    // A new task that starts in this project and goal (the Timeline's row menu), where they are in the lists.
+    public void PreselectPlan(ProjectViewModel? project, GoalViewModel? goal)
+    {
+        if (project is not null && ProjectComboBox.Items.OfType<ProjectViewModel>().FirstOrDefault(p => p.Id == project.Id) is { } p) ProjectComboBox.SelectedItem = p;
+        if (goal is not null && GoalComboBox.Items.OfType<GoalViewModel>().FirstOrDefault(g => g.Id == goal.Id) is { } g) GoalComboBox.SelectedItem = g;
+    }
+
     private void TemplateComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
         if (TemplateComboBox.SelectedItem is TaskTemplate template) ApplyTemplate(template);

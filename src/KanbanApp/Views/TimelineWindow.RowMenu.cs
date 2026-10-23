@@ -22,6 +22,10 @@ public partial class TimelineWindow
         rename.Click += (_, _) => Dispatcher.BeginInvoke(new Action(() => RenameRow(name, noun)), DispatcherPriority.Background);
         menu.Items.Add(rename);
 
+        var newTask = new MenuItem { Header = "_New Task Here..." };
+        newTask.Click += (_, _) => Dispatcher.BeginInvoke(new Action(() => AddTask(item)), DispatcherPriority.Background);
+        menu.Items.Insert(0, newTask);
+
         var milestones = new MenuItem { Header = "_Milestones..." };
         milestones.Click += (_, _) => Dispatcher.BeginInvoke(new Action(() =>
         {
