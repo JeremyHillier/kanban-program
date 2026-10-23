@@ -72,7 +72,7 @@ foreach ($channel in $channels) {
     }
 }
 
-# Standing rule: only the newest 5 installers stay in Output; older ones are moved (not deleted) to %TEMP%.
+# Standing rule: only the newest 5 installers stay in Output; older ones go to the Recycle Bin.
 & (Join-Path $installerDir "Trim-Installers.ps1")
 
 Write-Output "`nDone. Installers are in $installerDir\Output"
