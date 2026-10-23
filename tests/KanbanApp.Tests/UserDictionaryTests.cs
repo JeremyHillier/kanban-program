@@ -56,8 +56,10 @@ public sealed class UserDictionaryTests(WpfDispatcherFixture wpf) : IDisposable
 
         Assert.Equal(["Kanbanish", "zorbulax"], dictionary.Words);
         Assert.Equal("Kanbanish\nzorbulax", dictionary.AsText);
-        // Written lower-case so Windows accepts the word in any capitals (a capitalised entry only matches that form).
-        Assert.Equal(["kanbanish", "zorbulax"], File.ReadAllLines(dictionary.FilePath));
+        // Each word as typed and in lower case: the lower-case entry covers ordinary capitals, the typed one a word
+        // with a capital inside it ("PayWorks"), which a lower-case entry does not match.
+        Assert.Equal(["Kanbanish", "kanbanish", "zorbulax"], File.ReadAllLines(dictionary.FilePath));
+        Assert.Equal(["PayWorks", "payworks", "kefron"], UserDictionary.FileLines(["PayWorks", "kefron"]));
         Assert.False(File.ReadAllText(dictionary.FilePath).StartsWith('﻿'));       // no byte-order mark
     });
 

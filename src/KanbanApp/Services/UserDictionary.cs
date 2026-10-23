@@ -82,6 +82,12 @@ public sealed class UserDictionary
         return true;
     }
 
+    // What goes in the file for the words: each as typed and in lower case. Windows takes a lower-case entry in
+    // any ordinary capitals ("kanban" also accepts "Kanban"), but a word with a capital inside it ("PayWorks")
+    // only matches an entry spelled that way, so both are written (tested in a real task window with fresh words).
+    internal static IEnumerable<string> FileLines(IEnumerable<string> words) =>
+        words.SelectMany(w => new[] { w, w.ToLowerInvariant() }).Distinct(StringComparer.Ordinal);
+
     // Plain text, one word a line, in the form WPF's spell checker reads (no language line, so it applies
     // to every language).
     private void Write()
@@ -89,9 +95,7 @@ public sealed class UserDictionary
         try
         {
             Directory.CreateDirectory(_folder);
-            // Written lower-case: Windows takes a lower-case entry in any capitals, but a capitalised one only in that
-            // form, so a word added as "Kanban" would still be underlined as "kanban" elsewhere in the same task.
-            File.WriteAllText(FilePath, string.Join("\r\n", _words.Select(w => w.ToLowerInvariant())) + "\r\n", new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
+            File.WriteAllText(FilePath, string.Join("\r\n", FileLines(_words)) + "\r\n", new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
         }
         catch
         {

@@ -6,6 +6,11 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.150.1 — 2026-10-23
+
+> - Fixed: a word in the spelling dictionary with a capital letter inside it, such as "PayWorks", was still underlined as misspelled.
+
+
 ## 0.150.0 — 2026-10-23
 
 > - New: goals can have milestones, each a description and a date. Add them from Manage Goals; on the Timeline, grouped by goal, each appears as a teal vertical line on the goal's row with its description beside it.
