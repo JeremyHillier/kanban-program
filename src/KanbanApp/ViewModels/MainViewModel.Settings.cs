@@ -282,6 +282,13 @@ public partial class MainViewModel
 
     public void SaveTimelinePageSetup(PageSetup setup) => _db.SetSetting("TimelinePageSetup", setup.ToSetting());
 
+    // The Summary rows the user has opened to show their tasks, as "P:project" or "G:goal" lines, so they are
+    // still open next time.
+    public HashSet<string> TimelineExpanded =>
+        new((_db.GetSetting("TimelineExpanded") ?? string.Empty).Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries), StringComparer.Ordinal);
+
+    public void SaveTimelineExpanded(IEnumerable<string> rows) => _db.SetSetting("TimelineExpanded", string.Join('\n', rows.Order(StringComparer.Ordinal)));
+
     public bool TimelineByGoal => _db.GetFlag("TimelineByGoal", false);
 
     public void SaveTimelineByGoal(bool byGoal) => _db.SetFlag("TimelineByGoal", byGoal);

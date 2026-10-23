@@ -4,6 +4,7 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shapes;
+using KanbanApp.Models;
 using KanbanApp.Services;
 using KanbanApp.ViewModels;
 
@@ -169,6 +170,18 @@ public partial class TimelineWindow
                 laneGrid.Children.Add(head);
             }
 
+            foreach (var milestone in row.Milestones ?? [])
+            {
+                if (TimelineLayout.TargetPosition(milestone.Date, unitStarts, rangeEnd) is not { } where) continue;
+
+                var line = BuildMilestoneMarker(milestone, where.Fraction, unitColWidth);
+                Grid.SetRow(line, 0);
+                Grid.SetRowSpan(line, row.Lanes);
+                Grid.SetColumn(line, where.Unit);
+                Grid.SetColumnSpan(line, unitStarts.Count - where.Unit); // room for the label to run on past its own column
+                laneGrid.Children.Add(line);
+            }
+
             foreach (var item in row.Items)
             {
                 var task = item.Card;
@@ -231,7 +244,7 @@ public partial class TimelineWindow
     // under it (overdue in red).
     private FrameworkElement BuildNameCell(TimelineRow row, Brush brush, Brush secondaryBrush)
     {
-        var panel = new StackPanel { Margin = new Thickness(6), VerticalAlignment = VerticalAlignment.Top };
+        var panel = new StackPanel { Margin = new Thickness(6), VerticalAlignment = VerticalAlignment.Top, Background = Brushes.Transparent, ContextMenu = BuildRowMenu(row.Name) };
 
         // A goal's target date, and (Summary) how far its open tasks run past it.
         void AddTargetLines(TimelineSummary? summary)
@@ -281,6 +294,26 @@ public partial class TimelineWindow
         panel.ToolTip = row.IsExpanded ? "Hide its tasks" : "Show its tasks";
         panel.MouseLeftButtonUp += (_, _) => ToggleRow(row.Name);
         return panel;
+    }
+
+    // Milestones are a teal line, apart from the purple or blue bar, the orange target and the red overrun.
+    private static readonly Brush MilestoneBrush = new SolidColorBrush(Color.FromRgb(0x00, 0x89, 0x7B));
+
+    // A goal's milestone: a vertical line down the row at its day within the month column, with what it is
+    // written beside it at the foot of the row.
+    private static FrameworkElement BuildMilestoneMarker(GoalMilestone milestone, double fraction, double unitColWidth)
+    {
+        var x = Math.Clamp(fraction * unitColWidth, 1, unitColWidth - 1);
+        var marker = new Grid { HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(x - 1, 0, 0, 0), Cursor = Cursors.Help };
+        marker.ToolTip = $"{milestone.Description}\n{milestone.Date:MMM d, yyyy}";
+        marker.Children.Add(new Rectangle { Width = 2, Fill = MilestoneBrush, HorizontalAlignment = HorizontalAlignment.Left });
+        marker.Children.Add(new TextBlock
+        {
+            Text = milestone.Description, Foreground = MilestoneBrush, FontSize = 10.5, FontWeight = FontWeights.SemiBold,
+            VerticalAlignment = VerticalAlignment.Bottom, HorizontalAlignment = HorizontalAlignment.Left, MaxWidth = 150,
+            TextTrimming = TextTrimming.CharacterEllipsis, Margin = new Thickness(5, 0, 0, 3)
+        });
+        return marker;
     }
 
     // The bar's colour; red from the goal's target date onward when its open tasks run past it (a hard
@@ -344,6 +377,7 @@ public partial class TimelineWindow
             Child = new TextBlock { Text = text, Foreground = Brushes.White, FontSize = 11, FontWeight = FontWeights.SemiBold, TextTrimming = TextTrimming.CharacterEllipsis },
             ToolTip = $"{row.Name}\n{summary.DatesText}\n{summary.CountsText}\n\n{(row.IsExpanded ? "Click to hide its tasks" : "Click to show its tasks")}"
         };
+        bar.ContextMenu = BuildRowMenu(row.Name);
         bar.MouseLeftButtonUp += (_, _) => ToggleRow(row.Name);
         return bar;
     }

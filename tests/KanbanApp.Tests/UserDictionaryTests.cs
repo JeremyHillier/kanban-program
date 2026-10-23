@@ -56,7 +56,8 @@ public sealed class UserDictionaryTests(WpfDispatcherFixture wpf) : IDisposable
 
         Assert.Equal(["Kanbanish", "zorbulax"], dictionary.Words);
         Assert.Equal("Kanbanish\nzorbulax", dictionary.AsText);
-        Assert.Equal(["Kanbanish", "zorbulax"], File.ReadAllLines(dictionary.FilePath));
+        // Written lower-case so Windows accepts the word in any capitals (a capitalised entry only matches that form).
+        Assert.Equal(["kanbanish", "zorbulax"], File.ReadAllLines(dictionary.FilePath));
         Assert.False(File.ReadAllText(dictionary.FilePath).StartsWith('﻿'));       // no byte-order mark
     });
 

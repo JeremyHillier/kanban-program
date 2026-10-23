@@ -27,6 +27,7 @@ public partial class ManageListWindow : Window
 
         InitializeComponent();
         Title = kind.Title;
+        if (kind.HasTarget) Width = 520; // room for the target date and the milestones button
         MaxHeight = SystemParameters.WorkArea.Height * 0.9;
         DataContext = viewModel;
         ItemsList.ItemsSource = kind.Items;
@@ -71,6 +72,14 @@ public partial class ManageListWindow : Window
         if (sender is not DatePicker { DataContext: GoalViewModel goal } picker || goal.TargetDate == picker.SelectedDate?.Date) return;
 
         _kind.SetTarget(goal, picker.SelectedDate);
+    }
+
+    // The mouse wheel moves the date, like every other date box in the app.
+    private void TargetPicker_Loaded(object sender, RoutedEventArgs e) => KanbanApp.Services.CalendarWheelSupport.Attach((DatePicker)sender);
+
+    private void Milestones_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is FrameworkElement { DataContext: GoalViewModel goal }) new GoalMilestonesWindow(_viewModel, goal) { Owner = this }.ShowDialog();
     }
 
     private void ClearTarget_Click(object sender, RoutedEventArgs e)

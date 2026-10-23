@@ -44,7 +44,11 @@ public partial class MainViewModel
 
     public ManagedAddResult<GoalViewModel> AddGoal(string name) => _goalManager.Add(name);
     public bool RenameGoal(GoalViewModel goal, string newName) => _goalManager.Rename(goal, newName);
-    public void DeleteGoal(GoalViewModel goal) => _goalManager.Delete(goal);
+    public void DeleteGoal(GoalViewModel goal)
+    {
+        _goalManager.Delete(goal);
+        _milestones?.RemoveAll(m => m.GoalId == goal.Id); // the file deleted them with the goal
+    }
     public void SetGoalActive(GoalViewModel goal, bool isActive) => _goalManager.SetActive(goal, isActive);
     public int CountTasksUsingGoal(GoalViewModel goal) => _goalManager.CountUsage(goal);
 

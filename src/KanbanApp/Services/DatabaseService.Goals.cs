@@ -42,6 +42,13 @@ public partial class DatabaseService
             clearCmd.ExecuteNonQuery();
         }
 
+        using (var milestonesCmd = connection.CreateCommand())
+        {
+            milestonesCmd.CommandText = "DELETE FROM GoalMilestones WHERE GoalId = $id;";
+            milestonesCmd.Parameters.AddWithValue("$id", goalId);
+            milestonesCmd.ExecuteNonQuery();
+        }
+
         using var deleteCmd = connection.CreateCommand();
         deleteCmd.CommandText = "DELETE FROM Goals WHERE Id = $id;";
         deleteCmd.Parameters.AddWithValue("$id", goalId);

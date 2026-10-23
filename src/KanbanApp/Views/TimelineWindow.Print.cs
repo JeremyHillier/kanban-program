@@ -262,6 +262,18 @@ public partial class TimelineWindow
                 });
             }
 
+            // A goal's milestones: a teal line down the row, with what it is written beside it at the foot.
+            foreach (var milestone in row.Milestones ?? [])
+            {
+                if (TimelineLayout.TargetPosition(milestone.Date, unitStarts, rangeEnd) is not { } where) continue;
+
+                var milestoneX = UnitLeft(where.Unit) + Math.Clamp(where.Fraction * unitColWidth, 1, unitColWidth - 1);
+                // It starts under a Summary bar rather than crossing its dates.
+                canvas.Children.Add(new Line { X1 = milestoneX, Y1 = row.Summary is null ? rowTop : rowTop + 2 + barHeight, X2 = milestoneX, Y2 = rowTop + rowHeight, Stroke = MilestoneBrush, StrokeThickness = 1.5 });
+                var text = WrapWords(milestone.Description, boldTypeface, 7, 90).FirstOrDefault() ?? milestone.Description;
+                AddText(canvas, text, milestoneX + 3, rowTop + rowHeight - 11, boldTypeface, 7, MilestoneBrush);
+            }
+
             foreach (var item in items)
             {
                 var laneTop = rowTop + 2 + laneHeights.Take(row.FirstTaskLane + item.Lane).Sum();

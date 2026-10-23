@@ -89,7 +89,9 @@ public sealed class UserDictionary
         try
         {
             Directory.CreateDirectory(_folder);
-            File.WriteAllText(FilePath, string.Join("\r\n", _words) + "\r\n", new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
+            // Written lower-case: Windows takes a lower-case entry in any capitals, but a capitalised one only in that
+            // form, so a word added as "Kanban" would still be underlined as "kanban" elsewhere in the same task.
+            File.WriteAllText(FilePath, string.Join("\r\n", _words.Select(w => w.ToLowerInvariant())) + "\r\n", new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
         }
         catch
         {

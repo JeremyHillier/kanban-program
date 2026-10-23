@@ -6,6 +6,15 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.150.0 — 2026-10-23
+
+> - New: goals can have milestones, each a description and a date. Add them from Manage Goals; on the Timeline, grouped by goal, each appears as a teal vertical line on the goal's row with its description beside it.
+> - New: right-click a project or goal on the Timeline to rename it, edit a goal's milestones, or open its Manage list.
+> - Improved: the Timeline remembers which projects and goals have been opened to show their tasks.
+> - Improved: the mouse wheel changes a goal's target date, as it does in other date boxes.
+> - Fixed: a word added to the spelling dictionary was still underlined when it appeared elsewhere with different capitals, such as at the start of a sentence.
+
+
 ## 0.149.0 — 2026-10-22
 
 > - New: the Timeline's Month view can show 3, 6, 9, 12, 18 or 24 months. Pick the number beside Month view; it is remembered.

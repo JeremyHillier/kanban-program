@@ -40,4 +40,41 @@ public sealed class GoalTargetTests : IDisposable
         db.SetGoalTarget(goal.Id, new DateTime(2027, 1, 15));
         Assert.Equal(DatabaseService.GoalTargetFileFormat.ToString(), db.GetSetting("FileFormat"));
     }
+
+    [Fact]
+    public void Milestones_AreKept_ChangedAndDeleted_WithTheirGoal()
+    {
+        var db = Open();
+        var goal = db.AddGoal("Grow revenue");
+        var other = db.AddGoal("Smoother operations");
+
+        var site = db.AddGoalMilestone(goal.Id, "Site live", new DateTime(2026, 12, 1, 15, 30, 0));
+        db.AddGoalMilestone(goal.Id, "Press launch", new DateTime(2026, 11, 1));
+        db.AddGoalMilestone(other.Id, "Keys handed back", new DateTime(2027, 1, 5));
+
+        var all = Open().GetGoalMilestones();
+        Assert.Equal(["Press launch", "Site live", "Keys handed back"], all.Select(m => m.Description)); // by date
+        Assert.Equal(new DateTime(2026, 12, 1), all.First(m => m.Id == site.Id).Date); // a day, never a time
+
+        db.UpdateGoalMilestone(site.Id, "Site live (v2)", new DateTime(2026, 12, 10));
+        Assert.Equal(("Site live (v2)", new DateTime(2026, 12, 10)), Open().GetGoalMilestones().Where(m => m.Id == site.Id).Select(m => (m.Description, m.Date)).Single());
+
+        db.DeleteGoalMilestone(site.Id);
+        Assert.DoesNotContain(Open().GetGoalMilestones(), m => m.Id == site.Id);
+
+        db.DeleteGoal(goal.Id);
+        Assert.Equal(["Keys handed back"], Open().GetGoalMilestones().Select(m => m.Description));
+    }
+
+    [Fact]
+    public void TheFile_IsOnlyStampedAsNewer_OnceAMilestoneIsSaved()
+    {
+        var db = Open();
+        var goal = db.AddGoal("Smoother operations");
+        Open();
+        Assert.Equal(DatabaseService.FormatStampedOnOpen.ToString(), db.GetSetting("FileFormat"));
+
+        db.AddGoalMilestone(goal.Id, "Keys handed back", new DateTime(2027, 1, 5));
+        Assert.Equal(DatabaseService.GoalMilestoneFileFormat.ToString(), db.GetSetting("FileFormat"));
+    }
 }

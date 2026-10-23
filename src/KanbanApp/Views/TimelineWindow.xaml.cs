@@ -2,6 +2,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using KanbanApp.Models;
 using KanbanApp.Services;
 using KanbanApp.ViewModels;
 
@@ -19,11 +20,14 @@ public partial class TimelineWindow : Window
     private int _months = TimelineScale.MonthUnits; // how many months Month view shows
 
     // Summary rows the user has opened to show their tasks, by name. Kept for as long as the window is open.
-    private readonly HashSet<string> _expanded = new(StringComparer.Ordinal);
+    private readonly HashSet<string> _expanded;
+
+    // A row is remembered by its kind and name, so a project and a goal with the same name stay apart.
+    private string RowKey(string name) => (IsByGoal ? "G:" : "P:") + name;
 
     // One row of the Timeline: a project or goal. Summary is its bar (Summary view only); Items are its
     // tasks, laid out by TimelineLayout - every row in Detail view, only opened rows in Summary view.
-    private sealed record TimelineRow(string Name, bool IsExpanded, TimelineSummary? Summary, List<TimelineItem> Items, DateTime? Target = null)
+    private sealed record TimelineRow(string Name, bool IsExpanded, TimelineSummary? Summary, List<TimelineItem> Items, DateTime? Target = null, List<GoalMilestone>? Milestones = null)
     {
         public int FirstTaskLane => Summary is null ? 0 : 1;
         public int Lanes => Math.Max(1, FirstTaskLane + (Items.Count == 0 ? 0 : Items.Max(i => i.Lane) + 1));
@@ -62,6 +66,7 @@ public partial class TimelineWindow : Window
         };
         _viewModel = viewModel;
         RestoreSize();
+        _expanded = _viewModel.TimelineExpanded;
         _months = _viewModel.TimelineMonths;
         MonthsComboBox.ItemsSource = TimelineScale.MonthChoices;
         MonthsComboBox.SelectedItem = _months;
@@ -185,14 +190,14 @@ public partial class TimelineWindow : Window
     {
         if (_initializing) return;
         _viewModel.SaveTimelineByGoal(IsByGoal);
-        _expanded.Clear(); // the names now mean other rows
         BuildGrid();
     }
 
     // Opens or closes a Summary row's tasks.
     private void ToggleRow(string name)
     {
-        if (!_expanded.Remove(name)) _expanded.Add(name);
+        if (!_expanded.Remove(RowKey(name))) _expanded.Add(RowKey(name));
+        _viewModel.SaveTimelineExpanded(_expanded);
         BuildGrid();
     }
 
@@ -250,17 +255,23 @@ public partial class TimelineWindow : Window
             var target = IsByGoal ? _viewModel.Goals.FirstOrDefault(g => g.Name == name)?.TargetDate : null;
             var targetShows = target is { } day && day.Date >= unitStarts[0]; // in the window, or still to come
 
+            // Its milestones that fall in the window (Group by Goal only). They too give a goal its row.
+            var milestones = IsByGoal && _viewModel.Goals.FirstOrDefault(g => g.Name == name) is { } goal
+                ? _viewModel.MilestonesOf(goal).Where(m => TimelineLayout.TargetPosition(m.Date, unitStarts, rangeEnd) is not null).ToList()
+                : [];
+            var hasMilestones = milestones.Count > 0;
+
             if (IsSummary)
             {
                 var summary = TimelineLayout.Summarise(open.GetValueOrDefault(name) ?? [], DateTime.Today, unitStarts, rangeEnd, target);
-                if (summary is null && !targetShows) continue;
+                if (summary is null && !targetShows && !hasMilestones) continue;
 
-                var expanded = _expanded.Contains(name);
-                rows.Add(new TimelineRow(name, expanded, summary, expanded ? TimelineLayout.Place(groupTasks, unitStarts, rangeEnd) : [], target));
+                var expanded = _expanded.Contains(RowKey(name));
+                rows.Add(new TimelineRow(name, expanded, summary, expanded ? TimelineLayout.Place(groupTasks, unitStarts, rangeEnd) : [], target, milestones));
             }
-            else if (groupTasks.Count > 0 || targetShows)
+            else if (groupTasks.Count > 0 || targetShows || hasMilestones)
             {
-                rows.Add(new TimelineRow(name, true, null, TimelineLayout.Place(groupTasks, unitStarts, rangeEnd), target));
+                rows.Add(new TimelineRow(name, true, null, TimelineLayout.Place(groupTasks, unitStarts, rangeEnd), target, milestones));
             }
         }
 
