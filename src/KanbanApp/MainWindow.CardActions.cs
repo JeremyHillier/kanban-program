@@ -272,11 +272,19 @@ public partial class MainWindow
         MoveCardDeferred(card, targetColumn, viewModel);
     }
 
+    // A task finished from another window (the Timeline's Mark as Done): the same move to Done and the same questions as
+    // on the board - completion note, next occurrence, telling the sender - then the other window's own refresh.
+    internal void MarkDoneFromElsewhere(CardViewModel card, MainViewModel viewModel, Action afterwards)
+    {
+        if (viewModel.DoneColumn is { } done) MoveCardDeferred(card, done, viewModel, afterwards);
+        else afterwards();
+    }
+
     // Shared by the card's quick-move buttons and its right-click Move To.
     // Deferred via BeginInvoke: moving the card to another column removes it from the clicked
     // button's own ItemsControl, tearing down the container mid-Click-dispatch — the same deadlock
     // documented on the Priority/Who/Project/Due Date quick-edits above.
-    private void MoveCardDeferred(CardViewModel card, ColumnViewModel targetColumn, MainViewModel viewModel)
+    private void MoveCardDeferred(CardViewModel card, ColumnViewModel targetColumn, MainViewModel viewModel, Action? afterwards = null)
     {
         Dispatcher.BeginInvoke(new Action(() =>
         {
@@ -284,6 +292,7 @@ public partial class MainWindow
             MaybePromptCompletionNote(card, targetColumn, viewModel);
             MaybePromptWaitingOn([card], targetColumn, viewModel);
             MaybePromptNotifySender([card], targetColumn, viewModel);
+            afterwards?.Invoke();
         }), DispatcherPriority.Background);
     }
 

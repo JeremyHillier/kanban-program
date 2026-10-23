@@ -243,7 +243,17 @@ public partial class TimelineWindow : Window
         if (currentColumn is null) return;
 
         var dialog = new AddTaskWindow(_viewModel, card, currentColumn) { Owner = this };
-        if (dialog.ShowDialog() == true) dialog.SaveTo(_viewModel, card);
+        if (dialog.ShowDialog() == true)
+        {
+            dialog.SaveTo(_viewModel, card);
+
+            // The green Mark as Done: finished the board's way (its questions included), then redrawn here.
+            if (dialog.MarkDoneRequested && Owner is MainWindow board)
+            {
+                board.MarkDoneFromElsewhere(card, _viewModel, BuildGrid);
+                return;
+            }
+        }
 
         BuildGrid();
     }
