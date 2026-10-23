@@ -8,6 +8,8 @@ namespace KanbanApp.Views;
 // Choose which people, priorities and flags the Timeline shows. Show applies the choice (Result); Cancel leaves it.
 public partial class TimelineFiltersWindow : Window
 {
+    private readonly List<(CheckBox Box, int Id)> _projects = [];
+    private readonly List<(CheckBox Box, int Id)> _goals = [];
     private readonly List<(CheckBox Box, int Id)> _people = [];
     private readonly List<(CheckBox Box, string Name)> _priorities = [];
     private readonly List<(CheckBox Box, int Id)> _flags = [];
@@ -18,6 +20,20 @@ public partial class TimelineFiltersWindow : Window
     {
         InitializeComponent();
         AccessKeys.Bind(this);
+
+        foreach (var project in viewModel.Projects.Where(p => p.IsActive || current.ProjectIds.Contains(p.Id)).OrderBy(p => p.Name, StringComparer.CurrentCultureIgnoreCase))
+        {
+            var box = NewBox(project.Name, current.ProjectIds.Contains(project.Id));
+            _projects.Add((box, project.Id));
+            ProjectsPanel.Children.Add(box);
+        }
+
+        foreach (var goal in viewModel.Goals.Where(g => g.IsActive || current.GoalIds.Contains(g.Id)).OrderBy(g => g.Name, StringComparer.CurrentCultureIgnoreCase))
+        {
+            var box = NewBox(goal.Name, current.GoalIds.Contains(goal.Id));
+            _goals.Add((box, goal.Id));
+            GoalsPanel.Children.Add(box);
+        }
 
         foreach (var person in viewModel.People.Where(p => p.IsActive || current.PersonIds.Contains(p.Id)).OrderBy(p => p.Name, StringComparer.CurrentCultureIgnoreCase))
         {
@@ -50,6 +66,8 @@ public partial class TimelineFiltersWindow : Window
 
     private void ClearAll_Click(object sender, RoutedEventArgs e)
     {
+        foreach (var (box, _) in _projects) box.IsChecked = false;
+        foreach (var (box, _) in _goals) box.IsChecked = false;
         foreach (var (box, _) in _people) box.IsChecked = false;
         foreach (var (box, _) in _priorities) box.IsChecked = false;
         foreach (var (box, _) in _flags) box.IsChecked = false;
@@ -60,7 +78,9 @@ public partial class TimelineFiltersWindow : Window
         Result = new TimelineFilter(
             _people.Where(p => p.Box.IsChecked == true).Select(p => p.Id).ToHashSet(),
             _priorities.Where(p => p.Box.IsChecked == true).Select(p => p.Name).ToHashSet(StringComparer.Ordinal),
-            _flags.Where(f => f.Box.IsChecked == true).Select(f => f.Id).ToHashSet());
+            _flags.Where(f => f.Box.IsChecked == true).Select(f => f.Id).ToHashSet(),
+            _projects.Where(p => p.Box.IsChecked == true).Select(p => p.Id).ToHashSet(),
+            _goals.Where(g => g.Box.IsChecked == true).Select(g => g.Id).ToHashSet());
         DialogResult = true;
     }
 }

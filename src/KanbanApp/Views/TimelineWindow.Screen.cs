@@ -29,7 +29,7 @@ public partial class TimelineWindow
 
         var stepLabel = TimelineScale.StepLabel(Zoom, _months);
         FiltersButton.Content = _filter.IsEmpty ? "Filters..." : $"Filters ({_filter.Count})...";
-        FiltersButton.ToolTip = _filter.IsEmpty ? "Show only some people, priorities or flags" : $"Showing only: {_filter.Describe(_viewModel.People, _viewModel.Flags)}";
+        FiltersButton.ToolTip = _filter.IsEmpty ? "Show only some projects, goals, people, priorities or flags" : $"Showing only: {_filter.Describe(_viewModel.People, _viewModel.Flags, _viewModel.Projects, _viewModel.Goals)}";
         PrevButton.Content = $"◀ {stepLabel}";
         NextButton.Content = $"{stepLabel} ▶";
 

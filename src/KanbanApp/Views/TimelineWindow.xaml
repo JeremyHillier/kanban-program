@@ -65,7 +65,7 @@
                         ToolTip="Add a task without leaving the Timeline (Ctrl+N)"
                         Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
                 <Button x:Name="FiltersButton" Content="Filters..." Padding="10,4" Margin="0,0,28,0" VerticalAlignment="Center" Click="Filters_Click"
-                        ToolTip="Show only some people, priorities or flags"
+                        ToolTip="Show only some projects, goals, people, priorities or flags"
                         Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
                 <CheckBox x:Name="IncludeDoneCheckBox" Content="Include Done tasks" VerticalAlignment="Center"
                           Checked="IncludeDoneCheckBox_Changed" Unchecked="IncludeDoneCheckBox_Changed"

@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         mc:Ignorable="d"
-        Title="Timeline Filters" Width="640" Height="460" MinWidth="520" MinHeight="320"
+        Title="Timeline Filters" Width="940" Height="460" MinWidth="720" MinHeight="320"
         WindowStartupLocation="CenterOwner" ShowInTaskbar="False"
         Background="{DynamicResource WindowBackgroundBrush}">
     <!-- Limits the Timeline to some people, priorities or flags. Tick nothing in a list to include everything. -->
@@ -17,14 +17,18 @@
         </Grid.RowDefinitions>
 
         <TextBlock Grid.Row="0" Margin="0,0,0,12" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryTextBrush}"
-                   Text="Show only tasks for the ticked people, with the ticked priorities and the ticked flags. A task needs to match each list that has something ticked; tick nothing in a list to include everything."/>
+                   Text="Show only tasks in the ticked projects and goals, for the ticked people, with the ticked priorities and flags. A task needs to match each list that has something ticked; tick nothing in a list to include everything."/>
 
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="16"/>
+                <ColumnDefinition Width="12"/>
                 <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="16"/>
+                <ColumnDefinition Width="12"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="12"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="12"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
@@ -32,17 +36,25 @@
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
-            <TextBlock Grid.Row="0" Grid.Column="0" Text="Who" FontWeight="SemiBold" Margin="0,0,0,6" Foreground="{DynamicResource PrimaryTextBrush}"/>
-            <TextBlock Grid.Row="0" Grid.Column="2" Text="Priority" FontWeight="SemiBold" Margin="0,0,0,6" Foreground="{DynamicResource PrimaryTextBrush}"/>
-            <TextBlock Grid.Row="0" Grid.Column="4" Text="Flags" FontWeight="SemiBold" Margin="0,0,0,6" Foreground="{DynamicResource PrimaryTextBrush}"/>
+            <TextBlock Grid.Row="0" Grid.Column="0" Text="Project" FontWeight="SemiBold" Margin="0,0,0,6" Foreground="{DynamicResource PrimaryTextBrush}"/>
+            <TextBlock Grid.Row="0" Grid.Column="2" Text="Goal" FontWeight="SemiBold" Margin="0,0,0,6" Foreground="{DynamicResource PrimaryTextBrush}"/>
+            <TextBlock Grid.Row="0" Grid.Column="4" Text="Who" FontWeight="SemiBold" Margin="0,0,0,6" Foreground="{DynamicResource PrimaryTextBrush}"/>
+            <TextBlock Grid.Row="0" Grid.Column="6" Text="Priority" FontWeight="SemiBold" Margin="0,0,0,6" Foreground="{DynamicResource PrimaryTextBrush}"/>
+            <TextBlock Grid.Row="0" Grid.Column="8" Text="Flags" FontWeight="SemiBold" Margin="0,0,0,6" Foreground="{DynamicResource PrimaryTextBrush}"/>
 
             <Border Grid.Row="1" Grid.Column="0" BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="1" CornerRadius="4" Background="{DynamicResource InputBackgroundBrush}">
-                <ScrollViewer VerticalScrollBarVisibility="Auto"><StackPanel x:Name="PeoplePanel" Margin="8,6"/></ScrollViewer>
+                <ScrollViewer VerticalScrollBarVisibility="Auto"><StackPanel x:Name="ProjectsPanel" Margin="8,6"/></ScrollViewer>
             </Border>
             <Border Grid.Row="1" Grid.Column="2" BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="1" CornerRadius="4" Background="{DynamicResource InputBackgroundBrush}">
-                <ScrollViewer VerticalScrollBarVisibility="Auto"><StackPanel x:Name="PrioritiesPanel" Margin="8,6"/></ScrollViewer>
+                <ScrollViewer VerticalScrollBarVisibility="Auto"><StackPanel x:Name="GoalsPanel" Margin="8,6"/></ScrollViewer>
             </Border>
             <Border Grid.Row="1" Grid.Column="4" BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="1" CornerRadius="4" Background="{DynamicResource InputBackgroundBrush}">
+                <ScrollViewer VerticalScrollBarVisibility="Auto"><StackPanel x:Name="PeoplePanel" Margin="8,6"/></ScrollViewer>
+            </Border>
+            <Border Grid.Row="1" Grid.Column="6" BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="1" CornerRadius="4" Background="{DynamicResource InputBackgroundBrush}">
+                <ScrollViewer VerticalScrollBarVisibility="Auto"><StackPanel x:Name="PrioritiesPanel" Margin="8,6"/></ScrollViewer>
+            </Border>
+            <Border Grid.Row="1" Grid.Column="8" BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="1" CornerRadius="4" Background="{DynamicResource InputBackgroundBrush}">
                 <ScrollViewer VerticalScrollBarVisibility="Auto"><StackPanel x:Name="FlagsPanel" Margin="8,6"/></ScrollViewer>
             </Border>
         </Grid>

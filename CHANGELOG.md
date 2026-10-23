@@ -6,6 +6,11 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.154.0 — 2026-10-23
+
+> - New: the Timeline filter can also limit what is shown to chosen projects and goals. A project or goal that is not ticked is left off the Timeline completely, with its target and milestones, not only its tasks.
+
+
 ## 0.153.3 — 2026-10-23
 
 > - Fixed: on the Timeline, the words beside a milestone could be hidden behind a task. Each row with milestones now has its own strip under its tasks for them, on screen and in print, and in print a long word is cut where the next milestone begins.

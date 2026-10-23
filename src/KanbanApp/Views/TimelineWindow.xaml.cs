@@ -302,6 +302,7 @@ public partial class TimelineWindow : Window
             // A goal's target date (Group by Goal only). A goal whose target is in the window or later gets a row
             // even if none of its tasks are showing, so the target is never lost.
             var planned = PlannedItemNamed(name);
+            if (!_filter.RowShown(planned)) continue; // a project or goal that is not ticked keeps its whole row off
             var target = planned?.TargetDate;
             var goalStart = planned?.StartDate;
             var targetShows = target is { } day && day.Date >= unitStarts[0]; // in the window, or still to come
