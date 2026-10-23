@@ -31,7 +31,9 @@ public partial class TimelineWindow : Window
     private sealed record TimelineRow(string Name, bool IsExpanded, TimelineSummary? Summary, List<TimelineItem> Items, DateTime? Target = null, List<Milestone>? Milestones = null)
     {
         public int FirstTaskLane => Summary is null ? 0 : 1;
-        public int Lanes => Math.Max(1, FirstTaskLane + (Items.Count == 0 ? 0 : Items.Max(i => i.Lane) + 1));
+        // A row with milestones has one more lane at the foot, kept for their words so a task box can never cover them.
+        public bool HasMilestoneLane => Milestones is { Count: > 0 };
+        public int Lanes => Math.Max(1, FirstTaskLane + (Items.Count == 0 ? 0 : Items.Max(i => i.Lane) + 1)) + (HasMilestoneLane ? 1 : 0);
     }
 
     // The same colours as the priority badge on the board: both come from the task file's priority list.

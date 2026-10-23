@@ -178,6 +178,7 @@ public partial class TimelineWindow
             var boxLines = new Dictionary<TimelineItem, List<string>>();
             var laneHeights = new double[Math.Max(1, row.Lanes)];
             if (row.Summary is not null) laneHeights[0] = barHeight + chipGap;
+            if (row.HasMilestoneLane) laneHeights[^1] = 13; // the strip under the tasks where the milestones' words go
             foreach (var item in items)
             {
                 var task = item.Card;
@@ -281,14 +282,17 @@ public partial class TimelineWindow
             }
 
             // A goal's milestones: a teal line down the row, with what it is written beside it at the foot.
-            foreach (var milestone in row.Milestones ?? [])
+            // Each word is cut short where the next milestone's line begins, so close ones never overprint.
+            var milestoneXs = (row.Milestones ?? []).Select(m => (Milestone: m, X: TimelineLayout.TargetPosition(m.Date, unitStarts, rangeEnd) is { } p ? UnitLeft(p.Unit) + Math.Clamp(p.Fraction * unitColWidth, 1, unitColWidth - 1) : (double?)null))
+                .Where(m => m.X is not null).OrderBy(m => m.X).ToList();
+            for (var m = 0; m < milestoneXs.Count; m++)
             {
-                if (TimelineLayout.TargetPosition(milestone.Date, unitStarts, rangeEnd) is not { } where) continue;
-
-                var milestoneX = UnitLeft(where.Unit) + Math.Clamp(where.Fraction * unitColWidth, 1, unitColWidth - 1);
+                var milestone = milestoneXs[m].Milestone;
+                var milestoneX = milestoneXs[m].X!.Value;
+                var room = m + 1 < milestoneXs.Count ? milestoneXs[m + 1].X!.Value - milestoneX - 6 : 90;
                 // It starts under a Summary bar rather than crossing its dates.
                 canvas.Children.Add(new Line { X1 = milestoneX, Y1 = row.Summary is null ? rowTop : rowTop + 2 + barHeight, X2 = milestoneX, Y2 = rowTop + rowHeight, Stroke = MilestoneBrush, StrokeThickness = 1.5 });
-                var text = WrapWords(milestone.Description, boldTypeface, 7, 90).FirstOrDefault() ?? milestone.Description;
+                var text = WrapWords(milestone.Description, boldTypeface, 7, Math.Clamp(room, 8, 90)).FirstOrDefault() ?? milestone.Description;
                 AddText(canvas, text, milestoneX + 3, rowTop + rowHeight - 11, boldTypeface, 7, MilestoneBrush);
             }
 

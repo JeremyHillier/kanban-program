@@ -183,7 +183,8 @@ public partial class TimelineWindow
 
             var laneGrid = new Grid { Margin = new Thickness(0, 3, 0, 0), VerticalAlignment = VerticalAlignment.Top };
             for (var w = 0; w < unitsToShow; w++) laneGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(unitColWidth) });
-            for (var lane = 0; lane < row.Lanes; lane++) laneGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+            for (var lane = 0; lane < row.Lanes; lane++)
+                laneGrid.RowDefinitions.Add(new RowDefinition { Height = row.HasMilestoneLane && lane == row.Lanes - 1 ? new GridLength(18) : GridLength.Auto });
             Grid.SetRow(laneGrid, r);
             Grid.SetColumn(laneGrid, 1);
             Grid.SetColumnSpan(laneGrid, unitsToShow);
