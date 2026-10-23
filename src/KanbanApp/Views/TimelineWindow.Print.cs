@@ -117,7 +117,7 @@ public partial class TimelineWindow
             canvas.Children.Add(band);
             AddText(canvas, "Timeline", margin, 10, boldTypeface, 18, Brushes.White);
             AddText(canvas,
-                $"{_windowStart:MMM d} – {rangeEnd.AddDays(-1):MMM d, yyyy}   •   {TimelineScale.ViewName(Zoom)}, {(IsSummary ? "summary" : "detail")}, by {(IsByGoal ? "goal" : "project")}   •   Generated {DateTime.Now:MMM d, yyyy}",
+                $"{_windowStart:MMM d} – {rangeEnd.AddDays(-1):MMM d, yyyy}   •   {TimelineScale.ViewName(Zoom)}, {(IsSummary ? "summary" : "detail")}, by {(IsByGoal ? "goal" : "project")}{(_filter.IsEmpty ? "" : $"   •   {_filter.Describe(_viewModel.People, _viewModel.Flags)}")}   •   Generated {DateTime.Now:MMM d, yyyy}",
                 margin, 32, regularTypeface, 10, subtitleBrush);
 
             var headerY = headerBandHeight + 4;

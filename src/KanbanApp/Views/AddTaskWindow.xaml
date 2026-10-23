@@ -14,10 +14,14 @@
         <Style x:Key="FieldLabelStyle" TargetType="TextBlock">
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="Margin" Value="0,12,0,4"/>
+            <!-- One height for every label, with or without + / - buttons beside it, so the rows line up. -->
+            <Setter Property="LineHeight" Value="22"/>
+            <Setter Property="LineStackingStrategy" Value="BlockLineHeight"/>
             <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
         </Style>
         <Style x:Key="FieldLabelRowStyle" TargetType="StackPanel">
             <Setter Property="Orientation" Value="Horizontal"/>
+            <Setter Property="MinHeight" Value="22"/>
             <Setter Property="Margin" Value="0,12,0,4"/>
         </Style>
         <!-- The Who drop-down button: looks like the dialog's other drop-downs, open or closed,
@@ -124,16 +128,36 @@
                     </Grid>
                 </Border>
 
-                <!-- Project -->
-                <StackPanel Style="{StaticResource FieldLabelRowStyle}" Margin="0,0,0,4">
-                    <TextBlock Text="Project *" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Center" ToolTip="Required"/>
-                    <Button Content="+" Style="{StaticResource NewLinkButtonStyle}" ToolTip="Add new project" Click="NewProject_Click"/>
-                    <Button Content="−" Style="{StaticResource DeleteLinkButtonStyle}" ToolTip="Clear project" Click="DeleteProject_Click"/>
-                </StackPanel>
-                <ComboBox x:Name="ProjectComboBox" Padding="6"
-                          DisplayMemberPath="Name" SelectedIndex="0"
-                          Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
-                          BorderBrush="{DynamicResource CardBorderBrush}"/>
+                <!-- Project | Goal: the two things a task belongs to, side by side and the same width -->
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="16"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <StackPanel Grid.Row="0" Grid.Column="0" Style="{StaticResource FieldLabelRowStyle}" Margin="0,0,0,4">
+                        <TextBlock Text="Project *" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Center" ToolTip="Required"/>
+                        <Button Content="+" Style="{StaticResource NewLinkButtonStyle}" ToolTip="Add new project" Click="NewProject_Click"/>
+                        <Button Content="−" Style="{StaticResource DeleteLinkButtonStyle}" ToolTip="Clear project" Click="DeleteProject_Click"/>
+                    </StackPanel>
+                    <ComboBox Grid.Row="1" Grid.Column="0" x:Name="ProjectComboBox" Padding="6"
+                              DisplayMemberPath="Name" SelectedIndex="0"
+                              Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                              BorderBrush="{DynamicResource CardBorderBrush}"/>
+                    <StackPanel Grid.Row="0" Grid.Column="2" Style="{StaticResource FieldLabelRowStyle}" Margin="0,0,0,4">
+                        <TextBlock Text="Goal" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Center"/>
+                        <Button Content="+" Style="{StaticResource NewLinkButtonStyle}" ToolTip="Add new goal" Click="NewGoal_Click"/>
+                        <Button Content="−" Style="{StaticResource DeleteLinkButtonStyle}" ToolTip="Clear goal" Click="DeleteGoal_Click"/>
+                    </StackPanel>
+                    <ComboBox Grid.Row="1" Grid.Column="2" x:Name="GoalComboBox" Padding="6" SelectedIndex="-1"
+                              DisplayMemberPath="Name"
+                              Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                              BorderBrush="{DynamicResource CardBorderBrush}"/>
+                </Grid>
 
                 <!-- Task details -->
                 <TextBlock Text="Task" Style="{StaticResource FieldLabelStyle}"/>
@@ -153,7 +177,6 @@
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
@@ -204,10 +227,10 @@
                         </Popup>
                     </Grid>
 
-                    <!-- Dates box (Start, Due / Recurring, Time) | Goal, Force edit -->
+                    <!-- The dates box (Start, Due / Recurring, Time), then Force edit -->
                     <!-- Everything about when: the dates on the first line, how it repeats and its
                          alert time on the second. Boxed so it reads as one group. -->
-                    <Border Grid.Row="2" Grid.RowSpan="3" Grid.Column="0" Grid.ColumnSpan="3" Margin="0,12,0,0" Padding="10,8"
+                    <Border Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="5" Margin="0,12,0,0" Padding="10,8"
                             BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="1" CornerRadius="4">
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -380,16 +403,7 @@
                         </Grid>
                     </Border>
 
-                    <StackPanel Grid.Row="2" Grid.Column="4" Style="{StaticResource FieldLabelRowStyle}">
-                        <TextBlock Text="Goal" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Center"/>
-                        <Button Content="+" Style="{StaticResource NewLinkButtonStyle}" ToolTip="Add new goal" Click="NewGoal_Click"/>
-                        <Button Content="−" Style="{StaticResource DeleteLinkButtonStyle}" ToolTip="Clear goal" Click="DeleteGoal_Click"/>
-                    </StackPanel>
-                    <ComboBox Grid.Row="3" Grid.Column="4" x:Name="GoalComboBox" Padding="6" SelectedIndex="-1"
-                              DisplayMemberPath="Name" VerticalAlignment="Top"
-                              Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
-                              BorderBrush="{DynamicResource CardBorderBrush}"/>
-                    <CheckBox Grid.Row="4" Grid.Column="4" x:Name="ForceEditOnCompleteCheckBox" Content="Force edit upon completion" Margin="0,12,0,4"
+                    <CheckBox Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="5" x:Name="ForceEditOnCompleteCheckBox" Content="Force edit upon completion" Margin="0,10,0,4" HorizontalAlignment="Left"
                               Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Center"
                               ToolTip="When on, marking this task Done will automatically open it for editing instead of just moving it."/>
                 </Grid>

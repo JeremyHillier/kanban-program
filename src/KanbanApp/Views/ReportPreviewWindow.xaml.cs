@@ -33,6 +33,7 @@ public partial class ReportPreviewWindow : Window
 
         PageSetupPanel.Visibility = Visibility.Visible;
         PrintButton.Visibility = Visibility.Visible;
+        SaveAsButton.Visibility = Visibility.Visible;
         PaperComboBox.ItemsSource = PageSetup.Papers;
         PaperComboBox.SelectedItem = setup.Paper;
         (setup.Landscape ? LandscapeRadio : PortraitRadio).IsChecked = true;
@@ -53,6 +54,37 @@ public partial class ReportPreviewWindow : Window
         _setup = new PageSetup(paper, LandscapeRadio.IsChecked == true);
         _remember?.Invoke(_setup);
         Viewer.Document = _layOut(_setup);
+    }
+
+    // The pages as a PDF or as PNG pictures, to send to someone.
+    private void SaveAs_Click(object sender, RoutedEventArgs e)
+    {
+        if (Viewer.Document is not FixedDocument document || _setup is not { } setup) return;
+
+        var dialog = new Microsoft.Win32.SaveFileDialog
+        {
+            Title = "Save Timeline",
+            Filter = "PDF File (*.pdf)|*.pdf|PNG Picture (*.png)|*.png",
+            FileName = $"Timeline_{DateTime.Now:yyyyMMdd_HHmmss}"
+        };
+        if (dialog.ShowDialog(this) != true) return;
+
+        var pictures = dialog.FilterIndex == 2;
+        try
+        {
+            var pages = PageExport.RenderPages(document);
+            if (pictures) PageExport.SavePng(dialog.FileName, pages);
+            else PageExport.SavePdf(dialog.FileName, pages, setup);
+        }
+        catch (Exception ex)
+        {
+            Dialogs.Tell(this, "Could Not Save", "The Timeline was not saved.", DialogTone.Warning, ex.Message);
+            return;
+        }
+
+        Dialogs.Tell(this, "Timeline Saved", pictures && document.Pages.Count > 1
+            ? $"One picture per page was saved beside:\n{dialog.FileName}"
+            : $"Saved to:\n{dialog.FileName}");
     }
 
     private void Print_Click(object sender, RoutedEventArgs e)

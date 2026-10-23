@@ -13,7 +13,11 @@ public partial class MainViewModel
 
     public ManagedAddResult<ProjectViewModel> AddProject(string name) => _projectManager.Add(name);
     public bool RenameProject(ProjectViewModel project, string newName) => _projectManager.Rename(project, newName);
-    public void DeleteProject(ProjectViewModel project) => _projectManager.Delete(project);
+    public void DeleteProject(ProjectViewModel project)
+    {
+        _projectManager.Delete(project);
+        _projectMilestones?.RemoveAll(m => m.OwnerId == project.Id);
+    }
     public void SetProjectActive(ProjectViewModel project, bool isActive) => _projectManager.SetActive(project, isActive);
     public int CountTasksUsingProject(ProjectViewModel project) => _projectManager.CountUsage(project);
 
@@ -31,6 +35,24 @@ public partial class MainViewModel
         person.Email = trimmed;
         _db.SetPersonEmail(person.Id, trimmed);
         UpdateMatchingCards(c => c.IsAssignedTo(person.Id), c => c.RefreshPeople());
+    }
+
+    public void SetProjectTarget(ProjectViewModel project, DateTime? target)
+    {
+        var day = target?.Date;
+        if (project.TargetDate == day) return;
+
+        project.TargetDate = day;
+        _db.SetProjectTarget(project.Id, day);
+    }
+
+    public void SetProjectStart(ProjectViewModel project, DateTime? start)
+    {
+        var day = start?.Date;
+        if (project.StartDate == day) return;
+
+        project.StartDate = day;
+        _db.SetProjectStart(project.Id, day);
     }
 
     public void SetGoalStart(GoalViewModel goal, DateTime? start)
@@ -56,7 +78,7 @@ public partial class MainViewModel
     public void DeleteGoal(GoalViewModel goal)
     {
         _goalManager.Delete(goal);
-        _milestones?.RemoveAll(m => m.GoalId == goal.Id); // the file deleted them with the goal
+        _goalMilestones?.RemoveAll(m => m.OwnerId == goal.Id); // the file deleted them with the goal
     }
     public void SetGoalActive(GoalViewModel goal, bool isActive) => _goalManager.SetActive(goal, isActive);
     public int CountTasksUsingGoal(GoalViewModel goal) => _goalManager.CountUsage(goal);

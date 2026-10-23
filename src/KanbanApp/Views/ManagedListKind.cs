@@ -30,7 +30,7 @@ internal abstract class ManagedListKind
     public string DeleteQuestion(string name) => NounInDeleteQuestion ? $"Delete {Noun} \"{name}\"?" : $"Delete \"{name}\"?";
 
     public static ManagedListKind Projects(MainViewModel vm) =>
-        new Of<ProjectViewModel>(vm.Projects, vm.AddProject, vm.RenameProject, vm.SetProjectActive, vm.CountTasksUsingProject, vm.DeleteProject)
+        new Of<ProjectViewModel>(vm.Projects, vm.AddProject, vm.RenameProject, vm.SetProjectActive, vm.CountTasksUsingProject, vm.DeleteProject, setTarget: vm.SetProjectTarget, setStart: vm.SetProjectStart)
         { Title = "Manage Projects", Noun = "project", IfDeleted = "they'll show as having no project." };
 
     public static ManagedListKind Goals(MainViewModel vm) =>

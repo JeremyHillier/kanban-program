@@ -9,26 +9,26 @@ namespace KanbanApp.Views;
 
 // A goal's milestones: add, reword, move and delete them. Each shows on the Timeline, grouped by goal, as a
 // vertical line on the goal's row.
-public partial class GoalMilestonesWindow : Window
+public partial class MilestonesWindow : Window
 {
     private readonly MainViewModel _viewModel;
-    private readonly GoalViewModel _goal;
+    private readonly IPlannedItem _item;
 
-    public GoalMilestonesWindow(MainViewModel viewModel, GoalViewModel goal)
+    public MilestonesWindow(MainViewModel viewModel, IPlannedItem item)
     {
         _viewModel = viewModel;
-        _goal = goal;
+        _item = item;
         InitializeComponent();
         AccessKeys.Bind(this);
-        Title = $"Milestones - {goal.Name}";
-        IntroText.Text = $"Dated points on the way to \"{goal.Name}\". Each is drawn on the Timeline, grouped by goal.";
+        Title = $"Milestones - {item.Name}";
+        IntroText.Text = $"Dated points on the way to \"{item.Name}\". Each is drawn on the Timeline when it is grouped by {(item.Owner == MilestoneOwner.Goal ? "goal" : "project")}.";
         MaxHeight = SystemParameters.WorkArea.Height * 0.9;
         NewDatePicker.SelectedDate = DateTime.Today;
         ShowList();
         Loaded += (_, _) => NewDescriptionTextBox.Focus();
     }
 
-    private void ShowList() => ItemsList.ItemsSource = _viewModel.MilestonesOf(_goal);
+    private void ShowList() => ItemsList.ItemsSource = _viewModel.MilestonesOf(_item);
 
     // The mouse wheel moves the date, like every other date box in the app.
     private void Picker_Loaded(object sender, RoutedEventArgs e) => CalendarWheelSupport.Attach((DatePicker)sender);
@@ -41,7 +41,7 @@ public partial class GoalMilestonesWindow : Window
             return;
         }
 
-        if (!_viewModel.AddMilestone(_goal, NewDescriptionTextBox.Text, date))
+        if (!_viewModel.AddMilestone(_item, NewDescriptionTextBox.Text, date))
         {
             Dialogs.Tell(this, "Describe the Milestone", "Type what the milestone is, for example \"Contract signed\".");
             NewDescriptionTextBox.Focus();
@@ -55,7 +55,7 @@ public partial class GoalMilestonesWindow : Window
 
     private void Description_LostFocus(object sender, RoutedEventArgs e)
     {
-        if (sender is not TextBox { DataContext: GoalMilestone milestone } box) return;
+        if (sender is not TextBox { DataContext: Milestone milestone } box) return;
 
         // A blank description is not kept: the row goes back to what it said.
         if (string.IsNullOrWhiteSpace(box.Text)) box.Text = milestone.Description;
@@ -64,7 +64,7 @@ public partial class GoalMilestonesWindow : Window
 
     private void Date_Changed(object sender, SelectionChangedEventArgs e)
     {
-        if (sender is not DatePicker { DataContext: GoalMilestone milestone } picker || picker.SelectedDate is not { } date || milestone.Date == date.Date) return;
+        if (sender is not DatePicker { DataContext: Milestone milestone } picker || picker.SelectedDate is not { } date || milestone.Date == date.Date) return;
 
         _viewModel.ChangeMilestone(milestone, milestone.Description, date);
 
@@ -74,7 +74,7 @@ public partial class GoalMilestonesWindow : Window
 
     private void Delete_Click(object sender, RoutedEventArgs e)
     {
-        if (sender is not FrameworkElement { DataContext: GoalMilestone milestone }) return;
+        if (sender is not FrameworkElement { DataContext: Milestone milestone }) return;
 
         Dispatcher.BeginInvoke(new Action(() =>
         {

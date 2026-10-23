@@ -28,6 +28,8 @@ public partial class TimelineWindow
         var alternateRowBrush = (Brush)FindResource("AlternateRowBrush");
 
         var stepLabel = TimelineScale.StepLabel(Zoom, _months);
+        FiltersButton.Content = _filter.IsEmpty ? "Filters..." : $"Filters ({_filter.Count})...";
+        FiltersButton.ToolTip = _filter.IsEmpty ? "Show only some people, priorities or flags" : $"Showing only: {_filter.Describe(_viewModel.People, _viewModel.Flags)}";
         PrevButton.Content = $"◀ {stepLabel}";
         NextButton.Content = $"{stepLabel} ▶";
 
@@ -377,7 +379,7 @@ public partial class TimelineWindow
 
     // A goal's milestone: a vertical line down the row at its day within the month column, with what it is
     // written beside it at the foot of the row.
-    private static FrameworkElement BuildMilestoneMarker(GoalMilestone milestone, double fraction, double unitColWidth)
+    private static FrameworkElement BuildMilestoneMarker(Milestone milestone, double fraction, double unitColWidth)
     {
         var x = Math.Clamp(fraction * unitColWidth, 1, unitColWidth - 1);
         var marker = new Grid { HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(x - 1, 0, 0, 0), Cursor = Cursors.Help };

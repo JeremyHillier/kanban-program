@@ -6,6 +6,14 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.153.0 — 2026-10-23
+
+> - New: the Timeline has a Filters button to show only chosen people, priorities or flags. The choice is remembered, and a filtered Timeline says so when printed.
+> - New: projects can have a start date, a target date and milestones, just as goals can. Set them in Manage Projects or by right-clicking a project on the Timeline; the Timeline draws them when grouped by project.
+> - New: Save As in the Timeline preview saves the pages as a PDF, or as PNG pictures, on the paper chosen, to share.
+> - Improved: the task window has Goal beside Project at equal width, with a full-width dates box and evenly spaced field labels.
+
+
 ## 0.152.0 — 2026-10-23
 
 > - Improved: on the Timeline, arrows, bars, targets and milestones now line up with their exact day inside a week or month column, instead of the column's edge.

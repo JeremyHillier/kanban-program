@@ -2,8 +2,10 @@ using KanbanApp.Models;
 
 namespace KanbanApp.ViewModels;
 
-public class GoalViewModel(Goal model) : ManagedListEntryViewModel<Goal>(model)
+public class GoalViewModel(Goal model) : ManagedListEntryViewModel<Goal>(model), IPlannedItem
 {
+    public MilestoneOwner Owner => MilestoneOwner.Goal;
+
     public DateTime? StartDate
     {
         get => Model.StartDate;

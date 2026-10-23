@@ -289,6 +289,11 @@ public partial class MainViewModel
 
     public void SaveTimelineExpanded(IEnumerable<string> rows) => _db.SetSetting("TimelineExpanded", string.Join('\n', rows.Order(StringComparer.Ordinal)));
 
+    // Who, priorities and flags the Timeline is limited to (everything when nothing is ticked); remembered.
+    public TimelineFilter TimelineFilter => TimelineFilter.FromJson(_db.GetSetting("TimelineFilter"));
+
+    public void SaveTimelineFilter(TimelineFilter filter) => _db.SetSetting("TimelineFilter", filter.IsEmpty ? string.Empty : filter.ToJson());
+
     public bool TimelineByGoal => _db.GetFlag("TimelineByGoal", false);
 
     public void SaveTimelineByGoal(bool byGoal) => _db.SetFlag("TimelineByGoal", byGoal);

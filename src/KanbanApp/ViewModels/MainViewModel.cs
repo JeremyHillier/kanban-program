@@ -146,7 +146,8 @@ public partial class MainViewModel : ObservableObject
 
     private void Load()
     {
-        _milestones = null; // read again from the file
+        _goalMilestones = null; // read again from the file
+        _projectMilestones = null;
         Columns.Clear();
         Projects.Clear();
         Goals.Clear();

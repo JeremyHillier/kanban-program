@@ -27,7 +27,7 @@ public partial class ManageListWindow : Window
 
         InitializeComponent();
         Title = kind.Title;
-        if (kind.HasTarget) Width = 900; // a goal is one row: name, Active, start and target dates, Milestones, Delete
+        if (kind.HasTarget) Width = 900; // a goal or project is one row: name, Active, start and target dates, Milestones, Delete
         MaxHeight = SystemParameters.WorkArea.Height * 0.9;
         DataContext = viewModel;
         ItemsList.ItemsSource = kind.Items;
@@ -69,7 +69,7 @@ public partial class ManageListWindow : Window
     // A goal's target date. The picker also raises this when the row is first drawn, so only a real change is saved.
     private void Target_Changed(object sender, SelectionChangedEventArgs e)
     {
-        if (sender is not DatePicker { DataContext: GoalViewModel goal } picker || goal.TargetDate == picker.SelectedDate?.Date) return;
+        if (sender is not DatePicker { DataContext: IPlannedItem goal } picker || goal.TargetDate == picker.SelectedDate?.Date) return;
 
         _kind.SetTarget(goal, picker.SelectedDate);
     }
@@ -79,24 +79,24 @@ public partial class ManageListWindow : Window
 
     private void Milestones_Click(object sender, RoutedEventArgs e)
     {
-        if (sender is FrameworkElement { DataContext: GoalViewModel goal }) new GoalMilestonesWindow(_viewModel, goal) { Owner = this }.ShowDialog();
+        if (sender is FrameworkElement { DataContext: IPlannedItem goal }) new MilestonesWindow(_viewModel, goal) { Owner = this }.ShowDialog();
     }
 
     private void Start_Changed(object sender, SelectionChangedEventArgs e)
     {
-        if (sender is not DatePicker { DataContext: GoalViewModel goal } picker || goal.StartDate == picker.SelectedDate?.Date) return;
+        if (sender is not DatePicker { DataContext: IPlannedItem goal } picker || goal.StartDate == picker.SelectedDate?.Date) return;
 
         _kind.SetStart(goal, picker.SelectedDate);
     }
 
     private void ClearStart_Click(object sender, RoutedEventArgs e)
     {
-        if (sender is FrameworkElement { DataContext: GoalViewModel goal }) _kind.SetStart(goal, null);
+        if (sender is FrameworkElement { DataContext: IPlannedItem goal }) _kind.SetStart(goal, null);
     }
 
     private void ClearTarget_Click(object sender, RoutedEventArgs e)
     {
-        if (sender is FrameworkElement { DataContext: GoalViewModel goal }) _kind.SetTarget(goal, null);
+        if (sender is FrameworkElement { DataContext: IPlannedItem goal }) _kind.SetTarget(goal, null);
     }
 
     private void Active_Changed(object sender, RoutedEventArgs e)

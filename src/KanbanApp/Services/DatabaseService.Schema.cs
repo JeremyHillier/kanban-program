@@ -88,13 +88,15 @@ public partial class DatabaseService
         MigrateColumn(connection, "Cards", "RecurrencesLeft", "INTEGER NULL");
         EnsureTaskTemplatesTable(connection);
         EnsureSharedTasksTable(connection);
-        EnsureGoalMilestonesTable(connection);
+        EnsureMilestoneTables(connection);
         MigrateColumn(connection, "Cards", "CompletedAt", "TEXT NULL");
         MigrateColumn(connection, "Cards", "ShareId", "TEXT NULL");
         MigrateColumn(connection, "Projects", "IsActive", "INTEGER NOT NULL DEFAULT 1");
         MigrateColumn(connection, "Goals", "IsActive", "INTEGER NOT NULL DEFAULT 1");
         MigrateColumn(connection, "Goals", "TargetDate", "TEXT NULL");
         MigrateColumn(connection, "Goals", "StartDate", "TEXT NULL");
+        MigrateColumn(connection, "Projects", "TargetDate", "TEXT NULL");
+        MigrateColumn(connection, "Projects", "StartDate", "TEXT NULL");
         MigrateColumn(connection, "Flags", "IsActive", "INTEGER NOT NULL DEFAULT 1");
         MigrateColumn(connection, "Columns", "DisplayName", "TEXT");
         MigrateColumn(connection, "People", "Email", "TEXT NULL");

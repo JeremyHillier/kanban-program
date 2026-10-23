@@ -1,3 +1,4 @@
+using KanbanApp.Models;
 using KanbanApp.Services;
 
 namespace KanbanApp.Tests;
@@ -48,22 +49,22 @@ public sealed class GoalTargetTests : IDisposable
         var goal = db.AddGoal("Grow revenue");
         var other = db.AddGoal("Smoother operations");
 
-        var site = db.AddGoalMilestone(goal.Id, "Site live", new DateTime(2026, 12, 1, 15, 30, 0));
-        db.AddGoalMilestone(goal.Id, "Press launch", new DateTime(2026, 11, 1));
-        db.AddGoalMilestone(other.Id, "Keys handed back", new DateTime(2027, 1, 5));
+        var site = db.AddMilestone(MilestoneOwner.Goal, goal.Id, "Site live", new DateTime(2026, 12, 1, 15, 30, 0));
+        db.AddMilestone(MilestoneOwner.Goal, goal.Id, "Press launch", new DateTime(2026, 11, 1));
+        db.AddMilestone(MilestoneOwner.Goal, other.Id, "Keys handed back", new DateTime(2027, 1, 5));
 
-        var all = Open().GetGoalMilestones();
+        var all = Open().GetMilestones(MilestoneOwner.Goal);
         Assert.Equal(["Press launch", "Site live", "Keys handed back"], all.Select(m => m.Description)); // by date
         Assert.Equal(new DateTime(2026, 12, 1), all.First(m => m.Id == site.Id).Date); // a day, never a time
 
-        db.UpdateGoalMilestone(site.Id, "Site live (v2)", new DateTime(2026, 12, 10));
-        Assert.Equal(("Site live (v2)", new DateTime(2026, 12, 10)), Open().GetGoalMilestones().Where(m => m.Id == site.Id).Select(m => (m.Description, m.Date)).Single());
+        db.UpdateMilestone(MilestoneOwner.Goal, site.Id, "Site live (v2)", new DateTime(2026, 12, 10));
+        Assert.Equal(("Site live (v2)", new DateTime(2026, 12, 10)), Open().GetMilestones(MilestoneOwner.Goal).Where(m => m.Id == site.Id).Select(m => (m.Description, m.Date)).Single());
 
-        db.DeleteGoalMilestone(site.Id);
-        Assert.DoesNotContain(Open().GetGoalMilestones(), m => m.Id == site.Id);
+        db.DeleteMilestone(MilestoneOwner.Goal, site.Id);
+        Assert.DoesNotContain(Open().GetMilestones(MilestoneOwner.Goal), m => m.Id == site.Id);
 
         db.DeleteGoal(goal.Id);
-        Assert.Equal(["Keys handed back"], Open().GetGoalMilestones().Select(m => m.Description));
+        Assert.Equal(["Keys handed back"], Open().GetMilestones(MilestoneOwner.Goal).Select(m => m.Description));
     }
 
     [Fact]
@@ -74,7 +75,7 @@ public sealed class GoalTargetTests : IDisposable
         Open();
         Assert.Equal(DatabaseService.FormatStampedOnOpen.ToString(), db.GetSetting("FileFormat"));
 
-        db.AddGoalMilestone(goal.Id, "Keys handed back", new DateTime(2027, 1, 5));
+        db.AddMilestone(MilestoneOwner.Goal, goal.Id, "Keys handed back", new DateTime(2027, 1, 5));
         Assert.Equal(DatabaseService.GoalMilestoneFileFormat.ToString(), db.GetSetting("FileFormat"));
     }
 
@@ -94,5 +95,27 @@ public sealed class GoalTargetTests : IDisposable
 
         db.SetGoalStart(goal.Id, null);
         Assert.Null(Assert.Single(Open().GetGoals()).StartDate);
+    }
+
+    [Fact]
+    public void AProject_HasStartTargetAndMilestones_LikeAGoal_AndTheyGoWithIt()
+    {
+        var db = Open();
+        var project = db.AddProject("Website Refresh");
+        Open();
+        Assert.Equal(DatabaseService.FormatStampedOnOpen.ToString(), db.GetSetting("FileFormat"));
+
+        db.SetProjectStart(project.Id, new DateTime(2026, 11, 2));
+        db.SetProjectTarget(project.Id, new DateTime(2027, 2, 26));
+        db.AddMilestone(MilestoneOwner.Project, project.Id, "Design signed off", new DateTime(2026, 12, 4));
+
+        var saved = Open().GetProjects().Single(p => p.Id == project.Id);
+        Assert.Equal((new DateTime(2026, 11, 2), new DateTime(2027, 2, 26)), (saved.StartDate!.Value, saved.TargetDate!.Value));
+        Assert.Equal(["Design signed off"], Open().GetMilestones(MilestoneOwner.Project).Select(m => m.Description));
+        Assert.Empty(Open().GetMilestones(MilestoneOwner.Goal)); // a goal's list is separate
+        Assert.Equal(DatabaseService.ProjectPlanFileFormat.ToString(), db.GetSetting("FileFormat"));
+
+        db.DeleteProject(project.Id);
+        Assert.Empty(Open().GetMilestones(MilestoneOwner.Project));
     }
 }

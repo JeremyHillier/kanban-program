@@ -17,6 +17,7 @@ public partial class TimelineWindow : Window
     private DateTime _windowStart;
     private DateTime _windowEnd; // the first day after what is showing, as last drawn
     private bool _initializing = true;
+    private TimelineFilter _filter = TimelineFilter.None; // which people, priorities and flags are showing
     private int _months = TimelineScale.MonthUnits; // how many months Month view shows
 
     // Summary rows the user has opened to show their tasks, by name. Kept for as long as the window is open.
@@ -27,7 +28,7 @@ public partial class TimelineWindow : Window
 
     // One row of the Timeline: a project or goal. Summary is its bar (Summary view only); Items are its
     // tasks, laid out by TimelineLayout - every row in Detail view, only opened rows in Summary view.
-    private sealed record TimelineRow(string Name, bool IsExpanded, TimelineSummary? Summary, List<TimelineItem> Items, DateTime? Target = null, List<GoalMilestone>? Milestones = null)
+    private sealed record TimelineRow(string Name, bool IsExpanded, TimelineSummary? Summary, List<TimelineItem> Items, DateTime? Target = null, List<Milestone>? Milestones = null)
     {
         public int FirstTaskLane => Summary is null ? 0 : 1;
         public int Lanes => Math.Max(1, FirstTaskLane + (Items.Count == 0 ? 0 : Items.Max(i => i.Lane) + 1));
@@ -67,6 +68,7 @@ public partial class TimelineWindow : Window
         _viewModel = viewModel;
         RestoreSize();
         _expanded = _viewModel.TimelineExpanded;
+        _filter = _viewModel.TimelineFilter;
         _months = _viewModel.TimelineMonths;
         MonthsComboBox.ItemsSource = TimelineScale.MonthChoices;
         MonthsComboBox.SelectedItem = _months;
@@ -179,6 +181,16 @@ public partial class TimelineWindow : Window
         BuildGrid();
     }
 
+    private void Filters_Click(object sender, RoutedEventArgs e)
+    {
+        var window = new TimelineFiltersWindow(_viewModel, _filter) { Owner = this };
+        if (window.ShowDialog() != true) return;
+
+        _filter = window.Result;
+        _viewModel.SaveTimelineFilter(_filter);
+        BuildGrid();
+    }
+
     private void Mode_Changed(object sender, RoutedEventArgs e)
     {
         if (_initializing) return;
@@ -216,6 +228,11 @@ public partial class TimelineWindow : Window
         BuildGrid();
     }
 
+    // The goal or project a row stands for (null for "No Goal" / "No Project"), with its start, target and milestones.
+    private IPlannedItem? PlannedItemNamed(string name) => IsByGoal
+        ? _viewModel.Goals.FirstOrDefault(g => g.Name == name)
+        : _viewModel.Projects.FirstOrDefault(p => p.Name == name);
+
     private string GroupOf(CardViewModel card) => IsByGoal
         ? (string.IsNullOrWhiteSpace(card.GoalName) ? "No Goal" : card.GoalName)
         : card.ProjectName;
@@ -230,12 +247,12 @@ public partial class TimelineWindow : Window
 
         var tasks = _viewModel.Columns
             .Where(c => includeDone || c.Name != "Done")
-            .SelectMany(c => c.Cards)
+            .SelectMany(c => c.Cards).Where(_filter.Matches)
             .Where(c => TimelineLayout.IsInWindow(c, _windowStart, rangeEnd))
             .GroupBy(GroupOf).ToDictionary(g => g.Key, g => g.ToList());
 
         // Summary bars cover open tasks only, all of them, so the bar is the whole project or goal.
-        var open = _viewModel.Columns.Where(c => c.Name != "Done").SelectMany(c => c.Cards)
+        var open = _viewModel.Columns.Where(c => c.Name != "Done").SelectMany(c => c.Cards).Where(_filter.Matches)
             .GroupBy(GroupOf).ToDictionary(g => g.Key, g => g.ToList());
 
         // The Manage list's order, then "No Project" / "No Goal", then anything else a task names.
@@ -252,13 +269,14 @@ public partial class TimelineWindow : Window
 
             // A goal's target date (Group by Goal only). A goal whose target is in the window or later gets a row
             // even if none of its tasks are showing, so the target is never lost.
-            var target = IsByGoal ? _viewModel.Goals.FirstOrDefault(g => g.Name == name)?.TargetDate : null;
-            var goalStart = IsByGoal ? _viewModel.Goals.FirstOrDefault(g => g.Name == name)?.StartDate : null;
+            var planned = PlannedItemNamed(name);
+            var target = planned?.TargetDate;
+            var goalStart = planned?.StartDate;
             var targetShows = target is { } day && day.Date >= unitStarts[0]; // in the window, or still to come
 
             // Its milestones that fall in the window (Group by Goal only). They too give a goal its row.
-            var milestones = IsByGoal && _viewModel.Goals.FirstOrDefault(g => g.Name == name) is { } goal
-                ? _viewModel.MilestonesOf(goal).Where(m => TimelineLayout.TargetPosition(m.Date, unitStarts, rangeEnd) is not null).ToList()
+            var milestones = planned is not null
+                ? _viewModel.MilestonesOf(planned).Where(m => TimelineLayout.TargetPosition(m.Date, unitStarts, rangeEnd) is not null).ToList()
                 : [];
             var hasMilestones = milestones.Count > 0;
 

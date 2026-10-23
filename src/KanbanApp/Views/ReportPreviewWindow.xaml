@@ -33,6 +33,9 @@
 
         <Button Content="Help" Command="{x:Static views:HelpKey.ShowCommand}" CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}" Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}" ToolTip="Help for this window. (F1)" Grid.Row="2" Margin="0,12,0,0" HorizontalAlignment="Left"/>
         <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,12,0,0">
+            <Button x:Name="SaveAsButton" Content="_Save As..." Width="100" Padding="0,6" Margin="0,0,8,0" Click="SaveAs_Click" Visibility="Collapsed"
+                    ToolTip="Save these pages as a PDF or as picture files (PNG), on the paper chosen above, to share"
+                    Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
             <Button x:Name="PrintButton" Content="_Print..." Width="90" Padding="0,6" Margin="0,0,8,0" Click="Print_Click" Visibility="Collapsed"
                     ToolTip="Choose a printer and print these pages on the paper chosen above (Ctrl+P)"
                     Background="#FF66BB6A" Foreground="White"/>

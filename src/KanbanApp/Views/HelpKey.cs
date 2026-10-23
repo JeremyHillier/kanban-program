@@ -19,7 +19,7 @@ public static class HelpKey
         [typeof(DeleteRecurringTaskWindow)] = "HelpSection_RecurringTasks",
         [typeof(ManageWaitingOnWindow)] = "HelpSection_WaitingOn",
         [typeof(ManageListWindow)] = "HelpSection_ProjectsGoals",
-        [typeof(GoalMilestonesWindow)] = "HelpSection_ProjectsGoals",
+        [typeof(MilestonesWindow)] = "HelpSection_ProjectsGoals",
         [typeof(ManagePrioritiesWindow)] = "HelpSection_Priorities",
         [typeof(ManageCustomFiltersWindow)] = "HelpSection_CustomFilters",
         [typeof(ArchivedTasksWindow)] = "HelpSection_ArchivingDeleting",
@@ -31,6 +31,7 @@ public static class HelpKey
         [typeof(ReportPreviewWindow)] = "HelpSection_ReportOutput",
         [typeof(DashboardWindow)] = "HelpSection_Dashboard",
         [typeof(TimelineWindow)] = "HelpSection_Timeline",
+        [typeof(TimelineFiltersWindow)] = "HelpSection_Timeline",
         [typeof(ReminderWindow)] = "HelpSection_Reminders",
         [typeof(SettingsWindow)] = "HelpSection_Settings",
     };
