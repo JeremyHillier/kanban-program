@@ -142,16 +142,7 @@ public partial class MainWindow
 
         if (sender is not FrameworkElement { DataContext: CardViewModel card } || DataContext is not MainViewModel viewModel) return;
 
-        List<(string FilePath, string DisplayName, bool WasSaved)> files;
-        try
-        {
-            files = OutlookDragDropHelper.ExtractDroppedFiles(e.Data, viewModel.AttachmentsDir);
-        }
-        catch (Exception ex)
-        {
-            Dialogs.Tell(this, "Could Not Attach", "The dropped item could not be read, so nothing was attached.", DialogTone.Error, ex.Message);
-            return;
-        }
+        if (OutlookDragDropHelper.ReadDroppedFiles(this, e.Data, viewModel.AttachmentsDir) is not { } files) return;
 
         foreach (var file in files)
         {

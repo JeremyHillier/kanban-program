@@ -40,6 +40,21 @@ public static partial class OutlookDragDropHelper
         return [];
     }
 
+    // ExtractDroppedFiles for a drop on a card or on the task window's attachments: when the dropped
+    // item cannot be read, tells the user nothing was attached and returns null.
+    public static List<(string FilePath, string DisplayName, bool WasSaved)>? ReadDroppedFiles(Window owner, IDataObject data, string attachmentsDir)
+    {
+        try
+        {
+            return ExtractDroppedFiles(data, attachmentsDir);
+        }
+        catch (Exception ex)
+        {
+            Dialogs.Tell(owner, "Could Not Attach", "The dropped item could not be read, so nothing was attached.", DialogTone.Error, ex.Message);
+            return null;
+        }
+    }
+
     // Shared by drag-and-drop above and by "+ File..." (AddTaskWindow.AddFile_Click), so a
     // manually-picked file gets the same "copied and owned by the app" treatment as a dropped one.
     public static string CopyFileIntoAttachmentsDir(string sourcePath, string attachmentsDir)

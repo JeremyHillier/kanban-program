@@ -156,16 +156,7 @@ public partial class AddTaskWindow
         e.Handled = true;
         if (!OutlookDragDropHelper.HasDroppableFiles(e.Data)) return;
 
-        List<(string FilePath, string DisplayName, bool WasSaved)> files;
-        try
-        {
-            files = OutlookDragDropHelper.ExtractDroppedFiles(e.Data, _viewModel.AttachmentsDir);
-        }
-        catch (Exception ex)
-        {
-            Dialogs.Tell(this, "Could Not Attach", "The dropped item could not be read, so nothing was attached.", DialogTone.Error, ex.Message);
-            return;
-        }
+        if (OutlookDragDropHelper.ReadDroppedFiles(this, e.Data, _viewModel.AttachmentsDir) is not { } files) return;
 
         foreach (var file in files)
         {
