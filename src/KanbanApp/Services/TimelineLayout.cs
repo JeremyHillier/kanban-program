@@ -192,6 +192,16 @@ public static class TimelineLayout
         return (unit, EndOffset(day, unitStarts, windowEnd) - unit);
     }
 
+    // Where a goal's dashed target line begins, in columns from the left edge: at the start of the goal's
+    // start day. From the left edge (0) when it has no start date, or one after its target; clamped to the
+    // left edge when it began before the dates showing. Null when it begins after the window, so there is
+    // nothing of the line to draw.
+    public static double? TargetLineStart(DateTime? start, DateTime target, IReadOnlyList<DateTime> unitStarts, DateTime windowEnd)
+    {
+        if (start is not { } day || day.Date > target.Date) return 0;
+        return day.Date >= windowEnd ? null : Offset(day, unitStarts, windowEnd);
+    }
+
     // The light lines inside a column: each day in a week column, each Monday in a month column (none in
     // Day view), as fractions across it.
     public static List<double> SubDivisions(TimelineZoom zoom, DateTime unitStart, DateTime unitEnd)

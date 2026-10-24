@@ -14,6 +14,7 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > - Improved: on the Timeline, a task's line now runs exactly from its start day to its due day, in Week and Month view as well as Day view. It sits under the task's box, with a tick at the start and an arrow at the due date. Before, the line began at the next column, so a task starting mid-week looked as if it started the week after.
 - A task that starts and finishes within one week or month now gets its line too.
 - The printed Timeline shows the same lines.
+> - Improved: on the Timeline, a goal's dashed target line now begins at the goal's start date instead of the left edge. A goal with no start date still begins at the left.
 
 
 ## 0.154.0 — 2026-10-23

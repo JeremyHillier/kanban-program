@@ -189,3 +189,35 @@ public sealed class TimelineSummaryTests
         Assert.Empty(TimelineLayout.SubDivisions(TimelineZoom.Day, new DateTime(2026, 11, 2), new DateTime(2026, 11, 3)));
     }
 }
+
+// Where a goal's dashed target line begins: its start day, not always the left edge.
+public sealed class TargetLineStartTests
+{
+    // Six months from Oct 2026: October is column 0, January 2027 column 3.
+    private static readonly List<DateTime> Starts = TimelineScale.UnitStarts(TimelineZoom.Month, new DateTime(2026, 10, 1));
+    private static readonly DateTime End = new(2027, 4, 1);
+    private static readonly DateTime Target = new(2027, 3, 31);
+
+    [Fact]
+    public void AStartInsideTheWindow_BeginsTheLineAtThatDay() =>
+        Assert.Equal(3d, TimelineLayout.TargetLineStart(new DateTime(2027, 1, 1), Target, Starts, End)); // the first of January: the start of column 3
+
+    [Fact]
+    public void AStartPartWayThroughAMonth_BeginsPartWayAcrossItsColumn() =>
+        Assert.Equal(3 + 15 / 31d, TimelineLayout.TargetLineStart(new DateTime(2027, 1, 16), Target, Starts, End)!.Value, 6);
+
+    [Fact]
+    public void NoStart_OrOneBeforeTheWindow_BeginsAtTheLeftEdge()
+    {
+        Assert.Equal(0d, TimelineLayout.TargetLineStart(null, Target, Starts, End));
+        Assert.Equal(0d, TimelineLayout.TargetLineStart(new DateTime(2026, 6, 1), Target, Starts, End));
+    }
+
+    [Fact]
+    public void AStartAfterTheTarget_IsIgnored() =>
+        Assert.Equal(0d, TimelineLayout.TargetLineStart(new DateTime(2028, 1, 1), Target, Starts, End));
+
+    [Fact]
+    public void AStartBeyondTheWindow_HasNothingToDraw() =>
+        Assert.Null(TimelineLayout.TargetLineStart(new DateTime(2027, 6, 1), new DateTime(2027, 12, 31), Starts, End));
+}

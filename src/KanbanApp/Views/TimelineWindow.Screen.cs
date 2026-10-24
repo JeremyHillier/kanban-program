@@ -207,7 +207,7 @@ public partial class TimelineWindow
                 Grid.SetColumn(marker, at.Unit);
                 laneGrid.Children.Add(marker);
 
-                var leadIn = BuildTargetLeadIn(at.Fraction, unitColWidth);
+                var leadIn = BuildTargetLeadIn(at.Fraction, unitColWidth, TimelineLayout.TargetLineStart(row.Start, target, unitStarts, rangeEnd) ?? 0);
                 Grid.SetRow(leadIn, 0);
                 Grid.SetColumn(leadIn, 0);
                 Grid.SetColumnSpan(leadIn, at.Unit + 1);
@@ -216,11 +216,15 @@ public partial class TimelineWindow
             else if (row.Target is { } later && later.Date >= rangeEnd)
             {
                 // The target is beyond the right edge: the line runs right across, ending in an arrowhead.
-                var leadIn = BuildTargetLeadIn(1, unitColWidth, toEdge: true);
-                Grid.SetRow(leadIn, 0);
-                Grid.SetColumn(leadIn, 0);
-                Grid.SetColumnSpan(leadIn, unitsToShow);
-                laneGrid.Children.Insert(0, leadIn);
+                // Nothing to draw when the goal does not start until after what is showing.
+                if (TimelineLayout.TargetLineStart(row.Start, later, unitStarts, rangeEnd) is { } from)
+                {
+                    var leadIn = BuildTargetLeadIn(1, unitColWidth, from, toEdge: true);
+                    Grid.SetRow(leadIn, 0);
+                    Grid.SetColumn(leadIn, 0);
+                    Grid.SetColumnSpan(leadIn, unitsToShow);
+                    laneGrid.Children.Insert(0, leadIn);
+                }
 
                 var head = new TextBlock
                 {
@@ -416,11 +420,12 @@ public partial class TimelineWindow
     // How far down the row the target's line runs: just under a Summary bar, so the line is not hidden by it.
     private const double TargetLineY = 26;
 
-    // The dashed line from the left edge of the dates to the diamond, behind the bar and the tasks.
-    private static FrameworkElement BuildTargetLeadIn(double fraction, double unitColWidth, bool toEdge = false) => new Line
+    // The dashed line from the goal's start day (the left edge of the dates when it has none, or began before
+    // them) to the diamond, behind the bar and the tasks. `from` is how many columns in from the left edge.
+    private static FrameworkElement BuildTargetLeadIn(double fraction, double unitColWidth, double from = 0, bool toEdge = false) => new Line
     {
         X1 = 0, X2 = 1, Y1 = 0, Y2 = 0, Stretch = Stretch.Fill, Stroke = TargetBrush, StrokeThickness = 1.5, StrokeDashArray = [4, 3],
-        VerticalAlignment = VerticalAlignment.Top, Margin = new Thickness(0, TargetLineY - 0.75, toEdge ? 6 : Math.Max(0, unitColWidth - Math.Clamp(fraction * unitColWidth, 1, unitColWidth - 1)), 0),
+        VerticalAlignment = VerticalAlignment.Top, Margin = new Thickness(from * unitColWidth, TargetLineY - 0.75, toEdge ? 6 : Math.Max(0, unitColWidth - Math.Clamp(fraction * unitColWidth, 1, unitColWidth - 1)), 0),
         IsHitTestVisible = false
     };
 

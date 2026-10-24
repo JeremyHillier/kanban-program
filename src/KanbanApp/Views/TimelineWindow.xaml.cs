@@ -28,7 +28,7 @@ public partial class TimelineWindow : Window
 
     // One row of the Timeline: a project or goal. Summary is its bar (Summary view only); Items are its
     // tasks, laid out by TimelineLayout - every row in Detail view, only opened rows in Summary view.
-    private sealed record TimelineRow(string Name, bool IsExpanded, TimelineSummary? Summary, List<TimelineItem> Items, DateTime? Target = null, List<Milestone>? Milestones = null)
+    private sealed record TimelineRow(string Name, bool IsExpanded, TimelineSummary? Summary, List<TimelineItem> Items, DateTime? Target = null, List<Milestone>? Milestones = null, DateTime? Start = null)
     {
         public int FirstTaskLane => Summary is null ? 0 : 1;
         // A row with milestones has one more lane at the foot, kept for their words so a task box can never cover them.
@@ -319,11 +319,11 @@ public partial class TimelineWindow : Window
                 if (summary is null && !targetShows && !hasMilestones) continue;
 
                 var expanded = _expanded.Contains(RowKey(name));
-                rows.Add(new TimelineRow(name, expanded, summary, expanded ? TimelineLayout.Place(groupTasks, unitStarts, rangeEnd) : [], target, milestones));
+                rows.Add(new TimelineRow(name, expanded, summary, expanded ? TimelineLayout.Place(groupTasks, unitStarts, rangeEnd) : [], target, milestones, goalStart));
             }
             else if (groupTasks.Count > 0 || targetShows || hasMilestones)
             {
-                rows.Add(new TimelineRow(name, true, null, TimelineLayout.Place(groupTasks, unitStarts, rangeEnd), target, milestones));
+                rows.Add(new TimelineRow(name, true, null, TimelineLayout.Place(groupTasks, unitStarts, rangeEnd), target, milestones, goalStart));
             }
         }
 

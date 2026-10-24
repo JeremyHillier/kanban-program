@@ -251,15 +251,17 @@ public partial class TimelineWindow
                 AddText(canvas, fitted, barLeft + 4, rowTop + 4, boldTypeface, 7.5, Brushes.White);
             }
 
-            // A goal's target date: a dashed line from the left edge of the dates to a diamond, and a thin
-            // line down the row from it, at the day within its month. It sits just under a Summary bar.
+            // A goal's target date: a dashed line from the goal's start day (the left edge of the dates when it
+            // has none, or began before them) to a diamond, and a thin line down the row from it, at the day
+            // within its month. It sits just under a Summary bar.
             if (row.Target is { } target && TimelineLayout.TargetPosition(target, unitStarts, rangeEnd) is { } at)
             {
                 var targetX = UnitLeft(at.Unit) + Math.Clamp(at.Fraction * unitColWidth, 1, unitColWidth - 1);
                 var targetY = rowTop + 2 + barHeight + 4;
                 canvas.Children.Add(new Line
                 {
-                    X1 = UnitLeft(0), Y1 = targetY, X2 = targetX, Y2 = targetY, Stroke = TargetBrush, StrokeThickness = 1, StrokeDashArray = [4, 3]
+                    X1 = UnitLeft(0) + (TimelineLayout.TargetLineStart(row.Start, target, unitStarts, rangeEnd) ?? 0) * unitColWidth,
+                    Y1 = targetY, X2 = targetX, Y2 = targetY, Stroke = TargetBrush, StrokeThickness = 1, StrokeDashArray = [4, 3]
                 });
                 canvas.Children.Add(new Line { X1 = targetX, Y1 = targetY, X2 = targetX, Y2 = rowTop + rowHeight, Stroke = TargetBrush, StrokeThickness = 1 });
                 canvas.Children.Add(new Polygon
@@ -273,14 +275,17 @@ public partial class TimelineWindow
                 // Beyond the right edge: the line runs right across to an arrowhead.
                 var edgeX = UnitLeft(unitsToShow) - 1;
                 var targetY = rowTop + 2 + barHeight + 4;
-                canvas.Children.Add(new Line
+                if (TimelineLayout.TargetLineStart(row.Start, later, unitStarts, rangeEnd) is { } from) // nothing when the goal starts after the window
                 {
-                    X1 = UnitLeft(0), Y1 = targetY, X2 = edgeX - 5, Y2 = targetY, Stroke = TargetBrush, StrokeThickness = 1, StrokeDashArray = [4, 3]
-                });
-                canvas.Children.Add(new Polygon
-                {
-                    Points = [new Point(edgeX - 6, targetY - 3.5), new Point(edgeX, targetY), new Point(edgeX - 6, targetY + 3.5)], Fill = TargetBrush
-                });
+                    canvas.Children.Add(new Line
+                    {
+                        X1 = UnitLeft(0) + from * unitColWidth, Y1 = targetY, X2 = edgeX - 5, Y2 = targetY, Stroke = TargetBrush, StrokeThickness = 1, StrokeDashArray = [4, 3]
+                    });
+                    canvas.Children.Add(new Polygon
+                    {
+                        Points = [new Point(edgeX - 6, targetY - 3.5), new Point(edgeX, targetY), new Point(edgeX - 6, targetY + 3.5)], Fill = TargetBrush
+                    });
+                }
             }
 
             // A goal's milestones: a teal line down the row, with what it is written beside it at the foot.
