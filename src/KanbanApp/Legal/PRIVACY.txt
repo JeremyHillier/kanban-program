@@ -1,7 +1,7 @@
 KANBAN TASK BOARD
 PRIVACY NOTE
 
-Last updated: September 27, 2026
+Last updated: October 24, 2026
 
 The short version: everything you put into Kanban Task Board stays on your own computer. We never see it.
 
@@ -26,7 +26,7 @@ To turn this off, open Settings and untick "Check for a newer version automatica
 
 THINGS THAT HAPPEN ONLY WHEN YOU ASK
 
-Emailing a task. When you choose to email a task, the program hands the message to your own email program (such as Outlook). You see the message before it goes, and it is sent from your own email account. It never passes through us.
+Emailing a task or a report. When you choose to email a task, or a report as a PDF, the program hands the message to your own email program (such as Outlook). You see the message before it goes, and it is sent from your own email account. It never passes through us.
 
 Reporting a problem. The Report a Problem button prepares an email to our support address with the program's error log attached. The log records technical details of errors: the date and time, the program's version and the technical description of what went wrong. It may include the names of files or folders on your computer. You can read the message and the attachment before sending, and nothing is sent unless you press Send. We use what you send only to investigate the problem and reply to you.
 

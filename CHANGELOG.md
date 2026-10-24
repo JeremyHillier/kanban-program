@@ -6,6 +6,13 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.155.0 — 2026-10-24
+
+> - New: Email... in the Report Builder and in Quick Report opens a new email with the report attached as a PDF. You choose who it goes to, and nothing is sent until you send it.
+- With classic Outlook the PDF is attached for you. With another email app, a folder holding the PDF opens beside the email, ready to drag in.
+- The Privacy Note now mentions emailing a report alongside emailing a task.
+
+
 ## 0.154.0 — 2026-10-23
 
 > - New: the Timeline filter can also limit what is shown to chosen projects and goals. A project or goal that is not ticked is left off the Timeline completely, with its target and milestones, not only its tasks.

@@ -34,3 +34,25 @@ public sealed class ReportPdfLocationTests : IDisposable
     public void AMissingDefaultFolder_MeansAsking() =>
         Assert.Null(ReportPdfLocation.InDefaultFolder(_temp.File("gone"), "r.pdf"));
 }
+
+// Email... in the Report Builder and Quick Report: what the email says, and that both windows offer it.
+public sealed class ReportEmailTests
+{
+    [Fact]
+    public void TheEmailBody_NamesTheReportAndItsDate() =>
+        Assert.Equal("Attached is the report \"Weekly review\", as of October 24, 2026.",
+            ReportEmail.Body("Weekly review", new DateTime(2026, 10, 24, 9, 30, 0)));
+
+    [Theory]
+    [InlineData("ReportBuilderWindow.xaml")]
+    [InlineData("QuickReportWindow.xaml")]
+    public void BothReportWindows_HaveAnEmailButton(string file)
+    {
+        var dir = new System.IO.DirectoryInfo(AppContext.BaseDirectory);
+        while (dir is not null && !System.IO.File.Exists(System.IO.Path.Combine(dir.FullName, "KanbanApp.slnx"))) dir = dir.Parent;
+        var xaml = System.IO.File.ReadAllText(System.IO.Path.Combine(dir!.FullName, "src", "KanbanApp", "Views", file));
+
+        Assert.Contains("Content=\"_Email...\"", xaml);
+        Assert.Contains("Click=\"Email_Click\"", xaml);
+    }
+}

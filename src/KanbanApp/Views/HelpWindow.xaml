@@ -453,6 +453,7 @@
                 <TextBlock x:Name="HelpSection_ReportOutput" Text="Output" Style="{StaticResource HelpSubHeaderStyle}"/>
                 <local:BulletItem Text="Preview shows the pages, with zoom and Print."/>
                 <local:BulletItem Text="PDF saves to the Default Export Path, or asks where."/>
+                <local:BulletItem Text="Email... opens a new email with the report attached as a PDF. Quick Report has it too."/>
                 <local:BulletItem Text="Choose Portrait or Landscape."/>
                 <local:BulletItem Text="The heading lists the filters, sort and scope used, with task counts by status."/>
                 <TextBlock Text="Saved views" Style="{StaticResource HelpSubHeaderStyle}"/>

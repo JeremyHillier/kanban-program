@@ -298,18 +298,28 @@ public partial class ReportBuilderWindow : Window
         var filePath = ReportPdfLocation.Choose(this, _viewModel.DefaultExportPath, title);
         if (filePath is null) return;
 
+        WritePdf(title, filePath);
+        Dialogs.Tell(this, "Report Saved", "The report was saved as a PDF.", detail: filePath);
+    }
+
+    // The report as it is set up now, as a PDF attached to a new email.
+    private void Email_Click(object sender, RoutedEventArgs e)
+    {
+        var title = GetReportTitle();
+        if (IsStatistics && !StatisticsHaveASection()) return;
+
+        ReportEmail.Send(this, title, filePath => WritePdf(title, filePath));
+    }
+
+    private void WritePdf(string title, string filePath)
+    {
         if (IsStatistics)
         {
             ReportRunner.SavePdf(_viewModel, CaptureCurrentAsView(title), DateTime.Today, filePath);
-            Dialogs.Tell(this, "Report Saved", "The report was saved as a PDF.", detail: filePath);
             return;
         }
 
-        var rows = BuildRows();
-
-        ReportService.SavePdf(title, rows, GetGroupBy(), IncludeNotesCheckBox.IsChecked == true, IncludeSubTasksCheckBox.IsChecked == true, filePath,
+        ReportService.SavePdf(title, BuildRows(), GetGroupBy(), IncludeNotesCheckBox.IsChecked == true, IncludeSubTasksCheckBox.IsChecked == true, filePath,
             IncludeSubTaskSummaryCheckBox.IsChecked == true, LandscapeRadio.IsChecked == true, GetParameterSummary());
-
-        Dialogs.Tell(this, "Report Saved", "The report was saved as a PDF.", detail: filePath);
     }
 }

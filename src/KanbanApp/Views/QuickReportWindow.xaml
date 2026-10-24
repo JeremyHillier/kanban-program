@@ -2,7 +2,7 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:views="clr-namespace:KanbanApp.Views"
-        Title="Quick Report" Width="560" SizeToContent="Height" ResizeMode="NoResize"
+        Title="Quick Report" Width="680" SizeToContent="Height" ResizeMode="NoResize"
         WindowStartupLocation="CenterOwner" ShowInTaskbar="False"
         Background="{DynamicResource WindowBackgroundBrush}">
     <Grid Margin="16">
@@ -35,6 +35,9 @@
                         Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
                 <Button x:Name="PdfButton" Content="P_DF" Width="70" Padding="0,6" Margin="0,0,8,0" Click="Pdf_Click"
                         ToolTip="Save the report as a PDF file"
+                        Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                <Button x:Name="EmailButton" Content="_Email..." Width="80" Padding="0,6" Margin="0,0,8,0" Click="Email_Click"
+                        ToolTip="Open a new email with the report attached as a PDF"
                         Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
                 <Button x:Name="PrintButton" Content="Pr_int" Width="80" Padding="0,6" Margin="0,0,8,0" Click="Print_Click"
                         ToolTip="Send the report straight to a printer"

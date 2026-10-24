@@ -179,7 +179,7 @@ public static partial class OutlookEmailHelper
 
             ShowMessage(owner,
                 "The email has been copied to the clipboard.\n\n" +
-                $"No email app is set up to open email links on this PC. Paste it into a new message to {recipient}.",
+                $"No email app is set up to open email links on this PC. Paste it into a new message{(recipient.Length > 0 ? $" to {recipient}" : string.Empty)}.",
                 dialogTitle, DialogTone.Warning);
         }
     }

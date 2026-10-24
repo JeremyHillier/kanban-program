@@ -30,7 +30,7 @@ public partial class QuickReportWindow : Window
         ViewComboBox.SelectedItem = views.FirstOrDefault(v => string.Equals(v.Name, select, StringComparison.OrdinalIgnoreCase)) ?? views.FirstOrDefault();
 
         var any = views.Count > 0;
-        ViewComboBox.IsEnabled = PreviewButton.IsEnabled = PrintButton.IsEnabled = PdfButton.IsEnabled = any;
+        ViewComboBox.IsEnabled = PreviewButton.IsEnabled = PrintButton.IsEnabled = PdfButton.IsEnabled = EmailButton.IsEnabled = any;
         if (!any) SummaryText.Text = "No saved report views yet. Open the Report Builder, set up a report, and click Save View. It will then be listed here.";
     }
 
@@ -68,6 +68,12 @@ public partial class QuickReportWindow : Window
 
         ReportRunner.SavePdf(_viewModel, view, DateTime.Today, filePath);
         Dialogs.Tell(this, "Report Saved", "The report was saved as a PDF.", detail: filePath);
+    }
+
+    private void Email_Click(object sender, RoutedEventArgs e)
+    {
+        if (Selected is not { } view) return;
+        ReportEmail.Send(this, view.Title, filePath => ReportRunner.SavePdf(_viewModel, view, DateTime.Today, filePath));
     }
 
     private void ReportBuilder_Click(object sender, RoutedEventArgs e)

@@ -280,6 +280,8 @@
                 <StackPanel Grid.Column="1" Orientation="Horizontal">
                     <Button Content="P_DF" Width="90" Padding="0,6" IsDefault="True" Click="Pdf_Click" ToolTip="Save the report as a PDF file"
                             Background="#FF66BB6A" Foreground="White"/>
+                    <Button Content="_Email..." Width="90" Padding="0,6" Margin="8,0,0,0" Click="Email_Click" ToolTip="Open a new email with the report attached as a PDF"
+                            Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
                     <Button Content="_Preview" Width="90" Padding="0,6" Margin="8,0,0,0" Click="Preview_Click" ToolTip="Show the report on screen; it can be printed from there too"
                             Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
                     <Button Content="Close" Width="80" Padding="0,6" Margin="8,0,0,0" IsCancel="True"
