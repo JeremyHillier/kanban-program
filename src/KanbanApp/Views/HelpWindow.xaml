@@ -475,8 +475,8 @@
 
                 <TextBlock x:Name="HelpSection_Timeline" Text="Timeline" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <local:BulletItem Text="Alt+L shows tasks with dates: projects or goals down the side, dates across the top."/>
-                <local:BulletItem Text="A task with a start date has a box at the start and an arrow to its due date."/>
-                <local:BulletItem Text="A dashed box started before the dates shown. An arrow off the right is due later."/>
+                <local:BulletItem Text="A task with a start and a due date has a line under its box, from its start day to its due day."/>
+                <local:BulletItem Text="A dashed box started before the dates shown. A line off the right is due later."/>
                 <local:BulletItem Text="Month view shows 3 to 24 months (pick beside it). Week view shows 12 weeks. Day view shows 21 days."/>
                 <local:BulletItem Text="Summary shows one bar per project or goal, from the first to the last date of its open tasks."/>
                 <local:BulletItem Text="Beside each name: how many tasks are open, overdue (in red) and undated."/>

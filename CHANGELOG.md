@@ -11,6 +11,9 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > - New: Email... in the Report Builder and in Quick Report opens a new email with the report attached as a PDF. You choose who it goes to, and nothing is sent until you send it.
 - With classic Outlook the PDF is attached for you. With another email app, a folder holding the PDF opens beside the email, ready to drag in.
 - The Privacy Note now mentions emailing a report alongside emailing a task.
+> - Improved: on the Timeline, a task's line now runs exactly from its start day to its due day, in Week and Month view as well as Day view. It sits under the task's box, with a tick at the start and an arrow at the due date. Before, the line began at the next column, so a task starting mid-week looked as if it started the week after.
+- A task that starts and finishes within one week or month now gets its line too.
+- The printed Timeline shows the same lines.
 
 
 ## 0.154.0 — 2026-10-23

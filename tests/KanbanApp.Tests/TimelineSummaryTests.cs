@@ -42,7 +42,8 @@ public sealed class TimelineSummaryTests
         var item = Assert.Single(TimelineLayout.Place([Task(new DateTime(2026, 10, 31), new DateTime(2026, 12, 1))], starts, new DateTime(2027, 4, 1)));
 
         Assert.Equal((0, 2), (item.FirstUnit, item.LastUnit));
-        Assert.True(item.HasArrow);
+        Assert.True(item.HasLine);
+        Assert.Equal(30 / 31d, item.StartAt, 6); // the start of Oct 31, near the end of October's column
     }
 
     [Fact]

@@ -34,6 +34,7 @@ public partial class TimelineWindow
         const double rowMinHeight = 20;
         const double lineHeight = 11;
         const double chipPadding = 4;
+        const double printLineRoom = 8; // under a box with a date line
         const double chipGap = 2;
 
         const double barHeight = 16;
@@ -188,7 +189,8 @@ public partial class TimelineWindow
 
                 var lines = WrapWords(string.Join(" - ", parts), regularTypeface, 7.5, unitColWidth - 2 * chipPadding - 4);
                 boxLines[item] = lines;
-                laneHeights[row.FirstTaskLane + item.Lane] = Math.Max(laneHeights[row.FirstTaskLane + item.Lane], lines.Count * lineHeight + 2 * chipPadding + chipGap);
+                laneHeights[row.FirstTaskLane + item.Lane] = Math.Max(laneHeights[row.FirstTaskLane + item.Lane],
+                    lines.Count * lineHeight + 2 * chipPadding + chipGap + (item.HasLine ? printLineRoom : 0));
             }
             // The name column: the name, and in Summary view the counts under it.
             var nameLines = WrapWords(projectName, boldTypeface, 9, projectColWidth - 8);
@@ -302,28 +304,31 @@ public partial class TimelineWindow
                 var lines = boxLines[item];
                 var priorityColor = GetPriorityColor(item.Card.Priority);
 
-                if (item.HasArrow)
-                {
-                    // Same arrow as on screen: from the box to the right-hand edge of the due
-                    // column, stopping against a short upright bar, or off the right edge with no
-                    // bar when the due date is beyond it. Level with the first line of text.
-                    var arrowY = laneTop + chipPadding + lineHeight / 2;
-                    var x1 = UnitLeft(item.ArrowFirstUnit);
-                    // The head stops at the end of the due day, as on screen.
-                    var x2 = Math.Max(x1 + 10, item.DueAfterWindow ? UnitLeft(unitsToShow) - 1 : UnitLeft(0) + item.EndAt * unitColWidth - 1);
+                var chipHeight = lines.Count * lineHeight + 2 * chipPadding;
 
+                if (item.HasLine)
+                {
+                    // Same date line as on screen, under the box: from the start of the start day (a short
+                    // upright tick) to the end of the due day (an arrowhead against a bar). No tick when it
+                    // starts before the left edge; off the right edge with no bar when due after it.
+                    var lineY = laneTop + chipHeight + printLineRoom / 2;
+                    var x1 = item.StartsBeforeWindow ? UnitLeft(0) : UnitLeft(0) + item.StartAt * unitColWidth + 0.5;
+                    var x2 = Math.Max(x1 + 8, item.DueAfterWindow ? UnitLeft(unitsToShow) - 1 : UnitLeft(0) + item.EndAt * unitColWidth - 1);
+
+                    if (!item.StartsBeforeWindow)
+                    {
+                        canvas.Children.Add(new Line { X1 = x1, Y1 = lineY - 3.5, X2 = x1, Y2 = lineY + 3.5, Stroke = Brushes.Black, StrokeThickness = 1.25 });
+                    }
                     if (!item.DueAfterWindow)
                     {
-                        canvas.Children.Add(new Line { X1 = x2 + 0.75, Y1 = arrowY - 4.5, X2 = x2 + 0.75, Y2 = arrowY + 4.5, Stroke = Brushes.Black, StrokeThickness = 1.25 });
+                        canvas.Children.Add(new Line { X1 = x2 + 0.75, Y1 = lineY - 3.5, X2 = x2 + 0.75, Y2 = lineY + 3.5, Stroke = Brushes.Black, StrokeThickness = 1.25 });
                     }
-                    canvas.Children.Add(new Line { X1 = x1, Y1 = arrowY, X2 = x2 - 5, Y2 = arrowY, Stroke = Brushes.Black, StrokeThickness = 1.25 });
+                    canvas.Children.Add(new Line { X1 = x1, Y1 = lineY, X2 = x2 - 4, Y2 = lineY, Stroke = Brushes.Black, StrokeThickness = 1.25 });
                     canvas.Children.Add(new Polygon
                     {
-                        Points = [new Point(x2 - 6, arrowY - 3.5), new Point(x2, arrowY), new Point(x2 - 6, arrowY + 3.5)], Fill = Brushes.Black
+                        Points = [new Point(x2 - 5, lineY - 3), new Point(x2, lineY), new Point(x2 - 5, lineY + 3)], Fill = Brushes.Black
                     });
                 }
-
-                var chipHeight = lines.Count * lineHeight + 2 * chipPadding;
                 var chipX = UnitLeft(item.BoxUnit) + 1;
                 var chip = new Rectangle
                 {

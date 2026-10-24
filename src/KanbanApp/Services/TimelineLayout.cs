@@ -2,26 +2,20 @@ using KanbanApp.ViewModels;
 
 namespace KanbanApp.Services;
 
-// Where one task goes on a Timeline row. A task with a start date has its box at the start (the
-// left), and an arrow running right along the row to its due date. A task with no start date is
-// just a box at its due date. Units are the Timeline's columns (days or weeks), counted from the
-// left edge of the visible window.
+// Where one task goes on a Timeline row. Its box sits in the column of its start date (or of its due
+// date when it has no start). A task with both a start and a later due date also has a date line under
+// its box, running exactly from the start of the start day (StartAt) to the end of the due day (EndAt),
+// so the line shows its real dates in every view, not just to the column. Units are the Timeline's
+// columns (days, weeks or months), counted from the left edge of the visible window; StartAt and EndAt
+// are fractions of them (2.43 = 43% across the third column).
 //
 // When the start is before the left edge there is no start column to put the box in, so the box
-// goes in the first visible column instead, drawn dashed to show it isn't at its real start. When
-// the due date is past the right edge, the arrow simply runs off that edge.
-// EndAt is where the arrow's head stops, in columns from the left edge (2.43 = 43% across the third column):
-// the end of the due day, so a task due on the first day of a week stops a seventh of the way into it.
-public sealed record TimelineItem(CardViewModel Card, int FirstUnit, int LastUnit, int Lane, bool StartsBeforeWindow, bool DueAfterWindow, double EndAt = 0)
+// goes in the first visible column instead, drawn dashed to show it isn't at its real start, and the
+// line starts at the edge. When the due date is past the right edge, the line runs off that edge.
+public sealed record TimelineItem(CardViewModel Card, int FirstUnit, int LastUnit, int Lane, bool StartsBeforeWindow, bool DueAfterWindow,
+    double EndAt = 0, double StartAt = 0, bool HasLine = false)
 {
     public int BoxUnit => FirstUnit;
-
-    public bool HasArrow => LastUnit > FirstUnit;
-
-    // The columns the arrow runs across: from just after the box to the due column (its head
-    // stops in the middle of that column, or at the edge when the due date is beyond it).
-    public int ArrowFirstUnit => FirstUnit + 1;
-    public int ArrowLastUnit => LastUnit;
 }
 
 // A Summary view bar: where it runs (in columns, clamped to the window like a task's arrow; StartAt and EndAt to the
@@ -116,8 +110,12 @@ public static class TimelineLayout
             }
 
             lanes[lane].Add((s.First, s.Last));
-            var endAt = s.After ? unitStarts.Count : EndOffset(SpanOf(s.Card)!.Value.End, unitStarts, windowEnd);
-            result.Add(new TimelineItem(s.Card, s.First, s.Last, lane, s.Before, s.After, endAt));
+            var span = SpanOf(s.Card)!.Value;
+            var endAt = s.After ? unitStarts.Count : EndOffset(span.End, unitStarts, windowEnd);
+            var startAt = s.Before ? 0 : Offset(span.Start, unitStarts, windowEnd);
+            // The line is for a task with a start and a later due date; a single day is its box alone.
+            var hasLine = s.Card.StartDate is not null && s.Card.DueDate is not null && span.Start < span.End;
+            result.Add(new TimelineItem(s.Card, s.First, s.Last, lane, s.Before, s.After, endAt, startAt, hasLine));
         }
 
         return result;

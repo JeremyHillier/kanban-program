@@ -4,8 +4,8 @@ using KanbanApp.ViewModels;
 
 namespace KanbanApp.Tests;
 
-// Where tasks land on a Timeline row: the box at the start date, an arrow to the due date,
-// and lanes so nothing overlaps. The window in these tests is 12 weekly columns from Mon 5 Oct 2026.
+// Where tasks land on a Timeline row: the box at the start date, a date line from the start day to
+// the due day, and lanes so nothing overlaps. The window in these tests is 12 weekly columns from Mon 5 Oct 2026.
 public sealed class TimelineLayoutTests
 {
     private static readonly DateTime WindowStart = new(2026, 10, 5);
@@ -22,29 +22,50 @@ public sealed class TimelineLayoutTests
         var item = Assert.Single(PlaceWeekly(Task("A", null, new DateTime(2026, 10, 21))));
 
         Assert.Equal(2, item.BoxUnit);
-        Assert.False(item.HasArrow);
+        Assert.False(item.HasLine);
         Assert.False(item.DueAfterWindow);
     }
 
     [Fact]
-    public void AStartDate_PutsTheBoxAtTheStart_WithAnArrowToTheDueWeek()
+    public void AStartDate_PutsTheBoxAtTheStart_WithALineToTheDueDay()
     {
         var item = Assert.Single(PlaceWeekly(Task("A", new DateTime(2026, 10, 6), new DateTime(2026, 11, 5))));
 
         Assert.Equal((0, 4), (item.FirstUnit, item.LastUnit));
         Assert.Equal(0, item.BoxUnit);
-        Assert.True(item.HasArrow);
-        Assert.Equal((1, 4), (item.ArrowFirstUnit, item.ArrowLastUnit));
+        Assert.True(item.HasLine);
         Assert.False(item.StartsBeforeWindow);
     }
 
+    // The line runs from the start of the start day to the end of the due day, to the day, in Week view
+    // too: Tue Oct 6 is a seventh into week 0, and the end of Thu Nov 5 is four sevenths into week 4.
     [Fact]
-    public void StartAndDueInTheSameWeek_NeedNoArrow()
+    public void TheLine_MatchesTheStartAndDueDays_NotJustTheirWeeks()
+    {
+        var item = Assert.Single(PlaceWeekly(Task("A", new DateTime(2026, 10, 6), new DateTime(2026, 11, 5))));
+
+        Assert.Equal(1 / 7d, item.StartAt, 6);
+        Assert.Equal(4 + 4 / 7d, item.EndAt, 6);
+    }
+
+    [Fact]
+    public void StartAndDueInTheSameWeek_StillGetALine_FromMondayToTheEndOfFriday()
     {
         var item = Assert.Single(PlaceWeekly(Task("A", new DateTime(2026, 10, 5), new DateTime(2026, 10, 9))));
 
-        Assert.False(item.HasArrow);
+        Assert.True(item.HasLine);
         Assert.Equal(0, item.BoxUnit);
+        Assert.Equal((0d, 5 / 7d), (item.StartAt, Math.Round(item.EndAt, 6)), new TupleTolerance());
+    }
+
+    [Fact]
+    public void StartAndDueOnTheSameDay_IsJustABox() =>
+        Assert.False(Assert.Single(PlaceWeekly(Task("A", new DateTime(2026, 10, 7), new DateTime(2026, 10, 7)))).HasLine);
+
+    private sealed class TupleTolerance : IEqualityComparer<(double, double)>
+    {
+        public bool Equals((double, double) a, (double, double) b) => Math.Abs(a.Item1 - b.Item1) < 1e-6 && Math.Abs(a.Item2 - b.Item2) < 1e-6;
+        public int GetHashCode((double, double) value) => 0;
     }
 
     [Fact]
@@ -53,7 +74,8 @@ public sealed class TimelineLayoutTests
         var item = Assert.Single(PlaceWeekly(Task("A", new DateTime(2026, 9, 1), new DateTime(2026, 10, 21))));
 
         Assert.True(item.StartsBeforeWindow);
-        Assert.Equal((1, 2), (item.ArrowFirstUnit, item.ArrowLastUnit));
+        Assert.True(item.HasLine);
+        Assert.Equal(0, item.StartAt); // from the left edge
         Assert.Equal(0, item.BoxUnit);
     }
 
@@ -64,7 +86,8 @@ public sealed class TimelineLayoutTests
 
         Assert.True(item.DueAfterWindow);
         Assert.Equal(9, item.BoxUnit);
-        Assert.Equal((10, 11), (item.ArrowFirstUnit, item.ArrowLastUnit));
+        Assert.Equal((9, 11), (item.FirstUnit, item.LastUnit));
+        Assert.Equal(12, item.EndAt); // off the right edge
     }
 
     [Fact]
@@ -90,7 +113,7 @@ public sealed class TimelineLayoutTests
         var item = Assert.Single(PlaceWeekly(card));
 
         Assert.Equal(1, item.BoxUnit);
-        Assert.False(item.HasArrow);
+        Assert.False(item.HasLine);
         Assert.Equal("starts Oct 14", TimelineLayout.DateLabel(card));
     }
 
@@ -132,7 +155,7 @@ public sealed class TimelineLayoutTests
         var item = Assert.Single(TimelineLayout.Place([Task("A", new DateTime(2026, 10, 7), new DateTime(2026, 10, 12))], WindowStart, 1, 21));
 
         Assert.Equal((2, 7), (item.FirstUnit, item.LastUnit));
-        Assert.Equal((3, 7), (item.ArrowFirstUnit, item.ArrowLastUnit));
+        Assert.Equal((2d, 8d), (item.StartAt, item.EndAt)); // the start of Oct 7 to the end of Oct 12
         Assert.Equal(2, item.BoxUnit);
     }
 

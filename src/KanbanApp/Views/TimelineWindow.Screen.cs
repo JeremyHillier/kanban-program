@@ -249,13 +249,13 @@ public partial class TimelineWindow
             {
                 var task = item.Card;
                 var lane = row.FirstTaskLane + item.Lane;
-                if (item.HasArrow)
+                if (item.HasLine)
                 {
-                    var arrow = BuildArrow(item, brush, unitColWidth);
-                    Grid.SetRow(arrow, lane);
-                    Grid.SetColumn(arrow, item.ArrowFirstUnit);
-                    Grid.SetColumnSpan(arrow, item.ArrowLastUnit - item.ArrowFirstUnit + 1);
-                    laneGrid.Children.Add(arrow);
+                    var dateLine = BuildDateLine(item, brush, unitColWidth);
+                    Grid.SetRow(dateLine, lane);
+                    Grid.SetColumn(dateLine, item.FirstUnit);
+                    Grid.SetColumnSpan(dateLine, item.LastUnit - item.FirstUnit + 1);
+                    laneGrid.Children.Add(dateLine);
                 }
 
                 var parts = new List<string> { task.Title };
@@ -287,7 +287,7 @@ public partial class TimelineWindow
                         Padding = new Thickness(5, 3, 5, 3),
                         Child = new TextBlock { Text = string.Join(" - ", parts), Foreground = Brushes.White, FontSize = 11, TextWrapping = TextWrapping.Wrap }
                     };
-                block.Margin = new Thickness(3, 0, 3, 3);
+                block.Margin = new Thickness(3, 0, 3, item.HasLine ? DateLineRoom : 3); // room under the box for its date line
                 block.Cursor = Cursors.Hand;
                 block.ToolTip = tooltip;
                 block.VerticalAlignment = VerticalAlignment.Top;
@@ -473,30 +473,41 @@ public partial class TimelineWindow
         return bar;
     }
 
-    // The arrow from a task's box (at its start date) to its due date: a line and a head running to the end
-    // of the due day within its column, where it stops against a short upright bar - the whole
-    // due day is covered. When the due date is beyond the right edge it runs off that edge with no
-    // bar. Drawn in the text colour, so it is black on the light theme and light on the dark one.
-    // It sits level with the first line of text in the box.
-    private static FrameworkElement BuildArrow(TimelineItem item, Brush stroke, double unitColWidth)
+    // A task's date line, under its box: from the start of its start day to the end of its due day, so
+    // it shows the real dates in Week and Month view too, not just the columns. A short upright tick marks
+    // the start and an arrowhead against a bar marks the due date. Starting before the left edge, it has no
+    // tick; due after the right edge, it runs off that edge with no bar. Drawn in the text colour.
+    private const double DateLineRoom = 13; // the box's bottom margin when it has a line under it
+
+    private static FrameworkElement BuildDateLine(TimelineItem item, Brush stroke, double unitColWidth)
     {
-        const double arrowTop = 4; // the line's middle stays 11 below the lane's top, level with the box's first line
+        var columns = item.LastUnit - item.FirstUnit + 1;
+        var left = item.StartsBeforeWindow ? 0 : Math.Max(0, (item.StartAt - item.FirstUnit) * unitColWidth);
+        var right = item.DueAfterWindow ? 0 : Math.Max(0, (item.LastUnit + 1 - item.EndAt) * unitColWidth);
+        // Never shorter than its tick and head: a one-day line in Month view would otherwise vanish.
+        if (columns * unitColWidth - left - right < 12) right = Math.Max(0, columns * unitColWidth - left - 12);
+
         var panel = new DockPanel
         {
-            Height = 14, VerticalAlignment = VerticalAlignment.Top, LastChildFill = true, IsHitTestVisible = false,
-            // The head stops at the end of the due day: a task due on the first day of a week stops a seventh of
-            // the way into that week, not at its far edge. Never shorter than its head and bar.
-            Margin = new Thickness(0, arrowTop, item.DueAfterWindow ? 0 : Math.Clamp((item.ArrowLastUnit + 1 - item.EndAt) * unitColWidth, 0, (item.ArrowLastUnit - item.ArrowFirstUnit + 1) * unitColWidth - 16), 0)
+            Height = 9, VerticalAlignment = VerticalAlignment.Bottom, LastChildFill = true, IsHitTestVisible = false,
+            Margin = new Thickness(left, 0, right, 2)
         };
+
+        if (!item.StartsBeforeWindow)
+        {
+            var tick = new Rectangle { Width = 2, Height = 9, Fill = stroke };
+            DockPanel.SetDock(tick, Dock.Left);
+            panel.Children.Add(tick);
+        }
 
         if (!item.DueAfterWindow)
         {
-            var bar = new Rectangle { Width = 2, Height = 14, Fill = stroke, VerticalAlignment = VerticalAlignment.Center };
+            var bar = new Rectangle { Width = 2, Height = 9, Fill = stroke };
             DockPanel.SetDock(bar, Dock.Right);
             panel.Children.Add(bar);
         }
 
-        var head = new Polygon { Points = [new Point(0, 0), new Point(9, 5), new Point(0, 10)], Fill = stroke, VerticalAlignment = VerticalAlignment.Center };
+        var head = new Polygon { Points = [new Point(0, 0), new Point(7, 4), new Point(0, 8)], Fill = stroke, VerticalAlignment = VerticalAlignment.Center };
         DockPanel.SetDock(head, Dock.Right);
         panel.Children.Add(head);
 
