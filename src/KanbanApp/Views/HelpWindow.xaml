@@ -518,6 +518,7 @@
                 <local:BulletItem Text="Dark Mode or Light Mode switches the theme."/>
                 <local:BulletItem Text="Large or Compact Cards sets how much each card shows."/>
                 <local:BulletItem Text="Compact cards still show what a task is waiting on."/>
+                <local:BulletItem Text="Large cards show, in Settings, picks which details and buttons a large card has: goal, dates, people, sub-tasks, the side buttons and more."/>
                 <local:BulletItem Text="Hide Buttons, or Alt+U, takes the buttons off every card. Right-click a card for the same actions."/>
                 <local:BulletItem Text="Hide, or Alt+B, folds the button column to a thin strip. Click the strip to bring it back."/>
                 <local:BulletItem Text="While folded, the strip warns when filters are hiding tasks."/>

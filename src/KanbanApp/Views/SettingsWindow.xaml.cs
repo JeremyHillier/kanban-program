@@ -89,6 +89,7 @@ public partial class SettingsWindow : Window
         StartWithWindowsCheckBox.IsChecked = viewModel.StartWithWindows;
         StartFullScreenCheckBox.IsChecked = viewModel.StartFullScreen;
         CompactButtonsCheckBox.IsChecked = viewModel.IsCompactButtons;
+        BuildCardPartBoxes(viewModel);
         AutoCorrectCheckBox.IsChecked = viewModel.AutoCorrectEnabled;
         AutoCorrectEntriesTextBox.Text = viewModel.AutoCorrectEntries;
         AutoCorrectEntriesTextBox.IsEnabled = viewModel.AutoCorrectEnabled;
@@ -232,6 +233,23 @@ public partial class SettingsWindow : Window
     private void AutoCorrectEntriesTextBox_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
     {
         if (IsLoaded) _viewModel.SetAutoCorrectEntries(AutoCorrectEntriesTextBox.Text);
+    }
+
+    // One tick box per part a large card can show, two to a row. Each change is saved at once, like the
+    // rest of this window, and Cancel puts the lot back through the snapshot.
+    private void BuildCardPartBoxes(MainViewModel viewModel)
+    {
+        foreach (var part in Enum.GetValues<CardPart>())
+        {
+            var box = new System.Windows.Controls.CheckBox
+            {
+                Content = CardPartsShown.Label(part), IsChecked = viewModel.CardParts.Shows(part), Margin = new Thickness(0, 0, 8, 8)
+            };
+            box.SetResourceReference(ForegroundProperty, "PrimaryTextBrush");
+            box.Checked += (_, _) => viewModel.SetCardPartShown(part, true);
+            box.Unchecked += (_, _) => viewModel.SetCardPartShown(part, false);
+            CardPartsGrid.Children.Add(box);
+        }
     }
 
     private void CompactButtonsCheckBox_Changed(object sender, RoutedEventArgs e)

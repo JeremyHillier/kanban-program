@@ -42,7 +42,35 @@ public partial class MainViewModel
         _db.SetFlag("ShowCardButtons", ShowCardButtons);
     }
 
-    private void LoadCardDisplay() => _showCardButtons = _db.GetFlag("ShowCardButtons", true);
+    private void LoadCardDisplay()
+    {
+        _showCardButtons = _db.GetFlag("ShowCardButtons", true);
+        CardParts = CardPartsShown.Parse(_db.GetSetting(HiddenCardPartsKey));
+    }
+
+    // Which details and buttons large cards show (Settings > Large cards show). Unlike Hide Buttons this is a
+    // preference set in Settings, so it is in the Settings snapshot and Cancel puts it back.
+    private const string HiddenCardPartsKey = "HiddenCardParts";
+    private CardPartsShown _cardParts = CardPartsShown.All;
+
+    public CardPartsShown CardParts
+    {
+        get => _cardParts;
+        private set => SetField(ref _cardParts, value);
+    }
+
+    // The parts switched off, as saved ("Goal,Updated"); empty when everything shows.
+    public string HiddenCardParts => CardParts.Serialize();
+
+    public void SetCardPartShown(CardPart part, bool shown) => SetHiddenCardParts(CardParts.With(part, shown).Serialize());
+
+    public void SetHiddenCardParts(string hidden)
+    {
+        var parts = CardPartsShown.Parse(hidden);
+        if (parts.Serialize() == CardParts.Serialize()) return;
+        CardParts = parts;
+        _db.SetSetting(HiddenCardPartsKey, parts.Serialize());
+    }
 
     private void NotifyColumnWidthChanged()
     {

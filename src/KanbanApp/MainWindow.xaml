@@ -1062,16 +1062,21 @@
                                                                 <StackPanel Visibility="{Binding DataContext.IsLargeCards, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BooleanToVisibilityConverter}}">
                                                                     <!-- Narrow columns leave these off (ShowCardExtras), with the Updated and attachments lines. -->
                                                                     <StackPanel Visibility="{Binding DataContext.ShowCardExtras, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                                    <Border Visibility="{Binding DataContext.CardParts.Goal, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BooleanToVisibilityConverter}}">
                                                                     <TextBlock Text="{Binding GoalClickText}" FontSize="10" Foreground="{DynamicResource SecondaryTextBrush}" FontStyle="Italic" Margin="0,3,0,0"
                                                                                Cursor="Hand" ToolTip="Click to change goal" HorizontalAlignment="Left"
                                                                                MouseLeftButtonUp="GoalDisplay_MouseLeftButtonUp"/>
+                                                                    </Border>
 
+                                                                    <Border Visibility="{Binding DataContext.CardParts.Flags, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BooleanToVisibilityConverter}}">
                                                                     <TextBlock Text="{Binding FlagsDisplay}" FontSize="10" Foreground="{DynamicResource SecondaryTextBrush}" FontStyle="Italic" Margin="0,3,0,0"
                                                                                Visibility="{Binding FlagsDisplay, Converter={StaticResource EmptyStringToVisibilityConverter}}"/>
+                                                                    </Border>
                                                                     </StackPanel>
 
                                                                     <!-- A WrapPanel, so a long list of people drops to its own line and wraps rather than being cut off. -->
                                                                     <WrapPanel Margin="0,3,0,0">
+                                                                        <Border Visibility="{Binding DataContext.CardParts.DueDate, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BooleanToVisibilityConverter}}">
                                                                         <TextBlock Text="{Binding DueDateDisplay}" FontSize="10" Margin="0,0,8,0" TextWrapping="Wrap"
                                                                                    Cursor="Hand" ToolTip="Click to change due date"
                                                                                    MouseLeftButtonUp="DueDateDisplay_MouseLeftButtonUp"
@@ -1089,31 +1094,45 @@
                                                                                 </Style>
                                                                             </TextBlock.Style>
                                                                         </TextBlock>
+                                                                        </Border>
+                                                                        <Border Visibility="{Binding DataContext.CardParts.AssignedTo, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BooleanToVisibilityConverter}}">
                                                                         <TextBlock Text="{Binding WhoDisplay}" FontSize="10" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,0,0,0" TextWrapping="Wrap"
                                                                                    Cursor="Hand" ToolTip="Click to change who this is assigned to. The first person named is the lead."
                                                                                    MouseLeftButtonUp="WhoDisplay_MouseLeftButtonUp"
                                                                                    Visibility="{Binding WhoDisplay, Converter={StaticResource EmptyStringToVisibilityConverter}}"/>
+                                                                        </Border>
                                                                     </WrapPanel>
+                                                                    <Border Visibility="{Binding DataContext.CardParts.WaitingOn, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BooleanToVisibilityConverter}}">
                                                                     <TextBlock Text="{Binding WaitingOnDisplay}" FontSize="10" FontWeight="SemiBold" TextWrapping="Wrap"
                                                                                Background="#FFFFE0B2" Foreground="#FF4E342E" Padding="3,1" Margin="0,3,0,0" HorizontalAlignment="Left"
                                                                                Cursor="Hand" ToolTip="Click to change or clear what this task is waiting on"
                                                                                MouseLeftButtonUp="WaitingOnDisplay_MouseLeftButtonUp"
                                                                                Visibility="{Binding WaitingOnDisplay, Converter={StaticResource EmptyStringToVisibilityConverter}}"/>
+                                                                    </Border>
+                                                                    <Border Visibility="{Binding DataContext.CardParts.StartDate, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BooleanToVisibilityConverter}}">
                                                                     <TextBlock Text="{Binding StartDateDisplay}" FontSize="10" FontStyle="Italic" TextWrapping="Wrap"
                                                                                Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,1,0,0"
                                                                                ToolTip="This task can't be started before this date"
                                                                                Visibility="{Binding StartDateDisplay, Converter={StaticResource EmptyStringToVisibilityConverter}}"/>
+                                                                    </Border>
+                                                                    <Border Visibility="{Binding DataContext.CardParts.Repeats, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BooleanToVisibilityConverter}}">
                                                                     <TextBlock Text="{Binding RecurrenceDisplay}" FontSize="10" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,1,0,0"
                                                                                Visibility="{Binding RecurrenceDisplay, Converter={StaticResource EmptyStringToVisibilityConverter}}"/>
+                                                                    </Border>
                                                                     <StackPanel Visibility="{Binding DataContext.ShowCardExtras, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                                    <Border Visibility="{Binding DataContext.CardParts.Updated, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BooleanToVisibilityConverter}}">
                                                                     <TextBlock Text="{Binding StatusStampDisplay}" FontSize="9" FontStyle="Italic" TextWrapping="Wrap"
                                                                                Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,3,0,0"/>
+                                                                    </Border>
 
+                                                                    <Border Visibility="{Binding DataContext.CardParts.Attachments, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BooleanToVisibilityConverter}}">
                                                                     <TextBlock Text="{Binding AttachmentsCountDisplay}" FontSize="10"
                                                                                Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,3,0,0"
                                                                                Visibility="{Binding HasAttachments, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                                                    </Border>
                                                                     </StackPanel>
 
+                                                                    <StackPanel Visibility="{Binding DataContext.CardParts.SubTasks, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BooleanToVisibilityConverter}}">
                                                                     <TextBlock Text="{Binding SubTaskProgressDisplay}" FontSize="10" FontWeight="SemiBold"
                                                                                Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,5,0,0"
                                                                                Visibility="{Binding HasSubTasks, Converter={StaticResource BooleanToVisibilityConverter}}"/>
@@ -1128,6 +1147,7 @@
                                                                             </DataTemplate>
                                                                         </ItemsControl.ItemTemplate>
                                                                     </ItemsControl>
+                                                                    </StackPanel>
                                                                 </StackPanel>
 
                                                                 <!-- Compact cards drop the detail lines above, but what a task is waiting on
@@ -1175,6 +1195,7 @@
                                                                  their right edges line up with the priority pill above them. -->
                                                             <StackPanel Grid.Column="1" Margin="6,0,0,0" VerticalAlignment="Top" HorizontalAlignment="Right"
                                                                         Visibility="{Binding DataContext.ShowCardSideButtons, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                                <Border Visibility="{Binding DataContext.CardParts.FlagButton, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BooleanToVisibilityConverter}}">
                                                                 <Button Content="&#x1F3F7;" Background="#FF8D6E63" Margin="0"
                                                                         ToolTip="Add a flag" Click="AddFlagQuickAction_Click">
                                                                     <Button.Style>
@@ -1187,6 +1208,8 @@
                                                                         </Style>
                                                                     </Button.Style>
                                                                 </Button>
+                                                                </Border>
+                                                                <Border Visibility="{Binding DataContext.CardParts.EmailButton, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BooleanToVisibilityConverter}}">
                                                                 <Button Content="&#x2709;" Background="#FF1E88E5" Margin="0,4,0,0"
                                                                         ToolTip="Email this task to the assigned person" Click="EmailCardQuickAction_Click">
                                                                     <Button.Style>
@@ -1200,7 +1223,9 @@
                                                                         </Style>
                                                                     </Button.Style>
                                                                 </Button>
+                                                                </Border>
                                                                 <!-- Large cards only, like the flag button: compact cards keep it in the right-click menu. -->
+                                                                <Border Visibility="{Binding DataContext.CardParts.CalendarButton, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BooleanToVisibilityConverter}}">
                                                                 <Button Content="&#x1F4C5;" Background="#FF5C6BC0" Margin="0,4,0,0"
                                                                         ToolTip="Schedule this task in Outlook" Click="ScheduleCardQuickAction_Click">
                                                                     <Button.Style>
@@ -1213,6 +1238,7 @@
                                                                         </Style>
                                                                     </Button.Style>
                                                                 </Button>
+                                                                </Border>
                                                             </StackPanel>
                                                         </Grid>
 

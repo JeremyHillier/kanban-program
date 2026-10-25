@@ -285,8 +285,14 @@
                 </Grid>
 
                 <TextBlock Text="Where the '+ File...' picker opens by default when attaching a file to a task. The chosen file is copied into that task's Attachments folder, not linked from here."
-                           FontSize="11" Margin="0,8,0,0"
+                           FontSize="11" Margin="0,8,0,20"
                            Foreground="{DynamicResource SecondaryTextBrush}" TextWrapping="Wrap"/>
+
+                <TextBlock Text="Large cards show" Style="{StaticResource SectionHeaderStyle}"/>
+                <!-- One tick box per part (CardPartsShown), added by the code behind. -->
+                <UniformGrid x:Name="CardPartsGrid" Columns="2" Margin="0,0,0,4"/>
+                <TextBlock Text="Untick what you don't need on the board. It stays on the task screen and the right-click menu. Compact cards and narrow columns show less anyway, and the move buttons along the foot have their own Hide Buttons switch (Alt+U)."
+                           FontSize="11" Margin="0,0,0,20" Foreground="{DynamicResource SecondaryTextBrush}" TextWrapping="Wrap"/>
 
                 <TextBlock Text="Your Details" Style="{StaticResource SectionHeaderStyle}"/>
                 <Grid Margin="0,0,0,10">
