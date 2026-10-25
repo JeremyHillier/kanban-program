@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         mc:Ignorable="d"
-        Title="Settings" Width="820" SizeToContent="Height" MinWidth="820" MinHeight="360"
+        Title="Settings" Width="940" SizeToContent="Height" MinWidth="940" MinHeight="360"
         WindowStartupLocation="CenterOwner" ResizeMode="CanResizeWithGrip"
         ShowInTaskbar="False"
         Background="{DynamicResource WindowBackgroundBrush}">
@@ -27,29 +27,33 @@
             <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
         </Style>
     </Window.Resources>
-    <!-- The settings scroll; the button bar stays put underneath, whatever the screen or window height.
-         The window can be resized and remembers its size. MinWidth is the width the two columns
-         are laid out for (any narrower cuts off buttons and labels); it can be made as short as
-         MinHeight, with the settings scrolling. -->
+    <!-- Three tabs (Board, General, Data and files), each in two columns, so no one page is long; each tab
+         scrolls if the window is short, and the button bar stays put underneath. The window can be resized
+         and remembers its size. MinWidth is the width the two columns are laid out for (any narrower cuts
+         off buttons and labels). -->
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-    <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto">
-    <StackPanel Margin="16,16,16,0">
-        <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="24"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-
-            <StackPanel Grid.Column="0">
+    <TabControl x:Name="SettingsTabs" Grid.Row="0" Margin="12,12,12,0" Padding="0">
+        <TabItem Header="Board" x:Name="BoardTab">
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <Grid Margin="16,16,16,12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="28"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0">
                 <TextBlock Text="Layout" Style="{StaticResource SectionHeaderStyle}"/>
                 <CheckBox x:Name="ButtonsOnRightCheckBox" Content="Show the button panel on the right side of the board"
-                          Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,12"
+                          Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,8"
                           Checked="ButtonsOnRightCheckBox_Changed" Unchecked="ButtonsOnRightCheckBox_Changed"/>
+                <CheckBox x:Name="CompactButtonsCheckBox" Content="Compact buttons (a tighter, narrower button column)"
+                          ToolTip="Makes the button column narrower and shorter: lower buttons, the large buttons brought down to the same size as the rest, and less padding. The text stays the same size. Useful on a smaller screen. To hide the column altogether, press Alt+B."
+                          Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,8"
+                          Checked="CompactButtonsCheckBox_Changed" Unchecked="CompactButtonsCheckBox_Changed"/>
                 <CheckBox x:Name="FitColumnsCheckBox" Content="Fit task columns to the window width"
                           ToolTip="The task columns share the width of the board and resize with the window. When the window is too narrow, the board scrolls sideways instead."
                           Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,8"
@@ -82,6 +86,14 @@
                             Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
                 </StackPanel>
 
+                </StackPanel>
+                <StackPanel Grid.Column="2">
+                <TextBlock Text="Large cards show" Style="{StaticResource SectionHeaderStyle}"/>
+                <!-- One tick box per part (CardPartsShown), added by the code behind. -->
+                <UniformGrid x:Name="CardPartsGrid" Columns="2" Margin="0,0,0,4"/>
+                <TextBlock Text="Untick what you don't need on the board. It stays on the task screen and the right-click menu. Compact cards and narrow columns show less anyway, and the move buttons along the foot have their own Hide Buttons switch (Alt+U)."
+                           FontSize="11" Margin="0,0,0,20" Foreground="{DynamicResource SecondaryTextBrush}" TextWrapping="Wrap"/>
+
                 <TextBlock Text="Priorities" Style="{StaticResource SectionHeaderStyle}"/>
                 <TextBlock x:Name="PrioritiesSummaryText" FontSize="11" Margin="0,0,0,8" TextWrapping="Wrap"
                            Foreground="{DynamicResource SecondaryTextBrush}"/>
@@ -89,6 +101,19 @@
                         ToolTip="Add, rename, recolour and reorder the priorities tasks can have"
                         Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
 
+                </StackPanel>
+                </Grid>
+            </ScrollViewer>
+        </TabItem>
+        <TabItem Header="General" x:Name="GeneralTab">
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <Grid Margin="16,16,16,12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="28"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0">
                 <TextBlock Text="Startup" Style="{StaticResource SectionHeaderStyle}"/>
                 <CheckBox x:Name="ShowSplashCheckBox" Content="Show splash screen on startup"
                           Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,8"
@@ -113,28 +138,6 @@
                 <CheckBox x:Name="StartFullScreenCheckBox" Content="Start in full screen"
                           Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,8"
                           Checked="StartFullScreenCheckBox_Changed" Unchecked="StartFullScreenCheckBox_Changed"/>
-                <CheckBox x:Name="CompactButtonsCheckBox" Content="Compact buttons (a tighter, narrower button column)"
-                          ToolTip="Makes the button column narrower and shorter: lower buttons, the large buttons brought down to the same size as the rest, and less padding. The text stays the same size. Useful on a smaller screen. To hide the column altogether, press Alt+B."
-                          Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,8"
-                          Checked="CompactButtonsCheckBox_Changed" Unchecked="CompactButtonsCheckBox_Changed"/>
-                <CheckBox x:Name="AutoCorrectCheckBox" Content="Auto-correct common typing mistakes in the task and notes boxes"
-                          ToolTip="Swaps a word like teh for the as you finish typing it. Press Ctrl+Z straight away to put back what you typed."
-                          Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,8"
-                          Checked="AutoCorrectCheckBox_Changed" Unchecked="AutoCorrectCheckBox_Changed"/>
-                <TextBlock x:Name="AutoCorrectEntriesLabel" Text="Your own corrections, one per line, like  teh = the" Style="{StaticResource FieldLabelStyle}"/>
-                <TextBox x:Name="AutoCorrectEntriesTextBox" Height="70" Padding="6" Margin="0,0,0,12" AcceptsReturn="True"
-                         VerticalScrollBarVisibility="Auto" TextWrapping="NoWrap" TextChanged="AutoCorrectEntriesTextBox_TextChanged"
-                         ToolTip="Words you often mistype, or short forms to spell out, such as kbp = Kanban Program. They are added to the built-in list and win over it."
-                         Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
-                         BorderBrush="{DynamicResource CardBorderBrush}"/>
-                <TextBlock x:Name="CustomDictionaryLabel" Text="Your spelling dictionary - words that are never flagged, one per line" Style="{StaticResource FieldLabelStyle}"/>
-                <TextBox x:Name="CustomDictionaryTextBox" Height="90" Padding="6" Margin="0,0,0,4" AcceptsReturn="True"
-                         VerticalScrollBarVisibility="Auto" TextWrapping="NoWrap" TextChanged="CustomDictionaryTextBox_TextChanged"
-                         ToolTip="Names, terms and abbreviations you use. Right-click a flagged word in a task and choose Add to Dictionary to put it here. Take a word out to have it flagged again."
-                         Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
-                         BorderBrush="{DynamicResource CardBorderBrush}"/>
-                <TextBlock Text="A word you type in capitals only is accepted in that form; in lower case it is accepted in any."
-                           FontSize="11" Margin="0,0,0,12" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryTextBrush}"/>
                 <CheckBox x:Name="ShowWhatsNewCheckBox" Content="Show what's new after an update"
                           Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,8"
                           Checked="ShowWhatsNewCheckBox_Changed" Unchecked="ShowWhatsNewCheckBox_Changed"/>
@@ -177,9 +180,85 @@
                 <CheckBox x:Name="RememberLastViewCheckBox" Content="Remember filters, sort, and search between sessions"
                           Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,20"
                           Checked="RememberLastViewCheckBox_Changed" Unchecked="RememberLastViewCheckBox_Changed"/>
-            </StackPanel>
 
-            <StackPanel Grid.Column="2">
+                </StackPanel>
+                <StackPanel Grid.Column="2">
+                <TextBlock Text="Typing" Style="{StaticResource SectionHeaderStyle}"/>
+                <CheckBox x:Name="AutoCorrectCheckBox" Content="Auto-correct common typing mistakes in the task and notes boxes"
+                          ToolTip="Swaps a word like teh for the as you finish typing it. Press Ctrl+Z straight away to put back what you typed."
+                          Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,8"
+                          Checked="AutoCorrectCheckBox_Changed" Unchecked="AutoCorrectCheckBox_Changed"/>
+                <TextBlock x:Name="AutoCorrectEntriesLabel" Text="Your own corrections, one per line, like  teh = the" Style="{StaticResource FieldLabelStyle}"/>
+                <TextBox x:Name="AutoCorrectEntriesTextBox" Height="70" Padding="6" Margin="0,0,0,12" AcceptsReturn="True"
+                         VerticalScrollBarVisibility="Auto" TextWrapping="NoWrap" TextChanged="AutoCorrectEntriesTextBox_TextChanged"
+                         ToolTip="Words you often mistype, or short forms to spell out, such as kbp = Kanban Program. They are added to the built-in list and win over it."
+                         Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                         BorderBrush="{DynamicResource CardBorderBrush}"/>
+                <TextBlock x:Name="CustomDictionaryLabel" Text="Your spelling dictionary - words that are never flagged, one per line" Style="{StaticResource FieldLabelStyle}"/>
+                <TextBox x:Name="CustomDictionaryTextBox" Height="90" Padding="6" Margin="0,0,0,4" AcceptsReturn="True"
+                         VerticalScrollBarVisibility="Auto" TextWrapping="NoWrap" TextChanged="CustomDictionaryTextBox_TextChanged"
+                         ToolTip="Names, terms and abbreviations you use. Right-click a flagged word in a task and choose Add to Dictionary to put it here. Take a word out to have it flagged again."
+                         Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                         BorderBrush="{DynamicResource CardBorderBrush}"/>
+                <TextBlock Text="A word you type in capitals only is accepted in that form; in lower case it is accepted in any."
+                           FontSize="11" Margin="0,0,0,12" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryTextBrush}"/>
+
+                <TextBlock Text="Your Details" Style="{StaticResource SectionHeaderStyle}"/>
+                <Grid Margin="0,0,0,10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="12"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Text="Name" Style="{StaticResource FieldLabelStyle}"/>
+                        <TextBox x:Name="UserNameTextBox" Padding="6" LostFocus="UserNameTextBox_LostFocus"
+                                 Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                                 BorderBrush="{DynamicResource CardBorderBrush}"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="2">
+                        <TextBlock Text="Title" Style="{StaticResource FieldLabelStyle}"/>
+                        <TextBox x:Name="UserTitleTextBox" Padding="6" LostFocus="UserTitleTextBox_LostFocus"
+                                 Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                                 BorderBrush="{DynamicResource CardBorderBrush}"/>
+                    </StackPanel>
+                </Grid>
+                <Grid Margin="0,0,0,10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="12"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Text="Email" Style="{StaticResource FieldLabelStyle}"/>
+                        <TextBox x:Name="UserEmailTextBox" Padding="6" LostFocus="UserEmailTextBox_LostFocus"
+                                 Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                                 BorderBrush="{DynamicResource CardBorderBrush}"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="2">
+                        <TextBlock Text="Phone" Style="{StaticResource FieldLabelStyle}"/>
+                        <TextBox x:Name="UserPhoneTextBox" Padding="6" LostFocus="UserPhoneTextBox_LostFocus"
+                                 Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                                 BorderBrush="{DynamicResource CardBorderBrush}"/>
+                    </StackPanel>
+                </Grid>
+                <TextBlock Text="Used to sign off Email This Task when classic Outlook has no default signature of its own, or when the email opens in another email app. Only filled-in fields are used, so leave any blank to leave them out."
+                           FontSize="11" Margin="0,0,0,0"
+                           Foreground="{DynamicResource SecondaryTextBrush}" TextWrapping="Wrap"/>
+
+                </StackPanel>
+                </Grid>
+            </ScrollViewer>
+        </TabItem>
+        <TabItem Header="Data and files" x:Name="DataTab">
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <Grid Margin="16,16,16,12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="28"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0">
                 <TextBlock Text="Data Storage" Style="{StaticResource SectionHeaderStyle}"/>
                 <TextBlock Text="The task database is currently stored at:" Margin="0,0,0,4"
                            Foreground="{DynamicResource PrimaryTextBrush}"/>
@@ -224,6 +303,8 @@
                             Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
                 </StackPanel>
 
+                </StackPanel>
+                <StackPanel Grid.Column="2">
                 <TextBlock Text="Backups" Style="{StaticResource SectionHeaderStyle}"/>
                 <CheckBox x:Name="AutoBackupCheckBox" Content="Automatically back up when the app closes"
                           Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,8"
@@ -288,58 +369,11 @@
                            FontSize="11" Margin="0,8,0,20"
                            Foreground="{DynamicResource SecondaryTextBrush}" TextWrapping="Wrap"/>
 
-                <TextBlock Text="Large cards show" Style="{StaticResource SectionHeaderStyle}"/>
-                <!-- One tick box per part (CardPartsShown), added by the code behind. -->
-                <UniformGrid x:Name="CardPartsGrid" Columns="2" Margin="0,0,0,4"/>
-                <TextBlock Text="Untick what you don't need on the board. It stays on the task screen and the right-click menu. Compact cards and narrow columns show less anyway, and the move buttons along the foot have their own Hide Buttons switch (Alt+U)."
-                           FontSize="11" Margin="0,0,0,20" Foreground="{DynamicResource SecondaryTextBrush}" TextWrapping="Wrap"/>
-
-                <TextBlock Text="Your Details" Style="{StaticResource SectionHeaderStyle}"/>
-                <Grid Margin="0,0,0,10">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="12"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    <StackPanel Grid.Column="0">
-                        <TextBlock Text="Name" Style="{StaticResource FieldLabelStyle}"/>
-                        <TextBox x:Name="UserNameTextBox" Padding="6" LostFocus="UserNameTextBox_LostFocus"
-                                 Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
-                                 BorderBrush="{DynamicResource CardBorderBrush}"/>
-                    </StackPanel>
-                    <StackPanel Grid.Column="2">
-                        <TextBlock Text="Title" Style="{StaticResource FieldLabelStyle}"/>
-                        <TextBox x:Name="UserTitleTextBox" Padding="6" LostFocus="UserTitleTextBox_LostFocus"
-                                 Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
-                                 BorderBrush="{DynamicResource CardBorderBrush}"/>
-                    </StackPanel>
+                </StackPanel>
                 </Grid>
-                <Grid Margin="0,0,0,10">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="12"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    <StackPanel Grid.Column="0">
-                        <TextBlock Text="Email" Style="{StaticResource FieldLabelStyle}"/>
-                        <TextBox x:Name="UserEmailTextBox" Padding="6" LostFocus="UserEmailTextBox_LostFocus"
-                                 Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
-                                 BorderBrush="{DynamicResource CardBorderBrush}"/>
-                    </StackPanel>
-                    <StackPanel Grid.Column="2">
-                        <TextBlock Text="Phone" Style="{StaticResource FieldLabelStyle}"/>
-                        <TextBox x:Name="UserPhoneTextBox" Padding="6" LostFocus="UserPhoneTextBox_LostFocus"
-                                 Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
-                                 BorderBrush="{DynamicResource CardBorderBrush}"/>
-                    </StackPanel>
-                </Grid>
-                <TextBlock Text="Used to sign off Email This Task when classic Outlook has no default signature of its own, or when the email opens in another email app. Only filled-in fields are used, so leave any blank to leave them out."
-                           FontSize="11" Margin="0,0,0,0"
-                           Foreground="{DynamicResource SecondaryTextBrush}" TextWrapping="Wrap"/>
-            </StackPanel>
-        </Grid>
-    </StackPanel>
-    </ScrollViewer>
+            </ScrollViewer>
+        </TabItem>
+    </TabControl>
         <Grid Grid.Row="1" Margin="16,10,16,16">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
                 <Button Content="Help" Command="{x:Static views:HelpKey.ShowCommand}" CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}" Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}" ToolTip="Help for this window. (F1)" Margin="0,0,8,0"/>

@@ -11,6 +11,7 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > - New: choose what a large card shows. Settings has a Large cards show section with a tick box for each detail and button: goal, flags, due date, assigned to, waiting on, start date, repeats, the Updated or Completed line, attachments, sub-tasks, and the flag, email and calendar buttons.
 - Untick what you don't need and every large card leaves it off straight away. It is still on the task screen and in the right-click menu.
 - Compact cards and narrow columns are unchanged, and the move buttons along the foot of each card keep their own Hide Buttons switch.
+> - Improved: Settings is now in three tabs, Board, General, and Data and files, and the window is wider, so nothing needs scrolling through. Every option is still there; Compact buttons moved to the Board tab, and the typing options have their own heading on the General tab.
 
 
 ## 0.155.1 — 2026-10-24

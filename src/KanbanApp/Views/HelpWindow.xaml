@@ -178,7 +178,7 @@
                 <local:BulletItem Text="Spell check accepts Canadian and American spellings."/>
                 <local:BulletItem Text="Right-click a flagged word for suggestions, Ignore All, or Add to Dictionary."/>
                 <local:BulletItem Text="Ignore All lasts only while that box is open. Add to Dictionary is kept for good."/>
-                <local:BulletItem Text="Your words are in Settings, one per line. Take one out to have it flagged again."/>
+                <local:BulletItem Text="Your words are in Settings, General tab, one per line. Take one out to have it flagged again."/>
                 <local:BulletItem Text="They are kept in the task file, so every PC using it has them."/>
                 <local:BulletItem Text="A word added in lower case is accepted in any capitals; one with a capital only as written."/>
                 <local:BulletItem Text="Auto-correct fixes common slips like teh as you finish a word, in the task and notes boxes."/>
@@ -195,12 +195,12 @@
                 <local:BulletItem Text="A repeating task keeps repeating on their board, with the same number of times left."/>
                 <local:BulletItem Text="If they change it and email it back, importing it updates your task rather than adding a copy."/>
                 <TextBlock Text="Sending a task back" Style="{StaticResource HelpSubHeaderStyle}"/>
-                <local:BulletItem Text="A task someone sent you remembers who sent it. Their name and address come from their Settings, Your Details."/>
+                <local:BulletItem Text="A task someone sent you remembers who sent it. Their name and address come from their Settings, General tab, Your Details."/>
                 <local:BulletItem Text="Right-click it, Send Back, or use Send Back on the task screen, to email it to them with its status."/>
                 <local:BulletItem Text="Status is the column: To Do, In Progress, On Hold, Waiting or Done, whatever each person has renamed them."/>
                 <local:BulletItem Text="Marking a task they sent you Done offers to email them. Settings can switch that off."/>
                 <local:BulletItem Text="With classic Outlook, files are attached and your signature is kept."/>
-                <local:BulletItem Text="With no Outlook signature, one is built from Settings, Your Details."/>
+                <local:BulletItem Text="With no Outlook signature, one is built from Settings, General tab, Your Details."/>
                 <local:BulletItem Text="With another email app, a folder opens with the files to drag into the email."/>
                 <local:BulletItem Text="The task remembers each time it was emailed. Open it to see when, and to whom."/>
                 <local:BulletItem Text="Point at that line for every time. It records the email being opened, not sent."/>
@@ -518,55 +518,60 @@
                 <local:BulletItem Text="Dark Mode or Light Mode switches the theme."/>
                 <local:BulletItem Text="Large or Compact Cards sets how much each card shows."/>
                 <local:BulletItem Text="Compact cards still show what a task is waiting on."/>
-                <local:BulletItem Text="Large cards show, in Settings, picks which details and buttons a large card has: goal, dates, people, sub-tasks, the side buttons and more."/>
+                <local:BulletItem Text="Large cards show, in Settings, Board tab, picks which details and buttons a large card has: goal, dates, people, sub-tasks, the side buttons and more."/>
                 <local:BulletItem Text="Hide Buttons, or Alt+U, takes the buttons off every card. Right-click a card for the same actions."/>
                 <local:BulletItem Text="Hide, or Alt+B, folds the button column to a thin strip. Click the strip to bring it back."/>
                 <local:BulletItem Text="While folded, the strip warns when filters are hiding tasks."/>
-                <local:BulletItem Text="Compact buttons, in Settings, makes the button column smaller for small screens."/>
+                <local:BulletItem Text="Compact buttons, in Settings, Board tab, makes the button column smaller for small screens."/>
                 <TextBlock Text="Small screens" Style="{StaticResource HelpSubHeaderStyle}"/>
                 <local:BulletItem Text="Columns fit the window down to 240 pixels each, then the board scrolls sideways."/>
-                <local:BulletItem Text="In Settings, lower the narrowest a fitted column can get, down to 160, to fit more on."/>
+                <local:BulletItem Text="In Settings, Board tab, lower the narrowest a fitted column can get, down to 160, to fit more on."/>
                 <local:BulletItem Text="In a narrow column, a card's buttons go onto two rows and its lesser details are left off."/>
                 <local:BulletItem Text="Left off: goal, flags, attachments, the Updated line and the side buttons."/>
 
                 <TextBlock x:Name="HelpSection_Settings" Text="Settings" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <TextBlock Text="How it works" Style="{StaticResource HelpSubHeaderStyle}"/>
+                <local:BulletItem Text="Settings has three tabs: Board, General, and Data and files."/>
                 <local:BulletItem Text="Changes show as you make them. Save &amp; Close keeps them."/>
                 <local:BulletItem Text="Cancel puts every setting back, after asking."/>
                 <local:BulletItem Text="Backups and task file changes happen straight away. Cancel does not undo them."/>
-                <TextBlock Text="Board" Style="{StaticResource HelpSubHeaderStyle}"/>
+                <TextBlock Text="Board tab" Style="{StaticResource HelpSubHeaderStyle}"/>
+                <local:BulletItem Text="Move the button panel to the right, or use Compact buttons on a small screen."/>
+                <local:BulletItem Text="Fit the columns to the window, or set a fixed width of at least 240 pixels."/>
                 <local:BulletItem Text="Rename any column. The last column still works as Done."/>
                 <local:BulletItem Text="The letters on each card's move buttons follow the column names."/>
                 <local:BulletItem Text="Use GTD Names sets Inbox, Next Actions, In Progress, Waiting and Done."/>
                 <local:BulletItem Text="Use Standard Names puts the original names back."/>
-                <local:BulletItem Text="Move the button panel to the right."/>
-                <local:BulletItem Text="Fit the columns to the window, or set a fixed width of at least 240 pixels."/>
+                <local:BulletItem Text="Large cards show picks which details and buttons a large card has."/>
+                <local:BulletItem Text="Manage Priorities changes the priority names and colours."/>
+                <TextBlock Text="General tab" Style="{StaticResource HelpSubHeaderStyle}"/>
                 <local:BulletItem Text="Turn the splash screen on or off, and set how long it shows."/>
                 <local:BulletItem Text="Start when Windows starts opens the app when you sign in. It is set on each PC separately."/>
                 <local:BulletItem Text="Start in full screen. The window size and position are remembered."/>
-                <TextBlock Text="Prompts" Style="{StaticResource HelpSubHeaderStyle}"/>
+                <local:BulletItem Text="Show What's New after an update, or read it any time."/>
                 <local:BulletItem Text="Ask before deleting, and before Archive Done."/>
                 <local:BulletItem Text="Ask to add a note when a task reaches Done."/>
                 <local:BulletItem Text="Startup reminders and Task Due Now alerts, on or off."/>
                 <local:BulletItem Text="Remember filters, sort and search between sessions."/>
-                <local:BulletItem Text="Show What's New after an update, or read it any time."/>
-                <TextBlock Text="Files and details" Style="{StaticResource HelpSubHeaderStyle}"/>
-                <local:BulletItem Text="Default folders for exports, imports and attachments."/>
+                <local:BulletItem Text="Typing: auto-correct on or off, your own corrections, and your spelling dictionary."/>
                 <local:BulletItem Text="Your Details sign task emails when Outlook has no signature."/>
+                <TextBlock Text="Data and files tab" Style="{StaticResource HelpSubHeaderStyle}"/>
                 <local:BulletItem Text="Move the task file. The old copy is removed after the restart."/>
                 <local:BulletItem Text="Keep the task file on this PC, not in a folder another computer syncs and opens."/>
                 <local:BulletItem Text="An older copy of the app warns before opening a file a newer copy has used."/>
+                <local:BulletItem Text="Backups: turn them on or off, set how many to keep, back up now."/>
+                <local:BulletItem Text="Default folders for exports, imports and attachments."/>
 
                 <TextBlock Text="Task files" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <local:BulletItem Text="Keep separate boards, such as work and personal, in separate task files."/>
-                <local:BulletItem Text="Settings, Data Storage: New File starts an empty board. Open Existing File opens one."/>
+                <local:BulletItem Text="Settings, Data and files tab: New File starts an empty board. Open Existing File opens one."/>
                 <local:BulletItem Text="Files used before are listed. Double-click one to switch to it."/>
                 <local:BulletItem Text="Remove from List tidies the list. It does not delete the file."/>
                 <local:BulletItem Text="Switching restarts the app. The file you leave is not changed."/>
 
                 <TextBlock Text="Backups" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <local:BulletItem Text="Closing the app saves a dated copy of the task file. The latest 20 are kept."/>
-                <local:BulletItem Text="Settings, Backups: turn it off, change how many, back up now or open the folder."/>
+                <local:BulletItem Text="Settings, Data and files tab: turn backups off, change how many, back up now or open the folder."/>
                 <local:BulletItem Text="To restore, close the app and copy the backup over the task file."/>
                 <local:BulletItem Text="Move the current file aside first if you may want it back."/>
                 <local:BulletItem Text="Backups cover tasks and settings. Attachments have their own folder."/>
@@ -574,7 +579,7 @@
                 <TextBlock Text="Getting help" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <local:BulletItem Text="The ? button on a screen opens Help at its topic."/>
                 <local:BulletItem Text="The What's New tab lists the changes in the last five versions."/>
-                <local:BulletItem Text="It opens once after each update. To stop that, untick Show What's New in Settings."/>
+                <local:BulletItem Text="It opens once after each update. To stop that, untick Show What's New in Settings, General tab."/>
                 <local:BulletItem Text="Report a Problem emails support with the error log attached."/>
                 <local:BulletItem Text="Nothing is sent until you click Send."/>
                 <local:BulletItem Text="An unexpected error also offers to open that email."/>
@@ -586,7 +591,7 @@
                 <local:BulletItem Text="If the app is running, Setup offers to close it. It will not close while a task is being edited."/>
                 <local:BulletItem Text="Remind Me Later waits a day. Skip This Version skips that version only."/>
                 <local:BulletItem Text="The check sends only the app's name and version. Nothing downloads unless you choose."/>
-                <local:BulletItem Text="To turn it off, untick 'Check for a newer version automatically' in Settings."/>
+                <local:BulletItem Text="To turn it off, untick 'Check for a newer version automatically' in Settings, General tab."/>
                 <local:BulletItem Text="To check any time, click Check for Updates in About."/>
                 <local:BulletItem Text="When a newer version is found, an Update button appears beside Close in the button column."/>
 
