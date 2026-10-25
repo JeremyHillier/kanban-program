@@ -6,6 +6,13 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.157.0 — 2026-10-25
+
+> - New: a repeating task can come back every 2nd, 3rd or Nth time, not just every time. Pick Annually and set every to 2 for every 2 years; Weekly with 3 is every 3 weeks, Monthly with 6 is every 6 months. It works for Daily, Weekly, Monthly, Quarterly and Annually.
+- The card, Copy as Text and task emails say it in words, for example Repeats every 2 years, and Excel imports and exports carry it as Every 2 years.
+- A task file that holds one is marked, so an older copy of the app warns before opening it instead of repeating the task every day.
+
+
 ## 0.156.0 — 2026-10-25
 
 > - New: choose what a large card shows. Settings has a Large cards show section with a tick box for each detail and button: goal, flags, due date, assigned to, waiting on, start date, repeats, the Updated or Completed line, attachments, sub-tasks, and the flag, email and calendar buttons.

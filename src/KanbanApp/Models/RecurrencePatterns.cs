@@ -4,7 +4,8 @@ namespace KanbanApp.Models;
 // what a task stores and what MainViewModel.CalculateNextDueDate works from, so they must match
 // it (and the task screen's list - RecurrencePatternTests checks both). The task screen's list
 // ends with one more entry, MonthDayRange.ChoiceName, whose stored form is the range itself
-// ("Days 5-12 of each month"), so it is not in All.
+// ("Days 5-12 of each month"), so it is not in All. Nor is "Every 2 years" (RecurrenceInterval),
+// which the task screen builds from one of the patterns that count a unit plus a number.
 public static class RecurrencePatterns
 {
     public static readonly string[] All =
@@ -17,6 +18,7 @@ public static class RecurrencePatterns
         var typed = (text ?? string.Empty).Trim();
         if (typed.Length == 0) return null;
         return All.FirstOrDefault(p => string.Equals(p, typed, StringComparison.OrdinalIgnoreCase))
-            ?? MonthDayRange.Parse(typed)?.ToString();
+            ?? MonthDayRange.Parse(typed)?.ToString()
+            ?? RecurrenceInterval.Parse(typed)?.ToString();
     }
 }

@@ -159,7 +159,7 @@ public partial class AddTaskWindow : Window
             (GoalComboBox.SelectedItem as GoalViewModel)?.Id.ToString() ?? "-",
             RecurringCheckBox.IsChecked == true,
             ((RecurrenceComboBox.SelectedItem as ComboBoxItem)?.Content as string ?? "-")
-                + $"|{RecurrenceRangeKindComboBox.SelectedIndex}|{RecurrenceRangeFromTextBox.Text.Trim()}|{RecurrenceRangeToTextBox.Text.Trim()}",
+                + $"|{RecurrenceRangeKindComboBox.SelectedIndex}|{RecurrenceRangeFromTextBox.Text.Trim()}|{RecurrenceRangeToTextBox.Text.Trim()}|{RecurrenceEveryTextBox.Text.Trim()}",
             RecurrenceCountTextBox.Text.Trim(),
             ForceEditOnCompleteCheckBox.IsChecked == true,
             NotesTextBox.Text,
@@ -386,6 +386,15 @@ public partial class AddTaskWindow : Window
                 $"Enter the first and last day of the month for this task to repeat on, from 1 to {MonthDayRange.Largest}, with the first no later than the last.\n\nFor example 1 to 10, or 5 to 12.", DialogTone.Warning);
             RecurrenceRangeFromTextBox.Focus();
             RecurrenceRangeFromTextBox.SelectAll();
+            return;
+        }
+
+        if (IsEveryChosen && !TryReadRecurrenceEvery(out _))
+        {
+            Dialogs.Tell(this, "Repeat Every",
+                $"Enter how often this task repeats as a whole number from 1 to {RecurrenceInterval.Largest}.\n\nFor example 2 for every 2 years, or leave it at 1.", DialogTone.Warning);
+            RecurrenceEveryTextBox.Focus();
+            RecurrenceEveryTextBox.SelectAll();
             return;
         }
 

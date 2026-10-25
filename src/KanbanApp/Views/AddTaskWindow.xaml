@@ -316,6 +316,17 @@
                             <!-- How it repeats, on a line of its own under Recurring and Time: the day range (Days of
                                  month only) and how many times or months in all. -->
                             <StackPanel Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3" Orientation="Horizontal">
+                                <!-- Daily, Weekly, Monthly, Quarterly and Annually take a count: Annually every 2 years. -->
+                                <StackPanel x:Name="RecurrenceEveryPanel" Orientation="Horizontal" Margin="0,6,14,0" Visibility="Collapsed"
+                                            ToolTip="How often it comes back: every 2 years, every 3 weeks. Leave at 1 for every year, every week and so on.">
+                                    <TextBlock Text="every" VerticalAlignment="Center" Margin="0,0,6,0" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                                    <TextBox x:Name="RecurrenceEveryTextBox" Width="40" Padding="4" MaxLength="2" Text="1" HorizontalContentAlignment="Center"
+                                             Style="{StaticResource HoverTextBoxStyle}" PreviewTextInput="RecurrenceCountTextBox_PreviewTextInput"
+                                             TextChanged="RecurrenceEveryTextBox_TextChanged"
+                                             AutomationProperties.Name="Repeat every"
+                                             Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                                    <TextBlock x:Name="RecurrenceEveryUnitText" Text="year" VerticalAlignment="Center" Margin="6,0,0,0" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                                </StackPanel>
                                 <!-- Days of each month only: which days. Days are dates of the month; working days count
                                      Monday to Friday from the 1st (the 1st to the 10th working day). -->
                                 <StackPanel x:Name="RecurrenceRangePanel" Orientation="Horizontal" Margin="0,6,14,0"

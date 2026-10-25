@@ -49,7 +49,10 @@ public partial class MainViewModel
             startDate: nextStartDate, people: [.. completedCard.People], recurrencesLeft: recurrencesLeft);
     }
 
-    internal static DateTime CalculateNextDueDate(DateTime anchor, string pattern) => pattern switch
+    internal static DateTime CalculateNextDueDate(DateTime anchor, string pattern) =>
+        RecurrenceInterval.Parse(pattern) is { } every ? every.Next(anchor) : NextByPattern(anchor, pattern);
+
+    private static DateTime NextByPattern(DateTime anchor, string pattern) => pattern switch
     {
         "Daily" => anchor.AddDays(1),
         "Weekday" => NextWeekday(anchor),
@@ -101,12 +104,14 @@ public partial class MainViewModel
         new DateTime(year, month, Math.Min(day, DateTime.DaysInMonth(year, month))).Add(timeOfDay);
 }
 
-// A Days of each month task means nothing to copies of the app from before it: they would repeat
+// A Days of each month or Every N task means nothing to copies of the app from before it: they would repeat
 // it daily for ever. So the file is stamped with the format that knows it the first time one is saved.
 public partial class MainViewModel
 {
     private void StampDayRange(bool isRecurring, string? recurrencePattern)
     {
-        if (isRecurring && MonthDayRange.Parse(recurrencePattern) is not null) _db.RaiseFileFormat(Services.DatabaseService.DayRangeFileFormat);
+        if (!isRecurring) return;
+        if (MonthDayRange.Parse(recurrencePattern) is not null) _db.RaiseFileFormat(Services.DatabaseService.DayRangeFileFormat);
+        if (RecurrenceInterval.Parse(recurrencePattern) is not null) _db.RaiseFileFormat(Services.DatabaseService.RecurrenceIntervalFileFormat);
     }
 }

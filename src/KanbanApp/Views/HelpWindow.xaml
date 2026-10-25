@@ -273,6 +273,8 @@
 
                 <TextBlock x:Name="HelpSection_RecurringTasks" Text="Recurring tasks" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <local:BulletItem Text="Tick Recurring and pick a pattern, from Daily to Annually."/>
+                <local:BulletItem Text="Daily, Weekly, Monthly, Quarterly and Annually take an every box: Annually every 2 years, Weekly every 3 weeks."/>
+                <local:BulletItem Text="Leave it at 1 for every year, every week and so on. The card then reads, for example, Repeats every 2 years."/>
                 <local:BulletItem Text="To stop after a number of times, enter it under the pattern, counting this task."/>
                 <local:BulletItem Text="Leave it empty, shown as ∞, to repeat with no end."/>
                 <local:BulletItem Text="The card shows how many are still to come."/>

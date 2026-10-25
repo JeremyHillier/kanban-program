@@ -346,10 +346,10 @@ public class CardViewModel(CardItem model) : ObservableObject
     public string RecurrenceDisplay => !IsRecurring || string.IsNullOrWhiteSpace(RecurrencePattern) ? string.Empty
         : RecurrencesLeft switch
         {
-            null => $"↻ Repeats {RecurrencePattern}",
-            <= 1 => $"↻ Repeats {RecurrencePattern} · last {(MonthDayRange.Parse(RecurrencePattern) is null ? "one" : "month")}",
+            null => $"↻ Repeats {RecurrenceInterval.Phrase(RecurrencePattern)}",
+            <= 1 => $"↻ Repeats {RecurrenceInterval.Phrase(RecurrencePattern)} · last {(MonthDayRange.Parse(RecurrencePattern) is null ? "one" : "month")}",
             var left => MonthDayRange.Parse(RecurrencePattern) is null
-                ? $"↻ Repeats {RecurrencePattern} · {left - 1} more"
+                ? $"↻ Repeats {RecurrenceInterval.Phrase(RecurrencePattern)} · {left - 1} more"
                 : $"↻ Repeats {RecurrencePattern} · {left - 1} more month{(left == 2 ? "" : "s")}"
         };
 

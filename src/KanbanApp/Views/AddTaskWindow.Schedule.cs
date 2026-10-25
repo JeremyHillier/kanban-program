@@ -147,6 +147,9 @@ public partial class AddTaskWindow
     {
         if (RecurrenceRangePanel is null) return; // still loading
         var range = IsDayRangeChosen;
+        var every = IsEveryChosen;
+        RecurrenceEveryPanel.Visibility = every ? Visibility.Visible : Visibility.Collapsed;
+        if (every) RecurrenceEveryTextBox_TextChanged(RecurrenceEveryTextBox, null!);
         RecurrenceRangePanel.Visibility = range ? Visibility.Visible : Visibility.Collapsed;
         RecurrenceCountUnitText.Text = range ? "months" : "times";
         if (range && RecurrenceRangeFromTextBox.Text.Length == 0 && RecurrenceRangeToTextBox.Text.Length == 0)
@@ -156,13 +159,39 @@ public partial class AddTaskWindow
         }
     }
 
-    // What the Repeats list says now, as a task stores it: a pattern name, or the day range in full.
-    // Null when not recurring, or the range is half typed (TryReadRecurrenceRange says why).
+    // Daily, Weekly, Monthly, Quarterly and Annually take an "every N" count.
+    private bool IsEveryChosen =>
+        RecurringCheckBox.IsChecked == true && RecurrenceInterval.Takes((RecurrenceComboBox.SelectedItem as ComboBoxItem)?.Content as string);
+
+    // "day", "weeks", "year": the unit after the count, following what is chosen and what is typed.
+    private void RecurrenceEveryTextBox_TextChanged(object sender, TextChangedEventArgs e)
+    {
+        if (RecurrenceEveryUnitText is null || !IsEveryChosen) return;
+        _ = TryReadRecurrenceEvery(out var count);
+        RecurrenceEveryUnitText.Text = RecurrenceInterval.UnitName(RecurrenceInterval.UnitOf((string)((ComboBoxItem)RecurrenceComboBox.SelectedItem).Content), count);
+    }
+
+    // Blank means 1. False for 0 or anything over 99.
+    private bool TryReadRecurrenceEvery(out int count)
+    {
+        count = 1;
+        var text = RecurrenceEveryTextBox.Text.Trim();
+        if (text.Length == 0) return true;
+        if (!int.TryParse(text, System.Globalization.NumberStyles.None, System.Globalization.CultureInfo.InvariantCulture, out var value)
+            || value is < 1 or > RecurrenceInterval.Largest) return false;
+        count = value;
+        return true;
+    }
+
+    // What the Repeats list says now, as a task stores it: a pattern name ("Every 2 years" when it takes a count above 1),
+    // or the day range in full. Null when not recurring, or the range is half typed (TryReadRecurrenceRange says why).
     private string? ChosenRecurrencePattern()
     {
         if (RecurringCheckBox.IsChecked != true) return null;
-        if (!IsDayRangeChosen) return (RecurrenceComboBox.SelectedItem as ComboBoxItem)?.Content as string;
-        return TryReadRecurrenceRange(out var range) ? range!.ToString() : null;
+        if (IsDayRangeChosen) return TryReadRecurrenceRange(out var range) ? range!.ToString() : null;
+
+        var pattern = (RecurrenceComboBox.SelectedItem as ComboBoxItem)?.Content as string;
+        return pattern is not null && IsEveryChosen && TryReadRecurrenceEvery(out var count) ? RecurrenceInterval.Compose(pattern, count) : pattern;
     }
 
     private bool TryReadRecurrenceRange(out MonthDayRange? range)
@@ -176,7 +205,9 @@ public partial class AddTaskWindow
     private void ShowRecurrencePattern(string? pattern)
     {
         var range = MonthDayRange.Parse(pattern);
-        var name = range is null ? pattern : MonthDayRange.ChoiceName;
+        var every = RecurrenceInterval.Parse(pattern);
+        var name = range is not null ? MonthDayRange.ChoiceName : every?.Pattern ?? pattern;
+        RecurrenceEveryTextBox.Text = every?.Count.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? "1";
         var item = RecurrenceComboBox.Items.OfType<ComboBoxItem>().FirstOrDefault(i => (string)i.Content == name);
         if (item is not null) RecurrenceComboBox.SelectedItem = item;
         if (range is not null)
