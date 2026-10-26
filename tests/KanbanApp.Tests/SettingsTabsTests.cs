@@ -60,3 +60,35 @@ public sealed class HelpFilesSectionTests
         Assert.Contains(Path.GetFileName(KanbanApp.Services.AppConfig.DefaultDbPath), help);                             // kanban.db
     }
 }
+
+// Help's topic list down the left: one entry per section heading, built from the text itself.
+[Collection(WpfCollection.Name)]
+public sealed class HelpTopicsTests(WpfDispatcherFixture wpf) : IDisposable
+{
+    private readonly TempFolder _temp = new();
+
+    public void Dispose() => _temp.Dispose();
+
+    [Fact]
+    public void TheTopicList_HasOneEntryPerSectionHeading_StartingWithTheOverview() => wpf.Run(() =>
+    {
+        var dir = new DirectoryInfo(AppContext.BaseDirectory);
+        while (dir is not null && !File.Exists(Path.Combine(dir.FullName, "KanbanApp.slnx"))) dir = dir.Parent;
+        var xaml = File.ReadAllText(Path.Combine(dir!.FullName, "src", "KanbanApp", "Views", "HelpWindow.xaml"));
+        var headings = System.Text.RegularExpressions.Regex.Matches(xaml, @"<TextBlock [^>]*Text=""([^""]+)""[^>]*Style=""\{StaticResource HelpSectionHeaderStyle\}""")
+            .Select(m => m.Groups[1].Value).ToList();
+
+        var help = new KanbanApp.Views.HelpWindow(new KanbanApp.ViewModels.MainViewModel(new KanbanApp.Services.DatabaseService(_temp.File("board.db"))));
+        try
+        {
+            Assert.Equal("Overview", help.TopicTitles[0]);
+            Assert.Equal(headings, help.TopicTitles.Skip(1).ToList());
+            Assert.Contains("Where your files are", help.TopicTitles);
+            Assert.True(help.TopicTitles.Count > 20);
+        }
+        finally
+        {
+            help.Close();
+        }
+    });
+}

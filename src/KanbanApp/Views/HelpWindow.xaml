@@ -5,7 +5,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:local="clr-namespace:KanbanApp.Views"
         mc:Ignorable="d"
-        Title="Help" Height="820" Width="900" MinHeight="500" MinWidth="640"
+        Title="Help" Height="820" Width="1100" MinHeight="500" MinWidth="800"
         WindowStartupLocation="CenterOwner" ResizeMode="CanResize"
         ShowInTaskbar="False"
         Background="{DynamicResource WindowBackgroundBrush}">
@@ -43,7 +43,19 @@
 
         <TabControl x:Name="Tabs" Grid.Row="1" Background="{DynamicResource WindowBackgroundBrush}" BorderBrush="{DynamicResource CardBorderBrush}">
             <TabItem Header="How it works">
-        <ScrollViewer x:Name="ContentScrollViewer" VerticalScrollBarVisibility="Auto" Padding="16,8">
+        <!-- The topics down the left (built from the section headings in code, so they can't drift from the text);
+             click one to jump to it. The one for the part in view is kept selected as the text scrolls. -->
+        <Grid Margin="8">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="220"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <ListBox x:Name="TopicList" Grid.Column="0" FontSize="13" Margin="0,0,8,0" Padding="0,2"
+                 AutomationProperties.Name="Help topics" SelectionChanged="TopicList_SelectionChanged"
+                 Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                 BorderBrush="{DynamicResource CardBorderBrush}"
+                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"/>
+        <ScrollViewer x:Name="ContentScrollViewer" Grid.Column="1" VerticalScrollBarVisibility="Auto" Padding="16,0,16,8" ScrollChanged="ContentScrollViewer_ScrollChanged">
             <StackPanel x:Name="ContentPanel" MaxWidth="780" HorizontalAlignment="Left">
                 <local:BulletItem Text="Tasks sit in five columns: To Do, In Progress, On Hold, Waiting and Done. You can rename them."/>
                 <local:BulletItem Text="Drag a card to another column, or use its move buttons."/>
@@ -632,6 +644,7 @@
 
             </StackPanel>
         </ScrollViewer>
+        </Grid>
             </TabItem>
             <TabItem x:Name="WhatsNewTab" Header="What's New">
                 <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="16,8">

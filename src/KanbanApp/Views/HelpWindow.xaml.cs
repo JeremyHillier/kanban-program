@@ -22,6 +22,7 @@ public partial class HelpWindow : Window
         DataContext = viewModel;
         VersionText.Text = $"Version {viewModel.AppVersion.TrimStart('v')}";
         RenderWhatsNew();
+        BuildTopics();
 
         if (showWhatsNew)
         {
@@ -45,6 +46,72 @@ public partial class HelpWindow : Window
                 }
             };
         }
+    }
+
+    // ---- The topic list down the left ----
+
+    // The section headings in the text, in order, each with the element to jump to. "Overview" is the
+    // few lines before the first heading, so it points at the very top.
+    private readonly List<(string Title, FrameworkElement? Target)> _topics = [];
+    private bool _syncingTopics;
+    private bool _jumped; // the next scroll came from a click on a topic, so the list is already right
+
+    internal IReadOnlyList<string> TopicTitles => [.. _topics.Select(t => t.Title)];
+
+    private void BuildTopics()
+    {
+        var headerStyle = (Style)FindResource("HelpSectionHeaderStyle");
+        _topics.Add(("Overview", null));
+        foreach (var heading in HeadingsIn(ContentPanel).Where(h => ReferenceEquals(h.Style, headerStyle) && !string.IsNullOrWhiteSpace(h.Text)))
+            _topics.Add((heading.Text, heading));
+
+        _syncingTopics = true;
+        TopicList.ItemsSource = _topics.Select(t => t.Title).ToList();
+        TopicList.SelectedIndex = 0;
+        _syncingTopics = false;
+    }
+
+    private static IEnumerable<TextBlock> HeadingsIn(DependencyObject parent)
+    {
+        foreach (var child in LogicalTreeHelper.GetChildren(parent).OfType<DependencyObject>())
+        {
+            if (child is TextBlock block) yield return block;
+            foreach (var inner in HeadingsIn(child)) yield return inner;
+        }
+    }
+
+    private double OffsetOf(FrameworkElement? target) => target is null ? 0 : target.TranslatePoint(new Point(0, 0), ContentPanel).Y;
+
+    // Clicking (or arrowing to) a topic puts its heading at the top of the text.
+    private void TopicList_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (_syncingTopics || TopicList.SelectedIndex < 0) return;
+        var offset = OffsetOf(_topics[TopicList.SelectedIndex].Target);
+        // A click near the end can't scroll as far as its heading, and the follow-the-scroll rule would then
+        // select the last topic instead; so the scroll this causes is left alone. (No scroll, no event to swallow.)
+        _jumped = Math.Abs(Math.Min(offset, ContentScrollViewer.ScrollableHeight) - ContentScrollViewer.VerticalOffset) > 0.5;
+        ContentScrollViewer.ScrollToVerticalOffset(offset);
+    }
+
+    // As the text scrolls, the list follows: the last heading that has reached the top is the one in view.
+    private void ContentScrollViewer_ScrollChanged(object sender, ScrollChangedEventArgs e)
+    {
+        if (_topics.Count == 0 || e.VerticalChange == 0 && e.ExtentHeightChange == 0) return;
+        if (_jumped) { _jumped = false; return; }
+
+        var top = ContentScrollViewer.VerticalOffset + 24;
+        var current = 0;
+        for (var i = 0; i < _topics.Count; i++)
+        {
+            if (OffsetOf(_topics[i].Target) <= top) current = i;
+        }
+        if (ContentScrollViewer.VerticalOffset >= ContentScrollViewer.ScrollableHeight - 1 && ContentScrollViewer.ScrollableHeight > 0) current = _topics.Count - 1;
+
+        if (current == TopicList.SelectedIndex) return;
+        _syncingTopics = true;
+        TopicList.SelectedIndex = current;
+        TopicList.ScrollIntoView(TopicList.SelectedItem);
+        _syncingTopics = false;
     }
 
     // The last few versions only: what changed recently is news, the rest is history.

@@ -8,6 +8,7 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 
 ## 0.157.1 — 2026-10-26
 
+> - Improved: Help has a list of topics down the left. Click one to jump straight to it; the list follows as you scroll. The Help window is also a little wider.
 > - Improved: Help has a new Where your files are section. It says where the task file, attachments, backups, error log and your settings are kept, which folders are temporary, and where the program itself is installed.
 
 
