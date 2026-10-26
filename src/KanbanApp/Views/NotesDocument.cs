@@ -154,7 +154,26 @@ internal static class NotesDocument
             group.Rows.Add(tableRow);
         }
         table.RowGroups.Add(group);
+        table.Tag = StyledTag;
         return table;
+    }
+
+    // Marks a table already given the notes' look.
+    public const string StyledTag = "NotesTable";
+
+    // The notes' look for any table - lines around every cell, a little padding - whatever it brought with it.
+    public static void Style(Table table)
+    {
+        table.CellSpacing = 0;
+        table.BorderBrush = TableLine;
+        table.BorderThickness = new Thickness(1, 1, 0, 0);
+        foreach (var cell in table.RowGroups.SelectMany(g => g.Rows).SelectMany(r => r.Cells))
+        {
+            cell.BorderBrush = TableLine;
+            cell.BorderThickness = new Thickness(0, 0, 1, 1);
+            cell.Padding = new Thickness(5, 2, 5, 2);
+        }
+        table.Tag = StyledTag;
     }
 
     public static TableCell NewCell(RichParagraph content) =>

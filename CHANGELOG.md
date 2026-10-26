@@ -6,6 +6,12 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.158.1 — 2026-10-26
+
+> - Improved: on the Timeline, the line to a task's due date now leaves the middle of the task's right side, so it is clear which task it belongs to. It ends exactly on the due day, on screen and in print.
+> - Fixed: a table pasted into Notes from Excel or Word now shows lines around its cells straight away.
+
+
 ## 0.158.0 — 2026-10-26
 
 > - New: Notes in the task window can be formatted: bold, italic, underline, left, centre or right alignment, and tables. A bar above the Notes box has the buttons; Table inserts a grid, and adds or removes its rows and columns.

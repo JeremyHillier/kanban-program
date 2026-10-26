@@ -253,14 +253,6 @@ public partial class TimelineWindow
             {
                 var task = item.Card;
                 var lane = row.FirstTaskLane + item.Lane;
-                if (item.HasLine)
-                {
-                    var dateLine = BuildDateLine(item, brush, unitColWidth);
-                    Grid.SetRow(dateLine, lane);
-                    Grid.SetColumn(dateLine, item.FirstUnit);
-                    Grid.SetColumnSpan(dateLine, item.LastUnit - item.FirstUnit + 1);
-                    laneGrid.Children.Add(dateLine);
-                }
 
                 var parts = new List<string> { task.Title };
                 if (!string.IsNullOrWhiteSpace(task.WhoName) && task.WhoName != "Unassigned") parts.Add(task.WhoName);
@@ -291,7 +283,10 @@ public partial class TimelineWindow
                         Padding = new Thickness(5, 3, 5, 3),
                         Child = new TextBlock { Text = string.Join(" - ", parts), Foreground = Brushes.White, FontSize = 11, TextWrapping = TextWrapping.Wrap }
                     };
-                block.Margin = new Thickness(3, 0, 3, item.HasLine ? DateLineRoom : 3); // room under the box for its date line
+                // The line to the due date leaves the box's right side, level with its middle, so it plainly belongs
+                // to that task. A task due within its box's own column has no line - its dates are in the box.
+                var lineFromBox = item.HasLine && (item.DueAfterWindow || item.EndAt > item.FirstUnit + 1.001);
+                block.Margin = lineFromBox ? new Thickness(3, 0, 0, 0) : new Thickness(3, 0, 3, 3);
                 block.Cursor = Cursors.Hand;
                 block.ToolTip = tooltip;
                 block.VerticalAlignment = VerticalAlignment.Top;
@@ -300,9 +295,25 @@ public partial class TimelineWindow
                     if (args.ClickCount != 2) return;
                     OpenCardForEdit(task);
                 };
-                Grid.SetRow(block, lane);
-                Grid.SetColumn(block, item.BoxUnit);
-                laneGrid.Children.Add(block);
+
+                FrameworkElement placed = block;
+                if (lineFromBox)
+                {
+                    // The box and its line share one grid, so the line is centred on the box itself, whatever else is in the lane.
+                    var pair = new Grid { VerticalAlignment = VerticalAlignment.Top, Margin = new Thickness(0, 0, 0, 3) };
+                    pair.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(unitColWidth) });
+                    pair.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+                    pair.Children.Add(block);
+                    var dateLine = BuildDateLine(item, brush, unitColWidth);
+                    Grid.SetColumn(dateLine, 1);
+                    pair.Children.Add(dateLine);
+                    Grid.SetColumnSpan(pair, item.LastUnit - item.FirstUnit + 1);
+                    placed = pair;
+                }
+
+                Grid.SetRow(placed, lane);
+                Grid.SetColumn(placed, item.BoxUnit);
+                laneGrid.Children.Add(placed);
             }
         }
 
@@ -478,32 +489,20 @@ public partial class TimelineWindow
         return bar;
     }
 
-    // A task's date line, under its box: from the start of its start day to the end of its due day, so
-    // it shows the real dates in Week and Month view too, not just the columns. A short upright tick marks
-    // the start and an arrowhead against a bar marks the due date. Starting before the left edge, it has no
-    // tick; due after the right edge, it runs off that edge with no bar. Drawn in the text colour.
-    private const double DateLineRoom = 13; // the box's bottom margin when it has a line under it
-
+    // A task's date line: from the right side of its box, level with the box's middle, to the end of its due day
+    // (an arrowhead against a short bar), so it shows which task it belongs to and the real due date in Week and
+    // Month view. Due after the right edge, it runs off that edge with no bar. Drawn in the text colour. It sits
+    // in the second column of a grid that holds the box in the first, which is what keeps it centred on the box.
     private static FrameworkElement BuildDateLine(TimelineItem item, Brush stroke, double unitColWidth)
     {
-        var columns = item.LastUnit - item.FirstUnit + 1;
-        var left = item.StartsBeforeWindow ? 0 : Math.Max(0, (item.StartAt - item.FirstUnit) * unitColWidth);
-        var right = item.DueAfterWindow ? 0 : Math.Max(0, (item.LastUnit + 1 - item.EndAt) * unitColWidth);
-        // Never shorter than its tick and head: a one-day line in Month view would otherwise vanish.
-        if (columns * unitColWidth - left - right < 12) right = Math.Max(0, columns * unitColWidth - left - 12);
+        var width = (item.LastUnit - item.FirstUnit) * unitColWidth; // the columns after the box's own
+        var right = item.DueAfterWindow ? 0 : Math.Clamp((item.LastUnit + 1 - item.EndAt) * unitColWidth, 0, Math.Max(0, width - 12)); // never shorter than its head
 
         var panel = new DockPanel
         {
-            Height = 9, VerticalAlignment = VerticalAlignment.Bottom, LastChildFill = true, IsHitTestVisible = false,
-            Margin = new Thickness(left, 0, right, 2)
+            Height = 9, VerticalAlignment = VerticalAlignment.Center, LastChildFill = true, IsHitTestVisible = false,
+            Margin = new Thickness(0, 0, right, 0)
         };
-
-        if (!item.StartsBeforeWindow)
-        {
-            var tick = new Rectangle { Width = 2, Height = 9, Fill = stroke };
-            DockPanel.SetDock(tick, Dock.Left);
-            panel.Children.Add(tick);
-        }
 
         if (!item.DueAfterWindow)
         {

@@ -20,6 +20,7 @@ public partial class NotesEditor : UserControl
         RowsBox.SelectedIndex = 2;
         ColumnsBox.SelectedIndex = 1;
         Box.Document = NewDocument();
+        Box.TextChanged += (_, _) => StyleTables();
     }
 
     public RichTextBox TextBox => Box;
@@ -37,6 +38,27 @@ public partial class NotesEditor : UserControl
     }
 
     public string PlainText => RichNotes.ToPlainText(Blocks);
+
+    // A table pasted from Excel or Word arrives with its own look - often no cell lines at all. Every table in the box is
+    // given the notes' own lines and padding once (marked through its Tag), so it reads as a grid before it is ever saved.
+    private bool _styling;
+
+    private void StyleTables()
+    {
+        if (_styling) return;
+        var tables = Box.Document.Blocks.OfType<Table>().Where(t => !Equals(t.Tag, NotesDocument.StyledTag)).ToList();
+        if (tables.Count == 0) return;
+
+        _styling = true;
+        try
+        {
+            foreach (var table in tables) NotesDocument.Style(table);
+        }
+        finally
+        {
+            _styling = false;
+        }
+    }
 
     private static FlowDocument NewDocument() => new() { PagePadding = new Thickness(0), LineHeight = double.NaN };
 
