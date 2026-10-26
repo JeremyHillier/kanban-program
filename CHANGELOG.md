@@ -6,6 +6,11 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.157.1 — 2026-10-26
+
+> - Improved: Help has a new Where your files are section. It says where the task file, attachments, backups, error log and your settings are kept, which folders are temporary, and where the program itself is installed.
+
+
 ## 0.157.0 — 2026-10-25
 
 > - New: a repeating task can come back every 2nd, 3rd or Nth time, not just every time. Pick Annually and set every to 2 for every 2 years; Weekly with 3 is every 3 weeks, Monthly with 6 is every 6 months. It works for Daily, Weekly, Monthly, Quarterly and Annually.

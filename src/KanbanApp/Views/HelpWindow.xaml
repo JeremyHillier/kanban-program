@@ -564,6 +564,32 @@
                 <local:BulletItem Text="Backups: turn them on or off, set how many to keep, back up now."/>
                 <local:BulletItem Text="Default folders for exports, imports and attachments."/>
 
+                <TextBlock x:Name="HelpSection_WhereFiles" Text="Where your files are" Style="{StaticResource HelpSectionHeaderStyle}"/>
+                <TextBlock Text="Your task file" Style="{StaticResource HelpSubHeaderStyle}"/>
+                <local:BulletItem Text="Your tasks, notes, columns, history and settings are all in one task file, kanban.db unless you named it otherwise."/>
+                <local:BulletItem Text="Setup suggests %LOCALAPPDATA%\KanbanApp\kanban.db. You can choose another folder."/>
+                <local:BulletItem Text="Settings, Data and files tab shows where yours is. So does About."/>
+                <local:BulletItem Text="Change Location in Settings moves it. The app restarts, and the old copy goes once the new one works."/>
+                <TextBlock Text="Beside the task file, in the same folder" Style="{StaticResource HelpSubHeaderStyle}"/>
+                <local:BulletItem Text="Attachments: pasted screenshots and files you attach, with Done, Archived and Deleted subfolders."/>
+                <local:BulletItem Text="Backups: dated copies made when the app closes, and one before an update changes the file."/>
+                <local:BulletItem Text="crash.log: a record of errors. It is sent only if you choose Report a Problem."/>
+                <local:BulletItem Text="Copy the whole folder to take everything with you."/>
+                <TextBlock Text="On this PC only, in %LOCALAPPDATA%\KanbanApp" Style="{StaticResource HelpSubHeaderStyle}"/>
+                <local:BulletItem Text="config.json: which task file to open, and the task files you have used. About shows its location."/>
+                <local:BulletItem Text="UserDictionary.lex: your spelling dictionary words, for the spell checker on this PC."/>
+                <local:BulletItem Text="Start when Windows starts adds an entry to your Windows startup list. It is not a file."/>
+                <TextBlock Text="Folders you choose" Style="{StaticResource HelpSubHeaderStyle}"/>
+                <local:BulletItem Text="Settings, Data and files tab: default folders for exports, imports and attachments."/>
+                <local:BulletItem Text="PDF reports and Excel exports are saved to the export folder, or you are asked where."/>
+                <TextBlock Text="Temporary copies" Style="{StaticResource HelpSubHeaderStyle}"/>
+                <local:BulletItem Text="Emails, calendar files, imports and reports use working copies in your Windows Temp folder."/>
+                <local:BulletItem Text="Their folders start with Kanban Task Board, such as Kanban Task Board Email. They are safe to delete."/>
+                <TextBlock Text="The program" Style="{StaticResource HelpSubHeaderStyle}"/>
+                <local:BulletItem Text="It is installed for your Windows user, in %LOCALAPPDATA%\Programs\Kanban Task Board."/>
+                <local:BulletItem Text="Updating or uninstalling never touches your task file, backups or attachments."/>
+                <local:BulletItem Text="The app uploads none of these. A cloud folder such as OneDrive syncs them only if you keep the task folder in one."/>
+
                 <TextBlock Text="Task files" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <local:BulletItem Text="Keep separate boards, such as work and personal, in separate task files."/>
                 <local:BulletItem Text="Settings, Data and files tab: New File starts an empty board. Open Existing File opens one."/>

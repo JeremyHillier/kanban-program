@@ -34,3 +34,29 @@ public sealed class SettingsTabsTests
         Assert.DoesNotContain("<ScrollViewer Grid.Row=\"0\"", xaml);
     }
 }
+
+// Help's "Where your files are" names every file and folder the app keeps, and the names are the real ones.
+public sealed class HelpFilesSectionTests
+{
+    private static string Help()
+    {
+        var dir = new DirectoryInfo(AppContext.BaseDirectory);
+        while (dir is not null && !File.Exists(Path.Combine(dir.FullName, "KanbanApp.slnx"))) dir = dir.Parent;
+        return File.ReadAllText(Path.Combine(dir!.FullName, "src", "KanbanApp", "Views", "HelpWindow.xaml"));
+    }
+
+    [Fact]
+    public void EveryFileTheAppKeeps_IsNamedInHelp_UnderItsRealName()
+    {
+        var help = Help();
+        var db = Path.Combine("C:", "Tasks", "kanban.db");
+
+        Assert.Contains("HelpSection_WhereFiles", help);
+        Assert.Contains(Path.GetFileName(KanbanApp.Services.AppConfig.SettingsFilePath), help);                        // config.json
+        Assert.Contains(Path.GetFileName(new KanbanApp.Services.UserDictionary("C:\\x").FilePath), help);             // UserDictionary.lex
+        Assert.Contains(Path.GetFileName(KanbanApp.Services.BackupService.GetBackupsDir(db)), help);                     // Backups
+        Assert.Contains(Path.GetFileName(KanbanApp.Services.DatabaseService.GetAttachmentsDir(db)), help);               // Attachments
+        Assert.Contains(Path.GetFileName(KanbanApp.Services.ProblemReport.CrashLogPath(db)), help);                      // crash.log
+        Assert.Contains(Path.GetFileName(KanbanApp.Services.AppConfig.DefaultDbPath), help);                             // kanban.db
+    }
+}
