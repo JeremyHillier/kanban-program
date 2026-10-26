@@ -6,7 +6,7 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
-## 0.155.0 — 2026-10-26
+## 0.158.0 — 2026-10-26
 
 > - New: Notes in the task window can be formatted: bold, italic, underline, left, centre or right alignment, and tables. A bar above the Notes box has the buttons; Table inserts a grid, and adds or removes its rows and columns.
 > - Improved: tables pasted from Word or Excel into Notes keep their grid. Everywhere else - cards, emails, reports and Excel - the notes appear as plain text, with a table as tab-separated rows, so nothing else changes.
