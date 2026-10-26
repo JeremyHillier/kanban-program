@@ -6,6 +6,11 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.159.0 — 2026-10-26
+
+> - New: drag the line between two columns of a table in Notes to change their widths. The pointer changes to a resize arrow over the line, and the widths are kept with the notes.
+
+
 ## 0.158.1 — 2026-10-26
 
 > - Improved: on the Timeline, the line to a task's due date now leaves the middle of the task's right side, so it is clear which task it belongs to. It ends exactly on the due day, on screen and in print.

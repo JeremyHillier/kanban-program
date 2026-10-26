@@ -32,7 +32,7 @@ internal static class NotesDocument
                     break;
                 case Table table:
                     into.Add(RichBlock.Of(new RichTable(table.RowGroups.SelectMany(g => g.Rows).Select(row =>
-                        (IReadOnlyList<RichParagraph>)row.Cells.Select(ReadCell).ToList()).ToList())));
+                        (IReadOnlyList<RichParagraph>)row.Cells.Select(ReadCell).ToList()).ToList(), ReadWeights(table))));
                     break;
                 case Section section:
                     ReadBlocks(section.Blocks, into);
@@ -44,6 +44,10 @@ internal static class NotesDocument
             }
         }
     }
+
+    // The columns' shares of the width: a star or pixel width counts as its number, an automatic one as 1.
+    public static double[] ReadWeights(Table table) =>
+        TableColumns.Normalise(table.Columns.Select(c => c.Width.IsAuto || c.Width.Value <= 0 ? 1.0 : c.Width.Value).ToList());
 
     // A cell holds one paragraph in the model: its blocks' text, one line each, and the first block's alignment.
     private static RichParagraph ReadCell(TableCell cell)
@@ -144,7 +148,8 @@ internal static class NotesDocument
     {
         var table = new Table { CellSpacing = 0, Margin = new Thickness(0, 2, 0, 2), BorderBrush = TableLine, BorderThickness = new Thickness(1, 1, 0, 0) };
         var columns = Math.Max(1, source.Rows.Count == 0 ? 1 : source.Rows.Max(r => r.Count));
-        for (var c = 0; c < columns; c++) table.Columns.Add(new TableColumn { Width = new GridLength(1, GridUnitType.Star) });
+        var weights = source.ColumnWeights is { } saved && saved.Count == columns ? saved : Enumerable.Repeat(1.0, columns).ToList();
+        for (var c = 0; c < columns; c++) table.Columns.Add(new TableColumn { Width = new GridLength(weights[c], GridUnitType.Star) });
 
         var group = new TableRowGroup();
         foreach (var row in source.Rows)
@@ -165,6 +170,10 @@ internal static class NotesDocument
     public static void Style(Table table)
     {
         table.CellSpacing = 0;
+        // Whatever widths it came with (Excel gives pixels), shared out as proportions of the width, so it fills the box
+        // and its columns can be dragged.
+        var weights = ReadWeights(table);
+        for (var c = 0; c < weights.Length; c++) table.Columns[c].Width = new GridLength(weights[c], GridUnitType.Star);
         table.BorderBrush = TableLine;
         table.BorderThickness = new Thickness(1, 1, 0, 0);
         foreach (var cell in table.RowGroups.SelectMany(g => g.Rows).SelectMany(r => r.Cells))

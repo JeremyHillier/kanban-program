@@ -96,4 +96,53 @@ public sealed class RichNotesTests(WpfDispatcherFixture wpf) : IDisposable
         Assert.Equal("styled\r\nitem", RichNotes.ToPlainText(reduced));
         Assert.True(reduced[0].Paragraph!.Runs[0].Bold);
     });
+
+    [Fact]
+    public void DraggingALine_TradesWidthBetweenTheTwoColumnsBesideIt_AndStopsAtTheMinimum()
+    {
+        double[] equal = [1, 1, 1];
+
+        // 188 px per unit: 94 px to the right is half a unit.
+        Assert.Equal([1.5, 0.5, 1], TableColumns.Resize(equal, 1, 94, 188, 30));
+        Assert.Equal([0.5, 1.5, 1], TableColumns.Resize(equal, 1, -94, 188, 30));
+        Assert.Equal([1, 1.5, 0.5], TableColumns.Resize(equal, 2, 94, 188, 30));
+
+        // Never narrower than 30 px (0.16 of a unit), whatever the mouse does; the total stays 2.
+        var far = TableColumns.Resize(equal, 1, 5000, 188, 30);
+        Assert.Equal(2 - 30 / 188d, far[0], 6);
+        Assert.Equal(30 / 188d, far[1], 6);
+        Assert.Equal(1, far[2]);
+
+        Assert.Equal(equal, TableColumns.Resize(equal, 0, 50, 188, 30)); // there is no line before the first column
+        Assert.Equal(equal, TableColumns.Resize(equal, 3, 50, 188, 30));
+    }
+
+    [Fact]
+    public void ColumnWeights_AreScaledToAnAverageOfOne_AndKeptWithTheTable()
+    {
+        Assert.Equal([0.5, 1, 1.5], TableColumns.Normalise([100, 200, 300]));
+        Assert.Equal([1, 1], TableColumns.Normalise([0, 0]));
+
+        var table = new RichTable([[Para("a"), Para("b")]], [1.4, 0.6]);
+        var back = RichNotes.Deserialize(RichNotes.Serialize([RichBlock.Of(table)]))!;
+        Assert.Equal([1.4, 0.6], back[0].Table!.ColumnWeights);
+
+        // An older note, or a damaged list of weights, shares the width equally.
+        Assert.Null(RichNotes.Deserialize(RichNotes.Serialize([RichBlock.Of(new RichTable([[Para("a"), Para("b")]]))]))![0].Table!.ColumnWeights);
+        Assert.Null(RichNotes.Deserialize("[{\"T\":[[{\"R\":[]},{\"R\":[]}]],\"W\":[1,-2]}]")![0].Table!.ColumnWeights);
+        Assert.Null(RichNotes.Deserialize("[{\"T\":[[{\"R\":[]},{\"R\":[]}]],\"W\":[1,1,1]}]")![0].Table!.ColumnWeights); // wrong number of columns
+    }
+
+    [Fact]
+    public void TheEditorsTable_KeepsItsColumnWidths_ThroughTheModel() => wpf.Run(() =>
+    {
+        var document = new FlowDocument();
+        NotesDocument.Fill(document, [RichBlock.Of(new RichTable([[Para("a"), Para("b"), Para("c")]], [2, 0.5, 0.5]))]);
+
+        var read = NotesDocument.Read(document)[0].Table!;
+        Assert.Equal(3, read.ColumnWeights!.Count);
+        Assert.Equal(3, read.ColumnWeights.Sum(), 6);
+        Assert.Equal(2 * 3 / 3d, read.ColumnWeights[0], 6);
+        Assert.Equal(0.5, read.ColumnWeights[1], 6);
+    });
 }

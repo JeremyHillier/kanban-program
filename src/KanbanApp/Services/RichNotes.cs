@@ -21,7 +21,8 @@ public sealed record RichParagraph(NotesAlign Align, IReadOnlyList<RichRun> Runs
     public string Text => string.Concat(Runs.Select(r => r.Text));
 }
 
-public sealed record RichTable(IReadOnlyList<IReadOnlyList<RichParagraph>> Rows);
+// ColumnWeights: how the width is shared between the columns (only the proportions matter); null shares it equally.
+public sealed record RichTable(IReadOnlyList<IReadOnlyList<RichParagraph>> Rows, IReadOnlyList<double>? ColumnWeights = null);
 
 // Exactly one of the two is set.
 public sealed record RichBlock(RichParagraph? Paragraph, RichTable? Table)
@@ -59,13 +60,14 @@ public static class RichNotes
 
     private sealed record StoredRun(string T, bool B = false, bool I = false, bool U = false);
     private sealed record StoredParagraph(string? A, List<StoredRun> R);
-    private sealed record StoredBlock(StoredParagraph? P, List<List<StoredParagraph>>? T);
+    private sealed record StoredBlock(StoredParagraph? P, List<List<StoredParagraph>>? T, List<double>? W = null);
 
     private static readonly JsonSerializerOptions Options = new() { DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault };
 
     public static string Serialize(IReadOnlyList<RichBlock> blocks) => JsonSerializer.Serialize(blocks.Select(block => new StoredBlock(
         block.Paragraph is { } p ? Store(p) : null,
-        block.Table?.Rows.Select(row => row.Select(Store).ToList()).ToList())).ToList(), Options);
+        block.Table?.Rows.Select(row => row.Select(Store).ToList()).ToList(),
+        block.Table?.ColumnWeights?.Select(w => Math.Round(w, 3)).ToList())).ToList(), Options);
 
     private static StoredParagraph Store(RichParagraph p) => new(p.Align == NotesAlign.Left ? null : p.Align.ToString(), p.Runs.Select(r => new StoredRun(r.Text, r.Bold, r.Italic, r.Underline)).ToList());
 
@@ -78,7 +80,7 @@ public static class RichNotes
         {
             var stored = JsonSerializer.Deserialize<List<StoredBlock>>(json, Options);
             return stored?.Select(block => block.T is { } rows
-                ? RichBlock.Of(new RichTable(rows.Select(row => (IReadOnlyList<RichParagraph>)row.Select(Load).ToList()).ToList()))
+                ? RichBlock.Of(new RichTable(rows.Select(row => (IReadOnlyList<RichParagraph>)row.Select(Load).ToList()).ToList(), GoodWeights(block.W, rows.Max(r => r.Count))))
                 : RichBlock.Of(Load(block.P ?? new StoredParagraph(null, [])))).ToList();
         }
         catch (JsonException)
@@ -86,6 +88,10 @@ public static class RichNotes
             return null;
         }
     }
+
+    // Saved weights are used only when there is one positive weight for each column.
+    private static List<double>? GoodWeights(List<double>? weights, int columns) =>
+        weights is { Count: > 0 } && weights.Count == columns && weights.All(w => w > 0 && double.IsFinite(w)) ? weights : null;
 
     private static RichParagraph Load(StoredParagraph p) =>
         new(Enum.TryParse<NotesAlign>(p.A, out var align) ? align : NotesAlign.Left,

@@ -21,6 +21,10 @@ public partial class NotesEditor : UserControl
         ColumnsBox.SelectedIndex = 1;
         Box.Document = NewDocument();
         Box.TextChanged += (_, _) => StyleTables();
+        Box.PreviewMouseMove += Box_PreviewMouseMove;
+        Box.PreviewMouseLeftButtonDown += Box_PreviewMouseLeftButtonDown;
+        Box.PreviewMouseLeftButtonUp += Box_PreviewMouseLeftButtonUp;
+        Box.LostMouseCapture += (_, _) => _drag = null;
     }
 
     public RichTextBox TextBox => Box;
@@ -268,6 +272,99 @@ public partial class NotesEditor : UserControl
     {
         Box.Focus();
         Box.CaretPosition = cell.ContentStart.GetInsertionPosition(LogicalDirection.Forward);
+    }
+
+    // --- Dragging a column's edge -----------------------------------------------------------------------
+    // A text box has no column handles, so the lines between a table's columns are found from the layout: every table
+    // fills the box's width and shares it out by its columns' weights, so the line before column k is at
+    // the left edge plus its share. Hovering within 4 px of one shows the resize cursor; dragging moves it, the two
+    // columns beside it trading width (TableColumns.Resize).
+
+    private const double GripPx = 4;
+    private const double MinColumnPx = 30;
+
+    private (Table Table, int Boundary, double StartX, double[] Weights, double PxPerUnit)? _drag;
+
+    // The left edge and width of the area tables are laid out in, in the box's own coordinates: the document view's
+    // place in the box, less the document's own page padding (the box puts 5 on each side).
+    private (double Left, double Width)? TableArea()
+    {
+        if (FindDocumentView(Box) is not { } view) return null;
+
+        var padding = Box.Document.PagePadding;
+        var left = view.TranslatePoint(new Point(0, 0), Box).X + padding.Left;
+        var width = view.ActualWidth - padding.Left - padding.Right;
+        return width > 0 ? (left, width) : null;
+    }
+
+    // The part of the box that draws the document (an internal type, found by name).
+    private static FrameworkElement? FindDocumentView(DependencyObject parent)
+    {
+        for (var i = 0; i < System.Windows.Media.VisualTreeHelper.GetChildrenCount(parent); i++)
+        {
+            var child = System.Windows.Media.VisualTreeHelper.GetChild(parent, i);
+            if (child is FrameworkElement { } element && element.GetType().Name == "FlowDocumentView") return element;
+            if (FindDocumentView(child) is { } found) return found;
+        }
+        return null;
+    }
+
+    // The table under the mouse, and the line (between column boundary-1 and boundary) it is within reach of, if any.
+    private (Table Table, int Boundary, double[] Weights, double PxPerUnit)? EdgeAt(Point point)
+    {
+        if (TableArea() is not { } area) return null;
+        // snapToText: a point over a cell's empty space (most of one, in a wide cell) still finds the cell it is in.
+        if (Box.GetPositionFromPoint(point, snapToText: true)?.Paragraph is not { } paragraph) return null;
+
+        TextElement? element = paragraph;
+        while (element is not null && element is not TableCell) element = element.Parent as TextElement;
+        if (element is not TableCell cell || Locate(cell) is not { } here || here.Table.Columns.Count < 2) return null;
+
+        var weights = NotesDocument.ReadWeights(here.Table);
+        var pxPerUnit = area.Width / weights.Sum();
+        var edge = area.Left;
+        for (var boundary = 1; boundary < weights.Length; boundary++)
+        {
+            edge += weights[boundary - 1] * pxPerUnit;
+            if (Math.Abs(point.X - edge) <= GripPx) return (here.Table, boundary, weights, pxPerUnit);
+        }
+        return null;
+    }
+
+    private void Box_PreviewMouseMove(object sender, MouseEventArgs e)
+    {
+        var point = e.GetPosition(Box);
+        if (_drag is { } drag)
+        {
+            var weights = TableColumns.Resize(drag.Weights, drag.Boundary, point.X - drag.StartX, drag.PxPerUnit, MinColumnPx);
+            for (var c = 0; c < weights.Length; c++) drag.Table.Columns[c].Width = new GridLength(weights[c], GridUnitType.Star);
+            e.Handled = true;
+            return;
+        }
+
+        var onEdge = e.LeftButton == MouseButtonState.Released && EdgeAt(point) is not null;
+        Box.ForceCursor = onEdge;
+        if (onEdge) Box.Cursor = Cursors.SizeWE;
+        else Box.ClearValue(FrameworkElement.CursorProperty);
+    }
+
+    private void Box_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+    {
+        var point = e.GetPosition(Box);
+        if (EdgeAt(point) is not { } edge) return;
+
+        _drag = (edge.Table, edge.Boundary, point.X, edge.Weights, edge.PxPerUnit);
+        Box.CaptureMouse();
+        e.Handled = true; // not the start of a text selection
+    }
+
+    private void Box_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+    {
+        if (_drag is null) return;
+
+        _drag = null;
+        Box.ReleaseMouseCapture();
+        e.Handled = true;
     }
 
     // Tab and Shift+Tab move between a table's cells (Tab in the last cell adds a row); elsewhere Tab types a tab.
