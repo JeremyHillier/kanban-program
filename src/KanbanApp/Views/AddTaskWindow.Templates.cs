@@ -70,7 +70,7 @@ public partial class AddTaskWindow
         StartDatePicker.SelectedDate = start;
         DueTimeTextBox.Text = due is null ? string.Empty : DueTimeParser.Format(template.DueTime);
 
-        NotesTextBox.Text = template.Notes ?? string.Empty;
+        NotesEditor.Blocks = RichNotes.FromPlainText(template.Notes);
         WebsiteUrlTextBox.Text = template.WebsiteUrl ?? string.Empty;
         ForceEditOnCompleteCheckBox.IsChecked = template.ForceEditOnComplete;
 
@@ -102,7 +102,7 @@ public partial class AddTaskWindow
             GoalId = (GoalComboBox.SelectedItem as GoalViewModel)?.Id,
             FlagIds = FlagsPanel.Children.OfType<CheckBox>().Where(cb => cb.IsChecked == true).Select(cb => ((FlagViewModel)cb.Tag).Id).ToList(),
             SubTasks = SubTasksPanel.Children.OfType<Grid>().Select(row => ((TextBox)row.Children[2]).Text.Trim()).Where(t => t.Length > 0).ToList(),
-            Notes = string.IsNullOrWhiteSpace(NotesTextBox.Text) ? null : NotesTextBox.Text.Trim(),
+            Notes = string.IsNullOrWhiteSpace(NotesEditor.PlainText) ? null : NotesEditor.PlainText.Trim(),
             IsRecurring = isRecurring,
             RecurrencePattern = isRecurring ? ChosenRecurrencePattern() : null,
             RecurrenceCount = isRecurring ? recurrenceCount : null,

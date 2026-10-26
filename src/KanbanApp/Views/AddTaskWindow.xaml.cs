@@ -40,6 +40,7 @@ public partial class AddTaskWindow : Window
     public List<PersonViewModel> SelectedPeople { get; private set; } = [];
     public PersonViewModel? SelectedWho => SelectedPeople.FirstOrDefault();
     public string? Notes { get; private set; }
+    private List<RichBlock>? _notesBlocks; // the Notes with their formatting, saved beside the plain text
     public string? WebsiteUrl { get; private set; }
 
     private readonly Action _fixEndsOfAutoCorrectBoxes;
@@ -55,11 +56,12 @@ public partial class AddTaskWindow : Window
     public void AddTo(MainViewModel viewModel)
     {
         if (SelectedColumn is null) return;
-        viewModel.AddCard(TaskDetails, SelectedColumn, SelectedProject,
+        var added = viewModel.AddCard(TaskDetails, SelectedColumn, SelectedProject,
             SelectedPriority, SelectedDueDate, SelectedWho, IsRecurring, RecurrencePattern,
             SelectedGoal, SelectedFlags, SelectedSubTasks, Notes, attachments: SelectedAttachments,
             forceEditOnComplete: ForceEditOnComplete, websiteUrl: WebsiteUrl, dueTime: SelectedDueTime,
             startDate: SelectedStartDate, waitingOn: WaitingOn, people: SelectedPeople, recurrencesLeft: RecurrencesLeft);
+        viewModel.SaveRichNotes(added, _notesBlocks);
     }
 
     // True when the task was closed with Mark as Done: the board saves it, then moves it to Done the same
@@ -81,6 +83,7 @@ public partial class AddTaskWindow : Window
             SelectedGoal, SelectedFlags, SelectedSubTasks, Notes, attachments: SelectedAttachments,
             forceEditOnComplete: ForceEditOnComplete, websiteUrl: WebsiteUrl, dueTime: SelectedDueTime,
             startDate: SelectedStartDate, waitingOn: WaitingOn, recurrencesLeft: RecurrencesLeft);
+        viewModel.SaveRichNotes(card, _notesBlocks);
     }
 
     public AddTaskWindow(MainViewModel viewModel)
@@ -107,10 +110,10 @@ public partial class AddTaskWindow : Window
         var americanVariantsDictionary = new Uri("pack://application:,,,/Assets/AmericanSpellingVariants.lex", UriKind.Absolute);
         // The user's own words come with the American spellings: Add to Dictionary on a flagged word's menu.
         viewModel.Dictionary.Attach(DetailsTextBox, americanVariantsDictionary);
-        viewModel.Dictionary.Attach(NotesTextBox, americanVariantsDictionary);
+        viewModel.Dictionary.AttachRich(NotesEditor.TextBox, americanVariantsDictionary);
 
         var fixTaskEnd = AutoCorrectBox.Attach(DetailsTextBox, () => viewModel.AutoCorrectEnabled, () => viewModel.AutoCorrectOwn);
-        var fixNotesEnd = AutoCorrectBox.Attach(NotesTextBox, () => viewModel.AutoCorrectEnabled, () => viewModel.AutoCorrectOwn);
+        var fixNotesEnd = AutoCorrectBox.AttachRich(NotesEditor.TextBox, () => viewModel.AutoCorrectEnabled, () => viewModel.AutoCorrectOwn);
         _fixEndsOfAutoCorrectBoxes = () => { fixTaskEnd(); fixNotesEnd(); };
 
         _viewModel = viewModel;
@@ -162,7 +165,7 @@ public partial class AddTaskWindow : Window
                 + $"|{RecurrenceRangeKindComboBox.SelectedIndex}|{RecurrenceRangeFromTextBox.Text.Trim()}|{RecurrenceRangeToTextBox.Text.Trim()}|{RecurrenceEveryTextBox.Text.Trim()}",
             RecurrenceCountTextBox.Text.Trim(),
             ForceEditOnCompleteCheckBox.IsChecked == true,
-            NotesTextBox.Text,
+            RichNotes.Serialize(NotesEditor.Blocks), // the words and their formatting
             WebsiteUrlTextBox.Text,
             WaitingOnTextBox.Text,
             flags, subTasks, attachments);
@@ -198,8 +201,7 @@ public partial class AddTaskWindow : Window
     {
         Loaded += (_, _) =>
         {
-            NotesTextBox.Focus();
-            NotesTextBox.CaretIndex = NotesTextBox.Text.Length;
+            NotesEditor.FocusAtEnd();
         };
     }
 
@@ -237,7 +239,8 @@ public partial class AddTaskWindow : Window
         StartDatePicker.SelectedDate = cardToEdit.StartDate;
         DueTimeTextBox.Text = DueTimeParser.Format(cardToEdit.DueTime);
         SetSelectedPeople(cardToEdit.People);
-        NotesTextBox.Text = cardToEdit.Notes ?? string.Empty;
+        // Its formatting if it has some and still matches the plain Notes; else the plain Notes as paragraphs.
+        NotesEditor.Blocks = viewModel.RichNotesOf(cardToEdit) ?? RichNotes.FromPlainText(cardToEdit.Notes);
         WebsiteUrlTextBox.Text = cardToEdit.WebsiteUrl ?? string.Empty;
         WaitingOnTextBox.Text = cardToEdit.WaitingOn ?? string.Empty;
         ForceEditOnCompleteCheckBox.IsChecked = cardToEdit.ForceEditOnComplete;
@@ -416,7 +419,9 @@ public partial class AddTaskWindow : Window
         SelectedDueDate = DueDatePicker.SelectedDate;
         SelectedStartDate = StartDatePicker.SelectedDate;
         SelectedPeople = [.. _selectedPeople];
-        Notes = string.IsNullOrWhiteSpace(NotesTextBox.Text) ? null : NotesTextBox.Text.Trim();
+        _notesBlocks = NotesEditor.Blocks;
+        var notesText = RichNotes.ToPlainText(_notesBlocks);
+        Notes = string.IsNullOrWhiteSpace(notesText) ? null : notesText.Trim();
         WebsiteUrl = UrlLauncher.ValidLink(WebsiteUrlTextBox.Text);
         WaitingOn = string.IsNullOrWhiteSpace(WaitingOnTextBox.Text) ? null : WaitingOnTextBox.Text.Trim();
 

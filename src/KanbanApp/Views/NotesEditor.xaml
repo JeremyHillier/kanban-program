@@ -1,0 +1,76 @@
+<UserControl x:Class="KanbanApp.Views.NotesEditor"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!-- The task's Notes: a small formatting bar over a box. Bold, italic, underline, left/centre/right and tables - and
+         nothing else, so the notes stay simple. Everything outside the task window reads them as plain text. -->
+    <DockPanel>
+        <WrapPanel DockPanel.Dock="Top" Margin="0,0,0,4" x:Name="Bar">
+            <ToggleButton x:Name="BoldButton" Width="28" Height="26" Margin="0,0,3,0" ToolTip="Bold (Ctrl+B)" Click="Bold_Click" Focusable="False"
+                          Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}">
+                <TextBlock Text="B" FontWeight="Bold"/>
+            </ToggleButton>
+            <ToggleButton x:Name="ItalicButton" Width="28" Height="26" Margin="0,0,3,0" ToolTip="Italic (Ctrl+I)" Click="Italic_Click" Focusable="False"
+                          Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}">
+                <TextBlock Text="I" FontStyle="Italic" FontFamily="Georgia"/>
+            </ToggleButton>
+            <ToggleButton x:Name="UnderlineButton" Width="28" Height="26" Margin="0,0,12,0" ToolTip="Underline (Ctrl+U)" Click="Underline_Click" Focusable="False"
+                          Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}">
+                <TextBlock Text="U" TextDecorations="Underline"/>
+            </ToggleButton>
+
+            <ToggleButton x:Name="LeftButton" Width="28" Height="26" Margin="0,0,3,0" ToolTip="Align left (Ctrl+L)" Click="Left_Click" Focusable="False"
+                          Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}">
+                <Path Data="M0,1 H12 M0,5 H8 M0,9 H12 M0,13 H8" Stroke="{DynamicResource PrimaryTextBrush}" StrokeThickness="1.5"/>
+            </ToggleButton>
+            <ToggleButton x:Name="CenterButton" Width="28" Height="26" Margin="0,0,3,0" ToolTip="Centre (Ctrl+E)" Click="Center_Click" Focusable="False"
+                          Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}">
+                <Path Data="M0,1 H12 M2,5 H10 M0,9 H12 M2,13 H10" Stroke="{DynamicResource PrimaryTextBrush}" StrokeThickness="1.5"/>
+            </ToggleButton>
+            <ToggleButton x:Name="RightButton" Width="28" Height="26" Margin="0,0,12,0" ToolTip="Align right (Ctrl+R)" Click="Right_Click" Focusable="False"
+                          Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}">
+                <Path Data="M0,1 H12 M4,5 H12 M0,9 H12 M4,13 H12" Stroke="{DynamicResource PrimaryTextBrush}" StrokeThickness="1.5"/>
+            </ToggleButton>
+
+            <ToggleButton x:Name="TableButton" Height="26" Padding="10,0" ToolTip="Insert a table, or add and remove its rows and columns" Focusable="False"
+                          Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}">
+                <TextBlock Text="Table ▾"/>
+            </ToggleButton>
+            <Popup x:Name="TablePopup" PlacementTarget="{Binding ElementName=TableButton}" Placement="Bottom" StaysOpen="False"
+                   AllowsTransparency="True" IsOpen="{Binding IsChecked, ElementName=TableButton, Mode=TwoWay}" Opened="TablePopup_Opened">
+                <Border Background="{DynamicResource InputBackgroundBrush}" BorderBrush="{DynamicResource CardOutlineBrush}" BorderThickness="1"
+                        CornerRadius="4" Padding="10" Margin="0,2,0,0">
+                    <StackPanel MinWidth="210">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Rows" VerticalAlignment="Center" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                            <ComboBox x:Name="RowsBox" Width="54" Margin="6,0,14,0" SelectedIndex="2"/>
+                            <TextBlock Text="Columns" VerticalAlignment="Center" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                            <ComboBox x:Name="ColumnsBox" Width="54" Margin="6,0,0,0" SelectedIndex="1"/>
+                        </StackPanel>
+                        <Button Content="Insert Table" Margin="0,8,0,0" Padding="0,5" Click="InsertTable_Click"
+                                Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                                ToolTip="Put a table of this size under the cursor"/>
+                        <Separator Margin="0,8"/>
+                        <Button x:Name="AddRowButton" Content="Add Row Below" Padding="0,4" Margin="0,0,0,3" Click="AddRow_Click"
+                                Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                        <Button x:Name="AddColumnButton" Content="Add Column on the Right" Padding="0,4" Margin="0,0,0,3" Click="AddColumn_Click"
+                                Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                        <Button x:Name="DeleteRowButton" Content="Delete Row" Padding="0,4" Margin="0,0,0,3" Click="DeleteRow_Click"
+                                Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                        <Button x:Name="DeleteColumnButton" Content="Delete Column" Padding="0,4" Margin="0,0,0,3" Click="DeleteColumn_Click"
+                                Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                        <Button x:Name="DeleteTableButton" Content="Delete Table" Padding="0,4" Click="DeleteTable_Click"
+                                Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                                ToolTip="Remove the table and what is in it"/>
+                        <TextBlock x:Name="TableHint" Text="Click in a table to change it. Tab moves between cells." TextWrapping="Wrap" FontSize="11"
+                                   Margin="0,8,0,0" Foreground="{DynamicResource SecondaryTextBrush}"/>
+                    </StackPanel>
+                </Border>
+            </Popup>
+        </WrapPanel>
+
+        <RichTextBox x:Name="Box" Height="150" Padding="4" AcceptsReturn="True" AcceptsTab="True" VerticalScrollBarVisibility="Auto"
+                     SpellCheck.IsEnabled="True" Language="en-CA" SelectionChanged="Box_SelectionChanged" PreviewKeyDown="Box_PreviewKeyDown"
+                     Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                     BorderBrush="{DynamicResource CardBorderBrush}"/>
+    </DockPanel>
+</UserControl>

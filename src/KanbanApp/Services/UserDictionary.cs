@@ -2,6 +2,7 @@ using System.IO;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Documents;
 using System.Windows.Input;
 
@@ -19,7 +20,7 @@ namespace KanbanApp.Services;
 public sealed class UserDictionary
 {
     private readonly string _folder;
-    private readonly List<(WeakReference<TextBox> Box, Uri[] Others)> _boxes = [];
+    private readonly List<(WeakReference<TextBoxBase> Box, Uri[] Others)> _boxes = [];
     private List<string> _words = [];
 
     // Where the words are kept on this PC; tests use a folder of their own.
@@ -111,19 +112,30 @@ public sealed class UserDictionary
     public void Attach(TextBox box, params Uri[] others)
     {
         _boxes.RemoveAll(entry => !entry.Box.TryGetTarget(out _));
-        _boxes.Add((new WeakReference<TextBox>(box), others));
+        _boxes.Add((new WeakReference<TextBoxBase>(box), others));
         Apply(box, others);
         var menu = new ContextMenu();
         box.ContextMenu = menu;
         box.ContextMenuOpening += (_, e) => BuildMenu(box, menu, e);
     }
 
-    private void Apply(TextBox box, Uri[] others)
+    private void Apply(TextBoxBase box, Uri[] others)
     {
         var dictionaries = SpellCheck.GetCustomDictionaries(box);
         dictionaries.Clear();
         foreach (var other in others) dictionaries.Add(other);
         if (_words.Count > 0 && File.Exists(FilePath)) dictionaries.Add(new Uri(FilePath));
+    }
+
+    // The same for the Notes box, a RichTextBox: its right-click menu finds the word through text pointers.
+    public void AttachRich(RichTextBox box, params Uri[] others)
+    {
+        _boxes.RemoveAll(entry => !entry.Box.TryGetTarget(out _));
+        _boxes.Add((new WeakReference<TextBoxBase>(box), others));
+        Apply(box, others);
+        var menu = new ContextMenu();
+        box.ContextMenu = menu;
+        box.ContextMenuOpening += (_, e) => BuildRichMenu(box, menu, e);
     }
 
     // WPF reads a dictionary when spell check starts, so each live box is given the list again and
@@ -148,6 +160,45 @@ public sealed class UserDictionary
     // The box is given a menu of its own - WPF's built-in one cannot be added to - filled in each time
     // it opens: on a misspelled word, the suggestions, Ignore All and Add to Dictionary, then the usual
     // editing commands.
+    // The right-click menu of the rich Notes box: the same entries, with the misspelled word found from a text pointer.
+    private void BuildRichMenu(RichTextBox box, ContextMenu menu, ContextMenuEventArgs e)
+    {
+        menu.Items.Clear();
+
+        var pointer = e.CursorLeft >= 0 ? box.GetPositionFromPoint(new Point(e.CursorLeft, e.CursorTop), snapToText: false) : box.CaretPosition;
+        if (pointer is not null && box.GetSpellingError(pointer) is { } error && box.GetSpellingErrorRange(pointer) is { } range)
+        {
+            var word = range.Text.Trim();
+            var suggestions = error.Suggestions.Take(5).ToList();
+            foreach (var suggestion in suggestions)
+            {
+                var item = new MenuItem { Header = suggestion.Replace("_", "__"), FontWeight = FontWeights.Bold };
+                item.Click += (_, _) => error.Correct(suggestion);
+                menu.Items.Add(item);
+            }
+            if (suggestions.Count == 0) menu.Items.Add(new MenuItem { Header = "(no spelling suggestions)", IsEnabled = false });
+
+            menu.Items.Add(new Separator());
+            menu.Items.Add(new MenuItem { Header = "Ignore All", Command = EditingCommands.IgnoreSpellingError, CommandTarget = box });
+
+            var add = new MenuItem
+            {
+                Header = $"Add \"{word.Replace("_", "__")}\" to Dictionary",
+                ToolTip = "Always accept this word, in every task. The list is in Settings.",
+                IsEnabled = ParseWords(word).Count == 1
+            };
+            add.Click += (_, _) => Add(word);
+            menu.Items.Add(add);
+            menu.Items.Add(new Separator());
+        }
+
+        menu.Items.Add(new MenuItem { Header = "Cut", Command = ApplicationCommands.Cut, CommandTarget = box });
+        menu.Items.Add(new MenuItem { Header = "Copy", Command = ApplicationCommands.Copy, CommandTarget = box });
+        menu.Items.Add(new MenuItem { Header = "Paste", Command = ApplicationCommands.Paste, CommandTarget = box });
+        menu.Items.Add(new Separator());
+        menu.Items.Add(new MenuItem { Header = "Select All", Command = ApplicationCommands.SelectAll, CommandTarget = box });
+    }
+
     private void BuildMenu(TextBox box, ContextMenu menu, ContextMenuEventArgs e)
     {
         menu.Items.Clear();

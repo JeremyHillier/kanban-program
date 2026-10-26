@@ -274,12 +274,14 @@ public partial class MainViewModel
             .Select(s => new SubTaskViewModel(new SubTaskItem { Title = s.Title, IsDone = false }))
             .ToList();
 
-        return AddCard($"{card.Title} (copy)", column,
+        var copy = AddCard($"{card.Title} (copy)", column,
             Projects.FirstOrDefault(p => p.Id == card.ProjectId), card.Priority, card.DueDate,
             card.People.FirstOrDefault(), card.IsRecurring, card.RecurrencePattern,
             Goals.FirstOrDefault(g => g.Id == card.GoalId), [.. card.Flags], freshSubTasks, card.Notes,
             forceEditOnComplete: card.ForceEditOnComplete, websiteUrl: card.WebsiteUrl, dueTime: card.DueTime, startDate: card.StartDate,
             waitingOn: card.WaitingOn, people: [.. card.People], recurrencesLeft: card.RecurrencesLeft);
+        if (RichNotesOf(card) is { } formatted) SaveRichNotes(copy, formatted);
+        return copy;
     }
 
     private void MoveCard(CardViewModel card, ColumnViewModel targetColumn)

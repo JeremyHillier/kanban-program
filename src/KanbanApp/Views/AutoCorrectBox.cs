@@ -1,4 +1,5 @@
 using System.Windows.Controls;
+using System.Windows.Documents;
 using System.Windows.Input;
 using KanbanApp.Services;
 
@@ -103,5 +104,76 @@ public static class AutoCorrectBox
         };
 
         return FixTheEnd;
+    }
+
+    // The same for the rich Notes box. It works on the paragraph the cursor is in: the text before the cursor, and the
+    // slip is swapped for its fix in place, keeping how the word was formatted. The box's own Ctrl+Z undoes what was done.
+    public static Action AttachRich(RichTextBox box, Func<bool> isOn, Func<IReadOnlyDictionary<string, string>> ownEntries, bool requireFocus = true)
+    {
+        var correcting = false;
+
+        box.TextChanged += (_, e) =>
+        {
+            if (correcting || !isOn() || e.Changes.Count != 1 || requireFocus && !box.IsKeyboardFocused) return;
+            var change = e.Changes.Single();
+            if (change.AddedLength == 0 || change.RemovedLength != 0) return;
+
+            var paragraph = box.CaretPosition.Paragraph;
+            if (paragraph is null) return;
+
+            // Only plain stretches of a line: a line break or object inside would throw the counting off.
+            var before = new TextRange(paragraph.ContentStart, box.CaretPosition).Text;
+            if (before.Length < 2 || before.Contains('\n') || before.Contains('\r') || !AutoCorrector.IsDelimiter(before[^1])) return;
+            if (!AutoCorrector.TryCorrect(before, before.Length - 1, ownEntries(), out var start, out var length, out var replacement)) return;
+
+            var caretIndex = before.Length - length + replacement.Length;
+            correcting = true;
+            try
+            {
+                Replace(paragraph, start, length, replacement);
+                box.CaretPosition = Step(paragraph.ContentStart, caretIndex);
+            }
+            finally
+            {
+                correcting = false;
+            }
+        };
+
+        // A slip that ends the notes has no space typed after it: fixed when the user moves on or saves.
+        void FixTheEnd()
+        {
+            if (!isOn() || box.Document.Blocks.LastBlock is not Paragraph paragraph) return;
+
+            var text = new TextRange(paragraph.ContentStart, paragraph.ContentEnd).Text;
+            if (text.Contains('\n') || text.Contains('\r') || !AutoCorrector.TryCorrect(text, text.Length, ownEntries(), out var start, out var length, out var replacement)) return;
+
+            correcting = true;
+            try
+            {
+                Replace(paragraph, start, length, replacement);
+            }
+            finally
+            {
+                correcting = false;
+            }
+        }
+        box.LostFocus += (_, _) => FixTheEnd();
+
+        return FixTheEnd;
+    }
+
+    // The insertion position `characters` characters in from `from`.
+    private static TextPointer Step(TextPointer from, int characters)
+    {
+        var pointer = from.GetInsertionPosition(LogicalDirection.Forward);
+        for (var i = 0; i < characters; i++) pointer = pointer.GetNextInsertionPosition(LogicalDirection.Forward) ?? pointer;
+        return pointer;
+    }
+
+    private static void Replace(Paragraph paragraph, int start, int length, string replacement)
+    {
+        var from = Step(paragraph.ContentStart, start);
+        var to = Step(from, length);
+        new TextRange(from, to).Text = replacement;
     }
 }

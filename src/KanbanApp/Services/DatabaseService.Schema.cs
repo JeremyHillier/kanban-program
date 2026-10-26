@@ -89,6 +89,7 @@ public partial class DatabaseService
         EnsureTaskTemplatesTable(connection);
         EnsureSharedTasksTable(connection);
         EnsureMilestoneTables(connection);
+        EnsureRichNotesTable(connection);
         MigrateColumn(connection, "Cards", "CompletedAt", "TEXT NULL");
         MigrateColumn(connection, "Cards", "ShareId", "TEXT NULL");
         MigrateColumn(connection, "Projects", "IsActive", "INTEGER NOT NULL DEFAULT 1");

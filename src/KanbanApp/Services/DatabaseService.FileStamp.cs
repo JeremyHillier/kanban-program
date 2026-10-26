@@ -36,6 +36,7 @@ public partial class DatabaseService
     // 13: "Every 2 years" repeating (0.157.0) - a new meaning for Cards.RecurrencePattern that older copies
     //     would repeat daily for ever, so the file is only stamped 13 once such a task is saved
     //     (RecurrenceIntervalFileFormat). No table changed.
+    // 13: CardRichNotes (0.155.0) - the formatting of a task's Notes beside the plain text; stamped when formatting is first saved (RichNotesFileFormat).
     // The newest format this copy of the app understands.
     public const int CurrentFileFormat = 13;
 
@@ -45,6 +46,7 @@ public partial class DatabaseService
     public const int GoalMilestoneFileFormat = 10;
     public const int GoalStartFileFormat = 11;
     public const int ProjectPlanFileFormat = 12;
+    public const int RichNotesFileFormat = 13;
     public const int RecurrenceIntervalFileFormat = 13;
 
     // What every file is raised to just by being opened. Formats 4 to 8 only matter once their
