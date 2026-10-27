@@ -164,7 +164,7 @@
                 <TextBlock Text="Notes" Style="{StaticResource HelpSubHeaderStyle}"/>
                 <local:BulletItem Text="Notes take bold, italic, underline and left, centre or right alignment from the bar above them."/>
                 <local:BulletItem Text="Table inserts a grid of the rows and columns you choose. Click in it to add or delete rows and columns."/>
-                <local:BulletItem Text="Drag the line between two columns of a table to change their widths."/>
+                <local:BulletItem Text="Drag the line between two columns, or the table's right-hand edge, to change widths. The right edge makes the table narrower."/>
                 <local:BulletItem Text="Tab moves between cells; Tab in the last cell adds a row. A table pasted from Word or Excel works too."/>
                 <local:BulletItem Text="Everywhere else - cards, emails, reports, Excel - shows the notes as plain text, a table as tab-separated rows."/>
                 <local:BulletItem Text="When editing, the green check mark beside Save and Close saves your changes and finishes the task."/>

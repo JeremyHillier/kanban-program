@@ -145,4 +145,42 @@ public sealed class RichNotesTests(WpfDispatcherFixture wpf) : IDisposable
         Assert.Equal(2 * 3 / 3d, read.ColumnWeights[0], 6);
         Assert.Equal(0.5, read.ColumnWeights[1], 6);
     });
+
+    [Fact]
+    public void TheTablesRightEdge_TradesWidthWithTheEmptySpaceAfterIt_WhichCanShrinkToNothing()
+    {
+        double[] fullWidth = [1, 1, 1, 0]; // three columns, no empty space
+
+        // Dragging the right edge left by half a unit (94 px at 188 px a unit): the last column gives it to the empty space.
+        Assert.Equal([1, 1, 0.5, 0.5], TableColumns.Resize(fullWidth, 3, -94, 188, 30, lastIsFree: true));
+
+        // Right again: the empty space is used up, and no more than that - the table cannot be wider than the box.
+        double[] narrowed = [1, 1, 0.5, 0.5];
+        Assert.Equal([1, 1, 1, 0], TableColumns.Resize(narrowed, 3, 500, 188, 30, lastIsFree: true));
+
+        // The last real column still keeps its minimum, even though the empty space may vanish.
+        var tiny = TableColumns.Resize(fullWidth, 3, -5000, 188, 30, lastIsFree: true);
+        Assert.Equal(30 / 188d, tiny[2], 6);
+        Assert.Equal(1 - 30 / 188d, tiny[3], 6);
+    }
+
+    [Fact]
+    public void ATableNarrowedOnTheScreen_ComesBackNarrow_WhenSavedAndReopened() => wpf.Run(() =>
+    {
+        var model = new RichTable([[Para("a"), Para("b")], [Para("c"), Para("d")]], [1, 1], 0.5);
+
+        var back = RichNotes.Deserialize(RichNotes.Serialize([RichBlock.Of(model)]))!;
+        Assert.Equal(0.5, back[0].Table!.FreeWeight);
+
+        var document = new FlowDocument();
+        NotesDocument.Fill(document, back);
+        var table = document.Blocks.OfType<Table>().Single();
+        Assert.Equal(3, table.Columns.Count);             // two real columns and the empty one after them
+        Assert.Equal(2, table.RowGroups[0].Rows[0].Cells.Count); // the empty column has no cells, so it is never typed in
+        Assert.Equal(0.5 * 2 / 2, NotesDocument.ReadWeights(table).Free, 6);
+
+        // A table that fills the box says so, and the plain text never sees the empty column.
+        Assert.Equal(0, RichNotes.Deserialize(RichNotes.Serialize([RichBlock.Of(new RichTable([[Para("a")]]))]))![0].Table!.FreeWeight);
+        Assert.Equal("a\tb\r\nc\td", RichNotes.ToPlainText(NotesDocument.Read(document).Where(b => b.Table is not null).ToList()));
+    });
 }

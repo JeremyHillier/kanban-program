@@ -171,12 +171,13 @@ public partial class NotesEditor : UserControl
     private TableCell AddRowBelow(TableRow row, Table table)
     {
         var added = new TableRow();
-        for (var c = 0; c < table.Columns.Count; c++) added.Cells.Add(NotesDocument.NewCell(new RichParagraph(NotesAlign.Left, [])));
+        for (var c = 0; c < NotesDocument.RealColumns(table); c++) added.Cells.Add(NotesDocument.NewCell(new RichParagraph(NotesAlign.Left, [])));
 
         Box.BeginChange();
         try
         {
             ((TableRowGroup)row.Parent).Rows.Insert(((TableRowGroup)row.Parent).Rows.IndexOf(row) + 1, added);
+            NotesDocument.Style(table); // the lines belong to the cells, so the new row gets its own
         }
         finally
         {
@@ -196,6 +197,7 @@ public partial class NotesEditor : UserControl
                 here.Table.Columns.Insert(at, new TableColumn { Width = new GridLength(1, GridUnitType.Star) });
                 foreach (var row in here.Table.RowGroups.SelectMany(g => g.Rows))
                     row.Cells.Insert(Math.Min(at, row.Cells.Count), NotesDocument.NewCell(new RichParagraph(NotesAlign.Left, [])));
+                NotesDocument.Style(here.Table);
             }
             finally
             {
@@ -217,6 +219,7 @@ public partial class NotesEditor : UserControl
             {
                 group.Rows.Remove(here.Row);
                 if (here.Table.RowGroups.All(g => g.Rows.Count == 0)) Box.Document.Blocks.Remove(here.Table);
+                else NotesDocument.Style(here.Table);
             }
             finally
             {
@@ -237,14 +240,15 @@ public partial class NotesEditor : UserControl
             {
                 foreach (var row in here.Table.RowGroups.SelectMany(g => g.Rows).ToList())
                     if (at < row.Cells.Count) row.Cells.RemoveAt(at);
-                if (at < here.Table.Columns.Count) here.Table.Columns.RemoveAt(at);
-                if (here.Table.Columns.Count == 0) Box.Document.Blocks.Remove(here.Table);
+                if (at < here.Table.Columns.Count - 1) here.Table.Columns.RemoveAt(at); // (the last column is the empty one)
+                if (NotesDocument.RealColumns(here.Table) == 0 || here.Table.RowGroups.SelectMany(g => g.Rows).All(r => r.Cells.Count == 0)) Box.Document.Blocks.Remove(here.Table);
+                else NotesDocument.Style(here.Table);
             }
             finally
             {
                 Box.EndChange();
             }
-            if (here.Table.Columns.Count > 0) MoveInto(here.Row.Cells[Math.Min(at, here.Row.Cells.Count - 1)]);
+            if (here.Row.Cells.Count > 0) MoveInto(here.Row.Cells[Math.Min(at, here.Row.Cells.Count - 1)]);
         }
         TablePopup.IsOpen = false;
     }
@@ -309,7 +313,9 @@ public partial class NotesEditor : UserControl
         return null;
     }
 
-    // The table under the mouse, and the line (between column boundary-1 and boundary) it is within reach of, if any.
+    // The table under the mouse, and the line it is within reach of, if any: boundary k is the line before column k, and
+    // the line after the last column - the table's right edge - counts too. Weights are those of the columns and then
+    // the empty space after them.
     private (Table Table, int Boundary, double[] Weights, double PxPerUnit)? EdgeAt(Point point)
     {
         if (TableArea() is not { } area) return null;
@@ -318,12 +324,13 @@ public partial class NotesEditor : UserControl
 
         TextElement? element = paragraph;
         while (element is not null && element is not TableCell) element = element.Parent as TextElement;
-        if (element is not TableCell cell || Locate(cell) is not { } here || here.Table.Columns.Count < 2) return null;
+        if (element is not TableCell cell || Locate(cell) is not { } here) return null;
 
-        var weights = NotesDocument.ReadWeights(here.Table);
+        var (real, free) = NotesDocument.ReadWeights(here.Table);
+        double[] weights = [.. real, free];
         var pxPerUnit = area.Width / weights.Sum();
         var edge = area.Left;
-        for (var boundary = 1; boundary < weights.Length; boundary++)
+        for (var boundary = 1; boundary <= real.Length; boundary++)
         {
             edge += weights[boundary - 1] * pxPerUnit;
             if (Math.Abs(point.X - edge) <= GripPx) return (here.Table, boundary, weights, pxPerUnit);
@@ -336,8 +343,8 @@ public partial class NotesEditor : UserControl
         var point = e.GetPosition(Box);
         if (_drag is { } drag)
         {
-            var weights = TableColumns.Resize(drag.Weights, drag.Boundary, point.X - drag.StartX, drag.PxPerUnit, MinColumnPx);
-            for (var c = 0; c < weights.Length; c++) drag.Table.Columns[c].Width = new GridLength(weights[c], GridUnitType.Star);
+            var weights = TableColumns.Resize(drag.Weights, drag.Boundary, point.X - drag.StartX, drag.PxPerUnit, MinColumnPx, lastIsFree: true);
+            NotesDocument.ApplyWeights(drag.Table, weights[..^1], weights[^1]);
             e.Handled = true;
             return;
         }

@@ -6,6 +6,11 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.159.1 — 2026-10-27
+
+> - Improved: the right-hand edge of a table in Notes can be dragged too, so the table can be made narrower than the box and the last column resized. Drag it back to fill the box again.
+
+
 ## 0.160.0 — 2026-10-27
 
 > - New: mark a goal complete. In Manage Goals, tick Complete on a finished goal, or right-click the goal on the Timeline and choose Mark Goal Complete. Untick it, or choose Reopen Goal, to open it again.

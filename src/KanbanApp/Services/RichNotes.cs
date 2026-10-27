@@ -22,7 +22,8 @@ public sealed record RichParagraph(NotesAlign Align, IReadOnlyList<RichRun> Runs
 }
 
 // ColumnWeights: how the width is shared between the columns (only the proportions matter); null shares it equally.
-public sealed record RichTable(IReadOnlyList<IReadOnlyList<RichParagraph>> Rows, IReadOnlyList<double>? ColumnWeights = null);
+// FreeWeight is the share of the width left empty after the last column (0: the table fills the box), so the table can be narrower.
+public sealed record RichTable(IReadOnlyList<IReadOnlyList<RichParagraph>> Rows, IReadOnlyList<double>? ColumnWeights = null, double FreeWeight = 0);
 
 // Exactly one of the two is set.
 public sealed record RichBlock(RichParagraph? Paragraph, RichTable? Table)
@@ -60,14 +61,15 @@ public static class RichNotes
 
     private sealed record StoredRun(string T, bool B = false, bool I = false, bool U = false);
     private sealed record StoredParagraph(string? A, List<StoredRun> R);
-    private sealed record StoredBlock(StoredParagraph? P, List<List<StoredParagraph>>? T, List<double>? W = null);
+    private sealed record StoredBlock(StoredParagraph? P, List<List<StoredParagraph>>? T, List<double>? W = null, double F = 0);
 
     private static readonly JsonSerializerOptions Options = new() { DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault };
 
     public static string Serialize(IReadOnlyList<RichBlock> blocks) => JsonSerializer.Serialize(blocks.Select(block => new StoredBlock(
         block.Paragraph is { } p ? Store(p) : null,
         block.Table?.Rows.Select(row => row.Select(Store).ToList()).ToList(),
-        block.Table?.ColumnWeights?.Select(w => Math.Round(w, 3)).ToList())).ToList(), Options);
+        block.Table?.ColumnWeights?.Select(w => Math.Round(w, 3)).ToList(),
+        block.Table is { FreeWeight: > 0 } table ? Math.Round(table.FreeWeight, 3) : 0)).ToList(), Options);
 
     private static StoredParagraph Store(RichParagraph p) => new(p.Align == NotesAlign.Left ? null : p.Align.ToString(), p.Runs.Select(r => new StoredRun(r.Text, r.Bold, r.Italic, r.Underline)).ToList());
 
@@ -80,7 +82,7 @@ public static class RichNotes
         {
             var stored = JsonSerializer.Deserialize<List<StoredBlock>>(json, Options);
             return stored?.Select(block => block.T is { } rows
-                ? RichBlock.Of(new RichTable(rows.Select(row => (IReadOnlyList<RichParagraph>)row.Select(Load).ToList()).ToList(), GoodWeights(block.W, rows.Max(r => r.Count))))
+                ? RichBlock.Of(new RichTable(rows.Select(row => (IReadOnlyList<RichParagraph>)row.Select(Load).ToList()).ToList(), GoodWeights(block.W, rows.Max(r => r.Count)), double.IsFinite(block.F) && block.F > 0 ? block.F : 0))
                 : RichBlock.Of(Load(block.P ?? new StoredParagraph(null, [])))).ToList();
         }
         catch (JsonException)
