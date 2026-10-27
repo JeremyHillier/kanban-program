@@ -33,6 +33,15 @@ public sealed class UserDictionary
 
     public string FilePath => Path.Combine(_folder, "UserDictionary.lex");
 
+    // The words of every task file used on this PC, so a word added in one file is known in the others.
+    public string PcWordsPath => Path.Combine(_folder, "UserDictionary.words");
+
+    public string ReadPcWords()
+    {
+        try { return File.Exists(PcWordsPath) ? File.ReadAllText(PcWordsPath) : string.Empty; }
+        catch { return string.Empty; }
+    }
+
     public IReadOnlyList<string> Words => _words;
 
     // The words as they are shown and saved: one per line.
@@ -97,6 +106,7 @@ public sealed class UserDictionary
         {
             Directory.CreateDirectory(_folder);
             File.WriteAllText(FilePath, string.Join("\r\n", FileLines(_words)) + "\r\n", new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
+            File.WriteAllText(PcWordsPath, AsText, new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
         }
         catch
         {

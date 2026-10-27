@@ -16,7 +16,11 @@ public partial class MainViewModel
 
     private void LoadDictionary()
     {
-        Dictionary.Set(_db.GetSetting(CustomDictionaryKey));
+        // The task file's words plus this PC's, so a word added while another file was open is not lost.
+        var saved = _db.GetSetting(CustomDictionaryKey);
+        Dictionary.Set(saved + "\n" + Dictionary.ReadPcWords());
+        if (!string.Equals(Dictionary.AsText, string.Join("\n", UserDictionary.ParseWords(saved)), StringComparison.Ordinal))
+            _db.SetSetting(CustomDictionaryKey, Dictionary.AsText);
         Dictionary.WordsAdded += () => _db.SetSetting(CustomDictionaryKey, Dictionary.AsText);
     }
 

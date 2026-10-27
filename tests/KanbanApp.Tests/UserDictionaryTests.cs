@@ -116,3 +116,23 @@ public sealed class UserDictionaryTests(WpfDispatcherFixture wpf) : IDisposable
         Assert.Equal(["alpha", "beta", "Gamma"], reopened.Dictionary.Words);
     });
 }
+
+public class UserDictionaryPcWordsTests
+{
+    [Fact]
+    public void AWordSetInOneFile_IsKnownToAnotherOnTheSamePc()
+    {
+        var folder = Path.Combine(Path.GetTempPath(), "dictpc-" + Guid.NewGuid().ToString("N"));
+        try
+        {
+            var first = new UserDictionary(folder);
+            first.Set("Zorbulax");
+
+            var second = new UserDictionary(folder);                          // another task file, same PC
+            second.Set("Quenfrix\n" + second.ReadPcWords());
+
+            Assert.Equal(["Quenfrix", "Zorbulax"], second.Words);
+        }
+        finally { try { Directory.Delete(folder, true); } catch { } }
+    }
+}

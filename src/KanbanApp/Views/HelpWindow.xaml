@@ -598,7 +598,7 @@
                 <local:BulletItem Text="Copy the whole folder to take everything with you."/>
                 <TextBlock Text="On this PC only, in %LOCALAPPDATA%\KanbanApp" Style="{StaticResource HelpSubHeaderStyle}"/>
                 <local:BulletItem Text="config.json: which task file to open, and the task files you have used. About shows its location."/>
-                <local:BulletItem Text="UserDictionary.lex: your spelling dictionary words, for the spell checker on this PC."/>
+                <local:BulletItem Text="UserDictionary.lex and UserDictionary.words: your spelling dictionary, for the spell checker on this PC."/>
                 <local:BulletItem Text="Start when Windows starts adds an entry to your Windows startup list. It is not a file."/>
                 <TextBlock Text="Folders you choose" Style="{StaticResource HelpSubHeaderStyle}"/>
                 <local:BulletItem Text="Settings, Data and files tab: default folders for exports, imports and attachments."/>
