@@ -64,6 +64,13 @@ public partial class TimelineWindow : Window
                 return;
             }
 
+            if (e.Key == Key.Z && Keyboard.Modifiers == ModifierKeys.Control)
+            {
+                UndoLast();
+                e.Handled = true;
+                return;
+            }
+
             if (Keyboard.Modifiers != ModifierKeys.None || Keyboard.FocusedElement is System.Windows.Controls.Primitives.TextBoxBase) return;
             switch (e.Key)
             {
@@ -86,6 +93,7 @@ public partial class TimelineWindow : Window
         (_viewModel.TimelineByGoal ? ByGoalRadio : ByProjectRadio).IsChecked = true;
         _windowStart = TimelineScale.Snap(Zoom, DateTime.Today);
         Closing += (_, _) => SaveSize();
+        UpdateUndoButton();
         _initializing = false;
         BuildGrid();
     }
@@ -200,6 +208,7 @@ public partial class TimelineWindow : Window
         else if (row is GoalViewModel goal) dialog.PreselectPlan(null, goal);
 
         if (dialog.ShowDialog() == true) dialog.AddTo(_viewModel);
+        ClearUndo();
         BuildGrid();
     }
 
@@ -248,6 +257,7 @@ public partial class TimelineWindow : Window
         if (dialog.ShowDialog() == true)
         {
             dialog.SaveTo(_viewModel, card);
+            ClearUndo();
 
             // The green Mark as Done: finished the board's way (its questions included), then redrawn here.
             if (dialog.MarkDoneRequested && Owner is MainWindow board)

@@ -518,6 +518,10 @@
                 <local:BulletItem Text="Page with the arrow buttons. Today jumps back."/>
                 <local:BulletItem Text="Include Done tasks brings finished tasks, and complete goals, back in."/>
                 <local:BulletItem Text="Blocks use the priority colours. Hover for details; double-click to open."/>
+                <local:BulletItem Text="Drag a task's box sideways to move the task. Its start and due dates move together, a day at a time."/>
+                <local:BulletItem Text="Drag the end of a task's line to change only its due date. It never goes before the start."/>
+                <local:BulletItem Text="Drag a milestone's line, or a target's diamond, to change its date. A small label shows the new date."/>
+                <local:BulletItem Text="Undo (Ctrl+Z) takes back what was dragged. Summary bars cannot be dragged - they follow their tasks."/>
                 <local:BulletItem Text="Print previews what is showing. Pick the paper and Landscape or Portrait at the top."/>
                 <local:BulletItem Text="Save As in the preview makes a PDF or PNG pictures of the pages to share."/>
                 <local:BulletItem Text="Print... in the preview asks the printer for that paper. The choice is remembered."/>

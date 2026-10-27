@@ -189,6 +189,7 @@ public partial class TimelineWindow
             Grid.SetColumn(laneGrid, 1);
             Grid.SetColumnSpan(laneGrid, unitsToShow);
             TimelineGrid.Children.Add(laneGrid);
+            var surface = new Surface(laneGrid, unitColWidth, unitStarts, rangeEnd);
 
             if (row.Summary is { } summary)
             {
@@ -202,6 +203,8 @@ public partial class TimelineWindow
             if (row.Target is { } target && TimelineLayout.TargetPosition(target, unitStarts, rangeEnd) is { } at)
             {
                 var marker = BuildTargetMarker(row, target, at.Fraction, unitColWidth);
+                if (PlannedItemNamed(row.Name) is { } plannedRow)
+                    MakeTargetDraggable(((Grid)marker).Children.OfType<TextBlock>().First(), surface, plannedRow, target);
                 Grid.SetRow(marker, 0);
                 Grid.SetRowSpan(marker, row.Lanes);
                 Grid.SetColumn(marker, at.Unit);
@@ -242,6 +245,7 @@ public partial class TimelineWindow
                 if (TimelineLayout.TargetPosition(milestone.Date, unitStarts, rangeEnd) is not { } where) continue;
 
                 var line = BuildMilestoneMarker(milestone, where.Fraction, unitColWidth);
+                MakeMilestoneDraggable(line, surface, milestone);
                 Grid.SetRow(line, 0);
                 Grid.SetRowSpan(line, row.Lanes);
                 Grid.SetColumn(line, where.Unit);
@@ -263,7 +267,7 @@ public partial class TimelineWindow
                 var tooltip = $"{task.Title}\n{otherGroup}Priority: {task.Priority}\n{(task.WhoName != "Unassigned" ? $"Who: {task.WhoName}\n" : "")}"
                     + $"{(task.StartDate is not null ? $"Start: {task.StartDate:MMM d, yyyy}\n" : "")}"
                     + $"{(task.DueDate is not null ? $"Due: {task.DueDate:MMM d, yyyy}{(task.DueDateTime is { } dueAt ? $" at {dueAt:h:mm tt}" : "")}\n" : "")}"
-                    + $"{(task.IsWaiting ? $"{task.WaitingOnDisplay}\n" : "")}\nDouble-click to open";
+                    + $"{(task.IsWaiting ? $"{task.WaitingOnDisplay}\n" : "")}\nDrag to change its dates. Double-click to open";
 
                 // Started before the left edge: the box can't sit at its start date, so it is drawn
                 // hollow and dashed in the first column showing, with the arrow running on from it.
@@ -307,9 +311,24 @@ public partial class TimelineWindow
                     var dateLine = BuildDateLine(item, brush, unitColWidth);
                     Grid.SetColumn(dateLine, 1);
                     pair.Children.Add(dateLine);
+                    if (!item.DueAfterWindow && task.DueDate is { } dueDay)
+                    {
+                        var grip = new Rectangle
+                        {
+                            Width = 12, Height = 16, Fill = Brushes.Transparent, Cursor = Cursors.SizeWE, HorizontalAlignment = HorizontalAlignment.Right,
+                            VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0, 0, DateLineRight(item, unitColWidth) - 6, 0),
+                            ToolTip = "Drag to change the due date"
+                        };
+                        Grid.SetColumn(grip, 1);
+                        pair.Children.Add(grip);
+                        MakeDueDateDraggable(grip, surface, task, dueDay.Date);
+                    }
                     Grid.SetColumnSpan(pair, item.LastUnit - item.FirstUnit + 1);
                     placed = pair;
                 }
+
+                // The whole task moves with its box: from the day it shows at (the first day showing when it began earlier).
+                MakeTaskMovable(block, placed, surface, task, item.StartsBeforeWindow ? unitStarts[0] : TimelineLayout.SpanOf(task)!.Value.Start);
 
                 Grid.SetRow(placed, lane);
                 Grid.SetColumn(placed, item.BoxUnit);
@@ -407,8 +426,9 @@ public partial class TimelineWindow
     private static FrameworkElement BuildMilestoneMarker(Milestone milestone, double fraction, double unitColWidth)
     {
         var x = Math.Clamp(fraction * unitColWidth, 1, unitColWidth - 1);
-        var marker = new Grid { HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(x - 1, 0, 0, 0), Cursor = Cursors.Help };
-        marker.ToolTip = $"{milestone.Description}\n{milestone.Date:MMM d, yyyy}";
+        var marker = new Grid { HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(x - 1, 0, 0, 0), Cursor = Cursors.SizeWE };
+        marker.ToolTip = $"{milestone.Description}\n{milestone.Date:MMM d, yyyy}\n\nDrag to change its date";
+        marker.Children.Add(new Rectangle { Width = 10, Fill = Brushes.Transparent, HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(-4, 0, 0, 0) }); // a wider place to take hold
         marker.Children.Add(new Rectangle { Width = 2, Fill = MilestoneBrush, HorizontalAlignment = HorizontalAlignment.Left });
         marker.Children.Add(new TextBlock
         {
@@ -462,8 +482,8 @@ public partial class TimelineWindow
         marker.Children.Add(new TextBlock
         {
             Text = "◆", Foreground = TargetBrush, FontSize = 14, VerticalAlignment = VerticalAlignment.Top, HorizontalAlignment = HorizontalAlignment.Center,
-            Margin = new Thickness(0, TargetLineY - 9, 0, 0), Cursor = Cursors.Help,
-            ToolTip = $"{row.Name}\nTarget: {target:MMM d, yyyy}"
+            Margin = new Thickness(0, TargetLineY - 9, 0, 0), Cursor = Cursors.SizeWE,
+            ToolTip = $"{row.Name}\nTarget: {target:MMM d, yyyy}\n\nDrag to change the target date"
         });
         return marker;
     }
@@ -505,10 +525,14 @@ public partial class TimelineWindow
     // (an arrowhead against a short bar), so it shows which task it belongs to and the real due date in Week and
     // Month view. Due after the right edge, it runs off that edge with no bar. Drawn in the text colour. It sits
     // in the second column of a grid that holds the box in the first, which is what keeps it centred on the box.
+    // How far in from the right of the line's column its tip stops: the end of the due day, never leaving it shorter than its head.
+    private static double DateLineRight(TimelineItem item, double unitColWidth) =>
+        item.DueAfterWindow ? 0 : Math.Clamp((item.LastUnit + 1 - item.EndAt) * unitColWidth, 0, Math.Max(0, (item.LastUnit - item.FirstUnit) * unitColWidth - 12));
+
     private static FrameworkElement BuildDateLine(TimelineItem item, Brush stroke, double unitColWidth)
     {
         var width = (item.LastUnit - item.FirstUnit) * unitColWidth; // the columns after the box's own
-        var right = item.DueAfterWindow ? 0 : Math.Clamp((item.LastUnit + 1 - item.EndAt) * unitColWidth, 0, Math.Max(0, width - 12)); // never shorter than its head
+        var right = DateLineRight(item, unitColWidth);
 
         var panel = new DockPanel
         {

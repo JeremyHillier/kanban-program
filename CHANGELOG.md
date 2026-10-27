@@ -6,6 +6,11 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.162.0 — 2026-10-27
+
+> - New: dates can be changed by dragging on the Timeline. Drag a task's box to move the whole task, drag the end of its line to change the due date, and drag a milestone or a target diamond to change its date.
+> - New: an Undo button on the Timeline (or Ctrl+Z) takes back the dates changed by dragging, one at a time.
+
 ## 0.161.1 — 2026-10-27
 
 > - Fixed: words added to your spelling dictionary are now remembered across every task file used on this computer, so a word added in one file is no longer flagged when another file is opened.

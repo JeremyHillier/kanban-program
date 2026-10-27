@@ -176,6 +176,33 @@ public static class TimelineLayout
         return unit + (length <= 0 ? 0 : (date - unitStarts[unit]).TotalDays / length);
     }
 
+    // The day under a position measured in columns from the left edge (the opposite of Offset): 2.5 is the middle day
+    // of the third column. Clamped to the days showing, so a drag cannot leave the window.
+    public static DateTime DayAt(double position, IReadOnlyList<DateTime> unitStarts, DateTime windowEnd)
+    {
+        var unit = (int)Math.Clamp(Math.Floor(position), 0, unitStarts.Count - 1);
+        var unitEnd = unit + 1 < unitStarts.Count ? unitStarts[unit + 1] : windowEnd;
+        var length = Math.Max(1, (int)Math.Round((unitEnd - unitStarts[unit]).TotalDays));
+        var into = position < 0 ? 0 : position >= unitStarts.Count ? length - 1 : (int)Math.Floor((position - unit) * length + 1e-6);
+        return unitStarts[unit].AddDays(Math.Clamp(into, 0, length - 1));
+    }
+
+    // The day a dragged date lands on for a position in columns: the day whose edge is nearest, so a pointer sitting
+    // right on the line between two days (or a pixel either side of it) picks the same one every time. A start-of-day
+    // thing (a task's box) goes to the nearest start; an end-of-day thing (a due date, target or milestone) to the
+    // nearest end. Clamped to the days showing.
+    public static DateTime DayNear(double position, bool endOfDay, IReadOnlyList<DateTime> unitStarts, DateTime windowEnd)
+    {
+        var unit = (int)Math.Clamp(Math.Floor(position), 0, unitStarts.Count - 1);
+        var unitEnd = unit + 1 < unitStarts.Count ? unitStarts[unit + 1] : windowEnd;
+        var half = 0.5 / Math.Max(1, (unitEnd - unitStarts[unit]).TotalDays);
+
+        // The start of the day whose edge is nearest (the day after the last one when that is the nearest).
+        var boundary = position + half >= unitStarts.Count ? windowEnd : DayAt(position + half, unitStarts, windowEnd);
+        var day = endOfDay ? boundary.AddDays(-1) : boundary;
+        return day < unitStarts[0] ? unitStarts[0] : day >= windowEnd ? windowEnd.AddDays(-1) : day;
+    }
+
     // Where the end of a day falls: a due date is the whole of that day.
     public static double EndOffset(DateTime day, IReadOnlyList<DateTime> unitStarts, DateTime windowEnd) =>
         Offset(day.Date.AddDays(1), unitStarts, windowEnd);

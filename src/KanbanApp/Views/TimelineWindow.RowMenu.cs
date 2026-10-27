@@ -30,6 +30,7 @@ public partial class TimelineWindow
         milestones.Click += (_, _) => Dispatcher.BeginInvoke(new Action(() =>
         {
             new MilestonesWindow(_viewModel, item) { Owner = this }.ShowDialog();
+            ClearUndo();
             BuildGrid();
         }), DispatcherPriority.Background);
         menu.Items.Add(milestones);
@@ -49,6 +50,7 @@ public partial class TimelineWindow
         manage.Click += (_, _) => Dispatcher.BeginInvoke(new Action(() =>
         {
             new ManageListWindow(_viewModel, IsByGoal ? ManagedListKind.Goals(_viewModel) : ManagedListKind.Projects(_viewModel)) { Owner = this }.ShowDialog();
+            ClearUndo();
             BuildGrid();
         }), DispatcherPriority.Background);
         menu.Items.Add(manage);
@@ -66,6 +68,7 @@ public partial class TimelineWindow
         }
 
         _viewModel.SetGoalComplete(goal, !goal.IsComplete);
+        ClearUndo();
         BuildGrid();
     }
 
@@ -88,6 +91,7 @@ public partial class TimelineWindow
         }
 
         // An opened row stays open under its new name.
+        ClearUndo();
         if (_expanded.Remove(RowKey(name))) _expanded.Add(RowKey(newName));
         _viewModel.SaveTimelineExpanded(_expanded);
         BuildGrid();

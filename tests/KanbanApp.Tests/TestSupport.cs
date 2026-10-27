@@ -61,7 +61,12 @@ public sealed class WpfDispatcherFixture : IDisposable
         _dispatcher = dispatcher!;
     }
 
-    public void Run(Action action) => _dispatcher.Invoke(action);
+    // Each test starts with no words left on this PC by an earlier one (a board opens with its file's words plus the PC's).
+    public void Run(Action action) => _dispatcher.Invoke(() =>
+    {
+        try { System.IO.File.Delete(new KanbanApp.Services.UserDictionary().PcWordsPath); } catch { }
+        action();
+    });
 
     public void Dispose() => _dispatcher.InvokeShutdown();
 }

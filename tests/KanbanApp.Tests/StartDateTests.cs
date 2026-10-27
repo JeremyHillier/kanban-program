@@ -232,4 +232,31 @@ public sealed class StartDateTests(WpfDispatcherFixture wpf) : IDisposable
         board.DueFilter = "All";
         Assert.False(startsTomorrow.IsVisible);
     });
+
+    [Fact]
+    public void SetCardDates_MovesBothDatesAndUndoPutsThemBack() => wpf.Run(() =>
+    {
+        var board = OpenBoard();
+        var card = Add(board, "A", new DateTime(2026, 10, 10), new DateTime(2026, 10, 20));
+
+        board.SetCardDates(card, new DateTime(2026, 10, 17), new DateTime(2026, 10, 27));
+        Assert.Equal(new DateTime(2026, 10, 17), Assert.Single(Column(OpenBoard(), "To Do").Cards).StartDate);
+        Assert.Equal(new DateTime(2026, 10, 27), Assert.Single(Column(OpenBoard(), "To Do").Cards).DueDate);
+
+        board.Undo();
+        Assert.Equal(new DateTime(2026, 10, 10), card.StartDate);
+        Assert.Equal(new DateTime(2026, 10, 20), card.DueDate);
+    });
+
+    [Fact]
+    public void SetCardDates_NeverLeavesTheStartAfterTheDueDate() => wpf.Run(() =>
+    {
+        var board = OpenBoard();
+        var card = Add(board, "A", new DateTime(2026, 10, 10), new DateTime(2026, 10, 20));
+
+        board.SetCardDates(card, new DateTime(2026, 10, 10), new DateTime(2026, 10, 5));
+
+        Assert.Equal(new DateTime(2026, 10, 5), card.StartDate);
+        Assert.Equal(new DateTime(2026, 10, 5), card.DueDate);
+    });
 }

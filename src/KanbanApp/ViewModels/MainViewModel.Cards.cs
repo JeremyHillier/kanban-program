@@ -177,6 +177,21 @@ public partial class MainViewModel
         RefreshAfterCardChange(card);
     }
 
+    // Both dates at once (dragging a task on the Timeline). The same rules as SetCardDueDate: no due date means no
+    // time, and a start never stays after the due date.
+    public void SetCardDates(CardViewModel card, DateTime? start, DateTime? due)
+    {
+        if (start is not null && due is not null && start > due) start = due;
+        if (card.StartDate == start && card.DueDate == due) return;
+
+        using var undo = RecordUndo(DescribeAction("Move", [card]), [card]);
+        card.StartDate = start;
+        card.DueDate = due;
+        if (due is null) card.DueTime = null;
+        PersistCard(card);
+        RefreshAfterCardChange(card);
+    }
+
     // Makes this one person the whole assignment (or nobody, for null).
     public void SetCardWho(CardViewModel card, PersonViewModel? who) => SetCardPeople(card, who is null ? [] : [who]);
 
