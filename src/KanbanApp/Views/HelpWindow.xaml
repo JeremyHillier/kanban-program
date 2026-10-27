@@ -363,6 +363,9 @@
                 <local:BulletItem Text="Click a task's goal line, or right-click it and choose Goal, to change its goal."/>
                 <local:BulletItem Text="Lists are always alphabetical."/>
                 <local:BulletItem Text="Untick Active to retire an entry. Tasks already using it keep it."/>
+                <local:BulletItem Text="Tick Complete on a goal when it is finished. It stays on its tasks but is no longer offered for new ones."/>
+                <local:BulletItem Text="A complete goal leaves the Timeline unless Include Done tasks is ticked, where it shows in green with its date."/>
+                <local:BulletItem Text="Untick Complete to open a goal again. On the Timeline, right-click a goal and choose Mark Goal Complete."/>
                 <local:BulletItem Text="Names are unique, whatever their capitals."/>
                 <local:BulletItem Text="Adding a name already there uses it, and switches it back on if needed."/>
                 <local:BulletItem Text="Delete says how many tasks use the entry first. It cannot be undone."/>
@@ -513,7 +516,7 @@
                 <local:BulletItem Text="Bars, arrows, targets and milestones sit at their exact day within a column. A blue line marks today."/>
                 <local:BulletItem Text="Week view has a light line for each day; Month view one for each week, with the Monday dates above."/>
                 <local:BulletItem Text="Page with the arrow buttons. Today jumps back."/>
-                <local:BulletItem Text="Include Done tasks brings finished tasks back in."/>
+                <local:BulletItem Text="Include Done tasks brings finished tasks, and complete goals, back in."/>
                 <local:BulletItem Text="Blocks use the priority colours. Hover for details; double-click to open."/>
                 <local:BulletItem Text="Print previews what is showing. Pick the paper and Landscape or Portrait at the top."/>
                 <local:BulletItem Text="Save As in the preview makes a PDF or PNG pictures of the pages to share."/>

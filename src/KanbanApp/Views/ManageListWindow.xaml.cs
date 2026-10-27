@@ -16,6 +16,7 @@ public partial class ManageListWindow : Window
     public string ActiveToolTip { get; }
     public Visibility EmailVisibility { get; }
     public Visibility TargetVisibility { get; }
+    public Visibility CompleteVisibility { get; }
 
     internal ManageListWindow(MainViewModel viewModel, ManagedListKind kind)
     {
@@ -24,10 +25,11 @@ public partial class ManageListWindow : Window
         ActiveToolTip = $"When off, this {kind.Noun} is hidden from filters and from selection on new/edited tasks. Tasks already using it are unaffected.";
         EmailVisibility = kind.HasEmail ? Visibility.Visible : Visibility.Collapsed;
         TargetVisibility = kind.HasTarget ? Visibility.Visible : Visibility.Collapsed;
+        CompleteVisibility = kind.HasComplete ? Visibility.Visible : Visibility.Collapsed;
 
         InitializeComponent();
         Title = kind.Title;
-        if (kind.HasTarget) Width = 900; // a goal or project is one row: name, Active, start and target dates, Milestones, Delete
+        if (kind.HasTarget) Width = kind.HasComplete ? 1000 : 900; // a goal or project is one row: name, Active (and Complete), start and target dates, Milestones, Delete
         MaxHeight = SystemParameters.WorkArea.Height * 0.9;
         DataContext = viewModel;
         ItemsList.ItemsSource = kind.Items;
@@ -97,6 +99,26 @@ public partial class ManageListWindow : Window
     private void ClearTarget_Click(object sender, RoutedEventArgs e)
     {
         if (sender is FrameworkElement { DataContext: IPlannedItem goal }) _kind.SetTarget(goal, null);
+    }
+
+    // Marks a goal finished, or opens it again. Open tasks are not touched - they keep the goal - but it is asked about first.
+    private void Complete_Changed(object sender, RoutedEventArgs e)
+    {
+        if (sender is not CheckBox { DataContext: GoalViewModel goal } box) return;
+
+        var complete = box.IsChecked == true;
+        if (complete == goal.IsComplete) return; // the box was just redrawn to match
+
+        if (complete && _viewModel.OpenTasksInGoal(goal) is { Count: > 0 } open
+            && !Dialogs.Confirm(this, DialogMessage.Ask("Mark Goal Complete",
+                $"\"{goal.Name}\" still has {open.Count} open task{(open.Count == 1 ? "" : "s")}.\n\nThey keep the goal and stay on the board. The goal is no longer offered for new tasks.",
+                "Mark Complete", "Cancel")))
+        {
+            box.IsChecked = false;
+            return;
+        }
+
+        _kind.SetComplete(goal, complete);
     }
 
     private void Active_Changed(object sender, RoutedEventArgs e)

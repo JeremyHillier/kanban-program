@@ -16,6 +16,7 @@ internal abstract class ManagedListKind
     public bool NounInDeleteQuestion { get; init; } = true; // "Delete project "X"?" rather than "Delete "X"?"
     public virtual bool HasEmail => false;
     public virtual bool HasTarget => false;
+    public virtual bool HasComplete => false;
 
     public abstract IEnumerable Items { get; }
     public abstract void Add(Window owner, string name);
@@ -26,6 +27,7 @@ internal abstract class ManagedListKind
     public virtual void SetEmail(IManagedItem item, string? email) { }
     public virtual void SetTarget(IManagedItem item, DateTime? target) { }
     public virtual void SetStart(IManagedItem item, DateTime? start) { }
+    public virtual void SetComplete(IManagedItem item, bool complete) { }
 
     public string DeleteQuestion(string name) => NounInDeleteQuestion ? $"Delete {Noun} \"{name}\"?" : $"Delete \"{name}\"?";
 
@@ -34,7 +36,7 @@ internal abstract class ManagedListKind
         { Title = "Manage Projects", Noun = "project", IfDeleted = "they'll show as having no project." };
 
     public static ManagedListKind Goals(MainViewModel vm) =>
-        new Of<GoalViewModel>(vm.Goals, vm.AddGoal, vm.RenameGoal, vm.SetGoalActive, vm.CountTasksUsingGoal, vm.DeleteGoal, setTarget: vm.SetGoalTarget, setStart: vm.SetGoalStart)
+        new Of<GoalViewModel>(vm.Goals, vm.AddGoal, vm.RenameGoal, vm.SetGoalActive, vm.CountTasksUsingGoal, vm.DeleteGoal, setTarget: vm.SetGoalTarget, setStart: vm.SetGoalStart, setComplete: vm.SetGoalComplete)
         { Title = "Manage Goals", Noun = "goal", IfDeleted = "they'll show as having no goal." };
 
     public static ManagedListKind Flags(MainViewModel vm) =>
@@ -56,10 +58,12 @@ internal abstract class ManagedListKind
         Action<T> delete,
         Action<T, string?>? setEmail = null,
         Action<T, DateTime?>? setTarget = null,
-        Action<T, DateTime?>? setStart = null) : ManagedListKind where T : IManagedItem
+        Action<T, DateTime?>? setStart = null,
+        Action<T, bool>? setComplete = null) : ManagedListKind where T : IManagedItem
     {
         public override bool HasEmail => setEmail is not null;
         public override bool HasTarget => setTarget is not null;
+        public override bool HasComplete => setComplete is not null;
         public override IEnumerable Items => items;
         public override void Add(Window owner, string name) => ManagedListPrompts.ShowAddNotice(owner, add(name), Noun, name);
         public override bool Rename(IManagedItem item, string newName) => rename((T)item, newName);
@@ -69,5 +73,6 @@ internal abstract class ManagedListKind
         public override void SetEmail(IManagedItem item, string? email) => setEmail?.Invoke((T)item, email);
         public override void SetTarget(IManagedItem item, DateTime? target) => setTarget?.Invoke((T)item, target);
         public override void SetStart(IManagedItem item, DateTime? start) => setStart?.Invoke((T)item, start);
+        public override void SetComplete(IManagedItem item, bool complete) => setComplete?.Invoke((T)item, complete);
     }
 }

@@ -236,7 +236,7 @@ public partial class MainWindow
         if (sender is not FrameworkElement { DataContext: CardViewModel card } element || DataContext is not MainViewModel viewModel) return;
 
         var items = new List<(string Header, bool IsChecked, GoalViewModel? Value)> { ("No Goal", card.GoalId is null, null) };
-        items.AddRange(viewModel.Goals.Where(g => g.IsActive).Select(goal => (goal.Name, card.GoalId == goal.Id, (GoalViewModel?)goal)));
+        items.AddRange(viewModel.Goals.Where(g => g.IsOffered).Select(goal => (goal.Name, card.GoalId == goal.Id, (GoalViewModel?)goal)));
         ShowQuickEditMenu(element, items, goal => viewModel.SetCardGoal(card, goal));
         e.Handled = true;
     }

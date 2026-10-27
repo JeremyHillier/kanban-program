@@ -133,7 +133,7 @@ public partial class MainWindow
 
         var goal = AddSubmenu(menu, "_Goal");
         AddMenuItem(goal, "No Goal", () => viewModel.SetCardGoal(card, null), isChecked: card.GoalId is null);
-        foreach (var option in viewModel.Goals.Where(g => g.IsActive))
+        foreach (var option in viewModel.Goals.Where(g => g.IsOffered))
         {
             AddMenuItem(goal, MenuText(option.Name), () => viewModel.SetCardGoal(card, option), isChecked: card.GoalId == option.Id);
         }
@@ -242,7 +242,7 @@ public partial class MainWindow
 
         var goal = AddSubmenu(menu, "_Goal");
         AddMenuItem(goal, "No Goal", () => viewModel.SetCardsGoal(cards, null), isChecked: cards.All(c => c.GoalId is null));
-        foreach (var option in viewModel.Goals.Where(g => g.IsActive))
+        foreach (var option in viewModel.Goals.Where(g => g.IsOffered))
         {
             AddMenuItem(goal, MenuText(option.Name), () => viewModel.SetCardsGoal(cards, option), isChecked: cards.All(c => c.GoalId == option.Id));
         }

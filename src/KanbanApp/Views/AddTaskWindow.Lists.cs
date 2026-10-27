@@ -71,7 +71,7 @@ public partial class AddTaskWindow
 
     private void RebuildGoalItems(GoalViewModel? autoSelect = null)
     {
-        var items = _viewModel.Goals.Where(g => g.IsActive).ToList();
+        var items = _viewModel.Goals.Where(g => g.IsOffered).ToList();
         if (autoSelect is not null && !items.Any(g => g.Id == autoSelect.Id))
         {
             items.Insert(0, autoSelect);

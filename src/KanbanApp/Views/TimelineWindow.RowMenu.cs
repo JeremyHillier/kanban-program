@@ -34,6 +34,15 @@ public partial class TimelineWindow
         }), DispatcherPriority.Background);
         menu.Items.Add(milestones);
 
+        // A goal can be finished (or opened again) from here too; a finished one then drops off the Timeline unless
+        // Include Done tasks is ticked.
+        if (item is GoalViewModel goal)
+        {
+            var complete = new MenuItem { Header = goal.IsComplete ? "Re_open Goal" : "Mark Goal _Complete" };
+            complete.Click += (_, _) => Dispatcher.BeginInvoke(new Action(() => ToggleGoalComplete(goal)), DispatcherPriority.Background);
+            menu.Items.Add(complete);
+        }
+
         menu.Items.Add(new Separator());
 
         var manage = new MenuItem { Header = IsByGoal ? "Manage _Goals..." : "Manage _Projects..." };
@@ -44,6 +53,20 @@ public partial class TimelineWindow
         }), DispatcherPriority.Background);
         menu.Items.Add(manage);
         return menu;
+    }
+
+    private void ToggleGoalComplete(GoalViewModel goal)
+    {
+        if (!goal.IsComplete && _viewModel.OpenTasksInGoal(goal) is { Count: > 0 } open
+            && !Dialogs.Confirm(this, DialogMessage.Ask("Mark Goal Complete",
+                $"\"{goal.Name}\" still has {open.Count} open task{(open.Count == 1 ? "" : "s")}.\n\nThey keep the goal and stay on the board. The goal is no longer offered for new tasks, and leaves the Timeline unless Include Done tasks is ticked.",
+                "Mark Complete", "Cancel")))
+        {
+            return;
+        }
+
+        _viewModel.SetGoalComplete(goal, !goal.IsComplete);
+        BuildGrid();
     }
 
     private void RenameRow(string name, string noun)

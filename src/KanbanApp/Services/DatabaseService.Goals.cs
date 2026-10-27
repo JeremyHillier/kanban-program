@@ -6,10 +6,11 @@ namespace KanbanApp.Services;
 public partial class DatabaseService
 {
     public List<Goal> GetGoals() =>
-        GetListEntries<Goal>("Goals", ", TargetDate, StartDate", (reader, goal) =>
+        GetListEntries<Goal>("Goals", ", TargetDate, StartDate, CompletedDate", (reader, goal) =>
         {
             goal.TargetDate = ReadDay(reader, 4);
             goal.StartDate = ReadDay(reader, 5);
+            goal.CompletedDate = ReadDay(reader, 6);
         });
 
     private static DateTime? ReadDay(Microsoft.Data.Sqlite.SqliteDataReader reader, int index) =>
@@ -49,6 +50,22 @@ public partial class DatabaseService
         }
 
         if (start is not null) RaiseFileFormat(GoalStartFileFormat);
+    }
+
+    // Older copies of the app do not know the column, so the file is only stamped as newer once a goal has
+    // been marked complete (see RaiseFileFormat).
+    public void SetGoalCompleted(int goalId, DateTime? completed)
+    {
+        using (var connection = OpenConnection())
+        using (var cmd = connection.CreateCommand())
+        {
+            cmd.CommandText = "UPDATE Goals SET CompletedDate = $completed WHERE Id = $id;";
+            cmd.Parameters.AddWithValue("$completed", completed is { } date ? date.ToString("yyyy-MM-dd") : DBNull.Value);
+            cmd.Parameters.AddWithValue("$id", goalId);
+            cmd.ExecuteNonQuery();
+        }
+
+        if (completed is not null) RaiseFileFormat(GoalCompleteFileFormat);
     }
 
     public void DeleteGoal(int goalId)

@@ -195,6 +195,7 @@ public partial class TimelineWindow
             var nameLines = WrapWords(projectName, boldTypeface, 9, projectColWidth - 8);
             var countLines = row.Summary is { } counted ? WrapWords(counted.CountsText, regularTypeface, 7.5, projectColWidth - 8) : [];
             var targetLines = new List<string>();
+            if (row.Completed is { } finished) targetLines.Add($"Completed {finished:MMM d, yyyy}");
             if (row.Target is { } goalTarget) targetLines.Add($"Target {goalTarget:MMM d, yyyy}");
             if (row.Summary?.OverrunText is { Length: > 0 } overrunText) targetLines.Add(overrunText);
             var nameHeight = (nameLines.Count + countLines.Count + targetLines.Count) * lineHeight + 4;
@@ -237,7 +238,7 @@ public partial class TimelineWindow
                 var barRight = Math.Max(barLeft + 6, summary.EndsAfterWindow ? UnitLeft(unitsToShow) : UnitLeft(0) + summary.EndAt * unitColWidth - 0.5);
                 var barRect = new Rectangle
                 {
-                    Width = barRight - barLeft, Height = barHeight, Fill = BarBrush(summary),
+                    Width = barRight - barLeft, Height = barHeight, Fill = row.Completed is not null ? CompleteBarBrush : BarBrush(summary),
                     RadiusX = summary.StartsBeforeWindow || summary.EndsAfterWindow ? 0 : 3,
                     RadiusY = summary.StartsBeforeWindow || summary.EndsAfterWindow ? 0 : 3
                 };

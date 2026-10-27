@@ -8,7 +8,7 @@ public class ImportedRowEditViewModel(CardViewModel card, MainViewModel viewMode
     public IEnumerable<ProjectViewModel> AvailableProjects =>
         viewModel.Projects.Where(p => p.IsActive || p.Id == Card.ProjectId);
     public IEnumerable<GoalViewModel> AvailableGoals =>
-        viewModel.Goals.Where(g => g.IsActive || g.Id == Card.GoalId);
+        viewModel.Goals.Where(g => g.IsOffered || g.Id == Card.GoalId);
     public IEnumerable<PersonViewModel> AvailablePeople =>
         viewModel.People.Where(p => p.IsActive || p.Id == Card.WhoId);
 

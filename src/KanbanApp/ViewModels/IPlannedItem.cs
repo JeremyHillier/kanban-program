@@ -9,4 +9,7 @@ public interface IPlannedItem : IManagedItem
     DateTime? StartDate { get; set; }
     DateTime? TargetDate { get; set; }
     MilestoneOwner Owner { get; }
+
+    // The day it was marked complete; only goals can be, so a project has none.
+    DateTime? CompletedDate => null;
 }

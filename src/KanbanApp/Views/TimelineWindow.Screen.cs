@@ -342,6 +342,15 @@ public partial class TimelineWindow
         // A goal's target date, and (Summary) how far its open tasks run past it.
         void AddTargetLines(TimelineSummary? summary)
         {
+            if (row.Completed is { } finished)
+            {
+                panel.Children.Add(new TextBlock
+                {
+                    Text = $"✓ Completed {finished:MMM d, yyyy}", FontSize = 11, FontWeight = FontWeights.SemiBold, Foreground = CompleteBarBrush,
+                    TextWrapping = TextWrapping.Wrap, Margin = new Thickness(row.Summary is null ? 0 : 12, 2, 0, 0)
+                });
+            }
+
             if (row.Target is not { } target) return;
 
             var line = new TextBlock { FontSize = 11, Foreground = secondaryBrush, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(row.Summary is null ? 0 : 12, 2, 0, 0) };
@@ -426,6 +435,9 @@ public partial class TimelineWindow
 
     private static readonly Color OverrunColor = Color.FromRgb(0xC6, 0x28, 0x28);
     private static readonly Brush OverrunBarBrush = new SolidColorBrush(OverrunColor);
+
+    // A finished goal's bar and "Completed" line.
+    private static readonly Brush CompleteBarBrush = new SolidColorBrush(Color.FromRgb(0x2E, 0x7D, 0x32));
     private static readonly Brush TargetBrush = new SolidColorBrush(Color.FromRgb(0xE0, 0x8A, 0x00));
 
     // How far down the row the target's line runs: just under a Summary bar, so the line is not hidden by it.
@@ -474,7 +486,7 @@ public partial class TimelineWindow
         var text = $"{(summary.StartsBeforeWindow ? "◀ " : "")}{summary.DatesText}{(summary.EndsAfterWindow ? " ▶" : "")}";
         var bar = new Border
         {
-            Background = BarBrush(summary),
+            Background = row.Completed is not null ? CompleteBarBrush : BarBrush(summary),
             CornerRadius = new CornerRadius(summary.StartsBeforeWindow ? 0 : 4, summary.EndsAfterWindow ? 0 : 4, summary.EndsAfterWindow ? 0 : 4, summary.StartsBeforeWindow ? 0 : 4),
             Padding = new Thickness(6, 4, 6, 4),
             // To the day: it starts where its first day starts and ends where its last day ends, inside the columns it spans.

@@ -57,7 +57,7 @@ public partial class AddTaskWindow
     {
         DetailsTextBox.Text = template.Title;
         RebuildProjectItems(_viewModel.Projects.FirstOrDefault(p => p.Id == template.ProjectId && p.IsActive));
-        RebuildGoalItems(_viewModel.Goals.FirstOrDefault(g => g.Id == template.GoalId && g.IsActive));
+        RebuildGoalItems(_viewModel.Goals.FirstOrDefault(g => g.Id == template.GoalId && g.IsOffered));
         SetSelectedPeople(template.AllPeopleIds.Select(id => _viewModel.People.FirstOrDefault(p => p.Id == id && p.IsActive)).OfType<PersonViewModel>());
 
         // A priority the template names that has since left the list keeps whatever is chosen now.

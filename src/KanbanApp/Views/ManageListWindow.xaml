@@ -44,11 +44,21 @@
                                              LostFocus="Name_LostFocus"
                                              Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
                                              BorderBrush="{DynamicResource CardBorderBrush}"/>
-                                    <CheckBox Grid.Column="1" Content="Active" VerticalAlignment="Center" Margin="0,0,8,0"
-                                              IsChecked="{Binding IsActive, Mode=OneWay}"
-                                              Foreground="{DynamicResource PrimaryTextBrush}"
-                                              ToolTip="{Binding ActiveToolTip, RelativeSource={RelativeSource AncestorType=Window}}"
-                                              Checked="Active_Changed" Unchecked="Active_Changed"/>
+                                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                                        <CheckBox Content="Active" VerticalAlignment="Center" Margin="0,0,8,0"
+                                                  IsChecked="{Binding IsActive, Mode=OneWay}"
+                                                  Foreground="{DynamicResource PrimaryTextBrush}"
+                                                  ToolTip="{Binding ActiveToolTip, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                  Checked="Active_Changed" Unchecked="Active_Changed"/>
+                                        <!-- Goals only: finished. It drops out of the pickers and the Goal filter, and the Timeline hides it
+                                             unless Include Done tasks is ticked. -->
+                                        <CheckBox Content="Complete" VerticalAlignment="Center" Margin="0,0,8,0"
+                                                  Visibility="{Binding CompleteVisibility, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                  IsChecked="{Binding IsComplete, Mode=OneWay}"
+                                                  Foreground="{DynamicResource PrimaryTextBrush}"
+                                                  ToolTip="The goal is finished. It is no longer offered for new tasks or the Goal filter, and the Timeline hides it unless Include Done tasks is ticked. Its tasks keep it. Untick to open it again."
+                                                  Checked="Complete_Changed" Unchecked="Complete_Changed"/>
+                                    </StackPanel>
                                     <!-- Goals only: when work starts and when it should be finished (both optional), and its milestones. -->
                                     <StackPanel Grid.Column="2" Orientation="Horizontal" Margin="0,0,8,0"
                                                 Visibility="{Binding TargetVisibility, RelativeSource={RelativeSource AncestorType=Window}}">

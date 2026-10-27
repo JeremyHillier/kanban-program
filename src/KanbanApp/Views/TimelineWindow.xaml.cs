@@ -28,7 +28,7 @@ public partial class TimelineWindow : Window
 
     // One row of the Timeline: a project or goal. Summary is its bar (Summary view only); Items are its
     // tasks, laid out by TimelineLayout - every row in Detail view, only opened rows in Summary view.
-    private sealed record TimelineRow(string Name, bool IsExpanded, TimelineSummary? Summary, List<TimelineItem> Items, DateTime? Target = null, List<Milestone>? Milestones = null, DateTime? Start = null)
+    private sealed record TimelineRow(string Name, bool IsExpanded, TimelineSummary? Summary, List<TimelineItem> Items, DateTime? Target = null, List<Milestone>? Milestones = null, DateTime? Start = null, DateTime? Completed = null)
     {
         public int FirstTaskLane => Summary is null ? 0 : 1;
         // A row with milestones has one more lane at the foot, kept for their words so a task box can never cover them.
@@ -303,6 +303,8 @@ public partial class TimelineWindow : Window
             // even if none of its tasks are showing, so the target is never lost.
             var planned = PlannedItemNamed(name);
             if (!_filter.RowShown(planned)) continue; // a project or goal that is not ticked keeps its whole row off
+            var completed = planned?.CompletedDate; // a finished goal is shown only with Include Done tasks
+            if (completed is not null && !includeDone) continue;
             var target = planned?.TargetDate;
             var goalStart = planned?.StartDate;
             var targetShows = target is { } day && day.Date >= unitStarts[0]; // in the window, or still to come
@@ -315,15 +317,15 @@ public partial class TimelineWindow : Window
 
             if (IsSummary)
             {
-                var summary = TimelineLayout.Summarise(open.GetValueOrDefault(name) ?? [], DateTime.Today, unitStarts, rangeEnd, target, goalStart);
+                var summary = TimelineLayout.Summarise(open.GetValueOrDefault(name) ?? [], DateTime.Today, unitStarts, rangeEnd, completed is null ? target : null, goalStart); // finished: nothing runs past its target
                 if (summary is null && !targetShows && !hasMilestones) continue;
 
                 var expanded = _expanded.Contains(RowKey(name));
-                rows.Add(new TimelineRow(name, expanded, summary, expanded ? TimelineLayout.Place(groupTasks, unitStarts, rangeEnd) : [], target, milestones, goalStart));
+                rows.Add(new TimelineRow(name, expanded, summary, expanded ? TimelineLayout.Place(groupTasks, unitStarts, rangeEnd) : [], target, milestones, goalStart, completed));
             }
             else if (groupTasks.Count > 0 || targetShows || hasMilestones)
             {
-                rows.Add(new TimelineRow(name, true, null, TimelineLayout.Place(groupTasks, unitStarts, rangeEnd), target, milestones, goalStart));
+                rows.Add(new TimelineRow(name, true, null, TimelineLayout.Place(groupTasks, unitStarts, rangeEnd), target, milestones, goalStart, completed));
             }
         }
 

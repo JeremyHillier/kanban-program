@@ -7,7 +7,7 @@ namespace KanbanApp.ViewModels;
 public partial class MainViewModel
 {
     public IEnumerable<ProjectViewModel> ActiveProjects => Projects.Where(p => p.IsActive);
-    public IEnumerable<GoalViewModel> ActiveGoals => Goals.Where(g => g.IsActive);
+    public IEnumerable<GoalViewModel> ActiveGoals => Goals.Where(g => g.IsOffered);
     public IEnumerable<FlagViewModel> ActiveFlags => Flags.Where(f => f.IsActive);
     public IEnumerable<PersonViewModel> ActivePeople => People.Where(p => p.IsActive);
 
@@ -63,6 +63,23 @@ public partial class MainViewModel
         goal.StartDate = day;
         _db.SetGoalStart(goal.Id, day);
     }
+
+    // Marks a goal finished today, or opens it again. A complete goal drops out of the pickers and the Goal filter
+    // (its tasks keep it) and the Timeline hides it unless Include Done tasks is ticked.
+    public void SetGoalComplete(GoalViewModel goal, bool complete)
+    {
+        var day = complete ? DateTime.Today : (DateTime?)null;
+        if (goal.CompletedDate == day || complete && goal.IsComplete) return;
+
+        goal.CompletedDate = day;
+        _db.SetGoalCompleted(goal.Id, day);
+        RefreshGoalFilterOptions();
+        OnPropertyChanged(nameof(ActiveGoals));
+    }
+
+    // The tasks still to do under a goal - what is left when it is marked complete.
+    public List<CardViewModel> OpenTasksInGoal(GoalViewModel goal) =>
+        Columns.Where(c => c.Name != "Done").SelectMany(c => c.Cards).Where(c => c.GoalId == goal.Id).ToList();
 
     public void SetGoalTarget(GoalViewModel goal, DateTime? target)
     {

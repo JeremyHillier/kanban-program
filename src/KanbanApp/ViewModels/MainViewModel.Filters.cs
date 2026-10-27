@@ -176,7 +176,7 @@ public partial class MainViewModel
     private void RefreshGoalFilterOptions()
     {
         var desired = new List<string> { "All", "Unassigned" };
-        desired.AddRange(Goals.Where(g => g.IsActive).OrderBy(g => g.Name).Select(g => g.Name));
+        desired.AddRange(Goals.Where(g => g.IsOffered).OrderBy(g => g.Name).Select(g => g.Name));
         ReplaceFilterOptions(GoalFilterOptions, desired);
 
         if (!GoalFilterOptions.Contains(SelectedGoalFilter))
