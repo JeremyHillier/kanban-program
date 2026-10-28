@@ -156,7 +156,7 @@
                 </Border>
 
                 <TextBlock x:Name="HelpSection_AddEditTask" Text="Adding and editing tasks" Style="{StaticResource HelpSectionHeaderStyle}"/>
-                <local:BulletItem Text="Drag the grip under the Task or Notes box to make it taller or shorter. The heights are remembered."/>
+                <local:BulletItem Text="Drag the grip under the Task or Notes box to make it taller or shorter. Each task remembers its own heights; a new task starts at the last heights used for a new task."/>
                 <local:BulletItem Text="On an existing task, the foot of the window says when it was finished, last changed, emailed and scheduled."/>
                 <TextBlock Text="Creating" Style="{StaticResource HelpSubHeaderStyle}"/>
                 <local:BulletItem Text="New Task, or Ctrl+N, creates a task."/>

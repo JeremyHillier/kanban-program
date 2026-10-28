@@ -219,21 +219,29 @@ public partial class MainViewModel
 
     // A window's size as it was last left (the Timeline, Settings), stored under "<key>WindowSize" as
     // "width,height,maximized". The position isn't kept: these windows always open centred on the board.
-    // The heights the user dragged the task window's Task and Notes boxes to; null until they have.
-    public (double Task, double Notes)? TaskBoxHeights
+    // The heights the user dragged the task window's Task and Notes boxes to. Each task remembers its own
+    // (TaskBoxHeights:<id>); a task without its own, and a new task, uses the last heights dragged for a new
+    // task (TaskBoxHeights). Null until anything has been dragged.
+    public (double Task, double Notes)? TaskBoxHeightsFor(int? cardId) =>
+        (cardId is { } id ? ReadBoxHeights($"TaskBoxHeights:{id}") : null) ?? ReadBoxHeights("TaskBoxHeights");
+
+    public (double Task, double Notes)? TaskBoxHeights => TaskBoxHeightsFor(null);
+
+    private (double Task, double Notes)? ReadBoxHeights(string key)
     {
-        get
-        {
-            var parts = (_db.GetSetting("TaskBoxHeights") ?? string.Empty).Split(',');
-            return parts.Length == 2
-                && double.TryParse(parts[0], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var task)
-                && double.TryParse(parts[1], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var notes)
-                ? (task, notes) : null;
-        }
+        var parts = (_db.GetSetting(key) ?? string.Empty).Split(',');
+        return parts.Length == 2
+            && double.TryParse(parts[0], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var task)
+            && double.TryParse(parts[1], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var notes)
+            ? (task, notes) : null;
     }
 
-    public void SaveTaskBoxHeights(double task, double notes) =>
-        _db.SetSetting("TaskBoxHeights", string.Create(System.Globalization.CultureInfo.InvariantCulture, $"{Math.Round(task)},{Math.Round(notes)}"));
+    // Dragged while editing a task: that task's own heights. Dragged on a new task: the heights new tasks start with.
+    public void SaveTaskBoxHeights(int? cardId, double task, double notes) =>
+        _db.SetSetting(cardId is { } id ? $"TaskBoxHeights:{id}" : "TaskBoxHeights",
+            string.Create(System.Globalization.CultureInfo.InvariantCulture, $"{Math.Round(task)},{Math.Round(notes)}"));
+
+    public void SaveTaskBoxHeights(double task, double notes) => SaveTaskBoxHeights(null, task, notes);
 
     public (double Width, double Height, bool Maximized)? WindowSize(string key)
     {

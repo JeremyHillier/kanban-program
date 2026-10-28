@@ -213,6 +213,7 @@ public partial class AddTaskWindow : Window
         SubmitButton.ToolTip = "Save and close (Enter or Ctrl+S)";
 
         _cardToEdit = cardToEdit;
+        RestoreBoxHeights(); // this task's own heights, now it is known which task
         RefreshTemplatePanel();
 
         TaskStampPanel.Visibility = Visibility.Visible;

@@ -87,4 +87,17 @@ public sealed class TaskBoxHeightsTests(WpfDispatcherFixture wpf) : IDisposable
 
         Assert.Equal((80d, 220d), new MainViewModel(new DatabaseService(_temp.File("board.db"))).TaskBoxHeights);
     });
+
+    [Fact]
+    public void EachTask_RemembersItsOwn_AndOthersUseTheNewTaskHeights() => wpf.Run(() =>
+    {
+        var board = new MainViewModel(new DatabaseService(_temp.File("board.db")));
+        board.SaveTaskBoxHeights(null, 60, 150); // a new task was dragged
+        board.SaveTaskBoxHeights(7, 120, 400);   // task 7 was dragged
+
+        var reopened = new MainViewModel(new DatabaseService(_temp.File("board.db")));
+        Assert.Equal((120d, 400d), reopened.TaskBoxHeightsFor(7));
+        Assert.Equal((60d, 150d), reopened.TaskBoxHeightsFor(8));    // never dragged: the new-task heights
+        Assert.Equal((60d, 150d), reopened.TaskBoxHeightsFor(null)); // a new task
+    });
 }
