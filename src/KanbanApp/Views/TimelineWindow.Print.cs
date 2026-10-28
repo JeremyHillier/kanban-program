@@ -6,6 +6,7 @@ using System.Windows.Markup;
 using System.Windows.Media;
 using System.Windows.Shapes;
 using KanbanApp.Converters;
+using KanbanApp.Models;
 using KanbanApp.Services;
 using KanbanApp.ViewModels;
 
@@ -331,12 +332,16 @@ public partial class TimelineWindow
                     });
                 }
                 var chipX = UnitLeft(item.BoxUnit) + 1;
+                // A card's own colour fills its chip, in the light shade, as on screen; otherwise a tint of its priority.
+                var cardColor = CardColors.Get(item.Card.Color) is { } colour
+                    ? Color.FromRgb((byte)(colour.Light >> 16), (byte)(colour.Light >> 8), (byte)colour.Light)
+                    : (Color?)null;
                 var chip = new Rectangle
                 {
                     Width = unitColWidth - 2, Height = chipHeight, RadiusX = 2, RadiusY = 2,
-                    Stroke = new SolidColorBrush(priorityColor), StrokeThickness = 0.75,
+                    Stroke = new SolidColorBrush(priorityColor), StrokeThickness = cardColor is null ? 0.75 : 1.25,
                     // Dashed and unfilled when the start is before the left edge - see TimelineItem.
-                    Fill = item.StartsBeforeWindow ? Brushes.White : new SolidColorBrush(LightenColor(priorityColor, 0.85))
+                    Fill = item.StartsBeforeWindow ? Brushes.White : new SolidColorBrush(cardColor ?? LightenColor(priorityColor, 0.85))
                 };
                 if (item.StartsBeforeWindow) chip.StrokeDashArray = [3, 2];
                 Canvas.SetLeft(chip, chipX);

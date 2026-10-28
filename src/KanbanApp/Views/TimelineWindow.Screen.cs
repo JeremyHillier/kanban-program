@@ -271,21 +271,26 @@ public partial class TimelineWindow
 
                 // Started before the left edge: the box can't sit at its start date, so it is drawn
                 // hollow and dashed in the first column showing, with the arrow running on from it.
+                // A card with a colour shows it as the box's fill (this theme's shade), with its priority
+                // colour kept as a stripe down the left; an ordinary card's box is its priority colour.
+                var cardBrush = task.BackgroundBrush;
                 FrameworkElement block = item.StartsBeforeWindow
                     ? new Grid
                     {
                         Children =
                         {
-                            new Rectangle { Stroke = priorityBrush, StrokeThickness = 1.5, StrokeDashArray = [3, 2], RadiusX = 3, RadiusY = 3, Fill = panelBrush },
+                            new Rectangle { Stroke = priorityBrush, StrokeThickness = 1.5, StrokeDashArray = [3, 2], RadiusX = 3, RadiusY = 3, Fill = cardBrush ?? panelBrush },
                             new TextBlock { Text = string.Join(" - ", parts), Foreground = brush, FontSize = 11, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(5, 3, 5, 3) }
                         }
                     }
                     : new Border
                     {
-                        Background = priorityBrush,
+                        Background = cardBrush ?? priorityBrush,
+                        BorderBrush = priorityBrush,
+                        BorderThickness = cardBrush is null ? new Thickness(0) : new Thickness(5, 0, 0, 0),
                         CornerRadius = new CornerRadius(3),
                         Padding = new Thickness(5, 3, 5, 3),
-                        Child = new TextBlock { Text = string.Join(" - ", parts), Foreground = Brushes.White, FontSize = 11, TextWrapping = TextWrapping.Wrap }
+                        Child = new TextBlock { Text = string.Join(" - ", parts), Foreground = cardBrush is null ? Brushes.White : brush, FontSize = 11, TextWrapping = TextWrapping.Wrap }
                     };
                 // The line to the due date leaves the box's right side, level with its middle, so it plainly belongs
                 // to that task. A task due within its box's own column has no line - its dates are in the box.
