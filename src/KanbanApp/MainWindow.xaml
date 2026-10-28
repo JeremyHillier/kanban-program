@@ -1009,6 +1009,10 @@
                                                                  shifts every card below it in the column by a fraction of a pixel. -->
                                                             <Setter Property="BorderThickness" Value="2"/>
                                                             <Style.Triggers>
+                                                                <!-- A colour the user gave the card (right-click, Colour). Before the selected trigger, so selection still shows. -->
+                                                                <DataTrigger Binding="{Binding HasColor}" Value="True">
+                                                                    <Setter Property="Background" Value="{Binding BackgroundBrush}"/>
+                                                                </DataTrigger>
                                                                 <Trigger Property="IsMouseOver" Value="True">
                                                                     <Setter Property="BorderBrush" Value="{DynamicResource AccentTextBrush}"/>
                                                                 </Trigger>

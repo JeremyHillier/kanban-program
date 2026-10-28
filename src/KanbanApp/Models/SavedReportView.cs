@@ -43,6 +43,10 @@ public class SavedReportView
     public bool IncludeNotes { get; set; } = true;
     public bool IncludeSubTasks { get; set; } = true;
     public bool IncludeSubTaskSummary { get; set; }
+    // The emailed line under each task (when, to whom, how many times), and the follow-up list: only tasks
+    // that have been emailed. A view saved before these existed has neither.
+    public bool IncludeEmailed { get; set; }
+    public bool EmailedOnly { get; set; }
 
     // "TaskList" or "Statistics". A view saved before statistics existed has none, so reads as a
     // task list. The fields below are the statistics report's own options (see TaskStatistics);

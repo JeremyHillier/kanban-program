@@ -117,6 +117,7 @@ public partial class AddTaskWindow : Window
         _fixEndsOfAutoCorrectBoxes = () => { fixTaskEnd(); fixNotesEnd(); };
 
         _viewModel = viewModel;
+        RestoreBoxHeights();
         CalendarWheelSupport.Attach(DueDatePicker);
         CalendarWheelSupport.Attach(StartDatePicker);
         CategoryComboBox.ItemsSource = viewModel.Columns;

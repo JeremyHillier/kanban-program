@@ -6,6 +6,16 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.163.0 — 2026-10-28
+
+> - New: give a task card a background colour. Right-click the card, choose Colour, and pick one of eight; None takes it off. With several cards selected, Colour All. The colour has its own shade in the dark theme, and Undo puts the old colour back.
+> - New: report on emailed tasks for follow-up. The Report Builder has two new options: Include when each task was emailed and to whom, which adds an Emailed line under each task with the latest time, recipients and how many times in all, and Emailed tasks only, which leaves out every task never emailed. Both are kept in a saved view, so Quick Report runs them too.
+> - Improved: the Task and Notes boxes in the task window can be dragged taller or shorter, by the grip under each. The heights are remembered.
+> - Improved: in the task window, Save as Template, Email, Schedule and Send Back are on a row of their own, so the lines saying when the task was last changed, emailed and scheduled have the whole width and are no longer cut short.
+> - Improved: the Update Version button stays after a restart. It is shown until the app has been updated past that version, or the version is skipped.
+- A task file that holds a coloured card is marked, so an older copy of the app warns before opening it.
+
+
 ## 0.162.0 — 2026-10-27
 
 > - New: dates can be changed by dragging on the Timeline. Drag a task's box to move the whole task, drag the end of its line to change the due date, and drag a milestone or a target diamond to change its date.

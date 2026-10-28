@@ -165,6 +165,17 @@ public partial class MainViewModel
         RefreshAfterCardChange(card);
     }
 
+    // A background colour for the card (a CardColors key), or none. Undo puts the old one back.
+    public void SetCardColor(CardViewModel card, string? color)
+    {
+        color = CardColors.Get(color)?.Key;
+        if (card.Color == color) return;
+
+        using var undo = RecordUndo(DescribeAction("Change colour of", [card]), [card]);
+        card.Color = color;
+        _db.SetCardColor(card.Id, color);
+    }
+
     public void SetCardDueDate(CardViewModel card, DateTime? dueDate)
     {
         if (card.DueDate == dueDate) return;

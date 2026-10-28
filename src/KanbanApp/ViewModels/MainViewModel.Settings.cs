@@ -219,6 +219,22 @@ public partial class MainViewModel
 
     // A window's size as it was last left (the Timeline, Settings), stored under "<key>WindowSize" as
     // "width,height,maximized". The position isn't kept: these windows always open centred on the board.
+    // The heights the user dragged the task window's Task and Notes boxes to; null until they have.
+    public (double Task, double Notes)? TaskBoxHeights
+    {
+        get
+        {
+            var parts = (_db.GetSetting("TaskBoxHeights") ?? string.Empty).Split(',');
+            return parts.Length == 2
+                && double.TryParse(parts[0], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var task)
+                && double.TryParse(parts[1], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var notes)
+                ? (task, notes) : null;
+        }
+    }
+
+    public void SaveTaskBoxHeights(double task, double notes) =>
+        _db.SetSetting("TaskBoxHeights", string.Create(System.Globalization.CultureInfo.InvariantCulture, $"{Math.Round(task)},{Math.Round(notes)}"));
+
     public (double Width, double Height, bool Maximized)? WindowSize(string key)
     {
         var parts = (_db.GetSetting(key + "WindowSize") ?? string.Empty).Split(',');
@@ -529,6 +545,7 @@ public partial class MainViewModel
         _db.SetSetting("Theme", IsDarkMode ? "Dark" : "Light");
         Theming.ThemeManager.Apply(IsDarkMode);
         ApplyColumnPalette();
+        foreach (var card in Columns.SelectMany(c => c.Cards)) card.RefreshColor(); // the colour's shade follows the theme
     }
 
     private void ApplyColumnPalette()

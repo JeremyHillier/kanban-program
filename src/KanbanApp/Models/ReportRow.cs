@@ -21,6 +21,8 @@ public class ReportRow
     public List<string> Flags { get; init; } = [];
     public List<(string Title, bool IsDone)> SubTasks { get; init; } = [];
     public string? Notes { get; init; }
+    // When the task was last emailed and to whom, with how many times in all; null for a task never emailed.
+    public string? Emailed { get; init; }
     public bool IsArchived { get; init; }
     public DateTime? ArchivedAt { get; init; }
     public DateTime? CompletedAt { get; init; }

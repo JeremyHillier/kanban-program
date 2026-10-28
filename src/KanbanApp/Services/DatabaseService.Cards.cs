@@ -17,7 +17,7 @@ public partial class DatabaseService
             : "";
         var idFilter = onlyIds is null ? "" : $" AND Id IN ({string.Join(",", onlyIds.DefaultIfEmpty(-1))})";
         cmd.CommandText = $"""
-            SELECT Id, ColumnId, Title, SortOrder, ProjectId, Priority, DueDate, WhoId, LastUpdated, IsRecurring, RecurrencePattern, GoalId, Notes, IsImported, ForceEditOnComplete, NextOccurrenceSpawned, WebsiteUrl, DueTime, CompletedAt, StartDate, WaitingOn, RecurrencesLeft, ShareId{archivedAtColumn}
+            SELECT Id, ColumnId, Title, SortOrder, ProjectId, Priority, DueDate, WhoId, LastUpdated, IsRecurring, RecurrencePattern, GoalId, Notes, IsImported, ForceEditOnComplete, NextOccurrenceSpawned, WebsiteUrl, DueTime, CompletedAt, StartDate, WaitingOn, RecurrencesLeft, ShareId, Color{archivedAtColumn}
             FROM Cards WHERE IsArchived = {(archivedOnly ? 1 : 0)} AND IsDeleted = 0{idFilter} ORDER BY SortOrder;
             """;
 
@@ -51,7 +51,8 @@ public partial class DatabaseService
                     WaitingOn = reader.IsDBNull(20) ? null : reader.GetString(20),
                     RecurrencesLeft = reader.IsDBNull(21) ? null : reader.GetInt32(21),
                     ShareId = reader.IsDBNull(22) ? null : reader.GetString(22),
-                    ArchivedAt = archivedOnly && !reader.IsDBNull(23) ? DateTime.Parse(reader.GetString(23)) : null
+                    Color = reader.IsDBNull(23) ? null : reader.GetString(23),
+                    ArchivedAt = archivedOnly && !reader.IsDBNull(24) ? DateTime.Parse(reader.GetString(24)) : null
                 });
             }
         }
@@ -162,6 +163,22 @@ public partial class DatabaseService
         };
         fields.CopyTo(card);
         return card;
+    }
+
+    // The card's background colour (a CardColors key, or null for none). Older copies of the app do not know the
+    // column, so the file is stamped as newer only once a colour has been set.
+    public void SetCardColor(int cardId, string? color)
+    {
+        using (var connection = OpenConnection())
+        using (var cmd = connection.CreateCommand())
+        {
+            cmd.CommandText = "UPDATE Cards SET Color = $color WHERE Id = $id;";
+            cmd.Parameters.AddWithValue("$color", (object?)color ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("$id", cardId);
+            cmd.ExecuteNonQuery();
+        }
+
+        if (color is not null) RaiseFileFormat(CardColorFileFormat);
     }
 
     public void SetCardImported(int cardId, bool isImported)

@@ -17,7 +17,7 @@ public static partial class ReportService
         _fontResolverRegistered = true;
     }
 
-    public static void SavePdf(string title, List<ReportRow> rows, string groupBy, bool includeNotes, bool includeSubTasks, string filePath, bool includeSubTaskSummary = false, bool isLandscape = false, string? parameterSummary = null)
+    public static void SavePdf(string title, List<ReportRow> rows, string groupBy, bool includeNotes, bool includeSubTasks, string filePath, bool includeSubTaskSummary = false, bool isLandscape = false, string? parameterSummary = null, bool includeEmailed = false)
     {
         EnsureFontResolverRegistered();
 
@@ -144,6 +144,14 @@ public static partial class ReportService
                 if (includeNotes && !string.IsNullOrWhiteSpace(row.Notes))
                 {
                     foreach (var line in WrapText(gfx, $"Notes: {row.Notes}", noteFont, width - 32))
+                    {
+                        lines.Add((line, noteFont, XBrushes.DimGray, 16, 13));
+                    }
+                }
+
+                if (includeEmailed && row.Emailed is not null)
+                {
+                    foreach (var line in WrapText(gfx, $"Emailed: {row.Emailed}", noteFont, width - 32))
                     {
                         lines.Add((line, noteFont, XBrushes.DimGray, 16, 13));
                     }

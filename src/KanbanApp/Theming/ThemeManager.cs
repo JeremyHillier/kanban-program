@@ -1,5 +1,6 @@
 using System.Windows;
 using System.Windows.Media;
+using KanbanApp.Models;
 
 namespace KanbanApp.Theming;
 
@@ -8,6 +9,13 @@ public static class ThemeManager
     public static void Apply(bool isDark)
     {
         var res = Application.Current.Resources;
+
+        // The card background colours, in this theme's shades (CardColors).
+        foreach (var colour in CardColors.All)
+        {
+            var value = isDark ? colour.Dark : colour.Light;
+            res[CardColors.ResourceKey(colour.Key)] = Brush((byte)(value >> 16), (byte)(value >> 8), (byte)value);
+        }
 
         if (isDark)
         {

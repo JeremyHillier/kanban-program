@@ -22,7 +22,8 @@ public static class ReportRunner
             view.SortLevel1, view.SortLevel2, view.SortLevel3,
             scope,
             scope == ReportArchiveScope.BoardOnly ? null : board.GetArchivedReportRows(),
-            RelativeDate.Resolve(view.ArchivedFrom, today), RelativeDate.Resolve(view.ArchivedTo, today));
+            RelativeDate.Resolve(view.ArchivedFrom, today), RelativeDate.Resolve(view.ArchivedTo, today),
+            board.GetEmailHistory, view.EmailedOnly);
     }
 
     public static FixedDocument BuildDocument(MainViewModel board, SavedReportView view, DateTime today) =>
@@ -30,7 +31,7 @@ public static class ReportRunner
             ? ReportService.BuildStatisticsDocument(view.Title, BuildStatistics(board, view, today), SectionsOf(view), view.StatsBreakdown,
                 view.StatsOverTime, view.IsLandscape, Summarise(view, today))
             : ReportService.BuildFixedDocument(view.Title, BuildRows(board, view, today), view.GroupBy, view.IncludeNotes, view.IncludeSubTasks,
-                view.IncludeSubTaskSummary, view.IsLandscape, Summarise(view, today));
+                view.IncludeSubTaskSummary, view.IsLandscape, Summarise(view, today), includeEmailed: view.IncludeEmailed);
 
     public static void SavePdf(MainViewModel board, SavedReportView view, DateTime today, string filePath)
     {
@@ -42,7 +43,7 @@ public static class ReportRunner
         }
 
         ReportService.SavePdf(view.Title, BuildRows(board, view, today), view.GroupBy, view.IncludeNotes, view.IncludeSubTasks, filePath,
-            view.IncludeSubTaskSummary, view.IsLandscape, Summarise(view, today));
+            view.IncludeSubTaskSummary, view.IsLandscape, Summarise(view, today), includeEmailed: view.IncludeEmailed);
     }
 
     // A statistics report covers every task its filters pick, on the board and archived, whatever

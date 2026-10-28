@@ -30,8 +30,14 @@ public partial class MainViewModel
     {
         if (history.Count == 0) return null;
 
+        return "Emailed " + EmailSummaryText(history);
+    }
+
+    // The same without the word: "Oct 13, 2026, 7:11 AM to sam@x.com (3 times)", for a report's Emailed line.
+    public static string EmailSummaryText(IReadOnlyList<CardEmailRecord> history)
+    {
         var latest = history[0];
-        var text = $"Emailed {latest.When:MMM d, yyyy, h:mm tt} {WithoutHow(latest.Details)}";
+        var text = $"{latest.When:MMM d, yyyy, h:mm tt} {WithoutHow(latest.Details)}";
         return history.Count == 1 ? text : $"{text} ({history.Count} times)";
     }
 

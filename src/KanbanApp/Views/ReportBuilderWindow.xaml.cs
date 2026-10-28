@@ -112,6 +112,8 @@ public partial class ReportBuilderWindow : Window
         IncludeNotesCheckBox.IsChecked = true;
         IncludeSubTasksCheckBox.IsChecked = true;
         IncludeSubTaskSummaryCheckBox.IsChecked = false;
+        IncludeEmailedCheckBox.IsChecked = false;
+        EmailedOnlyCheckBox.IsChecked = false;
 
         UpdateSortLevelAvailability();
         ShowOptionsForReportType();
@@ -228,6 +230,7 @@ public partial class ReportBuilderWindow : Window
 
         var groupBy = GetGroupBy();
         if (groupBy != "None") parts.Add($"Grouped by: {(groupBy == "Status" ? "Category" : groupBy)}");
+        if (EmailedOnlyCheckBox.IsChecked == true) parts.Add("Emailed tasks only");
 
         var scope = GetArchiveScope();
         if (scope != ReportArchiveScope.BoardOnly)
@@ -269,7 +272,9 @@ public partial class ReportBuilderWindow : Window
             scope,
             scope == ReportArchiveScope.BoardOnly ? null : _viewModel.GetArchivedReportRows(),
             ArchivedFromDatePicker.SelectedDate,
-            ArchivedToDatePicker.SelectedDate);
+            ArchivedToDatePicker.SelectedDate,
+            _viewModel.GetEmailHistory,
+            EmailedOnlyCheckBox.IsChecked == true);
     }
 
     private void Preview_Click(object sender, RoutedEventArgs e)
@@ -285,7 +290,8 @@ public partial class ReportBuilderWindow : Window
         var rows = BuildRows();
         var document = ReportService.BuildFixedDocument(
             title, rows, GetGroupBy(), IncludeNotesCheckBox.IsChecked == true, IncludeSubTasksCheckBox.IsChecked == true,
-            IncludeSubTaskSummaryCheckBox.IsChecked == true, LandscapeRadio.IsChecked == true, GetParameterSummary());
+            IncludeSubTaskSummaryCheckBox.IsChecked == true, LandscapeRadio.IsChecked == true, GetParameterSummary(),
+            includeEmailed: IncludeEmailedCheckBox.IsChecked == true);
 
         new ReportPreviewWindow(document) { Owner = this }.ShowDialog();
     }
@@ -320,6 +326,7 @@ public partial class ReportBuilderWindow : Window
         }
 
         ReportService.SavePdf(title, BuildRows(), GetGroupBy(), IncludeNotesCheckBox.IsChecked == true, IncludeSubTasksCheckBox.IsChecked == true, filePath,
-            IncludeSubTaskSummaryCheckBox.IsChecked == true, LandscapeRadio.IsChecked == true, GetParameterSummary());
+            IncludeSubTaskSummaryCheckBox.IsChecked == true, LandscapeRadio.IsChecked == true, GetParameterSummary(),
+            includeEmailed: IncludeEmailedCheckBox.IsChecked == true);
     }
 }

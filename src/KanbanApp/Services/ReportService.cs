@@ -21,8 +21,13 @@ public static partial class ReportService
         string sortLevel1, string sortLevel2, string sortLevel3,
         ReportArchiveScope archiveScope = ReportArchiveScope.BoardOnly,
         IEnumerable<(CardViewModel Card, string ColumnName)>? archivedCards = null,
-        DateTime? archivedFrom = null, DateTime? archivedTo = null)
+        DateTime? archivedFrom = null, DateTime? archivedTo = null,
+        Func<CardViewModel, IReadOnlyList<CardEmailRecord>>? emailHistory = null, bool emailedOnly = false)
     {
+        // emailHistory looks up when a task was emailed (null when the report has no interest in that);
+        // emailedOnly keeps only tasks that have been emailed at least once - a follow-up list.
+        IReadOnlyList<CardEmailRecord> EmailsOf(CardViewModel card) => emailHistory?.Invoke(card) ?? [];
+
         bool CardMatches(CardViewModel card) => unionFilters is { Count: > 0 }
             ? unionFilters.Any(f => Matches(card, f))
             : Matches(card, projectFilter, priorityFilter, whoFilter, goalFilter, flagFilter, dueFilter, dueRangeFrom, dueRangeTo, includeNoDueDate);
@@ -41,8 +46,10 @@ public static partial class ReportService
                 foreach (var card in column.Cards)
                 {
                     if (!CardMatches(card)) continue;
+                    var emails = EmailsOf(card);
+                    if (emailedOnly && emails.Count == 0) continue;
 
-                    rows.Add(BuildRow(card, column.DisplayName, isArchived: false, columnKey: column.Name));
+                    rows.Add(BuildRow(card, column.DisplayName, isArchived: false, columnKey: column.Name, emails: emails));
                 }
             }
         }
@@ -54,8 +61,10 @@ public static partial class ReportService
                 if (!CardMatches(card)) continue;
                 if (archivedFrom is not null && (card.ArchivedAt is null || card.ArchivedAt.Value.Date < archivedFrom.Value.Date)) continue;
                 if (archivedTo is not null && (card.ArchivedAt is null || card.ArchivedAt.Value.Date > archivedTo.Value.Date)) continue;
+                var emails = EmailsOf(card);
+                if (emailedOnly && emails.Count == 0) continue;
 
-                rows.Add(BuildRow(card, columnName, isArchived: true));
+                rows.Add(BuildRow(card, columnName, isArchived: true, emails: emails));
             }
         }
 
@@ -79,8 +88,9 @@ public static partial class ReportService
             .ThenBy(s => s.SubTaskTitle, StringComparer.OrdinalIgnoreCase)
             .ToList();
 
-    private static ReportRow BuildRow(CardViewModel card, string columnName, bool isArchived, string? columnKey = null) => new()
+    private static ReportRow BuildRow(CardViewModel card, string columnName, bool isArchived, string? columnKey = null, IReadOnlyList<CardEmailRecord>? emails = null) => new()
     {
+        Emailed = emails is { Count: > 0 } ? MainViewModel.EmailSummaryText(emails) : null,
         CardId = card.Id,
         Title = card.Title,
         ColumnName = columnName,

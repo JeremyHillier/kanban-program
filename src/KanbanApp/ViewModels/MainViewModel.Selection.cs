@@ -1,3 +1,4 @@
+using KanbanApp.Models;
 namespace KanbanApp.ViewModels;
 
 // Selecting several cards (Ctrl+click, Shift+click) so they can be handled together: dragged to
@@ -142,6 +143,16 @@ public partial class MainViewModel
 
     public void SetCardsPriority(IEnumerable<CardViewModel> cards, string priority) =>
         ChangeCards("Change priority of", cards, c => c.Priority != priority, c => c.Priority = priority);
+
+    public void SetCardsColor(IEnumerable<CardViewModel> cards, string? color)
+    {
+        color = CardColors.Get(color)?.Key;
+        ChangeCards("Change colour of", cards, c => c.Color != color, c =>
+        {
+            c.Color = color;
+            _db.SetCardColor(c.Id, color); // not one of the fields PersistCard writes
+        });
+    }
 
     // Makes this one person the whole assignment of every task (or nobody, for null).
     public void SetCardsWho(IEnumerable<CardViewModel> cards, PersonViewModel? who) =>

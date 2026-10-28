@@ -97,7 +97,7 @@ public partial class MainWindow
         // The link Outlook events and emails carry: pasted anywhere, it opens this task (on this PC, in this task file).
         AddMenuItem(menu, "Cop_y Link", () => { CopyToClipboard(viewModel.TaskLinkFor(card)); ShowStatusMessage("Link to the task copied"); });
         AddMenuItem(menu, "D_uplicate", () => viewModel.DuplicateCard(card));
-        AddMenuItem(menu, "Save as Temp_late...", () => TemplatePrompts.SaveAs(this, viewModel, MainViewModel.TemplateFromCard(card)));
+        AddMenuItem(menu, "Sa_ve as Template...", () => TemplatePrompts.SaveAs(this, viewModel, MainViewModel.TemplateFromCard(card)));
         Separator();
 
         var moveTo = AddSubmenu(menu, "_Move To");
@@ -143,6 +143,8 @@ public partial class MainWindow
         AddMenuItem(waiting, "Clear", () => viewModel.SetCardWaitingOn(card, null), isEnabled: card.IsWaiting);
         waiting.Items.Add(new System.Windows.Controls.Separator());
         AddMenuItem(waiting, "Manage List...", () => ManageWaitingOn(viewModel));
+
+        AddColourSubmenu(menu, "Co_lour", card.Color, colour => viewModel.SetCardColor(card, colour));
 
         var availableFlags = viewModel.Flags
             .Where(f => f.IsActive && card.Flags.All(cf => cf.Id != f.Id))
@@ -254,6 +256,8 @@ public partial class MainWindow
         AddMenuItem(waiting, "Manage List...", () => ManageWaitingOn(viewModel));
 
         // A flag is offered while at least one selected card lacks it.
+        AddColourSubmenu(menu, "Co_lour All", cards.Select(c => c.Color).Distinct().Count() == 1 ? cards[0].Color : null, colour => viewModel.SetCardsColor(cards, colour));
+
         var availableFlags = viewModel.Flags
             .Where(f => f.IsActive && cards.Any(c => c.Flags.All(cf => cf.Id != f.Id)))
             .OrderBy(f => f.Name)
@@ -266,11 +270,29 @@ public partial class MainWindow
         }
 
         Separator();
-        AddMenuItem(menu, $"Emai_l These {cards.Count} Tasks...", () => OutlookEmailHelper.ComposeTasksEmail(this, cards, viewModel));
+        AddMenuItem(menu, $"Ema_il These {cards.Count} Tasks...", () => OutlookEmailHelper.ComposeTasksEmail(this, cards, viewModel));
         Separator();
         AddMenuItem(menu, "Clear Selectio_n", viewModel.ClearCardSelection, gesture: "Esc");
         Separator();
         AddMenuItem(menu, $"_Delete {cards.Count} Tasks...", () => DeleteCardsWithConfirm(cards, viewModel));
+    }
+
+    // Colour (or Colour All): None, then each CardColors entry with a swatch of it in this theme. The current
+    // colour is ticked; for a selection, only when every card has the same one.
+    private void AddColourSubmenu(System.Windows.Controls.ContextMenu menu, string header, string? current, Action<string?> apply)
+    {
+        var colour = AddSubmenu(menu, header);
+        AddMenuItem(colour, "None", () => apply(null), isChecked: current is null);
+        foreach (var entry in CardColors.All)
+        {
+            var item = AddMenuItem(colour, entry.Key, () => apply(entry.Key), isChecked: string.Equals(current, entry.Key, StringComparison.OrdinalIgnoreCase));
+            item.Icon = new System.Windows.Shapes.Rectangle
+            {
+                Width = 14, Height = 14, RadiusX = 3, RadiusY = 3, StrokeThickness = 1,
+                Fill = Application.Current.Resources[CardColors.ResourceKey(entry.Key)] as System.Windows.Media.Brush,
+                Stroke = Application.Current.Resources["CardOutlineBrush"] as System.Windows.Media.Brush
+            };
+        }
     }
 
     private void CopyToClipboard(string text)

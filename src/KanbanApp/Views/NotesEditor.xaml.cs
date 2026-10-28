@@ -12,6 +12,13 @@ public partial class NotesEditor : UserControl
 {
     private bool _updatingBar;
 
+    // The text box's height, which the task window lets the user drag.
+    public double BoxHeight
+    {
+        get => Box.Height;
+        set => Box.Height = value;
+    }
+
     public NotesEditor()
     {
         InitializeComponent();

@@ -11,6 +11,23 @@
         ShowInTaskbar="False"
         Background="{DynamicResource WindowBackgroundBrush}">
     <Window.Resources>
+        <!-- The grip under the Task and Notes boxes: drag it to make the box taller or shorter. -->
+        <Style x:Key="ResizeGripStyle" TargetType="Thumb">
+            <Setter Property="Height" Value="9"/>
+            <Setter Property="Cursor" Value="SizeNS"/>
+            <Setter Property="Margin" Value="0,1,0,0"/>
+            <Setter Property="ToolTip" Value="Drag to change the height of the box above. The height is remembered."/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Thumb">
+                        <Border Background="Transparent">
+                            <Border Width="36" Height="3" CornerRadius="1.5" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                    Background="{DynamicResource SecondaryTextBrush}" Opacity="0.55"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
         <Style x:Key="FieldLabelStyle" TargetType="TextBlock">
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="Margin" Value="0,12,0,4"/>
@@ -166,6 +183,8 @@
                           SpellCheck.IsEnabled="True" Language="en-CA"
                           Style="{StaticResource HoverTextBoxStyle}"
                           Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                <Thumb Style="{StaticResource ResizeGripStyle}" DragDelta="TaskGrip_DragDelta" DragCompleted="Grip_DragCompleted"
+                       AutomationProperties.Name="Resize the Task box"/>
 
                 <!-- Compact three-column fields -->
                 <Grid>
@@ -474,6 +493,8 @@
                 <!-- Notes -->
                 <TextBlock Text="Notes" Style="{StaticResource FieldLabelStyle}"/>
                 <views:NotesEditor x:Name="NotesEditor"/>
+                <Thumb Style="{StaticResource ResizeGripStyle}" DragDelta="NotesGrip_DragDelta" DragCompleted="Grip_DragCompleted"
+                       AutomationProperties.Name="Resize the Notes box"/>
 
                 <!-- Flags -->
                 <StackPanel Style="{StaticResource FieldLabelRowStyle}">
@@ -518,40 +539,49 @@
 
         <!-- Two columns, so the stamps on the left end with "..." before the buttons rather than
              running underneath them (a long "Emailed ..." line, with the Email button showing). -->
+        <!-- Two rows: the task's own actions (template, email, schedule, send back) above, then the commit row -
+             Help at the left, the stamps (when the task was finished, last changed, emailed, scheduled) with the
+             whole of the rest of the width, and Mark Done, Save and Cancel at the right. The stamps used to share
+             a row with the action buttons and were cut short whenever Email showed. -->
         <Grid Grid.Row="1" Margin="16,10,16,0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            <DockPanel Grid.Column="0" Margin="0,0,8,0">
-                <Button Content="Help" Command="{x:Static views:HelpKey.ShowCommand}" CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}" Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}" ToolTip="Help for this window. (F1)" DockPanel.Dock="Left"/>
-                <!-- Task actions: they act on the task being edited, so they sit with Help, away from
-                     Add Task / Cancel. -->
-                <Button DockPanel.Dock="Left" Content="Save as _Template..." Padding="12,6" Margin="8,0,0,0" Click="SaveAsTemplate_Click"
+            <StackPanel Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" x:Name="TaskActionsPanel" Orientation="Horizontal" Margin="0,0,0,8">
+                <!-- Task actions: they act on the task being edited, so they sit away from Add Task / Cancel. -->
+                <Button Content="Save as _Template..." Padding="12,6" Click="SaveAsTemplate_Click"
                         ToolTip="Save what is filled in here as a template for new tasks. Dates are kept as so many days from today; attachments and Waiting On are not kept."
                         Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
-                <Button DockPanel.Dock="Left" x:Name="EmailButton" Content="&#x2709; _Email" Width="90" Padding="0,6" Margin="8,0,0,0" Click="Email_Click"
+                <Button x:Name="EmailButton" Content="&#x2709; _Email" Width="90" Padding="0,6" Margin="8,0,0,0" Click="Email_Click"
                         Visibility="Collapsed" ToolTip="Email this task to the assigned person"
                         Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
-                <Button DockPanel.Dock="Left" x:Name="ScheduleButton" Content="&#x1F4C5; Sc_hedule" Padding="12,6" Margin="8,0,0,0" Click="Schedule_Click"
+                <Button x:Name="ScheduleButton" Content="&#x1F4C5; Sc_hedule" Padding="12,6" Margin="8,0,0,0" Click="Schedule_Click"
                         Visibility="Collapsed" ToolTip="Put this task in your Outlook calendar, at the due date and time shown here. Nothing is saved until you save it in Outlook."
                         Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
-                <Button DockPanel.Dock="Left" x:Name="SendBackButton" Content="&#x21A9; Send Bac_k" Padding="12,6" Margin="8,0,0,0" Click="SendBack_Click"
+                <Button x:Name="SendBackButton" Content="&#x21A9; Send Bac_k" Padding="12,6" Margin="8,0,0,0" Click="SendBack_Click"
                         Visibility="Collapsed" ToolTip="Email this task back to the person who sent it, with its status. Their copy is updated when they import it."
                         Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+            </StackPanel>
+            <DockPanel Grid.Row="1" Grid.Column="0" Margin="0,0,8,0">
+                <Button Content="Help" Command="{x:Static views:HelpKey.ShowCommand}" CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}" Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}" ToolTip="Help for this window. (F1)" DockPanel.Dock="Left"/>
                 <!-- Edit mode only: when the task was finished (if it has been) and last changed. -->
                 <StackPanel x:Name="TaskStampPanel" Margin="10,0,0,0" VerticalAlignment="Center" Visibility="Collapsed">
                     <TextBlock x:Name="CompletedStampText" FontSize="11" FontWeight="SemiBold" Visibility="Collapsed"
                                Foreground="{DynamicResource SecondaryTextStrongBrush}"/>
                     <TextBlock x:Name="UpdatedStampText" FontSize="11"
                                Foreground="{DynamicResource SecondaryTextStrongBrush}"/>
-                    <TextBlock x:Name="EmailedStampText" FontSize="11" Visibility="Collapsed" TextTrimming="CharacterEllipsis" MaxWidth="430"
+                    <TextBlock x:Name="EmailedStampText" FontSize="11" Visibility="Collapsed" TextTrimming="CharacterEllipsis"
                                Foreground="{DynamicResource SecondaryTextStrongBrush}"/>
-                    <TextBlock x:Name="ScheduledStampText" FontSize="11" Visibility="Collapsed" TextTrimming="CharacterEllipsis" MaxWidth="430"
+                    <TextBlock x:Name="ScheduledStampText" FontSize="11" Visibility="Collapsed" TextTrimming="CharacterEllipsis"
                                Foreground="{DynamicResource SecondaryTextStrongBrush}"/>
                 </StackPanel>
             </DockPanel>
-            <StackPanel Grid.Column="1" HorizontalAlignment="Right" Orientation="Horizontal">
+            <StackPanel Grid.Row="1" Grid.Column="1" HorizontalAlignment="Right" Orientation="Horizontal">
                 <!-- Edit mode only, and not for a task already in Done: saves what is on screen and finishes the task. -->
                 <Button x:Name="MarkDoneButton" Visibility="Collapsed" Content="&#x2714;" FontSize="20" FontWeight="Bold" MinWidth="60" Padding="12,2" Margin="0,0,8,0"
                         Click="MarkDone_Click" Background="#FF2E7D32" Foreground="White" BorderBrush="#FF1B5E20"

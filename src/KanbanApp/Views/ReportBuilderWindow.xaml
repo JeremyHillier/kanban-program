@@ -263,9 +263,18 @@
                       Foreground="{DynamicResource PrimaryTextBrush}"/>
             <CheckBox Grid.Row="11" x:Name="IncludeSubTasksCheckBox" Content="Include sub-tasks" Margin="0,0,0,4"
                       Foreground="{DynamicResource PrimaryTextBrush}"/>
-            <CheckBox Grid.Row="12" x:Name="IncludeSubTaskSummaryCheckBox"
-                      Content="Include sub-task completion summary (e.g. how many times a sub task was completed)" Margin="0,0,0,4"
-                      Foreground="{DynamicResource PrimaryTextBrush}"/>
+            <StackPanel Grid.Row="12">
+                <CheckBox x:Name="IncludeSubTaskSummaryCheckBox"
+                          Content="Include sub-task completion summary (e.g. how many times a sub task was completed)" Margin="0,0,0,4"
+                          Foreground="{DynamicResource PrimaryTextBrush}"/>
+                <!-- Follow-up on tasks sent to other people: when each was last emailed and to whom, or only those. -->
+                <CheckBox x:Name="IncludeEmailedCheckBox" Content="Include when each task was emailed and to whom" Margin="0,0,0,4"
+                          ToolTip="Adds an Emailed line under each task that has been emailed: the latest time and recipients, and how many times in all."
+                          Foreground="{DynamicResource PrimaryTextBrush}"/>
+                <CheckBox x:Name="EmailedOnlyCheckBox" Content="Emailed tasks only (a follow-up list)" Margin="0,0,0,4"
+                          ToolTip="Leaves out every task that has never been emailed, whatever the other filters say."
+                          Foreground="{DynamicResource PrimaryTextBrush}"/>
+            </StackPanel>
 
             <Grid Grid.Row="13" Margin="0,18,0,0">
                 <Grid.ColumnDefinitions>

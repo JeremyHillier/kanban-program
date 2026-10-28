@@ -102,7 +102,9 @@ public partial class ReportBuilderWindow
         IsLandscape = LandscapeRadio.IsChecked == true,
         IncludeNotes = IncludeNotesCheckBox.IsChecked == true,
         IncludeSubTasks = IncludeSubTasksCheckBox.IsChecked == true,
-        IncludeSubTaskSummary = IncludeSubTaskSummaryCheckBox.IsChecked == true
+        IncludeSubTaskSummary = IncludeSubTaskSummaryCheckBox.IsChecked == true,
+        IncludeEmailed = IncludeEmailedCheckBox.IsChecked == true,
+        EmailedOnly = EmailedOnlyCheckBox.IsChecked == true
     };
 
     private void ApplyReportView(SavedReportView view)
@@ -148,6 +150,8 @@ public partial class ReportBuilderWindow
         IncludeNotesCheckBox.IsChecked = view.IncludeNotes;
         IncludeSubTasksCheckBox.IsChecked = view.IncludeSubTasks;
         IncludeSubTaskSummaryCheckBox.IsChecked = view.IncludeSubTaskSummary;
+        IncludeEmailedCheckBox.IsChecked = view.IncludeEmailed;
+        EmailedOnlyCheckBox.IsChecked = view.EmailedOnly;
 
         UpdateSortLevelAvailability();
         ApplyStatisticsOptions(view);

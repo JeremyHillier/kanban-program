@@ -19,7 +19,7 @@ public static partial class ReportService
     private static SolidColorBrush RowBandBrush(int rowIndex, bool isGrouped) =>
         rowIndex % 2 == 0 ? BandEvenBrush : (isGrouped ? BandGroupedOddBrush : BandOddBrush);
 
-    public static FixedDocument BuildFixedDocument(string title, List<ReportRow> rows, string groupBy, bool includeNotes, bool includeSubTasks, bool includeSubTaskSummary = false, bool isLandscape = false, string? parameterSummary = null)
+    public static FixedDocument BuildFixedDocument(string title, List<ReportRow> rows, string groupBy, bool includeNotes, bool includeSubTasks, bool includeSubTaskSummary = false, bool isLandscape = false, string? parameterSummary = null, bool includeEmailed = false)
     {
         const double a4Width = 793.92;
         const double a4Height = 1122.24;
@@ -174,6 +174,14 @@ public static partial class ReportService
                     if (includeNotes && !string.IsNullOrWhiteSpace(row.Notes))
                     {
                         foreach (var line in WrapLine($"Notes: {row.Notes}", italicTypeface, 10, contentWidth - 32))
+                        {
+                            lines.Add((line, italicTypeface, 10, Brushes.DimGray, 16, 14));
+                        }
+                    }
+
+                    if (includeEmailed && row.Emailed is not null)
+                    {
+                        foreach (var line in WrapLine($"Emailed: {row.Emailed}", italicTypeface, 10, contentWidth - 32))
                         {
                             lines.Add((line, italicTypeface, 10, Brushes.DimGray, 16, 14));
                         }

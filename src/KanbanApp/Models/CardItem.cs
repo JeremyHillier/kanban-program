@@ -37,6 +37,8 @@ public class CardItem
     public bool IsImported { get; set; }
     public bool ForceEditOnComplete { get; set; }
     public string? Notes { get; set; }
+    // A background colour for the card on the board, one of CardColors by key; null for the ordinary card colour.
+    public string? Color { get; set; }
     public string? WebsiteUrl { get; set; }
     public List<int> FlagIds { get; set; } = [];
     public List<SubTaskItem> SubTasks { get; set; } = [];

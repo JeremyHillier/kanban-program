@@ -90,6 +90,29 @@ public class CardViewModel(CardItem model) : ObservableObject
         }
     }
 
+    // The card's background colour on the board: a CardColors key, or null for the ordinary card colour.
+    public string? Color
+    {
+        get => Model.Color;
+        set
+        {
+            if (Model.Color == value) return;
+            Model.Color = value;
+            OnPropertyChanged();
+            OnPropertyChanged(nameof(HasColor));
+            OnPropertyChanged(nameof(BackgroundBrush));
+        }
+    }
+
+    public bool HasColor => CardColors.Get(Color) is not null;
+
+    // The brush for the colour in the current theme (ThemeManager keeps one per colour per theme); null when none.
+    public System.Windows.Media.Brush? BackgroundBrush =>
+        CardColors.Get(Color) is { } colour ? System.Windows.Application.Current?.Resources[CardColors.ResourceKey(colour.Key)] as System.Windows.Media.Brush : null;
+
+    // After the theme changed, so the card picks up the new shade.
+    public void RefreshColor() => OnPropertyChanged(nameof(BackgroundBrush));
+
     // The board's priority list, for the badge colour and the sort position. MainViewModel hands
     // every card its own list; a card built without a board gets the standard four.
     public PriorityList PriorityList { get; init; } = PriorityList.Fallback;
@@ -502,6 +525,7 @@ public class CardViewModel(CardItem model) : ObservableObject
         GoalId = other.GoalId;
         GoalName = other.GoalName;
         Priority = other.Priority;
+        Color = other.Color;
         DueDate = other.DueDate;
         DueTime = other.DueTime;
         StartDate = other.StartDate;

@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Text.Json;
 using KanbanApp.Services;
 
 namespace KanbanApp.ViewModels;
@@ -17,7 +18,11 @@ public partial class MainViewModel
         OnPropertyChanged(nameof(CheckForUpdatesEnabled));
     }
 
-    private void LoadUpdateSettings() => CheckForUpdatesEnabled = _db.GetFlag("CheckForUpdates", true);
+    private void LoadUpdateSettings()
+    {
+        CheckForUpdatesEnabled = _db.GetFlag("CheckForUpdates", true);
+        AvailableUpdate = LoadAvailableUpdate();
+    }
 
     // When THIS PC last checked. Kept per computer, not per task file: two PCs can share one task
     // file (a synced folder), and with a shared timestamp whichever started first each day silenced
@@ -38,7 +43,12 @@ public partial class MainViewModel
 
     public string? SkippedUpdateVersion => _db.GetSetting("SkippedUpdateVersion") is { Length: > 0 } version ? version : null;
 
-    public void SkipUpdateVersion(string version) => _db.SetSetting("SkippedUpdateVersion", version);
+    // Skipping the version the Update button is for takes the button away, whichever window asked.
+    public void SkipUpdateVersion(string version)
+    {
+        _db.SetSetting("SkippedUpdateVersion", version);
+        if (AvailableUpdate is { } offered && string.Equals(offered.Version, version, StringComparison.OrdinalIgnoreCase)) NoteUpdateCheck(offered);
+    }
 
     // The automatic check stays quiet about a version the user chose to skip; a newer one after
     // that is offered again. Checking by hand from About ignores the skip.
@@ -48,12 +58,31 @@ public partial class MainViewModel
     public UpdateInfo? AvailableUpdate { get; private set; }
     public bool HasAvailableUpdate => AvailableUpdate is not null;
 
+    // Kept in the task file, per PC like the last-check time, so the Update button is still there after a
+    // restart: it stays until this copy has been updated past that version, or the version is skipped.
+    private string AvailableUpdateKey => $"AvailableUpdate:{ThisComputer}";
+
+    private UpdateInfo? LoadAvailableUpdate()
+    {
+        var json = _db.GetSetting(AvailableUpdateKey);
+        if (string.IsNullOrEmpty(json)) return null;
+
+        UpdateInfo? stored;
+        try { stored = JsonSerializer.Deserialize<UpdateInfo>(json); }
+        catch (JsonException) { stored = null; }
+
+        if (ShouldOfferUpdate(stored)) return stored;
+        _db.SetSetting(AvailableUpdateKey, string.Empty); // updated since, or skipped: nothing to offer now
+        return null;
+    }
+
     // Called with what a check found. A check that could not reach the list (null) says nothing
     // new, so it leaves what is known alone; one that found nothing newer clears it.
     public void NoteUpdateCheck(UpdateInfo? update, bool askedByHand = false)
     {
         if (update is null) return;
         AvailableUpdate = ShouldOfferUpdate(update, askedByHand) ? update : null;
+        _db.SetSetting(AvailableUpdateKey, AvailableUpdate is null ? string.Empty : JsonSerializer.Serialize(AvailableUpdate));
         OnPropertyChanged(nameof(AvailableUpdate));
         OnPropertyChanged(nameof(HasAvailableUpdate));
     }
