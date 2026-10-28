@@ -13,12 +13,22 @@ namespace KanbanApp;
 // The right-click menus: one for a single card, one for a multi-card selection.
 public partial class MainWindow
 {
+    // Set while another window's menu is being built (the Timeline's, ShowCardMenu): every entry runs it after its
+    // action, so that window can redraw for what the action changed. The board's own menus have none - the board binds.
+    private Action? _menuFollowUp;
+
     // Every right-click menu action runs after the menu has closed - see ShowQuickEditMenu for why.
     private System.Windows.Controls.MenuItem AddMenuItem(System.Windows.Controls.ItemsControl parent, string header, Action action,
         bool isEnabled = true, bool isChecked = false, string? gesture = null)
     {
         var item = new System.Windows.Controls.MenuItem { Header = header, IsEnabled = isEnabled, IsChecked = isChecked, InputGestureText = gesture ?? string.Empty };
-        item.Click += (_, _) => Dispatcher.BeginInvoke(action, DispatcherPriority.Background);
+        var followUp = _menuFollowUp;
+        item.Click += (_, _) => Dispatcher.BeginInvoke(new Action(() =>
+        {
+            action();
+            // After the action, including one that defers itself (MoveCardDeferred) - ContextIdle comes after Background.
+            if (followUp is not null) Dispatcher.BeginInvoke(followUp, DispatcherPriority.ContextIdle);
+        }), DispatcherPriority.Background);
         parent.Items.Add(item);
         return item;
     }
@@ -76,7 +86,24 @@ public partial class MainWindow
         menu.IsOpen = true;
     }
 
-    private void BuildCardMenu(System.Windows.Controls.ContextMenu menu, CardViewModel card, MainViewModel viewModel)
+    // The same menu for a task shown in another window (the Timeline's boxes): built here so the entries, their
+    // letters and what they do stay one thing. `editCard` is that window's own way of opening the task, so the
+    // task screen sits over it; `afterwards` runs after every action so the window can redraw. Any prompt an
+    // action opens (a completion note, Delete's confirmation) belongs to the board, under the modal Timeline.
+    internal void ShowCardMenu(FrameworkElement target, CardViewModel card, MainViewModel viewModel, Action editCard, Action afterwards)
+    {
+        var menu = new System.Windows.Controls.ContextMenu
+        {
+            PlacementTarget = target,
+            Placement = System.Windows.Controls.Primitives.PlacementMode.MousePoint
+        };
+        _menuFollowUp = afterwards;
+        try { BuildCardMenu(menu, card, viewModel, editCard); }
+        finally { _menuFollowUp = null; }
+        menu.IsOpen = true;
+    }
+
+    private void BuildCardMenu(System.Windows.Controls.ContextMenu menu, CardViewModel card, MainViewModel viewModel, Action? editCard = null)
     {
         // Every entry has its own underlined letter, as in a Windows menu: D is Delete's, so Set Due Date
         // uses S, Schedule H, Open Link N, Email Task I, Email All K and Send Back B.
@@ -91,7 +118,7 @@ public partial class MainWindow
             Separator();
         }
 
-        AddMenuItem(menu, "_Edit Task...", () => EditCard(card, viewModel), gesture: "Double-click");
+        AddMenuItem(menu, "_Edit Task...", editCard ?? (() => EditCard(card, viewModel)), gesture: "Double-click");
         AddMenuItem(menu, "_Copy as Text", () => CopyToClipboard(CardTextFormatter.Format(card, currentColumn?.DisplayName ?? string.Empty)));
         AddMenuItem(menu, "Copy _Title", () => CopyToClipboard(card.Title));
         // The link Outlook events and emails carry: pasted anywhere, it opens this task (on this PC, in this task file).

@@ -318,6 +318,7 @@
 
                 <TextBlock Text="Quick actions on a card" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <local:BulletItem Text="Right-click a card, Colour, to give it a background colour. None takes it off. With several selected, Colour All."/>
+                <local:BulletItem Text="Or pick the colour on the task screen, from the swatches beside Force edit upon completion."/>
                 <local:BulletItem Text="The colour has a lighter shade in the light theme and a darker one in the dark theme, so the text stays readable."/>
                 <local:BulletItem Text="The letter buttons move a card to To Do, In Progress, On Hold or Waiting."/>
                 <local:BulletItem Text="The check mark moves it to Done. X deletes it."/>
@@ -525,6 +526,7 @@
                 <local:BulletItem Text="Page with the arrow buttons. Today jumps back."/>
                 <local:BulletItem Text="Include Done tasks brings finished tasks, and complete goals, back in."/>
                 <local:BulletItem Text="Blocks use the priority colours. Hover for details; double-click to open."/>
+                <local:BulletItem Text="Right-click a task's box for the same menu as a card on the board: Mark as Done, Move To, Set Due Date, Colour and the rest."/>
                 <local:BulletItem Text="Drag a task's box sideways to move the task. Its start and due dates move together, a day at a time."/>
                 <local:BulletItem Text="Drag the end of a task's line to change only its due date. It never goes before the start."/>
                 <local:BulletItem Text="Drag a milestone's line, or a target's diamond, to change its date. A small label shows the new date."/>

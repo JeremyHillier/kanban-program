@@ -299,6 +299,13 @@ public partial class TimelineWindow
                     if (args.ClickCount != 2) return;
                     OpenCardForEdit(task);
                 };
+                // The board's right-click menu for the task (Mark as Done, Move To, Set Due Date, Colour...), then a
+                // redraw for whatever it changed. Edit Task opens the task screen over this window, as double-click does.
+                block.MouseRightButtonUp += (_, args) =>
+                {
+                    args.Handled = true;
+                    if (Owner is MainWindow board) board.ShowCardMenu(block, task, _viewModel, () => OpenCardForEdit(task), () => { ClearUndo(); BuildGrid(); });
+                };
 
                 FrameworkElement placed = block;
                 if (lineFromBox)

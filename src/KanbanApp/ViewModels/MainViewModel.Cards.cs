@@ -11,7 +11,7 @@ public partial class MainViewModel
         bool isRecurring, string? recurrencePattern, GoalViewModel? goal, List<FlagViewModel>? flags = null, List<SubTaskViewModel>? subTasks = null,
         string? notes = null, bool isImported = false, List<AttachmentViewModel>? attachments = null, bool forceEditOnComplete = false,
         string? websiteUrl = null, string? dueTime = null, DateTime? startDate = null, string? waitingOn = null,
-        IReadOnlyList<PersonViewModel>? people = null, int? recurrencesLeft = null)
+        IReadOnlyList<PersonViewModel>? people = null, int? recurrencesLeft = null, string? color = null)
     {
         flags ??= [];
         subTasks ??= [];
@@ -40,6 +40,12 @@ public partial class MainViewModel
             Attachments = attachmentItems.Select(a => new AttachmentViewModel(a)).ToList(),
             LastUpdated = card.LastUpdated
         };
+        // The colour has its own write (see SetCardColor); a new task picks it on the task screen.
+        if (CardColors.Get(color)?.Key is { } colorKey)
+        {
+            cardVm.Color = colorKey;
+            _db.SetCardColor(cardVm.Id, colorKey);
+        }
         column.Cards.Add(cardVm);
         _recording?.CreatedIds.Add(cardVm.Id);
 

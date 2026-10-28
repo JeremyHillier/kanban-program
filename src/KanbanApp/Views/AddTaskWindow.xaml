@@ -11,6 +11,20 @@
         ShowInTaskbar="False"
         Background="{DynamicResource WindowBackgroundBrush}">
     <Window.Resources>
+        <!-- A colour swatch (AddTaskWindow.Colour.cs): a ring around the chosen one, a faint ring under the mouse. -->
+        <ControlTemplate x:Key="ColourSwatchTemplate" TargetType="RadioButton">
+            <Border x:Name="Ring" Padding="2" CornerRadius="6" BorderThickness="2" BorderBrush="Transparent" Background="Transparent">
+                <ContentPresenter/>
+            </Border>
+            <ControlTemplate.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter TargetName="Ring" Property="BorderBrush" Value="{DynamicResource CardOutlineBrush}"/>
+                </Trigger>
+                <Trigger Property="IsChecked" Value="True">
+                    <Setter TargetName="Ring" Property="BorderBrush" Value="{DynamicResource PrimaryTextBrush}"/>
+                </Trigger>
+            </ControlTemplate.Triggers>
+        </ControlTemplate>
         <!-- The grip under the Task and Notes boxes: drag it to make the box taller or shorter. -->
         <Style x:Key="ResizeGripStyle" TargetType="Thumb">
             <Setter Property="Height" Value="9"/>
@@ -436,6 +450,11 @@
                     <CheckBox Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="5" x:Name="ForceEditOnCompleteCheckBox" Content="Force edit upon completion" Margin="0,10,0,4" HorizontalAlignment="Left"
                               Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Center"
                               ToolTip="When on, marking this task Done will automatically open it for editing instead of just moving it."/>
+                    <!-- The card's background colour: None, then each card colour as a swatch (filled in by AddTaskWindow.Colour.cs). -->
+                    <StackPanel Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="5" x:Name="ColourPanel" Orientation="Horizontal" HorizontalAlignment="Right"
+                                Margin="0,10,0,4" VerticalAlignment="Center" ToolTip="The colour of this task's card on the board. None is the ordinary card.">
+                        <TextBlock Text="Colour" VerticalAlignment="Center" Margin="0,0,6,0" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                    </StackPanel>
                 </Grid>
 
                 <!-- Website | Waiting On -->

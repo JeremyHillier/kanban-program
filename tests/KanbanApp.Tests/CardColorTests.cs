@@ -91,3 +91,52 @@ public sealed class CardColorBoardTests(WpfDispatcherFixture wpf) : IDisposable
         Assert.All(new[] { first, second }, c => Assert.Null(c.Color));
     });
 }
+
+// The colour chosen on the task screen: a new task is added with it in one step, and an edited task's colour is
+// saved on its own, after the other fields.
+[Collection(WpfCollection.Name)]
+public sealed class TaskScreenColorTests(WpfDispatcherFixture wpf) : IDisposable
+{
+    private readonly TempFolder _temp = new();
+
+    public void Dispose() => _temp.Dispose();
+
+    [Fact]
+    public void ANewTask_KeepsTheColourItWasAddedWith_AndOneUndoRemovesBoth() => wpf.Run(() =>
+    {
+        var board = new MainViewModel(new DatabaseService(_temp.File("board.db")));
+        var card = board.AddCard("Paint the fence", board.Columns.Single(c => c.Name == "To Do"), board.Projects.First(), "Normal", null, null, false, null, null, color: "teal");
+
+        Assert.Equal("Teal", card.Color);
+        Assert.Equal("Teal", new MainViewModel(new DatabaseService(_temp.File("board.db"))).Columns.SelectMany(c => c.Cards).Single().Color);
+
+        board.Undo();
+        Assert.Empty(board.Columns.SelectMany(c => c.Cards));
+    });
+
+    [Fact]
+    public void AnUnknownOrMissingColour_AddsAnOrdinaryCard() => wpf.Run(() =>
+    {
+        var board = new MainViewModel(new DatabaseService(_temp.File("board.db")));
+        var plain = board.AddCard("Plain", board.Columns.First(), board.Projects.First(), "Normal", null, null, false, null, null);
+        var odd = board.AddCard("Odd", board.Columns.First(), board.Projects.First(), "Normal", null, null, false, null, null, color: "Chartreuse");
+
+        Assert.False(plain.HasColor);
+        Assert.False(odd.HasColor);
+    });
+
+    [Fact]
+    public void TheTaskScreen_SavesTheColourBesideTheOtherFields() => wpf.Run(() =>
+    {
+        var board = new MainViewModel(new DatabaseService(_temp.File("board.db")));
+        var column = board.Columns.Single(c => c.Name == "To Do");
+        var card = board.AddCard("Paint the fence", column, board.Projects.First(), "Normal", null, null, false, null, null, color: "Blue");
+
+        // What SaveTo does: the fields, then the colour.
+        board.EditCard(card, "Paint the gate", column, board.Projects.First(), "High", null, [], false, null, null, [], [], null, [], false, null, null, null, null, null);
+        board.SetCardColor(card, "Green");
+
+        var saved = new MainViewModel(new DatabaseService(_temp.File("board.db"))).Columns.SelectMany(c => c.Cards).Single();
+        Assert.Equal(("Paint the gate", "Green"), (saved.Title, saved.Color));
+    });
+}

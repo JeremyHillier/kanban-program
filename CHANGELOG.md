@@ -6,6 +6,11 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.164.0 — 2026-10-28
+
+> - New: right-click a task's box on the Timeline for the same menu as a card on the board: Mark as Done, Edit Task, Copy, Duplicate, Move To, Set Due Date, Priority, Assign To, Project, Goal, Waiting On, Colour, Add Flag, email and calendar actions, and Delete. The Timeline redraws for whatever changed.
+> - New: pick a task's card colour on the task screen. A row of colour swatches sits beside Force edit upon completion, None first; the chosen colour has a ring around it. A new task can be given its colour before it is saved.
+
 ## 0.163.0 — 2026-10-28
 
 > - New: give a task card a background colour. Right-click the card, choose Colour, and pick one of eight; None takes it off. With several cards selected, Colour All. The colour has its own shade in the dark theme, and Undo puts the old colour back.
