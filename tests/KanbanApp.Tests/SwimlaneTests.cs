@@ -202,17 +202,35 @@ public sealed class SwimlaneTests(WpfDispatcherFixture wpf) : IDisposable
         Add(board, "Mow", garden);
         Add(board, "Paint", house);
         board.SetSwimlaneMode(SwimlaneMode.Project);
-        Assert.All(board.Lanes, l => Assert.True(l.IsShown)); // no filter: every lane, empty ones too
+        Assert.True(board.Lanes.Single(l => l.Title == "Garden").IsShown);
+        Assert.True(board.Lanes.Single(l => l.Title == "House").IsShown);
+        Assert.False(board.Lanes.Single(l => l.Title == "No Project").IsShown); // no tasks at all: left out
 
         board.KeywordFilter = "Mow";
 
         Assert.True(board.Lanes.Single(l => l.Title == "Garden").IsShown);
         Assert.False(board.Lanes.Single(l => l.Title == "House").IsShown);
-        Assert.False(board.Lanes.Single(l => l.Title == "No Project").IsShown);
 
         board.KeywordFilter = string.Empty;
 
+        Assert.True(board.Lanes.Single(l => l.Title == "House").IsShown);
+    });
+
+    [Fact]
+    public void WhileATaskIsBeingDragged_EveryLaneShows_EmptyOnesToo() => wpf.Run(() =>
+    {
+        var board = OpenBoard();
+        var garden = board.AddProject("Garden").Item!;
+        board.AddProject("Empty");
+        Add(board, "Mow", garden);
+        board.SetSwimlaneMode(SwimlaneMode.Project);
+        Assert.False(board.Lanes.Single(l => l.Title == "Empty").IsShown);
+
+        board.SetLaneDragActive(true);
         Assert.All(board.Lanes, l => Assert.True(l.IsShown));
+
+        board.SetLaneDragActive(false);
+        Assert.False(board.Lanes.Single(l => l.Title == "Empty").IsShown);
     });
 
     [Fact]

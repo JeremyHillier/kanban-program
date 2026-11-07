@@ -75,6 +75,7 @@ public partial class MainViewModel
     private void NotifyColumnWidthChanged()
     {
         OnPropertyChanged(nameof(EffectiveColumnWidth));
+        OnPropertyChanged(nameof(LaneRuleWidth));
         OnPropertyChanged(nameof(IsNarrowColumns));
         OnPropertyChanged(nameof(ShowCardExtras));
         OnPropertyChanged(nameof(ShowCardSideButtons));

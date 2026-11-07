@@ -8,6 +8,7 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 
 ## 0.165.2 — 2026-11-07
 
+> - Improved: swimlanes with no tasks are now left out, and every lane shows while a task is being dragged so it can be dropped on an empty one. A lane is now just its name with a small arrow and a line across the board, in place of the rounded label.
 > - Improved: in Assigned To lanes a task now shows in the lane of every person on it, so adding a person puts the task in their lane (showing the lane if a filter had hidden it). Dragging from one person's lane to another's swaps the person.
 
 ## 0.165.1 — 2026-11-07

@@ -104,6 +104,18 @@ public partial class MainViewModel
     }
 
     // One pass over the tasks, rather than one per lane.
+    private bool _laneDragActive;
+
+    // The width of the board's columns side by side: how far a lane's rule runs.
+    public double LaneRuleWidth => Math.Max(0, Columns.Count * (EffectiveColumnWidth + 12) - 12);
+
+    public void SetLaneDragActive(bool active)
+    {
+        if (_laneDragActive == active) return;
+        _laneDragActive = active;
+        RefreshLaneCounts();
+    }
+
     private void RefreshLaneCounts()
     {
         if (!IsSwimlanesOn) return;
@@ -120,13 +132,12 @@ public partial class MainViewModel
             else if (LaneViewModel.IdOf(SwimlaneMode, card) is { } id) counts[id] = counts.GetValueOrDefault(id) + 1;
             else none++;
         }
-        // While a filter is on, a lane with none of the filtered tasks is left out; with no filter every lane shows,
-        // so an empty one is still there to drag a task into.
-        var filtering = HasFilterSummary;
+        // A lane with no tasks showing (none at all, or none that the filters let through) is left out - except while
+        // a task is being dragged, when every lane shows so one can be dropped on an empty lane.
         foreach (var lane in Lanes)
         {
             lane.Count = lane.Id is { } id ? counts.GetValueOrDefault(id) : none;
-            lane.IsShown = !filtering || lane.Count > 0;
+            lane.IsShown = _laneDragActive || lane.Count > 0;
         }
     }
 

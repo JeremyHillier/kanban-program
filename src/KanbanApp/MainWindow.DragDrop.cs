@@ -121,7 +121,9 @@ public partial class MainWindow
                 if (up is FrameworkElement { DataContext: LaneColumnViewModel fromColumn }) { _dragFromLane = fromColumn.Lane; break; }
             }
 
+            viewModel.SetLaneDragActive(true); // every lane shows while dragging, empty ones too
             DragDrop.DoDragDrop(element, CreateCardDragData(card, viewModel.SelectedCards), DragDropEffects.Move);
+            viewModel.SetLaneDragActive(false);
             _dragFromLane = null;
 
             // DoDragDrop blocks until the drag ends, however it ends (drop, Esc-cancel, focus loss).

@@ -319,9 +319,10 @@
                 <TextBlock x:Name="HelpSection_Swimlanes" Text="Swimlanes" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <local:BulletItem Text="The Swim lanes button, under Compact Cards, draws the board as horizontal lanes. Click it to choose Project, Goal or Assigned To, or Off for the board as it was. Right-click it to clear the lanes."/>
                 <local:BulletItem Text="Each lane has the same columns across it. The last lane holds the tasks with no project, no goal or nobody assigned. Assigned To shows a task in the lane of every person on it, and in the Unassigned lane when it has nobody."/>
-                <local:BulletItem Text="Click a lane's name to collapse or expand it, with its task count beside it. Expand All and Collapse All are in the button's menu."/>
+                <local:BulletItem Text="Each lane is a title with a small arrow and a line across the board. Click the title to collapse or expand it, with its task count beside it. Expand All and Collapse All are in the button's menu."/>
                 <local:BulletItem Text="Filters, sorting, colours and everything on a card work as before. The board scrolls down when the lanes do not fit."/>
-                <local:BulletItem Text="While a filter is on, a lane with none of the filtered tasks is left out. With no filter every lane shows, empty ones included."/>
+                <local:BulletItem Text="A lane with no tasks showing is left out, whether it has none at all or a filter hides them. It comes back when a task is added to it."/>
+                <local:BulletItem Text="While you drag a task every lane shows, empty ones too, so you can drop it on one."/>
                 <local:BulletItem Text="Drag a task to another column of the same lane to change its status, or to another lane to change its project or goal as well."/>
                 <local:BulletItem Text="In Assigned To lanes, dragging from one person's lane to another's swaps the person. Adding a person to a task puts it in their lane too, and shows that lane if it was hidden by a filter."/>
                 <local:BulletItem Text="Double-click a column's name inside a project or goal lane to add a task there, already in that project or goal."/>
