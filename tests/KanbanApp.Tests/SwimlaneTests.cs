@@ -158,4 +158,38 @@ public sealed class SwimlaneTests(WpfDispatcherFixture wpf) : IDisposable
         board.DropOnLane(board.Lanes.Single(l => l.Title == "Sam").Columns[0], [card]);
         Assert.Equal(sam.Id, card.WhoId);
     });
+
+    // A filter that shows or hides many tasks at once rebuilds each column's list in one go. With lanes on, the lanes'
+    // own lists were dropped while WPF still had work queued on them, which failed once for every lane column.
+    [Fact]
+    public void AFilterThatHidesManyTasks_WithLanesOn_RunsWithoutAnError() => wpf.Run(() =>
+    {
+        var board = OpenBoard();
+        var garden = board.AddProject("Garden").Item!;
+        for (var i = 0; i < 80; i++) Add(board, $"Task {i}", garden);
+        board.SetSwimlaneMode(SwimlaneMode.Project);
+        foreach (var column in board.Columns) _ = column.CardsView.Count; // as the board does by showing them
+        foreach (var column in board.Lanes.SelectMany(l => l.Columns)) _ = column.CardsView.Count;
+
+        Exception? failure = null;
+        var dispatcher = System.Windows.Threading.Dispatcher.CurrentDispatcher;
+        System.Windows.Threading.DispatcherUnhandledExceptionEventHandler catcher = (_, e) => { failure ??= e.Exception; e.Handled = true; };
+        dispatcher.UnhandledException += catcher;
+        try
+        {
+            board.KeywordFilter = "nothing matches this";
+            dispatcher.Invoke(() => { }, System.Windows.Threading.DispatcherPriority.ContextIdle);
+            board.KeywordFilter = string.Empty;
+            dispatcher.Invoke(() => { }, System.Windows.Threading.DispatcherPriority.ContextIdle);
+        }
+        finally
+        {
+            dispatcher.UnhandledException -= catcher;
+        }
+
+        Assert.Null(failure);
+        var lane = board.Lanes.Single(l => l.Title == "Garden");
+        Assert.Equal(80, lane.Count);
+        Assert.Equal(80, lane.Columns.Single(c => c.Name == "To Do").CardsView.Cast<CardViewModel>().Count());
+    });
 }

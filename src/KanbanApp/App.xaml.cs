@@ -13,6 +13,7 @@ public partial class App : Application
     // the process. Dropping it because it "looks unused" would let the GC collect the mutex and
     // silently break the guard that stops two copies writing to the same database.
     private static Mutex? _instanceMutex;
+    private static bool _crashPromptOpen; // see DispatcherUnhandledException below
     private string _dbPath = string.Empty; // the open task file, for the crash log
 
     protected override void OnStartup(StartupEventArgs e)
@@ -86,6 +87,11 @@ public partial class App : Application
         {
             LogCrash(_dbPath, ex.Exception);
             ex.Handled = true;
+
+            // One fault can arrive as a burst of the same error. While the prompt is open the rest are only logged,
+            // so it is answered once rather than once for each.
+            if (_crashPromptOpen) return;
+            _crashPromptOpen = true;
             const string text = "Something went wrong, but the app is still open and your tasks are safe.\n\n"
                                 + "Would you like to email a problem report? You see the email before anything is sent.";
             bool report;
@@ -101,6 +107,10 @@ public partial class App : Application
                 // The app's own window may be what is failing: the plain Windows message box still asks.
                 report = MessageBox.Show(text + "\n\n" + ex.Exception.Message, "Something Went Wrong",
                     MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No) == MessageBoxResult.Yes;
+            }
+            finally
+            {
+                _crashPromptOpen = false;
             }
             if (!report) return;
 

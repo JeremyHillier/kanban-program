@@ -108,7 +108,7 @@ public sealed class LaneColumnViewModel : ColumnViewModel
             switch (e.PropertyName)
             {
                 case nameof(CardsView): // the real column was re-sorted or re-filtered wholesale: build this view again
-                    _view?.DetachFromSourceCollection();
+                    Retire(_view);
                     _view = null;
                     OnPropertyChanged(nameof(CardsView));
                     break;
@@ -135,7 +135,17 @@ public sealed class LaneColumnViewModel : ColumnViewModel
     public void Detach()
     {
         Source.PropertyChanged -= _sourceChanged;
-        _view?.DetachFromSourceCollection();
+        Retire(_view);
         _view = null;
+    }
+
+    // A wholesale change to the real column flips many cards at once, and this view (still on the same cards) queues
+    // live-filtering work for each. Cut loose at once, that queued work then fails on it - once per lane column. So it
+    // stops filtering live now and is let go only after the queued work has run.
+    private static void Retire(ListCollectionView? view)
+    {
+        if (view is null) return;
+        view.IsLiveFiltering = false;
+        System.Windows.Threading.Dispatcher.CurrentDispatcher.BeginInvoke(view.DetachFromSourceCollection, System.Windows.Threading.DispatcherPriority.ContextIdle);
     }
 }
