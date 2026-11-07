@@ -84,6 +84,12 @@ public partial class MainWindow
                         AddTask_Click(sender, e);
                         e.Handled = true;
                         break;
+                    case Key.A:
+                        // A text box keeps its own Ctrl+A for its text.
+                        if (Keyboard.FocusedElement is System.Windows.Controls.Primitives.TextBoxBase || DataContext is not MainViewModel allViewModel) break;
+                        allViewModel.SelectAllVisible();
+                        e.Handled = true;
+                        break;
                 }
                 break;
 

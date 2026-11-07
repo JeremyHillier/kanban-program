@@ -124,6 +124,7 @@ public partial class MainWindow
         // The link Outlook events and emails carry: pasted anywhere, it opens this task (on this PC, in this task file).
         AddMenuItem(menu, "Cop_y Link", () => { CopyToClipboard(viewModel.TaskLinkFor(card)); ShowStatusMessage("Link to the task copied"); });
         AddMenuItem(menu, "D_uplicate", () => viewModel.DuplicateCard(card));
+        AddMenuItem(menu, "Select All Visible", viewModel.SelectAllVisible, gesture: "Ctrl+A");
         AddMenuItem(menu, "Sa_ve as Template...", () => TemplatePrompts.SaveAs(this, viewModel, MainViewModel.TemplateFromCard(card)));
         Separator();
 
@@ -223,6 +224,8 @@ public partial class MainWindow
         ColumnViewModel? ColumnOf(CardViewModel card) => viewModel.Columns.FirstOrDefault(c => c.Cards.Contains(card));
 
         menu.Items.Add(new System.Windows.Controls.MenuItem { Header = $"{cards.Count} tasks selected", IsEnabled = false, FontWeight = FontWeights.Bold });
+        AddMenuItem(menu, "Mass Update...", () => MassUpdate(cards, viewModel));
+        AddMenuItem(menu, "Select All Visible", viewModel.SelectAllVisible, gesture: "Ctrl+A");
         Separator();
 
         // As with dragging a group: no "add a note?" per card, but a task set to force an edit on
@@ -307,6 +310,7 @@ public partial class MainWindow
             AddMenuItem(addFlag, MenuText(flag.Name), () => viewModel.AddFlagToCards(cards, flag));
         }
 
+        AddCopyToFileMenu(menu, cards, viewModel);
         Separator();
         AddMenuItem(menu, $"Ema_il These {cards.Count} Tasks...", () => OutlookEmailHelper.ComposeTasksEmail(this, cards, viewModel));
         Separator();

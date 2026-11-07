@@ -36,6 +36,7 @@ public static class HelpKey
         [typeof(SettingsWindow)] = "HelpSection_Settings",
         [typeof(TaskFilesWindow)] = "HelpSection_TaskFiles",
         [typeof(RelatedTaskPickerWindow)] = "HelpSection_RelatedTasks",
+        [typeof(MassUpdateWindow)] = "HelpSection_MassUpdate",
         [typeof(TaskFileDetailsWindow)] = "HelpSection_TaskFiles",
     };
 

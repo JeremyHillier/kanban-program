@@ -316,6 +316,15 @@
                 <local:BulletItem Text="Due on the 1st to 15th: that day and 15 days later, so the 3rd gives the 3rd and 18th."/>
                 <local:BulletItem Text="Due on the 16th or later: that day and 15 days earlier, so the 20th gives the 5th and 20th. The last day of a month pairs with the 15th."/>
 
+                <TextBlock x:Name="HelpSection_MassUpdate" Text="Changing several tasks at once" Style="{StaticResource HelpSectionHeaderStyle}"/>
+                <local:BulletItem Text="Ctrl+click picks tasks one at a time, Shift+click a range in one column, and Ctrl+A every task showing. Esc clears the picks."/>
+                <local:BulletItem Text="Right-click a picked task, Mass Update, to change them together. Tick each field to change; unticked fields stay as they are."/>
+                <local:BulletItem Text="You can set the project, goal, priority, category (column), colour or what they wait on, and set, add or take off a person."/>
+                <local:BulletItem Text="Due date: set one date, clear it, or shift every date later or earlier by a number of days. Start dates move with them."/>
+                <local:BulletItem Text="Add a flag to all of them, or take one off."/>
+                <local:BulletItem Text="Apply lists what will change and asks first. Undo takes the whole update back in one step. If anything fails part-way, it is undone for you."/>
+                <local:BulletItem Text="The same menu has Copy to Another Task File: the tasks are copied there, and projects, goals, people and flags are matched by name. Attachments and links are not copied."/>
+
                 <TextBlock x:Name="HelpSection_RelatedTasks" Text="Related tasks" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <local:BulletItem Text="Link a task to others on the task screen, under Related tasks. Click the +, search for the task, say how they are related, and Add."/>
                 <local:BulletItem Text="Related to: the two tasks go together. Depends on: this task waits for the other. Blocks: the other waits for this one."/>
