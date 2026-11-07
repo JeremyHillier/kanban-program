@@ -6,6 +6,10 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.165.1 — 2026-11-07
+
+> - Improved: the Gantt and Calendar buttons now sit together on one row, and the Swim lanes button is beside Compact Cards and Hide Buttons. Right-click the Swim lanes button to clear the lanes.
+
 ## 0.165.0 — 2026-11-07
 
 > - New: Task Files. The Task file button at the top of the button column names the file that is open and switches to another without restarting the app. Manage Task Files lists every task file on this PC with a name, a description and when it was last opened. From there you can make a new file, duplicate one as a separate board, add a file copied from another computer (used where it is, or copied first to a folder you choose), move or reconnect a file, choose the file that opens at startup, take a file off the list, or send one to the Recycle Bin.
@@ -17,7 +21,6 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > - New: a Calendar view. The Calendar button (Alt+C) shows tasks on the days they are due, by month, week or day, with arrows, Today and Select a date. Tasks show their priority or card colour, finished ones struck through and overdue ones outlined in red. Double-click a day to add a task due that day, drag a task to another day to change its due date, and open or right-click a task as on the board. A No Due Date list beside the calendar holds the undated tasks, which can be dragged onto a day. It uses the same filters as the Gantt view, and can hide weekends.
 > - Changed: the Timeline is now called Gantt, in its button, window, help and printouts. It works as before.
 - Settings, Data and files tab: the recent-files list is replaced by the Manage Task Files button.
-- The Gantt and Calendar buttons share one row, and the Swim lanes button sits with Compact Cards and Hide Buttons. Right-click Swim lanes to clear the lanes.
 - If an unexpected error happens several times in a row, you are now asked about it once instead of once for each time.
 - A task file now carries an identity of its own, so a file copied to another computer is recognised as the same file, while a duplicate becomes a separate board.
 - The window title names the open task file.
