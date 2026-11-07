@@ -6,6 +6,10 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.165.2 — 2026-11-07
+
+> - Improved: in Assigned To lanes a task now shows in the lane of every person on it, so adding a person puts the task in their lane (showing the lane if a filter had hidden it). Dragging from one person's lane to another's swaps the person.
+
 ## 0.165.1 — 2026-11-07
 
 > - Improved: the Calendar's Month view now scrolls on without stopping, a week at a time, with every other month shaded and the title naming the month at the top.

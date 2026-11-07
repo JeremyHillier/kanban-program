@@ -111,7 +111,14 @@ public partial class MainViewModel
         var none = 0;
         foreach (var card in Columns.SelectMany(c => c.Cards).Where(c => c.IsVisible))
         {
-            if (LaneViewModel.IdOf(SwimlaneMode, card) is { } id) counts[id] = counts.GetValueOrDefault(id) + 1; else none++;
+            if (SwimlaneMode == SwimlaneMode.AssignedTo)
+            {
+                // A task counts in the lane of every person on it.
+                if (card.People.Count == 0) none++;
+                foreach (var person in card.People) counts[person.Id] = counts.GetValueOrDefault(person.Id) + 1;
+            }
+            else if (LaneViewModel.IdOf(SwimlaneMode, card) is { } id) counts[id] = counts.GetValueOrDefault(id) + 1;
+            else none++;
         }
         // While a filter is on, a lane with none of the filtered tasks is left out; with no filter every lane shows,
         // so an empty one is still there to drag a task into.
@@ -124,7 +131,9 @@ public partial class MainViewModel
     }
 
     // Puts tasks in a lane by changing the field it groups by (project, goal or lead). Tasks already in it are left alone.
-    private void AssignToLane(LaneViewModel lane, IReadOnlyList<CardViewModel> cards)
+    // `from` is the lane the tasks were dragged out of, when known: in Assigned To lanes that person is swapped for the
+    // new one instead of left on the task.
+    private void AssignToLane(LaneViewModel lane, IReadOnlyList<CardViewModel> cards, LaneViewModel? from = null)
     {
         var changing = cards.Where(c => !lane.Matches(c)).ToList();
         if (changing.Count == 0) return;
@@ -140,19 +149,30 @@ public partial class MainViewModel
             case SwimlaneMode.Goal:
                 SetCardsGoal(changing, lane.Id is { } goalId ? Goals.FirstOrDefault(g => g.Id == goalId) : null);
                 break;
-            case SwimlaneMode.AssignedTo:
-                SetCardsWho(changing, lane.Id is { } personId ? People.FirstOrDefault(p => p.Id == personId) : null);
+            case SwimlaneMode.AssignedTo when lane.Id is { } personId && People.FirstOrDefault(p => p.Id == personId) is { } person:
+                if (from is { Mode: SwimlaneMode.AssignedTo, Id: { } fromId } && fromId != personId)
+                {
+                    ChangeCards("Reassign", changing, c => c.IsAssignedTo(fromId) || !c.IsAssignedTo(personId), c =>
+                    {
+                        c.People = c.IsAssignedTo(fromId) ? c.People.Select(p => p.Id == fromId ? person : p).ToList() : [.. c.People, person];
+                        PersistPeople(c);
+                    });
+                }
+                else AddPersonToCards(changing, person);
+                break;
+            case SwimlaneMode.AssignedTo: // the Unassigned lane
+                SetCardsWho(changing, null);
                 break;
         }
     }
 
     // Tasks dropped on a column of a lane: moved to that workflow column and put in that lane, as one Undo step.
     // With reorderIndex, tasks already in the column are also placed there (a drop between cards).
-    public List<CardViewModel> DropOnLane(LaneColumnViewModel target, IReadOnlyList<CardViewModel> cards, int? reorderIndex = null)
+    public List<CardViewModel> DropOnLane(LaneColumnViewModel target, IReadOnlyList<CardViewModel> cards, int? reorderIndex = null, LaneViewModel? from = null)
     {
         using var undo = RecordUndo(DescribeAction("Move", cards, $"to {target.Lane.Title}"), cards);
         var moved = MoveCards(cards, target.Source);
-        AssignToLane(target.Lane, cards);
+        AssignToLane(target.Lane, cards, from);
         if (reorderIndex is { } index && cards.All(target.Source.Cards.Contains)) ReorderCardsWithinColumn(cards, target.Source, index);
         return moved;
     }

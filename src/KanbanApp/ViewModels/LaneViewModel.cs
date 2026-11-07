@@ -78,11 +78,12 @@ public sealed class LaneViewModel : ObservableObject
     {
         SwimlaneMode.Project => card.ProjectId == Id,
         SwimlaneMode.Goal => card.GoalId == Id,
-        SwimlaneMode.AssignedTo => card.WhoId == Id,
+        // Every person on a task has a lane for it, so a task with two people shows in both; none is the Unassigned lane.
+        SwimlaneMode.AssignedTo => Id is { } person ? card.IsAssignedTo(person) : card.People.Count == 0,
         _ => false
     };
 
-    // The lane a task is in, for counting in one pass.
+    // The lane a task is in, for counting in one pass (not Assigned To: a task can be in several of those).
     public static int? IdOf(SwimlaneMode mode, CardViewModel card) => mode switch
     {
         SwimlaneMode.Project => card.ProjectId,
@@ -136,6 +137,7 @@ public sealed class LaneColumnViewModel : ColumnViewModel
         view.LiveFilteringProperties.Add(nameof(CardViewModel.ProjectId));
         view.LiveFilteringProperties.Add(nameof(CardViewModel.GoalId));
         view.LiveFilteringProperties.Add(nameof(CardViewModel.WhoId));
+        view.LiveFilteringProperties.Add(nameof(CardViewModel.People));
         view.IsLiveFiltering = true;
         return view;
     }

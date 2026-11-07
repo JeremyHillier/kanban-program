@@ -114,7 +114,15 @@ public partial class MainWindow
             // what's highlighted always matches what the next group drag would carry.
             if (!card.IsSelected && viewModel.SelectedCardCount > 0) viewModel.ClearCardSelection();
 
+            // The lane it is dragged out of, if the board is in swimlane mode: dropping on another person's lane swaps them.
+            _dragFromLane = null;
+            for (DependencyObject? up = element; up is not null; up = System.Windows.Media.VisualTreeHelper.GetParent(up))
+            {
+                if (up is FrameworkElement { DataContext: LaneColumnViewModel fromColumn }) { _dragFromLane = fromColumn.Lane; break; }
+            }
+
             DragDrop.DoDragDrop(element, CreateCardDragData(card, viewModel.SelectedCards), DragDropEffects.Move);
+            _dragFromLane = null;
 
             // DoDragDrop blocks until the drag ends, however it ends (drop, Esc-cancel, focus loss).
             // Clearing every column's insertion-line indicator here, unconditionally, guarantees none
@@ -128,6 +136,8 @@ public partial class MainWindow
             foreach (var laneColumn in viewModel.Lanes.SelectMany(l => l.Columns)) laneColumn.IsDropIndicatorVisible = false;
         }
     }
+
+    private LaneViewModel? _dragFromLane;
 
     private void Card_DragOver(object sender, DragEventArgs e)
     {
@@ -158,6 +168,7 @@ public partial class MainWindow
             sender is FrameworkElement { DataContext: ColumnViewModel column } &&
             DataContext is MainViewModel viewModel)
         {
+            var fromLane = _dragFromLane; // read now: it is cleared when the drag ends, before the deferred move below runs
             // Deferred via BeginInvoke: same defensive reasoning as QuickMove_Click — this handler
             // still runs nested inside DoDragDrop's own message loop (Drop fires before DoDragDrop
             // returns to Card_MouseMove), so mutating the collection here immediately carries the
@@ -165,7 +176,7 @@ public partial class MainWindow
             Dispatcher.BeginInvoke(new Action(() =>
             {
                 // On a swimlane's column the task also joins that lane (its project, goal or person changes).
-                var moved = column is LaneColumnViewModel laneColumn ? viewModel.DropOnLane(laneColumn, dragged) : viewModel.MoveCards(dragged, column);
+                var moved = column is LaneColumnViewModel laneColumn ? viewModel.DropOnLane(laneColumn, dragged, null, fromLane) : viewModel.MoveCards(dragged, column);
                 column = RealColumn(column);
 
                 // One card gets the usual completion prompt. A group moved into Done skips the
@@ -244,13 +255,14 @@ public partial class MainWindow
 
         var (newIndex, _) = GetCardDropTarget(itemsControl, RealColumn(column), e.GetPosition(itemsControl), draggedCards);
 
+        var fromLane = _dragFromLane;
         // Deferred via BeginInvoke: same reasoning as Column_Drop/QuickMove_Click above - this
         // handler still runs nested inside DoDragDrop's own message loop, so mutating the Cards
         // collection here immediately carries the same class of risk as mutating it from inside a
         // Click handler.
         Dispatcher.BeginInvoke(new Action(() =>
         {
-            if (column is LaneColumnViewModel laneColumn) viewModel.DropOnLane(laneColumn, draggedCards, newIndex); // also changes the lane if it differs
+            if (column is LaneColumnViewModel laneColumn) viewModel.DropOnLane(laneColumn, draggedCards, newIndex, fromLane); // also changes the lane if it differs
             else viewModel.ReorderCardsWithinColumn(draggedCards, column, newIndex);
         }), DispatcherPriority.Background);
     }

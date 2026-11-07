@@ -214,4 +214,49 @@ public sealed class SwimlaneTests(WpfDispatcherFixture wpf) : IDisposable
 
         Assert.All(board.Lanes, l => Assert.True(l.IsShown));
     });
+
+    [Fact]
+    public void AssignedToLanes_ShowATaskInTheLaneOfEveryPersonOnIt_AndAddingAPersonShowsAFilteredLane() => wpf.Run(() =>
+    {
+        var board = OpenBoard();
+        var sam = board.AddPerson("Sam").Item!;
+        var pat = board.AddPerson("Pat").Item!;
+        var card = Add(board, "Mow", board.Projects.First());
+        board.SetCardsWho([card], sam);
+        board.SetSwimlaneMode(SwimlaneMode.AssignedTo);
+        board.KeywordFilter = "Mow";
+        var patLane = board.Lanes.Single(l => l.Title == "Pat");
+        Assert.False(patLane.IsShown);
+        Assert.False(board.Lanes.Single(l => l.Title == "Unassigned").IsShown);
+
+        board.AddPersonToCards([card], pat);
+
+        Assert.True(patLane.IsShown);
+        Assert.Equal(1, patLane.Count);
+        Assert.Equal(1, board.Lanes.Single(l => l.Title == "Sam").Count); // still in Sam's too
+        Assert.Equal(["Mow"], Titles(patLane.Columns.Single(c => c.Name == "To Do")));
+    });
+
+    [Fact]
+    public void DraggingFromOnePersonsLaneToAnothers_SwapsThePerson_InPlace() => wpf.Run(() =>
+    {
+        var board = OpenBoard();
+        var sam = board.AddPerson("Sam").Item!;
+        var pat = board.AddPerson("Pat").Item!;
+        var lee = board.AddPerson("Lee").Item!;
+        var card = Add(board, "Mow", board.Projects.First());
+        board.SetCardsWho([card], sam);
+        board.AddPersonToCards([card], lee);
+        board.SetSwimlaneMode(SwimlaneMode.AssignedTo);
+        var samLane = board.Lanes.Single(l => l.Title == "Sam");
+        var patColumn = board.Lanes.Single(l => l.Title == "Pat").Columns[0];
+
+        board.DropOnLane(patColumn, [card], null, samLane);
+
+        Assert.Equal(["Pat", "Lee"], card.People.Select(p => p.Name)); // Pat takes Sam's place as lead; Lee stays
+        Assert.Equal(0, samLane.Count);
+
+        board.Undo();
+        Assert.Equal(["Sam", "Lee"], card.People.Select(p => p.Name));
+    });
 }
