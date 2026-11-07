@@ -19,14 +19,20 @@ public partial class MainWindow
         if (e.ClickCount != 2) return;
         if (sender is not FrameworkElement { DataContext: ColumnViewModel column } || DataContext is not MainViewModel viewModel) return;
 
-        OpenAddTaskDialog(viewModel, column);
+        OpenAddTaskDialog(viewModel, RealColumn(column), lane: (column as LaneColumnViewModel)?.Lane);
         e.Handled = true;
     }
 
-    private void OpenAddTaskDialog(MainViewModel viewModel, ColumnViewModel? initialColumn, KanbanApp.Models.TaskTemplate? template = null)
+    private void OpenAddTaskDialog(MainViewModel viewModel, ColumnViewModel? initialColumn, KanbanApp.Models.TaskTemplate? template = null, LaneViewModel? lane = null)
     {
         var dialog = new AddTaskWindow(viewModel) { Owner = this };
         if (initialColumn is not null) dialog.PreselectColumn(initialColumn);
+        // A task started in a project or goal lane begins in that project or goal.
+        if (lane is { Id: { } laneId })
+        {
+            if (lane.Mode == SwimlaneMode.Project) dialog.PreselectPlan(viewModel.Projects.FirstOrDefault(p => p.Id == laneId), null);
+            else if (lane.Mode == SwimlaneMode.Goal) dialog.PreselectPlan(null, viewModel.Goals.FirstOrDefault(g => g.Id == laneId));
+        }
         if (template is not null) dialog.StartFromTemplate(template);
 
         if (dialog.ShowDialog() == true) dialog.AddTo(viewModel);

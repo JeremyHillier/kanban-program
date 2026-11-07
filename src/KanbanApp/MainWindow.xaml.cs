@@ -23,6 +23,8 @@ public partial class MainWindow : Window
         _db = db;
         var mainViewModel = new MainViewModel(db);
         DataContext = mainViewModel;
+        mainViewModel.PropertyChanged += (_, e) => { if (e.PropertyName == nameof(MainViewModel.IsSwimlanesOn)) ApplyBoardScroll(); };
+        ApplyBoardScroll();
 
         // Anything whose time had already passed before the app opened is left to the startup
         // reminder list rather than also popping a time alert on the first tick.
@@ -104,7 +106,7 @@ public partial class MainWindow : Window
     // whenever it changes (window resized, button column shown or hidden, buttons moved sides).
     private void BoardScrollViewer_SizeChanged(object sender, SizeChangedEventArgs e)
     {
-        if (e.WidthChanged && DataContext is MainViewModel viewModel) viewModel.SetBoardWidth(e.NewSize.Width);
+        if (e.WidthChanged) PassBoardWidth();
     }
 
     private void Close_Click(object sender, RoutedEventArgs e)

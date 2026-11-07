@@ -125,6 +125,7 @@ public partial class MainWindow
             {
                 col.IsDropIndicatorVisible = false;
             }
+            foreach (var laneColumn in viewModel.Lanes.SelectMany(l => l.Columns)) laneColumn.IsDropIndicatorVisible = false;
         }
     }
 
@@ -163,7 +164,9 @@ public partial class MainWindow
             // same class of risk as mutating it from inside a Click handler.
             Dispatcher.BeginInvoke(new Action(() =>
             {
-                var moved = viewModel.MoveCards(dragged, column);
+                // On a swimlane's column the task also joins that lane (its project, goal or person changes).
+                var moved = column is LaneColumnViewModel laneColumn ? viewModel.DropOnLane(laneColumn, dragged) : viewModel.MoveCards(dragged, column);
+                column = RealColumn(column);
 
                 // One card gets the usual completion prompt. A group moved into Done skips the
                 // optional "add a note?" question rather than asking once per card, but a task set
@@ -191,7 +194,7 @@ public partial class MainWindow
 
         if (sender is not System.Windows.Controls.Grid { DataContext: ColumnViewModel col } grid) return false;
         var cards = GetDraggedCards(e.Data);
-        if (cards.Count == 0 || !cards.All(col.Cards.Contains)) return false;
+        if (cards.Count == 0 || !cards.All(RealColumn(col).Cards.Contains)) return false;
 
         var ic = grid.Children.OfType<System.Windows.Controls.ItemsControl>().FirstOrDefault();
         if (ic is null) return false;
@@ -209,7 +212,7 @@ public partial class MainWindow
         e.Handled = true;
         e.Effects = DragDropEffects.Move;
 
-        var (_, indicatorY) = GetCardDropTarget(itemsControl, column, e.GetPosition(itemsControl), draggedCards);
+        var (_, indicatorY) = GetCardDropTarget(itemsControl, RealColumn(column), e.GetPosition(itemsControl), draggedCards);
         column.DropIndicatorY = indicatorY;
         column.IsDropIndicatorVisible = true;
     }
@@ -239,7 +242,7 @@ public partial class MainWindow
         column.IsDropIndicatorVisible = false;
         if (DataContext is not MainViewModel viewModel) return;
 
-        var (newIndex, _) = GetCardDropTarget(itemsControl, column, e.GetPosition(itemsControl), draggedCards);
+        var (newIndex, _) = GetCardDropTarget(itemsControl, RealColumn(column), e.GetPosition(itemsControl), draggedCards);
 
         // Deferred via BeginInvoke: same reasoning as Column_Drop/QuickMove_Click above - this
         // handler still runs nested inside DoDragDrop's own message loop, so mutating the Cards
@@ -247,7 +250,8 @@ public partial class MainWindow
         // Click handler.
         Dispatcher.BeginInvoke(new Action(() =>
         {
-            viewModel.ReorderCardsWithinColumn(draggedCards, column, newIndex);
+            if (column is LaneColumnViewModel laneColumn) viewModel.DropOnLane(laneColumn, draggedCards, newIndex); // also changes the lane if it differs
+            else viewModel.ReorderCardsWithinColumn(draggedCards, column, newIndex);
         }), DispatcherPriority.Background);
     }
 

@@ -66,7 +66,7 @@ public class ColumnViewModel(KanbanColumn model, Brush background) : ObservableO
     // it's scrolled part-way down. Changes to many cards at once go through BeginBulkChange.
     // Created on first use, which is the board binding to it - after Load has filled Cards.
     private ListCollectionView? _cardsView;
-    public ListCollectionView CardsView => _cardsView ??= CreateCardsView();
+    public virtual ListCollectionView CardsView => _cardsView ??= CreateCardsView();
 
     private ListCollectionView CreateCardsView()
     {

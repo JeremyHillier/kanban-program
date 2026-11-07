@@ -316,6 +316,15 @@
                 <local:BulletItem Text="Due on the 1st to 15th: that day and 15 days later, so the 3rd gives the 3rd and 18th."/>
                 <local:BulletItem Text="Due on the 16th or later: that day and 15 days earlier, so the 20th gives the 5th and 20th. The last day of a month pairs with the 15th."/>
 
+                <TextBlock x:Name="HelpSection_Swimlanes" Text="Swimlanes" Style="{StaticResource HelpSectionHeaderStyle}"/>
+                <local:BulletItem Text="The Swim lanes button, under Compact Cards, draws the board as horizontal lanes. Click it to choose Project, Goal or Assigned To, or Off for the board as it was."/>
+                <local:BulletItem Text="Each lane has the same columns across it. The last lane holds the tasks with no project, no goal or nobody assigned. Assigned To uses a task's lead."/>
+                <local:BulletItem Text="Click a lane's name to collapse or expand it, with its task count beside it. Expand All and Collapse All are in the button's menu."/>
+                <local:BulletItem Text="Filters, sorting, colours and everything on a card work as before. The board scrolls down when the lanes do not fit."/>
+                <local:BulletItem Text="Drag a task to another column of the same lane to change its status, or to another lane to change its project, goal or lead as well."/>
+                <local:BulletItem Text="Double-click a column's name inside a project or goal lane to add a task there, already in that project or goal."/>
+                <local:BulletItem Text="The grouping and which lanes are collapsed are remembered for this task file."/>
+
                 <TextBlock x:Name="HelpSection_MassUpdate" Text="Changing several tasks at once" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <local:BulletItem Text="Ctrl+click picks tasks one at a time, Shift+click a range in one column, and Ctrl+A every task showing. Esc clears the picks."/>
                 <local:BulletItem Text="Right-click a picked task, Mass Update, to change them together. Tick each field to change; unticked fields stay as they are."/>

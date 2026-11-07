@@ -203,6 +203,7 @@ public partial class MainViewModel : ObservableObject
         NotifyColumnWidthChanged(); // it divides the board by the number of columns
         RefreshColumnLetters();
         LoadLinks();
+        LoadSwimlanes();
         foreach (var property in (string[])[nameof(ToDoColumn), nameof(InProgressColumn), nameof(OnHoldColumn), nameof(WaitingColumn), nameof(DoneColumn)])
         {
             OnPropertyChanged(property); // Load builds the columns afresh

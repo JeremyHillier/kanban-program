@@ -162,12 +162,14 @@ public partial class MainViewModel
 
     private void RefreshProjectFilterOptions()
     {
+        RefreshLanes(); // the lists the lanes are made from just changed
         var desired = Projects.Where(p => p.IsActive).OrderBy(p => p.Name).Select(p => p.Name).ToList();
         SyncFilterOptions(ProjectFilterOptions, desired);
     }
 
     private void RefreshWhoFilterOptions()
     {
+        RefreshLanes(); // the lists the lanes are made from just changed
         var desired = new List<string> { "Unassigned" };
         desired.AddRange(People.Where(p => p.IsActive).OrderBy(p => p.Name).Select(p => p.Name));
         SyncFilterOptions(WhoFilterOptions, desired);
@@ -175,6 +177,7 @@ public partial class MainViewModel
 
     private void RefreshGoalFilterOptions()
     {
+        RefreshLanes(); // the lists the lanes are made from just changed
         var desired = new List<string> { "All", "Unassigned" };
         desired.AddRange(Goals.Where(g => g.IsOffered).OrderBy(g => g.Name).Select(g => g.Name));
         ReplaceFilterOptions(GoalFilterOptions, desired);
@@ -266,6 +269,7 @@ public partial class MainViewModel
         }
 
         NotifyHiddenTasksChanged();
+        RefreshLaneCounts();
     }
 
     // A card the filters hide is also deselected, so a later multi-card drag can never carry along
