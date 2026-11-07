@@ -321,6 +321,7 @@
                 <local:BulletItem Text="Each lane has the same columns across it. The last lane holds the tasks with no project, no goal or nobody assigned. Assigned To uses a task's lead."/>
                 <local:BulletItem Text="Click a lane's name to collapse or expand it, with its task count beside it. Expand All and Collapse All are in the button's menu."/>
                 <local:BulletItem Text="Filters, sorting, colours and everything on a card work as before. The board scrolls down when the lanes do not fit."/>
+                <local:BulletItem Text="While a filter is on, a lane with none of the filtered tasks is left out. With no filter every lane shows, empty ones included."/>
                 <local:BulletItem Text="Drag a task to another column of the same lane to change its status, or to another lane to change its project, goal or lead as well."/>
                 <local:BulletItem Text="Double-click a column's name inside a project or goal lane to add a task there, already in that project or goal."/>
                 <local:BulletItem Text="The grouping and which lanes are collapsed are remembered for this task file."/>

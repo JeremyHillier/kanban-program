@@ -10,6 +10,7 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 
 > - Improved: the Calendar's Month view now scrolls on without stopping, a week at a time, with every other month shaded and the title naming the month at the top.
 > - New: choose whether weeks start on Monday or Sunday, in Settings, General tab.
+> - Improved: with swimlanes on, a filter now leaves out every project, goal or person lane that has none of the filtered tasks.
 > - New: the Calendar's No Due Date list can be sorted A to Z or Z to A, or grouped by project or by goal.
 > - Improved: the Gantt and Calendar buttons now sit together on one row, and the Swim lanes button is beside Compact Cards and Hide Buttons. Right-click the Swim lanes button to clear the lanes.
 

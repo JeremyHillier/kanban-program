@@ -66,6 +66,14 @@ public sealed class LaneViewModel : ObservableObject
 
     public string CountText => $"{Count} task{(Count == 1 ? "" : "s")}";
 
+    // False while the board is filtered and none of this lane's tasks are showing: the lane is left out then.
+    private bool _isShown = true;
+    public bool IsShown
+    {
+        get => _isShown;
+        set => SetField(ref _isShown, value);
+    }
+
     public bool Matches(CardViewModel card) => Mode switch
     {
         SwimlaneMode.Project => card.ProjectId == Id,

@@ -1395,7 +1395,7 @@
                     <ItemsControl ItemsSource="{Binding Lanes}" Visibility="{Binding IsSwimlanesOn, Converter={StaticResource BooleanToVisibilityConverter}}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <StackPanel Margin="0,0,0,10">
+                                <StackPanel Margin="0,0,0,10" Visibility="{Binding IsShown, Converter={StaticResource BooleanToVisibilityConverter}}">
                                     <Border Background="{DynamicResource SidebarPanelBrush}" BorderBrush="{DynamicResource SidebarPanelBorderBrush}" BorderThickness="1"
                                             CornerRadius="6" Padding="10,5" Margin="0,0,0,6" HorizontalAlignment="Left" Cursor="Hand"
                                             ToolTip="Click to collapse or expand this lane" MouseLeftButtonUp="LaneHeader_MouseLeftButtonUp">

@@ -192,4 +192,26 @@ public sealed class SwimlaneTests(WpfDispatcherFixture wpf) : IDisposable
         Assert.Equal(80, lane.Count);
         Assert.Equal(80, lane.Columns.Single(c => c.Name == "To Do").CardsView.Cast<CardViewModel>().Count());
     });
+
+    [Fact]
+    public void WhileFiltered_ALaneWithNoneOfTheFilteredTasks_IsLeftOut_AndComesBackAfter() => wpf.Run(() =>
+    {
+        var board = OpenBoard();
+        var garden = board.AddProject("Garden").Item!;
+        var house = board.AddProject("House").Item!;
+        Add(board, "Mow", garden);
+        Add(board, "Paint", house);
+        board.SetSwimlaneMode(SwimlaneMode.Project);
+        Assert.All(board.Lanes, l => Assert.True(l.IsShown)); // no filter: every lane, empty ones too
+
+        board.KeywordFilter = "Mow";
+
+        Assert.True(board.Lanes.Single(l => l.Title == "Garden").IsShown);
+        Assert.False(board.Lanes.Single(l => l.Title == "House").IsShown);
+        Assert.False(board.Lanes.Single(l => l.Title == "No Project").IsShown);
+
+        board.KeywordFilter = string.Empty;
+
+        Assert.All(board.Lanes, l => Assert.True(l.IsShown));
+    });
 }

@@ -113,7 +113,14 @@ public partial class MainViewModel
         {
             if (LaneViewModel.IdOf(SwimlaneMode, card) is { } id) counts[id] = counts.GetValueOrDefault(id) + 1; else none++;
         }
-        foreach (var lane in Lanes) lane.Count = lane.Id is { } id ? counts.GetValueOrDefault(id) : none;
+        // While a filter is on, a lane with none of the filtered tasks is left out; with no filter every lane shows,
+        // so an empty one is still there to drag a task into.
+        var filtering = HasFilterSummary;
+        foreach (var lane in Lanes)
+        {
+            lane.Count = lane.Id is { } id ? counts.GetValueOrDefault(id) : none;
+            lane.IsShown = !filtering || lane.Count > 0;
+        }
     }
 
     // Puts tasks in a lane by changing the field it groups by (project, goal or lead). Tasks already in it are left alone.
