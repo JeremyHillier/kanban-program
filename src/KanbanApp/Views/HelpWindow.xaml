@@ -317,7 +317,7 @@
                 <local:BulletItem Text="Due on the 16th or later: that day and 15 days earlier, so the 20th gives the 5th and 20th. The last day of a month pairs with the 15th."/>
 
                 <TextBlock x:Name="HelpSection_Swimlanes" Text="Swimlanes" Style="{StaticResource HelpSectionHeaderStyle}"/>
-                <local:BulletItem Text="The Swim lanes button, under Compact Cards, draws the board as horizontal lanes. Click it to choose Project, Goal or Assigned To, or Off for the board as it was."/>
+                <local:BulletItem Text="The Swim lanes button, under Compact Cards, draws the board as horizontal lanes. Click it to choose Project, Goal or Assigned To, or Off for the board as it was. Right-click it to clear the lanes."/>
                 <local:BulletItem Text="Each lane has the same columns across it. The last lane holds the tasks with no project, no goal or nobody assigned. Assigned To uses a task's lead."/>
                 <local:BulletItem Text="Click a lane's name to collapse or expand it, with its task count beside it. Expand All and Collapse All are in the button's menu."/>
                 <local:BulletItem Text="Filters, sorting, colours and everything on a card work as before. The board scrolls down when the lanes do not fit."/>

@@ -1058,10 +1058,8 @@
                                         IsEnabled="{Binding CanUndo}" ToolTip="{Binding UndoToolTip}" ToolTipService.ShowOnDisabled="True">
                                     <TextBlock Text="Undo" TextWrapping="Wrap" TextAlignment="Center"/>
                                 </Button>
-                            </StackPanel>
-                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,4,0,0">
-                                <Button Style="{StaticResource SmallSquareButtonStyle}" Background="#FF4F7F8F" Foreground="White" Click="Swimlanes_Click"
-                                        ToolTip="Show the board as horizontal swimlanes, grouped by project, goal or who a task is assigned to. Click for the choices.">
+                                <Button Style="{StaticResource SmallSquareButtonStyle}" Background="#FF4F7F8F" Foreground="White" Click="Swimlanes_Click" PreviewMouseRightButtonUp="Swimlanes_PreviewMouseRightButtonUp"
+                                        ToolTip="Show the board as horizontal swimlanes, grouped by project, goal or who a task is assigned to. Click for the choices; right-click to clear the lanes.">
                                     <TextBlock Text="{Binding SwimlaneButtonLabel}" TextWrapping="Wrap" TextAlignment="Center"/>
                                 </Button>
                             </StackPanel>
@@ -1335,12 +1333,12 @@
                                         PreviewMouseLeftButtonDown="ImportTasks_PreviewMouseDown">
                                     <TextBlock Text="Import Tasks" TextWrapping="Wrap" TextAlignment="Center"/>
                                 </Button>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                                 <Button Style="{StaticResource LargeSquareButtonStyle}" Background="#FF6856AD" Foreground="White" Click="Timeline_Click"
                                         ToolTip="Show a Gantt chart of tasks by due date, grouped by project (Alt+L)">
                                     <TextBlock Text="Gantt" TextWrapping="Wrap" TextAlignment="Center"/>
                                 </Button>
-                            </StackPanel>
-                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                                 <Button Style="{StaticResource LargeSquareButtonStyle}" Background="#FF6856AD" Foreground="White" Click="Calendar_Click"
                                         ToolTip="Show tasks on the days they are due, by month, week or day (Alt+C)">
                                     <TextBlock Text="Calendar" TextWrapping="Wrap" TextAlignment="Center"/>
