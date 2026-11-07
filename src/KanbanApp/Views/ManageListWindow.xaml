@@ -50,13 +50,13 @@
                                                   Foreground="{DynamicResource PrimaryTextBrush}"
                                                   ToolTip="{Binding ActiveToolTip, RelativeSource={RelativeSource AncestorType=Window}}"
                                                   Checked="Active_Changed" Unchecked="Active_Changed"/>
-                                        <!-- Goals only: finished. It drops out of the pickers and the Goal filter, and the Timeline hides it
+                                        <!-- Goals only: finished. It drops out of the pickers and the Goal filter, and the Gantt view hides it
                                              unless Include Done tasks is ticked. -->
                                         <CheckBox Content="Complete" VerticalAlignment="Center" Margin="0,0,8,0"
                                                   Visibility="{Binding CompleteVisibility, RelativeSource={RelativeSource AncestorType=Window}}"
                                                   IsChecked="{Binding IsComplete, Mode=OneWay}"
                                                   Foreground="{DynamicResource PrimaryTextBrush}"
-                                                  ToolTip="The goal is finished. It is no longer offered for new tasks or the Goal filter, and the Timeline hides it unless Include Done tasks is ticked. Its tasks keep it. Untick to open it again."
+                                                  ToolTip="The goal is finished. It is no longer offered for new tasks or the Goal filter, and the Gantt view hides it unless Include Done tasks is ticked. Its tasks keep it. Untick to open it again."
                                                   Checked="Complete_Changed" Unchecked="Complete_Changed"/>
                                     </StackPanel>
                                     <!-- Goals only: when work starts and when it should be finished (both optional), and its milestones. -->
@@ -65,17 +65,17 @@
                                         <TextBlock Text="Start" VerticalAlignment="Center" Margin="0,0,6,0" Foreground="{DynamicResource PrimaryTextBrush}"/>
                                         <DatePicker Width="130" Padding="4" Loaded="TargetPicker_Loaded" SelectedDate="{Binding StartDate, Mode=OneWay}"
                                                     SelectedDateChanged="Start_Changed"
-                                                    ToolTip="When work begins (optional). On the Timeline its bar starts here if that is before its first task."/>
+                                                    ToolTip="When work begins (optional). On the Gantt view its bar starts here if that is before its first task."/>
                                         <Button Content="&#x2715;" Padding="6,4" Margin="3,0,0,0" Click="ClearStart_Click" ToolTip="Take the start date off"
                                                 Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
                                         <TextBlock Text="Target" VerticalAlignment="Center" Margin="12,0,6,0" Foreground="{DynamicResource PrimaryTextBrush}"/>
                                         <DatePicker Width="130" Padding="4" Loaded="TargetPicker_Loaded" SelectedDate="{Binding TargetDate, Mode=OneWay}"
                                                     SelectedDateChanged="Target_Changed"
-                                                    ToolTip="When this should be finished (optional). Shown on the Timeline, which flags one whose open tasks run past it."/>
+                                                    ToolTip="When this should be finished (optional). Shown on the Gantt view, which flags one whose open tasks run past it."/>
                                         <Button Content="&#x2715;" Padding="6,4" Margin="3,0,0,0" Click="ClearTarget_Click" ToolTip="Take the target date off"
                                                 Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
                                         <Button Content="Milestones..." Padding="10,4" Margin="12,0,0,0" Click="Milestones_Click"
-                                                ToolTip="The dated milestones on the way to this one. Each is drawn on the Timeline when it is grouped the same way."
+                                                ToolTip="The dated milestones on the way to this one. Each is drawn on the Gantt view when it is grouped the same way."
                                                 Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
                                     </StackPanel>
                                     <Button Grid.Column="3" Content="Delete" Padding="10,4" Click="Delete_Click" ToolTip="Take it off the list"

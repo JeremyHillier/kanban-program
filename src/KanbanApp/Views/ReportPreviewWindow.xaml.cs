@@ -63,9 +63,9 @@ public partial class ReportPreviewWindow : Window
 
         var dialog = new Microsoft.Win32.SaveFileDialog
         {
-            Title = "Save Timeline",
+            Title = "Save Gantt Chart",
             Filter = "PDF File (*.pdf)|*.pdf|PNG Picture (*.png)|*.png",
-            FileName = $"Timeline_{DateTime.Now:yyyyMMdd_HHmmss}"
+            FileName = $"Gantt_{DateTime.Now:yyyyMMdd_HHmmss}"
         };
         if (dialog.ShowDialog(this) != true) return;
 
@@ -78,11 +78,11 @@ public partial class ReportPreviewWindow : Window
         }
         catch (Exception ex)
         {
-            Dialogs.Tell(this, "Could Not Save", "The Timeline was not saved.", DialogTone.Warning, ex.Message);
+            Dialogs.Tell(this, "Could Not Save", "The Gantt chart was not saved.", DialogTone.Warning, ex.Message);
             return;
         }
 
-        Dialogs.Tell(this, "Timeline Saved", pictures && document.Pages.Count > 1
+        Dialogs.Tell(this, "Gantt Chart Saved", pictures && document.Pages.Count > 1
             ? $"One picture per page was saved beside:\n{dialog.FileName}"
             : $"Saved to:\n{dialog.FileName}");
     }

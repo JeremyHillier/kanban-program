@@ -132,6 +132,10 @@ public partial class MainWindow
                         Timeline_Click(sender, e);
                         e.Handled = true;
                         break;
+                    case Key.C:
+                        Calendar_Click(sender, e);
+                        e.Handled = true;
+                        break;
                     case Key.M:
                         if (DataContext is MainViewModel templatesViewModel) ManageTemplates(templatesViewModel);
                         e.Handled = true;

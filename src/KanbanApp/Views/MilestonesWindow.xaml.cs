@@ -21,7 +21,7 @@ public partial class MilestonesWindow : Window
         InitializeComponent();
         AccessKeys.Bind(this);
         Title = $"Milestones - {item.Name}";
-        IntroText.Text = $"Dated points on the way to \"{item.Name}\". Each is drawn on the Timeline when it is grouped by {(item.Owner == MilestoneOwner.Goal ? "goal" : "project")}.";
+        IntroText.Text = $"Dated points on the way to \"{item.Name}\". Each is drawn on the Gantt view when it is grouped by {(item.Owner == MilestoneOwner.Goal ? "goal" : "project")}.";
         MaxHeight = SystemParameters.WorkArea.Height * 0.9;
         NewDatePicker.SelectedDate = DateTime.Today;
         ShowList();

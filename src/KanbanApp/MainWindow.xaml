@@ -1336,8 +1336,14 @@
                                     <TextBlock Text="Import Tasks" TextWrapping="Wrap" TextAlignment="Center"/>
                                 </Button>
                                 <Button Style="{StaticResource LargeSquareButtonStyle}" Background="#FF6856AD" Foreground="White" Click="Timeline_Click"
-                                        ToolTip="Show a timeline of tasks by due date, grouped by project (Alt+L)">
-                                    <TextBlock Text="Timeline" TextWrapping="Wrap" TextAlignment="Center"/>
+                                        ToolTip="Show a Gantt chart of tasks by due date, grouped by project (Alt+L)">
+                                    <TextBlock Text="Gantt" TextWrapping="Wrap" TextAlignment="Center"/>
+                                </Button>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <Button Style="{StaticResource LargeSquareButtonStyle}" Background="#FF6856AD" Foreground="White" Click="Calendar_Click"
+                                        ToolTip="Show tasks on the days they are due, by month, week or day (Alt+C)">
+                                    <TextBlock Text="Calendar" TextWrapping="Wrap" TextAlignment="Center"/>
                                 </Button>
                             </StackPanel>
                         </StackPanel>

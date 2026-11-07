@@ -31,6 +31,7 @@ public static class HelpKey
         [typeof(ReportPreviewWindow)] = "HelpSection_ReportOutput",
         [typeof(DashboardWindow)] = "HelpSection_Dashboard",
         [typeof(TimelineWindow)] = "HelpSection_Timeline",
+        [typeof(CalendarWindow)] = "HelpSection_Calendar",
         [typeof(TimelineFiltersWindow)] = "HelpSection_Timeline",
         [typeof(ReminderWindow)] = "HelpSection_Reminders",
         [typeof(SettingsWindow)] = "HelpSection_Settings",

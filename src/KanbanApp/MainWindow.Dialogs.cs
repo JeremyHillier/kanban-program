@@ -162,6 +162,13 @@ public partial class MainWindow
         dialog.ShowDialog();
     }
 
+    private void Calendar_Click(object sender, RoutedEventArgs e)
+    {
+        if (DataContext is not MainViewModel viewModel) return;
+
+        new CalendarWindow(viewModel) { Owner = this }.ShowDialog();
+    }
+
     private void Timeline_Click(object sender, RoutedEventArgs e)
     {
         if (DataContext is not MainViewModel viewModel) return;

@@ -93,7 +93,7 @@
                             <TextBlock Grid.Row="11" Text="Alt+S" FontFamily="Consolas" Margin="10,1,0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
                             <TextBlock Grid.Row="11" Grid.Column="1" Text="Settings" TextWrapping="Wrap" Margin="0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
                             <TextBlock Grid.Row="12" Text="Alt+L" FontFamily="Consolas" Margin="10,1,0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
-                            <TextBlock Grid.Row="12" Grid.Column="1" Text="Timeline" TextWrapping="Wrap" Margin="0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                            <TextBlock Grid.Row="12" Grid.Column="1" Text="Gantt" TextWrapping="Wrap" Margin="0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
                             <TextBlock Grid.Row="13" Text="Alt+H" FontFamily="Consolas" Margin="10,1,0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
                             <TextBlock Grid.Row="13" Grid.Column="1" Text="Help" TextWrapping="Wrap" Margin="0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
                             <TextBlock Grid.Row="14" Text="Alt+B" FontFamily="Consolas" Margin="10,1,0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
@@ -130,7 +130,7 @@
                             <TextBlock Grid.Row="5" Text="Ctrl+C" FontFamily="Consolas" Margin="10,1,0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
                             <TextBlock Grid.Row="5" Grid.Column="1" Text="In a message, copy the message" TextWrapping="Wrap" Margin="0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
                         </Grid>
-                        <TextBlock Text="Timeline" FontWeight="SemiBold" Margin="0,6,0,2" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                        <TextBlock Text="Gantt" FontWeight="SemiBold" Margin="0,6,0,2" Foreground="{DynamicResource PrimaryTextBrush}"/>
                         <Grid>
                             <Grid.ColumnDefinitions><ColumnDefinition Width="230"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
                             <Grid.RowDefinitions><RowDefinition/><RowDefinition/></Grid.RowDefinitions>
@@ -400,8 +400,8 @@
                 <local:BulletItem Text="Lists are always alphabetical."/>
                 <local:BulletItem Text="Untick Active to retire an entry. Tasks already using it keep it."/>
                 <local:BulletItem Text="Tick Complete on a goal when it is finished. It stays on its tasks but is no longer offered for new ones."/>
-                <local:BulletItem Text="A complete goal leaves the Timeline unless Include Done tasks is ticked, where it shows in green with its date."/>
-                <local:BulletItem Text="Untick Complete to open a goal again. On the Timeline, right-click a goal and choose Mark Goal Complete."/>
+                <local:BulletItem Text="A complete goal leaves the Gantt view unless Include Done tasks is ticked, where it shows in green with its date."/>
+                <local:BulletItem Text="Untick Complete to open a goal again. On the Gantt view, right-click a goal and choose Mark Goal Complete."/>
                 <local:BulletItem Text="Names are unique, whatever their capitals."/>
                 <local:BulletItem Text="Adding a name already there uses it, and switches it back on if needed."/>
                 <local:BulletItem Text="Delete says how many tasks use the entry first. It cannot be undone."/>
@@ -427,7 +427,7 @@
                 <local:BulletItem Text="Rename one, and every task that has it is reworded, archived tasks too."/>
                 <local:BulletItem Text="Move Up and Move Down set the order. The top one is the highest."/>
                 <local:BulletItem Text="Menus, the filter list, reports and Sort by Priority all use that order."/>
-                <local:BulletItem Text="Colour sets the badge colour on cards, the Timeline and the Dashboard."/>
+                <local:BulletItem Text="Colour sets the badge colour on cards, the Gantt view and the Dashboard."/>
                 <local:BulletItem Text="Make Default chooses the priority a new task starts with."/>
                 <local:BulletItem Text="Delete moves its tasks to the default priority. The default cannot be deleted."/>
                 <local:BulletItem Text="Renaming or deleting a priority clears the Undo history."/>
@@ -534,7 +534,19 @@
                 <local:BulletItem Text="The colours stay distinct for colour-blind readers, in light and dark mode."/>
                 <local:BulletItem Text="It opens at the size and position it was left."/>
 
-                <TextBlock x:Name="HelpSection_Timeline" Text="Timeline" Style="{StaticResource HelpSectionHeaderStyle}"/>
+                <TextBlock x:Name="HelpSection_Calendar" Text="Calendar" Style="{StaticResource HelpSectionHeaderStyle}"/>
+                <local:BulletItem Text="The Calendar button, or Alt+C, shows tasks on the days they are due, as a Month, a Week or a Day."/>
+                <local:BulletItem Text="Use the arrows, Today, or Select a date to move around. Untick Weekends to hide Saturday and Sunday."/>
+                <local:BulletItem Text="A task shows its priority colour, or its card colour with a stripe of its priority. Finished tasks are struck through. An overdue task has a red outline."/>
+                <local:BulletItem Text="Double-click a task to open it. Right-click it for the same menu as a card on the board."/>
+                <local:BulletItem Text="Double-click a day to add a task due that day. Drag a task to another day to change its due date."/>
+                <local:BulletItem Text="In Month view a busy day shows +N more. Click it, or the day's number, to see that day."/>
+                <local:BulletItem Text="The No Due Date list beside the calendar holds the tasks with no due date. Drag one onto a day to give it that date. Its tick box turns the list off."/>
+                <local:BulletItem Text="Filters... are the same as the Gantt view's, so the same people, priorities, flags, projects and goals show in both. Include Done tasks shows finished ones."/>
+                <local:BulletItem Text="A repeating task shows once, on its current due date. Its next date appears when it is completed."/>
+                <local:BulletItem Text="The view, weekends, Done tasks and the list are remembered for this task file."/>
+
+                <TextBlock x:Name="HelpSection_Timeline" Text="Gantt" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <local:BulletItem Text="Alt+L shows tasks with dates: projects or goals down the side, dates across the top."/>
                 <local:BulletItem Text="A task with a start and a due date sits in its start column, with a line from the middle of its right side to its due day."/>
                 <local:BulletItem Text="A dashed box started before the dates shown. A line off the right is due later."/>

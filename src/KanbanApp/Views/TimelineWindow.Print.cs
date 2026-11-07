@@ -17,7 +17,7 @@ public partial class TimelineWindow
 {
     // The preview offers the paper and orientation (remembered), and lays the pages out again for them.
     private void Print_Click(object sender, RoutedEventArgs e) =>
-        new ReportPreviewWindow(BuildPrintDocument, _viewModel.TimelinePageSetup, _viewModel.SaveTimelinePageSetup) { Owner = this, Title = "Timeline Preview" }.ShowDialog();
+        new ReportPreviewWindow(BuildPrintDocument, _viewModel.TimelinePageSetup, _viewModel.SaveTimelinePageSetup) { Owner = this, Title = "Gantt Preview" }.ShowDialog();
 
     // Builds a print-friendly, paginated rendering of exactly what's currently on screen (same
     // range, zoom level, and Include Done setting) via GetVisibleData, on the paper chosen in the
@@ -116,7 +116,7 @@ public partial class TimelineWindow
             Canvas.SetLeft(band, 0);
             Canvas.SetTop(band, 0);
             canvas.Children.Add(band);
-            AddText(canvas, "Timeline", margin, 10, boldTypeface, 18, Brushes.White);
+            AddText(canvas, "Gantt", margin, 10, boldTypeface, 18, Brushes.White);
             AddText(canvas,
                 $"{_windowStart:MMM d} – {rangeEnd.AddDays(-1):MMM d, yyyy}   •   {TimelineScale.ViewName(Zoom)}, {(IsSummary ? "summary" : "detail")}, by {(IsByGoal ? "goal" : "project")}{(_filter.IsEmpty ? "" : $"   •   {_filter.Describe(_viewModel.People, _viewModel.Flags, _viewModel.Projects, _viewModel.Goals)}")}   •   Generated {DateTime.Now:MMM d, yyyy}",
                 margin, 32, regularTypeface, 10, subtitleBrush);

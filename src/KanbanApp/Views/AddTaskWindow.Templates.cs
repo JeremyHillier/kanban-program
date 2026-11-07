@@ -45,6 +45,9 @@ public partial class AddTaskWindow
         if (goal is not null && GoalComboBox.Items.OfType<GoalViewModel>().FirstOrDefault(g => g.Id == goal.Id) is { } g) GoalComboBox.SelectedItem = g;
     }
 
+    // A new task due on this day (a double-click on a day of the Calendar).
+    public void PreselectDueDate(DateTime date) => DueDatePicker.SelectedDate = date;
+
     private void TemplateComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
         if (TemplateComboBox.SelectedItem is TaskTemplate template) ApplyTemplate(template);
