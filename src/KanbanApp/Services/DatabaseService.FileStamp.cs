@@ -64,6 +64,11 @@ public partial class DatabaseService
     private const string FileFormatKey = "FileFormat";
     private const string FileFormatAppVersionKey = "FileFormatAppVersion";
     private const string LastOpenedByVersionKey = "LastOpenedByVersion";
+    // The file's own identity, made the first time it is opened: how the app tells a file moved or copied to
+    // another computer (the same file) from a duplicate made as a separate board (a new one, see AssignNewFileId).
+    public const string FileIdKey = "FileId";
+
+    public string FileId => GetSetting(FileIdKey) ?? string.Empty;
 
     internal static string RunningAppVersion => Assembly.GetExecutingAssembly().GetName().Version?.ToString(3) ?? "unknown";
 
@@ -90,7 +95,10 @@ public partial class DatabaseService
         }
 
         if (GetSetting(LastOpenedByVersionKey) != RunningAppVersion) SetSetting(LastOpenedByVersionKey, RunningAppVersion);
+        if (string.IsNullOrEmpty(GetSetting(FileIdKey))) AssignNewFileId();
     }
+
+    public void AssignNewFileId() => SetSetting(FileIdKey, Guid.NewGuid().ToString("N"));
 
     // For a format that only applies once a feature is used (see FormatStampedOnOpen): raises the
     // stamp to it, if it isn't there already. Like StampFile, it never lowers the stamp.

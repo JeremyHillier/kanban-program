@@ -129,6 +129,7 @@ public partial class MainWindow
 
         var dialog = new SettingsWindow(viewModel) { Owner = this };
         dialog.ShowDialog();
+        if (dialog.SwitchToPath is { } path) SwitchTaskFile(path);
     }
 
     private void Help_Click(object sender, RoutedEventArgs e)

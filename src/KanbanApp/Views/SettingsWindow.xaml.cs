@@ -60,7 +60,6 @@ public partial class SettingsWindow : Window
         FitColumnsCheckBox.IsChecked = viewModel.IsFitColumnsToWindow;
         RefreshColumnWidthBox();
         DbPathTextBox.Text = viewModel.CurrentDbPath;
-        RefreshRecentFilesList();
 
         AutoBackupCheckBox.IsChecked = viewModel.AutoBackupEnabled;
         BackupRetentionTextBox.Text = viewModel.BackupRetentionCount.ToString();

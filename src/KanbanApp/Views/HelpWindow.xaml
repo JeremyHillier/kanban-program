@@ -610,7 +610,8 @@
                 <local:BulletItem Text="crash.log: a record of errors. It is sent only if you choose Report a Problem."/>
                 <local:BulletItem Text="Copy the whole folder to take everything with you."/>
                 <TextBlock Text="On this PC only, in %LOCALAPPDATA%\KanbanApp" Style="{StaticResource HelpSubHeaderStyle}"/>
-                <local:BulletItem Text="config.json: which task file to open, and the task files you have used. About shows its location."/>
+                <local:BulletItem Text="config.json: which task file is open and which opens at startup, the task files on the list with their names, and where templates are. About shows its location."/>
+                <local:BulletItem Text="Templates: your task-file templates, in a Templates folder here unless you chose another in Manage Task Files."/>
                 <local:BulletItem Text="UserDictionary.lex and UserDictionary.words: your spelling dictionary, for the spell checker on this PC."/>
                 <local:BulletItem Text="Start when Windows starts adds an entry to your Windows startup list. It is not a file."/>
                 <TextBlock Text="Folders you choose" Style="{StaticResource HelpSubHeaderStyle}"/>
@@ -624,11 +625,25 @@
                 <local:BulletItem Text="Updating or uninstalling never touches your task file, backups or attachments."/>
                 <local:BulletItem Text="The app uploads none of these. A cloud folder such as OneDrive syncs them only if you keep the task folder in one."/>
 
-                <TextBlock Text="Task files" Style="{StaticResource HelpSectionHeaderStyle}"/>
-                <local:BulletItem Text="Keep separate boards, such as work and personal, in separate task files."/>
-                <local:BulletItem Text="Settings, Data and files tab: New File starts an empty board. Open Existing File opens one."/>
-                <local:BulletItem Text="Files used before are listed. Double-click one to switch to it."/>
-                <local:BulletItem Text="Remove from List tidies the list. It does not delete the file."/>
+                <TextBlock x:Name="HelpSection_TaskFiles" Text="Task files" Style="{StaticResource HelpSectionHeaderStyle}"/>
+                <local:BulletItem Text="Keep separate boards, such as work and personal or one per client, in separate task files. Each has its own tasks, projects, goals, people and settings."/>
+                <local:BulletItem Text="The Task file button at the top of the button column names the open file. Click it to switch to another, or for Manage Task Files."/>
+                <local:BulletItem Text="Switching changes the board over without restarting. The file you leave is not changed."/>
+                <local:BulletItem Text="Manage Task Files (also in Settings, Data and files tab) lists your files with a name, a description and when each was last opened."/>
+                <local:BulletItem Text="New File starts an empty board where you choose. New from Template starts one from a template. Duplicate copies a file as a separate board."/>
+                <local:BulletItem Text="Add Existing File puts a file you already have on the list: one copied from another computer, or one made here and forgotten. Use it where it is, or copy it to a folder of your choosing first."/>
+                <local:BulletItem Text="Use at Startup opens that file whenever the app starts. Otherwise the app opens whichever file was open last."/>
+                <local:BulletItem Text="Move puts a file, with its Attachments and Backups folders, in another folder or drive. Reconnect finds a file you moved or renamed yourself."/>
+                <local:BulletItem Text="Remove from List forgets a file without touching it. Delete File sends it to the Recycle Bin, with its Attachments and Backups folders, after asking."/>
+                <TextBlock Text="Taking a task file to another computer" Style="{StaticResource HelpSubHeaderStyle}"/>
+                <local:BulletItem Text="Close the app, then copy the task file (and its Attachments folder, if you want the attachments) to a USB drive, a network folder or the other computer."/>
+                <local:BulletItem Text="On the other computer, open Manage Task Files, Add Existing File, and choose the copy. The app checks it and lists it; its tasks are all there."/>
+                <local:BulletItem Text="A file moved by hand is recognised when you add it from its new location: choose Reconnect, and the list points there. Choose Add as a Copy for a second, separate board."/>
+                <local:BulletItem Text="Use a file from one computer at a time. Two computers editing their own copies of one file in a synced folder (OneDrive, Dropbox) lose one side's changes."/>
+                <TextBlock Text="Templates" Style="{StaticResource HelpSubHeaderStyle}"/>
+                <local:BulletItem Text="A template is a task file saved with only the parts you choose: columns, priorities, projects, goals, people, flags, settings and, if you want, its open tasks."/>
+                <local:BulletItem Text="Manage Task Files, Templates tab: New Template from Open File makes one. Create Task File starts a new file from it."/>
+                <local:BulletItem Text="Edit Name, Update from Open File, Duplicate and Delete look after the templates. They live in the templates folder shown at the foot of the tab, which Change moves."/>
                 <local:BulletItem Text="Switching restarts the app. The file you leave is not changed."/>
 
                 <TextBlock Text="Backups" Style="{StaticResource HelpSectionHeaderStyle}"/>

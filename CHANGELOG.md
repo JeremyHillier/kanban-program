@@ -6,6 +6,14 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.165.0 — 2026-11-07
+
+> - New: Task Files. The Task file button at the top of the button column names the file that is open and switches to another without restarting the app. Manage Task Files lists every task file on this PC with a name, a description and when it was last opened. From there you can make a new file, duplicate one as a separate board, add a file copied from another computer (used where it is, or copied first to a folder you choose), move or reconnect a file, choose the file that opens at startup, take a file off the list, or send one to the Recycle Bin.
+> - New: task-file templates. Save a file's columns, priorities, projects, goals, people, flags, settings and, if you like, its open tasks as a template, then start new task files from it. Templates can be renamed, updated from the open file, duplicated and deleted, and kept in a folder of your choosing.
+- Settings, Data and files tab: the recent-files list is replaced by the Manage Task Files button.
+- A task file now carries an identity of its own, so a file copied to another computer is recognised as the same file, while a duplicate becomes a separate board.
+- The window title names the open task file.
+
 ## 0.164.1 — 2026-11-07
 
 > - Improved: the Licence Agreement now states plainly that liability is CAD $0 for Jeremy Hillier Consulting Inc and for Jeremy Hillier personally, whether or not you have paid. Its main points and section references were brought into line.

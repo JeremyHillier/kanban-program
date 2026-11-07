@@ -13,6 +13,7 @@ public partial class App : Application
     // the process. Dropping it because it "looks unused" would let the GC collect the mutex and
     // silently break the guard that stops two copies writing to the same database.
     private static Mutex? _instanceMutex;
+    private string _dbPath = string.Empty; // the open task file, for the crash log
 
     protected override void OnStartup(StartupEventArgs e)
     {
@@ -59,7 +60,13 @@ public partial class App : Application
 
         TaskLinks.Register(); // so a link to a task opens this copy
 
-        var db = new DatabaseService();
+        var config = AppConfig.Load();
+        var startPath = config.FileToOpenAtStartup;
+        config.SwitchTo(startPath); // the open file, and when it was opened
+        config.Save();
+
+        var db = new DatabaseService(startPath);
+        _dbPath = db.DbPath;
         if (db.IsFromNewerApp && !ConfirmOpenNewerTaskFile(db))
         {
             Shutdown();
@@ -77,7 +84,7 @@ public partial class App : Application
 
         DispatcherUnhandledException += (_, ex) =>
         {
-            LogCrash(db.DbPath, ex.Exception);
+            LogCrash(_dbPath, ex.Exception);
             ex.Handled = true;
             const string text = "Something went wrong, but the app is still open and your tasks are safe.\n\n"
                                 + "Would you like to email a problem report? You see the email before anything is sent.";
@@ -99,12 +106,12 @@ public partial class App : Application
 
             try
             {
-                ProblemReport.Compose(MainWindow is { IsLoaded: true } owner ? owner : null, db.DbPath);
+                ProblemReport.Compose(MainWindow is { IsLoaded: true } owner ? owner : null, _dbPath);
             }
             catch (Exception reportEx)
             {
                 // Never let the report itself raise another unexpected-error prompt.
-                LogCrash(db.DbPath, reportEx);
+                LogCrash(_dbPath, reportEx);
             }
         };
 
@@ -142,6 +149,41 @@ public partial class App : Application
         ShutdownMode = ShutdownMode.OnMainWindowClose;
         if (startFullScreen) main.WindowState = WindowState.Maximized;
         OpenLinkWhenReady(main, taskLink);
+    }
+
+    // Another task file in place of the open one, without restarting: the board window is closed and a new
+    // one built on the new file. The old window's Closing runs as usual (its backup, its view state), and it
+    // closes first so its hot key and link hooks are released before the new window takes them.
+    internal bool SwitchTaskFile(string path, MainWindow? current)
+    {
+        if (current is not null && AppConfig.ArePathsEqual(path, current.Db.DbPath)) return false;
+
+        DatabaseService db;
+        try
+        {
+            db = new DatabaseService(path);
+        }
+        catch (Exception ex)
+        {
+            Dialogs.Tell(current, "File Not Opened", "The task file could not be opened, so the app keeps the one it has.", DialogTone.Error, ex.Message);
+            return false;
+        }
+        if (db.IsFromNewerApp && !ConfirmOpenNewerTaskFile(db)) return false;
+        GiveEveryTaskAnId(db);
+        if (db.ForeignKeyUpgradeProblem is { } upgradeProblem) Dialogs.Tell(current, "Task File Not Updated", upgradeProblem, DialogTone.Warning);
+
+        var config = AppConfig.Load();
+        config.SwitchTo(path);
+        config.Save();
+        _dbPath = db.DbPath;
+
+        ShutdownMode = ShutdownMode.OnExplicitShutdown;
+        current?.Close();
+        var main = new MainWindow(db);
+        MainWindow = main;
+        main.Show();
+        ShutdownMode = ShutdownMode.OnMainWindowClose;
+        return true;
     }
 
     // The link that started this copy opens its task once the board is up and idle.

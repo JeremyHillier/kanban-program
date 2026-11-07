@@ -20,7 +20,17 @@ public partial class MainViewModel : ObservableObject
     public string VersionLine => $"Version {AppVersion.TrimStart('v')}{(AppChannel.IsTest ? $" ({AppChannel.Name})" : "")}";
     public bool IsTestChannel => AppChannel.IsTest;
     public bool IsBeta => AppInfo.IsBeta;
-    public string WindowTitle => AppChannel.DisplayName;
+    public string WindowTitle => string.IsNullOrEmpty(TaskFileName) ? AppChannel.DisplayName : $"{AppChannel.DisplayName} - {TaskFileName}";
+
+    // The open task file's name on this PC's list (AppConfig), for the Task file button and the title bar.
+    public string TaskFileName { get; private set; } = string.Empty;
+
+    public void RefreshTaskFileName()
+    {
+        TaskFileName = AppConfig.Load().Entry(_db.DbPath)?.DisplayName ?? System.IO.Path.GetFileNameWithoutExtension(_db.DbPath);
+        OnPropertyChanged(nameof(TaskFileName));
+        OnPropertyChanged(nameof(WindowTitle));
+    }
 
     public string CurrentDbPath => _db.DbPath;
     public string AttachmentsDir => DatabaseService.GetAttachmentsDir(_db.DbPath);
@@ -41,6 +51,7 @@ public partial class MainViewModel : ObservableObject
     public MainViewModel(DatabaseService db)
     {
         _db = db;
+        RefreshTaskFileName();
         RememberLastView = _db.GetFlag("RememberLastView", false);
 
         _projectManager = new ManagedList<Project, ProjectViewModel>(

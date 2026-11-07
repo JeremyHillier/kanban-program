@@ -34,6 +34,8 @@ public static class HelpKey
         [typeof(TimelineFiltersWindow)] = "HelpSection_Timeline",
         [typeof(ReminderWindow)] = "HelpSection_Reminders",
         [typeof(SettingsWindow)] = "HelpSection_Settings",
+        [typeof(TaskFilesWindow)] = "HelpSection_TaskFiles",
+        [typeof(TaskFileDetailsWindow)] = "HelpSection_TaskFiles",
     };
 
     // Windows where F1 does nothing: Help itself, a message box, and the splash.

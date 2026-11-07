@@ -1,0 +1,166 @@
+<Window x:Class="KanbanApp.Views.TaskFilesWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:views="clr-namespace:KanbanApp.Views"
+        Title="Task Files" Width="860" Height="660" MinWidth="700" MinHeight="600"
+        WindowStartupLocation="CenterOwner" ShowInTaskbar="False"
+        Background="{DynamicResource WindowBackgroundBrush}">
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+        <Style x:Key="SideButton" TargetType="Button">
+            <Setter Property="Padding" Value="10,6"/>
+            <Setter Property="Margin" Value="0,0,0,6"/>
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="Background" Value="{DynamicResource ButtonBackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
+        </Style>
+        <Style x:Key="ListStyle" TargetType="ListBox">
+            <Setter Property="Background" Value="{DynamicResource InputBackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource CardBorderBrush}"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled"/>
+        </Style>
+        <Style x:Key="Badge" TargetType="Border">
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Padding" Value="7,1"/>
+            <Setter Property="Margin" Value="8,0,0,0"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+    </Window.Resources>
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <TabControl x:Name="Tabs" Background="{DynamicResource WindowBackgroundBrush}" BorderBrush="{DynamicResource CardBorderBrush}">
+            <TabItem Header="Task files" x:Name="FilesTab">
+                <Grid Margin="12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="12"/>
+                        <ColumnDefinition Width="200"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Grid.Row="0" Grid.ColumnSpan="3" TextWrapping="Wrap" Margin="0,0,0,8" Foreground="{DynamicResource SecondaryTextBrush}"
+                               Text="Each task file is a separate board with its own tasks, projects, goals, people and settings: one for work, one for home, one per client. Switch between them here or from the Task file button on the board. The files are yours, wherever you keep them."/>
+                    <ListBox Grid.Row="1" Grid.Column="0" x:Name="FileList" Style="{StaticResource ListStyle}" SelectionChanged="FileList_SelectionChanged"
+                             MouseDoubleClick="FileList_MouseDoubleClick" KeyDown="FileList_KeyDown">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Margin="4,3">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="13" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                                        <Border Style="{StaticResource Badge}" Background="#FF2E7D32" Visibility="{Binding IsOpen, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                            <TextBlock Text="Open" FontSize="10" Foreground="White"/>
+                                        </Border>
+                                        <Border Style="{StaticResource Badge}" Background="#FF1565C0" Visibility="{Binding IsStartup, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                                ToolTip="The app opens this file when it starts">
+                                            <TextBlock Text="Startup" FontSize="10" Foreground="White"/>
+                                        </Border>
+                                        <Border Style="{StaticResource Badge}" Background="#FFC62828" Visibility="{Binding IsMissing, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                                ToolTip="No file at this location. Reconnect finds it again, or Remove from List forgets it.">
+                                            <TextBlock Text="Not found" FontSize="10" Foreground="White"/>
+                                        </Border>
+                                    </StackPanel>
+                                    <TextBlock Text="{Binding Description}" TextWrapping="Wrap" FontSize="11" Margin="0,1,0,0" Foreground="{DynamicResource PrimaryTextBrush}"
+                                               Visibility="{Binding HasDescription, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                    <TextBlock Text="{Binding Path}" FontSize="10" TextTrimming="CharacterEllipsis" Margin="0,1,0,0" Foreground="{DynamicResource SecondaryTextBrush}"/>
+                                    <TextBlock Text="{Binding LastOpenedText}" FontSize="10" Foreground="{DynamicResource SecondaryTextBrush}"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                    <ScrollViewer Grid.Row="1" Grid.Column="2" VerticalScrollBarVisibility="Auto">
+                        <StackPanel>
+                            <Button x:Name="SwitchButton" Content="_Switch To" Style="{StaticResource SideButton}" Click="Switch_Click" FontWeight="SemiBold"
+                                    ToolTip="Close the open file and open this one. The board changes over without restarting."/>
+                            <Button Content="_New File..." Style="{StaticResource SideButton}" Click="New_Click" ToolTip="Start an empty task file, where you choose, and open it"/>
+                            <Button Content="New from _Template..." Style="{StaticResource SideButton}" Click="NewFromTemplate_Click" ToolTip="Start a task file from one of your templates (see the Templates tab)"/>
+                            <Button x:Name="DuplicateButton" Content="_Duplicate..." Style="{StaticResource SideButton}" Click="Duplicate_Click"
+                                    ToolTip="A copy of this file, tasks and all, as a separate board of its own"/>
+                            <Button Content="_Add Existing File..." Style="{StaticResource SideButton}" Click="AddExisting_Click"
+                                    ToolTip="Put a task file you already have on the list: one copied from another computer, or one made here and forgotten"/>
+                            <Separator Margin="0,2,0,8"/>
+                            <Button x:Name="EditButton" Content="_Edit Name..." Style="{StaticResource SideButton}" Click="Edit_Click" ToolTip="The name and description shown here. The file itself is not renamed."/>
+                            <Button x:Name="StartupButton" Content="_Use at Startup" Style="{StaticResource SideButton}" Click="Startup_Click"
+                                    ToolTip="Open this file whenever the app starts. Otherwise the app opens whichever file was open last."/>
+                            <Button x:Name="MoveButton" Content="_Move..." Style="{StaticResource SideButton}" Click="Move_Click"
+                                    ToolTip="Move the file, with its Attachments and Backups folders, to another folder or drive"/>
+                            <Button x:Name="ReconnectButton" Content="_Reconnect..." Style="{StaticResource SideButton}" Click="Reconnect_Click"
+                                    ToolTip="Point the list at a file you moved or renamed yourself"/>
+                            <Button x:Name="SaveTemplateButton" Content="Save as Tem_plate..." Style="{StaticResource SideButton}" Click="SaveTemplate_Click"
+                                    ToolTip="Keep this file's columns, lists and settings (and, if you like, its open tasks) as a template for new files"/>
+                            <Separator Margin="0,2,0,8"/>
+                            <Button x:Name="RemoveButton" Content="Remove from _List" Style="{StaticResource SideButton}" Click="Remove_Click"
+                                    ToolTip="Forget the file here. The file itself is not touched, and Add Existing File brings it back."/>
+                            <Button x:Name="DeleteButton" Content="De_lete File..." Style="{StaticResource SideButton}" Click="Delete_Click"
+                                    ToolTip="Send the file, with its Attachments and Backups folders, to the Recycle Bin. It asks first."/>
+                        </StackPanel>
+                    </ScrollViewer>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Templates" x:Name="TemplatesTab">
+                <Grid Margin="12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="12"/>
+                        <ColumnDefinition Width="200"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Grid.Row="0" Grid.ColumnSpan="3" TextWrapping="Wrap" Margin="0,0,0,8" Foreground="{DynamicResource SecondaryTextBrush}"
+                               Text="A template is a task file saved with only the parts you choose: its columns, priorities, projects, goals, people, flags, settings and, if you want, its open tasks. A new task file made from it starts with all of that in place."/>
+                    <ListBox Grid.Row="1" Grid.Column="0" x:Name="TemplateList" Style="{StaticResource ListStyle}" SelectionChanged="TemplateList_SelectionChanged"
+                             MouseDoubleClick="TemplateList_MouseDoubleClick" KeyDown="TemplateList_KeyDown">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Margin="4,3">
+                                    <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="13" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                                    <TextBlock Text="{Binding Description}" TextWrapping="Wrap" FontSize="11" Margin="0,1,0,0" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                                    <TextBlock Text="{Binding Summary}" FontSize="10" Margin="0,1,0,0" Foreground="{DynamicResource SecondaryTextBrush}"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                    <StackPanel Grid.Row="1" Grid.Column="2">
+                        <Button Content="New Template from _Open File..." Style="{StaticResource SideButton}" Click="NewTemplate_Click"
+                                ToolTip="Save the parts you choose of the file that is open now as a template"/>
+                        <Button x:Name="CreateFromTemplateButton" Content="_Create Task File..." Style="{StaticResource SideButton}" Click="CreateFromTemplate_Click" FontWeight="SemiBold"
+                                ToolTip="Start a new task file from this template and open it"/>
+                        <Separator Margin="0,2,0,8"/>
+                        <Button x:Name="EditTemplateButton" Content="_Edit Name..." Style="{StaticResource SideButton}" Click="EditTemplate_Click" ToolTip="The template's name and description"/>
+                        <Button x:Name="UpdateTemplateButton" Content="_Update from Open File" Style="{StaticResource SideButton}" Click="UpdateTemplate_Click"
+                                ToolTip="Make this template again from the file that is open now, with the same parts as before"/>
+                        <Button x:Name="DuplicateTemplateButton" Content="_Duplicate" Style="{StaticResource SideButton}" Click="DuplicateTemplate_Click" ToolTip="A copy of this template under a new name"/>
+                        <Button x:Name="DeleteTemplateButton" Content="De_lete..." Style="{StaticResource SideButton}" Click="DeleteTemplate_Click" ToolTip="Send the template to the Recycle Bin. It asks first."/>
+                    </StackPanel>
+                    <DockPanel Grid.Row="2" Grid.ColumnSpan="3" Margin="0,8,0,0">
+                        <Button DockPanel.Dock="Right" Content="Open Folder" Padding="10,4" Margin="6,0,0,0" Click="OpenTemplatesFolder_Click" ToolTip="Show the templates in File Explorer"
+                                Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                        <Button DockPanel.Dock="Right" Content="Change..." Padding="10,4" Margin="6,0,0,0" Click="ChangeTemplatesFolder_Click" ToolTip="Keep templates in another folder, such as a shared or synced one"
+                                Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                        <TextBlock VerticalAlignment="Center" FontSize="11" TextTrimming="CharacterEllipsis" Foreground="{DynamicResource SecondaryTextBrush}">
+                            <Run Text="Templates folder: "/><Run x:Name="TemplatesFolderText"/>
+                        </TextBlock>
+                    </DockPanel>
+                </Grid>
+            </TabItem>
+        </TabControl>
+
+        <Grid Grid.Row="1" Margin="0,12,0,0">
+            <Button Content="Help" Width="60" Padding="0,6" HorizontalAlignment="Left" Command="{x:Static views:HelpKey.ShowCommand}" CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}"
+                    Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}" ToolTip="Open Help at the section about task files. (F1)"/>
+            <Button Content="Close" Width="80" Padding="0,6" HorizontalAlignment="Right" IsCancel="True"
+                    Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}" ToolTip="Close this window. (Esc)"/>
+        </Grid>
+    </Grid>
+</Window>

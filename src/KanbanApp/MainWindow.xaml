@@ -551,6 +551,16 @@
                                 </ControlTemplate>
                             </Button.Template>
                         </Button>
+                        <!-- Which task file is open; click for the others and Manage Task Files (MainWindow.TaskFiles.cs). -->
+                        <Button Click="TaskFile_Click" Margin="0,0,0,8" Padding="8,4" HorizontalContentAlignment="Stretch" Cursor="Hand" IsTabStop="False"
+                                Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}" BorderBrush="{DynamicResource CardBorderBrush}"
+                                ToolTip="{Binding CurrentDbPath}" AutomationProperties.Name="Task file">
+                            <DockPanel>
+                                <TextBlock DockPanel.Dock="Left" Text="Task file" FontSize="9" VerticalAlignment="Center" Margin="0,0,8,0" Foreground="{DynamicResource SecondaryTextBrush}"/>
+                                <TextBlock DockPanel.Dock="Right" Text="&#x25BE;" FontSize="11" VerticalAlignment="Center" Margin="6,0,0,0"/>
+                                <TextBlock Text="{Binding TaskFileName}" FontWeight="SemiBold" FontSize="12" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                            </DockPanel>
+                        </Button>
                         <StackPanel>
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                                 <Button Style="{StaticResource SortButtonProject}" Background="#FF3E8DD1" Foreground="White" Click="SortByProject_Click"

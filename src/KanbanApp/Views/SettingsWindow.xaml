@@ -275,33 +275,11 @@
                                Foreground="{DynamicResource SecondaryTextBrush}" TextWrapping="Wrap"/>
                 </StackPanel>
 
-                <TextBlock Text="Open or switch to a different task file — like separate company files in accounting software, each one is a fully independent board with its own tasks, columns, and settings." FontSize="11" Margin="0,0,0,8"
+                <TextBlock Text="Task files" Style="{StaticResource SectionHeaderStyle}"/>
+                <TextBlock Text="Keep separate boards in separate task files: one for work, one for home, one per client. The Task Files window lists them, switches between them, makes new ones (from scratch or from a template), adds a file copied from another computer, and manages templates." FontSize="11" Margin="0,0,0,8"
                            Foreground="{DynamicResource SecondaryTextBrush}" TextWrapping="Wrap"/>
-                <ListBox x:Name="RecentFilesListBox" Height="90" Margin="0,0,0,8"
-                         Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
-                         BorderBrush="{DynamicResource CardBorderBrush}"
-                         MouseDoubleClick="RecentFilesListBox_MouseDoubleClick">
-                    <ListBox.ItemTemplate>
-                        <DataTemplate>
-                            <StackPanel Margin="2">
-                                <TextBlock Text="{Binding FileName}" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryTextBrush}"/>
-                                <TextBlock Text="{Binding FullPath}" FontSize="10" Foreground="{DynamicResource SecondaryTextBrush}" TextTrimming="CharacterEllipsis"/>
-                            </StackPanel>
-                        </DataTemplate>
-                    </ListBox.ItemTemplate>
-                </ListBox>
-                <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                    <Button Content="Switch to Selected" Padding="10,6" Margin="0,0,8,0" Click="SwitchToSelected_Click" ToolTip="Open the selected task file in place of the current one"
-                            Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
-                    <Button Content="Remove from List" Padding="10,6" Click="RemoveFromRecent_Click" ToolTip="Forget the selected file here. The file itself is not touched."
-                            Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
-                </StackPanel>
-                <StackPanel Orientation="Horizontal" Margin="0,0,0,20">
-                    <Button Content="Open Existing File..." Padding="10,6" Margin="0,0,8,0" Click="OpenExistingFile_Click" ToolTip="Switch to a task file from another folder"
-                            Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
-                    <Button Content="New File..." Padding="10,6" Click="NewFile_Click" ToolTip="Start an empty task file and switch to it"
-                            Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
-                </StackPanel>
+                <Button Content="Manage Task Files..." Padding="10,6" HorizontalAlignment="Left" Margin="0,0,0,20" Click="ManageTaskFiles_Click" ToolTip="Switch to another task file, make a new one, add one from another computer, or manage templates"
+                        Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
 
                 </StackPanel>
                 <StackPanel Grid.Column="2">
