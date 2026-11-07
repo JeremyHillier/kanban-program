@@ -89,6 +89,37 @@ public sealed class LegalDocumentTests
         Assert.Contains("BetaNotice() +", script);
     }
 
+    [Fact]
+    public void BothDocuments_FollowTheStandardLayout_AndTheLicenceHasTheMainPoints()
+    {
+        foreach (var (document, heading) in new[] { (LegalDocuments.Eula, "END-USER LICENCE AGREEMENT"), (LegalDocuments.Privacy, "PRIVACY NOTE") })
+        {
+            // The website generator reads these first lines: the program name in capitals, the document name, a blank line, the date.
+            using var reader = new StringReader(document);
+            Assert.Equal(AppInfo.ProductName.ToUpperInvariant(), reader.ReadLine());
+            Assert.Equal(heading, reader.ReadLine());
+            Assert.Equal("", reader.ReadLine());
+            Assert.StartsWith("Last updated: ", reader.ReadLine());
+        }
+
+        var eula = LegalDocuments.Eula;
+        Assert.Contains("THE MAIN POINTS", eula);
+        Assert.Contains("Privacy Note supplied with the Software", eula); // the website turns this into a link to the note
+
+        // The main points cite the data, warranty and liability sections by number, so those numbers must be right.
+        Assert.Contains("5. YOUR DATA", eula);
+        Assert.Contains("9. NO WARRANTY", eula);
+        Assert.Contains("10. LIMIT OF LIABILITY", eula);
+        Assert.Contains("(section 5)", eula);
+        Assert.Contains("(section 9)", eula);
+        Assert.Contains("(section 10)", eula);
+
+        // The owner's decision: liability is nil for the company and for Jeremy Hillier personally.
+        Assert.Contains("Our liability is nil. Neither we nor Jeremy Hillier personally are liable for lost data, lost profits or any other loss, and our total liability is CAD $0, whether or not you have paid", eula);
+        Assert.Contains("The total liability of Jeremy Hillier Consulting Inc, of Jeremy Hillier personally, and of everyone acting for either of them, for all claims arising from or related to the Software or this agreement is nil: zero Canadian dollars (CAD $0), whether or not you have paid for a licence and however the claim is made.", eula);
+        Assert.Contains("neither we, nor Jeremy Hillier personally, nor our owners, directors, officers, employees or contractors, will be liable", eula);
+    }
+
     private static string Normalise(string text) => text.Replace("\r\n", "\n").Trim();
 
     private static string FindRepoRoot()
