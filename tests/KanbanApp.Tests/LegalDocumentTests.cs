@@ -33,7 +33,9 @@ public sealed class LegalDocumentTests
         // The plain-English summary opens the licence, and states the three points users most need.
         Assert.True(eula.IndexOf("THE MAIN POINTS", StringComparison.Ordinal) < eula.IndexOf("1. YOUR LICENCE", StringComparison.Ordinal));
         Assert.Contains("at your own risk", eula);
-        Assert.Contains("CAD $50", eula);
+        Assert.Contains("CAD $0", eula);
+        Assert.DoesNotContain("CAD $50", eula);
+        Assert.Contains("Jeremy Hillier personally", eula); // the limit covers the owner as well as the company
         Assert.Contains("Nothing in this agreement limits any rights you have under consumer protection law", eula);
         Assert.Contains("Your tasks are not sent to us", eula);
 

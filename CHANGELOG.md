@@ -6,6 +6,10 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.164.1 — 2026-11-07
+
+> - Improved: the Licence Agreement now states plainly that liability is CAD $0 for Jeremy Hillier Consulting Inc and for Jeremy Hillier personally, whether or not you have paid. Its main points and section references were brought into line.
+
 ## 0.164.0 — 2026-10-28
 
 > - New: right-click a task's box on the Timeline for the same menu as a card on the board: Mark as Done, Edit Task, Copy, Duplicate, Move To, Set Due Date, Priority, Assign To, Project, Goal, Waiting On, Colour, Add Flag, email and calendar actions, and Delete. The Timeline redraws for whatever changed.
