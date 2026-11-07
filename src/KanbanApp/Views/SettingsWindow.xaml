@@ -114,6 +114,16 @@
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                 <StackPanel Grid.Column="0">
+                <TextBlock Text="Calendar" Style="{StaticResource SectionHeaderStyle}"/>
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,20">
+                    <TextBlock Text="Weeks start on:" VerticalAlignment="Center" Margin="0,0,8,0" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                    <ComboBox x:Name="WeekStartComboBox" Width="140" Padding="4" SelectionChanged="WeekStartComboBox_SelectionChanged"
+                              ToolTip="The first day of each week in the Calendar view"
+                              Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}" BorderBrush="{DynamicResource CardBorderBrush}">
+                        <ComboBoxItem Content="Monday"/>
+                        <ComboBoxItem Content="Sunday"/>
+                    </ComboBox>
+                </StackPanel>
                 <TextBlock Text="Startup" Style="{StaticResource SectionHeaderStyle}"/>
                 <CheckBox x:Name="ShowSplashCheckBox" Content="Show splash screen on startup"
                           Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,8"

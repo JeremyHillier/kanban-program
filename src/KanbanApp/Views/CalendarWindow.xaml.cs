@@ -8,7 +8,8 @@ namespace KanbanApp.Views;
 
 // The Calendar: tasks on the days they are due, as a Month, a Week or a Day. It uses the same task screen, right-click
 // menu and filters as the Gantt view and the board, and changes the same tasks (drag one to another day to change its
-// due date). The drawing is in CalendarWindow.Grid.cs.
+// due date). Month view scrolls on without stopping; Week and Day page with the arrows. The drawing is in
+// CalendarWindow.Grid.cs.
 public partial class CalendarWindow : Window
 {
     internal const string DragFormat = "KanbanCalendarCard";
@@ -52,35 +53,51 @@ public partial class CalendarWindow : Window
         WeekendsCheckBox.IsChecked = viewModel.CalendarShowWeekends;
         IncludeDoneCheckBox.IsChecked = viewModel.CalendarIncludeDone;
         NoDueCheckBox.IsChecked = viewModel.CalendarShowNoDueDate;
+        NoDueOrderBox.SelectedIndex = (int)viewModel.CalendarNoDueOrder;
         _initializing = false;
         BuildGrid();
+        GoTo(DateTime.Today);
     }
 
     private CalendarScale Mode => WeekRadio.IsChecked == true ? CalendarScale.Week : DayRadio.IsChecked == true ? CalendarScale.Day : CalendarScale.Month;
 
-    private void Prev_Click(object sender, RoutedEventArgs e)
+    private DayOfWeek FirstDay => _viewModel.FirstDayOfWeek;
+
+    // In Month view the arrows move a month from the one at the top; in Week and Day view they page.
+    private void Prev_Click(object sender, RoutedEventArgs e) => Step(-1);
+
+    private void Next_Click(object sender, RoutedEventArgs e) => Step(1);
+
+    private void Step(int direction)
     {
-        _anchor = CalendarLayout.Step(Mode, _anchor, -1);
-        BuildGrid();
+        if (Mode == CalendarScale.Month) GoTo(new DateTime(_anchor.Year, _anchor.Month, 1).AddMonths(direction));
+        else
+        {
+            _anchor = CalendarLayout.Step(Mode, _anchor, direction);
+            BuildGrid();
+        }
     }
 
-    private void Next_Click(object sender, RoutedEventArgs e)
-    {
-        _anchor = CalendarLayout.Step(Mode, _anchor, 1);
-        BuildGrid();
-    }
-
-    private void Today_Click(object sender, RoutedEventArgs e)
-    {
-        _anchor = DateTime.Today;
-        BuildGrid();
-    }
+    private void Today_Click(object sender, RoutedEventArgs e) => GoTo(DateTime.Today);
 
     private void GoToDate_Changed(object sender, SelectionChangedEventArgs e)
     {
         if (_syncingPicker || GoToDatePicker.SelectedDate is not { } date) return;
-        _anchor = date;
-        BuildGrid();
+        GoTo(date);
+    }
+
+    // Shows `date`: in Month view by scrolling it to the top (adding weeks if it is beyond those drawn), else by paging to it.
+    private void GoTo(DateTime date)
+    {
+        _anchor = date.Date;
+        if (Mode != CalendarScale.Month)
+        {
+            BuildGrid();
+            return;
+        }
+        if (!MonthRangeCovers(_anchor)) BuildGrid();
+        else UpdateLabels();
+        ScrollMonthTo(_anchor);
     }
 
     private void Mode_Changed(object sender, RoutedEventArgs e)
@@ -88,6 +105,7 @@ public partial class CalendarWindow : Window
         if (_initializing) return;
         _viewModel.SaveCalendarView(Mode);
         BuildGrid();
+        if (Mode == CalendarScale.Month) ScrollMonthTo(_anchor);
     }
 
     private void Option_Changed(object sender, RoutedEventArgs e)
@@ -99,18 +117,19 @@ public partial class CalendarWindow : Window
         BuildGrid();
     }
 
+    private void NoDueOrder_Changed(object sender, SelectionChangedEventArgs e)
+    {
+        if (_initializing) return;
+        _viewModel.SaveCalendarNoDueOrder((NoDueOrder)Math.Max(0, NoDueOrderBox.SelectedIndex));
+        BuildNoDueList();
+    }
+
     // A day's number, or "+3 more", takes the calendar to that day.
     private void ShowDay(DateTime day)
     {
         _anchor = day;
         if (DayRadio.IsChecked == true) BuildGrid();
         else DayRadio.IsChecked = true; // Mode_Changed redraws
-    }
-
-    private void BodyScroll_SizeChanged(object sender, SizeChangedEventArgs e)
-    {
-        // The days fill the window when they fit, and scroll when they do not (each row keeps a minimum height).
-        if (BodyScroll.ViewportHeight > 0) CalendarGrid.MinHeight = BodyScroll.ViewportHeight;
     }
 
     private void Filters_Click(object sender, RoutedEventArgs e)

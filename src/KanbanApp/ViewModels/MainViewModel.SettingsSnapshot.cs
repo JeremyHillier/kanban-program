@@ -20,7 +20,7 @@ public partial class MainViewModel
         string UserName, string UserTitle, string UserEmail, string UserPhone,
         bool StartWithWindows, bool StartFullScreen, bool ConfirmDelete, bool ConfirmArchive, bool AddNoteOnComplete,
         bool ShowDueReminders, bool ShowTimeAlerts, bool RememberLastView, bool ShowWhatsNew, bool QuickAddHotkeyEnabled, bool CheckForUpdatesEnabled, bool IsCompactButtons, bool IsFitColumnsToWindow,
-        bool AutoCorrectEnabled, string AutoCorrectEntries, bool NotifySenderOnDone, string CustomDictionary, string HiddenCardParts);
+        bool AutoCorrectEnabled, string AutoCorrectEntries, bool NotifySenderOnDone, string CustomDictionary, string HiddenCardParts, bool WeekStartsOnSunday);
 
     private const char ColumnNameSeparator = ''; // can't be typed into a name
 
@@ -33,7 +33,7 @@ public partial class MainViewModel
         UserName, UserTitle, UserEmail, UserPhone,
         StartWithWindows, StartFullScreen, ConfirmDelete, ConfirmArchive, AddNoteOnComplete,
         ShowDueReminders, ShowTimeAlerts, RememberLastView, ShowWhatsNew, QuickAddHotkeyEnabled, CheckForUpdatesEnabled, IsCompactButtons, IsFitColumnsToWindow,
-        AutoCorrectEnabled, AutoCorrectEntries, NotifySenderOnDone, CustomDictionaryText, HiddenCardParts);
+        AutoCorrectEnabled, AutoCorrectEntries, NotifySenderOnDone, CustomDictionaryText, HiddenCardParts, WeekStartsOnSunday);
 
     // Goes through the same setters the dialog uses, so each value is saved and the board reacts
     // (column width, button side, column headings) exactly as if the user had typed it back.
@@ -74,5 +74,6 @@ public partial class MainViewModel
         SetNotifySenderOnDone(snapshot.NotifySenderOnDone);
         SetCustomDictionary(snapshot.CustomDictionary);
         SetHiddenCardParts(snapshot.HiddenCardParts);
+        SetWeekStartsOnSunday(snapshot.WeekStartsOnSunday);
     }
 }

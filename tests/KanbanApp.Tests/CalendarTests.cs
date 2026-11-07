@@ -66,6 +66,31 @@ public sealed class CalendarLayoutTests
     }
 
     [Fact]
+    public void WeeksCanStartOnSunday()
+    {
+        Assert.Equal(new DateTime(2026, 11, 1), CalendarLayout.WeekStartOf(new DateTime(2026, 11, 7), DayOfWeek.Sunday));
+        Assert.Equal(new DateTime(2026, 11, 8), CalendarLayout.WeekStartOf(new DateTime(2026, 11, 8), DayOfWeek.Sunday));
+        Assert.Equal((new DateTime(2026, 11, 1), new DateTime(2026, 11, 8)), CalendarLayout.Range(CalendarScale.Week, new DateTime(2026, 11, 7), DayOfWeek.Sunday));
+
+        var (start, end) = CalendarLayout.Range(CalendarScale.Month, new DateTime(2026, 11, 15), DayOfWeek.Sunday);
+        Assert.Equal(new DateTime(2026, 11, 1), start); // November 2026 starts on a Sunday
+        Assert.Equal(new DateTime(2026, 12, 6), end);
+        Assert.All(CalendarLayout.Weeks(start, end, weekends: true, DayOfWeek.Sunday), w => Assert.Equal(DayOfWeek.Sunday, w[0].DayOfWeek));
+    }
+
+    [Fact]
+    public void TheEndlessMonthView_StartsOnAWholeWeek_AndCoversTheMonthsAround()
+    {
+        var (start, end) = CalendarLayout.ContinuousRange(new DateTime(2026, 11, 15), 3, 9, DayOfWeek.Monday);
+
+        Assert.Equal(DayOfWeek.Monday, start.DayOfWeek);
+        Assert.True(start <= new DateTime(2026, 8, 1));
+        Assert.True(start > new DateTime(2026, 7, 20));
+        Assert.True(end > new DateTime(2027, 8, 31));
+        Assert.Equal(0, (end - start).Days % 7);
+    }
+
+    [Fact]
     public void AnUnknownSavedMode_IsMonth() => Assert.Equal(CalendarScale.Month, CalendarLayout.Parse("Fortnight"));
 }
 
@@ -89,5 +114,23 @@ public sealed class CalendarSettingsTests(WpfDispatcherFixture wpf) : IDisposabl
 
         var reopened = new MainViewModel(new DatabaseService(_temp.File("board.db")));
         Assert.Equal((CalendarScale.Week, false, true, false), (reopened.CalendarView, reopened.CalendarShowWeekends, reopened.CalendarIncludeDone, reopened.CalendarShowNoDueDate));
+    });
+
+    [Fact]
+    public void TheWeekStart_AndTheNoDueDateOrder_AreRemembered_AndTheWeekStartIsUndoneByCancel() => wpf.Run(() =>
+    {
+        var board = new MainViewModel(new DatabaseService(_temp.File("board.db")));
+        Assert.Equal((DayOfWeek.Monday, NoDueOrder.TitleAscending), (board.FirstDayOfWeek, board.CalendarNoDueOrder));
+        var before = board.CaptureSettings();
+
+        board.SetWeekStartsOnSunday(true);
+        board.SaveCalendarNoDueOrder(NoDueOrder.ByGoal);
+
+        var reopened = new MainViewModel(new DatabaseService(_temp.File("board.db")));
+        Assert.Equal((DayOfWeek.Sunday, NoDueOrder.ByGoal), (reopened.FirstDayOfWeek, reopened.CalendarNoDueOrder));
+        Assert.NotEqual(before, reopened.CaptureSettings());
+
+        reopened.RestoreSettings(before);
+        Assert.Equal(DayOfWeek.Monday, new MainViewModel(new DatabaseService(_temp.File("board.db"))).FirstDayOfWeek);
     });
 }

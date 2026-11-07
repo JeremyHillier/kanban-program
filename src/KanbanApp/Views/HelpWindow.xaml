@@ -536,12 +536,15 @@
 
                 <TextBlock x:Name="HelpSection_Calendar" Text="Calendar" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <local:BulletItem Text="The Calendar button, or Alt+C, shows tasks on the days they are due, as a Month, a Week or a Day."/>
+                <local:BulletItem Text="Month view scrolls on without stopping, a week at a time, with every other month shaded. The title names the month at the top."/>
                 <local:BulletItem Text="Use the arrows, Today, or Select a date to move around. Untick Weekends to hide Saturday and Sunday."/>
+                <local:BulletItem Text="Weeks start on Monday, or on Sunday if you choose it in Settings, General tab."/>
                 <local:BulletItem Text="A task shows its priority colour, or its card colour with a stripe of its priority. Finished tasks are struck through. An overdue task has a red outline."/>
                 <local:BulletItem Text="Double-click a task to open it. Right-click it for the same menu as a card on the board."/>
                 <local:BulletItem Text="Double-click a day to add a task due that day. Drag a task to another day to change its due date."/>
                 <local:BulletItem Text="In Month view a busy day shows +N more. Click it, or the day's number, to see that day."/>
                 <local:BulletItem Text="The No Due Date list beside the calendar holds the tasks with no due date. Drag one onto a day to give it that date. Its tick box turns the list off."/>
+                <local:BulletItem Text="Order the list A to Z or Z to A, or group it by project or by goal, from the box at its top."/>
                 <local:BulletItem Text="Filters... are the same as the Gantt view's, so the same people, priorities, flags, projects and goals show in both. Include Done tasks shows finished ones."/>
                 <local:BulletItem Text="A repeating task shows once, on its current due date. Its next date appears when it is completed."/>
                 <local:BulletItem Text="The view, weekends, Done tasks and the list are remembered for this task file."/>

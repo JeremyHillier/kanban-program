@@ -48,6 +48,7 @@ public sealed class SettingsCancelTests(WpfDispatcherFixture wpf) : IDisposable
         board.SetNotifySenderOnDone(!board.NotifySenderOnDone);
         board.SetCustomDictionary("Hillier\nKanbanish");
         board.SetCardPartShown(CardPart.Updated, false);
+        board.SetWeekStartsOnSunday(!board.WeekStartsOnSunday);
     }
 
     [Fact]

@@ -1,42 +1,68 @@
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Threading;
 using KanbanApp.Services;
 using KanbanApp.ViewModels;
 
 namespace KanbanApp.Views;
 
-// Drawing the Calendar: the day cells, the tasks in them, dragging a task to another day, and the No Due Date list.
+// Drawing the Calendar: the day cells, the tasks in them, Month view's endless scrolling, dragging a task to another
+// day, and the No Due Date list.
 public partial class CalendarWindow
 {
     private const int MonthChipsPerDay = 3;
+    private const double MonthRowHeight = 128; // every week of Month view is this tall, so a scroll offset is a week
+    private const int MonthsAddedAtATime = 3;
 
     private static readonly Brush OverdueBrush = new SolidColorBrush(Color.FromRgb(0xC6, 0x28, 0x28));
 
     private Point _dragStart;
     private CardViewModel? _dragCandidate;
 
+    // The weeks Month view has drawn, and the first day of week they were drawn with.
+    private DateTime _monthStart, _monthEnd;
+    private DayOfWeek _monthFirstDay;
+    private bool _rebuilding;
+
+    private bool MonthRangeCovers(DateTime date) =>
+        _monthStart != default && _monthFirstDay == FirstDay && date >= _monthStart.AddDays(14) && date < _monthEnd.AddDays(-35);
+
     private void BuildGrid()
     {
         var mode = Mode;
-        var (start, end) = CalendarLayout.Range(mode, _anchor);
-        RangeLabel.Text = CalendarLayout.Title(mode, _anchor);
+        DateTime start, end;
+        var offset = BodyScroll.VerticalOffset;
+        var keepOffset = mode == CalendarScale.Month && _monthStart != default && _monthFirstDay == FirstDay;
+        if (mode == CalendarScale.Month)
+        {
+            if (!MonthRangeCovers(_anchor))
+            {
+                (_monthStart, _monthEnd) = CalendarLayout.ContinuousRange(_anchor, MonthsAddedAtATime, 9, FirstDay);
+                _monthFirstDay = FirstDay;
+                keepOffset = false;
+            }
+            (start, end) = (_monthStart, _monthEnd);
+        }
+        else
+        {
+            (start, end) = CalendarLayout.Range(mode, _anchor, FirstDay);
+        }
+
+        _rebuilding = true;
         UndoButton.IsEnabled = _viewModel.CanUndo;
         UndoButton.ToolTip = _viewModel.CanUndo ? _viewModel.UndoToolTip : "Nothing to undo";
         FiltersButton.Content = _filter.IsEmpty ? "Filters..." : $"Filters ({_filter.Count})...";
-        _syncingPicker = true;
-        GoToDatePicker.SelectedDate = _anchor;
-        _syncingPicker = false;
 
         // The tasks to draw: those the filters let through, finished ones only when asked for.
         var doneIds = _viewModel.DoneColumn?.Cards.Select(c => c.Id).ToHashSet() ?? [];
-        var includeDone = IncludeDoneCheckBox.IsChecked == true;
-        var shown = _viewModel.Columns.SelectMany(c => c.Cards).Where(c => _filter.Matches(c) && (includeDone || !doneIds.Contains(c.Id))).ToList();
+        var shown = ShownTasks(doneIds);
         var byDay = shown.Where(c => c.DueDate is not null).GroupBy(c => c.DueDate!.Value.Date)
             .ToDictionary(g => g.Key, g => g.OrderBy(c => c.DueTime ?? "99:99", StringComparer.Ordinal).ThenBy(c => c.Title, StringComparer.CurrentCultureIgnoreCase).ToList());
 
-        var weeks = CalendarLayout.Weeks(start, end, weekends: mode == CalendarScale.Day || WeekendsCheckBox.IsChecked == true);
+        var weeks = CalendarLayout.Weeks(start, end, weekends: mode == CalendarScale.Day || WeekendsCheckBox.IsChecked == true, FirstDay);
         var columns = weeks.Max(w => w.Count);
 
         WeekdayHeader.Children.Clear();
@@ -45,12 +71,18 @@ public partial class CalendarWindow
         CalendarGrid.Children.Clear();
         CalendarGrid.ColumnDefinitions.Clear();
         CalendarGrid.RowDefinitions.Clear();
+        CalendarGrid.MinHeight = mode == CalendarScale.Month ? 0 : BodyScroll.ViewportHeight;
         for (var c = 0; c < columns; c++)
         {
             WeekdayHeader.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
             CalendarGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
         }
-        foreach (var _ in weeks) CalendarGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star), MinHeight = mode == CalendarScale.Month ? 110 : 320 });
+        foreach (var _ in weeks)
+        {
+            CalendarGrid.RowDefinitions.Add(mode == CalendarScale.Month
+                ? new RowDefinition { Height = new GridLength(MonthRowHeight) }
+                : new RowDefinition { Height = new GridLength(1, GridUnitType.Star), MinHeight = 320 });
+        }
 
         var widest = weeks.First(w => w.Count == columns);
         for (var c = 0; c < widest.Count; c++)
@@ -75,12 +107,70 @@ public partial class CalendarWindow
             }
         }
 
-        // The side list: tasks with no due date, under the same filters.
-        var noDue = shown.Where(c => c.DueDate is null).OrderBy(c => c.Title, StringComparer.CurrentCultureIgnoreCase).ToList();
-        NoDueList.ItemsSource = noDue;
-        NoDueCountText.Text = $"{noDue.Count} task{(noDue.Count == 1 ? "" : "s")}. Drag one onto a day to set its due date.";
+        BuildNoDueList(shown);
         NoDuePanel.Visibility = NoDueCheckBox.IsChecked == true ? Visibility.Visible : Visibility.Collapsed;
         SidebarColumn.Width = NoDueCheckBox.IsChecked == true ? GridLength.Auto : new GridLength(0);
+
+        // A redraw after an edit keeps Month view where it was scrolled to.
+        if (keepOffset) Dispatcher.BeginInvoke(() => { BodyScroll.ScrollToVerticalOffset(offset); _rebuilding = false; }, DispatcherPriority.Loaded);
+        else Dispatcher.BeginInvoke(() => _rebuilding = false, DispatcherPriority.Loaded);
+        UpdateLabels();
+    }
+
+    private List<CardViewModel> ShownTasks(HashSet<int> doneIds)
+    {
+        var includeDone = IncludeDoneCheckBox.IsChecked == true;
+        return _viewModel.Columns.SelectMany(c => c.Cards).Where(c => _filter.Matches(c) && (includeDone || !doneIds.Contains(c.Id))).ToList();
+    }
+
+    private void UpdateLabels()
+    {
+        RangeLabel.Text = CalendarLayout.Title(Mode, _anchor, FirstDay);
+        _syncingPicker = true;
+        GoToDatePicker.SelectedDate = _anchor;
+        _syncingPicker = false;
+    }
+
+    // ---- Month view: one long run of weeks
+
+    private int MonthRowOf(DateTime date) => (CalendarLayout.WeekStartOf(date, FirstDay) - _monthStart).Days / 7;
+
+    private void ScrollMonthTo(DateTime date)
+    {
+        var row = MonthRowOf(date);
+        Dispatcher.BeginInvoke(() => BodyScroll.ScrollToVerticalOffset(row * MonthRowHeight), DispatcherPriority.Loaded);
+    }
+
+    // As Month view is scrolled the title follows the month at the top, and more weeks are added before reaching either end.
+    private void BodyScroll_ScrollChanged(object sender, ScrollChangedEventArgs e)
+    {
+        if (Mode != CalendarScale.Month || _monthStart == default || _rebuilding) return;
+
+        var topRow = (int)(BodyScroll.VerticalOffset / MonthRowHeight + 0.5);
+        var topDate = _monthStart.AddDays(topRow * 7 + 3); // the middle of the week names its month
+        if (topDate.Month != _anchor.Month || topDate.Year != _anchor.Year) _anchor = new DateTime(topDate.Year, topDate.Month, 1);
+        UpdateLabels();
+
+        if (e.VerticalChange < 0 && BodyScroll.VerticalOffset < MonthRowHeight * 2)
+        {
+            var oldStart = _monthStart;
+            _monthStart = CalendarLayout.WeekStartOf(new DateTime(oldStart.AddDays(6).Year, oldStart.AddDays(6).Month, 1).AddMonths(-MonthsAddedAtATime), FirstDay);
+            var addedRows = (oldStart - _monthStart).Days / 7;
+            var offset = BodyScroll.VerticalOffset + addedRows * MonthRowHeight;
+            BuildGrid();
+            Dispatcher.BeginInvoke(() => BodyScroll.ScrollToVerticalOffset(offset), DispatcherPriority.Loaded);
+        }
+        else if (e.VerticalChange > 0 && BodyScroll.VerticalOffset + BodyScroll.ViewportHeight > BodyScroll.ExtentHeight - MonthRowHeight * 2)
+        {
+            _monthEnd = CalendarLayout.WeekStartOf(_monthEnd.AddMonths(MonthsAddedAtATime), FirstDay).AddDays(7);
+            BuildGrid();
+        }
+    }
+
+    private void BodyScroll_SizeChanged(object sender, SizeChangedEventArgs e)
+    {
+        // Week and Day fill the window when they fit, and scroll when they do not; Month's weeks have a set height.
+        if (Mode != CalendarScale.Month && BodyScroll.ViewportHeight > 0) CalendarGrid.MinHeight = BodyScroll.ViewportHeight;
     }
 
     private UIElement BuildDayCell(DateTime day, CalendarScale mode, List<CardViewModel> tasks, HashSet<int> doneIds)
@@ -89,12 +179,12 @@ public partial class CalendarWindow
         var cell = new Border
         {
             Margin = new Thickness(1), Padding = new Thickness(4), CornerRadius = new CornerRadius(4), AllowDrop = true, Tag = day.Date,
-            BorderThickness = new Thickness(isToday ? 2 : 1), Background = (Brush)FindResource("PanelBackgroundBrush"),
+            BorderThickness = new Thickness(isToday ? 2 : 1),
+            // In Month view every other month is shaded, so where one month ends and the next begins is plain as it scrolls.
+            Background = (Brush)FindResource(mode == CalendarScale.Month && day.Month % 2 == 0 ? "WindowBackgroundBrush" : "PanelBackgroundBrush"),
             BorderBrush = (Brush)FindResource(isToday ? "AccentTextBrush" : "PanelBorderBrush"),
             ToolTip = "Double-click to add a task due this day"
         };
-        // The days of the month before and after, in Month view, are drawn quieter.
-        if (mode == CalendarScale.Month && day.Month != _anchor.Month) cell.Opacity = 0.6;
         cell.DragOver += Cell_DragOver;
         cell.Drop += Cell_Drop;
         cell.MouseLeftButtonDown += (_, e) =>
@@ -107,8 +197,9 @@ public partial class CalendarWindow
         var panel = new StackPanel();
         var label = new TextBlock
         {
-            Text = mode == CalendarScale.Month ? (day.Day == 1 ? day.ToString("MMM d") : day.Day.ToString()) : day.ToString("ddd d"),
-            FontWeight = isToday ? FontWeights.Bold : FontWeights.SemiBold, Margin = new Thickness(2, 0, 0, 3), HorizontalAlignment = HorizontalAlignment.Left,
+            Text = mode == CalendarScale.Month ? (day.Day == 1 ? day.ToString("MMMM d") : day.Day.ToString()) : day.ToString("ddd d"),
+            FontWeight = isToday || (mode == CalendarScale.Month && day.Day == 1) ? FontWeights.Bold : FontWeights.SemiBold,
+            Margin = new Thickness(2, 0, 0, 3), HorizontalAlignment = HorizontalAlignment.Left,
             Foreground = (Brush)FindResource(isToday ? "AccentTextBrush" : "PrimaryTextBrush"),
             Cursor = mode == CalendarScale.Day ? Cursors.Arrow : Cursors.Hand, ToolTip = mode == CalendarScale.Day ? null : "Show this day"
         };
@@ -215,10 +306,32 @@ public partial class CalendarWindow
         {
             _viewModel.SetCardDueDate(card, day);
             BuildGrid();
-        }), System.Windows.Threading.DispatcherPriority.Background);
+        }), DispatcherPriority.Background);
     }
 
-    // ---- The No Due Date list
+    // ---- The No Due Date list: A to Z, Z to A, or grouped by project or by goal
+
+    private void BuildNoDueList() => BuildNoDueList(ShownTasks(_viewModel.DoneColumn?.Cards.Select(c => c.Id).ToHashSet() ?? []));
+
+    private void BuildNoDueList(List<CardViewModel> shown)
+    {
+        var order = (NoDueOrder)Math.Max(0, NoDueOrderBox.SelectedIndex);
+        var titles = StringComparer.CurrentCultureIgnoreCase;
+        var noDue = shown.Where(c => c.DueDate is null);
+        var sorted = order switch
+        {
+            NoDueOrder.TitleDescending => noDue.OrderByDescending(c => c.Title, titles),
+            NoDueOrder.ByProject => noDue.OrderBy(c => c.ProjectId is null).ThenBy(c => c.ProjectName, titles).ThenBy(c => c.Title, titles),
+            NoDueOrder.ByGoal => noDue.OrderBy(c => c.GoalId is null).ThenBy(c => c.GoalName, titles).ThenBy(c => c.Title, titles),
+            _ => noDue.OrderBy(c => c.Title, titles)
+        };
+        var list = sorted.ToList();
+        var view = new ListCollectionView(list);
+        if (order == NoDueOrder.ByProject) view.GroupDescriptions.Add(new PropertyGroupDescription(nameof(CardViewModel.ProjectName)));
+        if (order == NoDueOrder.ByGoal) view.GroupDescriptions.Add(new PropertyGroupDescription(nameof(CardViewModel.GoalName)));
+        NoDueList.ItemsSource = view;
+        NoDueCountText.Text = $"{list.Count} task{(list.Count == 1 ? "" : "s")}. Drag one onto a day to set its due date.";
+    }
 
     private CardViewModel? CardUnderMouse(MouseEventArgs e) =>
         ItemsControl.ContainerFromElement(NoDueList, e.OriginalSource as DependencyObject) is ListBoxItem { DataContext: CardViewModel card } ? card : null;
