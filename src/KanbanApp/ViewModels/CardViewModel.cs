@@ -494,6 +494,33 @@ public class CardViewModel(CardItem model) : ObservableObject
         OnPropertyChanged(nameof(SubTaskProgressDisplay));
     }
 
+    // Links to other tasks (set by MainViewModel.RefreshLinkInfo): how many, how many open tasks this one is
+    // waiting on, and how many open tasks are waiting on it.
+    public int RelatedCount { get; private set; }
+    public int WaitingOnTasksCount { get; private set; }
+    public int BlockingCount { get; private set; }
+    public bool HasRelated => RelatedCount > 0;
+    public bool IsBlocked => WaitingOnTasksCount > 0;
+
+    public string RelatedDisplay =>
+        IsBlocked ? $"\U0001F517 Blocked: waiting on {WaitingOnTasksCount} task{(WaitingOnTasksCount == 1 ? "" : "s")}"
+        : BlockingCount > 0 ? $"\U0001F517 Blocking {BlockingCount} task{(BlockingCount == 1 ? "" : "s")}"
+        : $"\U0001F517 {RelatedCount} related task{(RelatedCount == 1 ? "" : "s")}";
+
+    public string RelatedToolTip => "Linked to other tasks. Right-click, Related Tasks, opens one; the task screen lists them all.";
+
+    public void SetLinkInfo(int related, int waitingOn, int blocking)
+    {
+        if (related == RelatedCount && waitingOn == WaitingOnTasksCount && blocking == BlockingCount) return;
+        RelatedCount = related;
+        WaitingOnTasksCount = waitingOn;
+        BlockingCount = blocking;
+        OnPropertyChanged(nameof(RelatedCount));
+        OnPropertyChanged(nameof(HasRelated));
+        OnPropertyChanged(nameof(IsBlocked));
+        OnPropertyChanged(nameof(RelatedDisplay));
+    }
+
     private List<AttachmentViewModel> _attachments = [];
     public List<AttachmentViewModel> Attachments
     {

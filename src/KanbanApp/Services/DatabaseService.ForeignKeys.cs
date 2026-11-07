@@ -106,6 +106,16 @@ public partial class DatabaseService
             ],
             [new("CardId", "Cards", "CASCADE"), new("PersonId", "People", "CASCADE")],
             ["CREATE INDEX IF NOT EXISTS IX_CardPeople_Person ON CardPeople (PersonId);"], HasOwnIdSequence: false),
+        // Links between tasks (Models/CardLink): both ends are tasks, and a task deleted for good takes its links.
+        new("CardLinks",
+            [
+                "FromId INTEGER NOT NULL",
+                "ToId INTEGER NOT NULL",
+                "Kind TEXT NOT NULL",
+                "PRIMARY KEY (FromId, ToId)",
+            ],
+            [new("FromId", "Cards", "CASCADE"), new("ToId", "Cards", "CASCADE")],
+            ["CREATE INDEX IF NOT EXISTS IX_CardLinks_To ON CardLinks (ToId);"], HasOwnIdSequence: false),
     ];
 
     private static TableShape Shape(string table) => LinkedTables.Single(t => t.Name == table);

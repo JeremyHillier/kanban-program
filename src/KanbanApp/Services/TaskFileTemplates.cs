@@ -110,6 +110,7 @@ public static class TaskFileTemplates
             Run("DELETE FROM CardFlags WHERE CardId NOT IN (SELECT Id FROM Cards) OR FlagId NOT IN (SELECT Id FROM Flags)");
             Run("DELETE FROM CardPeople WHERE CardId NOT IN (SELECT Id FROM Cards) OR PersonId NOT IN (SELECT Id FROM People)");
             Run("DELETE FROM CardRichNotes WHERE CardId NOT IN (SELECT Id FROM Cards)");
+            if (TableExists(connection, "CardLinks")) Run("DELETE FROM CardLinks WHERE FromId NOT IN (SELECT Id FROM Cards) OR ToId NOT IN (SELECT Id FROM Cards)");
 
             // Settings that belong to one PC or one file, not to a template.
             Run($"DELETE FROM Settings WHERE Key = '{DatabaseService.FileIdKey}' OR Key LIKE 'AvailableUpdate:%' OR Key LIKE '%WindowPlacement%' OR Key = 'SkippedUpdateVersion' OR Key = 'LastSeenVersion'");
@@ -163,12 +164,17 @@ public static class TaskFileTemplates
         Set(connection, DescriptionKey, description?.Trim() ?? string.Empty);
     }
 
-    private static void DeleteIfExists(SqliteConnection connection, string table)
+    private static bool TableExists(SqliteConnection connection, string table)
     {
         using var check = connection.CreateCommand();
         check.CommandText = "SELECT COUNT(*) FROM sqlite_master WHERE type = 'table' AND name = $name";
         check.Parameters.AddWithValue("$name", table);
-        if (Convert.ToInt64(check.ExecuteScalar(), CultureInfo.InvariantCulture) == 0) return;
+        return Convert.ToInt64(check.ExecuteScalar(), CultureInfo.InvariantCulture) > 0;
+    }
+
+    private static void DeleteIfExists(SqliteConnection connection, string table)
+    {
+        if (!TableExists(connection, table)) return;
         using var cmd = connection.CreateCommand();
         cmd.CommandText = $"DELETE FROM {table}";
         cmd.ExecuteNonQuery();

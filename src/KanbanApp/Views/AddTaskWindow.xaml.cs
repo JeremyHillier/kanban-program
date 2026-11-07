@@ -62,6 +62,7 @@ public partial class AddTaskWindow : Window
             forceEditOnComplete: ForceEditOnComplete, websiteUrl: WebsiteUrl, dueTime: SelectedDueTime,
             startDate: SelectedStartDate, waitingOn: WaitingOn, people: SelectedPeople, recurrencesLeft: RecurrencesLeft, color: SelectedColor);
         viewModel.SaveRichNotes(added, _notesBlocks);
+        viewModel.SetCardLinks(added, LinksFor(added.Id));
     }
 
     // True when the task was closed with Mark as Done: the board saves it, then moves it to Done the same
@@ -84,6 +85,7 @@ public partial class AddTaskWindow : Window
             forceEditOnComplete: ForceEditOnComplete, websiteUrl: WebsiteUrl, dueTime: SelectedDueTime,
             startDate: SelectedStartDate, waitingOn: WaitingOn, recurrencesLeft: RecurrencesLeft);
         viewModel.SetCardColor(card, SelectedColor); // its own write and Undo step; nothing happens when it is unchanged
+        viewModel.SetCardLinks(card, LinksFor(card.Id));
         viewModel.SaveRichNotes(card, _notesBlocks);
     }
 
@@ -169,6 +171,7 @@ public partial class AddTaskWindow : Window
             RecurrenceCountTextBox.Text.Trim(),
             ForceEditOnCompleteCheckBox.IsChecked == true,
             SelectedColor ?? "-",
+            RelatedSignature(),
             RichNotes.Serialize(NotesEditor.Blocks), // the words and their formatting
             WebsiteUrlTextBox.Text,
             WaitingOnTextBox.Text,
@@ -250,6 +253,7 @@ public partial class AddTaskWindow : Window
         WaitingOnTextBox.Text = cardToEdit.WaitingOn ?? string.Empty;
         ForceEditOnCompleteCheckBox.IsChecked = cardToEdit.ForceEditOnComplete;
         ShowColour(cardToEdit.Color);
+        LoadRelated(cardToEdit);
 
         RecurringCheckBox.IsChecked = cardToEdit.IsRecurring;
         RecurrenceComboBox.Visibility = cardToEdit.IsRecurring ? Visibility.Visible : Visibility.Collapsed;

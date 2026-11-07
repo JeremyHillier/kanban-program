@@ -316,6 +316,18 @@
                 <local:BulletItem Text="Due on the 1st to 15th: that day and 15 days later, so the 3rd gives the 3rd and 18th."/>
                 <local:BulletItem Text="Due on the 16th or later: that day and 15 days earlier, so the 20th gives the 5th and 20th. The last day of a month pairs with the 15th."/>
 
+                <TextBlock x:Name="HelpSection_RelatedTasks" Text="Related tasks" Style="{StaticResource HelpSectionHeaderStyle}"/>
+                <local:BulletItem Text="Link a task to others on the task screen, under Related tasks. Click the +, search for the task, say how they are related, and Add."/>
+                <local:BulletItem Text="Related to: the two tasks go together. Depends on: this task waits for the other. Blocks: the other waits for this one."/>
+                <local:BulletItem Text="Child of and Parent of: a task can have one parent and any number of children. A task cannot be its own ancestor."/>
+                <local:BulletItem Text="The other end sees the same link the other way round: if A depends on B, B shows that it blocks A."/>
+                <local:BulletItem Text="Each link shows the other task's title, in blue, and where it is now. Click the title to open that task over this one. Nothing you have typed here is lost."/>
+                <local:BulletItem Text="The X on a row removes the link. The links are saved with Save, like sub-tasks."/>
+                <local:BulletItem Text="Links that would make a circle, link a task to itself or repeat a link are refused, with the reason."/>
+                <local:BulletItem Text="A card with links shows a line: how many related tasks, Blocking, or in red Blocked while a task it depends on is not yet Done."/>
+                <local:BulletItem Text="Right-click a card, Related Tasks, opens a linked task. If a filter is hiding it, you are asked whether to clear the filters."/>
+                <local:BulletItem Text="A linked task that was archived or deleted keeps its link and shows that. Deleting a task for good removes its links."/>
+
                 <TextBlock Text="Quick actions on a card" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <local:BulletItem Text="Right-click a card, Colour, to give it a background colour. None takes it off. With several selected, Colour All."/>
                 <local:BulletItem Text="Or pick the colour on the task screen, from the swatches beside Force edit upon completion."/>

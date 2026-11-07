@@ -173,6 +173,17 @@ public partial class MainWindow
 
         AddColourSubmenu(menu, "Co_lour", card.Color, colour => viewModel.SetCardColor(card, colour));
 
+        // Only a task with links: each opens that task, after offering to clear a filter that is hiding it.
+        var related = viewModel.RelatedTasksOf(card.Id);
+        if (related.Count > 0)
+        {
+            var relatedMenu = AddSubmenu(menu, "Related Tasks");
+            foreach (var other in related)
+            {
+                AddMenuItem(relatedMenu, $"{CardLinkRules.Label(other.Type)}: {MenuText(other.Title)}  ({other.Status})", () => OpenRelatedTask(other.OtherId, viewModel), isEnabled: other.OnBoard);
+            }
+        }
+
         var availableFlags = viewModel.Flags
             .Where(f => f.IsActive && card.Flags.All(cf => cf.Id != f.Id))
             .OrderBy(f => f.Name)

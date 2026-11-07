@@ -41,7 +41,7 @@ public partial class DatabaseService
     //     only when a colour is first set (CardColorFileFormat).
     // 15: Goals.CompletedDate (0.160.0) - older copies ignore the column and would offer a complete goal again; stamped when a goal is first marked complete (GoalCompleteFileFormat).
     // The newest format this copy of the app understands.
-    public const int CurrentFileFormat = 16;
+    public const int CurrentFileFormat = 17;
 
     public const int DayRangeFileFormat = 6;
     public const int PathLinkFileFormat = 7;
@@ -52,6 +52,7 @@ public partial class DatabaseService
     public const int RichNotesFileFormat = 14;
     public const int GoalCompleteFileFormat = 15;
     public const int CardColorFileFormat = 16;
+    public const int RelationshipFileFormat = 17;
     public const int RecurrenceIntervalFileFormat = 13;
 
     // What every file is raised to just by being opened. Formats 4 to 8 only matter once their

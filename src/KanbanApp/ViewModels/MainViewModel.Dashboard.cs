@@ -52,6 +52,7 @@ public partial class MainViewModel
 
     private void RefreshDashboardStats()
     {
+        RefreshLinkInfo(); // a task moved to Done may have been what another was waiting on
         OnPropertyChanged(nameof(OpenTaskCount));
         OnPropertyChanged(nameof(OverdueCount));
         OnPropertyChanged(nameof(DueTodayCount));

@@ -35,6 +35,7 @@ public static class HelpKey
         [typeof(ReminderWindow)] = "HelpSection_Reminders",
         [typeof(SettingsWindow)] = "HelpSection_Settings",
         [typeof(TaskFilesWindow)] = "HelpSection_TaskFiles",
+        [typeof(RelatedTaskPickerWindow)] = "HelpSection_RelatedTasks",
         [typeof(TaskFileDetailsWindow)] = "HelpSection_TaskFiles",
     };
 

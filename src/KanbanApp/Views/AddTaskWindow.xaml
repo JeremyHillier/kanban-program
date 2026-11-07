@@ -536,6 +536,14 @@
                             VerticalAlignment="Top" HorizontalAlignment="Stretch" Visibility="Collapsed" IsHitTestVisible="False"/>
                 </Grid>
 
+                <!-- Related tasks: links to other tasks, each a clickable title (AddTaskWindow.Related.cs). -->
+                <StackPanel Style="{StaticResource FieldLabelRowStyle}">
+                    <TextBlock Text="Related tasks" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Center"/>
+                    <Button Content="+" Style="{StaticResource NewLinkButtonStyle}" ToolTip="Link this task to another: related to, depends on, blocks, child or parent" Click="AddRelated_Click"/>
+                    <TextBlock x:Name="RelatedCountLabel" VerticalAlignment="Center" Margin="10,0,0,0" FontSize="11" Foreground="{DynamicResource SecondaryTextBrush}"/>
+                </StackPanel>
+                <StackPanel x:Name="RelatedPanel"/>
+
                 <!-- Attachments -->
                 <Border AllowDrop="True" DragOver="AttachmentsDropZone_DragOver" Drop="AttachmentsDropZone_Drop"
                         BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="1" CornerRadius="4"

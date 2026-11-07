@@ -1164,6 +1164,25 @@
                                                                     </StackPanel>
                                                                 </StackPanel>
 
+                                                                <!-- Linked to other tasks (Related tasks on the task screen): a quiet line, red while it is waiting on open tasks. -->
+                                                                <TextBlock Text="{Binding RelatedDisplay}" FontSize="10" FontWeight="SemiBold" Margin="0,3,0,0" TextWrapping="Wrap" HorizontalAlignment="Left"
+                                                                           ToolTip="{Binding RelatedToolTip}">
+                                                                    <TextBlock.Style>
+                                                                        <Style TargetType="TextBlock">
+                                                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                                                            <Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}"/>
+                                                                            <Style.Triggers>
+                                                                                <DataTrigger Binding="{Binding HasRelated}" Value="True">
+                                                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                                                </DataTrigger>
+                                                                                <DataTrigger Binding="{Binding IsBlocked}" Value="True">
+                                                                                    <Setter Property="Foreground" Value="#FFD32F2F"/>
+                                                                                </DataTrigger>
+                                                                            </Style.Triggers>
+                                                                        </Style>
+                                                                    </TextBlock.Style>
+                                                                </TextBlock>
+
                                                                 <!-- Compact cards drop the detail lines above, but what a task is waiting on
                                                                      is the reason it isn't moving, so that one line stays. -->
                                                                 <TextBlock Text="{Binding WaitingOnDisplay}" FontSize="10" FontWeight="SemiBold" TextWrapping="Wrap"
