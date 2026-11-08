@@ -44,8 +44,12 @@ public static class HelpKey
     // Windows where F1 does nothing: Help itself, a message box, and the splash.
     public static readonly IReadOnlySet<Type> Silent = new HashSet<Type> { typeof(HelpWindow), typeof(MessageWindow), typeof(SplashWindow) };
 
-    public static void Register() =>
+    public static void Register()
+    {
         EventManager.RegisterClassHandler(typeof(Window), Keyboard.PreviewKeyDownEvent, new KeyEventHandler(OnPreviewKeyDown));
+        // A dialog that opens while Help is open must not leave Help switched off.
+        EventManager.RegisterClassHandler(typeof(Window), FrameworkElement.LoadedEvent, new RoutedEventHandler((sender, _) => { if (sender is not HelpWindow) HelpWindow.KeepUsable(); }));
+    }
 
     // The Help button at the foot of a window: its parameter is the window.
     public static ICommand ShowCommand { get; } = new RelayCommand(p => { if (p is Window w) Show(w); });
@@ -63,6 +67,6 @@ public static class HelpKey
     {
         var viewModel = owner.DataContext as MainViewModel ?? Application.Current?.MainWindow?.DataContext as MainViewModel;
         if (viewModel is null) return;
-        new HelpWindow(viewModel, Topics.GetValueOrDefault(owner.GetType())) { Owner = owner }.ShowDialog();
+        HelpWindow.Open(viewModel, Topics.GetValueOrDefault(owner.GetType()));
     }
 }

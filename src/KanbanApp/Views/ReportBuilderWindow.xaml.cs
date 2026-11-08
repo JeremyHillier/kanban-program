@@ -127,7 +127,7 @@ public partial class ReportBuilderWindow : Window
 
     private void Help_Click(object sender, RoutedEventArgs e)
     {
-        new HelpWindow(_viewModel, "HelpSection_ReportBuilder") { Owner = this }.ShowDialog();
+        HelpWindow.Open(_viewModel, "HelpSection_ReportBuilder");
     }
 
     private void GroupByComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e) => UpdateSortLevelAvailability();

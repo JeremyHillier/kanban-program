@@ -10,6 +10,78 @@ namespace KanbanApp.Views;
 public partial class HelpWindow : Window
 {
     private readonly MainViewModel _viewModel;
+    private readonly string _defaultTitle;
+    private readonly string _defaultHeading;
+
+    // Help is not modal: it opens beside whatever is open (a task, Settings, a report) and stays usable while
+    // that is. There is only ever one - asking again for a topic takes the open one to it.
+    private static HelpWindow? _current;
+
+    internal static bool IsOpen => _current is not null;
+
+    public static void Open(MainViewModel viewModel, string? scrollToSection = null, bool showWhatsNew = false)
+    {
+        if (_current is { } open)
+        {
+            open.GoTo(scrollToSection, showWhatsNew);
+            if (open.WindowState == WindowState.Minimized) open.WindowState = WindowState.Normal;
+            open.Activate();
+            return;
+        }
+
+        // Not owned by the window it was asked from: an owned window closes with its owner, and a dialog that
+        // closes would take Help with it. It has its own taskbar button so it can be found again.
+        var window = new HelpWindow(viewModel, scrollToSection, showWhatsNew) { ShowInTaskbar = true };
+        _current = window;
+        window.Closed += (_, _) => { if (ReferenceEquals(_current, window)) _current = null; };
+        window.Show();
+    }
+
+    // The board is being replaced by another task file's: Help belongs to the old one.
+    internal static void CloseOpen() => _current?.Close();
+
+    // A modal dialog switches off every other window while it is up, Help included. Help is re-enabled once a
+    // dialog has loaded, so it can still be read and scrolled beside it.
+    internal static void KeepUsable()
+    {
+        if (_current is not { IsLoaded: true } help) return;
+        help.Dispatcher.BeginInvoke(() =>
+        {
+            if (help.IsLoaded && new System.Windows.Interop.WindowInteropHelper(help).Handle is var handle && handle != IntPtr.Zero) EnableWindow(handle, true);
+        }, System.Windows.Threading.DispatcherPriority.ContextIdle);
+    }
+
+    [System.Runtime.InteropServices.DllImport("user32.dll")]
+    private static extern bool EnableWindow(IntPtr hWnd, bool enable);
+
+    // Shows What's New, or the How it works tab at a section (the x:Name of a heading, e.g. "HelpSection_ReportBuilder") -
+    // so a window's own Help button opens at its topic instead of the top of the whole Help screen.
+    private void GoTo(string? section, bool showWhatsNew)
+    {
+        if (showWhatsNew)
+        {
+            Tabs.SelectedItem = WhatsNewTab;
+            Title = "What's New";
+            HeadingText.Text = "WHAT'S NEW";
+            return;
+        }
+
+        Tabs.SelectedIndex = 0;
+        Title = _defaultTitle;
+        HeadingText.Text = _defaultHeading;
+        if (section is null) return;
+
+        // BringIntoView only scrolls the minimum distance needed to make the target visible, which for a section
+        // past the first screenful lands it at the bottom of the viewport instead of the top - scrolling to its
+        // exact offset within the content puts the section header flush at the top, however far down the topic sits.
+        void Scroll()
+        {
+            if (FindName(section) is not FrameworkElement target) return;
+            ContentScrollViewer.UpdateLayout();
+            ContentScrollViewer.ScrollToVerticalOffset(target.TranslatePoint(new Point(0, 0), ContentPanel).Y);
+        }
+        if (IsLoaded) Scroll(); else Loaded += (_, _) => Scroll();
+    }
 
     // scrollToSection, when given, is the x:Name of a section header on the How it works tab (e.g.
     // "HelpSection_ReportBuilder") - lets a window's own Help button open straight to its topic
@@ -18,34 +90,15 @@ public partial class HelpWindow : Window
     {
         InitializeComponent();
         AccessKeys.Bind(this);
+        _defaultTitle = Title;
+        _defaultHeading = HeadingText.Text;
         _viewModel = viewModel;
         DataContext = viewModel;
         VersionText.Text = $"Version {viewModel.AppVersion.TrimStart('v')}";
         RenderWhatsNew();
         BuildTopics();
 
-        if (showWhatsNew)
-        {
-            Tabs.SelectedItem = WhatsNewTab;
-            Title = "What's New";
-            HeadingText.Text = "WHAT'S NEW";
-        }
-
-        if (scrollToSection is not null)
-        {
-            // BringIntoView only scrolls the minimum distance needed to make the target visible,
-            // which for a section past the first screenful lands it at the bottom of the viewport
-            // instead of the top - scrolling to its exact offset within the content puts the
-            // section header flush at the top instead, however far down the topic sits.
-            Loaded += (_, _) =>
-            {
-                if (FindName(scrollToSection) is FrameworkElement target)
-                {
-                    var offset = target.TranslatePoint(new Point(0, 0), ContentPanel).Y;
-                    ContentScrollViewer.ScrollToVerticalOffset(offset);
-                }
-            };
-        }
+        GoTo(scrollToSection, showWhatsNew);
     }
 
     // ---- The topic list down the left ----

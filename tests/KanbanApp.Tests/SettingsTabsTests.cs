@@ -92,3 +92,33 @@ public sealed class HelpTopicsTests(WpfDispatcherFixture wpf) : IDisposable
         }
     });
 }
+
+// Help is one shared window that does not block the rest of the program.
+[Collection(WpfCollection.Name)]
+public sealed class HelpWindowModelessTests(WpfDispatcherFixture wpf) : IDisposable
+{
+    private readonly TempFolder _temp = new();
+
+    public void Dispose() => _temp.Dispose();
+
+    [Fact]
+    public void Help_OpensOnce_IsNotModal_AndAnotherRequestReusesIt() => wpf.Run(() =>
+    {
+        var board = new KanbanApp.ViewModels.MainViewModel(new KanbanApp.Services.DatabaseService(_temp.File("board.db")));
+        try
+        {
+            KanbanApp.Views.HelpWindow.Open(board, "HelpSection_Settings");
+            Assert.True(KanbanApp.Views.HelpWindow.IsOpen); // Open returned, so it did not wait for the window to close
+
+            KanbanApp.Views.HelpWindow.Open(board, showWhatsNew: true);
+            var windows = System.Windows.Application.Current?.Windows.OfType<KanbanApp.Views.HelpWindow>().ToList() ?? [];
+            Assert.True(windows.Count <= 1);
+            Assert.Null(windows.FirstOrDefault()?.Owner);
+        }
+        finally
+        {
+            KanbanApp.Views.HelpWindow.CloseOpen();
+        }
+        Assert.False(KanbanApp.Views.HelpWindow.IsOpen);
+    });
+}

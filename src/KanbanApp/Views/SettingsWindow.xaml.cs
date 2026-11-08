@@ -177,9 +177,7 @@ public partial class SettingsWindow : Window
 
     private void ShowWhatsNew_Click(object sender, RoutedEventArgs e)
     {
-        var dialog = new HelpWindow(_viewModel, showWhatsNew: true) { Owner = this };
-        dialog.ShowDialog();
-
+        HelpWindow.Open(_viewModel, showWhatsNew: true);
     }
 
     // A ready-made set of names for all five columns. Like typing them in, it is undone by Cancel.
@@ -380,7 +378,7 @@ public partial class SettingsWindow : Window
 
     private void Help_Click(object sender, RoutedEventArgs e)
     {
-        new HelpWindow(_viewModel, "HelpSection_Settings") { Owner = this }.ShowDialog();
+        HelpWindow.Open(_viewModel, "HelpSection_Settings");
     }
 
     private void WeekStartComboBox_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)

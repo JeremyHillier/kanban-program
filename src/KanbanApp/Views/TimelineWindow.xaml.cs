@@ -144,7 +144,7 @@ public partial class TimelineWindow : Window
 
     private void Help_Click(object sender, RoutedEventArgs e)
     {
-        new HelpWindow(_viewModel, "HelpSection_Timeline") { Owner = this }.ShowDialog();
+        HelpWindow.Open(_viewModel, "HelpSection_Timeline");
     }
 
     private void Prev_Click(object sender, RoutedEventArgs e)

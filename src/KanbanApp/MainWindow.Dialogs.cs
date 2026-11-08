@@ -136,8 +136,7 @@ public partial class MainWindow
     {
         if (DataContext is not MainViewModel viewModel) return;
 
-        var dialog = new HelpWindow(viewModel) { Owner = this };
-        dialog.ShowDialog();
+        HelpWindow.Open(viewModel);
     }
 
     // The About link at the foot of the button column.

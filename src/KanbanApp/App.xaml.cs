@@ -188,6 +188,7 @@ public partial class App : Application
         _dbPath = db.DbPath;
 
         ShutdownMode = ShutdownMode.OnExplicitShutdown;
+        HelpWindow.CloseOpen();
         current?.Close();
         var main = new MainWindow(db);
         MainWindow = main;

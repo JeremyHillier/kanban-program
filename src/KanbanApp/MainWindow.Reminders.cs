@@ -15,11 +15,10 @@ public partial class MainWindow
 {
     private void ShowWhatsNew(MainViewModel viewModel)
     {
-        var dialog = new HelpWindow(viewModel, showWhatsNew: true) { Owner = this };
-        dialog.ShowDialog();
+        HelpWindow.Open(viewModel, showWhatsNew: true);
 
-        // Recorded even if the user turns the screen off from inside it, so switching it back on
-        // later doesn't immediately re-show notes they've already read.
+        // Recorded as soon as it is shown (Help no longer waits to be closed), so switching the screen off and
+        // back on later doesn't immediately re-show notes they've already read.
         viewModel.MarkWhatsNewSeen();
     }
 
