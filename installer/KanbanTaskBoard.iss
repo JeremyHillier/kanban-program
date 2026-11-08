@@ -98,10 +98,15 @@ Root: HKCU; Subkey: "Software\Classes\{#LinkScheme}\shell\open\command"; ValueTy
 
 [Run]
 Filename: "{app}\{#MyAppExeName}"; Parameters: "--seed-data-folder ""{code:GetDataFolder}"""; Flags: runhidden nowait skipifsilent; StatusMsg: "Setting up data storage..."
+; No postinstall entry to start the app, on purpose: Inno Setup draws that choice in its check list control,
+; whose check box is clipped at 150% display scaling. The Start box on the Finished page is an ordinary check
+; box made in [Code] instead (LaunchCheck). The seed run above exits before the app's single-copy check, so
+; it never stops the app from starting.
 
 [Code]
 var
   DataDirPage: TInputDirWizardPage;
+  LaunchCheck: TNewCheckBox;
   PreviousVersion: String;
   IsUpdate: Boolean;
 
@@ -215,6 +220,32 @@ begin
     False, '');
   DataDirPage.Add('');
   DataDirPage.Values[0] := ExpandConstant('{localappdata}\{#DataFolderName}');
+
+  LaunchCheck := TNewCheckBox.Create(WizardForm);
+  LaunchCheck.Parent := WizardForm.FinishedPage;
+  LaunchCheck.Caption := '&Start {#MyAppName}';
+  LaunchCheck.Checked := True;
+  LaunchCheck.Visible := False;
+end;
+
+{ The Start box goes under the finished text, whose height is only known once the page shows. It is
+  left out when Setup is asking to restart the computer instead. }
+procedure CurPageChanged(CurPageID: Integer);
+begin
+  if CurPageID <> wpFinished then exit;
+  LaunchCheck.SetBounds(WizardForm.FinishedLabel.Left + ScaleX(2),
+    WizardForm.FinishedLabel.Top + WizardForm.FinishedLabel.Height + ScaleY(14),
+    WizardForm.FinishedLabel.Width - ScaleX(2), ScaleY(21));
+  LaunchCheck.Visible := not WizardForm.YesRadio.Visible;
+end;
+
+{ Started once Finish is clicked, as the user who ran Setup, and not waited for. }
+procedure CurStepChanged(CurStep: TSetupStep);
+var
+  ResultCode: Integer;
+begin
+  if (CurStep = ssDone) and (not WizardSilent) and LaunchCheck.Visible and LaunchCheck.Checked then
+    ExecAsOriginalUser(ExpandConstant('{app}\{#MyAppExeName}'), '', '', SW_SHOWNORMAL, ewNoWait, ResultCode);
 end;
 
 function ShouldSkipPage(PageID: Integer): Boolean;

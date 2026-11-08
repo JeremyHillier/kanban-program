@@ -11,14 +11,17 @@ namespace KanbanApp.Views;
 public partial class TimelineWindow : Window
 {
     // The columns for each view (Month, Week, Day) and how far the arrows page are in TimelineScale.
-    // _windowStart is the first day of the first column: the 1st of a month in Month view, else a
-    // Monday; switching view snaps it to the new view's kind of start.
+    // _windowStart is the first day of the first column: the 1st of a month in Month view, else the
+    // first day of a week (Monday, or Sunday if chosen in Settings); switching view snaps it to the new view's kind of start.
     private readonly MainViewModel _viewModel;
     private DateTime _windowStart;
     private DateTime _windowEnd; // the first day after what is showing, as last drawn
     private bool _initializing = true;
     private TimelineFilter _filter = TimelineFilter.None; // which people, priorities and flags are showing
     private int _months = TimelineScale.MonthUnits; // how many months Month view shows
+
+    // The day weeks start on: the same setting as the Calendar's (Settings, General tab).
+    private DayOfWeek FirstDay => _viewModel.FirstDayOfWeek;
 
     // Summary rows the user has opened to show their tasks, by name. Kept for as long as the window is open.
     private readonly HashSet<string> _expanded;
@@ -91,7 +94,7 @@ public partial class TimelineWindow : Window
         (_viewModel.TimelineView switch { TimelineZoom.Month => MonthViewRadio, TimelineZoom.Day => DayViewRadio, _ => WeekViewRadio }).IsChecked = true;
         (_viewModel.TimelineSummary ? SummaryRadio : DetailRadio).IsChecked = true;
         (_viewModel.TimelineByGoal ? ByGoalRadio : ByProjectRadio).IsChecked = true;
-        _windowStart = TimelineScale.Snap(Zoom, DateTime.Today);
+        _windowStart = TimelineScale.Snap(Zoom, DateTime.Today, FirstDay);
         Closing += (_, _) => SaveSize();
         UpdateUndoButton();
         _initializing = false;
@@ -161,7 +164,7 @@ public partial class TimelineWindow : Window
 
     private void Today_Click(object sender, RoutedEventArgs e)
     {
-        _windowStart = TimelineScale.Snap(Zoom, DateTime.Today);
+        _windowStart = TimelineScale.Snap(Zoom, DateTime.Today, FirstDay);
         BuildGrid();
     }
 
@@ -186,7 +189,7 @@ public partial class TimelineWindow : Window
         // September); otherwise on where the window started.
         var today = DateTime.Today;
         var anchor = today >= _windowStart && today < _windowEnd ? today : _windowStart;
-        _windowStart = TimelineScale.Snap(Zoom, anchor);
+        _windowStart = TimelineScale.Snap(Zoom, anchor, FirstDay);
         BuildGrid();
     }
 

@@ -188,6 +188,18 @@ public sealed class TimelineSummaryTests
         Assert.Equal([1 / 30d, 8 / 30d, 15 / 30d, 22 / 30d, 29 / 30d], TimelineLayout.SubDivisions(TimelineZoom.Month, new DateTime(2026, 11, 1), new DateTime(2026, 12, 1)));
         Assert.Empty(TimelineLayout.SubDivisions(TimelineZoom.Day, new DateTime(2026, 11, 2), new DateTime(2026, 11, 3)));
     }
+
+    [Fact]
+    public void WithWeeksStartingOnSunday_TheGanttViewSnapsAndDividesBySunday()
+    {
+        // October 1, 2026 is a Thursday: its week began on Sunday, September 27.
+        Assert.Equal(new DateTime(2026, 9, 27), TimelineScale.Snap(TimelineZoom.Week, new DateTime(2026, 10, 1), DayOfWeek.Sunday));
+        Assert.Equal(new DateTime(2026, 9, 27), TimelineScale.Snap(TimelineZoom.Day, new DateTime(2026, 10, 1), DayOfWeek.Sunday));
+        Assert.Equal(new DateTime(2026, 10, 1), TimelineScale.Snap(TimelineZoom.Month, new DateTime(2026, 10, 15), DayOfWeek.Sunday));
+
+        // November 2026: Sundays on the 1st (the column's own edge), 8th, 15th, 22nd and 29th.
+        Assert.Equal([7 / 30d, 14 / 30d, 21 / 30d, 28 / 30d], TimelineLayout.SubDivisions(TimelineZoom.Month, new DateTime(2026, 11, 1), new DateTime(2026, 12, 1), DayOfWeek.Sunday));
+    }
 }
 
 // Where a goal's dashed target line begins: its start day, not always the left edge.

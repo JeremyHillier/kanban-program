@@ -79,9 +79,9 @@ public partial class TimelineWindow
             grid.Children.Add(border);
         }
 
-        // The light lines inside a column: each day of a week, each Monday of a month.
+        // The light lines inside a column: each day of a week, the start of each week in a month.
         var subLines = Enumerable.Range(0, unitsToShow)
-            .Select(w => TimelineLayout.SubDivisions(Zoom, unitStarts[w], w + 1 < unitsToShow ? unitStarts[w + 1] : rangeEnd))
+            .Select(w => TimelineLayout.SubDivisions(Zoom, unitStarts[w], w + 1 < unitsToShow ? unitStarts[w + 1] : rangeEnd, FirstDay))
             .ToList();
         var subLineBrush = new SolidColorBrush(((SolidColorBrush)borderBrush).Color) { Opacity = 0.45 };
         UIElement SubLines(int w)
@@ -119,8 +119,8 @@ public partial class TimelineWindow
             }, panelBrush);
         }
 
-        // A second header row naming the light lines: the days of each week (M T W ...) in Week view, the date of
-        // each Monday in Month view when there is room for it. Day view has no inner lines, so no second row.
+        // A second header row naming the light lines: the days of each week (M T W ...) in Week view, the date each
+        // week starts in Month view when there is room for it. Day view has no inner lines, so no second row.
         if (Zoom != TimelineZoom.Day && (Zoom == TimelineZoom.Week || unitColWidth >= 100))
         {
             HeaderGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
@@ -137,7 +137,7 @@ public partial class TimelineWindow
                 for (var d = 0; d < length; d++)
                 {
                     var day = unitStart.AddDays(d);
-                    if (Zoom == TimelineZoom.Month && (day.DayOfWeek != DayOfWeek.Monday || d / length * unitColWidth > unitColWidth - 16)) continue; // no room for a late Monday
+                    if (Zoom == TimelineZoom.Month && (day.DayOfWeek != FirstDay || d / length * unitColWidth > unitColWidth - 16)) continue; // no room for a late week start
 
                     labels.Children.Add(new TextBlock
                     {

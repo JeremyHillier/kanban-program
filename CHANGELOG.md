@@ -6,6 +6,11 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.165.3 — 2026-11-07
+
+> - Improved: the Gantt view now starts its weeks on the day chosen in Settings, Monday or Sunday, as the Calendar does.
+> - New: when Setup finishes, it can start Kanban Task Board for you. The Start box on the last page is ticked; untick it to finish without starting.
+
 ## 0.165.2 — 2026-11-07
 
 > - Improved: Help no longer blocks the rest of the program. It opens beside whatever you are doing, such as a task, Settings or a report, and you can keep using both. There is one Help window, so asking for another topic takes it there.

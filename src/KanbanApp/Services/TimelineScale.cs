@@ -3,7 +3,7 @@ namespace KanbanApp.Services;
 public enum TimelineZoom { Week, Day, Month }
 
 // The Timeline's columns for each view: Week = 12 weeks paged 4 at a time, Day = 21 days paged a week
-// at a time (both Monday-aligned), Month = 3 to 24 calendar months (6 unless the user picks another number)
+// at a time (both starting on the first day of the week: Monday, or Sunday if chosen in Settings), Month = 3 to 24 calendar months (6 unless the user picks another number)
 // paged half that many at a time, starting on the 1st.
 // Months are not all the same length, so a column is known by the day it starts, not by a day count.
 public static class TimelineScale
@@ -28,15 +28,13 @@ public static class TimelineScale
         _ => TimelineZoom.Week
     };
 
-    public static DateTime MondayOf(DateTime date)
-    {
-        var diff = (7 + (date.DayOfWeek - DayOfWeek.Monday)) % 7;
-        return date.Date.AddDays(-diff);
-    }
+    public static DateTime WeekStartOf(DateTime date, DayOfWeek firstDay = DayOfWeek.Monday) =>
+        date.Date.AddDays(-(((int)date.DayOfWeek - (int)firstDay + 7) % 7));
 
-    // Where a window starting on or around this date begins: the 1st of the month in Month view, else the Monday.
-    public static DateTime Snap(TimelineZoom zoom, DateTime date) =>
-        zoom == TimelineZoom.Month ? new DateTime(date.Year, date.Month, 1) : MondayOf(date);
+    // Where a window starting on or around this date begins: the 1st of the month in Month view, else the first
+    // day of its week (the Weeks start on setting).
+    public static DateTime Snap(TimelineZoom zoom, DateTime date, DayOfWeek firstDay = DayOfWeek.Monday) =>
+        zoom == TimelineZoom.Month ? new DateTime(date.Year, date.Month, 1) : WeekStartOf(date, firstDay);
 
     public static List<DateTime> UnitStarts(TimelineZoom zoom, DateTime windowStart, int months = MonthUnits) => zoom switch
     {

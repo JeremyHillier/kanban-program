@@ -114,11 +114,11 @@
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                 <StackPanel Grid.Column="0">
-                <TextBlock Text="Calendar" Style="{StaticResource SectionHeaderStyle}"/>
+                <TextBlock Text="Calendar and Gantt" Style="{StaticResource SectionHeaderStyle}"/>
                 <StackPanel Orientation="Horizontal" Margin="0,0,0,20">
                     <TextBlock Text="Weeks start on:" VerticalAlignment="Center" Margin="0,0,8,0" Foreground="{DynamicResource PrimaryTextBrush}"/>
                     <ComboBox x:Name="WeekStartComboBox" Width="140" Padding="4" SelectionChanged="WeekStartComboBox_SelectionChanged"
-                              ToolTip="The first day of each week in the Calendar view"
+                              ToolTip="The first day of each week in the Calendar and Gantt views"
                               Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}" BorderBrush="{DynamicResource CardBorderBrush}">
                         <ComboBoxItem Content="Monday"/>
                         <ComboBoxItem Content="Sunday"/>

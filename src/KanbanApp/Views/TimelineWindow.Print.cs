@@ -82,7 +82,7 @@ public partial class TimelineWindow
         double y = 0;
 
         var subLines = Enumerable.Range(0, unitsToShow)
-            .Select(w => TimelineLayout.SubDivisions(Zoom, unitStarts[w], w + 1 < unitsToShow ? unitStarts[w + 1] : rangeEnd)).ToList();
+            .Select(w => TimelineLayout.SubDivisions(Zoom, unitStarts[w], w + 1 < unitsToShow ? unitStarts[w + 1] : rangeEnd, FirstDay)).ToList();
 
         void DrawColumnLines(double top, double height)
         {
@@ -97,7 +97,7 @@ public partial class TimelineWindow
                 var left = margin + projectColWidth + w * unitColWidth;
                 if (w > 0) VLine(left, 0.9); // between weeks, months or days: a little heavier
                 foreach (var fraction in subLines[w])
-                    VLine(left + fraction * unitColWidth, 0.3); // each day of a week, each Monday of a month
+                    VLine(left + fraction * unitColWidth, 0.3); // each day of a week, the start of each week in a month
             }
         }
 

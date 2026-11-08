@@ -229,16 +229,16 @@ public static class TimelineLayout
         return day.Date >= windowEnd ? null : Offset(day, unitStarts, windowEnd);
     }
 
-    // The light lines inside a column: each day in a week column, each Monday in a month column (none in
-    // Day view), as fractions across it.
-    public static List<double> SubDivisions(TimelineZoom zoom, DateTime unitStart, DateTime unitEnd)
+    // The light lines inside a column: each day in a week column, the start of each week in a month column (none
+    // in Day view), as fractions across it. Weeks start on firstDay (Monday, or Sunday if chosen in Settings).
+    public static List<double> SubDivisions(TimelineZoom zoom, DateTime unitStart, DateTime unitEnd, DayOfWeek firstDay = DayOfWeek.Monday)
     {
         var length = (unitEnd - unitStart).TotalDays;
         return zoom switch
         {
             TimelineZoom.Week => Enumerable.Range(1, 6).Select(d => d / 7.0).ToList(),
             TimelineZoom.Month => Enumerable.Range(1, (int)length - 1).Select(d => unitStart.AddDays(d))
-                .Where(d => d.DayOfWeek == DayOfWeek.Monday).Select(d => (d - unitStart).TotalDays / length).ToList(),
+                .Where(d => d.DayOfWeek == firstDay).Select(d => (d - unitStart).TotalDays / length).ToList(),
             _ => []
         };
     }
