@@ -45,12 +45,15 @@ public partial class MainWindow
         menu.IsOpen = true;
     }
 
-    // Right-click on the button clears the lanes: back to the plain board.
-    private void Swimlanes_PreviewMouseRightButtonUp(object sender, MouseButtonEventArgs e)
+    // Right-click on the button clears the lanes: back to the plain board. It is done as the button is pressed, and the
+    // release is swallowed too, so one click clears them however the click arrives.
+    private void Swimlanes_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
     {
         if (DataContext is MainViewModel viewModel) viewModel.SetSwimlaneMode(SwimlaneMode.Off);
         e.Handled = true;
     }
+
+    private void Swimlanes_PreviewMouseRightButtonUp(object sender, MouseButtonEventArgs e) => e.Handled = true;
 
     private void LaneHeader_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
     {

@@ -169,23 +169,39 @@ public partial class TimelineWindow
         for (var r = 0; r < rows.Count; r++)
         {
             var row = rows[r];
+
+            // Each project or goal is a title band - its name and counts, with a line under it across the whole
+            // width, as a swimlane has - and then the row itself, with its tasks, below.
+            TimelineGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
             TimelineGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto, MinHeight = row.Summary is not null && !row.IsExpanded ? 44 : 50 });
+            var titleRow = 2 * r;
+            var bodyRow = 2 * r + 1;
 
             // Alternating shading, matching the app's existing AlternateRowBrush convention.
             var rowBackground = r % 2 == 1 ? alternateRowBrush : null;
 
-            AddCell(TimelineGrid, r, 0, BuildNameCell(row, brush, secondaryBrush), rowBackground);
+            var band = new Border
+            {
+                BorderBrush = borderBrush, BorderThickness = new Thickness(0, 0, 0, 1), Background = rowBackground,
+                Child = BuildTitleBand(row, brush, secondaryBrush)
+            };
+            Grid.SetRow(band, titleRow);
+            Grid.SetColumn(band, 0);
+            Grid.SetColumnSpan(band, unitsToShow + 1);
+            TimelineGrid.Children.Add(band);
+
+            AddCell(TimelineGrid, bodyRow, 0, BuildNameCell(row, brush, secondaryBrush), rowBackground);
 
             // The row's date cells are just the background and grid lines; the bar and the tasks sit
             // in a lane grid laid over them (same column widths, one auto-height row per lane),
             // because a bar or an arrow has to run across several columns.
-            for (var w = 0; w < unitsToShow; w++) AddCell(TimelineGrid, r, w + 1, SubLines(w), rowBackground);
+            for (var w = 0; w < unitsToShow; w++) AddCell(TimelineGrid, bodyRow, w + 1, SubLines(w), rowBackground);
 
             var laneGrid = new Grid { Margin = new Thickness(0, 3, 0, 0), VerticalAlignment = VerticalAlignment.Top };
             for (var w = 0; w < unitsToShow; w++) laneGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(unitColWidth) });
             for (var lane = 0; lane < row.Lanes; lane++)
                 laneGrid.RowDefinitions.Add(new RowDefinition { Height = row.HasMilestoneLane && lane == row.Lanes - 1 ? new GridLength(18) : GridLength.Auto });
-            Grid.SetRow(laneGrid, r);
+            Grid.SetRow(laneGrid, bodyRow);
             Grid.SetColumn(laneGrid, 1);
             Grid.SetColumnSpan(laneGrid, unitsToShow);
             TimelineGrid.Children.Add(laneGrid);
@@ -357,15 +373,42 @@ public partial class TimelineWindow
                 Margin = new Thickness(now * unitColWidth - 1, 0, 0, 0), ToolTip = $"Today, {DateTime.Today:MMM d, yyyy}"
             };
             Grid.SetRow(todayLine, 0);
-            Grid.SetRowSpan(todayLine, rows.Count);
+            Grid.SetRowSpan(todayLine, rows.Count * 2); // every title band and every row
             Grid.SetColumn(todayLine, 1);
             Grid.SetColumnSpan(todayLine, unitsToShow);
             TimelineGrid.Children.Add(todayLine);
         }
     }
 
-    // The row's name; in Summary view with a triangle that opens or closes its tasks, and the counts
-    // under it (overdue in red).
+    // The title band above a row: its name, in Summary view with a triangle that opens or closes its tasks, and the
+    // counts after it (overdue in red).
+    private FrameworkElement BuildTitleBand(TimelineRow row, Brush brush, Brush secondaryBrush)
+    {
+        var line = new StackPanel { Orientation = System.Windows.Controls.Orientation.Horizontal, Margin = new Thickness(6, 4, 6, 3), Background = Brushes.Transparent, ContextMenu = BuildRowMenu(row.Name) };
+        line.Children.Add(new TextBlock
+        {
+            Text = row.Summary is null ? row.Name : $"{(row.IsExpanded ? "▾" : "▸")} {row.Name}", FontWeight = FontWeights.SemiBold, Foreground = brush
+        });
+        if (row.Summary is not { } summary) return line;
+
+        var counts = new TextBlock { FontSize = 11, Foreground = secondaryBrush, Margin = new Thickness(10, 2, 0, 0) };
+        counts.Inlines.Add(new Run(summary.OpenText));
+        if (summary.Overdue > 0)
+        {
+            counts.Inlines.Add(new Run(" · "));
+            counts.Inlines.Add(new Run(summary.OverdueText) { Foreground = OverdueBrush, FontWeight = FontWeights.SemiBold });
+        }
+        if (summary.Undated > 0) counts.Inlines.Add(new Run($" · {summary.UndatedText}"));
+        line.Children.Add(counts);
+
+        line.Cursor = Cursors.Hand;
+        line.ToolTip = row.IsExpanded ? "Hide its tasks" : "Show its tasks";
+        line.MouseLeftButtonUp += (_, _) => ToggleRow(row.Name);
+        return line;
+    }
+
+    // The cell under the title band, in the name column: a goal's target date and completion, and (Summary) how far
+    // its open tasks run past the target. Clicking it opens or closes the row's tasks in Summary view.
     private FrameworkElement BuildNameCell(TimelineRow row, Brush brush, Brush secondaryBrush)
     {
         var panel = new StackPanel { Margin = new Thickness(6), VerticalAlignment = VerticalAlignment.Top, Background = Brushes.Transparent, ContextMenu = BuildRowMenu(row.Name) };
@@ -399,28 +442,8 @@ public partial class TimelineWindow
             }
         }
 
-        if (row.Summary is not { } summary)
-        {
-            panel.Children.Add(new TextBlock { Text = row.Name, FontWeight = FontWeights.SemiBold, Foreground = brush, TextWrapping = TextWrapping.Wrap });
-            AddTargetLines(null);
-            return panel;
-        }
-
-        panel.Children.Add(new TextBlock
-        {
-            Text = $"{(row.IsExpanded ? "▾" : "▸")} {row.Name}", FontWeight = FontWeights.SemiBold, Foreground = brush, TextWrapping = TextWrapping.Wrap
-        });
-
-        var counts = new TextBlock { FontSize = 11, Foreground = secondaryBrush, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(12, 2, 0, 0) };
-        counts.Inlines.Add(new Run(summary.OpenText));
-        if (summary.Overdue > 0)
-        {
-            counts.Inlines.Add(new Run(" · "));
-            counts.Inlines.Add(new Run(summary.OverdueText) { Foreground = OverdueBrush, FontWeight = FontWeights.SemiBold });
-        }
-        if (summary.Undated > 0) counts.Inlines.Add(new Run($" · {summary.UndatedText}"));
-        panel.Children.Add(counts);
-        AddTargetLines(summary);
+        AddTargetLines(row.Summary);
+        if (row.Summary is null) return panel;
 
         panel.Background = Brushes.Transparent; // so the whole cell takes the click, not just the text
         panel.Cursor = Cursors.Hand;

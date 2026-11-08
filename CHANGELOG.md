@@ -6,6 +6,11 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.165.5 — 2026-11-08
+
+> - Improved: in the Gantt view, each project or goal now has its name and counts on a line of its own, with a line under it across the full width, as in swimlanes. The printout has it too.
+> - Fixed: a single right-click on the Swim lanes button now clears the lanes.
+
 ## 0.165.4 — 2026-11-08
 
 > - Fixed: Help's Close button, and Esc, close the Help window again.

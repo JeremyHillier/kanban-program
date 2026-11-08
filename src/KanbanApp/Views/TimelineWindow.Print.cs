@@ -192,36 +192,31 @@ public partial class TimelineWindow
                 laneHeights[row.FirstTaskLane + item.Lane] = Math.Max(laneHeights[row.FirstTaskLane + item.Lane],
                     lines.Count * lineHeight + 2 * chipPadding + chipGap);
             }
-            // The name column: the name, and in Summary view the counts under it.
-            var nameLines = WrapWords(projectName, boldTypeface, 9, projectColWidth - 8);
-            var countLines = row.Summary is { } counted ? WrapWords(counted.CountsText, regularTypeface, 7.5, projectColWidth - 8) : [];
+            // A title band on one line holds the name (and in Summary view its counts after it), with a line under it
+            // across the page; the row follows it, and the name column keeps only the target and completion lines.
+            const double titleBandHeight = 15;
             var targetLines = new List<string>();
             if (row.Completed is { } finished) targetLines.Add($"Completed {finished:MMM d, yyyy}");
             if (row.Target is { } goalTarget) targetLines.Add($"Target {goalTarget:MMM d, yyyy}");
             if (row.Summary?.OverrunText is { Length: > 0 } overrunText) targetLines.Add(overrunText);
-            var nameHeight = (nameLines.Count + countLines.Count + targetLines.Count) * lineHeight + 4;
+            var nameHeight = targetLines.Count * lineHeight + 4;
             var rowHeight = Math.Max(Math.Max(rowMinHeight, nameHeight), laneHeights.Sum()) + 4;
 
-            if (y + rowHeight > bottomLimit) NewPage();
+            if (y + titleBandHeight + rowHeight > bottomLimit) NewPage();
 
-            var rowBand = new Rectangle { Width = contentWidth, Height = rowHeight, Fill = r % 2 == 1 ? bandOddBrush : Brushes.White };
+            var rowBand = new Rectangle { Width = contentWidth, Height = titleBandHeight + rowHeight, Fill = r % 2 == 1 ? bandOddBrush : Brushes.White };
             Canvas.SetLeft(rowBand, margin);
             Canvas.SetTop(rowBand, y);
             canvas.Children.Add(rowBand);
-            DrawColumnLines(y, rowHeight);
 
-            var rowTop = y;
+            AddText(canvas, projectName, margin + 4, y + 2, boldTypeface, 9, Brushes.Black);
+            if (row.Summary is { } counted)
+                AddText(canvas, counted.CountsText, margin + 4 + MakeText(projectName, boldTypeface, 9, Brushes.Black).Width + 8, y + 4, regularTypeface, 7.5, Brushes.DimGray);
+            canvas.Children.Add(new Line { X1 = margin, Y1 = y + titleBandHeight, X2 = margin + contentWidth, Y2 = y + titleBandHeight, Stroke = Brushes.Gray, StrokeThickness = 0.75 });
+
+            var rowTop = y + titleBandHeight;
+            DrawColumnLines(rowTop, rowHeight);
             var labelY = rowTop + 4;
-            foreach (var line in nameLines)
-            {
-                AddText(canvas, line, margin + 4, labelY, boldTypeface, 9, Brushes.Black);
-                labelY += lineHeight;
-            }
-            foreach (var line in countLines)
-            {
-                AddText(canvas, line, margin + 4, labelY, regularTypeface, 7.5, Brushes.DimGray);
-                labelY += lineHeight;
-            }
             foreach (var line in targetLines)
             {
                 var isOverrun = line.StartsWith("ends ", StringComparison.Ordinal);

@@ -1058,7 +1058,7 @@
                                         IsEnabled="{Binding CanUndo}" ToolTip="{Binding UndoToolTip}" ToolTipService.ShowOnDisabled="True">
                                     <TextBlock Text="Undo" TextWrapping="Wrap" TextAlignment="Center"/>
                                 </Button>
-                                <Button Style="{StaticResource SmallSquareButtonStyle}" Background="#FF4F7F8F" Foreground="White" Click="Swimlanes_Click" PreviewMouseRightButtonUp="Swimlanes_PreviewMouseRightButtonUp"
+                                <Button Style="{StaticResource SmallSquareButtonStyle}" Background="#FF4F7F8F" Foreground="White" Click="Swimlanes_Click" PreviewMouseRightButtonDown="Swimlanes_PreviewMouseRightButtonDown" PreviewMouseRightButtonUp="Swimlanes_PreviewMouseRightButtonUp"
                                         ToolTip="Show the board as horizontal swimlanes, grouped by project, goal or who a task is assigned to. Click for the choices; right-click to clear the lanes.">
                                     <TextBlock Text="{Binding SwimlaneButtonLabel}" TextWrapping="Wrap" TextAlignment="Center"/>
                                 </Button>
