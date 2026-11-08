@@ -9,6 +9,7 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 ## 0.165.6 — 2026-11-08
 
 > - Fixed: right-clicking the Swim lanes button straight after choosing a grouping now clears the lanes with one click. Before, the choice could land after the click and put the lanes back.
+> - Fixed: a task dragged to another swim lane, or moved by the sort after a change of project, goal or person, no longer shows twice in its new lane.
 
 ## 0.165.5 — 2026-11-08
 

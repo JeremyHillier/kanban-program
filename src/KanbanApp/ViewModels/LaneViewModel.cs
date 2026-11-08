@@ -139,7 +139,36 @@ public sealed class LaneColumnViewModel : ColumnViewModel
         view.LiveFilteringProperties.Add(nameof(CardViewModel.WhoId));
         view.LiveFilteringProperties.Add(nameof(CardViewModel.People));
         view.IsLiveFiltering = true;
+        ((System.Collections.Specialized.INotifyCollectionChanged)view).CollectionChanged += (_, e) =>
+        {
+            if (e.Action is System.Collections.Specialized.NotifyCollectionChangedAction.Add or System.Collections.Specialized.NotifyCollectionChangedAction.Move)
+                QueueDuplicateCheck(view);
+        };
         return view;
+    }
+
+    // WPF's live filtering can list a task twice. When a task's lane changes (its project, goal or person) and the
+    // column then moves it - a drop between cards, or the sort - before WPF has caught up on the change, the move adds
+    // it to this lane and the catch-up adds it again. So after anything is added, the list is checked once more, still
+    // before the screen is next drawn, and built again if a task is in it twice.
+    private bool _duplicateCheckQueued;
+
+    private void QueueDuplicateCheck(ListCollectionView view)
+    {
+        if (_duplicateCheckQueued) return;
+        _duplicateCheckQueued = true;
+        System.Windows.Threading.Dispatcher.CurrentDispatcher.BeginInvoke(() =>
+        {
+            _duplicateCheckQueued = false;
+            if (!ReferenceEquals(view, _view)) return; // replaced or retired meanwhile
+            var seen = new HashSet<object>();
+            foreach (var item in view)
+            {
+                if (seen.Add(item)) continue;
+                view.Refresh();
+                return;
+            }
+        }, System.Windows.Threading.DispatcherPriority.DataBind);
     }
 
     public void Detach()

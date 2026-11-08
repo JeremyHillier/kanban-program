@@ -277,4 +277,110 @@ public sealed class SwimlaneTests(WpfDispatcherFixture wpf) : IDisposable
         board.Undo();
         Assert.Equal(["Sam", "Lee"], card.People.Select(p => p.Name));
     });
+
+    // A task dragged to another lane showed twice there until the lanes were turned off and on again: its lane list
+    // was still catching up on the change of goal when the move or the re-sort touched the same task.
+    [Theory]
+    [InlineData(SwimlaneMode.Goal, "In Progress", null)]
+    [InlineData(SwimlaneMode.Goal, "To Do", null)]
+    [InlineData(SwimlaneMode.Goal, "To Do", 0)]
+    [InlineData(SwimlaneMode.Goal, "To Do", 2)]
+    [InlineData(SwimlaneMode.Goal, "To Do", 4)]
+    [InlineData(SwimlaneMode.Project, "In Progress", null)]
+    [InlineData(SwimlaneMode.Project, "To Do", null)]
+    [InlineData(SwimlaneMode.Project, "To Do", 0)]
+    [InlineData(SwimlaneMode.Project, "To Do", 4)]
+    [InlineData(SwimlaneMode.AssignedTo, "In Progress", null)]
+    [InlineData(SwimlaneMode.AssignedTo, "To Do", null)]
+    [InlineData(SwimlaneMode.AssignedTo, "To Do", 0)]
+    [InlineData(SwimlaneMode.AssignedTo, "To Do", 4)]
+    public void ATaskDroppedOnAnotherLane_ShowsThereOnce(SwimlaneMode mode, string toColumn, int? reorderIndex) => wpf.Run(() =>
+    {
+        var board = OpenBoard();
+        var garden = board.AddProject("Garden").Item!;
+        var house = board.AddProject("House").Item!;
+        var launch = board.AddGoal("Launch").Item!;
+        var budget = board.AddGoal("Budget").Item!;
+        var sam = board.AddPerson("Sam").Item!;
+        var lee = board.AddPerson("Lee").Item!;
+        var cards = new List<CardViewModel>();
+        foreach (var column in new[] { "To Do", "In Progress" })
+        {
+            for (var i = 0; i < 4; i++)
+            {
+                var first = i % 2 == 0;
+                var card = Add(board, $"{column} {i}", first ? garden : house, column);
+                board.SetCardGoal(card, first ? launch : budget);
+                board.SetCardsWho([card], first ? sam : lee);
+                cards.Add(card);
+            }
+        }
+        board.SetSwimlaneMode(mode);
+        var dispatcher = System.Windows.Threading.Dispatcher.CurrentDispatcher;
+        void Settle() => dispatcher.Invoke(() => { }, System.Windows.Threading.DispatcherPriority.ContextIdle);
+        void ShowAll()
+        {
+            foreach (var column in board.Columns) _ = column.CardsView.Count; // as the board does by showing them
+            foreach (var column in board.Lanes.SelectMany(l => l.Columns)) _ = column.CardsView.Count;
+        }
+        ShowAll();
+        Settle();
+
+        var moving = cards[0]; // To Do, Garden / Launch / Sam
+        var fromLane = board.Lanes.First(l => l.Matches(moving));
+        var toLane = board.Lanes.First(l => l.Title is "House" or "Budget" or "Lee");
+        // As the board does it: lanes all show during the drag, the drag ends, then the queued drop runs.
+        board.SetLaneDragActive(true);
+        ShowAll();
+        board.SetLaneDragActive(false);
+        board.DropOnLane(toLane.Columns.Single(c => c.Name == toColumn), [moving], reorderIndex, fromLane);
+
+        AssertEachLaneShowsItsTasksOnce(board);
+    });
+
+    // The same when the board's sort moves a task whose lane just changed: here a new project puts it first.
+    [Fact]
+    public void ATaskTheSortMovesAfterAChangeOfLane_ShowsThereOnce() => wpf.Run(() =>
+    {
+        var board = OpenBoard();
+        var alpha = board.AddProject("Alpha").Item!;
+        var beta = board.AddProject("Beta").Item!;
+        var zeta = board.AddProject("Zeta").Item!;
+        Add(board, "Plan", beta);
+        Add(board, "Draft", beta);
+        var card = Add(board, "Mow", zeta);
+        board.SetSwimlaneMode(SwimlaneMode.Project);
+        foreach (var column in board.Columns) _ = column.CardsView.Count;
+        foreach (var column in board.Lanes.SelectMany(l => l.Columns)) _ = column.CardsView.Count;
+        System.Windows.Threading.Dispatcher.CurrentDispatcher.Invoke(() => { }, System.Windows.Threading.DispatcherPriority.ContextIdle);
+        Assert.Equal("Mow", board.Columns.Single(c => c.Name == "To Do").Cards[^1].Title);
+
+        board.SetCardsProject([card], alpha);
+
+        Assert.Equal("Mow", board.Columns.Single(c => c.Name == "To Do").Cards[0].Title); // the sort moved it
+        AssertEachLaneShowsItsTasksOnce(board);
+    });
+
+    // Checked when the screen is next drawn (Render), so a task shown twice even for a moment fails too, and again
+    // once everything queued has run.
+    private static void AssertEachLaneShowsItsTasksOnce(MainViewModel board)
+    {
+        AssertEachLaneShowsItsTasksOnceAt(board, System.Windows.Threading.DispatcherPriority.Render);
+        AssertEachLaneShowsItsTasksOnceAt(board, System.Windows.Threading.DispatcherPriority.ContextIdle);
+    }
+
+    private static void AssertEachLaneShowsItsTasksOnceAt(MainViewModel board, System.Windows.Threading.DispatcherPriority priority)
+    {
+        System.Windows.Threading.Dispatcher.CurrentDispatcher.Invoke(() => { }, priority);
+        foreach (var lane in board.Lanes)
+        {
+            foreach (var column in lane.Columns)
+            {
+                var shown = column.CardsView.Cast<CardViewModel>().ToList();
+                var expected = column.Source.Cards.Where(c => c.IsVisible && lane.Matches(c)).ToList();
+                Assert.True(shown.Count == shown.Distinct().Count(), $"At {priority}, {lane.Title} / {column.Name} shows a task twice: {string.Join(", ", shown.Select(c => c.Title))}");
+                Assert.Equal(expected.Select(c => c.Title).Order(), shown.Select(c => c.Title).Order());
+            }
+        }
+    }
 }
