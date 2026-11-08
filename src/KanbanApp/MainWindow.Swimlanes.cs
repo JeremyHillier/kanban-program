@@ -32,8 +32,13 @@ public partial class MainWindow
         if (sender is not FrameworkElement target || DataContext is not MainViewModel viewModel) return;
         var menu = new ContextMenu { PlacementTarget = target, Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom };
 
+        // A menu choice is applied after the menu has closed (AddMenuItem), a moment after the click. A right-click on
+        // the button in that moment must win: it clears the lanes, and a choice still waiting is dropped, or it would
+        // switch the lanes straight back on and the clear would seem not to have worked.
+        var version = _laneChoiceVersion;
+
         void Choice(string header, SwimlaneMode mode) =>
-            AddMenuItem(menu, header, () => viewModel.SetSwimlaneMode(mode), isChecked: viewModel.SwimlaneMode == mode);
+            AddMenuItem(menu, header, () => { if (version == _laneChoiceVersion) viewModel.SetSwimlaneMode(mode); }, isChecked: viewModel.SwimlaneMode == mode);
 
         Choice("No Swimlanes", SwimlaneMode.Off);
         Choice("By Project", SwimlaneMode.Project);
@@ -47,8 +52,11 @@ public partial class MainWindow
 
     // Right-click on the button clears the lanes: back to the plain board. It is done as the button is pressed, and the
     // release is swallowed too, so one click clears them however the click arrives.
+    private int _laneChoiceVersion;
+
     private void Swimlanes_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
     {
+        _laneChoiceVersion++; // drops a menu choice that has been clicked but not yet applied
         if (DataContext is MainViewModel viewModel) viewModel.SetSwimlaneMode(SwimlaneMode.Off);
         e.Handled = true;
     }
