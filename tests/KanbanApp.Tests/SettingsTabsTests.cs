@@ -121,4 +121,21 @@ public sealed class HelpWindowModelessTests(WpfDispatcherFixture wpf) : IDisposa
         }
         Assert.False(KanbanApp.Views.HelpWindow.IsOpen);
     });
+
+    [Fact]
+    public void HelpsCloseButton_ClosesIt() => wpf.Run(() =>
+    {
+        var board = new KanbanApp.ViewModels.MainViewModel(new KanbanApp.Services.DatabaseService(_temp.File("board.db")));
+        try
+        {
+            KanbanApp.Views.HelpWindow.Open(board);
+            var help = KanbanApp.Views.HelpWindow.Current!;
+            help.CloseButton.RaiseEvent(new System.Windows.RoutedEventArgs(System.Windows.Controls.Primitives.ButtonBase.ClickEvent));
+            Assert.False(KanbanApp.Views.HelpWindow.IsOpen);
+        }
+        finally
+        {
+            KanbanApp.Views.HelpWindow.CloseOpen();
+        }
+    });
 }

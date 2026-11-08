@@ -6,6 +6,12 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.165.4 — 2026-11-08
+
+> - Fixed: Help's Close button, and Esc, close the Help window again.
+> - Improved: in swimlanes, each lane's line now runs under its title, the full width of the board.
+> - Improved: Help is up to date. Quick keys now list the Calendar, selecting every task showing, and the keys for the task screen and the Gantt and Calendar views, and a few out-of-date points are corrected.
+
 ## 0.165.3 — 2026-11-07
 
 > - Improved: the Gantt view now starts its weeks on the day chosen in Settings, Monday or Sunday, as the Calendar does.

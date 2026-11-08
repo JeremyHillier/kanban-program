@@ -1396,20 +1396,20 @@
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <StackPanel Margin="0,0,0,10" Visibility="{Binding IsShown, Converter={StaticResource BooleanToVisibilityConverter}}">
-                                    <!-- The lane's name with its arrow, and a rule running across the board, so it reads as a lane. -->
+                                    <!-- The lane's name with its arrow, and a rule under it running the full width of the board, so it reads as a lane. -->
                                     <Grid Margin="0,2,0,8" HorizontalAlignment="Left" Background="Transparent" Cursor="Hand"
                                           Width="{Binding DataContext.LaneRuleWidth, RelativeSource={RelativeSource AncestorType=Window}}"
                                           ToolTip="Click to collapse or expand this lane" MouseLeftButtonUp="LaneHeader_MouseLeftButtonUp">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="Auto"/>
-                                            <ColumnDefinition Width="*"/>
-                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Text="{Binding Glyph}" FontSize="13" Margin="2,0,8,0" VerticalAlignment="Center" Foreground="{DynamicResource PrimaryTextBrush}"/>
                                             <TextBlock Text="{Binding Title}" FontWeight="Bold" FontSize="15" Foreground="{DynamicResource PrimaryTextBrush}"/>
                                             <TextBlock Text="{Binding CountText}" FontSize="11" Margin="10,4,0,0" Foreground="{DynamicResource SecondaryTextBrush}"/>
                                         </StackPanel>
-                                        <Border Grid.Column="1" Height="1" Margin="14,3,0,0" VerticalAlignment="Center" Background="{DynamicResource PanelBorderBrush}"/>
+                                        <Border Grid.Row="1" Height="1" Margin="0,4,0,0" HorizontalAlignment="Stretch" Background="{DynamicResource PanelBorderBrush}"/>
                                     </Grid>
                                     <ItemsControl ItemsSource="{Binding Columns}" ItemTemplate="{StaticResource ColumnTemplate}" MaxHeight="520"
                                                   Visibility="{Binding IsExpanded, Converter={StaticResource BooleanToVisibilityConverter}}">

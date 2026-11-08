@@ -92,8 +92,8 @@
                             <TextBlock Grid.Row="10" Grid.Column="1" Text="Reminders" TextWrapping="Wrap" Margin="0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
                             <TextBlock Grid.Row="11" Text="Alt+S" FontFamily="Consolas" Margin="10,1,0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
                             <TextBlock Grid.Row="11" Grid.Column="1" Text="Settings" TextWrapping="Wrap" Margin="0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
-                            <TextBlock Grid.Row="12" Text="Alt+L" FontFamily="Consolas" Margin="10,1,0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
-                            <TextBlock Grid.Row="12" Grid.Column="1" Text="Gantt" TextWrapping="Wrap" Margin="0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                            <TextBlock Grid.Row="12" Text="Alt+L, Alt+C" FontFamily="Consolas" Margin="10,1,0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                            <TextBlock Grid.Row="12" Grid.Column="1" Text="Gantt, or the Calendar" TextWrapping="Wrap" Margin="0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
                             <TextBlock Grid.Row="13" Text="Alt+H" FontFamily="Consolas" Margin="10,1,0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
                             <TextBlock Grid.Row="13" Grid.Column="1" Text="Help" TextWrapping="Wrap" Margin="0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
                             <TextBlock Grid.Row="14" Text="Alt+B" FontFamily="Consolas" Margin="10,1,0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
@@ -104,8 +104,8 @@
                             <TextBlock Grid.Row="16" Grid.Column="1" Text="Only what is due today or overdue" TextWrapping="Wrap" Margin="0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
                             <TextBlock Grid.Row="17" Text="Alt+0 to Alt+9" FontFamily="Consolas" Margin="10,1,0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
                             <TextBlock Grid.Row="17" Grid.Column="1" Text="Apply a saved custom filter" TextWrapping="Wrap" Margin="0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
-                            <TextBlock Grid.Row="18" Text="Ctrl+click, Shift+click" FontFamily="Consolas" Margin="10,1,0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
-                            <TextBlock Grid.Row="18" Grid.Column="1" Text="Pick cards, or a range of them in one column" TextWrapping="Wrap" Margin="0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                            <TextBlock Grid.Row="18" Text="Ctrl+click, Shift+click, Ctrl+A" FontFamily="Consolas" Margin="10,1,0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                            <TextBlock Grid.Row="18" Grid.Column="1" Text="Pick cards, a range of them in one column, or every card showing" TextWrapping="Wrap" Margin="0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
                             <TextBlock Grid.Row="19" Text="Delete" FontFamily="Consolas" Margin="10,1,0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
                             <TextBlock Grid.Row="19" Grid.Column="1" Text="Delete the picked cards, after asking" TextWrapping="Wrap" Margin="0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
                             <TextBlock Grid.Row="20" Text="Esc" FontFamily="Consolas" Margin="10,1,0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
@@ -130,16 +130,20 @@
                             <TextBlock Grid.Row="5" Text="Ctrl+C" FontFamily="Consolas" Margin="10,1,0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
                             <TextBlock Grid.Row="5" Grid.Column="1" Text="In a message, copy the message" TextWrapping="Wrap" Margin="0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
                         </Grid>
-                        <TextBlock Text="Gantt" FontWeight="SemiBold" Margin="0,6,0,2" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                        <TextBlock Text="Gantt and Calendar" FontWeight="SemiBold" Margin="0,6,0,2" Foreground="{DynamicResource PrimaryTextBrush}"/>
                         <Grid>
                             <Grid.ColumnDefinitions><ColumnDefinition Width="230"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions><RowDefinition/><RowDefinition/></Grid.RowDefinitions>
+                            <Grid.RowDefinitions><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/></Grid.RowDefinitions>
                             <TextBlock Grid.Row="0" Text="Left, Right" FontFamily="Consolas" Margin="10,1,0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
                             <TextBlock Grid.Row="0" Grid.Column="1" Text="Earlier or later" TextWrapping="Wrap" Margin="0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
                             <TextBlock Grid.Row="1" Text="Home" FontFamily="Consolas" Margin="10,1,0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
                             <TextBlock Grid.Row="1" Grid.Column="1" Text="Back to today" TextWrapping="Wrap" Margin="0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                            <TextBlock Grid.Row="2" Text="Ctrl+N" FontFamily="Consolas" Margin="10,1,0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                            <TextBlock Grid.Row="2" Grid.Column="1" Text="New task" TextWrapping="Wrap" Margin="0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                            <TextBlock Grid.Row="3" Text="Ctrl+Z" FontFamily="Consolas" Margin="10,1,0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                            <TextBlock Grid.Row="3" Grid.Column="1" Text="Undo the last change" TextWrapping="Wrap" Margin="0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
                         </Grid>
-                        <TextBlock Text="Lists: priorities, templates, Waiting On answers, custom filters" FontWeight="SemiBold" Margin="0,6,0,2" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                        <TextBlock Text="Lists: priorities, templates, Waiting On answers, custom filters, task files" FontWeight="SemiBold" Margin="0,6,0,2" Foreground="{DynamicResource PrimaryTextBrush}"/>
                         <Grid>
                             <Grid.ColumnDefinitions><ColumnDefinition Width="230"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
                             <Grid.RowDefinitions><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/></Grid.RowDefinitions>
@@ -151,6 +155,19 @@
                             <TextBlock Grid.Row="2" Grid.Column="1" Text="Move a priority up or down the list" TextWrapping="Wrap" Margin="0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
                             <TextBlock Grid.Row="3" Text="Shift+Delete" FontFamily="Consolas" Margin="10,1,0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
                             <TextBlock Grid.Row="3" Grid.Column="1" Text="On a Waiting On suggestion, stop it being suggested" TextWrapping="Wrap" Margin="0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                        </Grid>
+                        <TextBlock Text="Task screen" FontWeight="SemiBold" Margin="0,6,0,2" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="230"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/></Grid.RowDefinitions>
+                            <TextBlock Grid.Row="0" Text="Ctrl+B, Ctrl+I, Ctrl+U" FontFamily="Consolas" Margin="10,1,0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                            <TextBlock Grid.Row="0" Grid.Column="1" Text="In the notes: bold, italic, underline" TextWrapping="Wrap" Margin="0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                            <TextBlock Grid.Row="1" Text="Ctrl+L, Ctrl+E, Ctrl+R" FontFamily="Consolas" Margin="10,1,0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                            <TextBlock Grid.Row="1" Grid.Column="1" Text="In the notes: align left, centre or right" TextWrapping="Wrap" Margin="0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                            <TextBlock Grid.Row="2" Text="Tab, Shift+Tab" FontFamily="Consolas" Margin="10,1,0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                            <TextBlock Grid.Row="2" Grid.Column="1" Text="In a table: the next or previous cell. Tab in the last cell adds a row" TextWrapping="Wrap" Margin="0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                            <TextBlock Grid.Row="3" Text="Ctrl+Z" FontFamily="Consolas" Margin="10,1,0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                            <TextBlock Grid.Row="3" Grid.Column="1" Text="Straight after an auto-correction, put back what you typed" TextWrapping="Wrap" Margin="0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
                         </Grid>
                     </StackPanel>
                 </Border>
@@ -193,8 +210,8 @@
                 <local:BulletItem Text="Programs and scripts (.exe, .bat, .ps1 and the like) are never allowed."/>
                 <local:BulletItem Text="A network path asks first, because opening it tells that computer who you are."/>
                 <local:BulletItem Text="A file path only works on a PC that has the file, so a link sent to someone else may not open."/>
-                <local:BulletItem Text="Links to files, folders or programs are refused, for your safety."/>
                 <local:BulletItem Text="Closing with unsaved changes asks first."/>
+                <local:BulletItem Text="Pick a colour under Colour to colour the card. It shows on the board, the Calendar and the Gantt view."/>
                 <local:BulletItem Text="Spell check accepts Canadian and American spellings."/>
                 <local:BulletItem Text="Right-click a flagged word for suggestions, Ignore All, or Add to Dictionary."/>
                 <local:BulletItem Text="Ignore All lasts only while that box is open. Add to Dictionary is kept for good."/>
@@ -319,7 +336,7 @@
                 <TextBlock x:Name="HelpSection_Swimlanes" Text="Swimlanes" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <local:BulletItem Text="The Swim lanes button, under Compact Cards, draws the board as horizontal lanes. Click it to choose Project, Goal or Assigned To, or Off for the board as it was. Right-click it to clear the lanes."/>
                 <local:BulletItem Text="Each lane has the same columns across it. The last lane holds the tasks with no project, no goal or nobody assigned. Assigned To shows a task in the lane of every person on it, and in the Unassigned lane when it has nobody."/>
-                <local:BulletItem Text="Each lane is a title with a small arrow and a line across the board. Click the title to collapse or expand it, with its task count beside it. Expand All and Collapse All are in the button's menu."/>
+                <local:BulletItem Text="Each lane is a title with a small arrow, and a line under it across the board. Click the title to collapse or expand it, with its task count beside it. Expand All and Collapse All are in the button's menu."/>
                 <local:BulletItem Text="Filters, sorting, colours and everything on a card work as before. The board scrolls down when the lanes do not fit."/>
                 <local:BulletItem Text="A lane with no tasks showing is left out, whether it has none at all or a filter hides them. It comes back when a task is added to it."/>
                 <local:BulletItem Text="While you drag a task every lane shows, empty ones too, so you can drop it on one."/>
@@ -638,6 +655,7 @@
                 <local:BulletItem Text="Ask to add a note when a task reaches Done."/>
                 <local:BulletItem Text="Startup reminders and Task Due Now alerts, on or off."/>
                 <local:BulletItem Text="Remember filters, sort and search between sessions."/>
+                <local:BulletItem Text="Calendar and Gantt: weeks start on Monday or Sunday."/>
                 <local:BulletItem Text="Typing: auto-correct on or off, your own corrections, and your spelling dictionary."/>
                 <local:BulletItem Text="Your Details sign task emails when Outlook has no signature."/>
                 <TextBlock Text="Data and files tab" Style="{StaticResource HelpSubHeaderStyle}"/>
@@ -693,7 +711,6 @@
                 <local:BulletItem Text="A template is a task file saved with only the parts you choose: columns, priorities, projects, goals, people, flags, settings and, if you want, its open tasks."/>
                 <local:BulletItem Text="Manage Task Files, Templates tab: New Template from Open File makes one. Create Task File starts a new file from it."/>
                 <local:BulletItem Text="Edit Name, Update from Open File, Duplicate and Delete look after the templates. They live in the templates folder shown at the foot of the tab, which Change moves."/>
-                <local:BulletItem Text="Switching restarts the app. The file you leave is not changed."/>
 
                 <TextBlock Text="Backups" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <local:BulletItem Text="Closing the app saves a dated copy of the task file. The latest 20 are kept."/>
@@ -704,6 +721,7 @@
 
                 <TextBlock Text="Getting help" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <local:BulletItem Text="The ? button on a screen opens Help at its topic."/>
+                <local:BulletItem Text="Help stays open beside other windows, so you can read it while you work. F1 or a ? button takes it to that topic."/>
                 <local:BulletItem Text="The What's New tab lists the changes in the last five versions."/>
                 <local:BulletItem Text="It opens once after each update. To stop that, untick Show What's New in Settings, General tab."/>
                 <local:BulletItem Text="Report a Problem emails support with the error log attached."/>
@@ -715,6 +733,7 @@
                 <local:BulletItem Text="Once a day, at start-up, the app checks for a newer version."/>
                 <local:BulletItem Text="Get the Update opens the download page. The installer updates in place and keeps your tasks."/>
                 <local:BulletItem Text="If the app is running, Setup offers to close it. It will not close while a task is being edited."/>
+                <local:BulletItem Text="When Setup finishes, its Start box (ticked) opens the app."/>
                 <local:BulletItem Text="Remind Me Later waits a day. Skip This Version skips that version only."/>
                 <local:BulletItem Text="The check sends only the app's name and version. Nothing downloads unless you choose."/>
                 <local:BulletItem Text="To turn it off, untick 'Check for a newer version automatically' in Settings, General tab."/>
@@ -749,7 +768,7 @@
                     ToolTip="Version, ownership, and where this installation keeps its files"
                     Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
             </StackPanel>
-            <Button Content="Close" Width="90" Padding="0,6" HorizontalAlignment="Right" IsCancel="True" IsDefault="True"
+            <Button x:Name="CloseButton" Content="Close" Width="90" Padding="0,6" HorizontalAlignment="Right" IsCancel="True" IsDefault="True" Click="Close_Click"
                     Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}" ToolTip="Close this window. (Esc)"/>
         </Grid>
     </Grid>

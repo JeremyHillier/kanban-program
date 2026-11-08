@@ -40,6 +40,12 @@ public partial class HelpWindow : Window
     // The board is being replaced by another task file's: Help belongs to the old one.
     internal static void CloseOpen() => _current?.Close();
 
+    internal static HelpWindow? Current => _current;
+
+    // Help is shown with Show(), not ShowDialog(): IsCancel on the Close button only closes a dialog, so the
+    // button (and Esc, which presses it) closes the window itself.
+    private void Close_Click(object sender, RoutedEventArgs e) => Close();
+
     // A modal dialog switches off every other window while it is up, Help included. Help is re-enabled once a
     // dialog has loaded, so it can still be read and scrolled beside it.
     internal static void KeepUsable()
