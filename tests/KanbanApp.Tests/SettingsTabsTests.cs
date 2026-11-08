@@ -108,12 +108,14 @@ public sealed class HelpWindowModelessTests(WpfDispatcherFixture wpf) : IDisposa
         try
         {
             KanbanApp.Views.HelpWindow.Open(board, "HelpSection_Settings");
-            Assert.True(KanbanApp.Views.HelpWindow.IsOpen); // Open returned, so it did not wait for the window to close
+            var first = KanbanApp.Views.HelpWindow.Current;
+            Assert.NotNull(first); // Open returned, so it did not wait for the window to close
 
+            // Asking again - What's New, another topic (F1 and every Help button come through Open) - reuses that window.
             KanbanApp.Views.HelpWindow.Open(board, showWhatsNew: true);
-            var windows = System.Windows.Application.Current?.Windows.OfType<KanbanApp.Views.HelpWindow>().ToList() ?? [];
-            Assert.True(windows.Count <= 1);
-            Assert.Null(windows.FirstOrDefault()?.Owner);
+            KanbanApp.Views.HelpWindow.Open(board, "HelpSection_Calendar");
+            Assert.Same(first, KanbanApp.Views.HelpWindow.Current);
+            Assert.Null(first!.Owner);
         }
         finally
         {
