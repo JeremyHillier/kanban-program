@@ -25,7 +25,7 @@ public partial class MainViewModel
     private const char ColumnNameSeparator = ''; // can't be typed into a name
 
     public SettingsSnapshot CaptureSettings() => new(
-        string.Join(ColumnNameSeparator, Columns.Select(c => c.DisplayName)),
+        string.Join(ColumnNameSeparator, Columns.Select(c => $"{c.Id}={c.DisplayName}")),
         IsButtonsOnRight, ColumnWidth, MinFittedColumnWidth,
         AutoBackupEnabled, BackupRetentionCount,
         ShowSplash, SplashDelayMs,
@@ -35,12 +35,36 @@ public partial class MainViewModel
         ShowDueReminders, ShowTimeAlerts, RememberLastView, ShowWhatsNew, QuickAddHotkeyEnabled, CheckForUpdatesEnabled, IsCompactButtons, IsFitColumnsToWindow,
         AutoCorrectEnabled, AutoCorrectEntries, NotifySenderOnDone, CustomDictionaryText, HiddenCardParts, WeekStartsOnSunday);
 
+    // The labels in a snapshot, by column id: a column added or removed since is not in it, and the labels are put
+    // back on the columns they belong to, whatever their place now.
+    private static Dictionary<int, string> ColumnNamesIn(SettingsSnapshot snapshot)
+    {
+        var names = new Dictionary<int, string>();
+        foreach (var pair in snapshot.ColumnDisplayNames.Split(ColumnNameSeparator, StringSplitOptions.RemoveEmptyEntries))
+        {
+            var at = pair.IndexOf('=');
+            if (at > 0 && int.TryParse(pair[..at], out var id)) names[id] = pair[(at + 1)..];
+        }
+        return names;
+    }
+
+    // Adding, moving and removing columns take effect at once and Cancel does not undo them, so a snapshot taken
+    // earlier is brought up to date with the columns there are now (keeping the labels it remembers for the ones
+    // still here), and Cancel then asks only about what it can put back.
+    public SettingsSnapshot WithCurrentColumns(SettingsSnapshot snapshot)
+    {
+        var known = ColumnNamesIn(snapshot);
+        return snapshot with { ColumnDisplayNames = string.Join(ColumnNameSeparator, Columns.Select(c => $"{c.Id}={known.GetValueOrDefault(c.Id, c.DisplayName)}")) };
+    }
+
     // Goes through the same setters the dialog uses, so each value is saved and the board reacts
     // (column width, button side, column headings) exactly as if the user had typed it back.
     public void RestoreSettings(SettingsSnapshot snapshot)
     {
-        var names = snapshot.ColumnDisplayNames.Split(ColumnNameSeparator);
-        for (var i = 0; i < Columns.Count && i < names.Length; i++) RenameColumnDisplayName(Columns[i], names[i]);
+        foreach (var (id, label) in ColumnNamesIn(snapshot))
+        {
+            if (Columns.FirstOrDefault(c => c.Id == id) is { } column) RenameColumnDisplayName(column, label);
+        }
 
         if (IsButtonsOnRight != snapshot.IsButtonsOnRight) ToggleButtonPosition();
         SetColumnWidth(snapshot.ColumnWidth);

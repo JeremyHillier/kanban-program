@@ -57,9 +57,10 @@
                  ScrollViewer.HorizontalScrollBarVisibility="Disabled"/>
         <ScrollViewer x:Name="ContentScrollViewer" Grid.Column="1" VerticalScrollBarVisibility="Auto" Padding="16,0,16,8" ScrollChanged="ContentScrollViewer_ScrollChanged">
             <StackPanel x:Name="ContentPanel" MaxWidth="780" HorizontalAlignment="Left">
-                <local:BulletItem Text="Tasks sit in five columns: To Do, In Progress, On Hold, Waiting and Done. You can rename them."/>
+                <local:BulletItem Text="Tasks sit in columns: To Do, In Progress, On Hold, Waiting and Done. You can rename them, and add more of your own, ten in all."/>
                 <local:BulletItem Text="Drag a card to another column, or use its move buttons."/>
                 <local:BulletItem Text="Each move button shows a letter from its column's name. The tick is always Done."/>
+                <local:BulletItem Text="A column you add has no move button. Drag a card to it, or use Move To on the card's right-click menu."/>
 
                 <TextBlock Text="Quick keys" Style="{StaticResource HelpSectionHeaderStyle}" Margin="0,2,0,4"/>
                 <Border Background="{DynamicResource InputBackgroundBrush}" BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="1" CornerRadius="4" Padding="12,8" Margin="0,0,0,12">
@@ -236,6 +237,7 @@
                 <local:BulletItem Text="A task someone sent you remembers who sent it. Their name and address come from their Settings, General tab, Your Details."/>
                 <local:BulletItem Text="Right-click it, Send Back, or use Send Back on the task screen, to email it to them with its status."/>
                 <local:BulletItem Text="Status is the column: To Do, In Progress, On Hold, Waiting or Done, whatever each person has renamed them."/>
+                <local:BulletItem Text="A column you added goes by its name. A board with no column of that name puts the task in its first column."/>
                 <local:BulletItem Text="Marking a task they sent you Done offers to email them. Settings can switch that off."/>
                 <local:BulletItem Text="With classic Outlook, files are attached and your signature is kept."/>
                 <local:BulletItem Text="With no Outlook signature, one is built from Settings, General tab, Your Details."/>
@@ -636,11 +638,13 @@
                 <local:BulletItem Text="Settings has three tabs: Board, General, and Data and files."/>
                 <local:BulletItem Text="Changes show as you make them. Save &amp; Close keeps them."/>
                 <local:BulletItem Text="Cancel puts every setting back, after asking."/>
-                <local:BulletItem Text="Backups and task file changes happen straight away. Cancel does not undo them."/>
+                <local:BulletItem Text="Backups, task file changes, and adding, moving or removing columns happen straight away. Cancel does not undo them."/>
                 <TextBlock Text="Board tab" Style="{StaticResource HelpSubHeaderStyle}"/>
                 <local:BulletItem Text="Move the button panel to the right, or use Compact buttons on a small screen."/>
                 <local:BulletItem Text="Fit the columns to the window, or set a fixed width of at least 240 pixels."/>
                 <local:BulletItem Text="Rename any column. The last column still works as Done."/>
+                <local:BulletItem Text="Add Column makes a column of your own, ten in all. It sits before Done."/>
+                <local:BulletItem Text="Use the arrows to move a column you added, or the cross to remove it. Its tasks go to the first column."/>
                 <local:BulletItem Text="The letters on each card's move buttons follow the column names."/>
                 <local:BulletItem Text="Use GTD Names sets Inbox, Next Actions, In Progress, Waiting and Done."/>
                 <local:BulletItem Text="Use Standard Names puts the original names back."/>

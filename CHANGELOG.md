@@ -6,6 +6,13 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.165.7 — 2026-11-08
+
+> - New: add columns of your own, ten in all counting the five that come with the board. In Settings, on the Board tab, type a name and choose Add Column.
+> - An added column sits before Done. Move it with the arrows or remove it with the cross; its tasks go to the first column.
+> - Tasks can be dragged to an added column or put there with Move To, the task screen, Mass Update, swim lanes and reports. Added columns have no move button on the cards.
+> - The colours of the standard columns now stay the same however many columns are added.
+
 ## 0.165.6 — 2026-11-08
 
 > - Fixed: right-clicking the Swim lanes button straight after choosing a grouping now clears the lanes with one click. Before, the choice could land after the click and put the lanes back.

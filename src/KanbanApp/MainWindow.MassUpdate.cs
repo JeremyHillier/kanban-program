@@ -51,7 +51,7 @@ public partial class MainWindow
                 $"Copy {cards.Count} task{(cards.Count == 1 ? "" : "s")} to \"{file.DisplayName}\"?\n\nThe originals stay here. Projects, goals, people and flags are matched by name there, and added if missing. Attachments and links to other tasks are not copied.", "Copy") with { Detail = file.Path })) return;
         try
         {
-            var count = TaskCopyService.Copy(cards.Select(c => (c, viewModel.ColumnOf(c)?.Name ?? "To Do")), file.Path);
+            var count = TaskCopyService.Copy(cards.Select(c => (c, viewModel.ColumnOf(c) is { } column ? (column.IsCustom ? column.DisplayName : column.Name) : "To Do")), file.Path);
             ShowStatusMessage($"{count} task{(count == 1 ? "" : "s")} copied to {file.DisplayName}");
         }
         catch (Exception ex)

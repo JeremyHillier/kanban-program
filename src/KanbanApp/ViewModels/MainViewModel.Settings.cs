@@ -530,6 +530,12 @@ public partial class MainViewModel
         new SolidColorBrush(Color.FromRgb(0xFF, 0xE0, 0xB2)), // On Hold - orange
         new SolidColorBrush(Color.FromRgb(0xE1, 0xD5, 0xF5)), // Waiting - purple
         new SolidColorBrush(Color.FromRgb(0xD4, 0xED, 0xDA)), // Done - green
+        // The columns the user adds, in the order they sit on the board
+        new SolidColorBrush(Color.FromRgb(0xD3, 0xEF, 0xEC)), // teal
+        new SolidColorBrush(Color.FromRgb(0xF8, 0xDA, 0xE5)), // rose
+        new SolidColorBrush(Color.FromRgb(0xEC, 0xF0, 0xC2)), // lime
+        new SolidColorBrush(Color.FromRgb(0xEB, 0xE2, 0xDA)), // sand
+        new SolidColorBrush(Color.FromRgb(0xD6, 0xE8, 0xF7)), // sky
     ];
 
     private static readonly Brush[] ColumnPaletteDark =
@@ -539,6 +545,11 @@ public partial class MainViewModel
         new SolidColorBrush(Color.FromRgb(0x4D, 0x34, 0x19)), // On Hold - orange
         new SolidColorBrush(Color.FromRgb(0x3B, 0x2F, 0x4D)), // Waiting - purple
         new SolidColorBrush(Color.FromRgb(0x20, 0x40, 0x30)), // Done - green
+        new SolidColorBrush(Color.FromRgb(0x1F, 0x40, 0x3D)), // teal
+        new SolidColorBrush(Color.FromRgb(0x4D, 0x2A, 0x38)), // rose
+        new SolidColorBrush(Color.FromRgb(0x3F, 0x48, 0x20)), // lime
+        new SolidColorBrush(Color.FromRgb(0x45, 0x39, 0x2F)), // sand
+        new SolidColorBrush(Color.FromRgb(0x1F, 0x3A, 0x52)), // sky
     ];
 
     public void ToggleButtonPosition()
@@ -558,10 +569,15 @@ public partial class MainViewModel
 
     private void ApplyColumnPalette()
     {
+        // By role, not by place, so Done stays green however many columns come before it. A column the user added
+        // takes the next of the spare colours, in the order they sit on the board.
         var palette = IsDarkMode ? ColumnPaletteDark : ColumnPaletteLight;
-        for (var i = 0; i < Columns.Count; i++)
+        var roles = KanbanApp.Models.KanbanColumn.RoleNames.Length;
+        var added = 0;
+        foreach (var column in Columns)
         {
-            Columns[i].Background = palette[i % palette.Length];
+            var role = Array.IndexOf(KanbanApp.Models.KanbanColumn.RoleNames, column.Name);
+            column.Background = role >= 0 ? palette[role] : palette[roles + added++ % (palette.Length - roles)];
         }
     }
 

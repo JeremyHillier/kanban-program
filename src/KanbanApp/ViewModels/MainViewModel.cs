@@ -191,15 +191,14 @@ public partial class MainViewModel : ObservableObject
         for (var i = 0; i < columns.Count; i++)
         {
             var column = columns[i];
-            var palette = IsDarkMode ? ColumnPaletteDark : ColumnPaletteLight;
-            var background = palette[i % palette.Length];
-            var columnVm = new ColumnViewModel(column, background);
+            var columnVm = new ColumnViewModel(column, System.Windows.Media.Brushes.Transparent); // coloured below, by role
             foreach (var card in cards.Where(c => c.ColumnId == column.Id))
             {
                 columnVm.Cards.Add(BuildCardViewModel(card));
             }
             Columns.Add(columnVm);
         }
+        ApplyColumnPalette();
         NotifyColumnWidthChanged(); // it divides the board by the number of columns
         RefreshColumnLetters();
         LoadLinks();

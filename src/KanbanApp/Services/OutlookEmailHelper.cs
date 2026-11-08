@@ -386,8 +386,10 @@ public static partial class OutlookEmailHelper
     {
         Title = card.Title,
         // The column's own name (To Do, In Progress, On Hold, Waiting, Done), the same on every board
-        // whatever it has been renamed to, so a task returned from another PC lands in the right column.
-        Category = viewModel.Columns.FirstOrDefault(c => c.Id == card.ColumnId)?.Name,
+        // whatever it has been renamed to, so a task returned from another PC lands in the right column. A column
+        // the user added has no name that means anything elsewhere, so it goes by its label: a board with a column
+        // called that puts the task there, and any other puts it in its first column.
+        Category = viewModel.Columns.FirstOrDefault(c => c.Id == card.ColumnId) is { } column ? (column.IsCustom ? column.DisplayName : column.Name) : null,
         Priority = card.Priority,
         Project = card.ProjectName,
         Goal = HasGoal(card) ? card.GoalName : null,

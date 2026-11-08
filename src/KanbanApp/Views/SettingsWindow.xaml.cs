@@ -27,30 +27,7 @@ public partial class SettingsWindow : Window
         RestoreSize();
         Closing += (_, _) => SaveSize();
 
-        foreach (var column in viewModel.Columns)
-        {
-            var row = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 0, 0, 8) };
-            row.Children.Add(new TextBlock
-            {
-                Text = column.Name,
-                Width = 100,
-                VerticalAlignment = VerticalAlignment.Center,
-                Foreground = (System.Windows.Media.Brush)FindResource("SecondaryTextBrush")
-            });
-            var textBox = new TextBox
-            {
-                Text = column.DisplayName,
-                Width = 220,
-                Padding = new Thickness(6),
-                Tag = column,
-                Background = (System.Windows.Media.Brush)FindResource("InputBackgroundBrush"),
-                Foreground = (System.Windows.Media.Brush)FindResource("PrimaryTextBrush"),
-                BorderBrush = (System.Windows.Media.Brush)FindResource("CardBorderBrush")
-            };
-            textBox.LostFocus += ColumnDisplayNameTextBox_LostFocus;
-            row.Children.Add(textBox);
-            ColumnNamesPanel.Children.Add(row);
-        }
+        BuildColumnRows();
 
         RefreshPrioritiesSummary();
         ButtonsOnRightCheckBox.IsChecked = viewModel.IsButtonsOnRight;
@@ -114,7 +91,7 @@ public partial class SettingsWindow : Window
     // works by putting back the snapshot taken when the dialog opened - see
     // MainViewModel.RestoreSettings for what that covers. Asks first if anything actually changed,
     // the same as the task dialog does.
-    private readonly MainViewModel.SettingsSnapshot _openingSettings;
+    private MainViewModel.SettingsSnapshot _openingSettings;
     private bool _saved;
     private bool _restarting; // the app is shutting down to reopen on another file: nothing to ask
 
@@ -205,12 +182,120 @@ public partial class SettingsWindow : Window
     private void RefreshPrioritiesSummary() =>
         PrioritiesSummaryText.Text = $"Highest first: {string.Join(", ", _viewModel.Priorities.Names)}. New tasks start at {_viewModel.Priorities.Default}.";
 
+    // One row per column: its own name, a box for its label and, for a column that was added, buttons to move or
+    // remove it.
+    private void BuildColumnRows()
+    {
+        ColumnNamesPanel.Children.Clear();
+        foreach (var column in _viewModel.Columns)
+        {
+            var row = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 0, 0, 8) };
+            row.Children.Add(new TextBlock
+            {
+                Text = column.IsCustom ? "Added" : column.Name,
+                Width = 100,
+                VerticalAlignment = VerticalAlignment.Center,
+                Foreground = (System.Windows.Media.Brush)FindResource("SecondaryTextBrush")
+            });
+            var textBox = new TextBox
+            {
+                Text = column.DisplayName,
+                Width = 220,
+                Padding = new Thickness(6),
+                Tag = column,
+                Background = (System.Windows.Media.Brush)FindResource("InputBackgroundBrush"),
+                Foreground = (System.Windows.Media.Brush)FindResource("PrimaryTextBrush"),
+                BorderBrush = (System.Windows.Media.Brush)FindResource("CardBorderBrush")
+            };
+            textBox.LostFocus += ColumnDisplayNameTextBox_LostFocus;
+            row.Children.Add(textBox);
+
+            if (column.IsCustom)
+            {
+                row.Children.Add(ColumnButton("\u25B2", "Move this column left", _viewModel.CanMoveColumn(column, -1), () => _viewModel.MoveColumn(column, -1), 6));
+                row.Children.Add(ColumnButton("\u25BC", "Move this column right", _viewModel.CanMoveColumn(column, 1), () => _viewModel.MoveColumn(column, 1), 4));
+                row.Children.Add(ColumnButton("\u2715", "Remove this column", true, () => RemoveColumn(column), 4));
+            }
+            ColumnNamesPanel.Children.Add(row);
+        }
+
+        var room = MainViewModel.MaxColumns - _viewModel.Columns.Count;
+        NewColumnTextBox.IsEnabled = AddColumnButton.IsEnabled = room > 0;
+        ColumnLimitHint.Text = room > 0
+            ? $"You can add {room} more column{(room == 1 ? "" : "s")}, {MainViewModel.MaxColumns} in all."
+            : $"The board has {MainViewModel.MaxColumns} columns, the most it can have. Remove one to add another.";
+    }
+
+    private Button ColumnButton(string symbol, string toolTip, bool enabled, Action action, double leftMargin)
+    {
+        var button = new Button
+        {
+            Content = symbol,
+            ToolTip = toolTip,
+            IsEnabled = enabled,
+            Width = 28,
+            Margin = new Thickness(leftMargin, 0, 0, 0),
+            Background = (System.Windows.Media.Brush)FindResource("ButtonBackgroundBrush"),
+            Foreground = (System.Windows.Media.Brush)FindResource("PrimaryTextBrush")
+        };
+        button.Click += (_, _) => { action(); AfterColumnsChanged(); };
+        return button;
+    }
+
+    // Adding, moving and removing a column happen at once and Cancel does not undo them, so what Cancel compares
+    // with and puts back is brought up to date with the columns there now.
+    private void AfterColumnsChanged()
+    {
+        _openingSettings = _viewModel.WithCurrentColumns(_openingSettings);
+        BuildColumnRows();
+    }
+
+    private void AddColumn_Click(object sender, RoutedEventArgs e)
+    {
+        if (_viewModel.AddColumn(NewColumnTextBox.Text) is { } problem)
+        {
+            Dialogs.Tell(this, "Add a Column", problem);
+            return;
+        }
+
+        NewColumnTextBox.Clear();
+        AfterColumnsChanged();
+    }
+
+    private void NewColumnTextBox_KeyDown(object sender, KeyEventArgs e)
+    {
+        if (e.Key != Key.Enter) return;
+        AddColumn_Click(sender, e);
+        e.Handled = true;
+    }
+
+    private void RemoveColumn(ColumnViewModel column)
+    {
+        var count = _viewModel.TasksInColumn(column);
+        var text = $"Remove the column \"{column.DisplayName}\"?";
+        if (count > 0) text += $"\n\n{count} task{(count == 1 ? " is" : "s are")} in it (archived and deleted ones too). {(count == 1 ? "It" : "They")} will move to {_viewModel.ToDoColumn?.DisplayName ?? "the first column"}.";
+        text += "\n\nThis can't be undone, and Cancel in Settings won't bring it back.";
+        if (!Dialogs.Confirm(this, DialogMessage.AskDanger("Remove Column", text, "Remove"))) return;
+
+        _viewModel.RemoveColumn(column);
+    }
+
     private void ColumnDisplayNameTextBox_LostFocus(object sender, RoutedEventArgs e)
     {
         if (sender is not TextBox { Tag: ColumnViewModel column } textBox) return;
 
         if (string.IsNullOrWhiteSpace(textBox.Text))
         {
+            textBox.Text = column.DisplayName;
+            return;
+        }
+
+        // Two columns with one label are hard to tell apart (and a file names a column added by its label), so a
+        // column that was added can't share one. The standard five can be swapped round freely, as before.
+        var typed = textBox.Text.Trim();
+        if (_viewModel.Columns.FirstOrDefault(c => c != column && (c.IsCustom || column.IsCustom) && string.Equals(c.DisplayName, typed, StringComparison.CurrentCultureIgnoreCase)) is { } clash)
+        {
+            Dialogs.Tell(this, "Rename Column", $"There is already a column called \"{clash.DisplayName}\".");
             textBox.Text = column.DisplayName;
             return;
         }

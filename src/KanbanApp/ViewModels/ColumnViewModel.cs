@@ -18,6 +18,9 @@ public class ColumnViewModel(KanbanColumn model, Brush background) : ObservableO
 
     public int Id => Model.Id;
 
+    // One of the columns the user added, rather than one of the five standard ones.
+    public bool IsCustom => Model.IsCustom;
+
     public string Name
     {
         get => Model.Name;

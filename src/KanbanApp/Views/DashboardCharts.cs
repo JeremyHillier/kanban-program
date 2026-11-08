@@ -30,8 +30,19 @@ internal sealed class DashboardPalette(bool dark)
         "On Hold" => dark ? B(0xd55181) : B(0xe87ba4),
         "Waiting" => dark ? B(0x9085e9) : B(0x4a3aa7),
         "Done" => B(0x008300),
-        _ => Neutral
+        _ => AddedColumn(columnName)
     };
+
+    // A column the user added is "Custom <id>": one of five spare colours by that number.
+    private static readonly uint[] AddedLight = [0x0e9594, 0x8d6e63, 0x7a8f00, 0xd9432f, 0x607d8b];
+    private static readonly uint[] AddedDark = [0x2bb5b3, 0xb08a7c, 0xa4bb1a, 0xef6a57, 0x8fa9b8];
+
+    private Brush AddedColumn(string columnName)
+    {
+        const string prefix = "Custom ";
+        if (!columnName.StartsWith(prefix, StringComparison.Ordinal) || !int.TryParse(columnName.AsSpan(prefix.Length), out var id)) return Neutral;
+        return B((dark ? AddedDark : AddedLight)[Math.Abs(id) % AddedLight.Length]);
+    }
 
     // By the priority's colour on the task file's list (PriorityColors holds each one's light and
     // dark chart colour), not by its name - the user can rename, recolour and add priorities.

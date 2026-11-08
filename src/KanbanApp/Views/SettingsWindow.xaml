@@ -73,10 +73,20 @@
                            Foreground="{DynamicResource SecondaryTextBrush}"/>
 
                 <TextBlock Text="Columns" Style="{StaticResource SectionHeaderStyle}"/>
-                <TextBlock Text="Rename any column's label. Its role on the board (e.g. what counts as &quot;done&quot;) doesn't change, and the letters on each card's move buttons follow the names."
+                <TextBlock Text="Rename any column's label. Its role on the board (e.g. what counts as &quot;done&quot;) doesn't change, and the letters on each card's move buttons follow the names. Add columns of your own below, up to ten in all: they sit before Done and have no move button on the cards."
                            FontSize="11" Margin="0,0,0,8" TextWrapping="Wrap"
                            Foreground="{DynamicResource SecondaryTextBrush}"/>
                 <StackPanel x:Name="ColumnNamesPanel" Margin="0,0,0,8"/>
+                <StackPanel Orientation="Horizontal" Margin="100,0,0,4">
+                    <TextBox x:Name="NewColumnTextBox" Width="220" Padding="6" MaxLength="40" KeyDown="NewColumnTextBox_KeyDown"
+                             ToolTip="The name of a new column. It is added just before Done."
+                             Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}" BorderBrush="{DynamicResource CardBorderBrush}"/>
+                    <Button x:Name="AddColumnButton" Content="Add Column" Padding="10,6" Margin="8,0,0,0" Click="AddColumn_Click"
+                            ToolTip="Add a column of your own, just before Done"
+                            Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                </StackPanel>
+                <TextBlock x:Name="ColumnLimitHint" FontSize="11" Margin="100,0,0,12" TextWrapping="Wrap"
+                           Foreground="{DynamicResource SecondaryTextBrush}"/>
                 <StackPanel Orientation="Horizontal" Margin="0,0,0,20">
                     <Button Content="Use GTD Names" Padding="10,6" Margin="0,0,8,0" Click="UseGtdNames_Click"
                             ToolTip="Getting Things Done names: Inbox, Next Actions, In Progress, Waiting, Done"
