@@ -25,17 +25,22 @@ public partial class CalendarWindow
     // The weeks Month view has drawn, and the first day of week they were drawn with.
     private DateTime _monthStart, _monthEnd;
     private DayOfWeek _monthFirstDay;
-    private bool _rebuilding;
+    // Redraws and scrolls the window makes itself, still settling: the scroll events they cause are not the user's, so
+    // they must not add weeks (that ran Month view back through the months on its own after a switch from Week view).
+    private int _quiet;
+    private CalendarScale? _lastBuiltMode;
 
     private bool MonthRangeCovers(DateTime date) =>
         _monthStart != default && _monthFirstDay == FirstDay && date >= _monthStart.AddDays(14) && date < _monthEnd.AddDays(-35);
 
-    private void BuildGrid()
+    // scrollTo: where Month view should be scrolled to once drawn; otherwise a Month redraw stays where it was.
+    private void BuildGrid(double? scrollTo = null)
     {
         var mode = Mode;
         DateTime start, end;
         var offset = BodyScroll.VerticalOffset;
-        var keepOffset = mode == CalendarScale.Month && _monthStart != default && _monthFirstDay == FirstDay;
+        // Only a Month redraw keeps its place: coming from Week or Day, their scroll position means nothing here.
+        var keepOffset = mode == CalendarScale.Month && _lastBuiltMode == CalendarScale.Month && _monthStart != default && _monthFirstDay == FirstDay;
         if (mode == CalendarScale.Month)
         {
             if (!MonthRangeCovers(_anchor))
@@ -51,7 +56,8 @@ public partial class CalendarWindow
             (start, end) = CalendarLayout.Range(mode, _anchor, FirstDay);
         }
 
-        _rebuilding = true;
+        _quiet++;
+        _lastBuiltMode = mode;
         UndoButton.IsEnabled = _viewModel.CanUndo;
         UndoButton.ToolTip = _viewModel.CanUndo ? _viewModel.UndoToolTip : "Nothing to undo";
         FiltersButton.Content = _filter.IsEmpty ? "Filters..." : $"Filters ({_filter.Count})...";
@@ -112,8 +118,12 @@ public partial class CalendarWindow
         SidebarColumn.Width = NoDueCheckBox.IsChecked == true ? GridLength.Auto : new GridLength(0);
 
         // A redraw after an edit keeps Month view where it was scrolled to.
-        if (keepOffset) Dispatcher.BeginInvoke(() => { BodyScroll.ScrollToVerticalOffset(offset); _rebuilding = false; }, DispatcherPriority.Loaded);
-        else Dispatcher.BeginInvoke(() => _rebuilding = false, DispatcherPriority.Loaded);
+        var target = mode == CalendarScale.Month ? scrollTo ?? (keepOffset ? offset : null) : null;
+        Dispatcher.BeginInvoke(() =>
+        {
+            if (target is { } y) BodyScroll.ScrollToVerticalOffset(y);
+            EndQuietWhenSettled();
+        }, DispatcherPriority.Loaded);
         UpdateLabels();
     }
 
@@ -138,13 +148,21 @@ public partial class CalendarWindow
     private void ScrollMonthTo(DateTime date)
     {
         var row = MonthRowOf(date);
-        Dispatcher.BeginInvoke(() => BodyScroll.ScrollToVerticalOffset(row * MonthRowHeight), DispatcherPriority.Loaded);
+        _quiet++;
+        Dispatcher.BeginInvoke(() =>
+        {
+            BodyScroll.ScrollToVerticalOffset(row * MonthRowHeight);
+            EndQuietWhenSettled();
+        }, DispatcherPriority.Loaded);
     }
+
+    // ContextIdle comes after the layout pass that applies a scroll, and so after the scroll events it raises.
+    private void EndQuietWhenSettled() => Dispatcher.BeginInvoke(() => _quiet = Math.Max(0, _quiet - 1), DispatcherPriority.ContextIdle);
 
     // As Month view is scrolled the title follows the month at the top, and more weeks are added before reaching either end.
     private void BodyScroll_ScrollChanged(object sender, ScrollChangedEventArgs e)
     {
-        if (Mode != CalendarScale.Month || _monthStart == default || _rebuilding) return;
+        if (Mode != CalendarScale.Month || _monthStart == default || _quiet > 0) return;
 
         var topRow = (int)(BodyScroll.VerticalOffset / MonthRowHeight + 0.5);
         var topDate = _monthStart.AddDays(topRow * 7 + 3); // the middle of the week names its month
@@ -156,9 +174,7 @@ public partial class CalendarWindow
             var oldStart = _monthStart;
             _monthStart = CalendarLayout.WeekStartOf(new DateTime(oldStart.AddDays(6).Year, oldStart.AddDays(6).Month, 1).AddMonths(-MonthsAddedAtATime), FirstDay);
             var addedRows = (oldStart - _monthStart).Days / 7;
-            var offset = BodyScroll.VerticalOffset + addedRows * MonthRowHeight;
-            BuildGrid();
-            Dispatcher.BeginInvoke(() => BodyScroll.ScrollToVerticalOffset(offset), DispatcherPriority.Loaded);
+            BuildGrid(BodyScroll.VerticalOffset + addedRows * MonthRowHeight); // the same weeks stay in view
         }
         else if (e.VerticalChange > 0 && BodyScroll.VerticalOffset + BodyScroll.ViewportHeight > BodyScroll.ExtentHeight - MonthRowHeight * 2)
         {

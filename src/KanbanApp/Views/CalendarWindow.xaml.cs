@@ -171,7 +171,7 @@ public partial class CalendarWindow : Window
             dialog.SaveTo(_viewModel, card);
             if (dialog.MarkDoneRequested && Owner is MainWindow board)
             {
-                board.MarkDoneFromElsewhere(card, _viewModel, BuildGrid);
+                board.MarkDoneFromElsewhere(card, _viewModel, () => BuildGrid());
                 return;
             }
         }
@@ -181,6 +181,6 @@ public partial class CalendarWindow : Window
     // The board's right-click menu for the task, then a redraw for whatever it changed.
     private void ShowCardMenu(FrameworkElement target, CardViewModel card)
     {
-        if (Owner is MainWindow board) board.ShowCardMenu(target, card, _viewModel, () => OpenCardForEdit(card), BuildGrid);
+        if (Owner is MainWindow board) board.ShowCardMenu(target, card, _viewModel, () => OpenCardForEdit(card), () => BuildGrid());
     }
 }
