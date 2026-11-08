@@ -16,6 +16,7 @@
         <conv:StringEqualsConverter x:Key="StringEqualsConverter"/>
         <conv:GreaterThanZeroToVisibilityConverter x:Key="GreaterThanZeroToVisibilityConverter"/>
         <conv:ViewportWidthToCardWidthConverter x:Key="ViewportWidthToCardWidthConverter"/>
+        <conv:SubtractConverter x:Key="SubtractConverter"/>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
 
         <!-- Project/Priority/Who filter lists: each ListBoxItem's IsSelected binds TwoWay to the
@@ -977,7 +978,7 @@
                             </Button.Template>
                         </Button>
                         <!-- Which task file is open; click for the others and Manage Task Files (MainWindow.TaskFiles.cs). -->
-                        <Button Click="TaskFile_Click" Margin="0,0,0,8" Padding="8,4" HorizontalContentAlignment="Stretch" Cursor="Hand" IsTabStop="False"
+                        <Button Click="TaskFile_Click" Margin="0,0,0,8" HorizontalAlignment="Center" Width="{Binding ActualWidth, ElementName=TopButtonRow, Converter={StaticResource SubtractConverter}, ConverterParameter=4}" Padding="8,4" HorizontalContentAlignment="Stretch" Cursor="Hand" IsTabStop="False"
                                 Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}" BorderBrush="{DynamicResource CardBorderBrush}"
                                 ToolTip="{Binding CurrentDbPath}" AutomationProperties.Name="Task file">
                             <DockPanel>
@@ -987,7 +988,7 @@
                             </DockPanel>
                         </Button>
                         <StackPanel>
-                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                            <StackPanel x:Name="TopButtonRow" Orientation="Horizontal" HorizontalAlignment="Center">
                                 <Button Style="{StaticResource SortButtonProject}" Background="#FF3E8DD1" Foreground="White" Click="SortByProject_Click"
                                         ToolTip="Click to sort by project alone. Ctrl+click to add or remove project as a sort key alongside others.">
                                     <Grid>
@@ -1092,6 +1093,9 @@
                             </Button>
                         </StackPanel>
 
+                        <!-- From down to Clear Filters / Custom Filters is as wide as the top row of buttons (the task file box above
+                             matches it too), not the whole panel. -->
+                        <StackPanel HorizontalAlignment="Center" Width="{Binding ActualWidth, ElementName=TopButtonRow, Converter={StaticResource SubtractConverter}, ConverterParameter=4}">
                         <!-- Side by side normally. With Compact buttons the column is too narrow for two full
                              dates in one row (they were cut off at "12/28/20"), so From and To stack instead,
                              their labels widening to line up with Goal / Flag / Keyword below. -->
@@ -1278,6 +1282,8 @@
                                 <TextBlock Text="Custom Filters..." TextWrapping="Wrap" TextAlignment="Center"/>
                             </Button>
                         </Grid>
+
+                        </StackPanel>
 
                         <Separator Margin="0,12,0,0"/>
 

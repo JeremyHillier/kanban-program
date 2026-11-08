@@ -12,6 +12,7 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > - An added column sits before Done. Move it with the arrows or remove it with the cross; its tasks go to the first column.
 > - Tasks can be dragged to an added column or put there with Move To, the task screen, Mass Update, swim lanes and reports. Added columns have no move button on the cards.
 > - The colours of the standard columns now stay the same however many columns are added.
+> - In the button column, the task file box and the filters from From down to Clear Filters are now the same width as the top row of buttons.
 
 ## 0.165.6 — 2026-11-08
 
