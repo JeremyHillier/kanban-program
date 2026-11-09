@@ -23,14 +23,13 @@ public partial class MainViewModel
         var cards = Columns.SelectMany(c => c.Cards).ToList();
         if (_links.Count == 0 && cards.All(c => c.RelatedCount == 0)) return;
 
-        var byId = cards.ToDictionary(c => c.Id);
+        var onBoard = cards.Select(c => c.Id).ToHashSet();
         var doneIds = DoneColumn?.Cards.Select(c => c.Id).ToHashSet() ?? [];
+        var counts = CardLinkRules.CountsByTask(_links, onBoard, doneIds);
         foreach (var card in cards)
         {
-            var mine = _links.Where(l => CardLinkRules.Involves(l, card.Id)).ToList();
-            var waitingOn = mine.Count(l => l.Kind == LinkKind.DependsOn && l.FromId == card.Id && byId.ContainsKey(l.ToId) && !doneIds.Contains(l.ToId));
-            var blocking = mine.Count(l => l.Kind == LinkKind.DependsOn && l.ToId == card.Id && byId.ContainsKey(l.FromId) && !doneIds.Contains(l.FromId));
-            card.SetLinkInfo(mine.Count, waitingOn, blocking);
+            var c = counts.GetValueOrDefault(card.Id);
+            card.SetLinkInfo(c.Related, c.WaitingOn, c.Blocking);
         }
     }
 

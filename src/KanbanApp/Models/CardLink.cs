@@ -8,6 +8,9 @@ public enum LinkKind { Related, DependsOn, ParentOf }
 
 public sealed record CardLink(int FromId, int ToId, LinkKind Kind);
 
+// A task's link counts: all its links, the open tasks it waits on, and the open tasks waiting on it.
+public readonly record struct LinkCounts(int Related, int WaitingOn, int Blocking);
+
 // A relation as one task's task screen shows and picks it: this task ... the other.
 public enum RelationType { RelatedTo, DependsOn, Blocks, ChildOf, ParentOf }
 
@@ -73,6 +76,30 @@ public static class CardLinkRules
     }
 
     public static bool Involves(CardLink link, int cardId) => link.FromId == cardId || link.ToId == cardId;
+
+    // For every task with links: how many it has, how many of the tasks it depends on are still open (on the board and
+    // not done), and how many open tasks depend on it. One pass over the links, each counting for both its tasks - a
+    // pass over every link for each task made each change slow on a large board with many links.
+    public static Dictionary<int, LinkCounts> CountsByTask(IEnumerable<CardLink> links, IReadOnlySet<int> onBoard, IReadOnlySet<int> done)
+    {
+        var counts = new Dictionary<int, LinkCounts>();
+        void Add(int id, int related, int waitingOn, int blocking)
+        {
+            var c = counts.GetValueOrDefault(id);
+            counts[id] = new LinkCounts(c.Related + related, c.WaitingOn + waitingOn, c.Blocking + blocking);
+        }
+        bool IsOpen(int id) => onBoard.Contains(id) && !done.Contains(id);
+
+        foreach (var link in links)
+        {
+            Add(link.FromId, 1, 0, 0);
+            if (link.ToId != link.FromId) Add(link.ToId, 1, 0, 0); // a link to itself is still one link
+            if (link.Kind != LinkKind.DependsOn) continue;
+            if (IsOpen(link.ToId)) Add(link.FromId, 0, 1, 0);
+            if (IsOpen(link.FromId)) Add(link.ToId, 0, 0, 1);
+        }
+        return counts;
+    }
 
     // Null when the link may be added to the existing ones; otherwise why not, in words for the user.
     public static string? Validate(IReadOnlyCollection<CardLink> existing, CardLink link)
