@@ -6,6 +6,10 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.165.8 — 2026-11-09
+
+> - Fixed: in Manage Task Files, Edit Name now keeps the new name and description the first time you use it. Before, the change could be lost until another change had been made in the window.
+
 ## 0.165.7 — 2026-11-08
 
 > - New: add columns of your own, ten in all counting the five that come with the board. In Settings, on the Board tab, type a name and choose Add Column.

@@ -14,7 +14,6 @@ public partial class TaskFilesWindow
 
     private void RefreshTemplates(string? select = null)
     {
-        _config = AppConfig.Load();
         var templates = TaskFileTemplates.List(TemplatesFolder);
         TemplateList.ItemsSource = templates;
         TemplateList.SelectedItem = select is null ? null : templates.FirstOrDefault(t => AppConfig.ArePathsEqual(t.Path, select));
