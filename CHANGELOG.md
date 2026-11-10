@@ -6,6 +6,14 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.166.0 — 2026-11-10
+
+> - New: every task now keeps a history of its changes, including what changed, when, and on which computer.
+> - New: open a task and hover over the History line to see everything that has happened to it, newest first.
+> - Improved: when a task's notes change, the history keeps the start of the earlier wording.
+
+- Developer detail: each save writes one `Edited` row of field changes in `CardHistory` (new `Computer` column, file format 18, not stamped); flags, people and sub-tasks log from their own writes.
+
 ## 0.165.9 — 2026-11-09
 
 > - Faster: on a large board with related tasks, each change to a task (editing, moving, adding, linking) now takes a fraction of the time it did.

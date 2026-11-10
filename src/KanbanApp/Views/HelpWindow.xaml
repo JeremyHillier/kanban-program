@@ -224,6 +224,14 @@
                 <local:BulletItem Text="Settings turns it off and takes your own corrections, one per line, like kbp = Kanban Program."/>
                 <local:BulletItem Text="A slip at the very end of the box is fixed when you click away or save."/>
 
+                <TextBlock Text="Task history" Style="{StaticResource HelpSectionHeaderStyle}"/>
+                <local:BulletItem Text="Every task remembers what changed on it, when, and on which PC."/>
+                <local:BulletItem Text="Open a task: the History line under Last updated shows the latest change."/>
+                <local:BulletItem Text="Hover over that line to see the whole history, newest first."/>
+                <local:BulletItem Text="Changes read like Due date Nov 3 to Nov 10, Priority Normal to High, Flag added, Added Sam."/>
+                <local:BulletItem Text="When Notes change, the history keeps the start of the old wording."/>
+                <local:BulletItem Text="Moves, emails and calendar entries are in the same list. History is kept for good."/>
+
                 <TextBlock Text="Emailing a task" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <local:BulletItem Text="To follow up, the Report Builder can list emailed tasks: Include when each task was emailed, or Emailed tasks only."/>
                 <local:BulletItem Text="The envelope button shows when the person has an email address, set in Manage Who."/>

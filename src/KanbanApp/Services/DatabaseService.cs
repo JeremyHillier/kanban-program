@@ -66,9 +66,10 @@ public partial class DatabaseService
     {
         using var cmd = connection.CreateCommand();
         cmd.CommandText = """
-            INSERT INTO CardHistory (CardId, CardTitle, EventType, Details, Timestamp)
-            VALUES ($cardId, $cardTitle, $eventType, $details, $timestamp);
+            INSERT INTO CardHistory (CardId, CardTitle, EventType, Details, Timestamp, Computer)
+            VALUES ($cardId, $cardTitle, $eventType, $details, $timestamp, $computer);
             """;
+        cmd.Parameters.AddWithValue("$computer", ComputerName);
         cmd.Parameters.AddWithValue("$cardId", cardId);
         cmd.Parameters.AddWithValue("$cardTitle", cardTitle);
         cmd.Parameters.AddWithValue("$eventType", eventType);

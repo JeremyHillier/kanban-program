@@ -6,9 +6,10 @@ namespace KanbanApp.Services;
 // the single-item done/undone toggle used by the board's inline checkbox.
 public partial class DatabaseService
 {
-    public List<SubTaskItem> SetCardSubTasks(int cardId, List<(string Title, bool IsDone)> subTasks)
+    public List<SubTaskItem> SetCardSubTasks(int cardId, List<(string Title, bool IsDone)> subTasks, bool record = true)
     {
         using var connection = OpenConnection();
+        var before = record ? ReadSubTasks(connection, cardId) : [];
         using var transaction = connection.BeginTransaction();
 
         using (var clearCmd = connection.CreateCommand())
@@ -55,16 +56,29 @@ public partial class DatabaseService
         }
 
         transaction.Commit();
+        if (record) LogChanges(connection, cardId, TitleOf(connection, cardId), DescribeSubTaskChanges(before, subTasks));
         return result;
     }
 
     public void SetSubTaskDone(int subTaskId, bool isDone)
     {
         using var connection = OpenConnection();
-        using var cmd = connection.CreateCommand();
-        cmd.CommandText = "UPDATE SubTasks SET IsDone = $isDone WHERE Id = $id;";
-        cmd.Parameters.AddWithValue("$isDone", isDone ? 1 : 0);
-        cmd.Parameters.AddWithValue("$id", subTaskId);
-        cmd.ExecuteNonQuery();
+        using (var cmd = connection.CreateCommand())
+        {
+            cmd.CommandText = "UPDATE SubTasks SET IsDone = $isDone WHERE Id = $id;";
+            cmd.Parameters.AddWithValue("$isDone", isDone ? 1 : 0);
+            cmd.Parameters.AddWithValue("$id", subTaskId);
+            cmd.ExecuteNonQuery();
+        }
+
+        using var findCmd = connection.CreateCommand();
+        findCmd.CommandText = "SELECT CardId, Title FROM SubTasks WHERE Id = $id;";
+        findCmd.Parameters.AddWithValue("$id", subTaskId);
+        using var r = findCmd.ExecuteReader();
+        if (!r.Read()) return;
+        var cardId = r.GetInt32(0);
+        var title = r.GetString(1);
+        r.Close();
+        LogHistory(connection, cardId, TitleOf(connection, cardId), "Edited", $"Sub-task {(isDone ? "done" : "reopened")}: \"{title}\"");
     }
 }

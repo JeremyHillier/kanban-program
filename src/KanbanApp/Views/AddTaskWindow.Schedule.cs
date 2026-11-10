@@ -56,6 +56,7 @@ public partial class AddTaskWindow
 
         OutlookCalendarHelper.ScheduleCard(this, _cardToEdit, _viewModel, title, dueDate, dueAt);
         RefreshScheduledStamp();
+        RefreshHistoryStamp();
     }
 
     // "Scheduled <when> for <the appointment>" under the emailed line, with every time in its tooltip.

@@ -103,6 +103,7 @@ public partial class DatabaseService
         MigrateColumn(connection, "Flags", "IsActive", "INTEGER NOT NULL DEFAULT 1");
         MigrateColumn(connection, "Columns", "DisplayName", "TEXT");
         MigrateColumn(connection, "People", "Email", "TEXT NULL");
+        MigrateColumn(connection, "CardHistory", "Computer", "TEXT NULL"); // which PC made the change (task history)
 
         using (var backfillCmd = connection.CreateCommand())
         {

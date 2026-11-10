@@ -40,8 +40,10 @@ public partial class DatabaseService
     // 16: Cards.Color (0.163.0) - a card's background colour; older copies ignore the column, so the file is stamped
     //     only when a colour is first set (CardColorFileFormat).
     // 15: Goals.CompletedDate (0.160.0) - older copies ignore the column and would offer a complete goal again; stamped when a goal is first marked complete (GoalCompleteFileFormat).
+    // 18: CardHistory.Computer (0.166.0) - which PC made each change, for the task history. Older copies add rows without it
+    //     and read the rest as before, so the file is never stamped 18 and no older copy warns.
     // The newest format this copy of the app understands.
-    public const int CurrentFileFormat = 17;
+    public const int CurrentFileFormat = 18;
 
     public const int DayRangeFileFormat = 6;
     public const int PathLinkFileFormat = 7;

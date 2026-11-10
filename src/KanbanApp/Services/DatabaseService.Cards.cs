@@ -199,6 +199,7 @@ public partial class DatabaseService
             forceEditOnComplete, websiteUrl, dueTime, startDate, waitingOn, recurrencesLeft);
         using var connection = OpenConnection();
         var now = NowStamp();
+        var before = ReadEditable(connection, cardId);
 
         using (var cmd = connection.CreateCommand())
         {
@@ -209,7 +210,7 @@ public partial class DatabaseService
             cmd.ExecuteNonQuery();
         }
 
-        LogHistory(connection, cardId, title, "Edited", "Task details updated");
+        if (before is not null) LogChanges(connection, cardId, title, DescribeChanges(connection, before, fields));
         return DateTime.Parse(now);
     }
 

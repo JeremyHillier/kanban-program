@@ -25,9 +25,9 @@ public partial class MainViewModel
         RememberWaitingOn(waitingOn);
         StampDayRange(isRecurring, recurrencePattern);
         StampPathLink(websiteUrl);
-        _db.SetCardFlags(card.Id, flags.Select(f => f.Id));
-        _db.SetCardPeople(card.Id, people.Select(p => p.Id));
-        var subTaskItems = _db.SetCardSubTasks(card.Id, subTasks.Select(s => (s.Title, s.IsDone)).ToList());
+        _db.SetCardFlags(card.Id, flags.Select(f => f.Id), record: false); // a new task's history starts with "Created"
+        _db.SetCardPeople(card.Id, people.Select(p => p.Id), record: false);
+        var subTaskItems = _db.SetCardSubTasks(card.Id, subTasks.Select(s => (s.Title, s.IsDone)).ToList(), record: false);
         var attachmentItems = _db.SetCardAttachments(card.Id, attachments.Select(a => (a.FilePath, a.DisplayName, a.AddedDate)).ToList());
         var cardVm = new CardViewModel(card)
         {

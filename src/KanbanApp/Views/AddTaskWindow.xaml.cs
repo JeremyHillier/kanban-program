@@ -231,6 +231,7 @@ public partial class AddTaskWindow : Window
         }
         RefreshEmailedStamp();
         RefreshScheduledStamp();
+        RefreshHistoryStamp();
         ScheduleButton.Visibility = Visibility.Visible;
         RefreshSendBackButton();
         MarkDoneButton.Visibility = currentColumn.Name == "Done" ? Visibility.Collapsed : Visibility.Visible;

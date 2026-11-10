@@ -124,6 +124,7 @@ public partial class AddTaskWindow
 
         OutlookEmailHelper.ComposeCardEmail(this, _cardToEdit, OutlookEmailHelper.JoinRecipients(SelectedPeopleEmails), _viewModel);
         RefreshEmailedStamp();
+        RefreshHistoryStamp();
     }
 
     // "Emailed <when> to <whom>" under the Last updated line, with every time in its tooltip.
@@ -135,6 +136,18 @@ public partial class AddTaskWindow
         EmailedStampText.Text = MainViewModel.EmailStampText(history) ?? string.Empty;
         EmailedStampText.ToolTip = history.Count == 0 ? null : MainViewModel.EmailHistoryText(history);
         EmailedStampText.Visibility = history.Count == 0 ? Visibility.Collapsed : Visibility.Visible;
+    }
+
+    // "History: <latest change>" under the stamps; hover for everything that has happened to the task.
+    private void RefreshHistoryStamp()
+    {
+        if (_cardToEdit is null) return;
+
+        var history = _viewModel.GetTaskHistory(_cardToEdit);
+        var line = MainViewModel.HistoryStampText(history);
+        HistoryStampText.Text = line ?? string.Empty;
+        HistoryStampText.ToolTip = line is null ? null : MainViewModel.HistoryTooltipText(history);
+        HistoryStampText.Visibility = line is null ? Visibility.Collapsed : Visibility.Visible;
     }
 
     private void NewWho_Click(object sender, RoutedEventArgs e)

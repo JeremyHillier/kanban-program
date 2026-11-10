@@ -606,6 +606,8 @@
                                Foreground="{DynamicResource SecondaryTextStrongBrush}"/>
                     <TextBlock x:Name="ScheduledStampText" FontSize="11" Visibility="Collapsed" TextTrimming="CharacterEllipsis"
                                Foreground="{DynamicResource SecondaryTextStrongBrush}"/>
+                    <TextBlock x:Name="HistoryStampText" FontSize="11" Visibility="Collapsed" TextTrimming="CharacterEllipsis"
+                               Foreground="{DynamicResource SecondaryTextStrongBrush}"/>
                 </StackPanel>
             </DockPanel>
             <StackPanel Grid.Row="1" Grid.Column="1" HorizontalAlignment="Right" Orientation="Horizontal">

@@ -34,9 +34,11 @@ public partial class DatabaseService
     // UpdateSortOrders. Without the transaction SQLite commits (and fsyncs) once per row, which is
     // the dominant cost of saving a task; without hoisting the command out of the loop, every row
     // also re-parses the same INSERT.
-    public void SetCardFlags(int cardId, IEnumerable<int> flagIds)
+    public void SetCardFlags(int cardId, IEnumerable<int> flagIds, bool record = true)
     {
         using var connection = OpenConnection();
+        var wasIds = record ? IdsOf(connection, "SELECT FlagId FROM CardFlags WHERE CardId = $cardId;", cardId) : [];
+        var newIds = flagIds.Distinct().ToList();
         using var transaction = connection.BeginTransaction();
 
         using (var clearCmd = connection.CreateCommand())
@@ -56,7 +58,7 @@ public partial class DatabaseService
             flagIdParam.ParameterName = "$flagId";
             insertCmd.Parameters.Add(flagIdParam);
 
-            foreach (var flagId in flagIds)
+            foreach (var flagId in newIds)
             {
                 flagIdParam.Value = flagId;
                 insertCmd.ExecuteNonQuery();
@@ -64,5 +66,6 @@ public partial class DatabaseService
         }
 
         transaction.Commit();
+        if (record) LogSetChange(connection, cardId, wasIds, newIds, "Flags", n => $"Flag added: {n}", n => $"Flag removed: {n}");
     }
 }
