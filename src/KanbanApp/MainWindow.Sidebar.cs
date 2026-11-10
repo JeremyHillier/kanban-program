@@ -135,6 +135,27 @@ public partial class MainWindow
         }
     }
 
+    // Sideways grip between the Priority and Who lists: moves the share of the two lists' width. The grip moves with
+    // the boundary, so each DragDelta is the distance since the last one.
+    private void FilterWidthGrip_DragDelta(object sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)
+    {
+        if (DataContext is not MainViewModel viewModel || sender is not FrameworkElement { Parent: Grid row }) return;
+
+        var total = row.ColumnDefinitions[1].ActualWidth + row.ColumnDefinitions[4].ActualWidth;
+        if (total <= 0) return;
+
+        viewModel.PriorityListShare += e.HorizontalChange / total;
+    }
+
+    private void FilterWidthGrip_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+    {
+        if (DataContext is not MainViewModel viewModel) return;
+
+        viewModel.PriorityListShare = MainViewModel.DefaultPriorityListShare;
+        viewModel.SaveFilterListHeights();
+        e.Handled = true;
+    }
+
     private void FilterResizeGrip_DragCompleted(object sender, System.Windows.Controls.Primitives.DragCompletedEventArgs e)
     {
         (DataContext as MainViewModel)?.SaveFilterListHeights();

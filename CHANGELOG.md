@@ -6,6 +6,10 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.166.1 — 2026-11-10
+
+> - New: drag the bar between the Priority and Who filter lists to change how wide each one is; double-click the bar to reset them. Your choice is remembered.
+
 ## 0.166.0 — 2026-11-10
 
 > - New: every task now keeps a history of its changes, including what changed, when, and on which computer.

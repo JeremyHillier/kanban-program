@@ -52,6 +52,33 @@
 
         <!-- Drag grip under the Project list and under the Priority/Who row: drag to change the
              list height, double-click to reset it. It takes the place of the gap below the list. -->
+        <!-- The same, sideways: between the Priority and Who lists, drag to share the width between them. -->
+        <Style x:Key="FilterWidthGripStyle" TargetType="Thumb">
+            <Setter Property="Cursor" Value="SizeWE"/>
+            <Setter Property="ToolTip" Value="Drag to change the widths of the Priority and Who lists. Double-click to reset them."/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Thumb">
+                        <Border Background="Transparent">
+                            <Border x:Name="Bar" Width="3" Height="36" CornerRadius="1.5" Opacity="0.55"
+                                    Background="{DynamicResource SidebarGripBrush}"
+                                    HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bar" Property="Opacity" Value="1"/>
+                                <Setter TargetName="Bar" Property="Height" Value="60"/>
+                            </Trigger>
+                            <Trigger Property="IsDragging" Value="True">
+                                <Setter TargetName="Bar" Property="Opacity" Value="1"/>
+                                <Setter TargetName="Bar" Property="Height" Value="60"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
         <Style x:Key="FilterResizeGripStyle" TargetType="Thumb">
             <Setter Property="Height" Value="10"/>
             <Setter Property="Cursor" Value="SizeNS"/>
@@ -1160,15 +1187,18 @@
                         <Grid Margin="0,0,0,2">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="4"/>
+                                <ColumnDefinition Width="{Binding PriorityListWidth}"/>
+                                <ColumnDefinition Width="8"/>
                                 <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="{Binding WhoListWidth}"/>
                             </Grid.ColumnDefinitions>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
+                            <Thumb Grid.Row="0" Grid.Column="2" Style="{StaticResource FilterWidthGripStyle}"
+                                   DragDelta="FilterWidthGrip_DragDelta" DragCompleted="FilterResizeGrip_DragCompleted"
+                                   MouseDoubleClick="FilterWidthGrip_MouseDoubleClick"/>
                             <Thumb Grid.Row="1" Grid.ColumnSpan="5" Tag="PriorityWho" Style="{StaticResource FilterResizeGripStyle}"
                                    DragDelta="FilterResizeGrip_DragDelta" DragCompleted="FilterResizeGrip_DragCompleted"
                                    MouseDoubleClick="FilterResizeGrip_MouseDoubleClick"/>

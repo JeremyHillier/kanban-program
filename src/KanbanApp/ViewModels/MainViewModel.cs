@@ -114,6 +114,10 @@ public partial class MainViewModel : ObservableObject
         _isFitColumnsToWindow = _db.GetFlag("FitColumnsToWindow", true);
         _projectFilterListHeight = LoadFilterListHeight(_db.GetSetting("ProjectFilterListHeight"));
         _priorityWhoFilterListHeight = LoadFilterListHeight(_db.GetSetting("PriorityWhoFilterListHeight"));
+        if (double.TryParse(_db.GetSetting("PriorityListShare"), System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var share))
+        {
+            _priorityListShare = double.IsFinite(share) ? Math.Clamp(share, 0.25, 0.75) : DefaultPriorityListShare;
+        }
 
         ShowSplash = _db.GetFlag("ShowSplash", true);
         SplashDelayMs = _db.GetInt("SplashDelayMs", 1800);

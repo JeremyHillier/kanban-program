@@ -203,6 +203,7 @@
                 <local:BulletItem Text="The first person ticked is the lead. Click make lead to change it."/>
                 <local:BulletItem Text="Type a first name or surname to jump to that person. Space ticks them."/>
                 <local:BulletItem Text="The board's Project, Priority and Who filter lists also jump as you type."/>
+                <local:BulletItem Text="Drag the bar between the Priority and Who lists to change their widths. Double-click it to reset."/>
                 <local:BulletItem Text="A shared task lists everyone on the card, lead first."/>
                 <TextBlock Text="Also on the task screen" Style="{StaticResource HelpSubHeaderStyle}"/>
                 <local:BulletItem Text="Link takes a web address, an email address, or a file or folder. Open launches it."/>

@@ -200,6 +200,24 @@ public partial class MainViewModel
         set => SetField(ref _priorityWhoFilterListHeight, ClampFilterListHeight(value));
     }
 
+    // How the Priority/Who row's width is shared: Priority's part, between 0.25 and 0.75 (Who has the rest).
+    public const double DefaultPriorityListShare = 0.5;
+    private double _priorityListShare = DefaultPriorityListShare;
+    public double PriorityListShare
+    {
+        get => _priorityListShare;
+        set
+        {
+            var clamped = double.IsFinite(value) ? Math.Clamp(value, 0.25, 0.75) : DefaultPriorityListShare;
+            if (!SetField(ref _priorityListShare, clamped)) return;
+            OnPropertyChanged(nameof(PriorityListWidth));
+            OnPropertyChanged(nameof(WhoListWidth));
+        }
+    }
+
+    public System.Windows.GridLength PriorityListWidth => new(PriorityListShare, System.Windows.GridUnitType.Star);
+    public System.Windows.GridLength WhoListWidth => new(1 - PriorityListShare, System.Windows.GridUnitType.Star);
+
     // No rounding here: drags arrive in fractional steps on scaled displays, and rounding each one
     // away would leave the grip stuck.
     internal static double ClampFilterListHeight(double value) =>
@@ -210,6 +228,7 @@ public partial class MainViewModel
     {
         _db.SetSetting("ProjectFilterListHeight", ProjectFilterListHeight.ToString(System.Globalization.CultureInfo.InvariantCulture));
         _db.SetSetting("PriorityWhoFilterListHeight", PriorityWhoFilterListHeight.ToString(System.Globalization.CultureInfo.InvariantCulture));
+        _db.SetSetting("PriorityListShare", PriorityListShare.ToString(System.Globalization.CultureInfo.InvariantCulture));
     }
 
     private static double LoadFilterListHeight(string? stored) =>
