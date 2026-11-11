@@ -217,26 +217,26 @@
                     </Grid.RowDefinitions>
 
                     <!-- Priority | Category | Who -->
-                    <StackPanel Grid.Row="0" Grid.Column="0" Style="{StaticResource FieldLabelRowStyle}">
+                    <StackPanel Grid.Row="0" Grid.Column="0" Style="{StaticResource FieldLabelRowStyle}" Tag="FullOnly">
                         <TextBlock Text="Priority" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Center"/>
                         <Button Content="+" Style="{StaticResource NewLinkButtonStyle}" ToolTip="Add, rename or reorder priorities" Click="ManagePriorities_Click"/>
                     </StackPanel>
-                    <TextBlock Grid.Row="0" Grid.Column="2" Text="Category" Style="{StaticResource FieldLabelStyle}"/>
-                    <StackPanel Grid.Row="0" Grid.Column="4" Style="{StaticResource FieldLabelRowStyle}">
+                    <TextBlock Grid.Row="0" Grid.Column="2" Text="Category" Style="{StaticResource FieldLabelStyle}" Tag="FullOnly"/>
+                    <StackPanel x:Name="WhoLabelRow" Grid.Row="0" Grid.Column="4" Style="{StaticResource FieldLabelRowStyle}">
                         <TextBlock Text="Who" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Center"/>
                         <Button Content="+" Style="{StaticResource NewLinkButtonStyle}" ToolTip="Add new person" Click="NewWho_Click"/>
                         <Button Content="−" Style="{StaticResource DeleteLinkButtonStyle}" ToolTip="Clear everyone" Click="DeleteWho_Click"/>
                     </StackPanel>
-                    <ComboBox Grid.Row="1" Grid.Column="0" x:Name="PriorityComboBox" Padding="6"
+                    <ComboBox Grid.Row="1" Grid.Column="0" x:Name="PriorityComboBox" Padding="6" Tag="FullOnly"
                               Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
                               BorderBrush="{DynamicResource CardBorderBrush}"/>
-                    <ComboBox Grid.Row="1" Grid.Column="2" x:Name="CategoryComboBox" Padding="6"
+                    <ComboBox Grid.Row="1" Grid.Column="2" x:Name="CategoryComboBox" Padding="6" Tag="FullOnly"
                               DisplayMemberPath="DisplayName" SelectedIndex="0"
                               Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
                               BorderBrush="{DynamicResource CardBorderBrush}"/>
                     <!-- Who: a drop-down of tickboxes, since a task can have several people. The
                          first one ticked is the lead; the list under the button says who that is. -->
-                    <Grid Grid.Row="1" Grid.Column="4">
+                    <Grid x:Name="WhoGrid" Grid.Row="1" Grid.Column="4">
                         <ToggleButton x:Name="WhoButton" Style="{StaticResource WhoDropDownButtonStyle}" Padding="8,6,6,6" HorizontalContentAlignment="Stretch" Cursor="Hand"
                                       Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
                                       BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="1"
@@ -279,7 +279,7 @@
                             </Grid.RowDefinitions>
 
                             <!-- Start -->
-                            <Grid Grid.Row="0" Grid.Column="0">
+                            <Grid Grid.Row="0" Grid.Column="0" Tag="FullOnly">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto"/>
                                     <ColumnDefinition Width="*"/>
@@ -297,7 +297,7 @@
                             </Grid>
 
                             <!-- Due -->
-                            <Grid Grid.Row="0" Grid.Column="2">
+                            <Grid x:Name="DueGrid" Grid.Row="0" Grid.Column="2">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto"/>
                                     <ColumnDefinition Width="*"/>
@@ -412,7 +412,7 @@
                             </StackPanel>
 
                             <!-- Alert time -->
-                            <StackPanel Grid.Row="2" Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Top">
+                            <StackPanel Grid.Row="2" Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Top" Tag="FullOnly">
                                 <TextBlock Text="Time" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,8,0"
                                            Foreground="{DynamicResource PrimaryTextBrush}"/>
                                 <Grid Width="82">
@@ -447,18 +447,18 @@
                         </Grid>
                     </Border>
 
-                    <CheckBox Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="5" x:Name="ForceEditOnCompleteCheckBox" Content="Force edit upon completion" Margin="0,10,0,4" HorizontalAlignment="Left"
+                    <CheckBox Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="5" x:Name="ForceEditOnCompleteCheckBox" Content="Force edit upon completion" Margin="0,10,0,4" HorizontalAlignment="Left" Tag="FullOnly"
                               Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Center"
                               ToolTip="When on, marking this task Done will automatically open it for editing instead of just moving it."/>
                     <!-- The card's background colour: None, then each card colour as a swatch (filled in by AddTaskWindow.Colour.cs). -->
-                    <StackPanel Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="5" x:Name="ColourPanel" Orientation="Horizontal" HorizontalAlignment="Right"
+                    <StackPanel Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="5" x:Name="ColourPanel" Orientation="Horizontal" HorizontalAlignment="Right" Tag="FullOnly"
                                 Margin="0,10,0,4" VerticalAlignment="Center" ToolTip="The colour of this task's card on the board. None is the ordinary card.">
                         <TextBlock Text="Colour" VerticalAlignment="Center" Margin="0,0,6,0" Foreground="{DynamicResource PrimaryTextBrush}"/>
                     </StackPanel>
                 </Grid>
 
                 <!-- Website | Waiting On -->
-                <Grid>
+                <Grid Tag="FullOnly">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="16"/>
@@ -510,26 +510,26 @@
                 </Grid>
 
                 <!-- Notes -->
-                <TextBlock Text="Notes" Style="{StaticResource FieldLabelStyle}"/>
-                <views:NotesEditor x:Name="NotesEditor"/>
-                <Thumb Style="{StaticResource ResizeGripStyle}" DragDelta="NotesGrip_DragDelta" DragCompleted="Grip_DragCompleted"
+                <TextBlock Text="Notes" Style="{StaticResource FieldLabelStyle}" Tag="FullOnly"/>
+                <views:NotesEditor x:Name="NotesEditor" Tag="FullOnly"/>
+                <Thumb Style="{StaticResource ResizeGripStyle}" DragDelta="NotesGrip_DragDelta" DragCompleted="Grip_DragCompleted" Tag="FullOnly"
                        AutomationProperties.Name="Resize the Notes box"/>
 
                 <!-- Flags -->
-                <StackPanel Style="{StaticResource FieldLabelRowStyle}">
+                <StackPanel Style="{StaticResource FieldLabelRowStyle}" Tag="FullOnly">
                     <TextBlock Text="Flags" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Center"/>
                     <Button Content="+" Style="{StaticResource NewLinkButtonStyle}" ToolTip="Add new flag" Click="NewFlag_Click"/>
                 </StackPanel>
-                <WrapPanel x:Name="FlagsPanel" VerticalAlignment="Top"/>
+                <WrapPanel x:Name="FlagsPanel" VerticalAlignment="Top" Tag="FullOnly"/>
 
                 <!-- Sub-tasks -->
-                <StackPanel Style="{StaticResource FieldLabelRowStyle}">
+                <StackPanel Style="{StaticResource FieldLabelRowStyle}" Tag="FullOnly">
                     <TextBlock Text="Sub-tasks" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Center"/>
                     <Button Content="+" Style="{StaticResource NewLinkButtonStyle}" ToolTip="Add sub-task" Click="AddSubTaskRow_Click"/>
                     <TextBlock x:Name="SubTaskProgressLabel" VerticalAlignment="Center" Margin="10,0,0,0" FontSize="11"
                                Foreground="{DynamicResource SecondaryTextBrush}"/>
                 </StackPanel>
-                <Grid>
+                <Grid Tag="FullOnly">
                     <StackPanel x:Name="SubTasksPanel" AllowDrop="True"
                                 DragOver="SubTasksPanel_DragOver" DragLeave="SubTasksPanel_DragLeave" Drop="SubTasksPanel_Drop"/>
                     <Border x:Name="SubTaskInsertionIndicator" Height="2" Background="{DynamicResource AccentTextBrush}"
@@ -537,15 +537,15 @@
                 </Grid>
 
                 <!-- Related tasks: links to other tasks, each a clickable title (AddTaskWindow.Related.cs). -->
-                <StackPanel Style="{StaticResource FieldLabelRowStyle}">
+                <StackPanel Style="{StaticResource FieldLabelRowStyle}" Tag="FullOnly">
                     <TextBlock Text="Related tasks" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Center"/>
                     <Button Content="+" Style="{StaticResource NewLinkButtonStyle}" ToolTip="Link this task to another: related to, depends on, blocks, child or parent" Click="AddRelated_Click"/>
                     <TextBlock x:Name="RelatedCountLabel" VerticalAlignment="Center" Margin="10,0,0,0" FontSize="11" Foreground="{DynamicResource SecondaryTextBrush}"/>
                 </StackPanel>
-                <StackPanel x:Name="RelatedPanel"/>
+                <StackPanel x:Name="RelatedPanel" Tag="FullOnly"/>
 
                 <!-- Attachments -->
-                <Border AllowDrop="True" DragOver="AttachmentsDropZone_DragOver" Drop="AttachmentsDropZone_Drop"
+                <Border Tag="FullOnly" AllowDrop="True" DragOver="AttachmentsDropZone_DragOver" Drop="AttachmentsDropZone_Drop"
                         BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="1" CornerRadius="4"
                         Margin="0,12,0,0" Padding="8,6">
                     <StackPanel>
@@ -615,6 +615,10 @@
                 <Button x:Name="MarkDoneButton" Visibility="Collapsed" Content="&#x2714;" FontSize="20" FontWeight="Bold" MinWidth="60" Padding="12,2" Margin="0,0,8,0"
                         Click="MarkDone_Click" Background="#FF2E7D32" Foreground="White" BorderBrush="#FF1B5E20"
                         ToolTip="Mark the task as done. Saves any changes first."/>
+                <!-- Switches this window between the full form and the short one (project, goal, task, due, recurring, who).
+                     Only this window: the starting view is a setting. Nothing hidden is lost or changed. -->
+                <Button x:Name="ViewModeButton" Content="Simple View" Padding="12,6" Margin="0,0,8,0" Click="ViewMode_Click"
+                        Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
                 <Button x:Name="SubmitButton" Content="Add Task" MinWidth="90" Padding="12,6" IsDefault="True" Click="Add_Click" ToolTip="Add the task (Enter or Ctrl+S)"
                         Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
                 <Button Content="Cancel" Width="80" Padding="0,6" Margin="8,0,0,0" IsCancel="True"

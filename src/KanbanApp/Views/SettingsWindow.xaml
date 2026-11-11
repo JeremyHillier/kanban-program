@@ -134,6 +134,16 @@
                         <ComboBoxItem Content="Sunday"/>
                     </ComboBox>
                 </StackPanel>
+                <TextBlock Text="Task window" Style="{StaticResource SectionHeaderStyle}"/>
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,20">
+                    <TextBlock Text="Opens in:" VerticalAlignment="Center" Margin="0,0,8,0" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                    <ComboBox x:Name="TaskViewComboBox" Width="140" Padding="4" SelectionChanged="TaskViewComboBox_SelectionChanged"
+                              ToolTip="Full shows every field. Simplified shows project, goal, task, due date, recurring and who. The Simple View / Full View button in the window switches it for that task only."
+                              Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}" BorderBrush="{DynamicResource CardBorderBrush}">
+                        <ComboBoxItem Content="Full"/>
+                        <ComboBoxItem Content="Simplified"/>
+                    </ComboBox>
+                </StackPanel>
                 <TextBlock Text="Startup" Style="{StaticResource SectionHeaderStyle}"/>
                 <CheckBox x:Name="ShowSplashCheckBox" Content="Show splash screen on startup"
                           Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,8"

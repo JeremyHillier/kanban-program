@@ -21,7 +21,7 @@ public partial class AddTaskWindow
     // one. Never shown when editing: a template would overwrite the task.
     private void RefreshTemplatePanel()
     {
-        TemplatePanel.Visibility = _cardToEdit is null ? Visibility.Visible : Visibility.Collapsed;
+        TemplatePanel.Visibility = _cardToEdit is null && !_simplified ? Visibility.Visible : Visibility.Collapsed;
 
         var hasTemplates = _viewModel.TaskTemplates.Count > 0;
         TemplateComboBox.IsEnabled = hasTemplates;

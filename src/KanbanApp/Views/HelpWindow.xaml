@@ -181,6 +181,9 @@
                 <local:BulletItem Text="Double-click a column heading to create a task in that column."/>
                 <local:BulletItem Text="Double-click a card to edit it."/>
                 <local:BulletItem Text="Project is required. Everything else is optional."/>
+                <local:BulletItem Text="Simple View, beside Add Task, shows only project, goal, task, due date, recurring and who."/>
+                <local:BulletItem Text="Full View brings every field back. Nothing hidden is lost or changed by switching."/>
+                <local:BulletItem Text="Settings, General tab, chooses which view the window opens in."/>
                 <TextBlock Text="Notes" Style="{StaticResource HelpSubHeaderStyle}"/>
                 <local:BulletItem Text="Notes take bold, italic, underline and left, centre or right alignment from the bar above them."/>
                 <local:BulletItem Text="Table inserts a grid of the rows and columns you choose. Click in it to add or delete rows and columns."/>
@@ -669,6 +672,7 @@
                 <local:BulletItem Text="Startup reminders and Task Due Now alerts, on or off."/>
                 <local:BulletItem Text="Remember filters, sort and search between sessions."/>
                 <local:BulletItem Text="Calendar and Gantt: weeks start on Monday or Sunday."/>
+                <local:BulletItem Text="Task window: opens in the full or the simplified view."/>
                 <local:BulletItem Text="Typing: auto-correct on or off, your own corrections, and your spelling dictionary."/>
                 <local:BulletItem Text="Your Details sign task emails when Outlook has no signature."/>
                 <TextBlock Text="Data and files tab" Style="{StaticResource HelpSubHeaderStyle}"/>

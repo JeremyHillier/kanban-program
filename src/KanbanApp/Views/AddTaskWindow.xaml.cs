@@ -134,6 +134,7 @@ public partial class AddTaskWindow : Window
         InitializeWhoTypeAhead();
         _waitingOnSuggestions = TextBoxSuggestions.Attach(WaitingOnTextBox, viewModel.WaitingOnSuggestions, viewModel.ForgetWaitingOnSuggestion);
         UpdateSubTaskProgressLabel();
+        ApplyViewMode(viewModel.SimplifiedTaskWindow);
 
         ProjectComboBox.Focus();
 

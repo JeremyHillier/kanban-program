@@ -48,6 +48,8 @@ public sealed class WpfDispatcherFixture : IDisposable
             KanbanApp.Services.WindowsStartup.UseInMemoryStore(); // never the real Run key
             KanbanApp.Services.TaskLinks.UseInMemoryRegistry(out _); // nor the real link registration
             KanbanApp.Services.UserDictionary.FolderOverride = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "KanbanTests-UserDictionary"); // nor the real dictionary file
+            // pack://application:,,, addresses (the spelling variants, say) resolve against the application assembly: here, the app under test.
+            typeof(Application).GetField("_resourceAssembly", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static)!.SetValue(null, typeof(KanbanApp.ViewModels.MainViewModel).Assembly);
             _ = new Application { ShutdownMode = ShutdownMode.OnExplicitShutdown };
             ready.Set();
             Dispatcher.Run();

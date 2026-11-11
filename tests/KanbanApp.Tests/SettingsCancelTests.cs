@@ -49,6 +49,7 @@ public sealed class SettingsCancelTests(WpfDispatcherFixture wpf) : IDisposable
         board.SetCustomDictionary("Hillier\nKanbanish");
         board.SetCardPartShown(CardPart.Updated, false);
         board.SetWeekStartsOnSunday(!board.WeekStartsOnSunday);
+        board.SetSimplifiedTaskWindow(!board.SimplifiedTaskWindow);
     }
 
     [Fact]

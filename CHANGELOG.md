@@ -6,6 +6,12 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.167.0 — 2026-11-11
+
+> - New: the Add Task and Edit Task window has a Simple View button beside Add Task. It shows only project, goal, task, due date, recurring and who; Full View brings every field back.
+> - New: Settings, General tab, has a Task window setting that chooses whether the window opens in the full or the simplified view.
+> - Nothing hidden by the simple view is lost or changed when a task is saved.
+
 ## 0.166.1 — 2026-11-10
 
 > - New: drag the bar between the Priority and Who filter lists to change how wide each one is; double-click the bar to reset them. Your choice is remembered.

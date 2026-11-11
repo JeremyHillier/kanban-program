@@ -44,6 +44,7 @@ public partial class SettingsWindow : Window
 
         ShowSplashCheckBox.IsChecked = viewModel.ShowSplash;
         WeekStartComboBox.SelectedIndex = viewModel.WeekStartsOnSunday ? 1 : 0;
+        TaskViewComboBox.SelectedIndex = viewModel.SimplifiedTaskWindow ? 1 : 0;
         foreach (System.Windows.Controls.ComboBoxItem item in SplashDelayComboBox.Items)
         {
             if (item.Tag is string tag && int.TryParse(tag, out var ms) && ms == viewModel.SplashDelayMs)
@@ -464,6 +465,11 @@ public partial class SettingsWindow : Window
     private void Help_Click(object sender, RoutedEventArgs e)
     {
         HelpWindow.Open(_viewModel, "HelpSection_Settings");
+    }
+
+    private void TaskViewComboBox_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+    {
+        if (TaskViewComboBox.SelectedIndex >= 0) _viewModel.SetSimplifiedTaskWindow(TaskViewComboBox.SelectedIndex == 1);
     }
 
     private void WeekStartComboBox_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)

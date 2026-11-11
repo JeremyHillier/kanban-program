@@ -20,7 +20,7 @@ public partial class MainViewModel
         string UserName, string UserTitle, string UserEmail, string UserPhone,
         bool StartWithWindows, bool StartFullScreen, bool ConfirmDelete, bool ConfirmArchive, bool AddNoteOnComplete,
         bool ShowDueReminders, bool ShowTimeAlerts, bool RememberLastView, bool ShowWhatsNew, bool QuickAddHotkeyEnabled, bool CheckForUpdatesEnabled, bool IsCompactButtons, bool IsFitColumnsToWindow,
-        bool AutoCorrectEnabled, string AutoCorrectEntries, bool NotifySenderOnDone, string CustomDictionary, string HiddenCardParts, bool WeekStartsOnSunday);
+        bool AutoCorrectEnabled, string AutoCorrectEntries, bool NotifySenderOnDone, string CustomDictionary, string HiddenCardParts, bool WeekStartsOnSunday, bool SimplifiedTaskWindow);
 
     private const char ColumnNameSeparator = ''; // can't be typed into a name
 
@@ -33,7 +33,7 @@ public partial class MainViewModel
         UserName, UserTitle, UserEmail, UserPhone,
         StartWithWindows, StartFullScreen, ConfirmDelete, ConfirmArchive, AddNoteOnComplete,
         ShowDueReminders, ShowTimeAlerts, RememberLastView, ShowWhatsNew, QuickAddHotkeyEnabled, CheckForUpdatesEnabled, IsCompactButtons, IsFitColumnsToWindow,
-        AutoCorrectEnabled, AutoCorrectEntries, NotifySenderOnDone, CustomDictionaryText, HiddenCardParts, WeekStartsOnSunday);
+        AutoCorrectEnabled, AutoCorrectEntries, NotifySenderOnDone, CustomDictionaryText, HiddenCardParts, WeekStartsOnSunday, SimplifiedTaskWindow);
 
     // The labels in a snapshot, by column id: a column added or removed since is not in it, and the labels are put
     // back on the columns they belong to, whatever their place now.
@@ -99,5 +99,6 @@ public partial class MainViewModel
         SetCustomDictionary(snapshot.CustomDictionary);
         SetHiddenCardParts(snapshot.HiddenCardParts);
         SetWeekStartsOnSunday(snapshot.WeekStartsOnSunday);
+        SetSimplifiedTaskWindow(snapshot.SimplifiedTaskWindow);
     }
 }
