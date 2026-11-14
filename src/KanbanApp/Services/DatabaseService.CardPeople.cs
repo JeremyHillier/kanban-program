@@ -25,7 +25,9 @@ public partial class DatabaseService
         cmd.ExecuteNonQuery();
     }
 
-    // Replaces the task's people, lead first, and points the card's WhoId at the lead.
+    // Replaces the task's people, lead first, and points the card's WhoId at the lead. The history
+    // line (who came and went; a reorder alone says nothing) is written in the same transaction;
+    // record: false (a task being created or copied) writes none.
     public void SetCardPeople(int cardId, IEnumerable<int> personIds, bool record = true)
     {
         using var connection = OpenConnection();
@@ -33,8 +35,8 @@ public partial class DatabaseService
         var newIds = personIds.Distinct().ToList();
         using var transaction = connection.BeginTransaction();
         WriteCardPeople(connection, transaction, cardId, newIds);
-        transaction.Commit();
         if (record) LogSetChange(connection, cardId, wasIds, newIds, "People", n => $"Added {n}", n => $"Removed {n}");
+        transaction.Commit();
     }
 
     private static void WriteCardPeople(SqliteConnection connection, SqliteTransaction? transaction, int cardId, IEnumerable<int> personIds)

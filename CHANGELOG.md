@@ -6,6 +6,10 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.167.1 — 2026-11-14
+
+> - Maintenance: saving a change to a task is quicker, and its history line is now written together with the change; no change to how the app looks or works.
+
 ## 0.167.0 — 2026-11-11
 
 > - New: the Add Task and Edit Task window has a Simple View button beside Add Task. It shows only project, goal, task, due date, recurring and who; Full View brings every field back.

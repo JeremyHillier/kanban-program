@@ -33,7 +33,9 @@ public partial class DatabaseService
     // Delete-then-reinsert, in one transaction with a single reused command - same shape as
     // UpdateSortOrders. Without the transaction SQLite commits (and fsyncs) once per row, which is
     // the dominant cost of saving a task; without hoisting the command out of the loop, every row
-    // also re-parses the same INSERT.
+    // also re-parses the same INSERT. The history line for the change is written in the same
+    // transaction; record: false (a task being created or copied) writes none, so a new task's
+    // history starts with its Created row.
     public void SetCardFlags(int cardId, IEnumerable<int> flagIds, bool record = true)
     {
         using var connection = OpenConnection();
@@ -65,7 +67,7 @@ public partial class DatabaseService
             }
         }
 
-        transaction.Commit();
         if (record) LogSetChange(connection, cardId, wasIds, newIds, "Flags", n => $"Flag added: {n}", n => $"Flag removed: {n}");
+        transaction.Commit();
     }
 }

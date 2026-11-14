@@ -7,6 +7,8 @@ namespace KanbanApp.Services;
 // A task's history: every save writes one CardHistory row saying what changed ("Due date Nov 3, 2026 -> Nov 10, 2026"),
 // made where the change reaches the file (UpdateCard and the flag, people and sub-task writes), so the task screen,
 // quick edits, right-click menus, mass update, Gantt drags and imports are all covered without each one knowing.
+// Each writer reads the stored state first, writes, and logs inside its own transaction, so the row and its history
+// line reach the file together; nothing visibly changed means no row at all.
 public partial class DatabaseService
 {
     // Written on each history row so a task used from two PCs says which one changed it. Tests set it.
@@ -34,6 +36,8 @@ public partial class DatabaseService
         return result;
     }
 
+    // The task's editable fields as stored, read before UpdateCard writes so DescribeChanges can say what changed.
+    // Null when there is no such task.
     private static EditableCardFields? ReadEditable(SqliteConnection connection, int cardId)
     {
         using var cmd = connection.CreateCommand();
@@ -54,6 +58,8 @@ public partial class DatabaseService
             Number(r, 7), Text(r, 8), r.GetInt32(9) != 0, Text(r, 10), Text(r, 11), Day(r, 12), Text(r, 13), Number(r, 14));
     }
 
+    // The Name of a Projects, Goals, Flags or People row (table is always a literal here); null for no id or a row
+    // that has since been deleted, which the history then shows as "none".
     private static string? NameOf(SqliteConnection connection, string table, int? id)
     {
         if (id is null) return null;
@@ -63,18 +69,21 @@ public partial class DatabaseService
         return cmd.ExecuteScalar() as string;
     }
 
+    // How a value reads in a history line: titles in quotes, everything else plain, blank as "none".
     private static string Quoted(string? text) => string.IsNullOrWhiteSpace(text) ? "none" : $"\"{text.Trim()}\"";
 
     private static string Plain(string? text) => string.IsNullOrWhiteSpace(text) ? "none" : text.Trim();
 
     private static string DayText(DateTime? day) => day is { } d ? d.ToString("MMM d, yyyy", CultureInfo.InvariantCulture) : "none";
 
+    // The start of the old notes for a "Notes changed" line, line breaks and runs of spaces flattened to one space.
     private static string Excerpt(string? text)
     {
         var flat = string.Join(" ", (text ?? string.Empty).Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries));
         return flat.Length <= NotesExcerptLength ? flat : flat[..NotesExcerptLength].TrimEnd() + "...";
     }
 
+    // Null, blank and surrounding spaces are all the same to the user, so none of them counts as a change.
     private static bool Same(string? a, string? b) => string.Equals(a?.Trim() ?? string.Empty, b?.Trim() ?? string.Empty, StringComparison.Ordinal);
 
     // What the user changed between two states of the task's own fields (people, flags and sub-tasks are described by
@@ -133,6 +142,14 @@ public partial class DatabaseService
         LogHistory(connection, cardId, title, "Edited", string.Join(" · ", changes));
     }
 
+    // The same for a writer that does not have the task's title to hand: it is looked up only when there is a row to write.
+    private static void LogChanges(SqliteConnection connection, int cardId, IReadOnlyList<string> changes)
+    {
+        if (changes.Count == 0) return;
+        LogChanges(connection, cardId, TitleOf(connection, cardId), changes);
+    }
+
+    // The task's title as stored, for a history row's CardTitle column.
     private static string TitleOf(SqliteConnection connection, int cardId)
     {
         using var cmd = connection.CreateCommand();
@@ -141,6 +158,7 @@ public partial class DatabaseService
         return cmd.ExecuteScalar() as string ?? string.Empty;
     }
 
+    // The flag or person ids a task has now, read before a replace-all write so the change can be named afterwards.
     private static List<int> IdsOf(SqliteConnection connection, string sql, int cardId)
     {
         using var cmd = connection.CreateCommand();
@@ -152,16 +170,19 @@ public partial class DatabaseService
         return ids;
     }
 
-    // "Flag added: Urgent", "Added Sam" ... for the ids that came or went.
+    // "Flag added: Urgent", "Added Sam" ... for the ids that came or went; a reorder alone is not a change.
     private static void LogSetChange(SqliteConnection connection, int cardId, IReadOnlyList<int> before, IReadOnlyList<int> after, string table,
         Func<string, string> added, Func<string, string> removed)
     {
         var changes = new List<string>();
         foreach (var id in after.Except(before)) changes.Add(added(Plain(NameOf(connection, table, id))));
         foreach (var id in before.Except(after)) changes.Add(removed(Plain(NameOf(connection, table, id))));
-        LogChanges(connection, cardId, TitleOf(connection, cardId), changes);
+        LogChanges(connection, cardId, changes);
     }
 
+    // Sub-tasks are rewritten whole on save and keep no identity across it, so they are matched by title: a title
+    // that is new reads as added and one that is gone as removed (a renamed sub-task is therefore both), and for a
+    // title in both lists the counts of done and of copies say what happened.
     private static List<string> DescribeSubTaskChanges(IReadOnlyList<(string Title, bool IsDone)> before, IReadOnlyList<(string Title, bool IsDone)> after)
     {
         var changes = new List<string>();
@@ -192,6 +213,7 @@ public partial class DatabaseService
         return changes;
     }
 
+    // The sub-tasks as stored, read before a replace-all write (titles and done flags are all the diff needs).
     private static List<(string Title, bool IsDone)> ReadSubTasks(SqliteConnection connection, int cardId)
     {
         using var cmd = connection.CreateCommand();

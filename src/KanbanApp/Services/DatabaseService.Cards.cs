@@ -201,8 +201,12 @@ public partial class DatabaseService
         var now = NowStamp();
         var before = ReadEditable(connection, cardId);
 
+        // The row and its history line go in one transaction: one commit (one disk sync) instead of two,
+        // and the file never holds a change without the line that describes it.
+        using var transaction = connection.BeginTransaction();
         using (var cmd = connection.CreateCommand())
         {
+            cmd.Transaction = transaction;
             var columns = fields.Columns().Append(("LastUpdated", now)).ToList();
             cmd.CommandText = $"UPDATE Cards SET {string.Join(", ", columns.Select(c => $"{c.Column} = ${c.Column}"))} WHERE Id = $id;";
             foreach (var (column, value) in columns) cmd.Parameters.AddWithValue("$" + column, value);
@@ -211,6 +215,7 @@ public partial class DatabaseService
         }
 
         if (before is not null) LogChanges(connection, cardId, title, DescribeChanges(connection, before, fields));
+        transaction.Commit();
         return DateTime.Parse(now);
     }
 

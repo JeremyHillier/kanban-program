@@ -62,6 +62,8 @@ public partial class DatabaseService
 
     private static string NowStamp() => DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
 
+    // One CardHistory row. A command made by CreateCommand joins whatever transaction is open on the connection, so a
+    // writer that logs before its Commit gets the row and the change in one commit.
     private static void LogHistory(SqliteConnection connection, int cardId, string cardTitle, string eventType, string details)
     {
         using var cmd = connection.CreateCommand();
