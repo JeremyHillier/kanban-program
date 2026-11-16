@@ -6,6 +6,12 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.168.0 — 2026-11-16
+
+> - New: each task file remembers its own layout. Switching to a file puts the board and its other windows (Gantt, Calendar, Dashboard, Report Builder, Settings) where they were, full screen included.
+> - New: the layout is kept separately on each computer, so a laptop and a desktop with different screens each keep their own.
+> - Improved: the board now reopens full screen when it was closed full screen, even without the Start in full screen setting.
+
 ## 0.167.1 — 2026-11-14
 
 > - Maintenance: saving a change to a task is quicker, and its history line is now written together with the change; no change to how the app looks or works.

@@ -262,9 +262,16 @@ public partial class MainViewModel
 
     public void SaveTaskBoxHeights(double task, double notes) => SaveTaskBoxHeights(null, task, notes);
 
+    // Window sizes and places belong to the task file *and* the PC (two PCs on one file may have different
+    // screens): read this PC's own value first, then the one shared by every PC (what older versions saved,
+    // and where a PC that has none yet starts); always write this PC's own.
+    private string? WindowSetting(string name) => _db.GetSetting($"{name}:{ThisComputer}") ?? _db.GetSetting(name);
+
+    private void SaveWindowSetting(string name, string value) => _db.SetSetting($"{name}:{ThisComputer}", value);
+
     public (double Width, double Height, bool Maximized)? WindowSize(string key)
     {
-        var parts = (_db.GetSetting(key + "WindowSize") ?? string.Empty).Split(',');
+        var parts = (WindowSetting(key + "WindowSize") ?? string.Empty).Split(',');
         if (parts.Length != 3) return null;
         var invariant = System.Globalization.CultureInfo.InvariantCulture;
         if (!double.TryParse(parts[0], System.Globalization.NumberStyles.Float, invariant, out var width)
@@ -277,15 +284,16 @@ public partial class MainViewModel
     {
         if (!double.IsFinite(width) || !double.IsFinite(height) || width <= 0 || height <= 0) return;
         var invariant = System.Globalization.CultureInfo.InvariantCulture;
-        _db.SetSetting(key + "WindowSize", $"{width.ToString(invariant)},{height.ToString(invariant)},{(maximized ? "1" : "0")}");
+        SaveWindowSetting(key + "WindowSize", $"{width.ToString(invariant)},{height.ToString(invariant)},{(maximized ? "1" : "0")}");
     }
 
-    // A window's size *and* position as it was last left, stored under "<key>WindowPlacement" as
-    // "left,top,width,height,maximized". Used by the Dashboard; the Timeline keeps its own
-    // size-only setting above, because it always opens centred on the board.
+    // A window's size *and* position as it was last left, stored under "<key>WindowPlacement:<PC>" as
+    // "left,top,width,height,maximized" (WindowSetting). The board ("Board"), Gantt, Calendar, Dashboard,
+    // Task Files, Report Builder and Settings (the last two by position only) use it, so each task file opens
+    // its windows where they were left on this PC, full screen included.
     public (double Left, double Top, double Width, double Height, bool Maximized)? WindowPlacement(string key)
     {
-        var parts = (_db.GetSetting(key + "WindowPlacement") ?? string.Empty).Split(',');
+        var parts = (WindowSetting(key + "WindowPlacement") ?? string.Empty).Split(',');
         if (parts.Length != 5) return null;
         var invariant = System.Globalization.CultureInfo.InvariantCulture;
         var numbers = new double[4];
@@ -301,7 +309,7 @@ public partial class MainViewModel
     {
         if (!double.IsFinite(left) || !double.IsFinite(top) || !double.IsFinite(width) || !double.IsFinite(height) || width <= 0 || height <= 0) return;
         var invariant = System.Globalization.CultureInfo.InvariantCulture;
-        _db.SetSetting(key + "WindowPlacement", string.Join(',',
+        SaveWindowSetting(key + "WindowPlacement", string.Join(',',
             left.ToString(invariant), top.ToString(invariant), width.ToString(invariant), height.ToString(invariant), maximized ? "1" : "0"));
     }
 

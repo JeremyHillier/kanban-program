@@ -25,6 +25,7 @@ public partial class SettingsWindow : Window
         MaxHeight = SystemParameters.WorkArea.Height * 0.9;
         _viewModel = viewModel;
         RestoreSize();
+        WindowPlacementMemory.AttachPosition(this, viewModel, "Settings"); // where it was left; the size stays its own (it fits its content until resized)
         Closing += (_, _) => SaveSize();
 
         BuildColumnRows();

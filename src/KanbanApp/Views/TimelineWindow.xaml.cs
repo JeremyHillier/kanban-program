@@ -85,7 +85,9 @@ public partial class TimelineWindow : Window
             e.Handled = true;
         };
         _viewModel = viewModel;
-        RestoreSize();
+        // Where it was left in this task file on this PC; a file that only has the size older versions kept opens at that size, centred.
+        if (_viewModel.WindowPlacement("Timeline") is null) RestoreSize();
+        WindowPlacementMemory.Attach(this, _viewModel, "Timeline");
         _expanded = _viewModel.TimelineExpanded;
         _filter = _viewModel.TimelineFilter;
         _months = _viewModel.TimelineMonths;
@@ -95,7 +97,6 @@ public partial class TimelineWindow : Window
         (_viewModel.TimelineSummary ? SummaryRadio : DetailRadio).IsChecked = true;
         (_viewModel.TimelineByGoal ? ByGoalRadio : ByProjectRadio).IsChecked = true;
         _windowStart = TimelineScale.Snap(Zoom, DateTime.Today, FirstDay);
-        Closing += (_, _) => SaveSize();
         UpdateUndoButton();
         _initializing = false;
         BuildGrid();
@@ -111,16 +112,6 @@ public partial class TimelineWindow : Window
         Width = Math.Clamp(size.Width, MinWidth, Math.Max(MinWidth, area.Width));
         Height = Math.Clamp(size.Height, MinHeight, Math.Max(MinHeight, area.Height));
         if (size.Maximized) WindowState = WindowState.Maximized;
-    }
-
-    // A maximized window remembers the size it goes back to as well, so un-maximizing next time
-    // doesn't leave it filling the screen.
-    private void SaveSize()
-    {
-        var maximized = WindowState == WindowState.Maximized;
-        var width = WindowState == WindowState.Normal ? Width : RestoreBounds.Width;
-        var height = WindowState == WindowState.Normal ? Height : RestoreBounds.Height;
-        _viewModel.SaveWindowSize("Timeline", width, height, maximized);
     }
 
     private TimelineZoom Zoom =>

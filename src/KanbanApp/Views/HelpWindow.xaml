@@ -712,7 +712,9 @@
                 <TextBlock x:Name="HelpSection_TaskFiles" Text="Task files" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <local:BulletItem Text="Keep separate boards, such as work and personal or one per client, in separate task files. Each has its own tasks, projects, goals, people and settings."/>
                 <local:BulletItem Text="The Task file button at the top of the button column names the open file. Click it to switch to another, or for Manage Task Files."/>
-                <local:BulletItem Text="Switching changes the board over without restarting. The file you leave is not changed."/>
+                <local:BulletItem Text="Switching changes the board over without restarting. The tasks in the file you leave stay as they were."/>
+                <local:BulletItem Text="Each file remembers its layout: where the board and the other windows were, and whether they were full screen. Switching back puts them there again."/>
+                <local:BulletItem Text="That layout is kept for each computer, so a laptop and a desktop with different screens each keep their own."/>
                 <local:BulletItem Text="Manage Task Files (also in Settings, Data and files tab) lists your files with a name, a description and when each was last opened."/>
                 <local:BulletItem Text="New File starts an empty board where you choose. New from Template starts one from a template. Duplicate copies a file as a separate board."/>
                 <local:BulletItem Text="Add Existing File puts a file you already have on the list: one copied from another computer, or one made here and forgotten. Use it where it is, or copy it to a folder of your choosing first."/>

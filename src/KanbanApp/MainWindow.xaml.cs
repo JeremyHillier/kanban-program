@@ -72,34 +72,53 @@ public partial class MainWindow : Window
         Dispatcher.BeginInvoke(() => ShowReminders(dueCards, viewModel), DispatcherPriority.ApplicationIdle);
     }
 
+    // Where this task file's board was last left on this PC ("Board" placement, MainViewModel.WindowPlacement),
+    // or, for a file from before that was kept, the four size and position settings every PC shared.
+    private bool _openMaximized;
+
     private void RestoreWindowBounds()
     {
-        var width = double.TryParse(_db.GetSetting("WindowWidth"), NumberStyles.Float, CultureInfo.InvariantCulture, out var w) ? w : Width;
-        var height = double.TryParse(_db.GetSetting("WindowHeight"), NumberStyles.Float, CultureInfo.InvariantCulture, out var h) ? h : Height;
-        Width = Math.Clamp(width, MinWidth, SystemParameters.VirtualScreenWidth);
-        Height = Math.Clamp(height, MinHeight, SystemParameters.VirtualScreenHeight);
+        var viewModel = (MainViewModel)DataContext;
+        var placement = viewModel.WindowPlacement(BoardPlacementKey) ?? LegacyBounds();
+        if (placement is not { } p) return;
 
-        var hasLeft = double.TryParse(_db.GetSetting("WindowLeft"), NumberStyles.Float, CultureInfo.InvariantCulture, out var left);
-        var hasTop = double.TryParse(_db.GetSetting("WindowTop"), NumberStyles.Float, CultureInfo.InvariantCulture, out var top);
-        if (hasLeft && hasTop &&
-            left + Width > SystemParameters.VirtualScreenLeft && left < SystemParameters.VirtualScreenLeft + SystemParameters.VirtualScreenWidth &&
-            top + 50 > SystemParameters.VirtualScreenTop && top < SystemParameters.VirtualScreenTop + SystemParameters.VirtualScreenHeight)
+        Width = Math.Clamp(p.Width, MinWidth, SystemParameters.VirtualScreenWidth);
+        Height = Math.Clamp(p.Height, MinHeight, SystemParameters.VirtualScreenHeight);
+        if (WindowPlacementMemory.IsOnAScreen(p.Left, p.Top, Width))
         {
             WindowStartupLocation = WindowStartupLocation.Manual;
-            Left = left;
-            Top = top;
+            Left = p.Left;
+            Top = p.Top;
         }
+        _openMaximized = p.Maximized;
+    }
+
+    private (double Left, double Top, double Width, double Height, bool Maximized)? LegacyBounds()
+    {
+        double Read(string key, double fallback) =>
+            double.TryParse(_db.GetSetting(key), NumberStyles.Float, CultureInfo.InvariantCulture, out var value) && double.IsFinite(value) ? value : fallback;
+
+        if (_db.GetSetting("WindowWidth") is null) return null;
+        return (Read("WindowLeft", double.NaN), Read("WindowTop", double.NaN), Read("WindowWidth", Width), Read("WindowHeight", Height), false);
+    }
+
+    private const string BoardPlacementKey = "Board";
+
+    // Shows the board and, after it is up (so un-maximizing returns to the remembered size), maximizes it when it
+    // was left full screen in this task file on this PC, or when Settings says always start full screen.
+    public void ShowBoard()
+    {
+        Show();
+        if (_openMaximized || (DataContext as MainViewModel)?.StartFullScreen == true) WindowState = WindowState.Maximized;
     }
 
     private void SaveWindowBounds()
     {
-        var bounds = WindowState == WindowState.Maximized ? RestoreBounds : new Rect(Left, Top, Width, Height);
+        var bounds = WindowState == WindowState.Normal ? new Rect(Left, Top, Width, Height) : RestoreBounds;
         if (bounds.Width <= 0 || bounds.Height <= 0) return;
 
-        _db.SetSetting("WindowWidth", bounds.Width.ToString(CultureInfo.InvariantCulture));
-        _db.SetSetting("WindowHeight", bounds.Height.ToString(CultureInfo.InvariantCulture));
-        _db.SetSetting("WindowLeft", bounds.Left.ToString(CultureInfo.InvariantCulture));
-        _db.SetSetting("WindowTop", bounds.Top.ToString(CultureInfo.InvariantCulture));
+        (DataContext as MainViewModel)?.SaveWindowPlacement(BoardPlacementKey, bounds.Left, bounds.Top, bounds.Width, bounds.Height,
+            WindowState == WindowState.Maximized);
     }
 
     // Fit to Window shares the board's width among the task columns, so the board reports it

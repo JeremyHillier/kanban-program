@@ -26,6 +26,7 @@ public partial class ReportBuilderWindow : Window
         InitializeComponent();
         AccessKeys.Bind(this);
         _viewModel = viewModel;
+        WindowPlacementMemory.AttachPosition(this, viewModel, "ReportBuilder"); // where it was left in this task file on this PC
 
         foreach (var column in _viewModel.Columns)
         {

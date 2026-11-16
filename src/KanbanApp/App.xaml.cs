@@ -127,11 +127,10 @@ public partial class App : Application
 
         var showSplash = db.GetFlag("ShowSplash", true);
         var splashDelayMs = db.GetInt("SplashDelayMs", 1800);
-        var startFullScreen = db.GetFlag("StartFullScreen", false);
 
         if (!showSplash)
         {
-            ShowBoard(db, startFullScreen, taskLink);
+            ShowBoard(db, taskLink);
             return;
         }
 
@@ -143,7 +142,7 @@ public partial class App : Application
         {
             timer.Stop();
 
-            ShowBoard(db, startFullScreen, taskLink);
+            ShowBoard(db, taskLink);
 
             splash.Close();
         };
@@ -151,13 +150,12 @@ public partial class App : Application
     }
 
     // The board becomes the main window, and closing it from now on ends the app.
-    private void ShowBoard(DatabaseService db, bool startFullScreen, string? taskLink)
+    private void ShowBoard(DatabaseService db, string? taskLink)
     {
         var main = new MainWindow(db);
         MainWindow = main;
-        main.Show();
+        main.ShowBoard(); // full screen if it was left so in this file on this PC, or Settings says to start that way
         ShutdownMode = ShutdownMode.OnMainWindowClose;
-        if (startFullScreen) main.WindowState = WindowState.Maximized;
         OpenLinkWhenReady(main, taskLink);
     }
 
@@ -192,7 +190,7 @@ public partial class App : Application
         current?.Close();
         var main = new MainWindow(db);
         MainWindow = main;
-        main.Show();
+        main.ShowBoard(); // the new file's own layout: where its board was, and full screen if it was left so
         ShutdownMode = ShutdownMode.OnMainWindowClose;
         return true;
     }

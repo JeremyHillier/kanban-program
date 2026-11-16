@@ -56,7 +56,7 @@ public sealed class TimelineWindowSizeTests(WpfDispatcherFixture wpf) : IDisposa
 
         Assert.Equal((1200d, 750d, false), board.WindowSize("Timeline"));
         Assert.Equal((900d, 640d, false), OpenBoard().WindowSize("Settings"));
-        Assert.Equal("900,640,0", db.GetSetting("SettingsWindowSize"));
+        Assert.Equal("900,640,0", db.GetSetting($"SettingsWindowSize:{board.ThisComputer}")); // kept for this PC (0.168.0)
     });
 
     [Fact]
