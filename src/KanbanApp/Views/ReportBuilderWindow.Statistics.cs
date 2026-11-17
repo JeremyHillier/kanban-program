@@ -30,6 +30,7 @@ public partial class ReportBuilderWindow
         SelectComboItemByTag(StatsOverTimeComboBox, "Week");
         StatsSummaryCheckBox.IsChecked = StatsBreakdownCheckBox.IsChecked = StatsOverTimeCheckBox.IsChecked = StatsColumnTimesCheckBox.IsChecked = true;
         StatsChartsCheckBox.IsChecked = true;
+        StatsSubTasksCheckBox.IsChecked = true;
         ShowPeriodDates();
     }
 
@@ -54,7 +55,7 @@ public partial class ReportBuilderWindow
         {
             IncludeColumnsLabel, ColumnsPanel, DueFilterLabel, DueFilterComboBox, DueRangeHeader, DueRangePanel, IncludeNoDueDateCheckBox,
             GroupByLabel, GroupByComboBox, SortOrderLabel, SortLevelsPanel, TaskScopeLabel, TaskScopePanel,
-            ArchivedRangeLabel, ArchivedRangePanel, IncludeNotesCheckBox, IncludeSubTasksCheckBox, IncludeSubTaskSummaryCheckBox
+            ArchivedRangeLabel, ArchivedRangePanel, IncludeNotesCheckBox, IncludeSubTasksCheckBox, IncludeSubTaskSummaryCheckBox, SubTaskSummaryOnlyCheckBox
         };
         foreach (var element in taskListOnly) element.Visibility = statistics ? Visibility.Collapsed : Visibility.Visible;
         StatisticsOptionsPanel.Visibility = statistics ? Visibility.Visible : Visibility.Collapsed;
@@ -95,6 +96,7 @@ public partial class ReportBuilderWindow
         view.StatsShowOverTime = StatsOverTimeCheckBox.IsChecked == true;
         view.StatsShowColumnTimes = StatsColumnTimesCheckBox.IsChecked == true;
         view.StatsShowCharts = StatsChartsCheckBox.IsChecked == true;
+        view.StatsShowSubTasks = StatsSubTasksCheckBox.IsChecked == true;
     }
 
     private void ApplyStatisticsOptions(SavedReportView view)
@@ -113,6 +115,7 @@ public partial class ReportBuilderWindow
         StatsOverTimeCheckBox.IsChecked = view.StatsShowOverTime;
         StatsColumnTimesCheckBox.IsChecked = view.StatsShowColumnTimes;
         StatsChartsCheckBox.IsChecked = view.StatsShowCharts;
+        StatsSubTasksCheckBox.IsChecked = view.StatsShowSubTasks;
 
         // Checking a radio button that is already checked raises nothing, so the fields are shown here too.
         (view.IsStatistics ? StatisticsRadio : TaskListRadio).IsChecked = true;
@@ -123,7 +126,8 @@ public partial class ReportBuilderWindow
     private bool StatisticsHaveASection()
     {
         if (StatsSummaryCheckBox.IsChecked == true || StatsBreakdownCheckBox.IsChecked == true
-            || StatsOverTimeCheckBox.IsChecked == true || StatsColumnTimesCheckBox.IsChecked == true) return true;
+            || StatsOverTimeCheckBox.IsChecked == true || StatsColumnTimesCheckBox.IsChecked == true
+            || StatsSubTasksCheckBox.IsChecked == true) return true;
 
         Dialogs.Tell(this, "Nothing to Show", "Tick at least one section to include in the statistics report.", DialogTone.Warning);
         return false;

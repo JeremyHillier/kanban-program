@@ -113,6 +113,7 @@ public partial class ReportBuilderWindow : Window
         IncludeNotesCheckBox.IsChecked = true;
         IncludeSubTasksCheckBox.IsChecked = true;
         IncludeSubTaskSummaryCheckBox.IsChecked = false;
+        SubTaskSummaryOnlyCheckBox.IsChecked = false;
         IncludeEmailedCheckBox.IsChecked = false;
         EmailedOnlyCheckBox.IsChecked = false;
 
@@ -181,6 +182,9 @@ public partial class ReportBuilderWindow : Window
     // report is self-describing without the reader having to remember what was picked in this
     // window. Only non-default selections are mentioned, to keep the common case (few or no
     // filters) short.
+    // Just the sub-task summary, without the list of tasks; it needs the summary itself to be ticked.
+    private bool IsSubTaskSummaryOnly => IncludeSubTaskSummaryCheckBox.IsChecked == true && SubTaskSummaryOnlyCheckBox.IsChecked == true;
+
     private string GetParameterSummary()
     {
         var parts = new List<string>();
@@ -222,6 +226,8 @@ public partial class ReportBuilderWindow : Window
             var noDue = IncludeNoDueDateCheckBox.IsChecked == true ? " + tasks with no due date" : "";
             parts.Add($"Due date range: {from} to {to}{noDue}");
         }
+
+        if (IsSubTaskSummaryOnly) parts.Add("Sub-task summary only");
 
         var sortLevels = new[] { SortLevel1ComboBox, SortLevel2ComboBox, SortLevel3ComboBox }
             .Select(c => (string)((ComboBoxItem)c.SelectedItem).Tag)
@@ -292,7 +298,7 @@ public partial class ReportBuilderWindow : Window
         var document = ReportService.BuildFixedDocument(
             title, rows, GetGroupBy(), IncludeNotesCheckBox.IsChecked == true, IncludeSubTasksCheckBox.IsChecked == true,
             IncludeSubTaskSummaryCheckBox.IsChecked == true, LandscapeRadio.IsChecked == true, GetParameterSummary(),
-            includeEmailed: IncludeEmailedCheckBox.IsChecked == true);
+            includeEmailed: IncludeEmailedCheckBox.IsChecked == true, subTaskSummaryOnly: IsSubTaskSummaryOnly);
 
         new ReportPreviewWindow(document) { Owner = this }.ShowDialog();
     }
@@ -328,6 +334,6 @@ public partial class ReportBuilderWindow : Window
 
         ReportService.SavePdf(title, BuildRows(), GetGroupBy(), IncludeNotesCheckBox.IsChecked == true, IncludeSubTasksCheckBox.IsChecked == true, filePath,
             IncludeSubTaskSummaryCheckBox.IsChecked == true, LandscapeRadio.IsChecked == true, GetParameterSummary(),
-            includeEmailed: IncludeEmailedCheckBox.IsChecked == true);
+            includeEmailed: IncludeEmailedCheckBox.IsChecked == true, subTaskSummaryOnly: IsSubTaskSummaryOnly);
     }
 }

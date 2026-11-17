@@ -68,7 +68,7 @@ public static partial class ReportService
     }
 
     // Which sections a statistics report shows.
-    public sealed record SavedStatisticsSections(bool Summary, bool Breakdown, bool OverTime, bool ColumnTimes, bool Charts = true);
+    public sealed record SavedStatisticsSections(bool Summary, bool Breakdown, bool OverTime, bool ColumnTimes, bool Charts = true, bool SubTasks = false);
 
     // ----- Layout -----
 
@@ -479,6 +479,35 @@ public static partial class ReportService
                     result.ColumnTimes.Select(c => (IReadOnlyList<string>)
                     [
                         c.Column, c.Tasks.ToString(CultureInfo.CurrentCulture), TaskStatistics.Days(c.TypicalDays), TaskStatistics.Days(c.LongestDays)
+                    ]).ToList());
+                }
+            }
+
+            if (sections.SubTasks)
+            {
+                IReadOnlyList<StatisticsSubTask> subTasks = result.SubTasks ?? [];
+                Heading("Sub-tasks", 40);
+                Note("For the tasks finished in this period: how many times each sub-task was ticked. A repeating task's occurrences add up, so this shows how often each step gets done.");
+                if (subTasks.Count == 0) Note("None of the tasks finished in this period had sub-tasks.");
+                else
+                {
+                    var ticked = subTasks.Sum(st => st.Ticked);
+                    var total = subTasks.Sum(st => st.Total);
+                    if (charts)
+                    {
+                        ChartTitle("Sub-tasks ticked", 40);
+                        ShareBar([("Ticked", ticked, ChartFinished), ("Not ticked", total - ticked, ChartOpen)]);
+                    }
+                    Note($"{ticked} of {total} sub-tasks on the finished tasks were ticked.");
+
+                    Table(
+                    [
+                        new("Task", 0.38, false), new("Sub-task", 0.32, false), new("Ticked", 0.10, true), new("Of", 0.10, true), new("Share", 0.10, true)
+                    ],
+                    subTasks.Select(st => (IReadOnlyList<string>)
+                    [
+                        st.Task, st.SubTask, st.Ticked.ToString(CultureInfo.CurrentCulture), st.Total.ToString(CultureInfo.CurrentCulture),
+                        $"{(st.Total == 0 ? 0 : st.Ticked * 100 / st.Total)}%"
                     ]).ToList());
                 }
             }

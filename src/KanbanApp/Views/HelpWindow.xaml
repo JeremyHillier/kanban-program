@@ -530,6 +530,7 @@
                 <local:BulletItem Text="The archived From and To pick tasks by when they were archived."/>
                 <local:BulletItem Text="Custom Filters: tick saved filters to include any task matching one."/>
                 <local:BulletItem Text="The sub-task summary counts how often each sub-task was done. Useful for recurring tasks."/>
+                <local:BulletItem Text="Summary only leaves out the list of tasks and shows just the sub-task summary."/>
                 <local:BulletItem Text="Grouped by Who, a shared task is listed under each person."/>
                 <TextBlock Text="Statistics" Style="{StaticResource HelpSubHeaderStyle}"/>
                 <local:BulletItem Text="Pick a period: last 7 or 30 days, a month, quarter or year, all time, or your own dates."/>
@@ -537,6 +538,7 @@
                 <local:BulletItem Text="Breakdown: the same figures for each project, person, priority or goal."/>
                 <local:BulletItem Text="Over time: tasks added and finished, week by week or month by month."/>
                 <local:BulletItem Text="Time in each column: how long finished tasks spent in each column on the way to Done."/>
+                <local:BulletItem Text="Sub-tasks: how many times each sub-task was ticked on the tasks finished in the period."/>
                 <local:BulletItem Text="Typical is the middle value, so one long-forgotten task doesn't skew it."/>
                 <local:BulletItem Text="Include charts adds a chart to each section, with a line on how to read it."/>
                 <local:BulletItem Text="Charts: on time against late, how long tasks took, and finished and open by group."/>

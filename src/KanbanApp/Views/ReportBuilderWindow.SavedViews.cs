@@ -103,6 +103,7 @@ public partial class ReportBuilderWindow
         IncludeNotes = IncludeNotesCheckBox.IsChecked == true,
         IncludeSubTasks = IncludeSubTasksCheckBox.IsChecked == true,
         IncludeSubTaskSummary = IncludeSubTaskSummaryCheckBox.IsChecked == true,
+        SubTaskSummaryOnly = IsSubTaskSummaryOnly,
         IncludeEmailed = IncludeEmailedCheckBox.IsChecked == true,
         EmailedOnly = EmailedOnlyCheckBox.IsChecked == true
     };
@@ -150,6 +151,7 @@ public partial class ReportBuilderWindow
         IncludeNotesCheckBox.IsChecked = view.IncludeNotes;
         IncludeSubTasksCheckBox.IsChecked = view.IncludeSubTasks;
         IncludeSubTaskSummaryCheckBox.IsChecked = view.IncludeSubTaskSummary;
+        SubTaskSummaryOnlyCheckBox.IsChecked = view.SubTaskSummaryOnly;
         IncludeEmailedCheckBox.IsChecked = view.IncludeEmailed;
         EmailedOnlyCheckBox.IsChecked = view.EmailedOnly;
 

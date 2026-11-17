@@ -74,6 +74,9 @@ public static partial class ReportService
         return SortRows(rows, sortLevel1, sortLevel2, sortLevel3, categoryOrder);
     }
 
+    // What a summary-only report says when none of its tasks has sub-tasks.
+    internal const string NoSubTasksText = "None of these tasks has sub-tasks.";
+
     public static List<SubTaskSummaryRow> BuildSubTaskSummary(List<ReportRow> rows) =>
         rows.SelectMany(r => r.SubTasks.Select(st => (ParentTitle: r.Title, SubTaskTitle: st.Title, st.IsDone)))
             .GroupBy(x => (x.ParentTitle, x.SubTaskTitle))

@@ -17,7 +17,7 @@ public static partial class ReportService
         _fontResolverRegistered = true;
     }
 
-    public static void SavePdf(string title, List<ReportRow> rows, string groupBy, bool includeNotes, bool includeSubTasks, string filePath, bool includeSubTaskSummary = false, bool isLandscape = false, string? parameterSummary = null, bool includeEmailed = false)
+    public static void SavePdf(string title, List<ReportRow> rows, string groupBy, bool includeNotes, bool includeSubTasks, string filePath, bool includeSubTaskSummary = false, bool isLandscape = false, string? parameterSummary = null, bool includeEmailed = false, bool subTaskSummaryOnly = false)
     {
         EnsureFontResolverRegistered();
 
@@ -91,16 +91,21 @@ public static partial class ReportService
             return;
         }
 
-        foreach (var line in WrapText(gfx, BuildStatusSummary(rows), metaFont, width))
+        // Summary only: no list of tasks, just the sub-task summary below.
+        List<ReportRow> listed = subTaskSummaryOnly ? [] : rows;
+        if (listed.Count > 0)
         {
-            gfx.DrawString(line, metaFont, metaBrush, new XPoint(margin, y));
-            y += 13;
+            foreach (var line in WrapText(gfx, BuildStatusSummary(listed), metaFont, width))
+            {
+                gfx.DrawString(line, metaFont, metaBrush, new XPoint(margin, y));
+                y += 13;
+            }
+            y += 10;
         }
-        y += 10;
 
         var isGrouped = groupBy != "None" && !string.IsNullOrEmpty(groupBy);
 
-        foreach (var group in GroupRows(rows, groupBy))
+        foreach (var group in GroupRows(listed, groupBy))
         {
             if (isGrouped)
             {
@@ -172,15 +177,22 @@ public static partial class ReportService
             }
         }
 
-        if (includeSubTaskSummary)
+        if (includeSubTaskSummary || subTaskSummaryOnly)
         {
             var summary = BuildSubTaskSummary(rows);
+            if (summary.Count == 0 && subTaskSummaryOnly)
+            {
+                gfx.DrawString(NoSubTasksText, metaFont, XBrushes.Black, new XPoint(margin, y));
+            }
             if (summary.Count > 0)
             {
                 NewPageIfNeeded(50);
-                y += 6;
-                gfx.DrawLine(new XPen(XColor.FromArgb(0x1E, 0x3A, 0x5F), 1.2), new XPoint(margin - 8, y), new XPoint(pageWidth - margin + 8, y));
-                y += 16;
+                if (!subTaskSummaryOnly) // under the list of tasks, a rule sets it apart
+                {
+                    y += 6;
+                    gfx.DrawLine(new XPen(XColor.FromArgb(0x1E, 0x3A, 0x5F), 1.2), new XPoint(margin - 8, y), new XPoint(pageWidth - margin + 8, y));
+                    y += 16;
+                }
                 gfx.DrawString("Sub-task Completion Summary", new XFont(PdfFontResolver.FamilyName, 16, XFontStyleEx.Bold), accentBrush, new XPoint(margin, y));
                 y += 26;
 

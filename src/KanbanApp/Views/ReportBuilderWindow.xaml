@@ -154,6 +154,8 @@
                               ToolTip="Tasks added and finished in each week or month"/>
                     <CheckBox x:Name="StatsColumnTimesCheckBox" Content="Time in each column" Margin="0,0,18,4" Foreground="{DynamicResource PrimaryTextBrush}"
                               ToolTip="How long finished tasks spent in each column on the way to Done"/>
+                    <CheckBox x:Name="StatsSubTasksCheckBox" Content="Sub-tasks" Margin="0,0,18,4" Foreground="{DynamicResource PrimaryTextBrush}"
+                              ToolTip="How many times each sub-task was ticked on the tasks finished in the period"/>
                 </WrapPanel>
                 <CheckBox x:Name="StatsChartsCheckBox" Content="Include charts" Margin="0,4,0,0" Foreground="{DynamicResource PrimaryTextBrush}"
                           ToolTip="A chart in each section, with a line saying how to read it. Untick for the tables only."/>
@@ -266,6 +268,10 @@
             <StackPanel Grid.Row="12">
                 <CheckBox x:Name="IncludeSubTaskSummaryCheckBox"
                           Content="Include sub-task completion summary (e.g. how many times a sub task was completed)" Margin="0,0,0,4"
+                          Foreground="{DynamicResource PrimaryTextBrush}"/>
+                <CheckBox x:Name="SubTaskSummaryOnlyCheckBox" Content="Summary only (leave out the list of tasks)" Margin="22,0,0,4"
+                          IsEnabled="{Binding IsChecked, ElementName=IncludeSubTaskSummaryCheckBox}"
+                          ToolTip="The report shows just the sub-task completion summary, not every task"
                           Foreground="{DynamicResource PrimaryTextBrush}"/>
                 <!-- Follow-up on tasks sent to other people: when each was last emailed and to whom, or only those. -->
                 <CheckBox x:Name="IncludeEmailedCheckBox" Content="Include when each task was emailed and to whom" Margin="0,0,0,4"

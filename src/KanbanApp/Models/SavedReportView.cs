@@ -43,6 +43,8 @@ public class SavedReportView
     public bool IncludeNotes { get; set; } = true;
     public bool IncludeSubTasks { get; set; } = true;
     public bool IncludeSubTaskSummary { get; set; }
+    // Just the sub-task summary, without the list of tasks (only with IncludeSubTaskSummary). A view saved before has neither.
+    public bool SubTaskSummaryOnly { get; set; }
     // The emailed line under each task (when, to whom, how many times), and the follow-up list: only tasks
     // that have been emailed. A view saved before these existed has neither.
     public bool IncludeEmailed { get; set; }
@@ -62,6 +64,7 @@ public class SavedReportView
     public bool StatsShowOverTime { get; set; } = true;
     public bool StatsShowColumnTimes { get; set; } = true;
     public bool StatsShowCharts { get; set; } = true; // a view saved before charts existed gets them
+    public bool StatsShowSubTasks { get; set; } // a view saved before the Sub-tasks section existed leaves it out
 
     public const string TaskListType = "TaskList";
     public const string StatisticsType = "Statistics";

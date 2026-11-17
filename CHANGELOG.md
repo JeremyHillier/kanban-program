@@ -6,6 +6,11 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.169.0 — 2026-11-17
+
+> - New: in the Report Builder, a task list can show the sub-task completion summary on its own. Tick Summary only to leave out the list of tasks.
+> - New: statistics reports have a Sub-tasks section, showing how many times each sub-task was ticked on the tasks finished in the period. For a repeating task, this shows how often each step gets done.
+
 ## 0.168.0 — 2026-11-16
 
 > - New: each task file remembers its own layout. Switching to a file puts the board and its other windows (Gantt, Calendar, Dashboard, Report Builder, Settings) where they were, full screen included.

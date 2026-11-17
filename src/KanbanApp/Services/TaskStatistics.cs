@@ -73,9 +73,13 @@ public sealed record StatisticsColumnTime(string Column, int Tasks, double Typic
 // How many of the tasks finished in the period took about this long, from added to Done.
 public sealed record StatisticsFinishTime(string Label, int Tasks);
 
+// One sub-task of the tasks finished in the period, by the task's and the sub-task's names: how many times it was ticked,
+// out of how many times it came up (each finished occurrence of a repeating task is one more).
+public sealed record StatisticsSubTask(string Task, string SubTask, int Ticked, int Total);
+
 public sealed record TaskStatisticsResult(DateTime From, DateTime To, int TaskCount, StatisticsSummary Summary,
     IReadOnlyList<StatisticsGroup> Groups, IReadOnlyList<StatisticsBucket> Buckets, IReadOnlyList<StatisticsColumnTime> ColumnTimes,
-    IReadOnlyList<StatisticsFinishTime> FinishTimes);
+    IReadOnlyList<StatisticsFinishTime> FinishTimes, IReadOnlyList<StatisticsSubTask>? SubTasks = null);
 
 // Works out a statistics report from the tasks a report's filters select (board and archived; a
 // deleted task is in neither) and their history:
@@ -86,7 +90,8 @@ public sealed record TaskStatisticsResult(DateTime From, DateTime To, int TaskCo
 //     doesn't drag it out the way an average would;
 //   - open now / overdue now: as of today, whatever the period;
 //   - time in each column: for tasks finished in the period, the days each spent in every column on
-//     its way to Done, from its moves.
+//     its way to Done, from its moves;
+//   - sub-tasks: for tasks finished in the period, how many times each sub-task was ticked.
 // A repeating task's occurrences are separate tasks, so each counts on its own.
 public static class TaskStatistics
 {
@@ -99,7 +104,7 @@ public static class TaskStatistics
         var tasks = rows.Select(r => new TaskFacts(r, history.TryGetValue(r.CardId, out var events) ? events : [], options, today)).ToList();
 
         return new TaskStatisticsResult(options.From, options.To, tasks.Count, Summarise(tasks),
-            Groups(tasks, options.Breakdown), Buckets(tasks, options), ColumnTimes(tasks, columns), FinishTimes(tasks));
+            Groups(tasks, options.Breakdown), Buckets(tasks, options), ColumnTimes(tasks, columns), FinishTimes(tasks), SubTasks(tasks));
     }
 
     // The spread behind "typical days to finish": a few long-running tasks show up here, where the
@@ -123,6 +128,15 @@ public static class TaskStatistics
         }
         return bands;
     }
+
+    private static List<StatisticsSubTask> SubTasks(IReadOnlyList<TaskFacts> tasks) =>
+        tasks.Where(t => t.FinishedInPeriod)
+            .SelectMany(t => t.Row.SubTasks.Select(st => (Task: t.Row.Title, SubTask: st.Title, st.IsDone)))
+            .GroupBy(x => (x.Task, x.SubTask))
+            .Select(g => new StatisticsSubTask(g.Key.Task, g.Key.SubTask, g.Count(x => x.IsDone), g.Count()))
+            .OrderBy(st => st.Task, StringComparer.CurrentCultureIgnoreCase)
+            .ThenBy(st => st.SubTask, StringComparer.CurrentCultureIgnoreCase)
+            .ToList();
 
     private sealed class TaskFacts
     {

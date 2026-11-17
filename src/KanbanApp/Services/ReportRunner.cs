@@ -31,7 +31,7 @@ public static class ReportRunner
             ? ReportService.BuildStatisticsDocument(view.Title, BuildStatistics(board, view, today), SectionsOf(view), view.StatsBreakdown,
                 view.StatsOverTime, view.IsLandscape, Summarise(view, today))
             : ReportService.BuildFixedDocument(view.Title, BuildRows(board, view, today), view.GroupBy, view.IncludeNotes, view.IncludeSubTasks,
-                view.IncludeSubTaskSummary, view.IsLandscape, Summarise(view, today), includeEmailed: view.IncludeEmailed);
+                view.IncludeSubTaskSummary, view.IsLandscape, Summarise(view, today), includeEmailed: view.IncludeEmailed, subTaskSummaryOnly: SummaryOnly(view));
 
     public static void SavePdf(MainViewModel board, SavedReportView view, DateTime today, string filePath)
     {
@@ -43,7 +43,7 @@ public static class ReportRunner
         }
 
         ReportService.SavePdf(view.Title, BuildRows(board, view, today), view.GroupBy, view.IncludeNotes, view.IncludeSubTasks, filePath,
-            view.IncludeSubTaskSummary, view.IsLandscape, Summarise(view, today), includeEmailed: view.IncludeEmailed);
+            view.IncludeSubTaskSummary, view.IsLandscape, Summarise(view, today), includeEmailed: view.IncludeEmailed, subTaskSummaryOnly: SummaryOnly(view));
     }
 
     // A statistics report covers every task its filters pick, on the board and archived, whatever
@@ -86,7 +86,10 @@ public static class ReportRunner
     }
 
     private static ReportService.SavedStatisticsSections SectionsOf(SavedReportView view) =>
-        new(view.StatsShowSummary, view.StatsShowBreakdown, view.StatsShowOverTime, view.StatsShowColumnTimes, view.StatsShowCharts);
+        new(view.StatsShowSummary, view.StatsShowBreakdown, view.StatsShowOverTime, view.StatsShowColumnTimes, view.StatsShowCharts, view.StatsShowSubTasks);
+
+    // Just the sub-task summary, without the list of tasks; it needs the summary itself to be ticked.
+    private static bool SummaryOnly(SavedReportView view) => view.IncludeSubTaskSummary && view.SubTaskSummaryOnly;
 
     // The line under the report's title saying what it covers. Written from the saved view, so it
     // matches what the Report Builder would print for the same choices, with the dates as they
@@ -131,6 +134,8 @@ public static class ReportRunner
             var noDue = view.IncludeNoDueDate ? " + tasks with no due date" : "";
             parts.Add($"Due date range: {from?.ToString("MMM d, yyyy") ?? "any"} to {to?.ToString("MMM d, yyyy") ?? "any"}{noDue}");
         }
+
+        if (SummaryOnly(view)) parts.Add("Sub-task summary only");
 
         var sorts = new[] { view.SortLevel1, view.SortLevel2, view.SortLevel3 }.Where(s => s != "None").ToList();
         if (sorts.Count > 0) parts.Add("Sort order: " + string.Join(" then ", sorts));

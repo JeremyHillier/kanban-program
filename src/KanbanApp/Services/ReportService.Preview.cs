@@ -19,7 +19,7 @@ public static partial class ReportService
     private static SolidColorBrush RowBandBrush(int rowIndex, bool isGrouped) =>
         rowIndex % 2 == 0 ? BandEvenBrush : (isGrouped ? BandGroupedOddBrush : BandOddBrush);
 
-    public static FixedDocument BuildFixedDocument(string title, List<ReportRow> rows, string groupBy, bool includeNotes, bool includeSubTasks, bool includeSubTaskSummary = false, bool isLandscape = false, string? parameterSummary = null, bool includeEmailed = false)
+    public static FixedDocument BuildFixedDocument(string title, List<ReportRow> rows, string groupBy, bool includeNotes, bool includeSubTasks, bool includeSubTaskSummary = false, bool isLandscape = false, string? parameterSummary = null, bool includeEmailed = false, bool subTaskSummaryOnly = false)
     {
         const double a4Width = 793.92;
         const double a4Height = 1122.24;
@@ -117,7 +117,7 @@ public static partial class ReportService
         {
             AddText(canvas, "No tasks match the selected filters.", margin, y, italicTypeface, 11, Brushes.Black);
         }
-        else
+        else if (!subTaskSummaryOnly) // summary only: no list of tasks, just the sub-task summary below
         {
             var statusSummary = BuildStatusSummary(rows);
             foreach (var line in WrapLine(statusSummary, regularTypeface, 10, contentWidth))
@@ -206,16 +206,23 @@ public static partial class ReportService
             }
         }
 
-        if (includeSubTaskSummary)
+        if (includeSubTaskSummary || subTaskSummaryOnly)
         {
             var summary = BuildSubTaskSummary(rows);
+            if (summary.Count == 0 && subTaskSummaryOnly && rows.Count > 0)
+            {
+                AddText(canvas, NoSubTasksText, margin, y, italicTypeface, 11, Brushes.Black);
+            }
             if (summary.Count > 0)
             {
                 EnsureSpace(50);
-                y += 6;
-                var divider = new System.Windows.Shapes.Line { X1 = margin - 8, Y1 = y, X2 = pageWidth - margin + 8, Y2 = y, Stroke = BandAccentBrush, StrokeThickness = 1.2 };
-                canvas.Children.Add(divider);
-                y += 16;
+                if (!subTaskSummaryOnly) // under the list of tasks, a rule sets it apart
+                {
+                    y += 6;
+                    var divider = new System.Windows.Shapes.Line { X1 = margin - 8, Y1 = y, X2 = pageWidth - margin + 8, Y2 = y, Stroke = BandAccentBrush, StrokeThickness = 1.2 };
+                    canvas.Children.Add(divider);
+                    y += 16;
+                }
                 AddText(canvas, "Sub-task Completion Summary", margin, y, boldTypeface, 16, BandAccentBrush);
                 y += 26;
 
