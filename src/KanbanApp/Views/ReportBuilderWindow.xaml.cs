@@ -26,6 +26,7 @@ public partial class ReportBuilderWindow : Window
         InitializeComponent();
         AccessKeys.Bind(this);
         _viewModel = viewModel;
+        MaxHeight = SystemParameters.WorkArea.Height * 0.95; // each tab scrolls, so a short screen still reaches everything
         WindowPlacementMemory.AttachPosition(this, viewModel, "ReportBuilder"); // where it was left in this task file on this PC
 
         foreach (var column in _viewModel.Columns)
@@ -87,6 +88,7 @@ public partial class ReportBuilderWindow : Window
 
         foreach (var checkBox in _columnCheckBoxes) checkBox.IsChecked = (string)checkBox.Tag != "Done";
 
+        TitleSearchTextBox.Text = string.Empty;
         foreach (var option in _projectOptions) option.IsSelected = false;
         foreach (var option in _priorityOptions) option.IsSelected = false;
         foreach (var option in _whoOptions) option.IsSelected = false;
@@ -185,6 +187,9 @@ public partial class ReportBuilderWindow : Window
     // Just the sub-task summary, without the list of tasks; it needs the summary itself to be ticked.
     private bool IsSubTaskSummaryOnly => IncludeSubTaskSummaryCheckBox.IsChecked == true && SubTaskSummaryOnlyCheckBox.IsChecked == true;
 
+    // The title search as typed, without the spaces round it.
+    private string TitleSearch => TitleSearchTextBox.Text.Trim();
+
     private string GetParameterSummary()
     {
         var parts = new List<string>();
@@ -218,6 +223,8 @@ public partial class ReportBuilderWindow : Window
             AddIfSet("Due", DueFilterComboBox);
             if (filterParts.Count > 0) parts.Add("Filters: " + string.Join(", ", filterParts));
         }
+
+        if (TitleSearch.Length > 0) parts.Add($"Title contains: \"{TitleSearch}\"");
 
         if (DueFromDatePicker.SelectedDate is not null || DueToDatePicker.SelectedDate is not null || IncludeNoDueDateCheckBox.IsChecked == true)
         {
@@ -281,7 +288,8 @@ public partial class ReportBuilderWindow : Window
             ArchivedFromDatePicker.SelectedDate,
             ArchivedToDatePicker.SelectedDate,
             _viewModel.GetEmailHistory,
-            EmailedOnlyCheckBox.IsChecked == true);
+            EmailedOnlyCheckBox.IsChecked == true,
+            titleSearch: TitleSearch);
     }
 
     private void Preview_Click(object sender, RoutedEventArgs e)

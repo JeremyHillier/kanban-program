@@ -85,6 +85,7 @@ public partial class ReportBuilderWindow
         Project = _projectOptions.Where(o => o.IsSelected).Select(o => o.Name).ToList(),
         Priority = _priorityOptions.Where(o => o.IsSelected).Select(o => o.Name).ToList(),
         Who = _whoOptions.Where(o => o.IsSelected).Select(o => o.Name).ToList(),
+        TitleSearch = TitleSearch,
         Goal = (string)GoalFilterComboBox.SelectedItem,
         Flag = (string)FlagFilterComboBox.SelectedItem,
         Due = (string)DueFilterComboBox.SelectedItem,
@@ -118,6 +119,7 @@ public partial class ReportBuilderWindow
         foreach (var option in _priorityOptions) option.IsSelected = view.Priority.Contains(option.Name);
         foreach (var option in _whoOptions) option.IsSelected = view.Who.Contains(option.Name);
 
+        TitleSearchTextBox.Text = view.TitleSearch;
         SelectComboItem(GoalFilterComboBox, view.Goal);
         SelectComboItem(FlagFilterComboBox, view.Flag);
         SelectComboItem(DueFilterComboBox, view.Due);

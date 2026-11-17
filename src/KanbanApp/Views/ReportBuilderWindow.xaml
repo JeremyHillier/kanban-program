@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         mc:Ignorable="d"
-        Title="Report Builder" Height="600" Width="720" SizeToContent="Height"
+        Title="Report Builder" Height="780" Width="820"
         WindowStartupLocation="CenterOwner" ResizeMode="NoResize"
         ShowInTaskbar="False"
         Background="{DynamicResource WindowBackgroundBrush}">
@@ -80,28 +80,97 @@
                          Checked="ReportType_Checked" Foreground="{DynamicResource PrimaryTextBrush}"
                          ToolTip="Figures about the tasks the filters pick, over a period: added, finished, on time, how long they take"/>
         </StackPanel>
-        <!-- Docked under the form, outside its scroll, so Preview and PDF never leave the screen. -->
-        <Grid DockPanel.Dock="Bottom" Margin="0,12,0,0">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
+        <!-- The title and what kind of report it is stay in view; everything else is in three tabs, each of which
+             scrolls if the window is short. Preview and PDF are docked under the tabs and never leave the screen. -->
+        <StackPanel DockPanel.Dock="Top">
+            <TextBlock Text="Report title" Style="{StaticResource FieldLabelStyle}" Margin="0,0,0,4"/>
+            <TextBox x:Name="ReportTitleTextBox" Padding="6" Text="Kanban Task Report"
+                     Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                 BorderBrush="{DynamicResource CardBorderBrush}"/>
+        </StackPanel>
+            <Grid DockPanel.Dock="Bottom" Margin="0,12,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Left">
+                    <Button Content="Help" Command="{x:Static views:HelpKey.ShowCommand}" CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}" Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}" ToolTip="Help for this window. (F1)" Margin="0,0,8,0"/>
+                    <Button Content="_Reset all fields" Width="120" Padding="0,6" Click="Reset_Click" ToolTip="Put every field back to its starting value"
+                            Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                </StackPanel>
+                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                    <Button Content="P_DF" Width="90" Padding="0,6" IsDefault="True" Click="Pdf_Click" ToolTip="Save the report as a PDF file"
+                            Background="#FF66BB6A" Foreground="White"/>
+                    <Button Content="_Email..." Width="90" Padding="0,6" Margin="8,0,0,0" Click="Email_Click" ToolTip="Open a new email with the report attached as a PDF"
+                            Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                    <Button Content="_Preview" Width="90" Padding="0,6" Margin="8,0,0,0" Click="Preview_Click" ToolTip="Show the report on screen; it can be printed from there too"
+                            Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                    <Button Content="Close" Width="80" Padding="0,6" Margin="8,0,0,0" IsCancel="True"
+                            Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}" ToolTip="Close this window. (Esc)"/>
+                </StackPanel>
+            </Grid>
+        <TabControl x:Name="OptionsTabs" Margin="0,10,0,0" Padding="0" Background="{DynamicResource WindowBackgroundBrush}" BorderBrush="{DynamicResource CardBorderBrush}">
+            <TabItem Header="Filters" x:Name="FiltersTab">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel Margin="12,0,12,12">
+                        <TextBlock Text="Search task titles" Style="{StaticResource FieldLabelStyle}"/>
+                        <TextBox x:Name="TitleSearchTextBox" Padding="6"
+                                 ToolTip="Only tasks whose title contains this are in the report (capitals don't matter)"
+                                 Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                 BorderBrush="{DynamicResource CardBorderBrush}"/>
+                        <TextBlock Text="Only tasks whose title contains this are in the report. It applies on top of everything else on this tab, custom filters included, to task lists and to statistics."
+                                   FontSize="11" Margin="0,4,0,0" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryTextBrush}"/>
+                        <Grid Margin="0,4,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="16"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+        <TextBlock Grid.Row="0" Grid.Column="0" Text="Project (Ctrl/Shift-click for multiple)" Style="{StaticResource FieldLabelStyle}"/>
+        <TextBlock Grid.Row="0" Grid.Column="2" Text="Priority (Ctrl/Shift-click for multiple)" Style="{StaticResource FieldLabelStyle}"/>
+        <ListBox Grid.Row="1" Grid.Column="0" x:Name="ProjectFilterListBox" Style="{StaticResource MultiSelectFilterListBoxStyle}"/>
+        <ListBox Grid.Row="1" Grid.Column="2" x:Name="PriorityFilterListBox" Style="{StaticResource MultiSelectFilterListBoxStyle}"/>
 
+        <TextBlock Grid.Row="2" Grid.Column="0" Text="Who (Ctrl/Shift-click for multiple)" Style="{StaticResource FieldLabelStyle}"/>
+        <TextBlock Grid.Row="2" Grid.Column="2" Text="Goal" Style="{StaticResource FieldLabelStyle}"/>
+        <ListBox Grid.Row="3" Grid.Column="0" x:Name="WhoFilterListBox" Style="{StaticResource MultiSelectFilterListBoxStyle}"/>
+        <ComboBox Grid.Row="3" Grid.Column="2" x:Name="GoalFilterComboBox" Padding="6" VerticalAlignment="Top"
+                  Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                  BorderBrush="{DynamicResource CardBorderBrush}"/>
+
+        <TextBlock Grid.Row="4" Grid.Column="0" Text="Flag" Style="{StaticResource FieldLabelStyle}"/>
+        <TextBlock Grid.Row="4" Grid.Column="2" x:Name="DueFilterLabel" Text="Due" Style="{StaticResource FieldLabelStyle}"/>
+        <ComboBox Grid.Row="5" Grid.Column="0" x:Name="FlagFilterComboBox" Padding="6"
+                  Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                  BorderBrush="{DynamicResource CardBorderBrush}"/>
+        <ComboBox Grid.Row="5" Grid.Column="2" x:Name="DueFilterComboBox" Padding="6"
+                  Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                  BorderBrush="{DynamicResource CardBorderBrush}"/>
+
+                        </Grid>
+<CheckBox x:Name="EmailedOnlyCheckBox" Content="Emailed tasks only (a follow-up list)" Margin="0,10,0,0"
+                          ToolTip="Leaves out every task that has never been emailed, whatever the other filters say."
+                          Foreground="{DynamicResource PrimaryTextBrush}"/>
+        <TextBlock Text="Custom filters (select one or more to override the filters above)"
+                   Style="{StaticResource SectionHeaderStyle}"/>
+        <WrapPanel x:Name="CustomFiltersPanel"/>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+            <TabItem Header="Content" x:Name="ContentTab">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel Margin="12,0,12,12">
             <!-- The statistics report's own options, in place of the task list's grouping, sort and
                  scope (hidden while Statistics is chosen, and these while it isn't). -->
-            <StackPanel Grid.Row="0" x:Name="StatisticsOptionsPanel" Visibility="Collapsed">
+            <StackPanel x:Name="StatisticsOptionsPanel" Visibility="Collapsed">
                 <TextBlock Text="Period" Style="{StaticResource FieldLabelStyle}"/>
                 <StackPanel Orientation="Horizontal">
                     <ComboBox x:Name="StatsPeriodComboBox" Padding="6" Width="170" SelectionChanged="StatsPeriodComboBox_SelectionChanged"
@@ -161,8 +230,94 @@
                           ToolTip="A chart in each section, with a line saying how to read it. Untick for the tables only."/>
             </StackPanel>
 
-            <TextBlock Grid.Row="0" x:Name="GroupByLabel" Text="Group by" Style="{StaticResource FieldLabelStyle}"/>
-            <ComboBox Grid.Row="1" x:Name="GroupByComboBox" Padding="6" HorizontalAlignment="Left" Width="200" SelectedIndex="0"
+        <TextBlock x:Name="IncludeColumnsLabel" Text="Include Columns" Style="{StaticResource FieldLabelStyle}"/>
+        <WrapPanel x:Name="ColumnsPanel"/>
+            <TextBlock x:Name="TaskScopeLabel" Text="Task scope" Style="{StaticResource FieldLabelStyle}"/>
+            <StackPanel x:Name="TaskScopePanel" Orientation="Horizontal">
+                <RadioButton x:Name="BoardOnlyRadio" Content="Board tasks" GroupName="ArchiveScope" IsChecked="True" Margin="0,0,20,0"
+                             Foreground="{DynamicResource PrimaryTextBrush}"/>
+                <RadioButton x:Name="BoardAndArchivedRadio" Content="Board tasks + archived" GroupName="ArchiveScope" Margin="0,0,20,0"
+                             Foreground="{DynamicResource PrimaryTextBrush}"/>
+                <RadioButton x:Name="ArchivedOnlyRadio" Content="Archived only (completed tasks)" GroupName="ArchiveScope"
+                             Foreground="{DynamicResource PrimaryTextBrush}"/>
+            </StackPanel>
+
+        <TextBlock x:Name="DueRangeHeader" Text="Due date range (this report only)" Style="{StaticResource SectionHeaderStyle}"/>
+        <StackPanel x:Name="DueRangePanel">
+        <StackPanel Orientation="Horizontal">
+            <TextBlock Text="From" VerticalAlignment="Center" Margin="0,0,6,0" Foreground="{DynamicResource PrimaryTextBrush}"/>
+            <DatePicker x:Name="DueFromDatePicker" Padding="4" Width="140" Loaded="DatePicker_Loaded"
+                        Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                        BorderBrush="{DynamicResource CardBorderBrush}"/>
+            <Button Content="Today" Padding="8,4" Margin="6,0,0,0" Click="TodayDueFrom_Click"
+                    ToolTip="Today, whenever the report is run. Saved in a view, it stays 'today' rather than becoming a fixed date. Right-click for so many days from today."
+                    PreviewMouseRightButtonUp="TodayDueFrom_RightClick"
+                    Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+            <Button Content="Clear" Padding="8,4" Margin="6,0,0,0" Click="ClearDueFrom_Click" ToolTip="No start to the range"
+                    Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+            <TextBlock Text="To" VerticalAlignment="Center" Margin="16,0,6,0" Foreground="{DynamicResource PrimaryTextBrush}"/>
+            <DatePicker x:Name="DueToDatePicker" Padding="4" Width="140" Loaded="DatePicker_Loaded"
+                        Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                        BorderBrush="{DynamicResource CardBorderBrush}"/>
+            <Button Content="Today" Padding="8,4" Margin="6,0,0,0" Click="TodayDueTo_Click"
+                    ToolTip="Today, whenever the report is run. Saved in a view, it stays 'today' rather than becoming a fixed date. Right-click for so many days from today."
+                    PreviewMouseRightButtonUp="TodayDueTo_RightClick"
+                    Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+            <Button Content="Clear" Padding="8,4" Margin="6,0,0,0" Click="ClearDueTo_Click" ToolTip="No end to the range"
+                    Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+        </StackPanel>
+        <!-- Says what a saved view will keep for each date: the word today (worked out afresh each
+             time the report runs) or the fixed day picked from the calendar. -->
+        <TextBlock x:Name="DateKindText" FontSize="11" Margin="0,4,0,0" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryTextStrongBrush}"/>
+        </StackPanel>
+        <CheckBox x:Name="IncludeNoDueDateCheckBox" Content="Include tasks with no due date"
+                  Margin="0,6,0,0" Foreground="{DynamicResource PrimaryTextBrush}"/>
+            <TextBlock x:Name="ArchivedRangeLabel" Text="Archived date range (applies to archived tasks only)" Style="{StaticResource FieldLabelStyle}"/>
+            <StackPanel x:Name="ArchivedRangePanel" Orientation="Horizontal">
+                <TextBlock Text="From" VerticalAlignment="Center" Margin="0,0,6,0" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                <DatePicker x:Name="ArchivedFromDatePicker" Padding="4" Width="140" Loaded="DatePicker_Loaded"
+                            Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                            BorderBrush="{DynamicResource CardBorderBrush}"/>
+                <Button Content="Today" Padding="8,4" Margin="6,0,0,0" Click="TodayArchivedFrom_Click" ToolTip="Today, whenever the report is run"
+                        Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                <Button Content="Clear" Padding="8,4" Margin="6,0,0,0" Click="ClearArchivedFrom_Click" ToolTip="No start to the range"
+                        Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                <TextBlock Text="To" VerticalAlignment="Center" Margin="16,0,6,0" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                <DatePicker x:Name="ArchivedToDatePicker" Padding="4" Width="140" Loaded="DatePicker_Loaded"
+                            Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                            BorderBrush="{DynamicResource CardBorderBrush}"/>
+                <Button Content="Today" Padding="8,4" Margin="6,0,0,0" Click="TodayArchivedTo_Click" ToolTip="Today, whenever the report is run"
+                        Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                <Button Content="Clear" Padding="8,4" Margin="6,0,0,0" Click="ClearArchivedTo_Click" ToolTip="No end to the range"
+                        Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+            </StackPanel>
+
+            <CheckBox x:Name="IncludeNotesCheckBox" Content="Include notes" Margin="0,14,0,4"
+                      Foreground="{DynamicResource PrimaryTextBrush}"/>
+            <CheckBox x:Name="IncludeSubTasksCheckBox" Content="Include sub-tasks" Margin="0,0,0,4"
+                      Foreground="{DynamicResource PrimaryTextBrush}"/>
+            <StackPanel>
+                <CheckBox x:Name="IncludeSubTaskSummaryCheckBox"
+                          Content="Include sub-task completion summary (e.g. how many times a sub task was completed)" Margin="0,0,0,4"
+                          Foreground="{DynamicResource PrimaryTextBrush}"/>
+                <CheckBox x:Name="SubTaskSummaryOnlyCheckBox" Content="Summary only (leave out the list of tasks)" Margin="22,0,0,4"
+                          IsEnabled="{Binding IsChecked, ElementName=IncludeSubTaskSummaryCheckBox}"
+                          ToolTip="The report shows just the sub-task completion summary, not every task"
+                          Foreground="{DynamicResource PrimaryTextBrush}"/>
+                <!-- Follow-up on tasks sent to other people: when each was last emailed and to whom, or only those. -->
+                <CheckBox x:Name="IncludeEmailedCheckBox" Content="Include when each task was emailed and to whom" Margin="0,0,0,4"
+                          ToolTip="Adds an Emailed line under each task that has been emailed: the latest time and recipients, and how many times in all."
+                          Foreground="{DynamicResource PrimaryTextBrush}"/>
+            </StackPanel>
+
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+            <TabItem Header="Layout" x:Name="LayoutTab">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel Margin="12,0,12,12">
+            <TextBlock x:Name="GroupByLabel" Text="Group by" Style="{StaticResource FieldLabelStyle}"/>
+            <ComboBox x:Name="GroupByComboBox" Padding="6" HorizontalAlignment="Left" Width="200" SelectedIndex="0"
                       SelectionChanged="GroupByComboBox_SelectionChanged"
                       Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
                       BorderBrush="{DynamicResource CardBorderBrush}">
@@ -174,8 +329,8 @@
                 <ComboBoxItem Content="Goal" Tag="Goal"/>
             </ComboBox>
 
-            <TextBlock Grid.Row="2" x:Name="SortOrderLabel" Text="Sort order" Style="{StaticResource FieldLabelStyle}"/>
-            <StackPanel Grid.Row="3" x:Name="SortLevelsPanel" Orientation="Horizontal">
+            <TextBlock x:Name="SortOrderLabel" Text="Sort order" Style="{StaticResource FieldLabelStyle}"/>
+            <StackPanel x:Name="SortLevelsPanel" Orientation="Horizontal">
                 <StackPanel Orientation="Vertical" Margin="0,0,16,0">
                     <TextBlock Text="1st" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,0,0,2"/>
                     <ComboBox x:Name="SortLevel1ComboBox" Padding="6" Width="140" SelectedIndex="0" SelectionChanged="SortLevelComboBox_SelectionChanged"
@@ -223,181 +378,17 @@
                 </StackPanel>
             </StackPanel>
 
-            <TextBlock Grid.Row="4" x:Name="TaskScopeLabel" Text="Task scope" Style="{StaticResource FieldLabelStyle}"/>
-            <StackPanel Grid.Row="5" x:Name="TaskScopePanel" Orientation="Horizontal">
-                <RadioButton x:Name="BoardOnlyRadio" Content="Board tasks" GroupName="ArchiveScope" IsChecked="True" Margin="0,0,20,0"
-                             Foreground="{DynamicResource PrimaryTextBrush}"/>
-                <RadioButton x:Name="BoardAndArchivedRadio" Content="Board tasks + archived" GroupName="ArchiveScope" Margin="0,0,20,0"
-                             Foreground="{DynamicResource PrimaryTextBrush}"/>
-                <RadioButton x:Name="ArchivedOnlyRadio" Content="Archived only (completed tasks)" GroupName="ArchiveScope"
-                             Foreground="{DynamicResource PrimaryTextBrush}"/>
-            </StackPanel>
-
-            <TextBlock Grid.Row="6" Text="Page orientation (PDF)" Style="{StaticResource FieldLabelStyle}"/>
-            <StackPanel Grid.Row="7" Orientation="Horizontal">
+            <TextBlock Text="Page orientation (PDF)" Style="{StaticResource FieldLabelStyle}"/>
+            <StackPanel Orientation="Horizontal">
                 <RadioButton x:Name="PortraitRadio" Content="Portrait" GroupName="PageOrientation" IsChecked="True" Margin="0,0,20,0"
                              Foreground="{DynamicResource PrimaryTextBrush}"/>
                 <RadioButton x:Name="LandscapeRadio" Content="Landscape" GroupName="PageOrientation"
                              Foreground="{DynamicResource PrimaryTextBrush}"/>
             </StackPanel>
 
-            <TextBlock Grid.Row="8" x:Name="ArchivedRangeLabel" Text="Archived date range (applies to archived tasks only)" Style="{StaticResource FieldLabelStyle}"/>
-            <StackPanel Grid.Row="9" x:Name="ArchivedRangePanel" Orientation="Horizontal">
-                <TextBlock Text="From" VerticalAlignment="Center" Margin="0,0,6,0" Foreground="{DynamicResource PrimaryTextBrush}"/>
-                <DatePicker x:Name="ArchivedFromDatePicker" Padding="4" Width="140" Loaded="DatePicker_Loaded"
-                            Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
-                            BorderBrush="{DynamicResource CardBorderBrush}"/>
-                <Button Content="Today" Padding="8,4" Margin="6,0,0,0" Click="TodayArchivedFrom_Click" ToolTip="Today, whenever the report is run"
-                        Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
-                <Button Content="Clear" Padding="8,4" Margin="6,0,0,0" Click="ClearArchivedFrom_Click" ToolTip="No start to the range"
-                        Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
-                <TextBlock Text="To" VerticalAlignment="Center" Margin="16,0,6,0" Foreground="{DynamicResource PrimaryTextBrush}"/>
-                <DatePicker x:Name="ArchivedToDatePicker" Padding="4" Width="140" Loaded="DatePicker_Loaded"
-                            Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
-                            BorderBrush="{DynamicResource CardBorderBrush}"/>
-                <Button Content="Today" Padding="8,4" Margin="6,0,0,0" Click="TodayArchivedTo_Click" ToolTip="Today, whenever the report is run"
-                        Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
-                <Button Content="Clear" Padding="8,4" Margin="6,0,0,0" Click="ClearArchivedTo_Click" ToolTip="No end to the range"
-                        Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
-            </StackPanel>
-
-            <CheckBox Grid.Row="10" x:Name="IncludeNotesCheckBox" Content="Include notes" Margin="0,14,0,4"
-                      Foreground="{DynamicResource PrimaryTextBrush}"/>
-            <CheckBox Grid.Row="11" x:Name="IncludeSubTasksCheckBox" Content="Include sub-tasks" Margin="0,0,0,4"
-                      Foreground="{DynamicResource PrimaryTextBrush}"/>
-            <StackPanel Grid.Row="12">
-                <CheckBox x:Name="IncludeSubTaskSummaryCheckBox"
-                          Content="Include sub-task completion summary (e.g. how many times a sub task was completed)" Margin="0,0,0,4"
-                          Foreground="{DynamicResource PrimaryTextBrush}"/>
-                <CheckBox x:Name="SubTaskSummaryOnlyCheckBox" Content="Summary only (leave out the list of tasks)" Margin="22,0,0,4"
-                          IsEnabled="{Binding IsChecked, ElementName=IncludeSubTaskSummaryCheckBox}"
-                          ToolTip="The report shows just the sub-task completion summary, not every task"
-                          Foreground="{DynamicResource PrimaryTextBrush}"/>
-                <!-- Follow-up on tasks sent to other people: when each was last emailed and to whom, or only those. -->
-                <CheckBox x:Name="IncludeEmailedCheckBox" Content="Include when each task was emailed and to whom" Margin="0,0,0,4"
-                          ToolTip="Adds an Emailed line under each task that has been emailed: the latest time and recipients, and how many times in all."
-                          Foreground="{DynamicResource PrimaryTextBrush}"/>
-                <CheckBox x:Name="EmailedOnlyCheckBox" Content="Emailed tasks only (a follow-up list)" Margin="0,0,0,4"
-                          ToolTip="Leaves out every task that has never been emailed, whatever the other filters say."
-                          Foreground="{DynamicResource PrimaryTextBrush}"/>
-            </StackPanel>
-
-            <Grid Grid.Row="13" Margin="0,18,0,0">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-                <StackPanel Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Left">
-                    <Button Content="Help" Command="{x:Static views:HelpKey.ShowCommand}" CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}" Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}" ToolTip="Help for this window. (F1)" Margin="0,0,8,0"/>
-                    <Button Content="_Reset all fields" Width="120" Padding="0,6" Click="Reset_Click" ToolTip="Put every field back to its starting value"
-                            Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
-                </StackPanel>
-                <StackPanel Grid.Column="1" Orientation="Horizontal">
-                    <Button Content="P_DF" Width="90" Padding="0,6" IsDefault="True" Click="Pdf_Click" ToolTip="Save the report as a PDF file"
-                            Background="#FF66BB6A" Foreground="White"/>
-                    <Button Content="_Email..." Width="90" Padding="0,6" Margin="8,0,0,0" Click="Email_Click" ToolTip="Open a new email with the report attached as a PDF"
-                            Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
-                    <Button Content="_Preview" Width="90" Padding="0,6" Margin="8,0,0,0" Click="Preview_Click" ToolTip="Show the report on screen; it can be printed from there too"
-                            Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
-                    <Button Content="Close" Width="80" Padding="0,6" Margin="8,0,0,0" IsCancel="True"
-                            Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}" ToolTip="Close this window. (Esc)"/>
-                </StackPanel>
-            </Grid>
-        </Grid>
-        <ScrollViewer VerticalScrollBarVisibility="Auto">
-        <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="16"/>
-            <ColumnDefinition Width="*"/>
-        </Grid.ColumnDefinitions>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
-
-        <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Text="Report title" Style="{StaticResource FieldLabelStyle}" Margin="0,0,0,4"/>
-        <TextBox Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" x:Name="ReportTitleTextBox" Padding="6" Text="Kanban Task Report"
-                  Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
-                  BorderBrush="{DynamicResource CardBorderBrush}"/>
-
-        <TextBlock Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" x:Name="IncludeColumnsLabel" Text="Include Columns" Style="{StaticResource FieldLabelStyle}"/>
-        <WrapPanel Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3" x:Name="ColumnsPanel"/>
-
-        <TextBlock Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="3" Text="Filters" Style="{StaticResource SectionHeaderStyle}"/>
-
-        <TextBlock Grid.Row="5" Grid.Column="0" Text="Project (Ctrl/Shift-click for multiple)" Style="{StaticResource FieldLabelStyle}"/>
-        <TextBlock Grid.Row="5" Grid.Column="2" Text="Priority (Ctrl/Shift-click for multiple)" Style="{StaticResource FieldLabelStyle}"/>
-        <ListBox Grid.Row="6" Grid.Column="0" x:Name="ProjectFilterListBox" Style="{StaticResource MultiSelectFilterListBoxStyle}"/>
-        <ListBox Grid.Row="6" Grid.Column="2" x:Name="PriorityFilterListBox" Style="{StaticResource MultiSelectFilterListBoxStyle}"/>
-
-        <TextBlock Grid.Row="7" Grid.Column="0" Text="Who (Ctrl/Shift-click for multiple)" Style="{StaticResource FieldLabelStyle}"/>
-        <TextBlock Grid.Row="7" Grid.Column="2" Text="Goal" Style="{StaticResource FieldLabelStyle}"/>
-        <ListBox Grid.Row="8" Grid.Column="0" x:Name="WhoFilterListBox" Style="{StaticResource MultiSelectFilterListBoxStyle}"/>
-        <ComboBox Grid.Row="8" Grid.Column="2" x:Name="GoalFilterComboBox" Padding="6" VerticalAlignment="Top"
-                  Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
-                  BorderBrush="{DynamicResource CardBorderBrush}"/>
-
-        <TextBlock Grid.Row="9" Grid.Column="0" Text="Flag" Style="{StaticResource FieldLabelStyle}"/>
-        <TextBlock Grid.Row="9" Grid.Column="2" x:Name="DueFilterLabel" Text="Due" Style="{StaticResource FieldLabelStyle}"/>
-        <ComboBox Grid.Row="10" Grid.Column="0" x:Name="FlagFilterComboBox" Padding="6"
-                  Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
-                  BorderBrush="{DynamicResource CardBorderBrush}"/>
-        <ComboBox Grid.Row="10" Grid.Column="2" x:Name="DueFilterComboBox" Padding="6"
-                  Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
-                  BorderBrush="{DynamicResource CardBorderBrush}"/>
-
-        <TextBlock Grid.Row="11" Grid.Column="0" Grid.ColumnSpan="3" x:Name="DueRangeHeader" Text="Due date range (this report only)" Style="{StaticResource SectionHeaderStyle}"/>
-        <StackPanel Grid.Row="12" Grid.Column="0" Grid.ColumnSpan="3" x:Name="DueRangePanel">
-        <StackPanel Orientation="Horizontal">
-            <TextBlock Text="From" VerticalAlignment="Center" Margin="0,0,6,0" Foreground="{DynamicResource PrimaryTextBrush}"/>
-            <DatePicker x:Name="DueFromDatePicker" Padding="4" Width="140" Loaded="DatePicker_Loaded"
-                        Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
-                        BorderBrush="{DynamicResource CardBorderBrush}"/>
-            <Button Content="Today" Padding="8,4" Margin="6,0,0,0" Click="TodayDueFrom_Click"
-                    ToolTip="Today, whenever the report is run. Saved in a view, it stays 'today' rather than becoming a fixed date. Right-click for so many days from today."
-                    PreviewMouseRightButtonUp="TodayDueFrom_RightClick"
-                    Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
-            <Button Content="Clear" Padding="8,4" Margin="6,0,0,0" Click="ClearDueFrom_Click" ToolTip="No start to the range"
-                    Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
-            <TextBlock Text="To" VerticalAlignment="Center" Margin="16,0,6,0" Foreground="{DynamicResource PrimaryTextBrush}"/>
-            <DatePicker x:Name="DueToDatePicker" Padding="4" Width="140" Loaded="DatePicker_Loaded"
-                        Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
-                        BorderBrush="{DynamicResource CardBorderBrush}"/>
-            <Button Content="Today" Padding="8,4" Margin="6,0,0,0" Click="TodayDueTo_Click"
-                    ToolTip="Today, whenever the report is run. Saved in a view, it stays 'today' rather than becoming a fixed date. Right-click for so many days from today."
-                    PreviewMouseRightButtonUp="TodayDueTo_RightClick"
-                    Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
-            <Button Content="Clear" Padding="8,4" Margin="6,0,0,0" Click="ClearDueTo_Click" ToolTip="No end to the range"
-                    Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
-        </StackPanel>
-        <!-- Says what a saved view will keep for each date: the word today (worked out afresh each
-             time the report runs) or the fixed day picked from the calendar. -->
-        <TextBlock x:Name="DateKindText" FontSize="11" Margin="0,4,0,0" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryTextStrongBrush}"/>
-        </StackPanel>
-        <CheckBox Grid.Row="13" Grid.Column="0" Grid.ColumnSpan="3" x:Name="IncludeNoDueDateCheckBox" Content="Include tasks with no due date"
-                  Margin="0,6,0,0" Foreground="{DynamicResource PrimaryTextBrush}"/>
-
-        <TextBlock Grid.Row="14" Grid.Column="0" Grid.ColumnSpan="3" Text="Custom filters (select one or more to override the filters above)"
-                   Style="{StaticResource SectionHeaderStyle}"/>
-        <WrapPanel Grid.Row="15" Grid.Column="0" Grid.ColumnSpan="3" x:Name="CustomFiltersPanel"/>
-
-        </Grid>
-        </ScrollViewer>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+        </TabControl>
     </DockPanel>
 </Window>

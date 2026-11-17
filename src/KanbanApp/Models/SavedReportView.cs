@@ -17,6 +17,8 @@ public class SavedReportView
     public List<string> Project { get; set; } = [];
     public List<string> Priority { get; set; } = [];
     public List<string> Who { get; set; } = [];
+    // Only tasks whose title contains this (capitals don't matter), on top of every other filter. A view saved before has none.
+    public string TitleSearch { get; set; } = string.Empty;
     public string Goal { get; set; } = "All";
     public string Flag { get; set; } = "All";
     public string Due { get; set; } = "All";

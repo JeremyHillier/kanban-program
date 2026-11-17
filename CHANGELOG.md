@@ -6,6 +6,11 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.170.0 — 2026-11-17
+
+> - New: in the Report Builder, search task titles. Only tasks whose title contains what you type are in the report, for task lists and statistics. A saved view keeps the search.
+> - The Report Builder is now in three tabs, Filters, Content and Layout, and is wider, so the form no longer runs long.
+
 ## 0.169.0 — 2026-11-17
 
 > - New: in the Report Builder, a task list can show the sub-task completion summary on its own. Tick Summary only to leave out the list of tasks.

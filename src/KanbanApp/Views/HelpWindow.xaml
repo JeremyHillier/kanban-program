@@ -523,6 +523,9 @@
 
                 <TextBlock x:Name="HelpSection_ReportBuilder" Text="Report Builder" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <local:BulletItem Text="Report type: a Task list, or Statistics about your tasks."/>
+                <local:BulletItem Text="The form has three tabs: Filters, Content and Layout. The title stays in view."/>
+                <local:BulletItem Text="Search task titles keeps only tasks whose title contains what you type."/>
+                <local:BulletItem Text="The search applies on top of every other filter, custom filters included, and to statistics too."/>
                 <TextBlock Text="Building a report" Style="{StaticResource HelpSubHeaderStyle}"/>
                 <local:BulletItem Text="Choose the columns, filters, grouping, sort, notes and sub-tasks."/>
                 <local:BulletItem Text="Sort takes up to three levels."/>

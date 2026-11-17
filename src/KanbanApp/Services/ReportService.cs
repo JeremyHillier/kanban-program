@@ -7,6 +7,9 @@ namespace KanbanApp.Services;
 // Drawing them is in ReportService.Preview (on screen and printed) and ReportService.Pdf.
 public static partial class ReportService
 {
+    // titleSearch, when given, narrows whatever else picks the tasks: a task's title must contain it (capitals ignored).
+    // It is the one filter that still applies when unionFilters (custom filters) are used.
+    //
     // unionFilters, when non-empty, REPLACES the six discrete filter params entirely for matching
     // purposes: a card is included if it matches ANY one of the selected saved custom filters (an
     // OR/union across filters, not an AND on top of the dropdowns above) - each captured slot's own
@@ -22,15 +25,18 @@ public static partial class ReportService
         ReportArchiveScope archiveScope = ReportArchiveScope.BoardOnly,
         IEnumerable<(CardViewModel Card, string ColumnName)>? archivedCards = null,
         DateTime? archivedFrom = null, DateTime? archivedTo = null,
-        Func<CardViewModel, IReadOnlyList<CardEmailRecord>>? emailHistory = null, bool emailedOnly = false)
+        Func<CardViewModel, IReadOnlyList<CardEmailRecord>>? emailHistory = null, bool emailedOnly = false, string? titleSearch = null)
     {
+        var search = titleSearch?.Trim();
         // emailHistory looks up when a task was emailed (null when the report has no interest in that);
         // emailedOnly keeps only tasks that have been emailed at least once - a follow-up list.
         IReadOnlyList<CardEmailRecord> EmailsOf(CardViewModel card) => emailHistory?.Invoke(card) ?? [];
 
-        bool CardMatches(CardViewModel card) => unionFilters is { Count: > 0 }
-            ? unionFilters.Any(f => Matches(card, f))
-            : Matches(card, projectFilter, priorityFilter, whoFilter, goalFilter, flagFilter, dueFilter, dueRangeFrom, dueRangeTo, includeNoDueDate);
+        bool CardMatches(CardViewModel card) =>
+            (string.IsNullOrEmpty(search) || card.Title.Contains(search, StringComparison.OrdinalIgnoreCase))
+            && (unionFilters is { Count: > 0 }
+                ? unionFilters.Any(f => Matches(card, f))
+                : Matches(card, projectFilter, priorityFilter, whoFilter, goalFilter, flagFilter, dueFilter, dueRangeFrom, dueRangeTo, includeNoDueDate));
 
         var columnList = columns.ToList();
         var categoryOrder = columnList.Select(c => c.DisplayName).ToList();

@@ -23,7 +23,7 @@ public static class ReportRunner
             scope,
             scope == ReportArchiveScope.BoardOnly ? null : board.GetArchivedReportRows(),
             RelativeDate.Resolve(view.ArchivedFrom, today), RelativeDate.Resolve(view.ArchivedTo, today),
-            board.GetEmailHistory, view.EmailedOnly);
+            board.GetEmailHistory, view.EmailedOnly, titleSearch: view.TitleSearch);
     }
 
     public static FixedDocument BuildDocument(MainViewModel board, SavedReportView view, DateTime today) =>
@@ -58,7 +58,8 @@ public static class ReportRunner
             UnionFiltersOf(board, view),
             "None", "None", "None",
             ReportArchiveScope.BoardAndArchived,
-            board.GetArchivedReportRows());
+            board.GetArchivedReportRows(),
+            titleSearch: view.TitleSearch);
 
         var history = board.GetStatisticsHistory();
         var (from, to) = PeriodOf(view, today, history);
@@ -119,6 +120,8 @@ public static class ReportRunner
             if (view.Due != "All") filters.Add($"Due: {view.Due}");
             if (filters.Count > 0) parts.Add("Filters: " + string.Join(", ", filters));
         }
+
+        if (!string.IsNullOrWhiteSpace(view.TitleSearch)) parts.Add($"Title contains: \"{view.TitleSearch.Trim()}\"");
 
         if (view.IsStatistics)
         {
