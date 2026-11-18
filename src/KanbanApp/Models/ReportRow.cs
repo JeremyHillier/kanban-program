@@ -23,6 +23,8 @@ public class ReportRow
     public string? Notes { get; init; }
     // When the task was last emailed and to whom, with how many times in all; null for a task never emailed.
     public string? Emailed { get; init; }
+    // The custom fields chosen for the report that this task holds a value in, named as the report shows them.
+    public List<(string Name, string Value)> CustomFields { get; init; } = [];
     public bool IsArchived { get; init; }
     public DateTime? ArchivedAt { get; init; }
     public DateTime? CompletedAt { get; init; }

@@ -132,7 +132,21 @@
              here the ScrollViewer never activates its own scrollbar and a long sub-task list just
              grows the window straight past the screen's bottom edge, taking the Cancel/Add Task
              buttons with it. -->
-        <ScrollViewer Grid.Row="0" x:Name="FormScrollViewer" VerticalScrollBarVisibility="Auto">
+        <!-- Two tabs, Main and Secondary. The strip is a TabControl with no pages of its own; the two pages sit under it in one
+             cell, the one not chosen Hidden (not Collapsed) so the window is as tall as the taller page and never jumps in size
+             when the tab changes (AddTaskWindow.Tabs.cs). -->
+        <Grid Grid.Row="0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <TabControl x:Name="TaskTabs" Grid.Row="0" Margin="16,0,16,6" Padding="0" BorderThickness="0,0,0,1"
+                        SelectionChanged="TaskTabs_SelectionChanged">
+                <TabItem Header="Main" x:Name="MainTab" IsSelected="True"/>
+                <TabItem Header="Secondary" x:Name="SecondaryTab"/>
+            </TabControl>
+            <Grid Grid.Row="1">
+        <ScrollViewer x:Name="FormScrollViewer" VerticalScrollBarVisibility="Auto">
             <StackPanel Margin="16,0,16,0">
                 <!-- New tasks only: start from a saved template. Choosing one fills in the fields
                      below; everything can still be changed before saving. -->
@@ -447,11 +461,25 @@
                         </Grid>
                     </Border>
 
-                    <CheckBox Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="5" x:Name="ForceEditOnCompleteCheckBox" Content="Force edit upon completion" Margin="0,10,0,4" HorizontalAlignment="Left" Tag="FullOnly"
+                </Grid>
+
+                <!-- Notes -->
+                <TextBlock Text="Notes" Style="{StaticResource FieldLabelStyle}" Tag="FullOnly"/>
+                <views:NotesEditor x:Name="NotesEditor" Tag="FullOnly"/>
+                <Thumb Style="{StaticResource ResizeGripStyle}" DragDelta="NotesGrip_DragDelta" DragCompleted="Grip_DragCompleted" Tag="FullOnly"
+                       AutomationProperties.Name="Resize the Notes box"/>
+
+            </StackPanel>
+        </ScrollViewer>
+        <ScrollViewer x:Name="SecondaryScrollViewer" Visibility="Hidden" VerticalScrollBarVisibility="Auto">
+            <StackPanel Margin="16,0,16,0">
+                <!-- Force edit on completion (left) and the card colour (right) -->
+                <Grid>
+                    <CheckBox x:Name="ForceEditOnCompleteCheckBox" Content="Force edit upon completion" Margin="0,12,0,4" HorizontalAlignment="Left" Tag="FullOnly"
                               Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Center"
                               ToolTip="When on, marking this task Done will automatically open it for editing instead of just moving it."/>
                     <!-- The card's background colour: None, then each card colour as a swatch (filled in by AddTaskWindow.Colour.cs). -->
-                    <StackPanel Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="5" x:Name="ColourPanel" Orientation="Horizontal" HorizontalAlignment="Right" Tag="FullOnly"
+                    <StackPanel x:Name="ColourPanel" Orientation="Horizontal" HorizontalAlignment="Right" Tag="FullOnly"
                                 Margin="0,10,0,4" VerticalAlignment="Center" ToolTip="The colour of this task's card on the board. None is the ordinary card.">
                         <TextBlock Text="Colour" VerticalAlignment="Center" Margin="0,0,6,0" Foreground="{DynamicResource PrimaryTextBrush}"/>
                     </StackPanel>
@@ -509,12 +537,6 @@
                     </Grid>
                 </Grid>
 
-                <!-- Notes -->
-                <TextBlock Text="Notes" Style="{StaticResource FieldLabelStyle}" Tag="FullOnly"/>
-                <views:NotesEditor x:Name="NotesEditor" Tag="FullOnly"/>
-                <Thumb Style="{StaticResource ResizeGripStyle}" DragDelta="NotesGrip_DragDelta" DragCompleted="Grip_DragCompleted" Tag="FullOnly"
-                       AutomationProperties.Name="Resize the Notes box"/>
-
                 <!-- Flags -->
                 <StackPanel Style="{StaticResource FieldLabelRowStyle}" Tag="FullOnly">
                     <TextBlock Text="Flags" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Center"/>
@@ -561,8 +583,17 @@
                         <StackPanel x:Name="AttachmentsPanel" MinHeight="8"/>
                     </StackPanel>
                 </Border>
+                <!-- The task file's custom fields: one control for each that is named and switched on (AddTaskWindow.CustomFields.cs). -->
+                <StackPanel x:Name="CustomFieldsSection" Margin="0,16,0,0" Visibility="Collapsed">
+                    <Border BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="0,1,0,0" Padding="0,10,0,0">
+                        <TextBlock Text="Custom fields" FontWeight="Bold" FontSize="14" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                    </Border>
+                    <StackPanel x:Name="CustomFieldsPanel"/>
+                </StackPanel>
             </StackPanel>
         </ScrollViewer>
+            </Grid>
+        </Grid>
 
         <!-- Two columns, so the stamps on the left end with "..." before the buttons rather than
              running underneath them (a long "Emailed ..." line, with the Email button showing). -->

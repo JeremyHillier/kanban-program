@@ -86,6 +86,9 @@ public partial class ReportBuilderWindow
         Priority = _priorityOptions.Where(o => o.IsSelected).Select(o => o.Name).ToList(),
         Who = _whoOptions.Where(o => o.IsSelected).Select(o => o.Name).ToList(),
         TitleSearch = TitleSearch,
+        IncludedCustomFields = [.. SelectedCustomFields.Select(f => f.Slot)],
+        CustomFilterField = SelectedCustomFilterField?.Slot ?? 0,
+        CustomFilterText = CustomFilterTextBox.Text.Trim(),
         Goal = (string)GoalFilterComboBox.SelectedItem,
         Flag = (string)FlagFilterComboBox.SelectedItem,
         Due = (string)DueFilterComboBox.SelectedItem,
@@ -120,6 +123,9 @@ public partial class ReportBuilderWindow
         foreach (var option in _whoOptions) option.IsSelected = view.Who.Contains(option.Name);
 
         TitleSearchTextBox.Text = view.TitleSearch;
+        foreach (var box in _customFieldCheckBoxes) box.IsChecked = view.IncludedCustomFields.Contains(((CustomFieldDef)box.Tag).Slot);
+        SelectCustomFilterField(view.CustomFilterField);
+        CustomFilterTextBox.Text = view.CustomFilterText;
         SelectComboItem(GoalFilterComboBox, view.Goal);
         SelectComboItem(FlagFilterComboBox, view.Flag);
         SelectComboItem(DueFilterComboBox, view.Due);

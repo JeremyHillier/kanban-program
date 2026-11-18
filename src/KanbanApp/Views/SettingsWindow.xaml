@@ -111,6 +111,13 @@
                         ToolTip="Add, rename, recolour and reorder the priorities tasks can have"
                         Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
 
+                <TextBlock Text="Custom fields" Style="{StaticResource SectionHeaderStyle}"/>
+                <TextBlock x:Name="CustomFieldsSummaryText" FontSize="11" Margin="0,0,0,8" TextWrapping="Wrap"
+                           Foreground="{DynamicResource SecondaryTextBrush}"/>
+                <Button Content="Manage Custom Fields..." Padding="10,6" HorizontalAlignment="Left" Margin="0,0,0,20" Click="ManageCustomFields_Click"
+                        ToolTip="Define up to ten fields of your own for tasks, and choose which are shown on the task screen"
+                        Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+
                 </StackPanel>
                 </Grid>
             </ScrollViewer>

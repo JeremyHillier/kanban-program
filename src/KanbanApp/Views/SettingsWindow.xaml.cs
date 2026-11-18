@@ -31,6 +31,7 @@ public partial class SettingsWindow : Window
         BuildColumnRows();
 
         RefreshPrioritiesSummary();
+        RefreshCustomFieldsSummary();
         ButtonsOnRightCheckBox.IsChecked = viewModel.IsButtonsOnRight;
         ColumnWidthTextBox.Text = viewModel.ColumnWidth.ToString();
         MinFittedWidthTextBox.Text = viewModel.MinFittedColumnWidth.ToString();
@@ -183,6 +184,21 @@ public partial class SettingsWindow : Window
 
     private void RefreshPrioritiesSummary() =>
         PrioritiesSummaryText.Text = $"Highest first: {string.Join(", ", _viewModel.Priorities.Names)}. New tasks start at {_viewModel.Priorities.Default}.";
+
+    // Like the priorities, custom fields have their own screen where each change is made straight away: Cancel here does not undo them.
+    private void ManageCustomFields_Click(object sender, RoutedEventArgs e)
+    {
+        new ManageCustomFieldsWindow(_viewModel) { Owner = this }.ShowDialog();
+        RefreshCustomFieldsSummary();
+    }
+
+    private void RefreshCustomFieldsSummary()
+    {
+        var active = _viewModel.ActiveCustomFields.Select(f => f.Name).ToList();
+        CustomFieldsSummaryText.Text = active.Count == 0
+            ? "None yet. Up to ten fields of your own for tasks, shown on the Secondary tab of the task screen."
+            : $"On the task screen: {string.Join(", ", active)}.";
+    }
 
     // One row per column: its own name, a box for its label and, for a column that was added, buttons to move or
     // remove it.

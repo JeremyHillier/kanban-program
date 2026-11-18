@@ -62,6 +62,7 @@ public partial class DatabaseService
                 "CompletedAt TEXT NULL",
                 "ShareId TEXT NULL",
                 "Color TEXT NULL",
+                "CustomValues TEXT NULL",
             ],
             [
                 // A column with tasks in it cannot be deleted; a project, goal or person can, and

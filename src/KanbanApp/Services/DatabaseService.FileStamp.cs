@@ -42,8 +42,11 @@ public partial class DatabaseService
     // 15: Goals.CompletedDate (0.160.0) - older copies ignore the column and would offer a complete goal again; stamped when a goal is first marked complete (GoalCompleteFileFormat).
     // 18: CardHistory.Computer (0.166.0) - which PC made each change, for the task history. Older copies add rows without it
     //     and read the rest as before, so the file is never stamped 18 and no older copy warns.
+    // 19: Cards.CustomValues and the CustomFields setting (0.171.0) - what a task holds in the custom fields the user defined. Older
+    //     copies ignore the column and the setting, and would show none of it, so the file is only stamped 19 once a field is
+    //     defined or a task holds a value (CustomFieldsFileFormat).
     // The newest format this copy of the app understands.
-    public const int CurrentFileFormat = 18;
+    public const int CurrentFileFormat = 19;
 
     public const int DayRangeFileFormat = 6;
     public const int PathLinkFileFormat = 7;
@@ -55,6 +58,7 @@ public partial class DatabaseService
     public const int GoalCompleteFileFormat = 15;
     public const int CardColorFileFormat = 16;
     public const int RelationshipFileFormat = 17;
+    public const int CustomFieldsFileFormat = 19;
     public const int RecurrenceIntervalFileFormat = 13;
 
     // What every file is raised to just by being opened. Formats 4 to 8 only matter once their

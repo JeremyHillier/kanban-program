@@ -17,12 +17,12 @@ public static class ImportService
 
     // priorities is the task file's own list; left out, the standard four.
     public static void SaveTemplate(string filePath, IEnumerable<string> categories, IEnumerable<string> projects, IEnumerable<string> goals, IEnumerable<string> people,
-        IEnumerable<string>? priorities = null)
+        IEnumerable<string>? priorities = null, IReadOnlyList<CustomFieldDef>? customFields = null)
     {
         using var workbook = new XLWorkbook();
         var sheet = workbook.AddWorksheet("Tasks");
 
-        sheet.Range(1, 1, 1, Headers.Length).Merge();
+        sheet.Range(1, 1, 1, Headers.Length + (customFields?.Count ?? 0)).Merge();
         sheet.Cell(1, 1).Value = "One task per row below. Category, Priority and Repeats must be chosen from their dropdown. "
             + "Project, Goal, and Who offer a dropdown of existing values, but you can type a new one instead. For more than one person, type the names in the Who cell with a semicolon between them (Sam Lee; Priya Patel) - the first is the lead. Flags work the same way. "
             + "Due Date and Start Date (optional, the earliest the task can be worked on): enter as MM/DD/YYYY (year optional, defaults to this year) — shown as DD-MMM-YYYY. Due Time like 2:30 PM. "
@@ -32,7 +32,7 @@ public static class ImportService
         sheet.Cell(1, 1).Style.Alignment.WrapText = true;
         sheet.Row(1).Height = 60;
 
-        WriteHeaderRow(sheet, row: 2);
+        WriteHeaderRow(sheet, row: 2, customFields);
 
         var widths = new Dictionary<string, double>
         {
@@ -41,6 +41,12 @@ public static class ImportService
             ["Flags"] = 18, ["Website"] = 30, ["Notes"] = 40, ["Sub-tasks"] = 34, ["Task ID"] = 12, ["Shared By"] = 18, ["Shared By Email"] = 26
         };
         foreach (var (header, width) in widths) sheet.Column(Col(header)).Width = width;
+        for (var i = 0; i < (customFields?.Count ?? 0); i++)
+        {
+            var column = Headers.Length + 1 + i;
+            sheet.Column(column).Width = 18;
+            if (customFields![i].Type == CustomFieldType.Date) sheet.Range(3, column, 500, column).Style.DateFormat.Format = "dd-mmm-yyyy";
+        }
 
         const int maxDataRow = 500;
         foreach (var dateHeader in new[] { "Due Date", "Start Date" })
@@ -70,12 +76,14 @@ public static class ImportService
         workbook.SaveAs(filePath);
     }
 
-    private static void WriteHeaderRow(IXLWorksheet sheet, int row)
+    private static void WriteHeaderRow(IXLWorksheet sheet, int row, IReadOnlyList<CustomFieldDef>? customFields = null)
     {
-        for (var i = 0; i < Headers.Length; i++)
+        // The built-in headings, then one column for each custom field that is on, headed by its name.
+        var headings = Headers.Concat((customFields ?? []).Select(f => f.Name)).ToArray();
+        for (var i = 0; i < headings.Length; i++)
         {
             var cell = sheet.Cell(row, i + 1);
-            cell.Value = Headers[i];
+            cell.Value = headings[i];
             cell.Style.Font.Bold = true;
             cell.Style.Fill.BackgroundColor = XLColor.FromArgb(0xE3, 0xE8, 0xEF);
         }
@@ -110,14 +118,14 @@ public static class ImportService
     // goes with an emailed task (or a group of them) so the recipient can pull them into their own
     // board through Import Tasks. Just the headings ReadTasks looks for and a row per task (the
     // recipient's Category/Project/Goal/Who lists won't match the sender's anyway).
-    public static void SaveSingleTaskFile(string filePath, ImportedTaskRow row) => SaveTasksFile(filePath, [row]);
+    public static void SaveSingleTaskFile(string filePath, ImportedTaskRow row, IReadOnlyList<CustomFieldDef>? customFields = null) => SaveTasksFile(filePath, [row], customFields);
 
-    public static void SaveTasksFile(string filePath, IReadOnlyList<ImportedTaskRow> rows)
+    public static void SaveTasksFile(string filePath, IReadOnlyList<ImportedTaskRow> rows, IReadOnlyList<CustomFieldDef>? customFields = null)
     {
         using var workbook = new XLWorkbook();
         var sheet = workbook.AddWorksheet("Tasks");
-        WriteHeaderRow(sheet, row: 1);
-        for (var i = 0; i < rows.Count; i++) WriteTaskRow(sheet, i + 2, rows[i]);
+        WriteHeaderRow(sheet, row: 1, customFields);
+        for (var i = 0; i < rows.Count; i++) WriteTaskRow(sheet, i + 2, rows[i], customFields);
 
         sheet.Columns().AdjustToContents();
         foreach (var wrapped in new[] { "Notes", "Sub-tasks" })
@@ -130,7 +138,7 @@ public static class ImportService
         workbook.SaveAs(filePath);
     }
 
-    private static void WriteTaskRow(IXLWorksheet sheet, int line, ImportedTaskRow row)
+    private static void WriteTaskRow(IXLWorksheet sheet, int line, ImportedTaskRow row, IReadOnlyList<CustomFieldDef>? customFields = null)
     {
         void Text(string header, string? value) => sheet.Cell(line, Col(header)).Value = value ?? string.Empty;
         void Date(string header, DateTime? value)
@@ -159,6 +167,22 @@ public static class ImportService
         Text("Task ID", row.ShareId);
         Text("Shared By", row.SenderName);
         Text("Shared By Email", row.SenderEmail);
+
+        // The custom fields, each in its own column, as the kind of value it holds (a number, a date) so Excel can use it.
+        for (var i = 0; i < (customFields?.Count ?? 0); i++)
+        {
+            var stored = row.CustomFields?.GetValueOrDefault(customFields![i].Name);
+            if (string.IsNullOrEmpty(stored)) continue;
+
+            var cell = sheet.Cell(line, Headers.Length + 1 + i);
+            if (customFields[i].Type == CustomFieldType.Number && double.TryParse(stored, NumberStyles.Float, CultureInfo.InvariantCulture, out var number)) cell.Value = number;
+            else if (customFields[i].Type == CustomFieldType.Date && DateTime.TryParseExact(stored, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var day))
+            {
+                cell.Value = day;
+                cell.Style.DateFormat.Format = "dd-mmm-yyyy";
+            }
+            else cell.Value = stored;
+        }
     }
 
     // "14:30" -> "2:30 PM", the same in every language Windows runs in, so any copy reads it back.
@@ -216,6 +240,16 @@ public static class ImportService
         [CategoryHeadings, PriorityHeadings, ProjectHeadings, GoalHeadings, DueDateHeadings, WhoHeadings, StartDateHeadings, WaitingOnHeadings,
          DueTimeHeadings, RepeatsHeadings, RepeatTimesHeadings, FlagsHeadings, WebsiteHeadings, NotesHeadings, SubTasksHeadings, TaskIdHeadings, SharedByHeadings, SharedByEmailHeadings];
 
+    // Every heading a built-in field answers to. A custom field can't take one of these names, or its Excel column would be read as
+    // the built-in field's.
+    internal static bool IsBuiltInHeading(string name)
+    {
+        var heading = name.Trim();
+        return Headers.Contains(heading, StringComparer.OrdinalIgnoreCase)
+            || TitleHeadings.Contains(heading, StringComparer.OrdinalIgnoreCase)
+            || OtherHeadings.Any(h => h.Contains(heading, StringComparer.OrdinalIgnoreCase));
+    }
+
     private static bool IsHeading(IXLCell cell, string[] headings) =>
         headings.Contains(cell.GetString().Trim(), StringComparer.OrdinalIgnoreCase);
 
@@ -237,7 +271,8 @@ public static class ImportService
         return titleOnly;
     }
 
-    public static List<ImportedTaskRow> ReadTasks(string filePath)
+    // customFields are this board's custom fields that are on: a column headed by one's name is read into the row.
+    public static List<ImportedTaskRow> ReadTasks(string filePath, IReadOnlyList<CustomFieldDef>? customFields = null)
     {
         using var workbook = new XLWorkbook(filePath);
         var sheet = workbook.Worksheets.First();
@@ -282,6 +317,7 @@ public static class ImportService
         var taskIdCol = ColumnFor(TaskIdHeadings);
         var sharedByCol = ColumnFor(SharedByHeadings);
         var sharedByEmailCol = ColumnFor(SharedByEmailHeadings);
+        var customColumns = (customFields ?? []).Select(f => (Field: f, Column: ColumnFor([f.Name]))).Where(c => c.Column is not null).ToList();
 
         var results = new List<ImportedTaskRow>();
         foreach (var row in sheet.RowsUsed().Where(r => r.RowNumber() > headerRow.RowNumber()))
@@ -313,11 +349,25 @@ public static class ImportService
                 SubTasks = subTasksCol is null ? [] : ParseSubTasks(row.Cell(subTasksCol.Value).GetString()),
                 ShareId = NormalizeShareId(Text(taskIdCol)),
                 SenderName = TextOrNull(sharedByCol),
-                SenderEmail = NormalizeEmail(TextOrNull(sharedByEmailCol))
+                SenderEmail = NormalizeEmail(TextOrNull(sharedByEmailCol)),
+                CustomFields = customColumns.Count == 0 ? null : customColumns.ToDictionary(c => c.Field.Name, c => ReadCustomValue(row.Cell(c.Column!.Value), c.Field.Type))
             });
         }
 
         return results;
+    }
+
+    // A custom field's cell as the stored value: a date as yyyy-MM-dd, a number with a full stop, nothing for a cell that is empty
+    // or does not hold a value of the field's type.
+    private static string ReadCustomValue(IXLCell cell, CustomFieldType type)
+    {
+        var text = type switch
+        {
+            CustomFieldType.Date => ReadDate(cell)?.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture) ?? string.Empty,
+            CustomFieldType.Number => cell.TryGetValue(out double number) ? number.ToString("0.############", CultureInfo.InvariantCulture) : cell.GetString().Trim(),
+            _ => cell.GetString().Trim()
+        };
+        return CustomFieldRules.TryNormalise(type, text, out var stored) ? stored ?? string.Empty : string.Empty;
     }
 
     // A real Excel date, or text that reads as one (US order, as the template shows it).

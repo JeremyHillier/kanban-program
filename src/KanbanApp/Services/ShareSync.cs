@@ -23,7 +23,7 @@ public static class ShareSync
     // a PC whose columns have other display names still compares equal.
     public static string Fingerprint(ImportedTaskRow row, Func<string?, string?>? category = null) =>
         Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(
-            string.Join('\u001f', Fields(row, category).Select(f => f.Value))))).Substring(0, 24);
+            string.Join('\u001f', Fields(row, category).Where(f => f.Name != "Custom fields" || f.Value.Length > 0).Select(f => f.Value))))).Substring(0, 24);
 
     // The fields that differ, in the order a person thinks of them.
     public static List<Field> Differences(ImportedTaskRow mine, ImportedTaskRow theirs, Func<string?, string?>? category = null)
@@ -45,6 +45,11 @@ public static class ShareSync
             return string.Join("; ", sort ? items.OrderBy(i => i, StringComparer.OrdinalIgnoreCase) : items);
         }
 
+        // The custom fields that hold something, by name. A task with none leaves the fingerprint as it was before custom fields
+        // existed (see Fingerprint), so the copies already exchanged are not taken for changed ones.
+        var custom = string.Join("; ", (row.CustomFields ?? new Dictionary<string, string>())
+            .Where(p => !string.IsNullOrWhiteSpace(p.Value)).OrderBy(p => p.Key, StringComparer.OrdinalIgnoreCase).Select(p => $"{p.Key}={p.Value.Trim()}"));
+
         var pattern = T(row.RecurrencePattern);
         return
         [
@@ -64,6 +69,7 @@ public static class ShareSync
             ("Link", UrlLauncher.Clean(row.WebsiteUrl)),
             ("Notes", T(row.Notes).Replace("\r\n", "\n")),
             ("Sub-tasks", ImportService.FormatSubTasks(row.SubTasks)),
+            ("Custom fields", custom),
         ];
     }
 }

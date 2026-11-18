@@ -162,6 +162,14 @@ public static partial class ReportService
                     }
                 }
 
+                foreach (var (fieldName, fieldValue) in row.CustomFields)
+                {
+                    foreach (var line in WrapText(gfx, $"{fieldName}: {fieldValue}", noteFont, width - 32))
+                    {
+                        lines.Add((line, noteFont, XBrushes.DimGray, 16, 13));
+                    }
+                }
+
                 var rowHeight = lines.Sum(l => l.LineHeight) + 10;
                 NewPageIfNeeded(rowHeight + 8);
 

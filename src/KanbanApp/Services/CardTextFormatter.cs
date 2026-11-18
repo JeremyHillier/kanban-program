@@ -1,4 +1,5 @@
 using System.Text;
+using KanbanApp.Models;
 using KanbanApp.ViewModels;
 
 namespace KanbanApp.Services;
@@ -10,7 +11,7 @@ namespace KanbanApp.Services;
 // email so the two can't drift apart.
 internal static class CardTextFormatter
 {
-    public static string Format(CardViewModel card, string columnName)
+    public static string Format(CardViewModel card, string columnName, IReadOnlyList<CustomFieldDef>? customFields = null)
     {
         var sb = new StringBuilder();
         sb.Append(card.Title).Append("\r\n\r\n");
@@ -22,6 +23,10 @@ internal static class CardTextFormatter
         if (RepeatsText(card) is { } repeats) sb.Append("Repeats: ").Append(repeats).Append("\r\n");
         if (card.CompletedFullDisplay is { } completed) sb.Append(completed).Append("\r\n");
         if (!string.IsNullOrWhiteSpace(card.WebsiteUrl)) sb.Append("Link: ").Append(card.WebsiteUrl.Trim()).Append("\r\n");
+        foreach (var field in customFields ?? [])
+        {
+            if (MainViewModel.CustomValueText(card, field) is { Length: > 0 } shown) sb.Append(field.Name).Append(": ").Append(shown).Append("\r\n");
+        }
 
         AppendNotesAndSubTasks(sb, card);
 

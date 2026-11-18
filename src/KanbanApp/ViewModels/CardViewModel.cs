@@ -277,6 +277,18 @@ public class CardViewModel(CardItem model) : ObservableObject
         }
     }
 
+    // The task's values in the custom fields, by slot. Setting it replaces them all.
+    public IReadOnlyDictionary<int, string> CustomValues
+    {
+        get => Model.CustomValues;
+        set
+        {
+            if (Model.CustomValues.Count == value.Count && Model.CustomValues.All(p => value.TryGetValue(p.Key, out var other) && other == p.Value)) return;
+            Model.CustomValues = new Dictionary<int, string>(value);
+            OnPropertyChanged();
+        }
+    }
+
     public string? WebsiteUrl
     {
         get => Model.WebsiteUrl;
@@ -559,6 +571,7 @@ public class CardViewModel(CardItem model) : ObservableObject
         WaitingOn = other.WaitingOn;
         People = other.People;
         Notes = other.Notes;
+        CustomValues = other.CustomValues;
         WebsiteUrl = other.WebsiteUrl;
         IsImported = other.IsImported;
         ForceEditOnComplete = other.ForceEditOnComplete;

@@ -1,0 +1,27 @@
+<Window x:Class="KanbanApp.Views.ManageCustomFieldsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:views="clr-namespace:KanbanApp.Views"
+        Title="Custom Fields" Width="660" SizeToContent="Height" ResizeMode="NoResize"
+        WindowStartupLocation="CenterOwner" ShowInTaskbar="False"
+        Background="{DynamicResource WindowBackgroundBrush}">
+    <StackPanel Margin="16">
+        <TextBlock TextWrapping="Wrap" Margin="0,0,0,10" Foreground="{DynamicResource SecondaryTextStrongBrush}"
+                   Text="Up to ten fields of your own for this task file. Give a field a name, choose what it holds, and tick Active to show it on the Secondary tab of the task screen. Each change is saved as you make it."/>
+        <!-- One row per field, built by the code behind: number, Active, name, type and how many tasks hold a value. -->
+        <Grid x:Name="FieldsGrid"/>
+        <TextBlock x:Name="HintText" TextWrapping="Wrap" FontSize="11" Margin="0,12,0,0" Foreground="{DynamicResource SecondaryTextBrush}"
+                   Text="Switching a field off only hides it: what tasks hold stays, and comes back when you switch it on. A field's type can't change once a task holds a value in it. Names must differ from the task's own headings in Excel files (Title, Notes and so on)."/>
+        <Grid Margin="0,14,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <Button Grid.Column="0" Content="Help" Command="{x:Static views:HelpKey.ShowCommand}" CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}"
+                    HorizontalAlignment="Left" Width="70" Padding="0,6"
+                    Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}" ToolTip="Help for this window. (F1)"/>
+            <Button Grid.Column="1" Content="Close" IsCancel="True" IsDefault="True" Width="90" Padding="0,6"
+                    Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}" ToolTip="Close this window. (Esc)"/>
+        </Grid>
+    </StackPanel>
+</Window>

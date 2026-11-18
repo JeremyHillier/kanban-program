@@ -59,6 +59,12 @@ public partial class ReportBuilderWindow
             IncludeEmailedCheckBox, EmailedOnlyCheckBox
         };
         foreach (var element in taskListOnly) element.Visibility = statistics ? Visibility.Collapsed : Visibility.Visible;
+
+        // Custom fields: shown under each task of a task list, and searched in either kind; nothing of either when none are on.
+        var hasFields = _customFieldCheckBoxes.Count > 0;
+        CustomFieldsIncludeLabel.Visibility = CustomFieldsIncludePanel.Visibility = statistics || !hasFields ? Visibility.Collapsed : Visibility.Visible;
+        CustomFilterLabel.Visibility = CustomFilterRow.Visibility = hasFields ? Visibility.Visible : Visibility.Collapsed;
+
         StatisticsOptionsPanel.Visibility = statistics ? Visibility.Visible : Visibility.Collapsed;
     }
 

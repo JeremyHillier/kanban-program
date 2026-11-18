@@ -120,6 +120,22 @@
                  BorderBrush="{DynamicResource CardBorderBrush}"/>
                         <TextBlock Text="Only tasks whose title contains this are in the report. It applies on top of everything else on this tab, custom filters included, to task lists and to statistics."
                                    FontSize="11" Margin="0,4,0,0" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryTextBrush}"/>
+                        <TextBlock x:Name="CustomFilterLabel" Text="Custom field contains" Style="{StaticResource FieldLabelStyle}"/>
+                        <Grid x:Name="CustomFilterRow">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="220"/>
+                                <ColumnDefinition Width="12"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <ComboBox Grid.Column="0" x:Name="CustomFilterFieldComboBox" Padding="6"
+                                      ToolTip="Which custom field to look in"
+                                      Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                                      BorderBrush="{DynamicResource CardBorderBrush}"/>
+                            <TextBox Grid.Column="2" x:Name="CustomFilterTextBox" Padding="6"
+                                     ToolTip="Only tasks whose value in that field contains this are in the report. For a Yes / No field, type yes or no."
+                                     Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                                     BorderBrush="{DynamicResource CardBorderBrush}"/>
+                        </Grid>
                         <Grid Margin="0,4,0,0">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
@@ -232,6 +248,8 @@
 
         <TextBlock x:Name="IncludeColumnsLabel" Text="Include Columns" Style="{StaticResource FieldLabelStyle}"/>
         <WrapPanel x:Name="ColumnsPanel"/>
+        <TextBlock x:Name="CustomFieldsIncludeLabel" Text="Show custom fields" Style="{StaticResource FieldLabelStyle}"/>
+        <WrapPanel x:Name="CustomFieldsIncludePanel"/>
             <TextBlock x:Name="TaskScopeLabel" Text="Task scope" Style="{StaticResource FieldLabelStyle}"/>
             <StackPanel x:Name="TaskScopePanel" Orientation="Horizontal">
                 <RadioButton x:Name="BoardOnlyRadio" Content="Board tasks" GroupName="ArchiveScope" IsChecked="True" Margin="0,0,20,0"

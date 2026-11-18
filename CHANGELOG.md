@@ -6,6 +6,14 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.171.0 — 2026-11-18
+
+> - New: custom fields. Define up to ten fields of your own for tasks: in Settings, on the Board tab, choose Manage Custom Fields, name each field, choose text, number, date or yes/no, and tick Active to show it on the task screen.
+> - The task screen now has two tabs. Main holds the essentials and Secondary holds the rest, including your custom fields. The Simple View is unchanged.
+> - Switching a field off only hides it: the values tasks hold are kept and come back when it is switched on again.
+> - Custom fields work with the rest of the program. The Keyword filter searches them, the Report Builder can show them under each task and search one of them, and they go into Excel files, emailed tasks, Copy as Text, repeating tasks and duplicates.
+> - Between task files, a field goes by its name: Excel files, emailed tasks and Copy to Another Task File put a value in the field of the same name.
+
 ## 0.170.0 — 2026-11-17
 
 > - New: in the Report Builder, search task titles. Only tasks whose title contains what you type are in the report, for task lists and statistics. A saved view keeps the search.

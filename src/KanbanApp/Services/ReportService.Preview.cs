@@ -187,6 +187,14 @@ public static partial class ReportService
                         }
                     }
 
+                    foreach (var (fieldName, fieldValue) in row.CustomFields)
+                    {
+                        foreach (var line in WrapLine($"{fieldName}: {fieldValue}", italicTypeface, 10, contentWidth - 32))
+                        {
+                            lines.Add((line, italicTypeface, 10, Brushes.DimGray, 16, 14));
+                        }
+                    }
+
                     var rowHeight = lines.Sum(l => l.LineHeight) + 10;
                     EnsureSpace(rowHeight + 8);
 

@@ -23,27 +23,28 @@ public static class ReportRunner
             scope,
             scope == ReportArchiveScope.BoardOnly ? null : board.GetArchivedReportRows(),
             RelativeDate.Resolve(view.ArchivedFrom, today), RelativeDate.Resolve(view.ArchivedTo, today),
-            board.GetEmailHistory, view.EmailedOnly, titleSearch: view.TitleSearch);
+            board.GetEmailHistory, view.EmailedOnly, titleSearch: view.TitleSearch,
+            includeCustomFields: IncludedFields(board, view), customFilterField: FilterField(board, view), customFilterText: view.CustomFilterText);
     }
 
     public static FixedDocument BuildDocument(MainViewModel board, SavedReportView view, DateTime today) =>
         view.IsStatistics
             ? ReportService.BuildStatisticsDocument(view.Title, BuildStatistics(board, view, today), SectionsOf(view), view.StatsBreakdown,
-                view.StatsOverTime, view.IsLandscape, Summarise(view, today))
+                view.StatsOverTime, view.IsLandscape, Summarise(view, today, board.CustomFieldDefs))
             : ReportService.BuildFixedDocument(view.Title, BuildRows(board, view, today), view.GroupBy, view.IncludeNotes, view.IncludeSubTasks,
-                view.IncludeSubTaskSummary, view.IsLandscape, Summarise(view, today), includeEmailed: view.IncludeEmailed, subTaskSummaryOnly: SummaryOnly(view));
+                view.IncludeSubTaskSummary, view.IsLandscape, Summarise(view, today, board.CustomFieldDefs), includeEmailed: view.IncludeEmailed, subTaskSummaryOnly: SummaryOnly(view));
 
     public static void SavePdf(MainViewModel board, SavedReportView view, DateTime today, string filePath)
     {
         if (view.IsStatistics)
         {
             ReportService.SaveStatisticsPdf(view.Title, BuildStatistics(board, view, today), SectionsOf(view), view.StatsBreakdown,
-                view.StatsOverTime, view.IsLandscape, Summarise(view, today), filePath);
+                view.StatsOverTime, view.IsLandscape, Summarise(view, today, board.CustomFieldDefs), filePath);
             return;
         }
 
         ReportService.SavePdf(view.Title, BuildRows(board, view, today), view.GroupBy, view.IncludeNotes, view.IncludeSubTasks, filePath,
-            view.IncludeSubTaskSummary, view.IsLandscape, Summarise(view, today), includeEmailed: view.IncludeEmailed, subTaskSummaryOnly: SummaryOnly(view));
+            view.IncludeSubTaskSummary, view.IsLandscape, Summarise(view, today, board.CustomFieldDefs), includeEmailed: view.IncludeEmailed, subTaskSummaryOnly: SummaryOnly(view));
     }
 
     // A statistics report covers every task its filters pick, on the board and archived, whatever
@@ -59,13 +60,20 @@ public static class ReportRunner
             "None", "None", "None",
             ReportArchiveScope.BoardAndArchived,
             board.GetArchivedReportRows(),
-            titleSearch: view.TitleSearch);
+            titleSearch: view.TitleSearch, customFilterField: FilterField(board, view), customFilterText: view.CustomFilterText);
 
         var history = board.GetStatisticsHistory();
         var (from, to) = PeriodOf(view, today, history);
         return TaskStatistics.Compute(rows, history, board.Columns.Select(c => (c.Name, c.DisplayName)).ToList(),
             new StatisticsOptions(from, to, view.StatsBreakdown, view.StatsOverTime), today);
     }
+
+    // The fields a saved view asked for that are still switched on: one switched off or unnamed since drops out, like a deleted project.
+    private static List<CustomFieldDef> IncludedFields(MainViewModel board, SavedReportView view) =>
+        board.ActiveCustomFields.Where(f => view.IncludedCustomFields.Contains(f.Slot)).ToList();
+
+    private static CustomFieldDef? FilterField(MainViewModel board, SavedReportView view) =>
+        board.ActiveCustomFields.FirstOrDefault(f => f.Slot == view.CustomFilterField);
 
     // The saved view's custom filters as they are defined now, matched by name - one renamed or
     // cleared since the view was saved simply drops out. Null when none apply, which BuildRows
@@ -95,7 +103,7 @@ public static class ReportRunner
     // The line under the report's title saying what it covers. Written from the saved view, so it
     // matches what the Report Builder would print for the same choices, with the dates as they
     // were resolved today.
-    internal static string Summarise(SavedReportView view, DateTime today)
+    internal static string Summarise(SavedReportView view, DateTime today, IReadOnlyList<CustomFieldDef>? customFields = null)
     {
         var parts = new List<string>();
 
@@ -122,6 +130,11 @@ public static class ReportRunner
         }
 
         if (!string.IsNullOrWhiteSpace(view.TitleSearch)) parts.Add($"Title contains: \"{view.TitleSearch.Trim()}\"");
+        if (view.CustomFilterField > 0 && !string.IsNullOrWhiteSpace(view.CustomFilterText))
+        {
+            var fieldName = customFields?.FirstOrDefault(f => f.Slot == view.CustomFilterField)?.Name ?? $"Custom field {view.CustomFilterField}";
+            parts.Add($"{fieldName} contains: \"{view.CustomFilterText.Trim()}\"");
+        }
 
         if (view.IsStatistics)
         {

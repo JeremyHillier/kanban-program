@@ -19,6 +19,11 @@ public class SavedReportView
     public List<string> Who { get; set; } = [];
     // Only tasks whose title contains this (capitals don't matter), on top of every other filter. A view saved before has none.
     public string TitleSearch { get; set; } = string.Empty;
+    // The custom fields (by slot) a task list shows under each task, and one field to filter on (0 for none): a task's value in it
+    // must contain CustomFilterText. A view saved before has none.
+    public List<int> IncludedCustomFields { get; set; } = [];
+    public int CustomFilterField { get; set; }
+    public string CustomFilterText { get; set; } = string.Empty;
     public string Goal { get; set; } = "All";
     public string Flag { get; set; } = "All";
     public string Due { get; set; } = "All";

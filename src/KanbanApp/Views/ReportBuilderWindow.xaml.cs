@@ -14,6 +14,7 @@ public partial class ReportBuilderWindow : Window
     private readonly MainViewModel _viewModel;
     private readonly List<CheckBox> _columnCheckBoxes = [];
     private readonly List<CheckBox> _customFilterCheckBoxes = [];
+    private readonly List<CheckBox> _customFieldCheckBoxes = [];
     // Independent of the board's own Project/Priority/Who selection - fresh FilterOptionViewModel
     // instances carrying just the option names, so checking one here never touches the board's filter.
     private readonly List<FilterOptionViewModel> _projectOptions = [];
@@ -69,6 +70,22 @@ public partial class ReportBuilderWindow : Window
             CustomFiltersPanel.Children.Add(checkBox);
         }
 
+        // The task file's custom fields that are on: each can be shown under every task, and one can be searched.
+        CustomFilterFieldComboBox.Items.Add(new ComboBoxItem { Content = "(none)" });
+        foreach (var field in _viewModel.ActiveCustomFields)
+        {
+            var checkBox = new CheckBox
+            {
+                Content = field.Name,
+                Tag = field,
+                Margin = new Thickness(0, 0, 16, 6),
+                Foreground = (System.Windows.Media.Brush)FindResource("PrimaryTextBrush")
+            };
+            _customFieldCheckBoxes.Add(checkBox);
+            CustomFieldsIncludePanel.Children.Add(checkBox);
+            CustomFilterFieldComboBox.Items.Add(new ComboBoxItem { Content = field.Name, Tag = field });
+        }
+
         SavedViewsComboBox.ItemsSource = _viewModel.SavedReportViews;
         SetUpStatisticsOptions();
 
@@ -89,6 +106,9 @@ public partial class ReportBuilderWindow : Window
         foreach (var checkBox in _columnCheckBoxes) checkBox.IsChecked = (string)checkBox.Tag != "Done";
 
         TitleSearchTextBox.Text = string.Empty;
+        foreach (var box in _customFieldCheckBoxes) box.IsChecked = false;
+        CustomFilterFieldComboBox.SelectedIndex = 0;
+        CustomFilterTextBox.Text = string.Empty;
         foreach (var option in _projectOptions) option.IsSelected = false;
         foreach (var option in _priorityOptions) option.IsSelected = false;
         foreach (var option in _whoOptions) option.IsSelected = false;
@@ -190,6 +210,14 @@ public partial class ReportBuilderWindow : Window
     // The title search as typed, without the spaces round it.
     private string TitleSearch => TitleSearchTextBox.Text.Trim();
 
+    private List<CustomFieldDef> SelectedCustomFields => _customFieldCheckBoxes.Where(c => c.IsChecked == true).Select(c => (CustomFieldDef)c.Tag).ToList();
+
+    private CustomFieldDef? SelectedCustomFilterField => (CustomFilterFieldComboBox.SelectedItem as ComboBoxItem)?.Tag as CustomFieldDef;
+
+    private void SelectCustomFilterField(int slot) =>
+        CustomFilterFieldComboBox.SelectedItem = CustomFilterFieldComboBox.Items.OfType<ComboBoxItem>().FirstOrDefault(i => (i.Tag as CustomFieldDef)?.Slot == slot)
+            ?? CustomFilterFieldComboBox.Items[0];
+
     private string GetParameterSummary()
     {
         var parts = new List<string>();
@@ -225,6 +253,8 @@ public partial class ReportBuilderWindow : Window
         }
 
         if (TitleSearch.Length > 0) parts.Add($"Title contains: \"{TitleSearch}\"");
+        if (SelectedCustomFilterField is { } filterField && !string.IsNullOrWhiteSpace(CustomFilterTextBox.Text))
+            parts.Add($"{filterField.Name} contains: \"{CustomFilterTextBox.Text.Trim()}\"");
 
         if (DueFromDatePicker.SelectedDate is not null || DueToDatePicker.SelectedDate is not null || IncludeNoDueDateCheckBox.IsChecked == true)
         {
@@ -289,7 +319,7 @@ public partial class ReportBuilderWindow : Window
             ArchivedToDatePicker.SelectedDate,
             _viewModel.GetEmailHistory,
             EmailedOnlyCheckBox.IsChecked == true,
-            titleSearch: TitleSearch);
+            titleSearch: TitleSearch, includeCustomFields: SelectedCustomFields, customFilterField: SelectedCustomFilterField, customFilterText: CustomFilterTextBox.Text);
     }
 
     private void Preview_Click(object sender, RoutedEventArgs e)

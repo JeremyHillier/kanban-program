@@ -26,4 +26,7 @@ public class ImportedTaskRow
     // Who sent it (their Your Details), so it can be sent back; only a task that arrives new records them.
     public string? SenderName { get; init; }
     public string? SenderEmail { get; init; }
+    // The values in the custom fields, by the field's name (a file carries names, not slots): empty for a field the task holds nothing in.
+    // Null when the file has no custom field columns, which is not the same as clearing them.
+    public IReadOnlyDictionary<string, string>? CustomFields { get; init; }
 }

@@ -173,7 +173,7 @@ public partial class MainViewModel
             {
                 EditCard(existing, row.Title.Trim(), column, project, priority, row.DueDate, people,
                     pattern is not null, pattern, goal, flags, subTasks, notes, existing.Attachments, existing.ForceEditOnComplete,
-                    website, dueTime, startDate, row.WaitingOn, recurrencesLeft);
+                    website, dueTime, startDate, row.WaitingOn, recurrencesLeft, CustomValuesFromRow(row, existing.CustomValues));
                 SetCardImported(existing, true); // listed on the review screen with the new tasks
                 RememberExchanged(existing);
                 imported.Add(existing);
@@ -185,7 +185,7 @@ public partial class MainViewModel
             var cardVm = AddCard(title, column, project, priority, row.DueDate, people.FirstOrDefault(),
                 pattern is not null, pattern, goal, flags, subTasks,
                 notes: notes, isImported: true, websiteUrl: website, dueTime: dueTime, startDate: startDate,
-                waitingOn: row.WaitingOn, people: people, recurrencesLeft: recurrencesLeft);
+                waitingOn: row.WaitingOn, people: people, recurrencesLeft: recurrencesLeft, customValues: CustomValuesFromRow(row, null));
 
             // Keeps the sender's ID, so a later update of the same task finds this one, and who sent it,
             // so it can be sent back. A copy kept beside the board's own task is a task of its own.
@@ -203,6 +203,24 @@ public partial class MainViewModel
 
         LastImport = new ImportSummary(added, updated, unchanged, keptMine, keptBoth);
         return imported;
+    }
+
+    // The values a row brings for this board's custom fields, matched by the field's name. A field the row names is set, or cleared when
+    // its cell is empty; one it does not mention, and any field not switched on here, is left as it is.
+    private Dictionary<int, string>? CustomValuesFromRow(ImportedTaskRow row, IReadOnlyDictionary<int, string>? current)
+    {
+        var values = current is null ? [] : new Dictionary<int, string>(current);
+        if (row.CustomFields is null) return current is null ? null : values;
+
+        foreach (var (name, text) in row.CustomFields)
+        {
+            var field = _customFields.FirstOrDefault(f => f.IsUsable && string.Equals(f.Name, name, StringComparison.OrdinalIgnoreCase));
+            if (field is null) continue;
+
+            if (CustomFieldRules.TryNormalise(field.Type, text, out var stored) && stored is not null) values[field.Slot] = stored;
+            else if (string.IsNullOrWhiteSpace(text)) values.Remove(field.Slot);
+        }
+        return values;
     }
 
     private static string FromLabel(ImportedTaskRow row) =>

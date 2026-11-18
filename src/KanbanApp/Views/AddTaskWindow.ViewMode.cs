@@ -24,12 +24,16 @@ public partial class AddTaskWindow
             }
         }
         Walk(FormScrollViewer);
+        Walk(SecondaryScrollViewer);
         return found;
     }
 
     private void ApplyViewMode(bool simplified)
     {
         _simplified = simplified;
+        if (simplified) TaskTabs.SelectedItem = MainTab;
+        TaskTabs.Visibility = simplified ? Visibility.Collapsed : Visibility.Visible; // one page: no tabs
+        ShowSelectedPage();
 
         foreach (var element in FullOnlyElements())
         {

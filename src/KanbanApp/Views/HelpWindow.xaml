@@ -181,6 +181,8 @@
                 <local:BulletItem Text="Double-click a column heading to create a task in that column."/>
                 <local:BulletItem Text="Double-click a card to edit it."/>
                 <local:BulletItem Text="Project is required. Everything else is optional."/>
+                <local:BulletItem Text="The task screen has two tabs. Main holds the essentials: project, goal, task, priority, category, who, dates, repeating and notes."/>
+                <local:BulletItem Text="Secondary holds the rest: edit on completion, colour, link, waiting on, flags, sub-tasks, related tasks, attachments and your custom fields."/>
                 <local:BulletItem Text="Simple View, beside Add Task, shows only project, goal, task, due date, recurring and who."/>
                 <local:BulletItem Text="Full View brings every field back. Nothing hidden is lost or changed by switching."/>
                 <local:BulletItem Text="Settings, General tab, chooses which view the window opens in."/>
@@ -242,7 +244,7 @@
                 <local:BulletItem Text="The email holds the task's details. Nothing is sent until you click Send."/>
                 <local:BulletItem Text="A shared task's email goes to everyone with an address."/>
                 <local:BulletItem Text="An Excel copy goes with it. Other Kanban Task Board users can import it."/>
-                <local:BulletItem Text="It carries the whole task: repeating, due time, notes, sub-tasks, flags and link."/>
+                <local:BulletItem Text="It carries the whole task: repeating, due time, notes, sub-tasks, flags, link and custom fields."/>
                 <local:BulletItem Text="A repeating task keeps repeating on their board, with the same number of times left."/>
                 <local:BulletItem Text="If they change it and email it back, importing it updates your task rather than adding a copy."/>
                 <TextBlock Text="Sending a task back" Style="{StaticResource HelpSubHeaderStyle}"/>
@@ -465,6 +467,17 @@
                 <local:BulletItem Text="Make Default chooses the priority a new task starts with."/>
                 <local:BulletItem Text="Delete moves its tasks to the default priority. The default cannot be deleted."/>
                 <local:BulletItem Text="Renaming or deleting a priority clears the Undo history."/>
+                <TextBlock x:Name="HelpSection_CustomFields" Text="Custom fields" Style="{StaticResource HelpSubHeaderStyle}"/>
+                <local:BulletItem Text="Settings, Board tab, Manage Custom Fields defines up to ten fields of your own for tasks."/>
+                <local:BulletItem Text="Each has a name, a type (text, number, date or yes/no) and an Active tick."/>
+                <local:BulletItem Text="An active field shows on the Secondary tab of the task screen."/>
+                <local:BulletItem Text="Switching a field off only hides it. What tasks hold is kept, and comes back when you switch it on."/>
+                <local:BulletItem Text="A field's type can't change once a task holds a value in it. Use another field instead."/>
+                <local:BulletItem Text="The fields belong to the task file, so every PC using the file has the same ones."/>
+                <local:BulletItem Text="The board's Keyword filter also searches what the fields hold."/>
+                <local:BulletItem Text="A repeating task's next occurrence, and a duplicate, keep the values."/>
+                <local:BulletItem Text="Copy as Text lists the fields a task holds a value in."/>
+                <local:BulletItem Text="Excel files, emailed tasks and Copy to Another Task File carry a field by its name. A file or board with no field of that name leaves the value out."/>
                 <TextBlock Text="Filters" Style="{StaticResource HelpSubHeaderStyle}"/>
                 <local:BulletItem Text="Filter by project, priority, who, goal, flag, waiting on, due date or keyword."/>
                 <local:BulletItem Text="While anything is filtering, a line under the title at the top says what, and how many tasks show."/>
@@ -510,6 +523,7 @@
                 <local:BulletItem Text="For several people, separate names with semicolons. The first is the lead."/>
                 <local:BulletItem Text="Dates are MM/DD/YYYY. The year is optional."/>
                 <local:BulletItem Text="Optional columns: Due Time, Repeats, Repeat Times, Flags, Link (or Website), Notes and Sub-tasks."/>
+                <local:BulletItem Text="A column headed by the name of one of your active custom fields is read into it. A cell that does not suit the field is left empty."/>
                 <local:BulletItem Text="Sub-tasks go one per line in their cell; start a line [x] for one already done."/>
                 <local:BulletItem Text="New projects, goals, people and flags in the file are added."/>
                 <local:BulletItem Text="A task you already have is updated, not added again. The list before importing says which."/>
@@ -526,6 +540,8 @@
                 <local:BulletItem Text="The form has three tabs: Filters, Content and Layout. The title stays in view."/>
                 <local:BulletItem Text="Search task titles keeps only tasks whose title contains what you type."/>
                 <local:BulletItem Text="The search applies on top of every other filter, custom filters included, and to statistics too."/>
+                <local:BulletItem Text="Custom field contains, on the Filters tab, searches one of your custom fields. For a Yes / No field, type yes or no."/>
+                <local:BulletItem Text="Show custom fields, on the Content tab, puts the fields you tick under each task of a task list."/>
                 <TextBlock Text="Building a report" Style="{StaticResource HelpSubHeaderStyle}"/>
                 <local:BulletItem Text="Choose the columns, filters, grouping, sort, notes and sub-tasks."/>
                 <local:BulletItem Text="Sort takes up to three levels."/>
@@ -665,6 +681,7 @@
                 <local:BulletItem Text="The letters on each card's move buttons follow the column names."/>
                 <local:BulletItem Text="Use GTD Names sets Inbox, Next Actions, In Progress, Waiting and Done."/>
                 <local:BulletItem Text="Use Standard Names puts the original names back."/>
+                <local:BulletItem Text="Manage Custom Fields, under Priorities, defines fields of your own for tasks."/>
                 <local:BulletItem Text="Large cards show picks which details and buttons a large card has."/>
                 <local:BulletItem Text="Manage Priorities changes the priority names and colours."/>
                 <TextBlock Text="General tab" Style="{StaticResource HelpSubHeaderStyle}"/>

@@ -371,7 +371,8 @@ public partial class MainViewModel
                 || card.ProjectName.Contains(keyword, StringComparison.OrdinalIgnoreCase)
                 || card.WhoName.Contains(keyword, StringComparison.OrdinalIgnoreCase)
                 || (card.Notes?.Contains(keyword, StringComparison.OrdinalIgnoreCase) ?? false)
-                || (card.WaitingOn?.Contains(keyword, StringComparison.OrdinalIgnoreCase) ?? false);
+                || (card.WaitingOn?.Contains(keyword, StringComparison.OrdinalIgnoreCase) ?? false)
+                || card.CustomValues.Values.Any(v => v.Contains(keyword, StringComparison.OrdinalIgnoreCase));
             if (!matchesKeyword) return false;
         }
 

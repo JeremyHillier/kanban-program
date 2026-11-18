@@ -43,7 +43,7 @@ public partial class DatabaseService
         using var cmd = connection.CreateCommand();
         cmd.CommandText = """
             SELECT Title, ProjectId, Priority, DueDate, WhoId, IsRecurring, RecurrencePattern, GoalId, Notes, ForceEditOnComplete,
-                   WebsiteUrl, DueTime, StartDate, WaitingOn, RecurrencesLeft
+                   WebsiteUrl, DueTime, StartDate, WaitingOn, RecurrencesLeft, CustomValues
             FROM Cards WHERE Id = $id;
             """;
         cmd.Parameters.AddWithValue("$id", cardId);
@@ -55,7 +55,7 @@ public partial class DatabaseService
         static DateTime? Day(SqliteDataReader r, int i) => r.IsDBNull(i) ? null : DateTime.Parse(r.GetString(i), CultureInfo.InvariantCulture);
 
         return new EditableCardFields(r.GetString(0), Number(r, 1), r.GetString(2), Day(r, 3), Number(r, 4), r.GetInt32(5) != 0, Text(r, 6),
-            Number(r, 7), Text(r, 8), r.GetInt32(9) != 0, Text(r, 10), Text(r, 11), Day(r, 12), Text(r, 13), Number(r, 14));
+            Number(r, 7), Text(r, 8), r.GetInt32(9) != 0, Text(r, 10), Text(r, 11), Day(r, 12), Text(r, 13), Number(r, 14), Text(r, 15));
     }
 
     // The Name of a Projects, Goals, Flags or People row (table is always a literal here); null for no id or a row
@@ -88,7 +88,7 @@ public partial class DatabaseService
 
     // What the user changed between two states of the task's own fields (people, flags and sub-tasks are described by
     // their own writes). Empty when nothing the user can see differs.
-    private static List<string> DescribeChanges(SqliteConnection connection, EditableCardFields before, EditableCardFields after)
+    private static List<string> DescribeChanges(SqliteConnection connection, EditableCardFields before, EditableCardFields after, IReadOnlyDictionary<int, string> customNames)
     {
         var changes = new List<string>();
 
@@ -130,6 +130,16 @@ public partial class DatabaseService
             changes.Add(string.IsNullOrWhiteSpace(before.Notes)
                 ? "Notes added"
                 : $"Notes changed (was: \"{Excerpt(before.Notes)}\")");
+        }
+
+        // A custom field, by its name, as the other fields are described.
+        var wasValues = KanbanApp.Models.CustomFieldRules.ParseValues(before.CustomValues);
+        var nowValues = KanbanApp.Models.CustomFieldRules.ParseValues(after.CustomValues);
+        foreach (var slot in wasValues.Keys.Union(nowValues.Keys).Order())
+        {
+            var was = wasValues.GetValueOrDefault(slot);
+            var now = nowValues.GetValueOrDefault(slot);
+            if (!Same(was, now)) changes.Add($"{customNames.GetValueOrDefault(slot, $"Custom field {slot}")} {Plain(was)}{Arrow}{Plain(now)}");
         }
 
         return changes;

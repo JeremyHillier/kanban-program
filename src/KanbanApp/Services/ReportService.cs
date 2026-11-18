@@ -25,7 +25,8 @@ public static partial class ReportService
         ReportArchiveScope archiveScope = ReportArchiveScope.BoardOnly,
         IEnumerable<(CardViewModel Card, string ColumnName)>? archivedCards = null,
         DateTime? archivedFrom = null, DateTime? archivedTo = null,
-        Func<CardViewModel, IReadOnlyList<CardEmailRecord>>? emailHistory = null, bool emailedOnly = false, string? titleSearch = null)
+        Func<CardViewModel, IReadOnlyList<CardEmailRecord>>? emailHistory = null, bool emailedOnly = false, string? titleSearch = null,
+        IReadOnlyList<CustomFieldDef>? includeCustomFields = null, CustomFieldDef? customFilterField = null, string? customFilterText = null)
     {
         var search = titleSearch?.Trim();
         // emailHistory looks up when a task was emailed (null when the report has no interest in that);
@@ -34,6 +35,7 @@ public static partial class ReportService
 
         bool CardMatches(CardViewModel card) =>
             (string.IsNullOrEmpty(search) || card.Title.Contains(search, StringComparison.OrdinalIgnoreCase))
+            && CustomFieldMatches(card, customFilterField, customFilterText)
             && (unionFilters is { Count: > 0 }
                 ? unionFilters.Any(f => Matches(card, f))
                 : Matches(card, projectFilter, priorityFilter, whoFilter, goalFilter, flagFilter, dueFilter, dueRangeFrom, dueRangeTo, includeNoDueDate));
@@ -55,7 +57,7 @@ public static partial class ReportService
                     var emails = EmailsOf(card);
                     if (emailedOnly && emails.Count == 0) continue;
 
-                    rows.Add(BuildRow(card, column.DisplayName, isArchived: false, columnKey: column.Name, emails: emails));
+                    rows.Add(BuildRow(card, column.DisplayName, isArchived: false, columnKey: column.Name, emails: emails, customFields: includeCustomFields));
                 }
             }
         }
@@ -70,7 +72,7 @@ public static partial class ReportService
                 var emails = EmailsOf(card);
                 if (emailedOnly && emails.Count == 0) continue;
 
-                rows.Add(BuildRow(card, columnName, isArchived: true, emails: emails));
+                rows.Add(BuildRow(card, columnName, isArchived: true, emails: emails, customFields: includeCustomFields));
             }
         }
 
@@ -97,9 +99,32 @@ public static partial class ReportService
             .ThenBy(s => s.SubTaskTitle, StringComparer.OrdinalIgnoreCase)
             .ToList();
 
-    private static ReportRow BuildRow(CardViewModel card, string columnName, bool isArchived, string? columnKey = null, IReadOnlyList<CardEmailRecord>? emails = null) => new()
+    // The chosen custom fields a task holds a value in, in field order, as the report prints them: "Client: Dupont".
+    private static List<(string Name, string Value)> ShownCustomFields(CardViewModel card, IReadOnlyList<CustomFieldDef>? fields) =>
+        fields is null ? [] : fields.Select(f => (f.Name, Value: MainViewModel.CustomValueText(card, f))).Where(p => p.Value.Length > 0).ToList();
+
+    // Whether the task's value in the field contains the text, capitals ignored. For a Yes / No field, "yes" is a task with it ticked and
+    // "no" one without. No field, or no text, is no filter.
+    internal static bool CustomFieldMatches(CardViewModel card, CustomFieldDef? field, string? text)
+    {
+        var wanted = text?.Trim();
+        if (field is null || string.IsNullOrEmpty(wanted)) return true;
+
+        var shown = MainViewModel.CustomValueText(card, field);
+        if (field.Type == CustomFieldType.YesNo)
+        {
+            if (wanted.Equals("yes", StringComparison.OrdinalIgnoreCase) || wanted.Equals("y", StringComparison.OrdinalIgnoreCase)) return shown.Length > 0;
+            if (wanted.Equals("no", StringComparison.OrdinalIgnoreCase) || wanted.Equals("n", StringComparison.OrdinalIgnoreCase)) return shown.Length == 0;
+        }
+        return shown.Contains(wanted, StringComparison.OrdinalIgnoreCase)
+            || (card.CustomValues.GetValueOrDefault(field.Slot) ?? string.Empty).Contains(wanted, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static ReportRow BuildRow(CardViewModel card, string columnName, bool isArchived, string? columnKey = null, IReadOnlyList<CardEmailRecord>? emails = null,
+        IReadOnlyList<CustomFieldDef>? customFields = null) => new()
     {
         Emailed = emails is { Count: > 0 } ? MainViewModel.EmailSummaryText(emails) : null,
+        CustomFields = ShownCustomFields(card, customFields),
         CardId = card.Id,
         Title = card.Title,
         ColumnName = columnName,

@@ -40,6 +40,8 @@ public class CardItem
     // A background colour for the card on the board, one of CardColors by key; null for the ordinary card colour.
     public string? Color { get; set; }
     public string? WebsiteUrl { get; set; }
+    // What the task holds in the task file's custom fields, by field slot (1 to 10); see CustomFieldRules.
+    public Dictionary<int, string> CustomValues { get; set; } = [];
     public List<int> FlagIds { get; set; } = [];
     public List<SubTaskItem> SubTasks { get; set; } = [];
     public List<CardAttachment> Attachments { get; set; } = [];

@@ -36,7 +36,7 @@ public static partial class OutlookEmailHelper
                 var tempPath = Path.Combine(Path.GetTempPath(), fileName);
                 try
                 {
-                    ImportService.SaveTasksFile(tempPath, rows);
+                    ImportService.SaveTasksFile(tempPath, rows, viewModel.ActiveCustomFields);
                     mailItem.Attachments.Add(tempPath);
                 }
                 finally
@@ -68,7 +68,7 @@ public static partial class OutlookEmailHelper
             var folder = Path.Combine(AttachmentFoldersRoot, SanitizeFileName(subject));
             if (Directory.Exists(folder)) Directory.Delete(folder, recursive: true);
             Directory.CreateDirectory(folder);
-            ImportService.SaveTasksFile(Path.Combine(folder, fileName), rows);
+            ImportService.SaveTasksFile(Path.Combine(folder, fileName), rows, viewModel.ActiveCustomFields);
             Process.Start(new ProcessStartInfo(folder) { UseShellExecute = true });
         }
         catch

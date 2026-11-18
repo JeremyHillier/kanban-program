@@ -99,7 +99,7 @@ public static partial class OutlookEmailHelper
         // Opened before the email so the compose window ends up in front of it.
         try
         {
-            var folder = PrepareAttachmentFolder(AttachmentFoldersRoot, card.Title, BuildImportRow(card, viewModel), attachmentPaths);
+            var folder = PrepareAttachmentFolder(AttachmentFoldersRoot, card.Title, BuildImportRow(card, viewModel), attachmentPaths, viewModel.ActiveCustomFields);
             Process.Start(new ProcessStartInfo(folder) { UseShellExecute = true });
         }
         catch
@@ -287,13 +287,13 @@ public static partial class OutlookEmailHelper
     }
 
     // Recreated each time, so files from an earlier email of the same task never linger alongside.
-    internal static string PrepareAttachmentFolder(string rootDir, string taskTitle, ImportedTaskRow importRow, IEnumerable<string> attachmentPaths)
+    internal static string PrepareAttachmentFolder(string rootDir, string taskTitle, ImportedTaskRow importRow, IEnumerable<string> attachmentPaths, IReadOnlyList<CustomFieldDef>? customFields = null)
     {
         var folder = Path.Combine(rootDir, SanitizeFileName(taskTitle));
         if (Directory.Exists(folder)) Directory.Delete(folder, recursive: true);
         Directory.CreateDirectory(folder);
 
-        ImportService.SaveSingleTaskFile(Path.Combine(folder, ImportFileName(taskTitle)), importRow);
+        ImportService.SaveSingleTaskFile(Path.Combine(folder, ImportFileName(taskTitle)), importRow, customFields);
 
         foreach (var path in attachmentPaths.Where(File.Exists))
         {
@@ -373,7 +373,7 @@ public static partial class OutlookEmailHelper
         var tempPath = Path.Combine(Path.GetTempPath(), ImportFileName(card.Title));
         try
         {
-            ImportService.SaveSingleTaskFile(tempPath, BuildImportRow(card, viewModel));
+            ImportService.SaveSingleTaskFile(tempPath, BuildImportRow(card, viewModel), viewModel.ActiveCustomFields);
             mailItem.Attachments.Add(tempPath);
         }
         finally
@@ -409,7 +409,9 @@ public static partial class OutlookEmailHelper
         Flags = card.Flags.Count == 0 ? null : string.Join("; ", card.Flags.Select(f => f.Name)),
         WebsiteUrl = card.WebsiteUrl,
         Notes = card.Notes,
-        SubTasks = card.SubTasks.Select(s => (s.Title, s.IsDone)).ToList()
+        SubTasks = card.SubTasks.Select(s => (s.Title, s.IsDone)).ToList(),
+        // The fields the sender has on, by name: a board with a field of the same name takes the value.
+        CustomFields = viewModel.ActiveCustomFields.ToDictionary(f => f.Name, f => card.CustomValues.GetValueOrDefault(f.Slot) ?? string.Empty)
     };
 
     private static string ImportFileName(string taskTitle) => $"KanbanTask_{SanitizeFileName(taskTitle)}.xlsx";

@@ -60,7 +60,7 @@ public partial class ImportTasksWindow : Window
                 _viewModel.Projects.Select(p => p.Name),
                 _viewModel.Goals.Select(g => g.Name),
                 _viewModel.People.Select(p => p.Name),
-                _viewModel.Priorities.Names);
+                _viewModel.Priorities.Names, customFields: _viewModel.ActiveCustomFields);
             StatusText.Text = $"Template saved to:\n{dialog.FileName}";
         }
         catch (Exception ex)
@@ -133,7 +133,7 @@ public partial class ImportTasksWindow : Window
         {
             try
             {
-                files.Add((path, ImportService.ReadTasks(path)));
+                files.Add((path, ImportService.ReadTasks(path, _viewModel.ActiveCustomFields)));
             }
             catch (Exception ex)
             {

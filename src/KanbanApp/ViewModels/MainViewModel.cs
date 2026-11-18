@@ -94,6 +94,7 @@ public partial class MainViewModel : ObservableObject
         _hideFutureTasks = _db.GetFlag("HideFutureTasks", false);
         // Also before Load: every card it builds is handed the list, for its badge colour and sort position.
         Priorities = PriorityList.FromJson(_db.GetSetting(PriorityList.SettingKey));
+        LoadCustomFields();
         RefreshPriorityFilterOptions();
         Load();
         LoadTaskTemplates();

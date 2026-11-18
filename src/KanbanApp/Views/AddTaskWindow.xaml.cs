@@ -60,7 +60,8 @@ public partial class AddTaskWindow : Window
             SelectedPriority, SelectedDueDate, SelectedWho, IsRecurring, RecurrencePattern,
             SelectedGoal, SelectedFlags, SelectedSubTasks, Notes, attachments: SelectedAttachments,
             forceEditOnComplete: ForceEditOnComplete, websiteUrl: WebsiteUrl, dueTime: SelectedDueTime,
-            startDate: SelectedStartDate, waitingOn: WaitingOn, people: SelectedPeople, recurrencesLeft: RecurrencesLeft, color: SelectedColor);
+            startDate: SelectedStartDate, waitingOn: WaitingOn, people: SelectedPeople, recurrencesLeft: RecurrencesLeft, color: SelectedColor,
+            customValues: SelectedCustomValues);
         viewModel.SaveRichNotes(added, _notesBlocks);
         viewModel.SetCardLinks(added, LinksFor(added.Id));
     }
@@ -83,7 +84,7 @@ public partial class AddTaskWindow : Window
             SelectedPriority, SelectedDueDate, SelectedPeople, IsRecurring, RecurrencePattern,
             SelectedGoal, SelectedFlags, SelectedSubTasks, Notes, attachments: SelectedAttachments,
             forceEditOnComplete: ForceEditOnComplete, websiteUrl: WebsiteUrl, dueTime: SelectedDueTime,
-            startDate: SelectedStartDate, waitingOn: WaitingOn, recurrencesLeft: RecurrencesLeft);
+            startDate: SelectedStartDate, waitingOn: WaitingOn, recurrencesLeft: RecurrencesLeft, customValues: SelectedCustomValues);
         viewModel.SetCardColor(card, SelectedColor); // its own write and Undo step; nothing happens when it is unchanged
         viewModel.SetCardLinks(card, LinksFor(card.Id));
         viewModel.SaveRichNotes(card, _notesBlocks);
@@ -106,6 +107,7 @@ public partial class AddTaskWindow : Window
         // activate once content (e.g. a long sub-task list) overflows, instead of the window just
         // growing past the screen's bottom edge and taking the Cancel/Add Task buttons with it.
         FormScrollViewer.MaxHeight = SystemParameters.WorkArea.Height * 0.75;
+        SecondaryScrollViewer.MaxHeight = FormScrollViewer.MaxHeight;
 
         // Base spell-check language is en-CA (set in XAML); this custom dictionary adds American
         // spelling variants (color, favorite, traveled, ...) on top so both are accepted instead of
@@ -130,6 +132,7 @@ public partial class AddTaskWindow : Window
         RebuildWhoItems();
         RebuildFlagCheckboxes();
         BuildColourSwatches();
+        BuildCustomFields();
         InitializeTemplates();
         InitializeWhoTypeAhead();
         _waitingOnSuggestions = TextBoxSuggestions.Attach(WaitingOnTextBox, viewModel.WaitingOnSuggestions, viewModel.ForgetWaitingOnSuggestion);
@@ -176,6 +179,7 @@ public partial class AddTaskWindow : Window
             RichNotes.Serialize(NotesEditor.Blocks), // the words and their formatting
             WebsiteUrlTextBox.Text,
             WaitingOnTextBox.Text,
+            CustomSignature(),
             flags, subTasks, attachments);
     }
 
@@ -256,6 +260,7 @@ public partial class AddTaskWindow : Window
         ForceEditOnCompleteCheckBox.IsChecked = cardToEdit.ForceEditOnComplete;
         ShowColour(cardToEdit.Color);
         LoadRelated(cardToEdit);
+        LoadCustomValues(cardToEdit.CustomValues);
 
         RecurringCheckBox.IsChecked = cardToEdit.IsRecurring;
         RecurrenceComboBox.Visibility = cardToEdit.IsRecurring ? Visibility.Visible : Visibility.Collapsed;
@@ -364,6 +369,7 @@ public partial class AddTaskWindow : Window
 
         if (ProjectComboBox.SelectedItem is not ProjectViewModel project)
         {
+            ShowMainTab();
             Dialogs.Tell(this, "Project Required", "Choose a project before saving.\n\nEvery task belongs to a project.", DialogTone.Warning);
             return;
         }
@@ -372,24 +378,28 @@ public partial class AddTaskWindow : Window
         if (dueTime is null && !string.IsNullOrWhiteSpace(DueTimeTextBox.Text))
         {
             Dialogs.Tell(this, "Time Not Recognised", "The due time is not recognised.\n\nEnter it like 2:30 PM or 14:30, or leave it blank.", DialogTone.Warning);
+            ShowMainTab();
             DueTimeTextBox.Focus();
             return;
         }
         if (dueTime is not null && DueDatePicker.SelectedDate is null)
         {
             Dialogs.Tell(this, "Due Date Required", "A due time needs a due date.\n\nPick a due date, or clear the time.", DialogTone.Warning);
+            ShowMainTab();
             DueDatePicker.Focus();
             return;
         }
         if (StartDatePicker.SelectedDate is { } startDate && DueDatePicker.SelectedDate is { } dueDate && startDate.Date > dueDate.Date)
         {
             Dialogs.Tell(this, "Start Date After Due Date", "The start date is after the due date.\n\nMove one of them, or clear the start date.", DialogTone.Warning);
+            ShowMainTab();
             StartDatePicker.Focus();
             return;
         }
         if (!string.IsNullOrWhiteSpace(WebsiteUrlTextBox.Text) && UrlLauncher.ValidLink(WebsiteUrlTextBox.Text) is null)
         {
             Dialogs.Tell(this, "Link Not Allowed", "The Link field cannot be saved as it is.\n\n" + UrlLauncher.AllowedLinksMessage + " Fix the field, or clear it.", DialogTone.Warning);
+            ShowSecondaryTab();
             WebsiteUrlTextBox.Focus();
             WebsiteUrlTextBox.SelectAll();
             return;
@@ -399,6 +409,7 @@ public partial class AddTaskWindow : Window
         {
             Dialogs.Tell(this, "Days of the Month",
                 $"Enter the first and last day of the month for this task to repeat on, from 1 to {MonthDayRange.Largest}, with the first no later than the last.\n\nFor example 1 to 10, or 5 to 12.", DialogTone.Warning);
+            ShowMainTab();
             RecurrenceRangeFromTextBox.Focus();
             RecurrenceRangeFromTextBox.SelectAll();
             return;
@@ -408,6 +419,7 @@ public partial class AddTaskWindow : Window
         {
             Dialogs.Tell(this, "Repeat Every",
                 $"Enter how often this task repeats as a whole number from 1 to {RecurrenceInterval.Largest}.\n\nFor example 2 for every 2 years, or leave it at 1.", DialogTone.Warning);
+            ShowMainTab();
             RecurrenceEveryTextBox.Focus();
             RecurrenceEveryTextBox.SelectAll();
             return;
@@ -417,12 +429,22 @@ public partial class AddTaskWindow : Window
         {
             Dialogs.Tell(this, "Number of Times",
                 "Enter how many times this task should happen in all, from 1 to 999.\n\nOr leave the box empty to keep it repeating with no end.", DialogTone.Warning);
+            ShowMainTab();
             RecurrenceCountTextBox.Focus();
             RecurrenceCountTextBox.SelectAll();
             return;
         }
 
+        if (!TryReadCustomValues(out var customValues, out var failedField))
+        {
+            ShowSecondaryTab();
+            Dialogs.Tell(this, "Custom Field", $"\"{failedField!.Field.Name}\" must be a number, like 12 or 3.5.\n\nFix it, or clear the box.", DialogTone.Warning);
+            failedField.Control.Focus();
+            return;
+        }
+
         TaskDetails = details;
+        SelectedCustomValues = customValues;
         SelectedDueTime = dueTime;
         SelectedColumn = column;
         SelectedProject = project;
