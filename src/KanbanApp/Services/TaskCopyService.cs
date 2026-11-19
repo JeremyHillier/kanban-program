@@ -61,7 +61,7 @@ public static class TaskCopyService
             if (from is null || to is null) continue;
 
             var text = from.Type == to.Type ? value : CustomFieldRules.Display(from.Type, value);
-            if (CustomFieldRules.TryNormalise(to.Type, text, out var stored) && stored is not null) copied[to.Slot] = stored;
+            if (CustomFieldRules.TryNormalise(to.Type, text, out var stored)) copied[to.Slot] = stored ?? string.Empty; // a field that applies, even empty, applies there
         }
         return copied.Count == 0 ? null : copied;
     }

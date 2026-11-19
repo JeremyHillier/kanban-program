@@ -6,15 +6,16 @@ using KanbanApp.ViewModels;
 
 namespace KanbanApp.Views;
 
-// The task file's custom fields, from Settings, Board tab: up to ten, each with a name, a type and an Active tick. Every
-// change is made straight away (like the other Manage screens) and the task screen follows the next time it opens.
+// The task file's custom fields, from Settings, Board tab: up to ten, each with a name, a type, an Active tick (offered on tasks) and a
+// Keep on repeat tick (a repeating task's next occurrence keeps the value). Every change is made straight away (like the other Manage
+// screens) and the task screen follows the next time it opens.
 public partial class ManageCustomFieldsWindow : Window
 {
     private readonly MainViewModel _viewModel;
     private readonly List<Row> _rows = [];
     private bool _loading;
 
-    private sealed record Row(CustomFieldDef Field, CheckBox Active, TextBox Name, ComboBox Type, TextBlock Uses);
+    private sealed record Row(CustomFieldDef Field, CheckBox Active, TextBox Name, ComboBox Type, CheckBox Keep, TextBlock Uses);
 
     public ManageCustomFieldsWindow(MainViewModel viewModel)
     {
@@ -28,12 +29,13 @@ public partial class ManageCustomFieldsWindow : Window
     private void Build()
     {
         _loading = true;
-        string[] headings = ["", "Active", "Name", "Type", "Used by"];
+        string[] headings = ["", "Active", "Name", "Type", "Keep on repeat", "Used by"];
         FieldsGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(28) });
         FieldsGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
         FieldsGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
         FieldsGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(130) });
-        FieldsGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(90) });
+        FieldsGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(120) });
+        FieldsGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(80) });
 
         FieldsGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         for (var c = 0; c < headings.Length; c++)
@@ -49,7 +51,7 @@ public partial class ManageCustomFieldsWindow : Window
             var line = FieldsGrid.RowDefinitions.Count - 1;
 
             var number = new TextBlock { Text = field.Slot.ToString(), VerticalAlignment = VerticalAlignment.Center, Foreground = (System.Windows.Media.Brush)FindResource("SecondaryTextBrush") };
-            var active = new CheckBox { VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(8, 0, 14, 0), ToolTip = "Show this field on the task screen" };
+            var active = new CheckBox { VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(8, 0, 14, 0), ToolTip = "Offer this field on tasks" };
             var name = new TextBox
             {
                 MaxLength = CustomFieldRules.MaxNameLength, Padding = new Thickness(6), Margin = new Thickness(0, 3, 8, 3),
@@ -63,19 +65,26 @@ public partial class ManageCustomFieldsWindow : Window
                 BorderBrush = (System.Windows.Media.Brush)FindResource("CardBorderBrush")
             };
             foreach (var t in Types) type.Items.Add(new ComboBoxItem { Content = CustomFieldRules.TypeLabel(t), Tag = t });
+            var keep = new CheckBox
+            {
+                VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Center,
+                ToolTip = "A repeating task's next occurrence keeps this field's value. Untick it to start the field empty each time."
+            };
             var uses = new TextBlock { VerticalAlignment = VerticalAlignment.Center, FontSize = 11, Foreground = (System.Windows.Media.Brush)FindResource("SecondaryTextStrongBrush") };
 
             Grid.SetRow(number, line); Grid.SetColumn(number, 0);
             Grid.SetRow(active, line); Grid.SetColumn(active, 1);
             Grid.SetRow(name, line); Grid.SetColumn(name, 2);
             Grid.SetRow(type, line); Grid.SetColumn(type, 3);
-            Grid.SetRow(uses, line); Grid.SetColumn(uses, 4);
-            foreach (UIElement element in new UIElement[] { number, active, name, type, uses }) FieldsGrid.Children.Add(element);
+            Grid.SetRow(keep, line); Grid.SetColumn(keep, 4);
+            Grid.SetRow(uses, line); Grid.SetColumn(uses, 5);
+            foreach (UIElement element in new UIElement[] { number, active, name, type, keep, uses }) FieldsGrid.Children.Add(element);
 
-            var row = new Row(field, active, name, type, uses);
+            var row = new Row(field, active, name, type, keep, uses);
             _rows.Add(row);
             name.LostFocus += (_, _) => Save(row);
             active.Click += (_, _) => Save(row);
+            keep.Click += (_, _) => Save(row);
             type.SelectionChanged += (_, _) => { if (!_loading) Save(row); };
             Show(row);
         }
@@ -89,6 +98,7 @@ public partial class ManageCustomFieldsWindow : Window
         _loading = true;
         row.Name.Text = row.Field.Name;
         row.Active.IsChecked = row.Field.IsActive;
+        row.Keep.IsChecked = row.Field.KeepOnRepeat;
         row.Type.SelectedIndex = Array.IndexOf(Types, row.Field.Type);
         var used = row.Field.IsDefined ? _viewModel.CustomFieldUseCount(row.Field.Slot) : 0;
         row.Uses.Text = used == 0 ? string.Empty : used == 1 ? "1 task" : $"{used} tasks";
@@ -103,8 +113,8 @@ public partial class ManageCustomFieldsWindow : Window
 
         var name = row.Name.Text.Trim();
         var type = row.Type.SelectedItem is ComboBoxItem { Tag: CustomFieldType chosen } ? chosen : row.Field.Type;
-        var active = row.Active.IsChecked == true && name.Length > 0; // an unnamed field can't be on
-        var problem = _viewModel.SetCustomField(row.Field.Slot, name, type, active);
+        var active = row.Active.IsChecked == true && name.Length > 0; // an unnamed field can't be offered
+        var problem = _viewModel.SetCustomField(row.Field.Slot, name, type, active, row.Keep.IsChecked == true);
         if (problem is not null) Dialogs.Tell(this, "Custom Fields", problem);
         Show(row);
     }

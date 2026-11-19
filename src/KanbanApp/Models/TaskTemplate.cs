@@ -27,6 +27,9 @@ public class TaskTemplate
     public bool ForceEditOnComplete { get; set; }
     public string? WebsiteUrl { get; set; }
     public string? DueTime { get; set; }
+    // The custom fields that apply (by slot), with the values they had when the template was saved. A new task made from the template starts
+    // with them.
+    public Dictionary<int, string> CustomValues { get; set; } = [];
 
     // Null means the template sets no date. Never negative: a date already past when the template
     // was saved isn't a lead time worth keeping.

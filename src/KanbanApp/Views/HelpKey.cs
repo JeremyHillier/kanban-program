@@ -22,6 +22,7 @@ public static class HelpKey
         [typeof(MilestonesWindow)] = "HelpSection_ProjectsGoals",
         [typeof(ManagePrioritiesWindow)] = "HelpSection_Priorities",
         [typeof(ManageCustomFieldsWindow)] = "HelpSection_CustomFields",
+        [typeof(ChooseCustomFieldsWindow)] = "HelpSection_CustomFields",
         [typeof(ManageCustomFiltersWindow)] = "HelpSection_CustomFilters",
         [typeof(ArchivedTasksWindow)] = "HelpSection_ArchivingDeleting",
         [typeof(DeletedTasksWindow)] = "HelpSection_ArchivingDeleting",

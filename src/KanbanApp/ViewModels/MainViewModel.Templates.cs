@@ -37,7 +37,8 @@ public partial class MainViewModel
         WebsiteUrl = card.WebsiteUrl,
         DueTime = card.DueDate is null ? null : card.DueTime,
         DueInDays = TaskTemplate.DaysFromToday(card.DueDate),
-        StartInDays = TaskTemplate.DaysFromToday(card.StartDate)
+        StartInDays = TaskTemplate.DaysFromToday(card.StartDate),
+        CustomValues = new Dictionary<int, string>(card.CustomValues)
     };
 
     // Saves under the given name, replacing a template that already has it (any capitalisation).

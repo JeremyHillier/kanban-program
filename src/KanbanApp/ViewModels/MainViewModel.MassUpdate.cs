@@ -5,6 +5,7 @@ namespace KanbanApp.ViewModels;
 public enum PeopleChange { None, Replace, Add, Remove }
 public enum DueChange { None, Set, Clear, Shift }
 public enum FlagChange { None, Add, Remove }
+public enum CustomFieldChange { None, Add, Remove }
 
 // What the Mass Update window asks for: only the fields the user ticked are set, so everything else on
 // the selected tasks stays exactly as it was.
@@ -27,6 +28,9 @@ public sealed class MassUpdateChanges
     public FlagViewModel? Flag { get; init; }
     public bool SetWaiting { get; init; }
     public string? WaitingOn { get; init; }
+    public CustomFieldChange CustomFieldAction { get; init; }
+    public CustomFieldDef? CustomField { get; init; }
+    public string? CustomValue { get; init; } // in its stored form; null with Add keeps what each task already holds
 
     public IReadOnlyList<string> Lines
     {
@@ -47,6 +51,9 @@ public sealed class MassUpdateChanges
             if (FlagAction == FlagChange.Add && Flag is not null) lines.Add($"Add flag {Flag.Name}");
             if (FlagAction == FlagChange.Remove && Flag is not null) lines.Add($"Remove flag {Flag.Name}");
             if (SetWaiting) lines.Add(string.IsNullOrWhiteSpace(WaitingOn) ? "Waiting on: cleared" : $"Waiting on: {WaitingOn!.Trim()}");
+            if (CustomFieldAction == CustomFieldChange.Add && CustomField is not null)
+                lines.Add(CustomValue is null ? $"Add the custom field {CustomField.Name}" : $"Add the custom field {CustomField.Name}: {CustomFieldRules.Display(CustomField.Type, CustomValue)}");
+            if (CustomFieldAction == CustomFieldChange.Remove && CustomField is not null) lines.Add($"Take the custom field {CustomField.Name} off");
             return lines;
         }
     }
@@ -100,6 +107,8 @@ public partial class MainViewModel
             if (changes.SetColor) SetCardsColor(cards, changes.Color);
             if (changes.SetWaiting) SetCardsWaitingOn(cards, changes.WaitingOn);
             if (changes.FlagAction == FlagChange.Add && changes.Flag is not null) AddFlagToCards(cards, changes.Flag);
+            if (changes.CustomFieldAction != CustomFieldChange.None && changes.CustomField is not null)
+                ApplyCustomFieldToCards(cards, changes.CustomField, changes.CustomFieldAction == CustomFieldChange.Remove, changes.CustomValue);
             if (changes.FlagAction == FlagChange.Remove && changes.Flag is not null)
             {
                 foreach (var card in cards.Where(c => c.Flags.Any(f => f.Id == changes.Flag.Id)))

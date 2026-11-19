@@ -182,7 +182,7 @@
                 <local:BulletItem Text="Double-click a card to edit it."/>
                 <local:BulletItem Text="Project is required. Everything else is optional."/>
                 <local:BulletItem Text="The task screen has two tabs. Main holds the essentials: project, goal, task, priority, category, who, dates, repeating and notes."/>
-                <local:BulletItem Text="Secondary holds the rest: edit on completion, colour, link, waiting on, flags, sub-tasks, related tasks, attachments and your custom fields."/>
+                <local:BulletItem Text="Secondary holds the rest: edit on completion, colour, link, waiting on, flags, sub-tasks, related tasks, attachments and the custom fields you add to the task."/>
                 <local:BulletItem Text="Simple View, beside Add Task, shows only project, goal, task, due date, recurring and who."/>
                 <local:BulletItem Text="Full View brings every field back. Nothing hidden is lost or changed by switching."/>
                 <local:BulletItem Text="Settings, General tab, chooses which view the window opens in."/>
@@ -364,6 +364,7 @@
                 <TextBlock x:Name="HelpSection_MassUpdate" Text="Changing several tasks at once" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <local:BulletItem Text="Ctrl+click picks tasks one at a time, Shift+click a range in one column, and Ctrl+A every task showing. Esc clears the picks."/>
                 <local:BulletItem Text="Right-click a picked task, Mass Update, to change them together. Tick each field to change; unticked fields stay as they are."/>
+                <local:BulletItem Text="Custom field adds one of your custom fields to the tasks (with a value if you type one), or takes it off."/>
                 <local:BulletItem Text="You can set the project, goal, priority, category (column), colour or what they wait on, and set, add or take off a person."/>
                 <local:BulletItem Text="Due date: set one date, clear it, or shift every date later or earlier by a number of days. Start dates move with them."/>
                 <local:BulletItem Text="Add a flag to all of them, or take one off."/>
@@ -469,9 +470,13 @@
                 <local:BulletItem Text="Renaming or deleting a priority clears the Undo history."/>
                 <TextBlock x:Name="HelpSection_CustomFields" Text="Custom fields" Style="{StaticResource HelpSubHeaderStyle}"/>
                 <local:BulletItem Text="Settings, Board tab, Manage Custom Fields defines up to ten fields of your own for tasks."/>
-                <local:BulletItem Text="Each has a name, a type (text, number, date or yes/no) and an Active tick."/>
-                <local:BulletItem Text="An active field shows on the Secondary tab of the task screen."/>
-                <local:BulletItem Text="Switching a field off only hides it. What tasks hold is kept, and comes back when you switch it on."/>
+                <local:BulletItem Text="Each has a name, a type (text, number, date or yes/no), an Active tick and a Keep on repeat tick."/>
+                <local:BulletItem Text="Active means the field can be picked for a task. A new task starts with no custom fields."/>
+                <local:BulletItem Text="On the Secondary tab of the task screen, click + beside Custom fields to add one. Click - beside a field to take it off."/>
+                <local:BulletItem Text="A project can list fields its new tasks start with: Manage Projects, Fields..."/>
+                <local:BulletItem Text="A template carries the fields it was saved with. Mass Update can add a field to many tasks, or take it off."/>
+                <local:BulletItem Text="Keep on repeat: the next occurrence of a repeating task keeps the field and its value. Untick it to start the field empty."/>
+                <local:BulletItem Text="Switching a field off only stops it being offered. What tasks hold is kept, and comes back when you switch it on."/>
                 <local:BulletItem Text="A field's type can't change once a task holds a value in it. Use another field instead."/>
                 <local:BulletItem Text="The fields belong to the task file, so every PC using the file has the same ones."/>
                 <local:BulletItem Text="The board's Keyword filter also searches what the fields hold."/>

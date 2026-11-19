@@ -6,7 +6,8 @@ namespace KanbanApp.Services;
 // are the CustomFields setting.
 public partial class DatabaseService
 {
-    // How many tasks hold a value in the field: on the board, archived or deleted.
+    // How many tasks hold a value in the field (one the field merely applies to, with nothing in it, does not count): on the board,
+    // archived or deleted.
     public int CountTasksWithCustomValue(int slot)
     {
         using var connection = OpenConnection();
@@ -16,7 +17,7 @@ public partial class DatabaseService
         using var reader = cmd.ExecuteReader();
         while (reader.Read())
         {
-            if (CustomFieldRules.ParseValues(reader.GetString(0)).ContainsKey(slot)) count++;
+            if (CustomFieldRules.ParseValues(reader.GetString(0)).TryGetValue(slot, out var value) && value.Length > 0) count++;
         }
         return count;
     }

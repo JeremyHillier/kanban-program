@@ -583,11 +583,17 @@
                         <StackPanel x:Name="AttachmentsPanel" MinHeight="8"/>
                     </StackPanel>
                 </Border>
-                <!-- The task file's custom fields: one control for each that is named and switched on (AddTaskWindow.CustomFields.cs). -->
+                <!-- The task file's custom fields. A task has the ones it chooses with the + (AddTaskWindow.CustomFields.cs). -->
                 <StackPanel x:Name="CustomFieldsSection" Margin="0,16,0,0" Visibility="Collapsed">
                     <Border BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="0,1,0,0" Padding="0,10,0,0">
-                        <TextBlock Text="Custom fields" FontWeight="Bold" FontSize="14" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Custom fields" FontWeight="Bold" FontSize="14" VerticalAlignment="Center" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                            <Button x:Name="AddCustomFieldButton" Content="+" Style="{StaticResource NewLinkButtonStyle}" Margin="8,0,0,0"
+                                    ToolTip="Add one of your custom fields to this task" Click="AddCustomField_Click"/>
+                        </StackPanel>
                     </Border>
+                    <TextBlock x:Name="CustomFieldsHint" Text="None on this task. Click + to add one." FontSize="11" Margin="0,6,0,0"
+                               Foreground="{DynamicResource SecondaryTextBrush}"/>
                     <StackPanel x:Name="CustomFieldsPanel"/>
                 </StackPanel>
             </StackPanel>

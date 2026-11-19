@@ -74,6 +74,10 @@
                                                     ToolTip="When this should be finished (optional). Shown on the Gantt view, which flags one whose open tasks run past it."/>
                                         <Button Content="&#x2715;" Padding="6,4" Margin="3,0,0,0" Click="ClearTarget_Click" ToolTip="Take the target date off"
                                                 Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                                        <Button Content="Fields..." Padding="10,4" Margin="12,0,0,0" Click="ProjectFields_Click"
+                                                Visibility="{Binding FieldsVisibility, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                ToolTip="The custom fields a new task in this project starts with."
+                                                Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
                                         <Button Content="Milestones..." Padding="10,4" Margin="12,0,0,0" Click="Milestones_Click"
                                                 ToolTip="The dated milestones on the way to this one. Each is drawn on the Gantt view when it is grouped the same way."
                                                 Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>

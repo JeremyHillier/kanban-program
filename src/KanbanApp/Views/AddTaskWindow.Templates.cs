@@ -87,6 +87,10 @@ public partial class AddTaskWindow
         SubTasksPanel.Children.Clear();
         foreach (var title in template.SubTasks) AddSubTaskRow(title);
         UpdateSubTaskProgressLabel();
+
+        // The fields that applied when it was saved (those no longer offered are left off), replacing any the project had added.
+        LoadCustomValues(template.CustomValues);
+        _hiddenCustomValues = [];
     }
 
     // What is on the form right now, as a template. Reads the same controls Add_Click does, but
@@ -113,7 +117,8 @@ public partial class AddTaskWindow
             WebsiteUrl = string.IsNullOrWhiteSpace(WebsiteUrlTextBox.Text) ? null : WebsiteUrlTextBox.Text.Trim(),
             DueTime = DueDatePicker.SelectedDate is null ? null : CurrentDueTime(),
             DueInDays = TaskTemplate.DaysFromToday(DueDatePicker.SelectedDate),
-            StartInDays = TaskTemplate.DaysFromToday(StartDatePicker.SelectedDate)
+            StartInDays = TaskTemplate.DaysFromToday(StartDatePicker.SelectedDate),
+            CustomValues = CurrentCustomValuesForTemplate()
         };
     }
 

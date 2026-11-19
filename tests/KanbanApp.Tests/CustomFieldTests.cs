@@ -51,8 +51,8 @@ public sealed class CustomFieldTests(WpfDispatcherFixture wpf) : IDisposable
     public void Values_ReadAndWriteAsText_AndDamagedTextReadsAsNone()
     {
         var text = CustomFieldRules.SerializeValues(Values((3, "2026-12-01"), (1, "Dupont"), (2, "  "), (11, "out of range")));
-        Assert.Equal("""{"1":"Dupont","3":"2026-12-01"}""", text);
-        Assert.Equal(Values((1, "Dupont"), (3, "2026-12-01")), CustomFieldRules.ParseValues(text));
+        Assert.Equal("""{"1":"Dupont","2":"","3":"2026-12-01"}""", text); // a field that applies with nothing in it is kept
+        Assert.Equal(Values((1, "Dupont"), (2, ""), (3, "2026-12-01")), CustomFieldRules.ParseValues(text));
 
         Assert.Null(CustomFieldRules.SerializeValues(new Dictionary<int, string>()));
         Assert.Empty(CustomFieldRules.ParseValues("not json"));
@@ -284,10 +284,10 @@ public sealed class CustomFieldTests(WpfDispatcherFixture wpf) : IDisposable
     }
 
     [Fact]
-    public void TheTaskWindow_ShowsOneControlForEachActiveField_AndNothingWhenThereAreNone() => wpf.Run(() =>
+    public void ANewTask_StartsWithNoFields_AndThePlusOffersTheOnesNotYetOnIt() => wpf.Run(() =>
     {
         var board = OpenBoardForWindows();
-        Assert.Equal(Visibility.Collapsed, new AddTaskWindow(board).CustomFieldsSection.Visibility);
+        Assert.Equal(Visibility.Collapsed, new AddTaskWindow(board).CustomFieldsSection.Visibility); // none offered: no section
 
         board.SetCustomField(1, "Client", CustomFieldType.Text, true);
         board.SetCustomField(2, "Estimate", CustomFieldType.Number, true);
@@ -296,24 +296,37 @@ public sealed class CustomFieldTests(WpfDispatcherFixture wpf) : IDisposable
         board.SetCustomField(5, "Old reference", CustomFieldType.Text, false);
 
         var window = new AddTaskWindow(board);
-
         Assert.Equal(Visibility.Visible, window.CustomFieldsSection.Visibility);
-        Assert.Equal(8, window.CustomFieldsPanel.Children.Count); // a label and a control for each of the four
+        Assert.Empty(window.CustomFieldsPanel.Children);                       // by default no field applies
+        Assert.Equal(Visibility.Visible, window.CustomFieldsHint.Visibility);
+        Assert.True(window.AddCustomFieldButton.IsEnabled);
+
+        window.AddCustomField(board.CustomFieldDefs[0]);
+        window.AddCustomField(board.CustomFieldDefs[3]);
+
+        Assert.Equal(2, window.CustomFieldsPanel.Children.Count);
+        Assert.IsType<System.Windows.Controls.TextBox>(window.CustomControlOf(1));
+        Assert.IsType<System.Windows.Controls.CheckBox>(window.CustomControlOf(4));
+        Assert.Null(window.CustomControlOf(2));
+        Assert.Null(window.CustomControlOf(5));                                // not offered
+        Assert.Equal(Visibility.Collapsed, window.CustomFieldsHint.Visibility);
     });
 
     [Fact]
-    public void EditingATask_ShowsItsValues_AndSwitchedOffFieldsKeepTheirs() => wpf.Run(() =>
+    public void EditingATask_ShowsOnlyTheFieldsOnIt_WithTheirValues() => wpf.Run(() =>
     {
         var board = OpenBoardForWindows();
         board.SetCustomField(1, "Client", CustomFieldType.Text, true);
         board.SetCustomField(2, "Old reference", CustomFieldType.Text, true);
-        var card = AddTask(board, "Quote", Values((1, "Dupont"), (2, "A-17")));
-        board.SetCustomField(2, "Old reference", CustomFieldType.Text, false);
+        board.SetCustomField(3, "Estimate", CustomFieldType.Number, true);
+        var card = AddTask(board, "Quote", Values((1, "Dupont"), (2, "A-17"))); // Estimate is offered, but is not on this task
+        board.SetCustomField(2, "Old reference", CustomFieldType.Text, false);  // and this one is no longer offered: kept, not shown
 
         var window = new AddTaskWindow(board, card, board.ToDoColumn!);
 
-        Assert.Equal(2, window.CustomFieldsPanel.Children.Count);
-        Assert.Equal("Dupont", ((System.Windows.Controls.TextBox)window.CustomFieldsPanel.Children[1]).Text);
+        Assert.Equal(1, window.CustomFieldsPanel.Children.Count);
+        Assert.Equal("Dupont", ((System.Windows.Controls.TextBox)window.CustomControlOf(1)!).Text);
+        Assert.Null(window.CustomControlOf(3));
     });
 
     [Fact]

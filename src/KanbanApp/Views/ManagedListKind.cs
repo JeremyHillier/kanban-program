@@ -17,6 +17,7 @@ internal abstract class ManagedListKind
     public virtual bool HasEmail => false;
     public virtual bool HasTarget => false;
     public virtual bool HasComplete => false;
+    public bool HasFields { get; init; }                // projects: the custom fields a new task in one starts with
 
     public abstract IEnumerable Items { get; }
     public abstract void Add(Window owner, string name);
@@ -33,7 +34,7 @@ internal abstract class ManagedListKind
 
     public static ManagedListKind Projects(MainViewModel vm) =>
         new Of<ProjectViewModel>(vm.Projects, vm.AddProject, vm.RenameProject, vm.SetProjectActive, vm.CountTasksUsingProject, vm.DeleteProject, setTarget: vm.SetProjectTarget, setStart: vm.SetProjectStart)
-        { Title = "Manage Projects", Noun = "project", IfDeleted = "they'll show as having no project." };
+        { Title = "Manage Projects", Noun = "project", IfDeleted = "they'll show as having no project.", HasFields = true };
 
     public static ManagedListKind Goals(MainViewModel vm) =>
         new Of<GoalViewModel>(vm.Goals, vm.AddGoal, vm.RenameGoal, vm.SetGoalActive, vm.CountTasksUsingGoal, vm.DeleteGoal, setTarget: vm.SetGoalTarget, setStart: vm.SetGoalStart, setComplete: vm.SetGoalComplete)

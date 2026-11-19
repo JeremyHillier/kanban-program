@@ -15,7 +15,11 @@ public sealed class CustomFieldDef
     public string Name { get; set; } = string.Empty;
     [JsonConverter(typeof(JsonStringEnumConverter))]
     public CustomFieldType Type { get; set; } = CustomFieldType.Text;
+    // Offered on tasks. A field not offered is hidden everywhere, but what tasks hold stays and comes back when it is offered again.
     public bool IsActive { get; set; }
+
+    // For a repeating task: the next occurrence keeps this field's value (true), or has the field but empty (false).
+    public bool KeepOnRepeat { get; set; } = true;
 
     // Named and switched on: the fields the New Task screen, reports and Excel files use.
     [JsonIgnore]
@@ -60,7 +64,8 @@ public static class CustomFieldRules
                 Slot = slot,
                 Name = found?.Name?.Trim() ?? string.Empty,
                 Type = found is null ? CustomFieldType.Text : found.Type,
-                IsActive = found?.IsActive ?? false
+                IsActive = found?.IsActive ?? false,
+                KeepOnRepeat = found?.KeepOnRepeat ?? true
             });
         }
         return result;
@@ -69,7 +74,8 @@ public static class CustomFieldRules
     public static string SaveDefinitions(IEnumerable<CustomFieldDef> definitions) =>
         JsonSerializer.Serialize(definitions.Where(d => d.IsDefined).ToList());
 
-    // The values a task holds, by slot, as stored in Cards.CustomValues; anything unreadable or blank is left out.
+    // The fields that apply to a task, by slot, with what it holds in each, as stored in Cards.CustomValues. A field applies to a task
+    // when it has an entry, even an empty one; anything unreadable is left out.
     public static Dictionary<int, string> ParseValues(string? json)
     {
         var result = new Dictionary<int, string>();
@@ -81,9 +87,9 @@ public static class CustomFieldRules
             if (raw is null) return result;
             foreach (var (key, value) in raw)
             {
-                if (int.TryParse(key, NumberStyles.None, CultureInfo.InvariantCulture, out var slot) && slot is >= 1 and <= MaxFields && !string.IsNullOrWhiteSpace(value))
+                if (int.TryParse(key, NumberStyles.None, CultureInfo.InvariantCulture, out var slot) && slot is >= 1 and <= MaxFields)
                 {
-                    result[slot] = value.Trim();
+                    result[slot] = value?.Trim() ?? string.Empty;
                 }
             }
         }
@@ -91,14 +97,14 @@ public static class CustomFieldRules
         return result;
     }
 
-    // Null for a task with none, so a file with no custom values stores nothing at all.
+    // Null for a task with no fields, so a file that uses none stores nothing at all.
     public static string? SerializeValues(IReadOnlyDictionary<int, string>? values)
     {
         if (values is null) return null;
         var clean = values
-            .Where(p => p.Key is >= 1 and <= MaxFields && !string.IsNullOrWhiteSpace(p.Value))
+            .Where(p => p.Key is >= 1 and <= MaxFields)
             .OrderBy(p => p.Key)
-            .ToDictionary(p => p.Key.ToString(CultureInfo.InvariantCulture), p => p.Value.Trim());
+            .ToDictionary(p => p.Key.ToString(CultureInfo.InvariantCulture), p => p.Value?.Trim() ?? string.Empty);
         return clean.Count == 0 ? null : JsonSerializer.Serialize(clean);
     }
 
@@ -140,6 +146,10 @@ public static class CustomFieldRules
     private static bool TryParseDay(string text, out DateTime day) =>
         DateTime.TryParseExact(text, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out day)
         || DateTime.TryParse(text, CultureInfo.CurrentCulture, DateTimeStyles.None, out day);
+
+    // What a repeating task's next occurrence starts with: the same fields applied, each holding its value only when the field is kept on repeat.
+    public static Dictionary<int, string> ForNextOccurrence(IReadOnlyDictionary<int, string> values, IReadOnlyList<CustomFieldDef> definitions) =>
+        values.ToDictionary(p => p.Key, p => (definitions.FirstOrDefault(f => f.Slot == p.Key)?.KeepOnRepeat ?? true) ? p.Value : string.Empty);
 
     // How a stored value reads on screen, in a report or in a history line.
     public static string Display(CustomFieldType type, string? stored)

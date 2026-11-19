@@ -132,7 +132,7 @@ public partial class AddTaskWindow : Window
         RebuildWhoItems();
         RebuildFlagCheckboxes();
         BuildColourSwatches();
-        BuildCustomFields();
+        InitializeCustomFields();
         InitializeTemplates();
         InitializeWhoTypeAhead();
         _waitingOnSuggestions = TextBoxSuggestions.Attach(WaitingOnTextBox, viewModel.WaitingOnSuggestions, viewModel.ForgetWaitingOnSuggestion);

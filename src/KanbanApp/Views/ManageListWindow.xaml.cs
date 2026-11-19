@@ -17,6 +17,7 @@ public partial class ManageListWindow : Window
     public Visibility EmailVisibility { get; }
     public Visibility TargetVisibility { get; }
     public Visibility CompleteVisibility { get; }
+    public Visibility FieldsVisibility { get; }
 
     internal ManageListWindow(MainViewModel viewModel, ManagedListKind kind)
     {
@@ -26,6 +27,7 @@ public partial class ManageListWindow : Window
         EmailVisibility = kind.HasEmail ? Visibility.Visible : Visibility.Collapsed;
         TargetVisibility = kind.HasTarget ? Visibility.Visible : Visibility.Collapsed;
         CompleteVisibility = kind.HasComplete ? Visibility.Visible : Visibility.Collapsed;
+        FieldsVisibility = kind.HasFields && viewModel.ActiveCustomFields.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
 
         InitializeComponent();
         Title = kind.Title;
@@ -82,6 +84,14 @@ public partial class ManageListWindow : Window
     private void Milestones_Click(object sender, RoutedEventArgs e)
     {
         if (sender is FrameworkElement { DataContext: IPlannedItem goal }) new MilestonesWindow(_viewModel, goal) { Owner = this }.ShowDialog();
+    }
+
+    // The custom fields a new task in this project starts with.
+    private void ProjectFields_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is not FrameworkElement { DataContext: ProjectViewModel project }) return;
+        var window = new ChooseCustomFieldsWindow(_viewModel, "Default Fields", $"A new task in \"{project.Name}\" starts with these fields. It can add or take off others.", _viewModel.DefaultFieldSlots(project.Id)) { Owner = this };
+        if (window.ShowDialog() == true) _viewModel.SetDefaultFields(project.Id, window.SelectedSlots);
     }
 
     private void Start_Changed(object sender, SelectionChangedEventArgs e)

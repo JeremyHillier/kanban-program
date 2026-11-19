@@ -17,6 +17,9 @@ public partial class MassUpdateWindow : Window
     private ComboBox _project = null!, _goal = null!, _personMode = null!, _person = null!, _priority = null!, _column = null!, _dueMode = null!, _color = null!, _flagMode = null!, _flag = null!;
     private DatePicker _dueDate = null!;
     private TextBox _shift = null!, _waiting = null!;
+    private ComboBox? _customMode, _customField;
+    private TextBox? _customValue;
+    private CheckBox? _customBox;
     private CheckBox _projectBox = null!, _goalBox = null!, _peopleBox = null!, _priorityBox = null!, _columnBox = null!, _dueBox = null!, _colorBox = null!, _flagBox = null!, _waitingBox = null!;
 
     public MassUpdateChanges Changes { get; private set; } = new();
@@ -46,6 +49,15 @@ public partial class MassUpdateWindow : Window
         _flagBox = RowOf("Flag", _flagMode, _flag);
         _waiting = new TextBox { Width = 250, Padding = new Thickness(4), ToolTip = "What the tasks are waiting on. Leave empty to clear it." };
         _waitingBox = RowOf("Waiting on", _waiting);
+
+        // Applying one of the custom fields to the tasks, or taking it off. Only offered when there are fields to choose from.
+        if (viewModel.ActiveCustomFields.Count > 0)
+        {
+            _customMode = Combo(["Add", "Take off"]);
+            _customField = Combo([.. viewModel.ActiveCustomFields.Cast<object>()]);
+            _customValue = new TextBox { Width = 140, Padding = new Thickness(4), ToolTip = "Optional: the value to put in the field. Leave empty to keep what each task already holds." };
+            _customBox = RowOf("Custom field", _customMode, _customField, _customValue);
+        }
 
         foreach (var (box, _) in _rows) { box.Checked += (_, _) => Update(); box.Unchecked += (_, _) => Update(); }
         foreach (var c in _rows.SelectMany(r => r.Controls))
@@ -125,12 +137,23 @@ public partial class MassUpdateWindow : Window
             FlagAction = _flagBox.IsChecked != true ? FlagChange.None : _flagMode.SelectedIndex == 0 ? FlagChange.Add : FlagChange.Remove,
             Flag = _flag.SelectedItem as FlagViewModel,
             SetWaiting = _waitingBox.IsChecked == true, WaitingOn = _waiting.Text,
+            CustomFieldAction = _customBox is null || _customBox.IsChecked != true ? CustomFieldChange.None : _customMode!.SelectedIndex == 0 ? CustomFieldChange.Add : CustomFieldChange.Remove,
+            CustomField = _customField?.SelectedItem as CustomFieldDef,
+            CustomValue = CustomValueToSet(),
         };
+    }
+
+    // The value typed for the custom field, in its stored form; null when none is wanted, or what was typed does not fit the field.
+    private string? CustomValueToSet()
+    {
+        if (_customBox?.IsChecked != true || _customMode!.SelectedIndex != 0 || _customField?.SelectedItem is not CustomFieldDef field) return null;
+        return CustomFieldRules.TryNormalise(field.Type, _customValue!.Text, out var stored) ? stored : null;
     }
 
     private void Update()
     {
         if (_dueMode is null) return;
+        if (_customValue is not null) _customValue.IsEnabled = _customBox!.IsChecked == true && _customMode!.SelectedIndex == 0;
         _dueDate.Visibility = _dueMode.SelectedIndex == 0 ? Visibility.Visible : Visibility.Collapsed;
         _shift.Visibility = _dueMode.SelectedIndex == 2 ? Visibility.Visible : Visibility.Collapsed;
         _person.IsEnabled = _peopleBox.IsChecked == true;
@@ -146,6 +169,12 @@ public partial class MassUpdateWindow : Window
         if (Changes.Due == DueChange.Shift && Changes.ShiftDays == 0)
         {
             Dialogs.Tell(this, "Mass Update", "Type the number of days to shift the dates by.");
+            return;
+        }
+        if (_customBox?.IsChecked == true && _customMode!.SelectedIndex == 0 && _customField?.SelectedItem is CustomFieldDef customField
+            && !string.IsNullOrWhiteSpace(_customValue!.Text) && !CustomFieldRules.TryNormalise(customField.Type, _customValue.Text, out _))
+        {
+            Dialogs.Tell(this, "Mass Update", $"\"{_customValue.Text.Trim()}\" is not a value {customField.Name} can hold.");
             return;
         }
         if (Changes.Due == DueChange.Set && Changes.DueDate is null)
