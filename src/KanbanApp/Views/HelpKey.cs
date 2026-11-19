@@ -15,6 +15,7 @@ public static class HelpKey
     {
         [typeof(AddTaskWindow)] = "HelpSection_AddEditTask",
         [typeof(QuickAddWindow)] = "HelpSection_QuickAdd",
+        [typeof(QuickEntriesWindow)] = "HelpSection_QuickAdd",
         [typeof(ManageTemplatesWindow)] = "HelpSection_TaskTemplates",
         [typeof(DeleteRecurringTaskWindow)] = "HelpSection_RecurringTasks",
         [typeof(ManageWaitingOnWindow)] = "HelpSection_WaitingOn",

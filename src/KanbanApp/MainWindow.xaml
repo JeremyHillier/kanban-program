@@ -528,12 +528,21 @@
                                                             <Grid.ColumnDefinitions>
                                                                 <ColumnDefinition Width="*"/>
                                                                 <ColumnDefinition Width="Auto"/>
+                                                                <ColumnDefinition Width="Auto"/>
                                                             </Grid.ColumnDefinitions>
                                                             <TextBlock Grid.Column="0" Text="{Binding ProjectName}" FontSize="13" FontWeight="Bold" TextTrimming="CharacterEllipsis"
                                                                        Foreground="{DynamicResource AccentTextBrush}" VerticalAlignment="Center"
                                                                        Cursor="Hand" ToolTip="Click to change project"
                                                                        MouseLeftButtonUp="ProjectName_MouseLeftButtonUp"/>
-                                                            <Border Grid.Column="1" Background="{Binding PriorityBrush}"
+                                                            <!-- Entered with Quick Add and not yet reviewed (MainViewModel.QuickReview.cs). Outlined, so it reads on any card colour. -->
+                                                            <Border Grid.Column="1" BorderBrush="{DynamicResource AccentTextBrush}" BorderThickness="1"
+                                                                    CornerRadius="3" Padding="4,0" Margin="6,0,0,0" VerticalAlignment="Center" Cursor="Hand"
+                                                                    Visibility="{Binding NeedsReview, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                                                    ToolTip="Entered with Quick Add and not reviewed yet. Click to review it in the full task window."
+                                                                    MouseLeftButtonUp="ReviewTag_MouseLeftButtonUp">
+                                                                <TextBlock Text="Review" FontSize="10" FontWeight="SemiBold" Foreground="{DynamicResource AccentTextBrush}"/>
+                                                            </Border>
+                                                            <Border Grid.Column="2" Background="{Binding PriorityBrush}"
                                                                     CornerRadius="3" Padding="5,1" Margin="6,0,0,0" VerticalAlignment="Center"
                                                                     Cursor="Hand" ToolTip="Click to change priority"
                                                                     MouseLeftButtonUp="PriorityBadge_MouseLeftButtonUp">
@@ -1404,6 +1413,13 @@
                                 <TextBlock Text="Update Version" TextWrapping="Wrap" TextAlignment="Center" FontWeight="SemiBold"/>
                             </Button>
                         </StackPanel>
+                        <!-- Only while Quick Add tasks wait to be reviewed (MainViewModel.QuickReview.cs). -->
+                        <Button Style="{StaticResource LargeSquareButtonStyle}" Background="#FF8A6D2F" Foreground="White" Click="ReviewQuickEntries_Click"
+                                HorizontalAlignment="Center" Margin="0,4,0,0"
+                                Visibility="{Binding HasQuickEntriesToReview, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                ToolTip="List the tasks entered with Quick Add that you have not reviewed yet, and review them in the full task window (Alt+Q)">
+                            <TextBlock Text="{Binding QuickReviewButtonText}" TextWrapping="Wrap" TextAlignment="Center" FontWeight="SemiBold"/>
+                        </Button>
                     </StackPanel>
                 </ScrollViewer>
                 </DockPanel>

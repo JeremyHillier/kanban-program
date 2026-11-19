@@ -119,6 +119,12 @@ public partial class MainWindow
         }
 
         AddMenuItem(menu, "_Edit Task...", editCard ?? (() => EditCard(card, viewModel)), gesture: "Double-click");
+        if (card.NeedsReview)
+        {
+            // A Quick Add task not reviewed yet: review it with the others, or simply take it off the list. No access keys: every free letter is taken.
+            AddMenuItem(menu, "Review Quick Entries...", () => ReviewQuickEntries(viewModel, card));
+            AddMenuItem(menu, "Mark Reviewed", () => viewModel.MarkReviewed(card));
+        }
         AddMenuItem(menu, "_Copy as Text", () => CopyToClipboard(CardTextFormatter.Format(card, currentColumn?.DisplayName ?? string.Empty, viewModel.ActiveCustomFields)));
         AddMenuItem(menu, "Copy _Title", () => CopyToClipboard(card.Title));
         // The link Outlook events and emails carry: pasted anywhere, it opens this task (on this PC, in this task file).

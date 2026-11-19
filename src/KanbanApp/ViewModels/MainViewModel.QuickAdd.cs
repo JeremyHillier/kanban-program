@@ -50,6 +50,11 @@ public partial class MainViewModel
         var who = parsed.WhoName is null ? null : People.FirstOrDefault(p => p.Name == parsed.WhoName);
 
         if (project is not null) _db.SetSetting("QuickAddProjectId", project.Id.ToString());
-        return AddCard(parsed.Title, column, project, parsed.Priority ?? Priorities.Default, parsed.DueDate, who, false, null, null);
+        var card = AddCard(parsed.Title, column, project, parsed.Priority ?? Priorities.Default, parsed.DueDate, who, false, null, null);
+        // Jotted down in a hurry: it waits on the review list until the user has looked at it in the full window.
+        card.NeedsReview = true;
+        _db.SetCardNeedsReview(card.Id, true);
+        NotifyQuickReviewChanged();
+        return card;
     }
 }

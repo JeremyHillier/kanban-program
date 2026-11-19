@@ -1,0 +1,52 @@
+<Window x:Class="KanbanApp.Views.QuickEntriesWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:views="clr-namespace:KanbanApp.Views"
+        Title="Quick Entries to Review" Width="620" Height="460" MinWidth="440" MinHeight="300"
+        WindowStartupLocation="CenterOwner" ShowInTaskbar="False"
+        Background="{DynamicResource WindowBackgroundBrush}">
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0" TextWrapping="Wrap" Margin="0,0,0,8" Foreground="{DynamicResource SecondaryTextBrush}"
+                   Text="Tasks entered with Quick Add (Ctrl+Alt+N) stay here until you mark them reviewed. Review opens them one after another in the full task window."/>
+
+        <ListBox Grid.Row="1" x:Name="EntryList" SelectionMode="Extended" SelectionChanged="EntryList_SelectionChanged"
+                 MouseDoubleClick="Review_Click" KeyDown="EntryList_KeyDown"
+                 Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                 BorderBrush="{DynamicResource CardBorderBrush}">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel Margin="2,3">
+                        <TextBlock Text="{Binding Title}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
+                        <TextBlock FontSize="11" Foreground="{DynamicResource SecondaryTextBrush}" TextTrimming="CharacterEllipsis">
+                            <Run Text="{Binding ProjectName, Mode=OneWay}"/><Run Text="{Binding DueDate, Mode=OneWay, StringFormat='  -  due {0:MMM d, yyyy}', TargetNullValue=''}"/>
+                        </TextBlock>
+                    </StackPanel>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+        <TextBlock Grid.Row="1" x:Name="EmptyText" Visibility="Collapsed" HorizontalAlignment="Center" VerticalAlignment="Center"
+                   Text="Nothing to review. Every quick entry has been reviewed." Foreground="{DynamicResource SecondaryTextBrush}"/>
+
+        <Grid Grid.Row="2" Margin="0,12,0,0">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                <Button Content="Help" Command="{x:Static views:HelpKey.ShowCommand}" CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}" Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}" ToolTip="Help for this window. (F1)"/>
+                <Button x:Name="MarkReviewedButton" Content="Mark _Reviewed" Margin="8,0,0,0" Padding="12,6" Click="MarkReviewed_Click" IsEnabled="False"
+                        ToolTip="Take the chosen tasks off this list without opening them (Delete key). Undo puts them back."
+                        Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button x:Name="ReviewButton" Content="Review" MinWidth="90" Padding="12,6" IsDefault="True" Click="Review_Click"
+                        ToolTip="Open the chosen task, or the first, in the full task window and step through the list from there (Enter)"
+                        Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                <Button Content="Close" Width="80" Padding="0,6" Margin="8,0,0,0" IsCancel="True"
+                        Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}" ToolTip="Close this window. (Esc)"/>
+            </StackPanel>
+        </Grid>
+    </Grid>
+</Window>

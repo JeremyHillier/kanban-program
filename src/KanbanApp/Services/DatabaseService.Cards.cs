@@ -17,7 +17,7 @@ public partial class DatabaseService
             : "";
         var idFilter = onlyIds is null ? "" : $" AND Id IN ({string.Join(",", onlyIds.DefaultIfEmpty(-1))})";
         cmd.CommandText = $"""
-            SELECT Id, ColumnId, Title, SortOrder, ProjectId, Priority, DueDate, WhoId, LastUpdated, IsRecurring, RecurrencePattern, GoalId, Notes, IsImported, ForceEditOnComplete, NextOccurrenceSpawned, WebsiteUrl, DueTime, CompletedAt, StartDate, WaitingOn, RecurrencesLeft, ShareId, Color, CustomValues{archivedAtColumn}
+            SELECT Id, ColumnId, Title, SortOrder, ProjectId, Priority, DueDate, WhoId, LastUpdated, IsRecurring, RecurrencePattern, GoalId, Notes, IsImported, ForceEditOnComplete, NextOccurrenceSpawned, WebsiteUrl, DueTime, CompletedAt, StartDate, WaitingOn, RecurrencesLeft, ShareId, Color, CustomValues, NeedsReview{archivedAtColumn}
             FROM Cards WHERE IsArchived = {(archivedOnly ? 1 : 0)} AND IsDeleted = 0{idFilter} ORDER BY SortOrder;
             """;
 
@@ -53,7 +53,8 @@ public partial class DatabaseService
                     ShareId = reader.IsDBNull(22) ? null : reader.GetString(22),
                     Color = reader.IsDBNull(23) ? null : reader.GetString(23),
                     CustomValues = CustomFieldRules.ParseValues(reader.IsDBNull(24) ? null : reader.GetString(24)),
-                    ArchivedAt = archivedOnly && !reader.IsDBNull(25) ? DateTime.Parse(reader.GetString(25)) : null
+                    NeedsReview = reader.GetInt32(25) != 0,
+                    ArchivedAt = archivedOnly && !reader.IsDBNull(26) ? DateTime.Parse(reader.GetString(26)) : null
                 });
             }
         }

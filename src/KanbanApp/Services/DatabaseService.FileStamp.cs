@@ -45,8 +45,10 @@ public partial class DatabaseService
     // 19: Cards.CustomValues and the CustomFields setting (0.171.0) - what a task holds in the custom fields the user defined. Older
     //     copies ignore the column and the setting, and would show none of it, so the file is only stamped 19 once a field is
     //     defined or a task holds a value (CustomFieldsFileFormat).
+    // 20: Cards.NeedsReview (0.172.0) - a Quick Add task not yet reviewed. Older copies ignore the column and lose nothing, so the
+    //     file is never stamped 20 and no older copy warns.
     // The newest format this copy of the app understands.
-    public const int CurrentFileFormat = 19;
+    public const int CurrentFileFormat = 20;
 
     public const int DayRangeFileFormat = 6;
     public const int PathLinkFileFormat = 7;

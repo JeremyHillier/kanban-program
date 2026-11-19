@@ -54,6 +54,7 @@ public partial class MainViewModel
     {
         RefreshLinkInfo(); // a task moved to Done may have been what another was waiting on
         RefreshLanes();
+        NotifyQuickReviewChanged();
         OnPropertyChanged(nameof(OpenTaskCount));
         OnPropertyChanged(nameof(OverdueCount));
         OnPropertyChanged(nameof(DueTodayCount));

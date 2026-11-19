@@ -90,6 +90,18 @@ public class CardViewModel(CardItem model) : ObservableObject
         }
     }
 
+    // A Quick Add task not yet reviewed: the card shows a Review tag until Mark Reviewed.
+    public bool NeedsReview
+    {
+        get => Model.NeedsReview;
+        set
+        {
+            if (Model.NeedsReview == value) return;
+            Model.NeedsReview = value;
+            OnPropertyChanged();
+        }
+    }
+
     // The card's background colour on the board: a CardColors key, or null for the ordinary card colour.
     public string? Color
     {
@@ -565,6 +577,7 @@ public class CardViewModel(CardItem model) : ObservableObject
         GoalName = other.GoalName;
         Priority = other.Priority;
         Color = other.Color;
+        NeedsReview = other.NeedsReview;
         DueDate = other.DueDate;
         DueTime = other.DueTime;
         StartDate = other.StartDate;

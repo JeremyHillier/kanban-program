@@ -6,6 +6,12 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.172.0 — 2026-11-19
+
+> - New: tasks entered with Quick Add (Ctrl+Alt+N) are marked for review. Their cards show a Review tag, and the button column shows Review (N) while any are waiting.
+> - New: Review (N), or Alt+Q, lists the quick entries. Review opens them one after another in the full task window, with a strip to move between them.
+> - New: Reviewed saves the task and takes it off the list. Mark Reviewed, in the list or on the card's right-click menu, does so without opening it.
+
 ## 0.171.0 — 2026-11-18
 
 > - New: custom fields. Define up to ten fields of your own for tasks: in Settings, on the Board tab, choose Manage Custom Fields, name each field and choose text, number, date or yes/no. Tick Active to make a field available to pick.

@@ -152,6 +152,10 @@ public partial class MainWindow
                         if (DataContext is MainViewModel todayViewModel) todayViewModel.ShowTodayOnly();
                         e.Handled = true;
                         break;
+                    case Key.Q:
+                        if (DataContext is MainViewModel reviewViewModel) OpenQuickEntries(reviewViewModel);
+                        e.Handled = true;
+                        break;
                     default:
                         ApplyCustomFilterShortcut(e);
                         break;

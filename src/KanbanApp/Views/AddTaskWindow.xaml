@@ -124,7 +124,31 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
+
+        <!-- Reviewing Quick Add tasks (AddTaskWindow.QuickReview.cs): where this one is in the list, a drop-down of them all,
+             Previous / Next, and Reviewed. Each saves what is on screen first, like Save & Close. Hidden otherwise. -->
+        <Border x:Name="ReviewStrip" Grid.Row="0" Visibility="Collapsed" Margin="16,0,16,10" Padding="10,6" CornerRadius="4"
+                BorderBrush="{DynamicResource AccentTextBrush}" BorderThickness="1">
+            <DockPanel>
+                <Button x:Name="ReviewedButton" DockPanel.Dock="Right" Content="&#x2714; Reviewed" Padding="12,4" Margin="8,0,0,0" Click="Reviewed_Click"
+                        ToolTip="Save this task, take it off the review list and go to the next one"
+                        Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                <Button x:Name="ReviewNextButton" DockPanel.Dock="Right" Content="Next &#x25B6;" Padding="10,4" Margin="6,0,0,0" Click="ReviewNext_Click"
+                        ToolTip="Save this task and go to the next one to review. It stays on the list."
+                        Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                <Button x:Name="ReviewPreviousButton" DockPanel.Dock="Right" Content="&#x25C0; Previous" Padding="10,4" Margin="6,0,0,0" Click="ReviewPrevious_Click"
+                        ToolTip="Save this task and go back to the one before. It stays on the list."
+                        Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                <TextBlock x:Name="ReviewPositionText" VerticalAlignment="Center" FontWeight="SemiBold" Margin="0,0,10,0"
+                           Foreground="{DynamicResource AccentTextBrush}"/>
+                <ComboBox x:Name="ReviewListComboBox" Padding="6,3" DisplayMemberPath="Title" SelectionChanged="ReviewList_SelectionChanged"
+                          ToolTip="Every Quick Add task still to review. Choose one to save this task and go to it."
+                          Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                          BorderBrush="{DynamicResource CardBorderBrush}"/>
+            </DockPanel>
+        </Border>
 
         <!-- MaxHeight is set explicitly in code-behind (not left to the Window's own MaxHeight +
              SizeToContent to sort out) - a Grid row's Auto/Star sizing doesn't reliably constrain a
@@ -135,7 +159,7 @@
         <!-- Two tabs, Main and Secondary. The strip is a TabControl with no pages of its own; the two pages sit under it in one
              cell, the one not chosen Hidden (not Collapsed) so the window is as tall as the taller page and never jumps in size
              when the tab changes (AddTaskWindow.Tabs.cs). -->
-        <Grid Grid.Row="0">
+        <Grid Grid.Row="1">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
@@ -607,7 +631,7 @@
              Help at the left, the stamps (when the task was finished, last changed, emailed, scheduled) with the
              whole of the rest of the width, and Mark Done, Save and Cancel at the right. The stamps used to share
              a row with the action buttons and were cut short whenever Email showed. -->
-        <Grid Grid.Row="1" Margin="16,10,16,0">
+        <Grid Grid.Row="2" Margin="16,10,16,0">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>

@@ -68,7 +68,7 @@
                         <TextBlock Text="Main screen" FontWeight="SemiBold" Margin="0,6,0,2" Foreground="{DynamicResource PrimaryTextBrush}"/>
                         <Grid>
                             <Grid.ColumnDefinitions><ColumnDefinition Width="230"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/></Grid.RowDefinitions>
+                            <Grid.RowDefinitions><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/></Grid.RowDefinitions>
                             <TextBlock Grid.Row="0" Text="Ctrl+N" FontFamily="Consolas" Margin="10,1,0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
                             <TextBlock Grid.Row="0" Grid.Column="1" Text="New task" TextWrapping="Wrap" Margin="0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
                             <TextBlock Grid.Row="1" Text="Ctrl+Alt+N" FontFamily="Consolas" Margin="10,1,0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
@@ -103,16 +103,18 @@
                             <TextBlock Grid.Row="15" Grid.Column="1" Text="Hide or show the buttons on the cards" TextWrapping="Wrap" Margin="0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
                             <TextBlock Grid.Row="16" Text="Alt+T" FontFamily="Consolas" Margin="10,1,0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
                             <TextBlock Grid.Row="16" Grid.Column="1" Text="Only what is due today or overdue" TextWrapping="Wrap" Margin="0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
-                            <TextBlock Grid.Row="17" Text="Alt+0 to Alt+9" FontFamily="Consolas" Margin="10,1,0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
-                            <TextBlock Grid.Row="17" Grid.Column="1" Text="Apply a saved custom filter" TextWrapping="Wrap" Margin="0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
-                            <TextBlock Grid.Row="18" Text="Ctrl+click, Shift+click, Ctrl+A" FontFamily="Consolas" Margin="10,1,0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
-                            <TextBlock Grid.Row="18" Grid.Column="1" Text="Pick cards, a range of them in one column, or every card showing" TextWrapping="Wrap" Margin="0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
-                            <TextBlock Grid.Row="19" Text="Delete" FontFamily="Consolas" Margin="10,1,0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
-                            <TextBlock Grid.Row="19" Grid.Column="1" Text="Delete the picked cards, after asking" TextWrapping="Wrap" Margin="0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
-                            <TextBlock Grid.Row="20" Text="Esc" FontFamily="Consolas" Margin="10,1,0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
-                            <TextBlock Grid.Row="20" Grid.Column="1" Text="Clear the selection, then the filters" TextWrapping="Wrap" Margin="0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
-                            <TextBlock Grid.Row="21" Text="Double-click" FontFamily="Consolas" Margin="10,1,0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
-                            <TextBlock Grid.Row="21" Grid.Column="1" Text="Edit a card; on a column heading, add a task there" TextWrapping="Wrap" Margin="0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                            <TextBlock Grid.Row="17" Text="Alt+Q" FontFamily="Consolas" Margin="10,1,0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                            <TextBlock Grid.Row="17" Grid.Column="1" Text="Review the tasks entered with Quick Add" TextWrapping="Wrap" Margin="0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                            <TextBlock Grid.Row="18" Text="Alt+0 to Alt+9" FontFamily="Consolas" Margin="10,1,0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                            <TextBlock Grid.Row="18" Grid.Column="1" Text="Apply a saved custom filter" TextWrapping="Wrap" Margin="0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                            <TextBlock Grid.Row="19" Text="Ctrl+click, Shift+click, Ctrl+A" FontFamily="Consolas" Margin="10,1,0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                            <TextBlock Grid.Row="19" Grid.Column="1" Text="Pick cards, a range of them in one column, or every card showing" TextWrapping="Wrap" Margin="0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                            <TextBlock Grid.Row="20" Text="Delete" FontFamily="Consolas" Margin="10,1,0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                            <TextBlock Grid.Row="20" Grid.Column="1" Text="Delete the picked cards, after asking" TextWrapping="Wrap" Margin="0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                            <TextBlock Grid.Row="21" Text="Esc" FontFamily="Consolas" Margin="10,1,0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                            <TextBlock Grid.Row="21" Grid.Column="1" Text="Clear the selection, then the filters" TextWrapping="Wrap" Margin="0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                            <TextBlock Grid.Row="22" Text="Double-click" FontFamily="Consolas" Margin="10,1,0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                            <TextBlock Grid.Row="22" Grid.Column="1" Text="Edit a card; on a column heading, add a task there" TextWrapping="Wrap" Margin="0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
                         </Grid>
                         <TextBlock Text="Every window" FontWeight="SemiBold" Margin="0,6,0,2" Foreground="{DynamicResource PrimaryTextBrush}"/>
                         <Grid>
@@ -297,6 +299,13 @@
                 <local:BulletItem Text="The line under the box shows how it was read, before you press Enter."/>
                 <local:BulletItem Text="Anything else stays in the title, so an email address or 50/50 is safe."/>
                 <local:BulletItem Text="Settings shows if another program already uses Ctrl+Alt+N, and can switch Quick Add off."/>
+                <TextBlock Text="Reviewing quick entries" Style="{StaticResource HelpSubHeaderStyle}"/>
+                <local:BulletItem Text="A task added with Quick Add is marked for review: its card shows a Review tag."/>
+                <local:BulletItem Text="While any wait, the button column shows Review (N). It, or Alt+Q, lists them."/>
+                <local:BulletItem Text="Review opens them one after another in the full task window, with a strip at the top."/>
+                <local:BulletItem Text="Previous, Next and the drop-down save the task and move on; it stays on the list."/>
+                <local:BulletItem Text="Reviewed saves the task, takes it off the list and goes to the next one."/>
+                <local:BulletItem Text="Saving, moving or finishing a task never clears the mark. Mark Reviewed, in the list or on the card's right-click menu, does without opening it."/>
 
                 <TextBlock x:Name="HelpSection_TaskTemplates" Text="Task templates" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <local:BulletItem Text="A template is a saved starting point for a task you create often."/>

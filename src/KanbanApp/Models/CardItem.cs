@@ -39,6 +39,9 @@ public class CardItem
     public string? Notes { get; set; }
     // A background colour for the card on the board, one of CardColors by key; null for the ordinary card colour.
     public string? Color { get; set; }
+
+    // A Quick Add (Ctrl+Alt+N) task not yet reviewed in the full task window; cleared only by the user (Mark Reviewed).
+    public bool NeedsReview { get; set; }
     public string? WebsiteUrl { get; set; }
     // What the task holds in the task file's custom fields, by field slot (1 to 10); see CustomFieldRules.
     public Dictionary<int, string> CustomValues { get; set; } = [];
