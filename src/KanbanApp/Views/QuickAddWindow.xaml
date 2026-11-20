@@ -7,7 +7,7 @@
         WindowStartupLocation="Manual" AllowsTransparency="True" Background="Transparent">
     <!-- A bare, always-on-top strip: it appears over whatever program is in front, so it carries
          its own border rather than a title bar. Enter adds, Esc closes. -->
-    <Border Margin="12" Padding="14,12" CornerRadius="8"
+    <Border Margin="12" Padding="14,12" CornerRadius="8" MouseLeftButtonDown="Strip_MouseLeftButtonDown" Cursor="SizeAll"
             Background="{DynamicResource WindowBackgroundBrush}" BorderBrush="#FF3E8DD1" BorderThickness="2">
         <Border.Effect>
             <DropShadowEffect BlurRadius="14" ShadowDepth="2" Opacity="0.45"/>
@@ -25,7 +25,7 @@
 
             <TextBlock Grid.Row="0" Grid.Column="0" x:Name="HeadingText" Text="New task" FontWeight="SemiBold" Margin="0,0,0,6"
                        Foreground="{DynamicResource PrimaryTextBrush}"/>
-            <TextBlock Grid.Row="0" Grid.Column="1" Text="Enter to add   ·   Esc to close" FontSize="11" Margin="0,0,0,6"
+            <TextBlock Grid.Row="0" Grid.Column="1" Text="Enter to add   ·   Esc to close   ·   drag to move" FontSize="11" Margin="0,0,0,6"
                        VerticalAlignment="Center" Foreground="{DynamicResource SecondaryTextBrush}"/>
 
             <TextBox Grid.Row="1" Grid.Column="0" x:Name="TaskTextBox" FontSize="16" Padding="8,6" TextChanged="TaskTextBox_TextChanged"

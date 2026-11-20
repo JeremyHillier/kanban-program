@@ -31,9 +31,24 @@ public partial class QuickAddWindow : Window
         var area = SystemParameters.WorkArea;
         Left = area.Left + (area.Width - Width) / 2;
         Top = area.Top + area.Height * 0.22;
+        WindowPlacementMemory.AttachPosition(this, viewModel, "QuickAdd"); // where it was left, if that is still on a screen
 
         Loaded += (_, _) => FocusTaskBox();
         PreviewKeyDown += QuickAddWindow_PreviewKeyDown;
+    }
+
+    // The strip has no title bar, so it is moved by taking hold of it anywhere that is not a box or a button. Where it
+    // was left is remembered (task file and PC, like every window) and used the next time.
+    private void Strip_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+    {
+        for (var current = e.OriginalSource as DependencyObject; current is not null;
+             current = current is System.Windows.Media.Visual ? System.Windows.Media.VisualTreeHelper.GetParent(current) : LogicalTreeHelper.GetParent(current))
+        {
+            if (current is System.Windows.Controls.Primitives.TextBoxBase or ComboBox or System.Windows.Controls.Primitives.ButtonBase) return;
+        }
+
+        if (e.ButtonState == MouseButtonState.Pressed) DragMove();
+        FocusTaskBox();
     }
 
     public void FocusTaskBox()

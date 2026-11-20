@@ -292,6 +292,7 @@
                 <TextBlock x:Name="HelpSection_QuickAdd" Text="Quick Add from any program" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <local:BulletItem Text="Press Ctrl+Alt+N in any program for a small New Task box."/>
                 <local:BulletItem Text="The app must be running. Minimised is fine."/>
+                <local:BulletItem Text="Drag the box by its edge or heading to move it. It opens where you left it."/>
                 <local:BulletItem Text="Type the task and press Enter. The box stays open for more; Esc closes it."/>
                 <local:BulletItem Text="New tasks go into the first column, at the default priority, in the project shown beside the box."/>
                 <local:BulletItem Text="Priority: add ! and the start of its name, such as !high or !h."/>
