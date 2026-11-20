@@ -309,7 +309,7 @@
                 <local:BulletItem Text="Reviewed saves the task, takes it off the list and goes to the next one."/>
                 <local:BulletItem Text="Saving, moving or finishing a task never clears the mark. Mark Reviewed, in the list or on the card's right-click menu, does without opening it."/>
                 <local:BulletItem Text="Right-click a task in the list, or select several, to review it, mark it reviewed or delete it."/>
-                <local:BulletItem Text="The same menu changes the priority, due date, project or who without opening the task."/>
+                <local:BulletItem Text="The same menu changes the priority, due date, project, goal or who without opening the task."/>
 
                 <TextBlock x:Name="HelpSection_TaskTemplates" Text="Task templates" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <local:BulletItem Text="A template is a saved starting point for a task you create often."/>

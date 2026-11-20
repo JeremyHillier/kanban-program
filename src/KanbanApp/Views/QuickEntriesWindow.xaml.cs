@@ -130,6 +130,15 @@ public partial class QuickEntriesWindow : Window
         }
         menu.Items.Add(project);
 
+        var goal = new MenuItem { Header = "_Goal" };
+        Add(goal, "No Goal", () => Edit(() => _viewModel.SetCardsGoal(chosen, null)), isEnabled: chosen.Any(c => c.GoalId is not null));
+        foreach (var candidate in _viewModel.Goals.Where(g => g.IsOffered))
+        {
+            var item = Add(goal, Escape(candidate.Name), () => Edit(() => _viewModel.SetCardsGoal(chosen, candidate)));
+            item.IsChecked = chosen.All(c => c.GoalId == candidate.Id);
+        }
+        menu.Items.Add(goal);
+
         var who = new MenuItem { Header = "_Who" };
         foreach (var person in _viewModel.People.Where(p => p.IsActive))
         {

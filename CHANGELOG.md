@@ -6,6 +6,10 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.173.2 — 2026-11-21
+
+> - New: the Quick Entries list's right-click menu can now set a task's goal, or clear it.
+
 ## 0.173.1 — 2026-11-20
 
 > - New: the Quick Add box can be moved. Drag it by its edge or heading, and it opens in the same place next time.
