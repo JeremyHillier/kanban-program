@@ -13,7 +13,7 @@
         </Grid.RowDefinitions>
 
         <TextBlock Grid.Row="0" TextWrapping="Wrap" Margin="0,0,0,8" Foreground="{DynamicResource SecondaryTextBrush}"
-                   Text="Tasks entered with Quick Add (Ctrl+Alt+N) stay here until you mark them reviewed. Review opens them one after another in the full task window."/>
+                   Text="Tasks entered with Quick Add (Ctrl+Alt+N) stay here until you mark them reviewed. Review opens them one after another in the full task window. Right-click for more."/>
 
         <ListBox Grid.Row="1" x:Name="EntryList" SelectionMode="Extended" SelectionChanged="EntryList_SelectionChanged"
                  MouseDoubleClick="Review_Click" KeyDown="EntryList_KeyDown"
@@ -24,7 +24,7 @@
                     <StackPanel Margin="2,3">
                         <TextBlock Text="{Binding Title}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
                         <TextBlock FontSize="11" Foreground="{DynamicResource SecondaryTextBrush}" TextTrimming="CharacterEllipsis">
-                            <Run Text="{Binding ProjectName, Mode=OneWay}"/><Run Text="{Binding DueDate, Mode=OneWay, StringFormat='  -  due {0:MMM d, yyyy}', TargetNullValue=''}"/>
+                            <Run Text="{Binding ProjectName, Mode=OneWay}"/><Run Text="{Binding Priority, Mode=OneWay, StringFormat='  -  {0}'}"/><Run Text="{Binding DueDate, Mode=OneWay, StringFormat='  -  due {0:MMM d, yyyy}', TargetNullValue=''}"/>
                         </TextBlock>
                     </StackPanel>
                 </DataTemplate>
@@ -37,7 +37,7 @@
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
                 <Button Content="Help" Command="{x:Static views:HelpKey.ShowCommand}" CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}" Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}" ToolTip="Help for this window. (F1)"/>
                 <Button x:Name="MarkReviewedButton" Content="Mark _Reviewed" Margin="8,0,0,0" Padding="12,6" Click="MarkReviewed_Click" IsEnabled="False"
-                        ToolTip="Take the chosen tasks off this list without opening them (Delete key). Undo puts them back."
+                        ToolTip="Take the chosen tasks off this list without opening them. Undo puts them back."
                         Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
             </StackPanel>
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">

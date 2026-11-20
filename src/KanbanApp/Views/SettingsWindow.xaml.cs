@@ -384,6 +384,15 @@ public partial class SettingsWindow : Window
         if (IsLoaded) _viewModel.SetCustomDictionary(CustomDictionaryTextBox.Text);
     }
 
+    // Tests the words on this PC (UserDictionary.Report) and says what it found; the facts go in the message's detail, to be
+    // copied if something is still wrong.
+    private void CheckDictionary_Click(object sender, RoutedEventArgs e)
+    {
+        var (summary, detail) = _viewModel.Dictionary.Report();
+        DictionaryCheckText.Text = summary;
+        Dialogs.Tell(this, "Spell Check", summary, summary.StartsWith("Your words are accepted", StringComparison.Ordinal) ? DialogTone.Info : DialogTone.Warning, detail);
+    }
+
     private void NotifySenderCheckBox_Changed(object sender, RoutedEventArgs e)
     {
         if (!IsLoaded) return;

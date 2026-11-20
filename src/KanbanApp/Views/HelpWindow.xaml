@@ -227,6 +227,7 @@
                 <local:BulletItem Text="Your words are in Settings, General tab, one per line. Take one out to have it flagged again."/>
                 <local:BulletItem Text="They are kept in the task file, so every PC using it has them."/>
                 <local:BulletItem Text="A word added in lower case is accepted in any capitals; one with a capital only as written."/>
+                <local:BulletItem Text="Check Spelling, in Settings, tests the list on this PC. If Windows is not applying it, the words are kept in Windows' own dictionary instead."/>
                 <local:BulletItem Text="Auto-correct fixes common slips like teh as you finish a word, in the task and notes boxes."/>
                 <local:BulletItem Text="Press Ctrl+Z straight after a correction to put back what you typed."/>
                 <local:BulletItem Text="Settings turns it off and takes your own corrections, one per line, like kbp = Kanban Program."/>
@@ -306,6 +307,8 @@
                 <local:BulletItem Text="Previous, Next and the drop-down save the task and move on; it stays on the list."/>
                 <local:BulletItem Text="Reviewed saves the task, takes it off the list and goes to the next one."/>
                 <local:BulletItem Text="Saving, moving or finishing a task never clears the mark. Mark Reviewed, in the list or on the card's right-click menu, does without opening it."/>
+                <local:BulletItem Text="Right-click a task in the list, or select several, to review it, mark it reviewed or delete it."/>
+                <local:BulletItem Text="The same menu changes the priority, due date, project or who without opening the task."/>
 
                 <TextBlock x:Name="HelpSection_TaskTemplates" Text="Task templates" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <local:BulletItem Text="A template is a saved starting point for a task you create often."/>

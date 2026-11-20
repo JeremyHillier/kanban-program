@@ -17,7 +17,7 @@ namespace KanbanApp.Services;
 // session. So the file always keeps the same name - re-registering the same name makes WPF read it
 // again - and when the words change the open boxes are given the list again and spell check is
 // switched off and on. A word taken out stops being accepted from then on.
-public sealed class UserDictionary
+public sealed partial class UserDictionary
 {
     private readonly string _folder;
     private readonly List<(WeakReference<TextBoxBase> Box, Uri[] Others)> _boxes = [];
@@ -30,6 +30,10 @@ public sealed class UserDictionary
 
     // The tests point this at a folder of their own, so they never write where the real app does.
     internal static string? FolderOverride { get; set; }
+
+    // Only the real app may write to Windows' own dictionary (UserDictionary.Verify); the tests, which use a folder
+    // of their own, never do.
+    internal static bool AllowWindowsFallback => FolderOverride is null;
 
     public string FilePath => Path.Combine(_folder, "UserDictionary.lex");
 

@@ -21,7 +21,12 @@ public partial class MainViewModel
         Dictionary.Set(saved + "\n" + Dictionary.ReadPcWords());
         if (!string.Equals(Dictionary.AsText, string.Join("\n", UserDictionary.ParseWords(saved)), StringComparison.Ordinal))
             _db.SetSetting(CustomDictionaryKey, Dictionary.AsText);
-        Dictionary.WordsAdded += () => _db.SetSetting(CustomDictionaryKey, Dictionary.AsText);
+        Dictionary.Verify(UserDictionary.AllowWindowsFallback); // are the words really accepted on this PC? if not, Windows' own dictionary
+        Dictionary.WordsAdded += () =>
+        {
+            _db.SetSetting(CustomDictionaryKey, Dictionary.AsText);
+            Dictionary.Verify(UserDictionary.AllowWindowsFallback);
+        };
     }
 
     // Settings: the whole list at once.
@@ -29,5 +34,6 @@ public partial class MainViewModel
     {
         Dictionary.Set(text);
         _db.SetSetting(CustomDictionaryKey, Dictionary.AsText);
+        Dictionary.Verify(UserDictionary.AllowWindowsFallback);
     }
 }

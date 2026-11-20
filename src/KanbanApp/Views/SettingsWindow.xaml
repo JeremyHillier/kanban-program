@@ -237,6 +237,13 @@
                          ToolTip="Names, terms and abbreviations you use. Right-click a flagged word in a task and choose Add to Dictionary to put it here. Take a word out to have it flagged again."
                          Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
                          BorderBrush="{DynamicResource CardBorderBrush}"/>
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                    <Button Content="Check Spelling" Padding="12,4" Click="CheckDictionary_Click"
+                            ToolTip="Test whether your words are accepted on this PC. If Windows is not applying them, they are kept in Windows' own dictionary instead."
+                            Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                    <TextBlock x:Name="DictionaryCheckText" FontSize="11" Margin="10,0,0,0" VerticalAlignment="Center" TextWrapping="Wrap"
+                               Foreground="{DynamicResource SecondaryTextBrush}"/>
+                </StackPanel>
                 <TextBlock Text="A word you type in capitals only is accepted in that form; in lower case it is accepted in any."
                            FontSize="11" Margin="0,0,0,12" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryTextBrush}"/>
 

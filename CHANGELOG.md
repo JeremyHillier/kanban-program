@@ -6,6 +6,12 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.173.0 — 2026-11-20
+
+> - Fixed: words in your spelling dictionary are now checked on each PC. When Windows is not applying the list on a PC, your words are kept in Windows' own dictionary so they are accepted there too.
+> - New: Settings, General tab, has a Check Spelling button that tests the dictionary on this PC and reports what it found.
+> - New: right-click a task in the Quick Entries list to review it, mark it reviewed, delete it, or change its priority, due date, project or who. The Delete key deletes, after asking.
+
 ## 0.172.0 — 2026-11-19
 
 > - New: tasks entered with Quick Add (Ctrl+Alt+N) are marked for review. Their cards show a Review tag, and the button column shows Review (N) while any are waiting.
