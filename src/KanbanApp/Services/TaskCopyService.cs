@@ -36,7 +36,7 @@ public static class TaskCopyService
 
             var added = db.AddCard(column.Id, card.Title, projectId, column.Name, card.Priority, card.DueDate, personIds.Count > 0 ? personIds[0] : null,
                 card.IsRecurring, card.RecurrencePattern, goalId, card.Notes, false, card.ForceEditOnComplete, card.WebsiteUrl, card.DueTime, card.StartDate,
-                card.WaitingOn, card.RecurrencesLeft, CopiedCustomValues(card, sourceFields, targetFields));
+                card.WaitingOn, card.RecurrencesLeft, CopiedCustomValues(card, sourceFields, targetFields), card.SubTasksPickOne);
             db.SetCardPeople(added.Id, personIds, record: false);
             db.SetCardFlags(added.Id, flagIds, record: false);
             db.SetCardSubTasks(added.Id, card.SubTasks.Select(s => (s.Title, s.IsDone)).ToList(), record: false);

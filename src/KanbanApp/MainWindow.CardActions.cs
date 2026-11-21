@@ -259,8 +259,19 @@ public partial class MainWindow
     {
         if (sender is not System.Windows.Controls.CheckBox { DataContext: SubTaskViewModel subTask, Tag: CardViewModel card } checkBox) return;
         if (DataContext is not MainViewModel viewModel) return;
+        // The hidden checklist box of a pick-one task follows the choice; and a box only catching up with the task is no change.
+        if (card.SubTasksPickOne || subTask.IsDone == (checkBox.IsChecked == true)) return;
 
         viewModel.SetSubTaskDone(card, subTask, checkBox.IsChecked == true);
+    }
+
+    // A pick-one task's round button: picks it, or clears the choice when it was the one picked.
+    private void SubTaskRadio_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is not System.Windows.Controls.RadioButton { DataContext: SubTaskViewModel subTask, Tag: CardViewModel card }) return;
+        if (DataContext is not MainViewModel viewModel) return;
+
+        viewModel.PickSubTask(card, subTask.IsDone ? null : subTask);
     }
 
     private void QuickMove_Click(object sender, RoutedEventArgs e)

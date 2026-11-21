@@ -173,7 +173,7 @@ public partial class MainViewModel
             {
                 EditCard(existing, row.Title.Trim(), column, project, priority, row.DueDate, people,
                     pattern is not null, pattern, goal, flags, subTasks, notes, existing.Attachments, existing.ForceEditOnComplete,
-                    website, dueTime, startDate, row.WaitingOn, recurrencesLeft, CustomValuesFromRow(row, existing.CustomValues));
+                    website, dueTime, startDate, row.WaitingOn, recurrencesLeft, CustomValuesFromRow(row, existing.CustomValues), row.SubTasksPickOne);
                 SetCardImported(existing, true); // listed on the review screen with the new tasks
                 RememberExchanged(existing);
                 imported.Add(existing);
@@ -185,7 +185,8 @@ public partial class MainViewModel
             var cardVm = AddCard(title, column, project, priority, row.DueDate, people.FirstOrDefault(),
                 pattern is not null, pattern, goal, flags, subTasks,
                 notes: notes, isImported: true, websiteUrl: website, dueTime: dueTime, startDate: startDate,
-                waitingOn: row.WaitingOn, people: people, recurrencesLeft: recurrencesLeft, customValues: CustomValuesFromRow(row, null));
+                waitingOn: row.WaitingOn, people: people, recurrencesLeft: recurrencesLeft, customValues: CustomValuesFromRow(row, null),
+                subTasksPickOne: row.SubTasksPickOne);
 
             // Keeps the sender's ID, so a later update of the same task finds this one, and who sent it,
             // so it can be sent back. A copy kept beside the board's own task is a task of its own.

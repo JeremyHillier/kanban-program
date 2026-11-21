@@ -95,6 +95,7 @@ public partial class DatabaseService
         MigrateColumn(connection, "Cards", "Color", "TEXT NULL");
         MigrateColumn(connection, "Cards", "CustomValues", "TEXT NULL");
         MigrateColumn(connection, "Cards", "NeedsReview", "INTEGER NOT NULL DEFAULT 0"); // a Quick Add task not yet reviewed (0.172.0)
+        MigrateColumn(connection, "Cards", "SubTasksPickOne", "INTEGER NOT NULL DEFAULT 0"); // sub-tasks are choices (0.174.0)
         MigrateColumn(connection, "Projects", "IsActive", "INTEGER NOT NULL DEFAULT 1");
         MigrateColumn(connection, "Goals", "IsActive", "INTEGER NOT NULL DEFAULT 1");
         MigrateColumn(connection, "Goals", "TargetDate", "TEXT NULL");

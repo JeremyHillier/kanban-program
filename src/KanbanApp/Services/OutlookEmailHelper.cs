@@ -410,6 +410,7 @@ public static partial class OutlookEmailHelper
         WebsiteUrl = card.WebsiteUrl,
         Notes = card.Notes,
         SubTasks = card.SubTasks.Select(s => (s.Title, s.IsDone)).ToList(),
+        SubTasksPickOne = card.SubTasksPickOne,
         // The fields the sender has on, by name: a board with a field of the same name takes the value.
         CustomFields = viewModel.ActiveCustomFields.ToDictionary(f => f.Name, f => card.CustomValues.GetValueOrDefault(f.Slot) ?? string.Empty)
     };
@@ -475,10 +476,10 @@ public static partial class OutlookEmailHelper
 
         if (card.SubTasks.Count > 0)
         {
-            sb.Append("<p><b>Sub-tasks</b></p><ul style=\"margin-top: 0;\">");
+            sb.Append(card.SubTasksPickOne ? "<p><b>Sub-tasks (pick one)</b></p><ul style=\"margin-top: 0;\">" : "<p><b>Sub-tasks</b></p><ul style=\"margin-top: 0;\">");
             foreach (var subTask in card.SubTasks)
             {
-                var mark = subTask.IsDone ? "&#9745;" : "&#9744;";
+                var mark = card.SubTasksPickOne ? subTask.IsDone ? "&#9673;" : "&#9675;" : subTask.IsDone ? "&#9745;" : "&#9744;";
                 sb.Append($"<li>{mark} {WebUtility.HtmlEncode(subTask.Title)}</li>");
             }
             sb.Append("</ul>");

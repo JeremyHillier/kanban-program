@@ -85,6 +85,7 @@ public partial class AddTaskWindow
         RebuildFlagCheckboxes(forceCheckedIds: template.FlagIds);
 
         SubTasksPanel.Children.Clear();
+        SubTasksPickOneCheckBox.IsChecked = template.SubTasksPickOne;
         foreach (var title in template.SubTasks) AddSubTaskRow(title);
         UpdateSubTaskProgressLabel();
 
@@ -109,6 +110,7 @@ public partial class AddTaskWindow
             GoalId = (GoalComboBox.SelectedItem as GoalViewModel)?.Id,
             FlagIds = FlagsPanel.Children.OfType<CheckBox>().Where(cb => cb.IsChecked == true).Select(cb => ((FlagViewModel)cb.Tag).Id).ToList(),
             SubTasks = SubTasksPanel.Children.OfType<Grid>().Select(row => ((TextBox)row.Children[2]).Text.Trim()).Where(t => t.Length > 0).ToList(),
+            SubTasksPickOne = SubTasksPickOneCheckBox.IsChecked == true,
             Notes = string.IsNullOrWhiteSpace(NotesEditor.PlainText) ? null : NotesEditor.PlainText.Trim(),
             IsRecurring = isRecurring,
             RecurrencePattern = isRecurring ? ChosenRecurrencePattern() : null,

@@ -47,8 +47,10 @@ public partial class DatabaseService
     //     defined or a task holds a value (CustomFieldsFileFormat).
     // 20: Cards.NeedsReview (0.172.0) - a Quick Add task not yet reviewed. Older copies ignore the column and lose nothing, so the
     //     file is never stamped 20 and no older copy warns.
+    // 21: Cards.SubTasksPickOne (0.174.0) - a task whose sub-tasks are choices, one of them picked. Older copies ignore the column and
+    //     would show the choices as a checklist, so the file is only stamped 21 once a task is set to pick one (PickOneFileFormat).
     // The newest format this copy of the app understands.
-    public const int CurrentFileFormat = 20;
+    public const int CurrentFileFormat = 21;
 
     public const int DayRangeFileFormat = 6;
     public const int PathLinkFileFormat = 7;
@@ -61,6 +63,7 @@ public partial class DatabaseService
     public const int CardColorFileFormat = 16;
     public const int RelationshipFileFormat = 17;
     public const int CustomFieldsFileFormat = 19;
+    public const int PickOneFileFormat = 21;
     public const int RecurrenceIntervalFileFormat = 13;
 
     // What every file is raised to just by being opened. Formats 4 to 8 only matter once their

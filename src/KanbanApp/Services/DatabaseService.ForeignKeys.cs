@@ -64,6 +64,7 @@ public partial class DatabaseService
                 "Color TEXT NULL",
                 "CustomValues TEXT NULL",
                 "NeedsReview INTEGER NOT NULL DEFAULT 0",
+                "SubTasksPickOne INTEGER NOT NULL DEFAULT 0",
             ],
             [
                 // A column with tasks in it cannot be deleted; a project, goal or person can, and

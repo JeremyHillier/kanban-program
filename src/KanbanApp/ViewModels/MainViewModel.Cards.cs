@@ -11,17 +11,19 @@ public partial class MainViewModel
         bool isRecurring, string? recurrencePattern, GoalViewModel? goal, List<FlagViewModel>? flags = null, List<SubTaskViewModel>? subTasks = null,
         string? notes = null, bool isImported = false, List<AttachmentViewModel>? attachments = null, bool forceEditOnComplete = false,
         string? websiteUrl = null, string? dueTime = null, DateTime? startDate = null, string? waitingOn = null,
-        IReadOnlyList<PersonViewModel>? people = null, int? recurrencesLeft = null, string? color = null, IReadOnlyDictionary<int, string>? customValues = null)
+        IReadOnlyList<PersonViewModel>? people = null, int? recurrencesLeft = null, string? color = null, IReadOnlyDictionary<int, string>? customValues = null,
+        bool subTasksPickOne = false)
     {
         flags ??= [];
         subTasks ??= [];
+        if (subTasksPickOne) subTasks = OnePicked(subTasks);
         attachments ??= [];
         if (dueDate is null) dueTime = null;
         // `people` is everyone, lead first; callers with just one person pass `who` and leave it out.
         people ??= who is null ? [] : [who];
         using var undo = RecordUndo(DescribeAction("Add", title.Trim()), []);
         var card = _db.AddCard(column.Id, title.Trim(), project?.Id, column.Name, priority, dueDate, people.FirstOrDefault()?.Id, isRecurring, recurrencePattern, goal?.Id, notes, isImported, forceEditOnComplete, websiteUrl, dueTime, startDate,
-            string.IsNullOrWhiteSpace(waitingOn) ? null : waitingOn.Trim(), isRecurring ? recurrencesLeft : null, customValues);
+            string.IsNullOrWhiteSpace(waitingOn) ? null : waitingOn.Trim(), isRecurring ? recurrencesLeft : null, customValues, subTasksPickOne);
         RememberWaitingOn(waitingOn);
         StampDayRange(isRecurring, recurrencePattern);
         StampPathLink(websiteUrl);
@@ -60,7 +62,7 @@ public partial class MainViewModel
         bool isRecurring, string? recurrencePattern, GoalViewModel? goal, List<FlagViewModel>? flags, List<SubTaskViewModel>? subTasks,
         string? notes, List<AttachmentViewModel>? attachments, bool forceEditOnComplete,
         string? websiteUrl, string? dueTime, DateTime? startDate, string? waitingOn, int? recurrencesLeft,
-        IReadOnlyDictionary<int, string>? customValues = null)
+        IReadOnlyDictionary<int, string>? customValues = null, bool? subTasksPickOne = null)
     {
         if (string.IsNullOrWhiteSpace(title)) return;
 
@@ -94,6 +96,9 @@ public partial class MainViewModel
         card.WebsiteUrl = websiteUrl;
         // Unlike the fields above, no values given means leave them as they are: only the task window knows the custom fields.
         if (customValues is not null) card.CustomValues = customValues;
+        // The same for pick one: only the task window and an Excel file say; null leaves it as it is.
+        if (subTasksPickOne is { } pickOne) card.SubTasksPickOne = pickOne;
+        if (card.SubTasksPickOne) subTasks = OnePicked(subTasks);
 
         PersistCard(card);
         _db.SetCardFlags(card.Id, flags.Select(f => f.Id));
@@ -133,6 +138,23 @@ public partial class MainViewModel
         card.RefreshSubTaskProgress();
     }
 
+    // For a task whose sub-tasks are choices: picks this one (the others are unpicked), or none when null. One Undo step.
+    public void PickSubTask(CardViewModel card, SubTaskViewModel? subTask)
+    {
+        if (card.SubTasks.All(s => s.IsDone == (s == subTask))) return;
+
+        using var undo = RecordUndo(DescribeAction(subTask is null ? "Clear the sub-task choice of" : "Choose a sub-task of", [card]), [card]);
+        foreach (var each in card.SubTasks) each.IsDone = each == subTask;
+        _db.SetPickedSubTask(card.Id, subTask?.Id);
+        card.RefreshSubTaskProgress();
+    }
+
+    private static List<SubTaskViewModel> OnePicked(List<SubTaskViewModel> subTasks)
+    {
+        var kept = SubTaskRules.KeepFirstPicked(subTasks.Select(s => (s.Title, s.IsDone)));
+        return kept.Select(s => new SubTaskViewModel(new SubTaskItem { Title = s.Title, IsDone = s.IsDone })).ToList();
+    }
+
     public void AddFlagToCard(CardViewModel card, FlagViewModel flag)
     {
         if (card.Flags.Any(f => f.Id == flag.Id)) return;
@@ -151,7 +173,7 @@ public partial class MainViewModel
     {
         card.LastUpdated = _db.UpdateCard(card.Id, card.Title, card.ProjectId, card.Priority, card.DueDate, card.WhoId,
             card.IsRecurring, card.RecurrencePattern, card.GoalId, card.Notes, card.ForceEditOnComplete, card.WebsiteUrl, card.DueTime, card.StartDate, card.WaitingOn,
-            card.RecurrencesLeft, card.CustomValues);
+            card.RecurrencesLeft, card.CustomValues, card.SubTasksPickOne);
     }
 
     // The follow-up every card change shares: re-test the changed card against the active filters,
@@ -314,7 +336,8 @@ public partial class MainViewModel
             card.People.FirstOrDefault(), card.IsRecurring, card.RecurrencePattern,
             Goals.FirstOrDefault(g => g.Id == card.GoalId), [.. card.Flags], freshSubTasks, card.Notes,
             forceEditOnComplete: card.ForceEditOnComplete, websiteUrl: card.WebsiteUrl, dueTime: card.DueTime, startDate: card.StartDate,
-            waitingOn: card.WaitingOn, people: [.. card.People], recurrencesLeft: card.RecurrencesLeft, customValues: card.CustomValues);
+            waitingOn: card.WaitingOn, people: [.. card.People], recurrencesLeft: card.RecurrencesLeft, customValues: card.CustomValues,
+            subTasksPickOne: card.SubTasksPickOne);
         if (RichNotesOf(card) is { } formatted) SaveRichNotes(copy, formatted);
         return copy;
     }

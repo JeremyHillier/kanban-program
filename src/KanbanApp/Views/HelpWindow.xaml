@@ -324,6 +324,9 @@
 
                 <TextBlock Text="Sub-tasks" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <local:BulletItem Text="Add sub-task rows on the task screen, each with its own tickbox."/>
+                <local:BulletItem Text="Tick Pick one to make the sub-tasks choices. Each gets a round button, and only one can be picked."/>
+                <local:BulletItem Text="Click another choice to change it. Clear, or clicking the picked one on a card, picks none."/>
+                <local:BulletItem Text="The card shows the choice, such as Chosen: Option B, instead of a count."/>
                 <local:BulletItem Text="Large cards show the tickboxes, so they can be ticked on the board."/>
                 <local:BulletItem Text="The task screen and the card show how many are done, with a percentage."/>
 
@@ -345,7 +348,7 @@
                 <local:BulletItem Text="To stop after a number of times, enter it under the pattern, counting this task."/>
                 <local:BulletItem Text="Leave it empty, shown as ∞, to repeat with no end."/>
                 <local:BulletItem Text="The card shows how many are still to come."/>
-                <local:BulletItem Text="Moving a recurring task to Done creates the next one in To Do, with sub-tasks unticked."/>
+                <local:BulletItem Text="Moving a recurring task to Done creates the next one in To Do, with sub-tasks unticked and no choice picked."/>
                 <local:BulletItem Text="Each task creates its next occurrence only once, even if finished again later."/>
                 <local:BulletItem Text="Deleting an unfinished recurring task asks: blue keeps the series going, red ends it."/>
                 <TextBlock Text="Days of month" Style="{StaticResource HelpSubHeaderStyle}"/>
@@ -543,6 +546,7 @@
                 <local:BulletItem Text="Optional columns: Due Time, Repeats, Repeat Times, Flags, Link (or Website), Notes and Sub-tasks."/>
                 <local:BulletItem Text="A column headed by the name of one of your active custom fields is read into it. A cell that does not suit the field is left empty."/>
                 <local:BulletItem Text="Sub-tasks go one per line in their cell; start a line [x] for one already done."/>
+                <local:BulletItem Text="For choices (Pick one), start each line ( ), and the picked one (x)."/>
                 <local:BulletItem Text="New projects, goals, people and flags in the file are added."/>
                 <local:BulletItem Text="A task you already have is updated, not added again. The list before importing says which."/>
                 <local:BulletItem Text="The app knows it by the Task ID column. Leave that column alone."/>
@@ -566,7 +570,7 @@
                 <local:BulletItem Text="Task scope: board tasks, board and archived, or archived only."/>
                 <local:BulletItem Text="The archived From and To pick tasks by when they were archived."/>
                 <local:BulletItem Text="Custom Filters: tick saved filters to include any task matching one."/>
-                <local:BulletItem Text="The sub-task summary counts how often each sub-task was done. Useful for recurring tasks."/>
+                <local:BulletItem Text="The sub-task summary counts how often each sub-task was done, or chosen for a Pick one task. Useful for recurring tasks."/>
                 <local:BulletItem Text="Summary only leaves out the list of tasks and shows just the sub-task summary."/>
                 <local:BulletItem Text="Grouped by Who, a shared task is listed under each person."/>
                 <TextBlock Text="Statistics" Style="{StaticResource HelpSubHeaderStyle}"/>

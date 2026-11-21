@@ -29,6 +29,7 @@ public partial class MainViewModel
         GoalId = card.GoalId,
         FlagIds = card.Flags.Select(f => f.Id).ToList(),
         SubTasks = card.SubTasks.Select(s => s.Title).ToList(),
+        SubTasksPickOne = card.SubTasksPickOne,
         Notes = card.Notes,
         IsRecurring = card.IsRecurring,
         RecurrencePattern = card.IsRecurring ? card.RecurrencePattern : null,

@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -13,7 +14,9 @@ using KanbanApp.ViewModels;
 namespace KanbanApp.Views;
 
 // Sub-tasks: the rows, ticking them (done ones sink to the bottom), dragging to reorder, and
-// the progress label.
+// the progress label. With Pick one ticked the rows are choices: each has a round button instead of a tick box,
+// at most one is picked (stored as the one done), and Clear picks none.
+// Each row is a Grid: drag handle, the tick (a CheckBox, or a RadioButton for a choice), the title box, the remove button.
 public partial class AddTaskWindow
 {
     private void AddSubTaskRow(string title = "", bool isDone = false)
@@ -59,15 +62,7 @@ public partial class AddTaskWindow
             SubTaskInsertionIndicator.Visibility = Visibility.Collapsed;
         };
 
-        var checkBox = new CheckBox
-        {
-            IsChecked = isDone,
-            VerticalAlignment = VerticalAlignment.Center,
-            Margin = new Thickness(0, 0, 6, 0)
-        };
-        checkBox.Checked += SubTaskCheckBox_Changed;
-        checkBox.Unchecked += SubTaskCheckBox_Changed;
-        Grid.SetColumn(checkBox, 1);
+        var checkBox = NewSubTaskTick(isDone);
 
         var textBox = new TextBox
         {
@@ -116,9 +111,59 @@ public partial class AddTaskWindow
         UpdateSubTaskProgressLabel();
     }
 
+    private bool IsPickOne => SubTasksPickOneCheckBox.IsChecked == true;
+
+    // The tick for a row: a tick box, or a round button when the sub-tasks are choices. Each row is its own panel, so the
+    // round buttons are not grouped by WPF; picking one unpicks the others here.
+    private ToggleButton NewSubTaskTick(bool isDone)
+    {
+        ToggleButton tick = IsPickOne
+            ? new RadioButton { ToolTip = "Choose this one" }
+            : new CheckBox();
+        tick.IsChecked = isDone;
+        tick.VerticalAlignment = VerticalAlignment.Center;
+        tick.Margin = new Thickness(0, 0, 6, 0);
+        tick.Checked += SubTaskCheckBox_Changed;
+        tick.Unchecked += SubTaskCheckBox_Changed;
+        Grid.SetColumn(tick, 1);
+        return tick;
+    }
+
+    private IEnumerable<ToggleButton> SubTaskTicks() => SubTasksPanel.Children.OfType<Grid>().Select(row => (ToggleButton)row.Children[1]);
+
+    // Switching between a checklist and choices swaps each row's tick, keeping what is ticked; for choices, only the first.
+    private void SubTasksPickOne_Changed(object sender, RoutedEventArgs e)
+    {
+        var picked = false;
+        foreach (var row in SubTasksPanel.Children.OfType<Grid>())
+        {
+            var old = (ToggleButton)row.Children[1];
+            var isDone = old.IsChecked == true && !(IsPickOne && picked);
+            picked |= isDone;
+            old.Checked -= SubTaskCheckBox_Changed;
+            old.Unchecked -= SubTaskCheckBox_Changed;
+            row.Children.RemoveAt(1);
+            row.Children.Insert(1, NewSubTaskTick(isDone));
+        }
+        UpdateSubTaskProgressLabel();
+    }
+
+    private void ClearSubTaskPick_Click(object sender, RoutedEventArgs e)
+    {
+        foreach (var tick in SubTaskTicks()) tick.IsChecked = false;
+        UpdateSubTaskProgressLabel();
+    }
+
     private void SubTaskCheckBox_Changed(object sender, RoutedEventArgs e)
     {
+        // A choice picked unpicks the others.
+        if (IsPickOne && sender is RadioButton { IsChecked: true } chosen)
+        {
+            foreach (var tick in SubTaskTicks().Where(t => !ReferenceEquals(t, chosen))) tick.IsChecked = false;
+        }
+
         UpdateSubTaskProgressLabel();
+        if (IsPickOne) return; // choices stay in the order given; only a checklist sinks done ones to the bottom
 
         // Deferred via BeginInvoke: reordering the panel while this CheckBox's own Checked/Unchecked
         // handler is still dispatching would tear down its row mid-event - the same WPF deadlock
@@ -132,7 +177,7 @@ public partial class AddTaskWindow
     private void ReorderSubTasksByDoneState()
     {
         var sorted = SubTasksPanel.Children.OfType<Grid>()
-            .OrderBy(row => ((CheckBox)row.Children[1]).IsChecked == true)
+            .OrderBy(row => ((ToggleButton)row.Children[1]).IsChecked == true)
             .ToList();
 
         SubTasksPanel.Children.Clear();
@@ -225,13 +270,19 @@ public partial class AddTaskWindow
 
     private void UpdateSubTaskProgressLabel()
     {
-        var checkBoxes = SubTasksPanel.Children.OfType<Grid>()
-            .Select(row => (CheckBox)row.Children[1])
-            .ToList();
+        var checkBoxes = SubTaskTicks().ToList();
+        ClearSubTaskPickButton.Visibility = IsPickOne && checkBoxes.Any(cb => cb.IsChecked == true) ? Visibility.Visible : Visibility.Collapsed;
 
         if (checkBoxes.Count == 0)
         {
             SubTaskProgressLabel.Text = string.Empty;
+            return;
+        }
+
+        if (IsPickOne)
+        {
+            SubTaskProgressLabel.Text = SubTaskRules.ChoiceText(SubTasksPanel.Children.OfType<Grid>()
+                .Select(row => (((TextBox)row.Children[2]).Text.Trim(), ((ToggleButton)row.Children[1]).IsChecked == true)));
             return;
         }
 

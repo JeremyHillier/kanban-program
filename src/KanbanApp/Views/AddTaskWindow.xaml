@@ -574,6 +574,12 @@
                     <Button Content="+" Style="{StaticResource NewLinkButtonStyle}" ToolTip="Add sub-task" Click="AddSubTaskRow_Click"/>
                     <TextBlock x:Name="SubTaskProgressLabel" VerticalAlignment="Center" Margin="10,0,0,0" FontSize="11"
                                Foreground="{DynamicResource SecondaryTextBrush}"/>
+                    <CheckBox x:Name="SubTasksPickOneCheckBox" Content="Pick one" VerticalAlignment="Center" Margin="14,0,0,0" FontSize="11"
+                              Foreground="{DynamicResource PrimaryTextBrush}" Checked="SubTasksPickOne_Changed" Unchecked="SubTasksPickOne_Changed"
+                              ToolTip="Make the sub-tasks choices: pick one of them with its round button, instead of ticking any number"/>
+                    <Button x:Name="ClearSubTaskPickButton" Content="Clear" FontSize="11" Padding="8,0" Margin="8,0,0,0" Visibility="Collapsed"
+                            Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
+                            Click="ClearSubTaskPick_Click" ToolTip="Pick none of the sub-tasks"/>
                 </StackPanel>
                 <Grid Tag="FullOnly">
                     <StackPanel x:Name="SubTasksPanel" AllowDrop="True"

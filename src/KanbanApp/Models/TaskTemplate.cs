@@ -20,6 +20,7 @@ public class TaskTemplate
     public int? GoalId { get; set; }
     public List<int> FlagIds { get; set; } = [];
     public List<string> SubTasks { get; set; } = [];
+    public bool SubTasksPickOne { get; set; } // the sub-tasks are choices; a task made from the template has none picked
     public string? Notes { get; set; }
     public bool IsRecurring { get; set; }
     public string? RecurrencePattern { get; set; }

@@ -163,7 +163,7 @@ public static class ImportService
         Text("Flags", row.Flags);
         Text("Website", row.WebsiteUrl);
         Text("Notes", row.Notes);
-        Text("Sub-tasks", FormatSubTasks(row.SubTasks));
+        Text("Sub-tasks", FormatSubTasks(row.SubTasks, row.SubTasksPickOne));
         Text("Task ID", row.ShareId);
         Text("Shared By", row.SenderName);
         Text("Shared By Email", row.SenderEmail);
@@ -189,9 +189,23 @@ public static class ImportService
     private static string FormatTime(string? stored) =>
         TimeSpan.TryParse(stored, CultureInfo.InvariantCulture, out var time) ? DateTime.Today.Add(time).ToString("h:mm tt", CultureInfo.InvariantCulture) : string.Empty;
 
-    // One sub-task per line; a done one starts "[x] ".
-    internal static string FormatSubTasks(IEnumerable<(string Title, bool IsDone)> subTasks) =>
-        string.Join("\n", subTasks.Where(s => !string.IsNullOrWhiteSpace(s.Title)).Select(s => (s.IsDone ? "[x] " : "") + s.Title.Trim()));
+    // One sub-task per line; a done one starts "[x] ". Choices (pick one) each start "( ) ", and the picked one "(x) ".
+    internal static string FormatSubTasks(IEnumerable<(string Title, bool IsDone)> subTasks, bool pickOne = false) =>
+        string.Join("\n", subTasks.Where(s => !string.IsNullOrWhiteSpace(s.Title))
+            .Select(s => (pickOne ? (s.IsDone ? "(x) " : "( ) ") : s.IsDone ? "[x] " : "") + s.Title.Trim()));
+
+    // The marks a choice starts with in the cell: "( )" for one not picked, "(x)" (or "(•)") for the one picked.
+    private static bool IsChoiceMark(string line, out bool picked)
+    {
+        picked = false;
+        if (line.Length < 3 || line[0] != '(' || line[2] != ')') return false;
+        picked = line[1] is 'x' or 'X' or '•' or '●' or '✓' or '✔';
+        return picked || line[1] == ' ';
+    }
+
+    // True when the cell holds choices (pick one) rather than a checklist: any line starts "( )" or "(x)".
+    internal static bool IsPickOne(string? cell) =>
+        (cell ?? string.Empty).Replace("\r\n", "\n").Split('\n').Any(raw => IsChoiceMark(raw.Trim(), out _));
 
     // The reverse, forgiving of how a person would type it: blank lines skipped, "[ ]", "[x]", "[X]"
     // or "[✓]" at the start of a line, and "- " or "• " bullets.
@@ -207,6 +221,11 @@ public static class ImportService
             if (line.Length >= 3 && line[0] == '[' && line[2] == ']')
             {
                 done = line[1] is 'x' or 'X' or '✓' or '✔';
+                line = line[3..].TrimStart();
+            }
+            else if (IsChoiceMark(line, out var picked))
+            {
+                done = picked;
                 line = line[3..].TrimStart();
             }
             if (line.Length > 0) result.Add((line, done));
@@ -347,6 +366,7 @@ public static class ImportService
                 WebsiteUrl = TextOrNull(websiteCol),
                 Notes = notesCol is null ? null : row.Cell(notesCol.Value).GetString() is { } notes && notes.Trim().Length > 0 ? notes.Trim() : null,
                 SubTasks = subTasksCol is null ? [] : ParseSubTasks(row.Cell(subTasksCol.Value).GetString()),
+                SubTasksPickOne = subTasksCol is not null && IsPickOne(row.Cell(subTasksCol.Value).GetString()),
                 ShareId = NormalizeShareId(Text(taskIdCol)),
                 SenderName = TextOrNull(sharedByCol),
                 SenderEmail = NormalizeEmail(TextOrNull(sharedByEmailCol)),

@@ -47,5 +47,7 @@ public class CardItem
     public Dictionary<int, string> CustomValues { get; set; } = [];
     public List<int> FlagIds { get; set; } = [];
     public List<SubTaskItem> SubTasks { get; set; } = [];
+    // The sub-tasks are choices, not a checklist: at most one is picked (the one marked done).
+    public bool SubTasksPickOne { get; set; }
     public List<CardAttachment> Attachments { get; set; } = [];
 }

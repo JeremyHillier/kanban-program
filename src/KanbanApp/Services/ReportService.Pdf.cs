@@ -138,7 +138,7 @@ public static partial class ReportService
                 {
                     foreach (var (subTitle, isDone) in row.SubTasks)
                     {
-                        var subTaskText = $"{(isDone ? "[x]" : "[ ]")} {subTitle}";
+                        var subTaskText = row.SubTasksPickOne ? $"{(isDone ? "(x)" : "( )")} {subTitle}" : $"{(isDone ? "[x]" : "[ ]")} {subTitle}";
                         foreach (var subLine in WrapText(gfx, subTaskText, subTaskFont, width - 32))
                         {
                             lines.Add((subLine, subTaskFont, XBrushes.Black, 16, 13));
@@ -216,7 +216,7 @@ public static partial class ReportService
                         lastParent = s.ParentTitle;
                     }
                     var pct = s.TotalCount == 0 ? 0 : s.CompletedCount * 100 / s.TotalCount;
-                    gfx.DrawString($"{s.SubTaskTitle}: {s.CompletedCount}/{s.TotalCount} completed ({pct}%)",
+                    gfx.DrawString($"{s.SubTaskTitle}: {s.CompletedCount}/{s.TotalCount} {(s.IsChoice ? "chosen" : "completed")} ({pct}%)",
                         metaFont, metaBrush, new XPoint(margin + 16, y));
                     y += 16;
                 }

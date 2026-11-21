@@ -31,6 +31,7 @@ public partial class AddTaskWindow : Window
     public GoalViewModel? SelectedGoal { get; private set; }
     public List<FlagViewModel> SelectedFlags { get; private set; } = [];
     public List<SubTaskViewModel> SelectedSubTasks { get; private set; } = [];
+    public bool SubTasksPickOne { get; private set; } // the sub-tasks are choices, one of them picked
     public List<AttachmentViewModel> SelectedAttachments { get; private set; } = [];
     public string SelectedPriority { get; private set; } = "Normal";
     public DateTime? SelectedDueDate { get; private set; }
@@ -61,7 +62,7 @@ public partial class AddTaskWindow : Window
             SelectedGoal, SelectedFlags, SelectedSubTasks, Notes, attachments: SelectedAttachments,
             forceEditOnComplete: ForceEditOnComplete, websiteUrl: WebsiteUrl, dueTime: SelectedDueTime,
             startDate: SelectedStartDate, waitingOn: WaitingOn, people: SelectedPeople, recurrencesLeft: RecurrencesLeft, color: SelectedColor,
-            customValues: SelectedCustomValues);
+            customValues: SelectedCustomValues, subTasksPickOne: SubTasksPickOne);
         viewModel.SaveRichNotes(added, _notesBlocks);
         viewModel.SetCardLinks(added, LinksFor(added.Id));
     }
@@ -84,7 +85,8 @@ public partial class AddTaskWindow : Window
             SelectedPriority, SelectedDueDate, SelectedPeople, IsRecurring, RecurrencePattern,
             SelectedGoal, SelectedFlags, SelectedSubTasks, Notes, attachments: SelectedAttachments,
             forceEditOnComplete: ForceEditOnComplete, websiteUrl: WebsiteUrl, dueTime: SelectedDueTime,
-            startDate: SelectedStartDate, waitingOn: WaitingOn, recurrencesLeft: RecurrencesLeft, customValues: SelectedCustomValues);
+            startDate: SelectedStartDate, waitingOn: WaitingOn, recurrencesLeft: RecurrencesLeft, customValues: SelectedCustomValues,
+            subTasksPickOne: SubTasksPickOne);
         viewModel.SetCardColor(card, SelectedColor); // its own write and Undo step; nothing happens when it is unchanged
         viewModel.SetCardLinks(card, LinksFor(card.Id));
         viewModel.SaveRichNotes(card, _notesBlocks);
@@ -154,7 +156,8 @@ public partial class AddTaskWindow : Window
             .Select(cb => ((FlagViewModel)cb.Tag).Id));
 
         var subTasks = string.Join("|", SubTasksPanel.Children.OfType<Grid>()
-            .Select(row => $"{((TextBox)row.Children[2]).Text}{((CheckBox)row.Children[1]).IsChecked == true}"));
+            .Select(row => $"{((TextBox)row.Children[2]).Text}{((System.Windows.Controls.Primitives.ToggleButton)row.Children[1]).IsChecked == true}"))
+            + (SubTasksPickOneCheckBox.IsChecked == true ? "|pick one" : string.Empty);
 
         var attachments = string.Join("|", AttachmentsPanel.Children.OfType<Grid>()
             .Select(row => ((AttachmentViewModel)row.Tag).FilePath));
@@ -269,6 +272,7 @@ public partial class AddTaskWindow : Window
 
         RebuildFlagCheckboxes(forceCheckedIds: cardToEdit.Flags.Select(f => f.Id));
 
+        SubTasksPickOneCheckBox.IsChecked = cardToEdit.SubTasksPickOne; // first, so each row is made with the right kind of tick
         foreach (var subTask in cardToEdit.SubTasks)
         {
             AddSubTaskRow(subTask.Title, subTask.IsDone);
@@ -480,11 +484,12 @@ public partial class AddTaskWindow : Window
             .Select(row => new
             {
                 Title = ((TextBox)row.Children[2]).Text.Trim(),
-                IsDone = ((CheckBox)row.Children[1]).IsChecked == true
+                IsDone = ((System.Windows.Controls.Primitives.ToggleButton)row.Children[1]).IsChecked == true
             })
             .Where(s => !string.IsNullOrWhiteSpace(s.Title))
             .Select(s => new SubTaskViewModel(new SubTaskItem { Title = s.Title, IsDone = s.IsDone }))
             .ToList();
+        SubTasksPickOne = SubTasksPickOneCheckBox.IsChecked == true;
 
         SelectedAttachments = AttachmentsPanel.Children.OfType<Grid>()
             .Select(row => (AttachmentViewModel)row.Tag)

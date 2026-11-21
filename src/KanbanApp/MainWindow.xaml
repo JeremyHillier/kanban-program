@@ -638,10 +638,39 @@
                                                                                   Visibility="{Binding HasSubTasks, Converter={StaticResource BooleanToVisibilityConverter}}">
                                                                         <ItemsControl.ItemTemplate>
                                                                             <DataTemplate>
-                                                                                <CheckBox Content="{Binding Title}" IsChecked="{Binding IsDone, Mode=OneWay}"
-                                                                                          FontSize="10" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,1,0,0"
-                                                                                          Tag="{Binding RelativeSource={RelativeSource AncestorType=ItemsControl}, Path=Tag}"
-                                                                                          Checked="SubTaskCheckBox_Changed" Unchecked="SubTaskCheckBox_Changed"/>
+                                                                                <!-- A checklist ticks any; a task set to pick one shows round buttons, one of them picked
+                                                                                     (clicking the picked one again clears the choice). -->
+                                                                                <Grid>
+                                                                                    <CheckBox Content="{Binding Title}" IsChecked="{Binding IsDone, Mode=OneWay}"
+                                                                                              FontSize="10" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,1,0,0"
+                                                                                              Tag="{Binding RelativeSource={RelativeSource AncestorType=ItemsControl}, Path=Tag}"
+                                                                                              Checked="SubTaskCheckBox_Changed" Unchecked="SubTaskCheckBox_Changed">
+                                                                                        <CheckBox.Style>
+                                                                                            <Style TargetType="CheckBox">
+                                                                                                <Style.Triggers>
+                                                                                                    <DataTrigger Binding="{Binding Tag.SubTasksPickOne, RelativeSource={RelativeSource AncestorType=ItemsControl}}" Value="True">
+                                                                                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                                                                                    </DataTrigger>
+                                                                                                </Style.Triggers>
+                                                                                            </Style>
+                                                                                        </CheckBox.Style>
+                                                                                    </CheckBox>
+                                                                                    <RadioButton Content="{Binding Title}" IsChecked="{Binding IsDone, Mode=OneWay}"
+                                                                                                 FontSize="10" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,1,0,0"
+                                                                                                 Tag="{Binding RelativeSource={RelativeSource AncestorType=ItemsControl}, Path=Tag}"
+                                                                                                 ToolTip="Choose this one. Click it again to clear the choice." Click="SubTaskRadio_Click">
+                                                                                        <RadioButton.Style>
+                                                                                            <Style TargetType="RadioButton">
+                                                                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                                                                                <Style.Triggers>
+                                                                                                    <DataTrigger Binding="{Binding Tag.SubTasksPickOne, RelativeSource={RelativeSource AncestorType=ItemsControl}}" Value="True">
+                                                                                                        <Setter Property="Visibility" Value="Visible"/>
+                                                                                                    </DataTrigger>
+                                                                                                </Style.Triggers>
+                                                                                            </Style>
+                                                                                        </RadioButton.Style>
+                                                                                    </RadioButton>
+                                                                                </Grid>
                                                                             </DataTemplate>
                                                                         </ItemsControl.ItemTemplate>
                                                                     </ItemsControl>

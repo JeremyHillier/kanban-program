@@ -46,7 +46,8 @@ public partial class MainViewModel
         AddCard(completedCard.Title, toDoColumn, project, completedCard.Priority, nextDueDate, who,
             true, completedCard.RecurrencePattern, goal, completedCard.Flags, freshSubTasks, completedCard.Notes,
             forceEditOnComplete: completedCard.ForceEditOnComplete, websiteUrl: completedCard.WebsiteUrl, dueTime: completedCard.DueTime,
-            startDate: nextStartDate, people: [.. completedCard.People], recurrencesLeft: recurrencesLeft, customValues: NextOccurrenceCustomValues(completedCard));
+            startDate: nextStartDate, people: [.. completedCard.People], recurrencesLeft: recurrencesLeft, customValues: NextOccurrenceCustomValues(completedCard),
+            subTasksPickOne: completedCard.SubTasksPickOne); // the same choices, none picked yet
     }
 
     internal static DateTime CalculateNextDueDate(DateTime anchor, string pattern) =>

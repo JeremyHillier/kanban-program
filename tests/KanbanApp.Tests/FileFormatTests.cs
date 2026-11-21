@@ -96,8 +96,8 @@ public sealed class FileFormatTests : IDisposable
     [Fact]
     public void ChangingTheTables_MeansRaisingTheFileFormat()
     {
-        const int formatTheFingerprintBelongsTo = 20; // 20: Cards.NeedsReview, 19: Cards.CustomValues (and the CustomFields setting), 18: CardHistory.Computer, 17: CardLinks, 5: Cards.ShareId, 8: SharedTasks, 9: Goals.TargetDate, 10: GoalMilestones, 11: Goals.StartDate, 12: Projects dates and ProjectMilestones, 13: no table, 14: CardRichNotes, 15: Goals.CompletedDate, 16: Cards.Color (4, 6, 7 and 13 changed no table)
-        const string fingerprint = "8350F16BCB60AF3C";
+        const int formatTheFingerprintBelongsTo = 21; // 21: Cards.SubTasksPickOne, 20: Cards.NeedsReview, 19: Cards.CustomValues (and the CustomFields setting), 18: CardHistory.Computer, 17: CardLinks, 5: Cards.ShareId, 8: SharedTasks, 9: Goals.TargetDate, 10: GoalMilestones, 11: Goals.StartDate, 12: Projects dates and ProjectMilestones, 13: no table, 14: CardRichNotes, 15: Goals.CompletedDate, 16: Cards.Color (4, 6, 7 and 13 changed no table)
+        const string fingerprint = "FA67A92F15A4AA32";
 
         Open();
         SqliteConnection.ClearAllPools();

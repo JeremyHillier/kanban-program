@@ -68,7 +68,7 @@ public static class ShareSync
             ("Flags", List(row.Flags, sort: true)),
             ("Link", UrlLauncher.Clean(row.WebsiteUrl)),
             ("Notes", T(row.Notes).Replace("\r\n", "\n")),
-            ("Sub-tasks", ImportService.FormatSubTasks(row.SubTasks)),
+            ("Sub-tasks", ImportService.FormatSubTasks(row.SubTasks, row.SubTasksPickOne)),
             ("Custom fields", custom),
         ];
     }

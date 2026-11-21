@@ -6,4 +6,5 @@ public class SubTaskSummaryRow
     public required string SubTaskTitle { get; init; }
     public int CompletedCount { get; init; }
     public int TotalCount { get; init; }
+    public bool IsChoice { get; init; } // from tasks whose sub-tasks are choices: the count is how often it was chosen
 }

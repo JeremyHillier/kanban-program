@@ -53,10 +53,11 @@ internal static class CardTextFormatter
 
         if (card.SubTasks.Count > 0)
         {
-            sb.Append("\r\nSub-tasks:\r\n");
+            sb.Append(card.SubTasksPickOne ? "\r\nSub-tasks (pick one):\r\n" : "\r\nSub-tasks:\r\n");
             foreach (var subTask in card.SubTasks)
             {
-                sb.Append(subTask.IsDone ? "[x] " : "[ ] ").Append(subTask.Title).Append("\r\n");
+                var mark = card.SubTasksPickOne ? subTask.IsDone ? "(x) " : "( ) " : subTask.IsDone ? "[x] " : "[ ] ";
+                sb.Append(mark).Append(subTask.Title).Append("\r\n");
             }
         }
     }

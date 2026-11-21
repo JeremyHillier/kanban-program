@@ -86,14 +86,15 @@ public static partial class ReportService
     internal const string NoSubTasksText = "None of these tasks has sub-tasks.";
 
     public static List<SubTaskSummaryRow> BuildSubTaskSummary(List<ReportRow> rows) =>
-        rows.SelectMany(r => r.SubTasks.Select(st => (ParentTitle: r.Title, SubTaskTitle: st.Title, st.IsDone)))
+        rows.SelectMany(r => r.SubTasks.Select(st => (ParentTitle: r.Title, SubTaskTitle: st.Title, st.IsDone, r.SubTasksPickOne)))
             .GroupBy(x => (x.ParentTitle, x.SubTaskTitle))
             .Select(g => new SubTaskSummaryRow
             {
                 ParentTitle = g.Key.ParentTitle,
                 SubTaskTitle = g.Key.SubTaskTitle,
                 CompletedCount = g.Count(x => x.IsDone),
-                TotalCount = g.Count()
+                TotalCount = g.Count(),
+                IsChoice = g.Any(x => x.SubTasksPickOne)
             })
             .OrderBy(s => s.ParentTitle, StringComparer.OrdinalIgnoreCase)
             .ThenBy(s => s.SubTaskTitle, StringComparer.OrdinalIgnoreCase)
@@ -140,6 +141,7 @@ public static partial class ReportService
         GoalName = card.GoalName,
         Flags = card.Flags.Select(f => f.Name).ToList(),
         SubTasks = card.SubTasks.Select(s => (s.Title, s.IsDone)).ToList(),
+        SubTasksPickOne = card.SubTasksPickOne,
         Notes = card.Notes,
         ArchivedAt = card.ArchivedAt,
         CompletedAt = card.CompletedAt,
@@ -295,7 +297,8 @@ public static partial class ReportService
             : $"Who: {row.Who} (shared - also listed under {string.Join(", ", others)})");
         if (row.GoalName != "No Goal") parts.Add($"Goal: {row.GoalName}");
         if (row.Flags.Count > 0) parts.Add($"Flags: {string.Join(", ", row.Flags)}");
-        if (row.SubTasks.Count > 0)
+        if (row.SubTasks.Count > 0 && row.SubTasksPickOne) parts.Add(SubTaskRules.ChoiceText(row.SubTasks));
+        else if (row.SubTasks.Count > 0)
         {
             var done = row.SubTasks.Count(s => s.IsDone);
             parts.Add($"Sub-tasks: {done}/{row.SubTasks.Count}");

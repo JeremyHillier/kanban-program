@@ -503,11 +503,25 @@ public class CardViewModel(CardItem model) : ObservableObject
 
     public bool HasSubTasks => SubTasks.Count > 0;
 
+    // The sub-tasks are choices: one of them is picked (marked done), or none. See SubTaskRules.
+    public bool SubTasksPickOne
+    {
+        get => Model.SubTasksPickOne;
+        set
+        {
+            if (Model.SubTasksPickOne == value) return;
+            Model.SubTasksPickOne = value;
+            OnPropertyChanged();
+            OnPropertyChanged(nameof(SubTaskProgressDisplay));
+        }
+    }
+
     public string SubTaskProgressDisplay
     {
         get
         {
             if (SubTasks.Count == 0) return string.Empty;
+            if (SubTasksPickOne) return SubTaskRules.ChoiceText(SubTasks.Select(s => (s.Title, s.IsDone)));
             var done = SubTasks.Count(s => s.IsDone);
             return $"Subtasks: {done}/{SubTasks.Count} ({done * 100 / SubTasks.Count}%)";
         }
@@ -596,6 +610,7 @@ public class CardViewModel(CardItem model) : ObservableObject
         LastUpdated = other.LastUpdated;
         CompletedAt = other.CompletedAt;
         Flags = other.Flags;
+        SubTasksPickOne = other.SubTasksPickOne;
         SubTasks = other.SubTasks;
         Attachments = other.Attachments;
     }

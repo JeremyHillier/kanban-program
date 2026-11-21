@@ -63,6 +63,40 @@ public partial class DatabaseService
         return result;
     }
 
+    // For a task whose sub-tasks are choices: picks one (all the others unpicked), or none, with one history line, in one transaction.
+    public void SetPickedSubTask(int cardId, int? subTaskId)
+    {
+        using var connection = OpenConnection();
+        using var transaction = connection.BeginTransaction();
+        using (var cmd = connection.CreateCommand())
+        {
+            cmd.Transaction = transaction;
+            cmd.CommandText = "UPDATE SubTasks SET IsDone = CASE WHEN Id = $id THEN 1 ELSE 0 END WHERE CardId = $cardId;";
+            cmd.Parameters.AddWithValue("$id", (object?)subTaskId ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("$cardId", cardId);
+            cmd.ExecuteNonQuery();
+        }
+
+        string? picked = null;
+        var cardTitle = string.Empty;
+        using (var findCmd = connection.CreateCommand())
+        {
+            findCmd.Transaction = transaction;
+            findCmd.CommandText = "SELECT c.Title, (SELECT s.Title FROM SubTasks s WHERE s.Id = $id AND s.CardId = c.Id) FROM Cards c WHERE c.Id = $cardId;";
+            findCmd.Parameters.AddWithValue("$id", (object?)subTaskId ?? DBNull.Value);
+            findCmd.Parameters.AddWithValue("$cardId", cardId);
+            using var r = findCmd.ExecuteReader();
+            if (r.Read())
+            {
+                cardTitle = r.GetString(0);
+                picked = r.IsDBNull(1) ? null : r.GetString(1);
+            }
+        }
+
+        LogHistory(connection, cardId, cardTitle, "Edited", picked is null ? "Sub-task choice cleared" : $"Sub-task chosen: \"{picked}\"");
+        transaction.Commit();
+    }
+
     // Ticks or unticks one sub-task and writes its history line in the same transaction. A sub-task
     // that is gone (an older row id) is a no-op.
     public void SetSubTaskDone(int subTaskId, bool isDone)

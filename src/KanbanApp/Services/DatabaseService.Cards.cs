@@ -17,7 +17,7 @@ public partial class DatabaseService
             : "";
         var idFilter = onlyIds is null ? "" : $" AND Id IN ({string.Join(",", onlyIds.DefaultIfEmpty(-1))})";
         cmd.CommandText = $"""
-            SELECT Id, ColumnId, Title, SortOrder, ProjectId, Priority, DueDate, WhoId, LastUpdated, IsRecurring, RecurrencePattern, GoalId, Notes, IsImported, ForceEditOnComplete, NextOccurrenceSpawned, WebsiteUrl, DueTime, CompletedAt, StartDate, WaitingOn, RecurrencesLeft, ShareId, Color, CustomValues, NeedsReview{archivedAtColumn}
+            SELECT Id, ColumnId, Title, SortOrder, ProjectId, Priority, DueDate, WhoId, LastUpdated, IsRecurring, RecurrencePattern, GoalId, Notes, IsImported, ForceEditOnComplete, NextOccurrenceSpawned, WebsiteUrl, DueTime, CompletedAt, StartDate, WaitingOn, RecurrencesLeft, ShareId, Color, CustomValues, NeedsReview, SubTasksPickOne{archivedAtColumn}
             FROM Cards WHERE IsArchived = {(archivedOnly ? 1 : 0)} AND IsDeleted = 0{idFilter} ORDER BY SortOrder;
             """;
 
@@ -54,7 +54,8 @@ public partial class DatabaseService
                     Color = reader.IsDBNull(23) ? null : reader.GetString(23),
                     CustomValues = CustomFieldRules.ParseValues(reader.IsDBNull(24) ? null : reader.GetString(24)),
                     NeedsReview = reader.GetInt32(25) != 0,
-                    ArchivedAt = archivedOnly && !reader.IsDBNull(26) ? DateTime.Parse(reader.GetString(26)) : null
+                    SubTasksPickOne = reader.GetInt32(26) != 0,
+                    ArchivedAt = archivedOnly && !reader.IsDBNull(27) ? DateTime.Parse(reader.GetString(27)) : null
                 });
             }
         }
@@ -126,10 +127,10 @@ public partial class DatabaseService
     public CardItem AddCard(int columnId, string title, int? projectId, string columnName, string priority, DateTime? dueDate, int? whoId,
         bool isRecurring, string? recurrencePattern, int? goalId, string? notes = null, bool isImported = false, bool forceEditOnComplete = false,
         string? websiteUrl = null, string? dueTime = null, DateTime? startDate = null, string? waitingOn = null, int? recurrencesLeft = null,
-        IReadOnlyDictionary<int, string>? customValues = null)
+        IReadOnlyDictionary<int, string>? customValues = null, bool subTasksPickOne = false)
     {
         var fields = new EditableCardFields(title, projectId, priority, dueDate, whoId, isRecurring, recurrencePattern, goalId, notes,
-            forceEditOnComplete, websiteUrl, dueTime, startDate, waitingOn, recurrencesLeft, CustomFieldRules.SerializeValues(customValues));
+            forceEditOnComplete, websiteUrl, dueTime, startDate, waitingOn, recurrencesLeft, CustomFieldRules.SerializeValues(customValues), subTasksPickOne);
         using var connection = OpenConnection();
 
         using var maxCmd = connection.CreateCommand();
@@ -159,6 +160,7 @@ public partial class DatabaseService
         LogHistory(connection, (int)id, title, "Created", $"Added to {columnName}");
         RaiseFileFormat(ShareIdFileFormat); // older copies know nothing of the ID, so they warn before opening this file
         if (fields.CustomValues is not null) RaiseFileFormat(CustomFieldsFileFormat); // older copies would not know the values
+        if (subTasksPickOne) RaiseFileFormat(PickOneFileFormat); // older copies would show the choices as a checklist
 
         var card = new CardItem
         {
@@ -198,10 +200,10 @@ public partial class DatabaseService
     public DateTime UpdateCard(int cardId, string title, int? projectId, string priority, DateTime? dueDate, int? whoId,
         bool isRecurring, string? recurrencePattern, int? goalId, string? notes = null, bool forceEditOnComplete = false,
         string? websiteUrl = null, string? dueTime = null, DateTime? startDate = null, string? waitingOn = null, int? recurrencesLeft = null,
-        IReadOnlyDictionary<int, string>? customValues = null)
+        IReadOnlyDictionary<int, string>? customValues = null, bool subTasksPickOne = false)
     {
         var fields = new EditableCardFields(title, projectId, priority, dueDate, whoId, isRecurring, recurrencePattern, goalId, notes,
-            forceEditOnComplete, websiteUrl, dueTime, startDate, waitingOn, recurrencesLeft, CustomFieldRules.SerializeValues(customValues));
+            forceEditOnComplete, websiteUrl, dueTime, startDate, waitingOn, recurrencesLeft, CustomFieldRules.SerializeValues(customValues), subTasksPickOne);
         var customNames = GetCustomFieldNames(); // before the connection below writes: a history line names the field that changed
         using var connection = OpenConnection();
         var now = NowStamp();
@@ -223,6 +225,7 @@ public partial class DatabaseService
         if (before is not null) LogChanges(connection, cardId, title, DescribeChanges(connection, before, fields, customNames));
         transaction.Commit();
         if (fields.CustomValues is not null) RaiseFileFormat(CustomFieldsFileFormat); // older copies would not know the values
+        if (subTasksPickOne) RaiseFileFormat(PickOneFileFormat);
         return DateTime.Parse(now);
     }
 
@@ -231,7 +234,8 @@ public partial class DatabaseService
     // new column can't be saved by one and forgotten by the other. (GetCards reads them back.)
     private sealed record EditableCardFields(string Title, int? ProjectId, string Priority, DateTime? DueDate, int? WhoId,
         bool IsRecurring, string? RecurrencePattern, int? GoalId, string? Notes, bool ForceEditOnComplete,
-        string? WebsiteUrl, string? DueTime, DateTime? StartDate, string? WaitingOn, int? RecurrencesLeft, string? CustomValues = null)
+        string? WebsiteUrl, string? DueTime, DateTime? StartDate, string? WaitingOn, int? RecurrencesLeft, string? CustomValues = null,
+        bool SubTasksPickOne = false)
     {
         public (string Column, object Value)[] Columns() =>
         [
@@ -240,6 +244,7 @@ public partial class DatabaseService
             ("GoalId", Db(GoalId)), ("Notes", Db(Notes)), ("ForceEditOnComplete", ForceEditOnComplete ? 1 : 0),
             ("WebsiteUrl", Db(WebsiteUrl)), ("DueTime", Db(DueTime)), ("StartDate", Db(StartDate?.ToString("yyyy-MM-dd"))),
             ("WaitingOn", Db(WaitingOn)), ("RecurrencesLeft", Db(RecurrencesLeft)), ("CustomValues", Db(CustomValues)),
+            ("SubTasksPickOne", SubTasksPickOne ? 1 : 0),
         ];
 
         public void CopyTo(CardItem card)
@@ -249,6 +254,7 @@ public partial class DatabaseService
             card.ForceEditOnComplete = ForceEditOnComplete; card.WebsiteUrl = WebsiteUrl; card.DueTime = DueTime;
             card.StartDate = StartDate; card.WaitingOn = WaitingOn; card.RecurrencesLeft = RecurrencesLeft;
             card.CustomValues = CustomFieldRules.ParseValues(CustomValues);
+            card.SubTasksPickOne = SubTasksPickOne;
         }
 
         private static object Db(object? value) => value ?? DBNull.Value;

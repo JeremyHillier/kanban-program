@@ -43,7 +43,7 @@ public partial class DatabaseService
         using var cmd = connection.CreateCommand();
         cmd.CommandText = """
             SELECT Title, ProjectId, Priority, DueDate, WhoId, IsRecurring, RecurrencePattern, GoalId, Notes, ForceEditOnComplete,
-                   WebsiteUrl, DueTime, StartDate, WaitingOn, RecurrencesLeft, CustomValues
+                   WebsiteUrl, DueTime, StartDate, WaitingOn, RecurrencesLeft, CustomValues, SubTasksPickOne
             FROM Cards WHERE Id = $id;
             """;
         cmd.Parameters.AddWithValue("$id", cardId);
@@ -55,7 +55,7 @@ public partial class DatabaseService
         static DateTime? Day(SqliteDataReader r, int i) => r.IsDBNull(i) ? null : DateTime.Parse(r.GetString(i), CultureInfo.InvariantCulture);
 
         return new EditableCardFields(r.GetString(0), Number(r, 1), r.GetString(2), Day(r, 3), Number(r, 4), r.GetInt32(5) != 0, Text(r, 6),
-            Number(r, 7), Text(r, 8), r.GetInt32(9) != 0, Text(r, 10), Text(r, 11), Day(r, 12), Text(r, 13), Number(r, 14), Text(r, 15));
+            Number(r, 7), Text(r, 8), r.GetInt32(9) != 0, Text(r, 10), Text(r, 11), Day(r, 12), Text(r, 13), Number(r, 14), Text(r, 15), r.GetInt32(16) != 0);
     }
 
     // The Name of a Projects, Goals, Flags or People row (table is always a literal here); null for no id or a row
@@ -124,6 +124,10 @@ public partial class DatabaseService
         if (before.ForceEditOnComplete != after.ForceEditOnComplete)
         {
             changes.Add(after.ForceEditOnComplete ? "Edit when done switched on" : "Edit when done switched off");
+        }
+        if (before.SubTasksPickOne != after.SubTasksPickOne)
+        {
+            changes.Add(after.SubTasksPickOne ? "Sub-tasks set to pick one" : "Sub-tasks set to tick boxes");
         }
         if (!Same(before.Notes, after.Notes))
         {

@@ -6,6 +6,14 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.174.0 — 2026-11-21
+
+> - New: sub-tasks can be choices. Tick Pick one beside Sub-tasks on the task screen, and each sub-task gets a round button so only one of them can be picked.
+> - Pick a choice on the task screen or straight on the card. Click another to change it, and use Clear (or click the picked one on the card) to pick none.
+> - The card shows the choice, such as Chosen: Option B, in place of a count. Reports, Copy as Text and emailed tasks show the choices the same way.
+> - A repeating task's next occurrence, a duplicate and a template keep the choices, with none picked yet. The sub-task summary in reports counts how often each was chosen.
+> - In Excel files, choices are written one per line starting ( ), with the picked one starting (x), and are read back the same way.
+
 ## 0.173.2 — 2026-11-21
 
 > - New: the Quick Entries list's right-click menu can now set a task's goal, or clear it.

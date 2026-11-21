@@ -20,6 +20,7 @@ public class ReportRow
     public required string GoalName { get; init; }
     public List<string> Flags { get; init; } = [];
     public List<(string Title, bool IsDone)> SubTasks { get; init; } = [];
+    public bool SubTasksPickOne { get; init; } // the sub-tasks are choices, the done one picked
     public string? Notes { get; init; }
     // When the task was last emailed and to whom, with how many times in all; null for a task never emailed.
     public string? Emailed { get; init; }
