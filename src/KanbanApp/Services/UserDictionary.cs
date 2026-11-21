@@ -123,33 +123,34 @@ public sealed partial class UserDictionary
     // Gives a spell-checked box the user's words (others: any dictionaries it has of its own, such as the
     // American spellings), keeps it up to date when they change, and gives it the right-click menu with
     // Add to Dictionary.
-    public void Attach(TextBox box, params Uri[] others)
+    public void Attach(TextBox box, params Uri[] others) =>
+        Register(box, others, (menu, e) => BuildMenu(box, menu, e));
+
+    // The same for the Notes box, a RichTextBox: its right-click menu finds the word through text pointers.
+    public void AttachRich(RichTextBox box, params Uri[] others) =>
+        Register(box, others, (menu, e) => BuildRichMenu(box, menu, e));
+
+    // What both kinds of box need. The list holds the box weakly, so a closed task window's boxes can be
+    // collected; the ones already gone are dropped here, each time another box is added. The box is given a
+    // menu of its own - WPF's built-in one cannot be added to - which fillMenu fills in each time it opens.
+    private void Register(TextBoxBase box, Uri[] others, Action<ContextMenu, ContextMenuEventArgs> fillMenu)
     {
         _boxes.RemoveAll(entry => !entry.Box.TryGetTarget(out _));
         _boxes.Add((new WeakReference<TextBoxBase>(box), others));
         Apply(box, others);
         var menu = new ContextMenu();
         box.ContextMenu = menu;
-        box.ContextMenuOpening += (_, e) => BuildMenu(box, menu, e);
+        box.ContextMenuOpening += (_, e) => fillMenu(menu, e);
     }
 
+    // The box's dictionaries, in order: its own, then the user's words. The user's file is left out while
+    // there are no words (or it could not be written), so WPF is never handed an empty or missing file.
     private void Apply(TextBoxBase box, Uri[] others)
     {
         var dictionaries = SpellCheck.GetCustomDictionaries(box);
         dictionaries.Clear();
         foreach (var other in others) dictionaries.Add(other);
         if (_words.Count > 0 && File.Exists(FilePath)) dictionaries.Add(new Uri(FilePath));
-    }
-
-    // The same for the Notes box, a RichTextBox: its right-click menu finds the word through text pointers.
-    public void AttachRich(RichTextBox box, params Uri[] others)
-    {
-        _boxes.RemoveAll(entry => !entry.Box.TryGetTarget(out _));
-        _boxes.Add((new WeakReference<TextBoxBase>(box), others));
-        Apply(box, others);
-        var menu = new ContextMenu();
-        box.ContextMenu = menu;
-        box.ContextMenuOpening += (_, e) => BuildRichMenu(box, menu, e);
     }
 
     // WPF reads a dictionary when spell check starts, so each live box is given the list again and
@@ -171,48 +172,11 @@ public sealed partial class UserDictionary
 
     // --- The right-click menu ----------------------------------------------------------------------
 
-    // The box is given a menu of its own - WPF's built-in one cannot be added to - filled in each time
-    // it opens: on a misspelled word, the suggestions, Ignore All and Add to Dictionary, then the usual
-    // editing commands.
-    // The right-click menu of the rich Notes box: the same entries, with the misspelled word found from a text pointer.
-    private void BuildRichMenu(RichTextBox box, ContextMenu menu, ContextMenuEventArgs e)
-    {
-        menu.Items.Clear();
+    // Filled in each time it opens: on a misspelled word, the suggestions, Ignore All and Add to Dictionary,
+    // then the usual editing commands. A right-click gives the mouse position (CursorLeft/CursorTop); the
+    // menu key or Shift+F10 gives -1, and the word is then the one the caret is in.
 
-        var pointer = e.CursorLeft >= 0 ? box.GetPositionFromPoint(new Point(e.CursorLeft, e.CursorTop), snapToText: false) : box.CaretPosition;
-        if (pointer is not null && box.GetSpellingError(pointer) is { } error && box.GetSpellingErrorRange(pointer) is { } range)
-        {
-            var word = range.Text.Trim();
-            var suggestions = error.Suggestions.Take(5).ToList();
-            foreach (var suggestion in suggestions)
-            {
-                var item = new MenuItem { Header = suggestion.Replace("_", "__"), FontWeight = FontWeights.Bold };
-                item.Click += (_, _) => error.Correct(suggestion);
-                menu.Items.Add(item);
-            }
-            if (suggestions.Count == 0) menu.Items.Add(new MenuItem { Header = "(no spelling suggestions)", IsEnabled = false });
-
-            menu.Items.Add(new Separator());
-            menu.Items.Add(new MenuItem { Header = "Ignore All", Command = EditingCommands.IgnoreSpellingError, CommandTarget = box });
-
-            var add = new MenuItem
-            {
-                Header = $"Add \"{word.Replace("_", "__")}\" to Dictionary",
-                ToolTip = "Always accept this word, in every task. The list is in Settings.",
-                IsEnabled = ParseWords(word).Count == 1
-            };
-            add.Click += (_, _) => Add(word);
-            menu.Items.Add(add);
-            menu.Items.Add(new Separator());
-        }
-
-        menu.Items.Add(new MenuItem { Header = "Cut", Command = ApplicationCommands.Cut, CommandTarget = box });
-        menu.Items.Add(new MenuItem { Header = "Copy", Command = ApplicationCommands.Copy, CommandTarget = box });
-        menu.Items.Add(new MenuItem { Header = "Paste", Command = ApplicationCommands.Paste, CommandTarget = box });
-        menu.Items.Add(new Separator());
-        menu.Items.Add(new MenuItem { Header = "Select All", Command = ApplicationCommands.SelectAll, CommandTarget = box });
-    }
-
+    // The right-click menu of a plain box: the misspelled word is found by character index.
     private void BuildMenu(TextBox box, ContextMenu menu, ContextMenuEventArgs e)
     {
         menu.Items.Clear();
@@ -223,33 +187,56 @@ public sealed partial class UserDictionary
             var start = box.GetSpellingErrorStart(index);
             var length = box.GetSpellingErrorLength(index);
             if (start >= 0 && length > 0 && start + length <= box.Text.Length)
-            {
-                var word = box.Text.Substring(start, length);
-
-                var suggestions = error.Suggestions.Take(5).ToList();
-                foreach (var suggestion in suggestions)
-                {
-                    var item = new MenuItem { Header = suggestion.Replace("_", "__"), FontWeight = FontWeights.Bold };
-                    item.Click += (_, _) => error.Correct(suggestion);
-                    menu.Items.Add(item);
-                }
-                if (suggestions.Count == 0) menu.Items.Add(new MenuItem { Header = "(no spelling suggestions)", IsEnabled = false });
-
-                menu.Items.Add(new Separator());
-                menu.Items.Add(new MenuItem { Header = "Ignore All", Command = EditingCommands.IgnoreSpellingError, CommandTarget = box });
-
-                var add = new MenuItem
-                {
-                    Header = $"Add \"{word.Replace("_", "__")}\" to Dictionary",
-                    ToolTip = "Always accept this word, in every task. The list is in Settings.",
-                    IsEnabled = ParseWords(word).Count == 1
-                };
-                add.Click += (_, _) => Add(word);
-                menu.Items.Add(add);
-                menu.Items.Add(new Separator());
-            }
+                AddSpellingEntries(box, menu, error, box.Text.Substring(start, length));
         }
 
+        AddEditingEntries(box, menu);
+    }
+
+    // The right-click menu of the rich Notes box: the same entries, with the misspelled word found from a text pointer.
+    private void BuildRichMenu(RichTextBox box, ContextMenu menu, ContextMenuEventArgs e)
+    {
+        menu.Items.Clear();
+
+        var pointer = e.CursorLeft >= 0 ? box.GetPositionFromPoint(new Point(e.CursorLeft, e.CursorTop), snapToText: false) : box.CaretPosition;
+        if (pointer is not null && box.GetSpellingError(pointer) is { } error && box.GetSpellingErrorRange(pointer) is { } range)
+            AddSpellingEntries(box, menu, error, range.Text.Trim());
+
+        AddEditingEntries(box, menu);
+    }
+
+    // The entries for a misspelled word: up to five suggestions in bold (or a greyed line saying there are
+    // none), Ignore All (WPF's own, for this box until it closes) and Add to Dictionary, then a separator.
+    // An underscore is doubled in a header, where a single one would mark the next letter as the access key.
+    private void AddSpellingEntries(TextBoxBase box, ContextMenu menu, SpellingError error, string word)
+    {
+        var suggestions = error.Suggestions.Take(5).ToList();
+        foreach (var suggestion in suggestions)
+        {
+            var item = new MenuItem { Header = suggestion.Replace("_", "__"), FontWeight = FontWeights.Bold };
+            item.Click += (_, _) => error.Correct(suggestion);
+            menu.Items.Add(item);
+        }
+        if (suggestions.Count == 0) menu.Items.Add(new MenuItem { Header = "(no spelling suggestions)", IsEnabled = false });
+
+        menu.Items.Add(new Separator());
+        menu.Items.Add(new MenuItem { Header = "Ignore All", Command = EditingCommands.IgnoreSpellingError, CommandTarget = box });
+
+        // Greyed for something that could not be a dictionary word (see ParseWords), which Add would refuse.
+        var add = new MenuItem
+        {
+            Header = $"Add \"{word.Replace("_", "__")}\" to Dictionary",
+            ToolTip = "Always accept this word, in every task. The list is in Settings.",
+            IsEnabled = ParseWords(word).Count == 1
+        };
+        add.Click += (_, _) => Add(word);
+        menu.Items.Add(add);
+        menu.Items.Add(new Separator());
+    }
+
+    // The usual editing commands, which every box's menu ends with (the built-in menu they replace had them).
+    private static void AddEditingEntries(TextBoxBase box, ContextMenu menu)
+    {
         menu.Items.Add(new MenuItem { Header = "Cut", Command = ApplicationCommands.Cut, CommandTarget = box });
         menu.Items.Add(new MenuItem { Header = "Copy", Command = ApplicationCommands.Copy, CommandTarget = box });
         menu.Items.Add(new MenuItem { Header = "Paste", Command = ApplicationCommands.Paste, CommandTarget = box });

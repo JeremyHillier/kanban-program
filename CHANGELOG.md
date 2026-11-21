@@ -6,6 +6,10 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.174.1 — 2026-11-21
+
+> - Maintenance: internal improvements to keep the app reliable and easy to update; no change to how the app looks or works.
+
 ## 0.174.0 — 2026-11-21
 
 > - New: sub-tasks can be choices. Tick Pick one beside Sub-tasks on the task screen, and each sub-task gets a round button so only one of them can be picked.
