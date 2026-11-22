@@ -36,6 +36,10 @@ public static class ThemeManager
             res["InputBackgroundBrush"] = Brush(0x33, 0x33, 0x36);
             res["BoardAreaBrush"] = Brush(0x16, 0x16, 0x16);
             res["AccentTextBrush"] = Brush(0x64, 0xB5, 0xF6);
+            // The foot of the button column and the copyright line on dialogs: light enough to read on the dark panels.
+            res["FooterTextBrush"] = Brush(0xAA, 0xAA, 0xAA);
+            res["FooterLinkBrush"] = Brush(0x64, 0xB5, 0xF6);
+            res["DialogCopyrightBrush"] = Brush(0xAA, 0xAA, 0xAA);
             res["ColumnHeaderTextBrush"] = Brushes.White;
             res["AlternateRowBrush"] = Brush(0x20, 0x20, 0x22);
             // The navy behind the button column and the header: deeper in the dark theme so it sits
@@ -68,6 +72,11 @@ public static class ThemeManager
             res["InputBackgroundBrush"] = Brushes.White;
             res["BoardAreaBrush"] = Brush(0xD4, 0xD4, 0xD8);
             res["AccentTextBrush"] = Brush(0x0B, 0x5F, 0xD9);
+            // The foot of the button column (version, About, copyright, Designed in Canada) in a darker grey
+            // than SecondaryTextBrush with the standard Windows link blue, and the dialogs' copyright line in slate.
+            res["FooterTextBrush"] = Brush(0x66, 0x66, 0x66);
+            res["FooterLinkBrush"] = SystemColors.HotTrackBrush;
+            res["DialogCopyrightBrush"] = Brush(0x5A, 0x6B, 0x7B);
             res["ColumnHeaderTextBrush"] = Brush(0x1A, 0x1A, 0x1A);
             res["AlternateRowBrush"] = Brush(0xD7, 0xD8, 0xDB);
             res["AccentPanelBrush"] = Brush(0x4B, 0x6D, 0x96);

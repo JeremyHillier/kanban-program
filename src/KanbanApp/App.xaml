@@ -10,6 +10,9 @@
         <SolidColorBrush x:Key="CardOutlineBrush" Color="#FF9E9E9E"/>
         <SolidColorBrush x:Key="PrimaryTextBrush" Color="#FF1A1A1A"/>
         <SolidColorBrush x:Key="SecondaryTextBrush" Color="#FF888888"/>
+        <SolidColorBrush x:Key="FooterTextBrush" Color="#FF666666"/>
+        <SolidColorBrush x:Key="FooterLinkBrush" Color="{x:Static SystemColors.HotTrackColor}"/>
+        <SolidColorBrush x:Key="DialogCopyrightBrush" Color="#FF5A6B7B"/>
         <SolidColorBrush x:Key="PanelBackgroundBrush" Color="#FFFAFAFA"/>
         <SolidColorBrush x:Key="PanelBorderBrush" Color="#FF333333"/>
         <SolidColorBrush x:Key="ButtonBackgroundBrush" Color="#FFECECEC"/>

@@ -6,6 +6,11 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.174.2 — 2026-11-22
+
+> - The version, About link, copyright and "Designed in Canada" at the foot of the button column are easier to read, in a darker grey with the standard Windows link blue.
+> - The copyright line at the bottom of each window, and the heading of the About window, are sized and spaced more evenly.
+
 ## 0.174.1 — 2026-11-21
 
 > - Maintenance: internal improvements to keep the app reliable and easy to update; no change to how the app looks or works.

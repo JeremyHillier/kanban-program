@@ -55,15 +55,15 @@ public static class DialogCopyright
         {
             Text = AppInfo.Copyright,
             FontSize = 9,
-            // No opacity multiplier: SecondaryTextBrush is already a muted grey, and fading it
+            // No opacity multiplier: DialogCopyrightBrush is already a muted grey, and fading it
             // further washed the line out to near-invisible against a light background.
             HorizontalAlignment = HorizontalAlignment.Right,
             VerticalAlignment = VerticalAlignment.Bottom,
-            Margin = new Thickness(0, 2, 10, 6),
+            Margin = new Thickness(0, 0, 10, 4),
             IsHitTestVisible = false // Never let it swallow a click meant for whatever sits above it.
         };
         // Resource reference, not a fixed brush, so the line follows a light/dark theme switch.
-        label.SetResourceReference(TextBlock.ForegroundProperty, "SecondaryTextBrush");
+        label.SetResourceReference(TextBlock.ForegroundProperty, "DialogCopyrightBrush");
 
         Grid.SetRow(label, 1);
         host.Children.Add(label);

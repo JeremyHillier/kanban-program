@@ -1009,16 +1009,16 @@
                      outside the part that scrolls, so it is always in view at the bottom left. -->
                 <DockPanel>
                     <StackPanel DockPanel.Dock="Bottom">
-                        <TextBlock Text="{Binding VersionLine}" HorizontalAlignment="Center" FontSize="9" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,8,0,0"/>
+                        <TextBlock Text="{Binding VersionLine}" HorizontalAlignment="Center" FontSize="9" Foreground="{DynamicResource FooterTextBrush}" Margin="0,8,0,0"/>
                         <TextBlock HorizontalAlignment="Center" FontSize="9" Margin="0,1,0,1">
-                            <Hyperlink Click="About_Click" Foreground="{DynamicResource AccentTextBrush}"
+                            <Hyperlink Click="About_Click" Foreground="{DynamicResource FooterLinkBrush}"
                                        ToolTip="Version, licence agreement, privacy note, check for updates and support">About</Hyperlink>
                         </TextBlock>
                         <TextBlock Text="{Binding CopyrightText}" HorizontalAlignment="Center" TextAlignment="Center" TextWrapping="Wrap" FontSize="9"
-                                   Foreground="{DynamicResource SecondaryTextBrush}"/>
+                                   Foreground="{DynamicResource FooterTextBrush}"/>
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,3,0,0" ToolTip="Designed in Canada">
                             <Path Data="{StaticResource MapleLeafGeometry}" Fill="#FFE53935" Width="10" Height="10" Stretch="Uniform" Margin="0,0,4,0" VerticalAlignment="Center"/>
-                            <TextBlock Text="{x:Static svc:AppInfo.MadeIn}" FontSize="9" Foreground="{DynamicResource SecondaryTextBrush}" VerticalAlignment="Center"/>
+                            <TextBlock Text="{x:Static svc:AppInfo.MadeIn}" FontSize="9" Foreground="{DynamicResource FooterTextBrush}" VerticalAlignment="Center"/>
                         </StackPanel>
                     </StackPanel>
                 <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
