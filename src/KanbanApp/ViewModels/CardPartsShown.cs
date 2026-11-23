@@ -1,10 +1,16 @@
 namespace KanbanApp.ViewModels;
 
-// The details and buttons a large card can show, each of which the user can switch off in Settings
-// (Large cards show). Everything starts on; only what is switched off is saved, so a part added
-// later is shown until someone turns it off. Compact cards and narrow columns show less anyway, and
-// all of it stays on the task screen and the right-click menu.
-public enum CardPart { Goal, Flags, DueDate, AssignedTo, WaitingOn, StartDate, Repeats, Updated, Attachments, SubTasks, FlagButton, EmailButton, CalendarButton }
+// The details a large card can show and the buttons a card can have, each of which the user can switch off in
+// Settings (Large cards show for the details, Card buttons for the buttons). Everything starts on; only what is
+// switched off is saved, so a part added later is shown until someone turns it off. Compact cards and narrow
+// columns show less anyway, Hide Buttons takes every button off whatever is ticked, and all of it stays on the
+// task screen and the right-click menu. New parts go at the end: the saved names are sorted by this order.
+public enum CardPart
+{
+    Goal, Flags, DueDate, AssignedTo, WaitingOn, StartDate, Repeats, Updated, Attachments, SubTasks,
+    FlagButton, EmailButton, CalendarButton,
+    MoveToDoButton, MoveInProgressButton, MoveOnHoldButton, MoveWaitingButton, DoneButton, DeleteButton
+}
 
 public sealed class CardPartsShown
 {
@@ -30,6 +36,27 @@ public sealed class CardPartsShown
     public bool FlagButton => Shows(CardPart.FlagButton);
     public bool EmailButton => Shows(CardPart.EmailButton);
     public bool CalendarButton => Shows(CardPart.CalendarButton);
+    public bool MoveToDoButton => Shows(CardPart.MoveToDoButton);
+    public bool MoveInProgressButton => Shows(CardPart.MoveInProgressButton);
+    public bool MoveOnHoldButton => Shows(CardPart.MoveOnHoldButton);
+    public bool MoveWaitingButton => Shows(CardPart.MoveWaitingButton);
+    public bool DoneButton => Shows(CardPart.DoneButton);
+    public bool DeleteButton => Shows(CardPart.DeleteButton);
+
+    // The row along the foot of a card is two groups: the four move buttons, then Done and Delete. A group with none
+    // of its buttons ticked is left out, and so is the whole row when both are.
+    public bool AnyMoveButton => Shows(CardPart.MoveToDoButton) || Shows(CardPart.MoveInProgressButton) || Shows(CardPart.MoveOnHoldButton) || Shows(CardPart.MoveWaitingButton);
+    public bool AnyEndButton => Shows(CardPart.DoneButton) || Shows(CardPart.DeleteButton);
+    public bool AnyFootButton => AnyMoveButton || AnyEndButton;
+
+    // The buttons, in the order Settings lists them under Card buttons. Every other part is a detail (Large cards show).
+    public static readonly IReadOnlyList<CardPart> ButtonParts =
+    [
+        CardPart.MoveToDoButton, CardPart.MoveInProgressButton, CardPart.MoveOnHoldButton, CardPart.MoveWaitingButton,
+        CardPart.DoneButton, CardPart.DeleteButton, CardPart.FlagButton, CardPart.EmailButton, CardPart.CalendarButton
+    ];
+
+    public static IEnumerable<CardPart> DetailParts => Enum.GetValues<CardPart>().Except(ButtonParts);
 
     public CardPartsShown With(CardPart part, bool shown)
     {
@@ -47,7 +74,8 @@ public sealed class CardPartsShown
             .Select(name => Enum.TryParse<CardPart>(name, out var part) ? part : (CardPart?)null)
             .OfType<CardPart>());
 
-    // What Settings calls each one.
+    // What Settings calls each one. A move or Done button is named after its column there (it follows a rename);
+    // these are the names it starts with.
     public static string Label(CardPart part) => part switch
     {
         CardPart.Goal => "Goal",
@@ -63,6 +91,12 @@ public sealed class CardPartsShown
         CardPart.FlagButton => "Flag button",
         CardPart.EmailButton => "Email button",
         CardPart.CalendarButton => "Calendar button",
+        CardPart.MoveToDoButton => "Move to To Do",
+        CardPart.MoveInProgressButton => "Move to In Progress",
+        CardPart.MoveOnHoldButton => "Move to On Hold",
+        CardPart.MoveWaitingButton => "Move to Waiting",
+        CardPart.DoneButton => "Mark Done",
+        CardPart.DeleteButton => "Delete",
         _ => part.ToString()
     };
 }

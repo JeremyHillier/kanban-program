@@ -6,6 +6,11 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.175.0 — 2026-11-23
+
+> - New: Settings has a Card buttons choice on the Board tab, so you can pick which buttons appear on a task card: the move buttons, Done, Delete, and the flag, email and calendar buttons.
+> - Hide Buttons still takes every button off the cards at once, and Show Buttons brings back the ones you have ticked.
+
 ## 0.174.2 — 2026-11-22
 
 > - The version, About link, copyright and "Designed in Canada" at the foot of the button column are easier to read, in a darker grey with the standard Windows link blue.

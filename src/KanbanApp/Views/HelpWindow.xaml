@@ -407,6 +407,7 @@
                 <local:BulletItem Text="The check mark moves it to Done. X deletes it."/>
                 <local:BulletItem Text="Or right-click a task and choose Mark as Done, at the top of the menu. With several selected, Mark All as Done."/>
                 <local:BulletItem Text="The tag icon adds a flag."/>
+                <local:BulletItem Text="Settings, Board tab, Card buttons, picks which of these buttons a card shows."/>
                 <local:BulletItem Text="Click the project, priority, person or due date to change it on the board."/>
                 <local:BulletItem Text="The due date opens a month calendar: click a day, Today, or Clear Due Date."/>
                 <local:BulletItem Text="Over any calendar, the mouse wheel moves between months."/>
@@ -677,8 +678,10 @@
                 <local:BulletItem Text="Dark Mode or Light Mode switches the theme."/>
                 <local:BulletItem Text="Large or Compact Cards sets how much each card shows."/>
                 <local:BulletItem Text="Compact cards still show what a task is waiting on."/>
-                <local:BulletItem Text="Large cards show, in Settings, Board tab, picks which details and buttons a large card has: goal, dates, people, sub-tasks, the side buttons and more."/>
-                <local:BulletItem Text="Hide Buttons, or Alt+U, takes the buttons off every card. Right-click a card for the same actions."/>
+                <local:BulletItem Text="Large cards show, in Settings, Board tab, picks which details a large card has: goal, dates, people, sub-tasks and more."/>
+                <local:BulletItem Text="Card buttons, in Settings, Board tab, picks which buttons a card has: the move letters, Done, Delete, flag, email and calendar."/>
+                <local:BulletItem Text="Hide Buttons, or Alt+U, takes every button off every card, whatever Card buttons has ticked."/>
+                <local:BulletItem Text="Show Buttons brings back the buttons Card buttons has ticked. Right-click a card for the same actions."/>
                 <local:BulletItem Text="Hide, or Alt+B, folds the button column to a thin strip. Click the strip to bring it back."/>
                 <local:BulletItem Text="While folded, the strip warns when filters are hiding tasks."/>
                 <local:BulletItem Text="Compact buttons, in Settings, Board tab, makes the button column smaller for small screens."/>
@@ -704,7 +707,8 @@
                 <local:BulletItem Text="Use GTD Names sets Inbox, Next Actions, In Progress, Waiting and Done."/>
                 <local:BulletItem Text="Use Standard Names puts the original names back."/>
                 <local:BulletItem Text="Manage Custom Fields, under Priorities, defines fields of your own for tasks."/>
-                <local:BulletItem Text="Large cards show picks which details and buttons a large card has."/>
+                <local:BulletItem Text="Large cards show picks which details a large card has."/>
+                <local:BulletItem Text="Card buttons picks which buttons a card has. Hide Buttons, or Alt+U, still takes them all off."/>
                 <local:BulletItem Text="Manage Priorities changes the priority names and colours."/>
                 <TextBlock Text="General tab" Style="{StaticResource HelpSubHeaderStyle}"/>
                 <local:BulletItem Text="Turn the splash screen on or off, and set how long it shows."/>

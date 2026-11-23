@@ -788,7 +788,7 @@
                                                             </StackPanel>
                                                         </Grid>
 
-                                                        <WrapPanel Margin="0,6,0,-3" Visibility="{Binding DataContext.ShowCardButtons, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                        <WrapPanel Margin="0,6,0,-3" Visibility="{Binding DataContext.ShowCardFootButtons, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BooleanToVisibilityConverter}}">
                                                             <!-- Two groups, so a narrow column wraps them as the four move buttons, then Done and
                                                                  Delete - never one button alone on a second row. The groups' bottom margin spaces
                                                                  the rows; the panel's -3 takes it back off a single row. -->
@@ -798,9 +798,9 @@
                                                                  that button's target column - clicking it there would be a no-op. The ancestor
                                                                  ItemsControl is this card's per-column Cards list, whose own DataContext is the
                                                                  enclosing ColumnViewModel, so its Name is the card's current column. -->
-                                                            <StackPanel Orientation="Horizontal" Margin="0,0,0,3">
+                                                            <StackPanel Orientation="Horizontal" Margin="0,0,0,3" Visibility="{Binding DataContext.CardParts.AnyMoveButton, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BooleanToVisibilityConverter}}">
                                                             <Button Content="{Binding DataContext.ToDoColumn.QuickLetter, RelativeSource={RelativeSource AncestorType=Window}}" Background="#FF42A5F5"
-                                                                    Tag="To Do" ToolTip="{Binding DataContext.ToDoColumn.MoveToolTip, RelativeSource={RelativeSource AncestorType=Window}}" Click="QuickMove_Click">
+                                                                    Tag="To Do" Visibility="{Binding DataContext.CardParts.MoveToDoButton, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BooleanToVisibilityConverter}}" ToolTip="{Binding DataContext.ToDoColumn.MoveToolTip, RelativeSource={RelativeSource AncestorType=Window}}" Click="QuickMove_Click">
                                                                 <Button.Style>
                                                                     <Style TargetType="Button" BasedOn="{StaticResource QuickActionButtonStyle}">
                                                                         <Style.Triggers>
@@ -813,7 +813,7 @@
                                                                 </Button.Style>
                                                             </Button>
                                                             <Button Content="{Binding DataContext.InProgressColumn.QuickLetter, RelativeSource={RelativeSource AncestorType=Window}}" Background="#FFF9A825"
-                                                                    Tag="In Progress" ToolTip="{Binding DataContext.InProgressColumn.MoveToolTip, RelativeSource={RelativeSource AncestorType=Window}}" Click="QuickMove_Click">
+                                                                    Tag="In Progress" Visibility="{Binding DataContext.CardParts.MoveInProgressButton, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BooleanToVisibilityConverter}}" ToolTip="{Binding DataContext.InProgressColumn.MoveToolTip, RelativeSource={RelativeSource AncestorType=Window}}" Click="QuickMove_Click">
                                                                 <Button.Style>
                                                                     <Style TargetType="Button" BasedOn="{StaticResource QuickActionButtonStyle}">
                                                                         <Style.Triggers>
@@ -826,7 +826,7 @@
                                                                 </Button.Style>
                                                             </Button>
                                                             <Button Content="{Binding DataContext.OnHoldColumn.QuickLetter, RelativeSource={RelativeSource AncestorType=Window}}" Background="#FFFB8C00"
-                                                                    Tag="On Hold" ToolTip="{Binding DataContext.OnHoldColumn.MoveToolTip, RelativeSource={RelativeSource AncestorType=Window}}" Click="QuickMove_Click">
+                                                                    Tag="On Hold" Visibility="{Binding DataContext.CardParts.MoveOnHoldButton, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BooleanToVisibilityConverter}}" ToolTip="{Binding DataContext.OnHoldColumn.MoveToolTip, RelativeSource={RelativeSource AncestorType=Window}}" Click="QuickMove_Click">
                                                                 <Button.Style>
                                                                     <Style TargetType="Button" BasedOn="{StaticResource QuickActionButtonStyle}">
                                                                         <Style.Triggers>
@@ -839,7 +839,7 @@
                                                                 </Button.Style>
                                                             </Button>
                                                             <Button Content="{Binding DataContext.WaitingColumn.QuickLetter, RelativeSource={RelativeSource AncestorType=Window}}" Background="#FFAB47BC"
-                                                                    Tag="Waiting" ToolTip="{Binding DataContext.WaitingColumn.MoveToolTip, RelativeSource={RelativeSource AncestorType=Window}}" Click="QuickMove_Click">
+                                                                    Tag="Waiting" Visibility="{Binding DataContext.CardParts.MoveWaitingButton, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BooleanToVisibilityConverter}}" ToolTip="{Binding DataContext.WaitingColumn.MoveToolTip, RelativeSource={RelativeSource AncestorType=Window}}" Click="QuickMove_Click">
                                                                 <Button.Style>
                                                                     <Style TargetType="Button" BasedOn="{StaticResource QuickActionButtonStyle}">
                                                                         <Style.Triggers>
@@ -852,9 +852,9 @@
                                                                 </Button.Style>
                                                             </Button>
                                                             </StackPanel>
-                                                            <StackPanel Orientation="Horizontal" Margin="0,0,0,3">
+                                                            <StackPanel Orientation="Horizontal" Margin="0,0,0,3" Visibility="{Binding DataContext.CardParts.AnyEndButton, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BooleanToVisibilityConverter}}">
                                                             <Button Content="&#x2713;" Background="#FF66BB6A"
-                                                                    Tag="Done" ToolTip="{Binding DataContext.DoneColumn.MoveToolTip, RelativeSource={RelativeSource AncestorType=Window}}" Click="QuickMove_Click">
+                                                                    Tag="Done" Visibility="{Binding DataContext.CardParts.DoneButton, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BooleanToVisibilityConverter}}" ToolTip="{Binding DataContext.DoneColumn.MoveToolTip, RelativeSource={RelativeSource AncestorType=Window}}" Click="QuickMove_Click">
                                                                 <Button.Style>
                                                                     <Style TargetType="Button" BasedOn="{StaticResource QuickActionButtonStyle}">
                                                                         <Style.Triggers>
@@ -866,7 +866,7 @@
                                                                     </Style>
                                                                 </Button.Style>
                                                             </Button>
-                                                            <Button Style="{StaticResource QuickActionButtonStyle}" Content="X" Background="#FFEF5350" Margin="0"
+                                                            <Button Style="{StaticResource QuickActionButtonStyle}" Content="X" Background="#FFEF5350" Margin="0" Visibility="{Binding DataContext.CardParts.DeleteButton, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BooleanToVisibilityConverter}}"
                                                                     ToolTip="Delete"
                                                                     Click="DeleteQuickAction_Click"/>
                                                             </StackPanel>
@@ -1113,7 +1113,7 @@
                                     <TextBlock Text="{Binding CardSizeButtonLabel}" TextWrapping="Wrap" TextAlignment="Center"/>
                                 </Button>
                                 <Button Style="{StaticResource CardButtonsButtonStyle}" Background="#FF6D5E8C" Foreground="White" Click="ToggleCardButtons_Click"
-                                        ToolTip="Hide or show the buttons on each task card (Alt+U), for more room in narrow columns. Everything they do is still on a card's right-click menu.">
+                                        ToolTip="Hide or show every button on each task card (Alt+U), for more room in narrow columns. Which buttons a card has is picked in Settings. Everything they do is still on a card's right-click menu.">
                                     <TextBlock Text="{Binding CardButtonsButtonLabel}" TextWrapping="Wrap" TextAlignment="Center"/>
                                 </Button>
                                 <Button Style="{StaticResource HideFutureButtonStyle}" Background="#FF2A8E91" Foreground="White" Click="HideFuture_Click"

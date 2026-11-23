@@ -26,6 +26,7 @@ public partial class MainViewModel
             if (SetField(ref _showCardButtons, value))
             {
                 OnPropertyChanged(nameof(ShowCardSideButtons));
+                OnPropertyChanged(nameof(ShowCardFootButtons));
                 OnPropertyChanged(nameof(CardButtonsButtonLabel));
             }
         }
@@ -33,6 +34,9 @@ public partial class MainViewModel
 
     // The flag, email and calendar buttons down a card's right side.
     public bool ShowCardSideButtons => ShowCardButtons && !IsNarrowColumns;
+
+    // The move, Done and Delete row: on unless Hide Buttons is on, or Settings has every one of its buttons unticked.
+    public bool ShowCardFootButtons => ShowCardButtons && CardParts.AnyFootButton;
 
     public string CardButtonsButtonLabel => ShowCardButtons ? "Hide Buttons" : "Show Buttons";
 
@@ -48,15 +52,19 @@ public partial class MainViewModel
         CardParts = CardPartsShown.Parse(_db.GetSetting(HiddenCardPartsKey));
     }
 
-    // Which details and buttons large cards show (Settings > Large cards show). Unlike Hide Buttons this is a
-    // preference set in Settings, so it is in the Settings snapshot and Cancel puts it back.
+    // Which details large cards show and which buttons cards have (Settings > Large cards show and Card buttons).
+    // Hide Buttons takes every button off whatever is ticked there. Unlike Hide Buttons this is a preference set in
+    // Settings, so it is in the Settings snapshot and Cancel puts it back.
     private const string HiddenCardPartsKey = "HiddenCardParts";
     private CardPartsShown _cardParts = CardPartsShown.All;
 
     public CardPartsShown CardParts
     {
         get => _cardParts;
-        private set => SetField(ref _cardParts, value);
+        private set
+        {
+            if (SetField(ref _cardParts, value)) OnPropertyChanged(nameof(ShowCardFootButtons));
+        }
     }
 
     // The parts switched off, as saved ("Goal,Updated"); empty when everything shows.

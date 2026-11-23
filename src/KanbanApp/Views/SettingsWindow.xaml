@@ -99,9 +99,15 @@
                 </StackPanel>
                 <StackPanel Grid.Column="2">
                 <TextBlock Text="Large cards show" Style="{StaticResource SectionHeaderStyle}"/>
-                <!-- One tick box per part (CardPartsShown), added by the code behind. -->
+                <!-- One tick box per detail (CardPartsShown.DetailParts), added by the code behind. -->
                 <UniformGrid x:Name="CardPartsGrid" Columns="2" Margin="0,0,0,4"/>
-                <TextBlock Text="Untick what you don't need on the board. It stays on the task screen and the right-click menu. Compact cards and narrow columns show less anyway, and the move buttons along the foot have their own Hide Buttons switch (Alt+U)."
+                <TextBlock Text="Untick what you don't need on the board. It stays on the task screen and the right-click menu. Compact cards and narrow columns show less anyway."
+                           FontSize="11" Margin="0,0,0,20" Foreground="{DynamicResource SecondaryTextBrush}" TextWrapping="Wrap"/>
+
+                <TextBlock Text="Card buttons" Style="{StaticResource SectionHeaderStyle}"/>
+                <!-- One tick box per button (CardPartsShown.ButtonParts), added by the code behind. -->
+                <UniformGrid x:Name="CardButtonsGrid" Columns="2" Margin="0,0,0,4"/>
+                <TextBlock Text="Untick the buttons you don't need on a card. Everything they do is still on the right-click menu. Hide Buttons (Alt+U) takes every button off at once, whatever is ticked. The flag and calendar buttons are on large cards only."
                            FontSize="11" Margin="0,0,0,20" Foreground="{DynamicResource SecondaryTextBrush}" TextWrapping="Wrap"/>
 
                 <TextBlock Text="Priorities" Style="{StaticResource SectionHeaderStyle}"/>

@@ -336,22 +336,39 @@ public partial class SettingsWindow : Window
         if (IsLoaded) _viewModel.SetAutoCorrectEntries(AutoCorrectEntriesTextBox.Text);
     }
 
-    // One tick box per part a large card can show, two to a row. Each change is saved at once, like the
-    // rest of this window, and Cancel puts the lot back through the snapshot.
+    // One tick box per detail a large card can show and per button a card can have, two to a row. Each change is saved
+    // at once, like the rest of this window, and Cancel puts the lot back through the snapshot.
     private void BuildCardPartBoxes(MainViewModel viewModel)
     {
-        foreach (var part in Enum.GetValues<CardPart>())
-        {
-            var box = new System.Windows.Controls.CheckBox
-            {
-                Content = CardPartsShown.Label(part), IsChecked = viewModel.CardParts.Shows(part), Margin = new Thickness(0, 0, 8, 8)
-            };
-            box.SetResourceReference(ForegroundProperty, "PrimaryTextBrush");
-            box.Checked += (_, _) => viewModel.SetCardPartShown(part, true);
-            box.Unchecked += (_, _) => viewModel.SetCardPartShown(part, false);
-            CardPartsGrid.Children.Add(box);
-        }
+        foreach (var part in CardPartsShown.DetailParts) CardPartsGrid.Children.Add(CardPartBox(viewModel, part));
+        foreach (var part in CardPartsShown.ButtonParts) CardButtonsGrid.Children.Add(CardPartBox(viewModel, part));
     }
+
+    private static System.Windows.Controls.CheckBox CardPartBox(MainViewModel viewModel, CardPart part)
+    {
+        var box = new System.Windows.Controls.CheckBox
+        {
+            Content = CardPartsShown.Label(part), IsChecked = viewModel.CardParts.Shows(part), Margin = new Thickness(0, 0, 8, 8)
+        };
+        box.SetResourceReference(ForegroundProperty, "PrimaryTextBrush");
+        box.Checked += (_, _) => viewModel.SetCardPartShown(part, true);
+        box.Unchecked += (_, _) => viewModel.SetCardPartShown(part, false);
+
+        // A move or Done button is named after its column, and the name follows when the column is renamed on this page.
+        if (ColumnOfButton(viewModel, part) is { } column)
+            box.SetBinding(ContentControl.ContentProperty, new System.Windows.Data.Binding(nameof(ColumnViewModel.MoveToolTip)) { Source = column });
+        return box;
+    }
+
+    private static ColumnViewModel? ColumnOfButton(MainViewModel viewModel, CardPart part) => part switch
+    {
+        CardPart.MoveToDoButton => viewModel.ToDoColumn,
+        CardPart.MoveInProgressButton => viewModel.InProgressColumn,
+        CardPart.MoveOnHoldButton => viewModel.OnHoldColumn,
+        CardPart.MoveWaitingButton => viewModel.WaitingColumn,
+        CardPart.DoneButton => viewModel.DoneColumn,
+        _ => null
+    };
 
     private void CompactButtonsCheckBox_Changed(object sender, RoutedEventArgs e)
     {
