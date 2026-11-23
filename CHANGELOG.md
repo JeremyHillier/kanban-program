@@ -11,6 +11,8 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > - New: the task columns can be shown as blocks, with To Do and In Progress across the top, On Hold and Waiting below, and Done down the right. Each block shows its tasks in as many columns as fit the screen. Turn it on in Settings, on the Board tab; it is off until you do.
 > - New: a ready-made Today and This Week report lists what is overdue, due today and due later this week, with just each task, its priority and when it is due. Quick Report opens on it at first.
 > - New: the Report Builder can make short reports with just the task, its priority and its due date, group tasks by when they are due, and pick the tasks due this week.
+> - In a short report, each task's priority and due date sit at the right of its line, lined up down the page, whenever they fit.
+> - Fixed: in reports saved as PDF, each task's shading now sits behind its text, and group headings no longer run into the task above.
 > - Improved: the Report Builder window can be resized, and it opens at the size it was left.
 
 ## 0.175.0 — 2026-11-23

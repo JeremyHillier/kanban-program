@@ -92,6 +92,13 @@ public static partial class ReportService
 
     public const string ThisWeek = "This Week";
 
+    // A short row's priority and due date go on the title's own line, right-aligned, when both fit with this much
+    // space between them; otherwise under the title, as in a full row. The same rule for the preview and the PDF.
+    internal const double BesideGap = 24;
+
+    internal static bool SharesTitleLine(double titleWidth, double detailsWidth, double available) =>
+        titleWidth + BesideGap + detailsWidth <= available;
+
     // The due-date choices a report offers: the board's, with This Week after Within a Week.
     public static List<string> ReportDueOptions(IEnumerable<string> boardOptions)
     {

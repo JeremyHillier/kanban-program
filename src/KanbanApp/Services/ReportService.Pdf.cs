@@ -110,7 +110,7 @@ public static partial class ReportService
             if (isGrouped)
             {
                 NewPageIfNeeded(30);
-                gfx.DrawString($"{group.Key} ({group.Count()})", groupFont, accentBrush, new XPoint(margin, y));
+                gfx.DrawString($"{group.Key} ({group.Count()})", groupFont, accentBrush, new XPoint(margin, y), XStringFormats.TopLeft);
                 y += 20;
                 gfx.DrawLine(new XPen(XColor.FromArgb(0x1E, 0x3A, 0x5F), 1.2), new XPoint(margin - 8, y), new XPoint(pageWidth - margin + 8, y));
                 y += 12;
@@ -123,15 +123,26 @@ public static partial class ReportService
                 rowIndex++;
 
                 var lines = new List<(string Text, XFont Font, XBrush Brush, double XOffset, double LineHeight)>();
-                foreach (var titleLine in WrapText(gfx, row.Title, rowTitleFont, width - 16))
-                {
-                    lines.Add((titleLine, rowTitleFont, XBrushes.Black, 0, 18));
-                }
-
                 var metaLine = string.Join("   •   ", BuildMetaParts(row, groupBy == "Who" ? group.Key : null));
-                foreach (var line in WrapText(gfx, metaLine, metaFont, width - 16))
+
+                // A short row keeps its details on the title's line, right-aligned, when they fit (SharesTitleLine).
+                string? metaBeside = null;
+                if (row.Brief && SharesTitleLine(gfx.MeasureString(row.Title, rowTitleFont).Width, gfx.MeasureString(metaLine, metaFont).Width, width))
                 {
-                    lines.Add((line, metaFont, XBrushes.DimGray, 0, 13));
+                    lines.Add((row.Title, rowTitleFont, XBrushes.Black, 0, 18));
+                    metaBeside = metaLine;
+                }
+                else
+                {
+                    foreach (var titleLine in WrapText(gfx, row.Title, rowTitleFont, width - 16))
+                    {
+                        lines.Add((titleLine, rowTitleFont, XBrushes.Black, 0, 18));
+                    }
+
+                    foreach (var line in WrapText(gfx, metaLine, metaFont, width - 16))
+                    {
+                        lines.Add((line, metaFont, XBrushes.DimGray, 0, 13));
+                    }
                 }
 
                 if (includeSubTasks && row.SubTasks.Count > 0)
@@ -173,11 +184,19 @@ public static partial class ReportService
                 var rowHeight = lines.Sum(l => l.LineHeight) + 10;
                 NewPageIfNeeded(rowHeight + 8);
 
+                // Each line is placed by its top, as in the preview, so the band sits behind the text (placed by the
+                // baseline, the text rode on the band's top edge and the group heading ran into the band above).
                 gfx.DrawRectangle(band, margin - 8, y - 4, width + 16, rowHeight);
+
+                // 2 lower than the title's top puts the smaller text on the title's baseline; its right edge is where the band's padding starts.
+                if (metaBeside is not null)
+                {
+                    gfx.DrawString(metaBeside, metaFont, XBrushes.DimGray, new XPoint(margin + width - gfx.MeasureString(metaBeside, metaFont).Width, y + 2), XStringFormats.TopLeft);
+                }
 
                 foreach (var line in lines)
                 {
-                    gfx.DrawString(line.Text, line.Font, line.Brush, new XPoint(margin + line.XOffset, y));
+                    gfx.DrawString(line.Text, line.Font, line.Brush, new XPoint(margin + line.XOffset, y), XStringFormats.TopLeft);
                     y += line.LineHeight;
                 }
 

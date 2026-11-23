@@ -148,15 +148,27 @@ public static partial class ReportService
                     rowIndex++;
 
                     var lines = new List<(string Text, Typeface Typeface, double Size, Brush Brush, double XOffset, double LineHeight)>();
-                    foreach (var titleLine in WrapLine(row.Title, boldTypeface, 13, contentWidth - 16))
-                    {
-                        lines.Add((titleLine, boldTypeface, 13, Brushes.Black, 0, 18));
-                    }
-
                     var metaLine = string.Join("   •   ", BuildMetaParts(row, groupBy == "Who" ? group.Key : null));
-                    foreach (var line in WrapLine(metaLine, regularTypeface, 10, contentWidth - 16))
+
+                    // A short row keeps its details on the title's line, right-aligned, when they fit (SharesTitleLine).
+                    string? metaBeside = null;
+                    if (row.Brief && SharesTitleLine(MakeText(row.Title, boldTypeface, 13, Brushes.Black).Width,
+                            MakeText(metaLine, regularTypeface, 10, Brushes.DimGray).Width, contentWidth))
                     {
-                        lines.Add((line, regularTypeface, 10, Brushes.DimGray, 0, 14));
+                        lines.Add((row.Title, boldTypeface, 13, Brushes.Black, 0, 18));
+                        metaBeside = metaLine;
+                    }
+                    else
+                    {
+                        foreach (var titleLine in WrapLine(row.Title, boldTypeface, 13, contentWidth - 16))
+                        {
+                            lines.Add((titleLine, boldTypeface, 13, Brushes.Black, 0, 18));
+                        }
+
+                        foreach (var line in WrapLine(metaLine, regularTypeface, 10, contentWidth - 16))
+                        {
+                            lines.Add((line, regularTypeface, 10, Brushes.DimGray, 0, 14));
+                        }
                     }
 
                     if (includeSubTasks && row.SubTasks.Count > 0)
@@ -202,6 +214,9 @@ public static partial class ReportService
                     Canvas.SetLeft(rowBand, margin - 8);
                     Canvas.SetTop(rowBand, y - 4);
                     canvas.Children.Add(rowBand);
+
+                    // 3 lower than the title's top puts the smaller text on the title's baseline.
+                    if (metaBeside is not null) AddTextRight(canvas, metaBeside, margin + contentWidth, y + 3, regularTypeface, 10, Brushes.DimGray);
 
                     foreach (var line in lines)
                     {

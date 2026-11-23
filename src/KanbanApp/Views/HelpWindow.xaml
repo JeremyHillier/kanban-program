@@ -578,6 +578,7 @@
                 <local:BulletItem Text="Group by Due date: Overdue, Today, This Week, Later and No Due Date."/>
                 <local:BulletItem Text="Due: This Week takes overdue tasks and everything due by the end of this week."/>
                 <local:BulletItem Text="Short, on the Content tab, lists just each task, its priority and when it is due."/>
+                <local:BulletItem Text="In a short report the priority and due date sit at the right of the task's line, lined up, when they fit."/>
                 <TextBlock Text="Statistics" Style="{StaticResource HelpSubHeaderStyle}"/>
                 <local:BulletItem Text="Pick a period: last 7 or 30 days, a month, quarter or year, all time, or your own dates."/>
                 <local:BulletItem Text="Summary: added, finished, finished on time, typical days to finish, open and overdue now."/>
