@@ -53,16 +53,14 @@ public sealed class CardPartsShownTests
     }
 
     [Fact]
-    public void TheFootRow_LeavesOutAGroupWithNoButtonsTicked_AndTheWholeRowWhenBothAreGone()
+    public void TheFootRow_IsLeftOut_OnlyWhenNoneOfItsButtonsIsTicked()
     {
         var parts = CardPartsShown.All;
-        Assert.True(parts.AnyMoveButton && parts.AnyEndButton && parts.AnyFootButton);
-        Assert.True(parts.With(CardPart.MoveWaitingButton, false).AnyMoveButton);
+        Assert.True(parts.AnyFootButton);
+        Assert.True(parts.With(CardPart.MoveWaitingButton, false).AnyFootButton);
 
         var noMoves = parts.With(CardPart.MoveToDoButton, false).With(CardPart.MoveInProgressButton, false)
             .With(CardPart.MoveOnHoldButton, false).With(CardPart.MoveWaitingButton, false);
-        Assert.False(noMoves.AnyMoveButton);
-        Assert.True(noMoves.AnyEndButton);
         Assert.True(noMoves.AnyFootButton);
 
         var none = noMoves.With(CardPart.DoneButton, false).With(CardPart.DeleteButton, false);

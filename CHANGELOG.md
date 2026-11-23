@@ -10,6 +10,7 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 
 > - New: Settings has a Card buttons choice on the Board tab, so you can pick which buttons appear on a task card: the move buttons, Done, Delete, and the flag, email and calendar buttons.
 > - Hide Buttons still takes every button off the cards at once, and Show Buttons brings back the ones you have ticked.
+> - Improved: the buttons left on a card are arranged to fit. When there is room, the flag, email and calendar buttons join the row at the bottom of the card, and in a narrow column the buttons split into even rows.
 
 ## 0.174.2 — 2026-11-22
 
