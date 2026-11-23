@@ -56,6 +56,9 @@ public class SavedReportView
     // that have been emailed. A view saved before these existed has neither.
     public bool IncludeEmailed { get; set; }
     public bool EmailedOnly { get; set; }
+    // Short: each task is just its title, priority and due date - no notes, sub-tasks or other details. A view saved
+    // before has it off.
+    public bool Brief { get; set; }
 
     // "TaskList" or "Statistics". A view saved before statistics existed has none, so reads as a
     // task list. The fields below are the statistics report's own options (see TaskStatistics);

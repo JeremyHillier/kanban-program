@@ -29,4 +29,9 @@ public class ReportRow
     public bool IsArchived { get; init; }
     public DateTime? ArchivedAt { get; init; }
     public DateTime? CompletedAt { get; init; }
+
+    // Set once the rows are picked (ReportService.BuildRows): where the due date falls (Overdue, Today, This Week,
+    // Later, No Due Date), for grouping by due date, and whether the report lists the short form of each task.
+    public string DueBucket { get; set; } = string.Empty;
+    public bool Brief { get; set; }
 }

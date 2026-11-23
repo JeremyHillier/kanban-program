@@ -17,7 +17,7 @@ internal static class WindowPlacementMemory
         window.Closing += (_, _) => Save(window, viewModel, key);
     }
 
-    // For a window that sizes itself to its content (Report Builder, Settings): only where it was is put back.
+    // For a window that sizes itself to its content (Settings): only where it was is put back.
     public static void AttachPosition(Window window, MainViewModel viewModel, string key)
     {
         if (viewModel.WindowPlacement(key) is { } p) MoveTo(window, p.Left, p.Top, p.Width);

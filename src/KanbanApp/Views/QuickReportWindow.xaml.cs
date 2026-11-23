@@ -20,7 +20,7 @@ public partial class QuickReportWindow : Window
         InitializeComponent();
         AccessKeys.Bind(this);
         _viewModel = viewModel;
-        LoadViews(viewModel.QuickReportLastView);
+        LoadViews(string.IsNullOrWhiteSpace(viewModel.QuickReportLastView) ? MainViewModel.TodayAndThisWeekReport : viewModel.QuickReportLastView);
     }
 
     private void LoadViews(string? select)

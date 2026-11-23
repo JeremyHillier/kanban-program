@@ -50,6 +50,7 @@ public sealed class SettingsCancelTests(WpfDispatcherFixture wpf) : IDisposable
         board.SetCardPartShown(CardPart.Updated, false);
         board.SetWeekStartsOnSunday(!board.WeekStartsOnSunday);
         board.SetSimplifiedTaskWindow(!board.SimplifiedTaskWindow);
+        board.SetShowColumnsAsBlocks(!board.ShowColumnsAsBlocks);
     }
 
     [Fact]

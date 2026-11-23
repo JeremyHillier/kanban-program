@@ -26,9 +26,11 @@ public static partial class ReportService
         IEnumerable<(CardViewModel Card, string ColumnName)>? archivedCards = null,
         DateTime? archivedFrom = null, DateTime? archivedTo = null,
         Func<CardViewModel, IReadOnlyList<CardEmailRecord>>? emailHistory = null, bool emailedOnly = false, string? titleSearch = null,
-        IReadOnlyList<CustomFieldDef>? includeCustomFields = null, CustomFieldDef? customFilterField = null, string? customFilterText = null)
+        IReadOnlyList<CustomFieldDef>? includeCustomFields = null, CustomFieldDef? customFilterField = null, string? customFilterText = null,
+        DayOfWeek firstDayOfWeek = DayOfWeek.Monday, bool brief = false)
     {
         var search = titleSearch?.Trim();
+        if (brief) includeCustomFields = null; // the short form is the task, its priority and when it is due
         // emailHistory looks up when a task was emailed (null when the report has no interest in that);
         // emailedOnly keeps only tasks that have been emailed at least once - a follow-up list.
         IReadOnlyList<CardEmailRecord> EmailsOf(CardViewModel card) => emailHistory?.Invoke(card) ?? [];
@@ -38,7 +40,7 @@ public static partial class ReportService
             && CustomFieldMatches(card, customFilterField, customFilterText)
             && (unionFilters is { Count: > 0 }
                 ? unionFilters.Any(f => Matches(card, f))
-                : Matches(card, projectFilter, priorityFilter, whoFilter, goalFilter, flagFilter, dueFilter, dueRangeFrom, dueRangeTo, includeNoDueDate));
+                : Matches(card, projectFilter, priorityFilter, whoFilter, goalFilter, flagFilter, dueFilter, dueRangeFrom, dueRangeTo, includeNoDueDate, firstDayOfWeek));
 
         var columnList = columns.ToList();
         var categoryOrder = columnList.Select(c => c.DisplayName).ToList();
@@ -79,7 +81,39 @@ public static partial class ReportService
         // Sorted here (not in BuildFixedDocument/SavePdf) so both rendering paths get the same order
         // for free: LINQ's GroupBy preserves input order within each group, so pre-sorting the flat
         // list before it's grouped downstream naturally orders rows within whatever group they land in.
+        var today = DateTime.Today;
+        foreach (var row in rows)
+        {
+            row.DueBucket = DueBucketOf(row.DueDate, today, firstDayOfWeek);
+            row.Brief = brief;
+        }
         return SortRows(rows, sortLevel1, sortLevel2, sortLevel3, categoryOrder);
+    }
+
+    public const string ThisWeek = "This Week";
+
+    // The due-date choices a report offers: the board's, with This Week after Within a Week.
+    public static List<string> ReportDueOptions(IEnumerable<string> boardOptions)
+    {
+        var options = boardOptions.ToList();
+        var at = options.IndexOf("Within a Week");
+        options.Insert(at < 0 ? options.Count : at + 1, ThisWeek);
+        return options;
+    }
+
+    // The last day of the week today falls in, for a week starting on firstDay (Settings: the week starts on Sunday or Monday).
+    internal static DateTime EndOfWeek(DateTime today, DayOfWeek firstDay) =>
+        today.Date.AddDays(6 - ((int)today.DayOfWeek - (int)firstDay + 7) % 7);
+
+    // Grouping by due date: the groups, in the order a report lists them.
+    internal static readonly string[] DueBuckets = ["Overdue", "Today", ThisWeek, "Later", "No Due Date"];
+
+    internal static string DueBucketOf(DateTime? due, DateTime today, DayOfWeek firstDay)
+    {
+        if (due is not { } date) return "No Due Date";
+        if (date.Date < today.Date) return "Overdue";
+        if (date.Date == today.Date) return "Today";
+        return date.Date <= EndOfWeek(today, firstDay) ? ThisWeek : "Later";
     }
 
     // What a summary-only report says when none of its tasks has sub-tasks.
@@ -149,7 +183,8 @@ public static partial class ReportService
     };
 
     private static bool Matches(CardViewModel card, List<string> projectFilter, List<string> priorityFilter, List<string> whoFilter,
-        string goalFilter, string flagFilter, string dueFilter, DateTime? dueRangeFrom = null, DateTime? dueRangeTo = null, bool includeNoDueDate = false)
+        string goalFilter, string flagFilter, string dueFilter, DateTime? dueRangeFrom = null, DateTime? dueRangeTo = null, bool includeNoDueDate = false,
+        DayOfWeek firstDayOfWeek = DayOfWeek.Monday)
     {
         if (projectFilter.Count > 0 && !projectFilter.Contains(card.ProjectName)) return false;
         if (priorityFilter.Count > 0 && !priorityFilter.Contains(card.Priority)) return false;
@@ -191,6 +226,8 @@ public static partial class ReportService
                 "Today" => (card.DueDate is not null && card.DueDate.Value.Date <= today) || MainViewModel.StartsBetween(card, today, today),
                 "Tomorrow" => card.DueDate?.Date == today.AddDays(1) || MainViewModel.StartsBetween(card, today.AddDays(1), today.AddDays(1)),
                 "Within a Week" => (card.DueDate is not null && card.DueDate.Value.Date >= today && card.DueDate.Value.Date <= today.AddDays(7)) || MainViewModel.StartsBetween(card, today, today.AddDays(7)),
+                // Reports only: overdue, and everything due by the end of this week.
+                "This Week" => (card.DueDate is not null && card.DueDate.Value.Date <= EndOfWeek(today, firstDayOfWeek)) || MainViewModel.StartsBetween(card, today, EndOfWeek(today, firstDayOfWeek)),
                 "No Due Date" => card.DueDate is null,
                 _ => true
             };
@@ -267,6 +304,7 @@ public static partial class ReportService
         // A shared task is listed under each of its people, not just the lead.
         "Who" => rows.SelectMany(r => WhoKeys(r).Select(name => (name, r))).GroupBy(x => x.name, x => x.r).OrderBy(g => g.Key, StringComparer.OrdinalIgnoreCase).ToList(),
         "Goal" => rows.GroupBy(r => r.GoalName).OrderBy(g => g.Key).ToList(),
+        "Due" => rows.GroupBy(r => r.DueBucket).OrderBy(g => Array.IndexOf(DueBuckets, g.Key)).ToList(),
         _ => rows.GroupBy(_ => string.Empty).ToList()
     };
 
@@ -280,6 +318,8 @@ public static partial class ReportService
     // by Who: a shared task then says whose sections it also appears in.
     internal static List<string> BuildMetaParts(ReportRow row, string? whoGroup = null)
     {
+        if (row.Brief) return [$"Priority: {row.Priority}", row.DueDate is { } due ? $"Due {due:MMM d, yyyy}" : "No due date"];
+
         var parts = new List<string>
         {
             $"Status: {row.ColumnName}{(row.IsArchived ? " (Archived)" : "")}",

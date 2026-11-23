@@ -181,7 +181,7 @@ public sealed class TaskStatisticsTests(WpfDispatcherFixture wpf) : IDisposable
     public void EveryTaskFile_GetsTheStandardReports_Once() => wpf.Run(() =>
     {
         var board = OpenBoard();
-        Assert.Equal(7, board.SavedReportViews.Count);
+        Assert.Equal(8, board.SavedReportViews.Count); // the seven first standard reports and Today and This Week
         Assert.Equal(3, board.SavedReportViews.Count(v => v.IsStatistics));
         Assert.Contains(board.SavedReportViews, v => v.Name == "Overdue and Due Today" && v.Due == "Today" && !v.IncludedColumns.Contains("Done"));
 
@@ -197,7 +197,7 @@ public sealed class TaskStatisticsTests(WpfDispatcherFixture wpf) : IDisposable
 
         var board = new MainViewModel(db);
         Assert.Equal("Mine", board.SavedReportViews.Single(v => v.Name == "Open Tasks by Person").Title);
-        Assert.Equal(7, board.SavedReportViews.Count);
+        Assert.Equal(8, board.SavedReportViews.Count); // the seven first standard reports and Today and This Week
     });
 
     // End to end on a real task file: moves recorded by the board, read back, counted.

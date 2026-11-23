@@ -109,7 +109,8 @@ public partial class ReportBuilderWindow
         IncludeSubTaskSummary = IncludeSubTaskSummaryCheckBox.IsChecked == true,
         SubTaskSummaryOnly = IsSubTaskSummaryOnly,
         IncludeEmailed = IncludeEmailedCheckBox.IsChecked == true,
-        EmailedOnly = EmailedOnlyCheckBox.IsChecked == true
+        EmailedOnly = EmailedOnlyCheckBox.IsChecked == true,
+        Brief = BriefCheckBox.IsChecked == true
     };
 
     private void ApplyReportView(SavedReportView view)
@@ -162,6 +163,7 @@ public partial class ReportBuilderWindow
         SubTaskSummaryOnlyCheckBox.IsChecked = view.SubTaskSummaryOnly;
         IncludeEmailedCheckBox.IsChecked = view.IncludeEmailed;
         EmailedOnlyCheckBox.IsChecked = view.EmailedOnly;
+        BriefCheckBox.IsChecked = view.Brief;
 
         UpdateSortLevelAvailability();
         ApplyStatisticsOptions(view);

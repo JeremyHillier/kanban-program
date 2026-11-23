@@ -561,6 +561,7 @@
                 <TextBlock x:Name="HelpSection_ReportBuilder" Text="Report Builder" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <local:BulletItem Text="Report type: a Task list, or Statistics about your tasks."/>
                 <local:BulletItem Text="The form has three tabs: Filters, Content and Layout. The title stays in view."/>
+                <local:BulletItem Text="Drag an edge or corner to make the Report Builder bigger. It opens at the size it was left."/>
                 <local:BulletItem Text="Search task titles keeps only tasks whose title contains what you type."/>
                 <local:BulletItem Text="The search applies on top of every other filter, custom filters included, and to statistics too."/>
                 <local:BulletItem Text="Custom field contains, on the Filters tab, searches one of your custom fields. For a Yes / No field, type yes or no."/>
@@ -574,6 +575,9 @@
                 <local:BulletItem Text="The sub-task summary counts how often each sub-task was done, or chosen for a Pick one task. Useful for recurring tasks."/>
                 <local:BulletItem Text="Summary only leaves out the list of tasks and shows just the sub-task summary."/>
                 <local:BulletItem Text="Grouped by Who, a shared task is listed under each person."/>
+                <local:BulletItem Text="Group by Due date: Overdue, Today, This Week, Later and No Due Date."/>
+                <local:BulletItem Text="Due: This Week takes overdue tasks and everything due by the end of this week."/>
+                <local:BulletItem Text="Short, on the Content tab, lists just each task, its priority and when it is due."/>
                 <TextBlock Text="Statistics" Style="{StaticResource HelpSubHeaderStyle}"/>
                 <local:BulletItem Text="Pick a period: last 7 or 30 days, a month, quarter or year, all time, or your own dates."/>
                 <local:BulletItem Text="Summary: added, finished, finished on time, typical days to finish, open and overdue now."/>
@@ -602,6 +606,7 @@
                 <local:BulletItem Text="Right-click a Today button for so many days from today."/>
                 <local:BulletItem Text="Quick Report, Ctrl+Shift+P, runs a saved view in two clicks."/>
                 <local:BulletItem Text="Standard reports come ready to run. Change or delete them like your own."/>
+                <local:BulletItem Text="Today and This Week is a short report of what is due now. Quick Report opens on it at first."/>
                 <local:BulletItem Text="Reset all fields puts everything back to the defaults."/>
 
                 <TextBlock x:Name="HelpSection_Dashboard" Text="Dashboard" Style="{StaticResource HelpSectionHeaderStyle}"/>
@@ -686,6 +691,12 @@
                 <local:BulletItem Text="Hide, or Alt+B, folds the button column to a thin strip. Click the strip to bring it back."/>
                 <local:BulletItem Text="While folded, the strip warns when filters are hiding tasks."/>
                 <local:BulletItem Text="Compact buttons, in Settings, Board tab, makes the button column smaller for small screens."/>
+                <TextBlock Text="Blocks" Style="{StaticResource HelpSubHeaderStyle}"/>
+                <local:BulletItem Text="Settings, Board tab, Show the task columns as blocks, lays the board out as a square."/>
+                <local:BulletItem Text="To Do and In Progress are across the top, On Hold and Waiting below, and Done down the right."/>
+                <local:BulletItem Text="Each block shows its tasks in as many columns as fit, more on a bigger screen."/>
+                <local:BulletItem Text="Columns you added go in further blocks below. Swimlanes keep their own layout."/>
+                <local:BulletItem Text="Drag tasks between blocks, or within a block to put them in order, as on the plain board."/>
                 <TextBlock Text="Small screens" Style="{StaticResource HelpSubHeaderStyle}"/>
                 <local:BulletItem Text="Columns fit the window down to 240 pixels each, then the board scrolls sideways."/>
                 <local:BulletItem Text="In Settings, Board tab, lower the narrowest a fitted column can get, down to 160, to fit more on."/>
@@ -701,6 +712,7 @@
                 <TextBlock Text="Board tab" Style="{StaticResource HelpSubHeaderStyle}"/>
                 <local:BulletItem Text="Move the button panel to the right, or use Compact buttons on a small screen."/>
                 <local:BulletItem Text="Fit the columns to the window, or set a fixed width of at least 240 pixels."/>
+                <local:BulletItem Text="Show the task columns as blocks: a square of four, with Done down the right. Off at first."/>
                 <local:BulletItem Text="Rename any column. The last column still works as Done."/>
                 <local:BulletItem Text="Add Column makes a column of your own, ten in all. It sits before Done."/>
                 <local:BulletItem Text="Use the arrows to move a column you added, or the cross to remove it. Its tasks go to the first column."/>

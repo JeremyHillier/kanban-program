@@ -6,7 +6,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         mc:Ignorable="d"
         Title="Report Builder" Height="780" Width="820"
-        WindowStartupLocation="CenterOwner" ResizeMode="NoResize"
+        WindowStartupLocation="CenterOwner" ResizeMode="CanResizeWithGrip" MinWidth="700" MinHeight="520"
         ShowInTaskbar="False"
         Background="{DynamicResource WindowBackgroundBrush}">
     <Window.Resources>
@@ -310,7 +310,10 @@
                         Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
             </StackPanel>
 
-            <CheckBox x:Name="IncludeNotesCheckBox" Content="Include notes" Margin="0,14,0,4"
+            <CheckBox x:Name="BriefCheckBox" Content="Short: just each task, its priority and when it is due" Margin="0,14,0,4"
+                      ToolTip="Each task takes one line under its title: its priority and due date. Notes, sub-tasks and the other details are left out."
+                      Foreground="{DynamicResource PrimaryTextBrush}"/>
+            <CheckBox x:Name="IncludeNotesCheckBox" Content="Include notes" Margin="0,0,0,4"
                       Foreground="{DynamicResource PrimaryTextBrush}"/>
             <CheckBox x:Name="IncludeSubTasksCheckBox" Content="Include sub-tasks" Margin="0,0,0,4"
                       Foreground="{DynamicResource PrimaryTextBrush}"/>
@@ -345,6 +348,7 @@
                 <ComboBoxItem Content="Priority" Tag="Priority"/>
                 <ComboBoxItem Content="Who" Tag="Who"/>
                 <ComboBoxItem Content="Goal" Tag="Goal"/>
+                <ComboBoxItem Content="Due date" Tag="Due"/>
             </ComboBox>
 
             <TextBlock x:Name="SortOrderLabel" Text="Sort order" Style="{StaticResource FieldLabelStyle}"/>

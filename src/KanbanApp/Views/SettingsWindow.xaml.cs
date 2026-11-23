@@ -37,6 +37,7 @@ public partial class SettingsWindow : Window
         MinFittedWidthTextBox.Text = viewModel.MinFittedColumnWidth.ToString();
         ColumnWidthHint.Text = $"From {MainViewModel.SmallestColumnWidth} to {MainViewModel.MaxColumnWidth}. Below about 210, the buttons on each task go onto two rows.";
         FitColumnsCheckBox.IsChecked = viewModel.IsFitColumnsToWindow;
+        BlocksCheckBox.IsChecked = viewModel.ShowColumnsAsBlocks;
         RefreshColumnWidthBox();
         DbPathTextBox.Text = viewModel.CurrentDbPath;
 
@@ -480,6 +481,12 @@ public partial class SettingsWindow : Window
     {
         if (int.TryParse(MinFittedWidthTextBox.Text.Trim(), out var width)) _viewModel.SetMinFittedColumnWidth(width);
         MinFittedWidthTextBox.Text = _viewModel.MinFittedColumnWidth.ToString();
+    }
+
+    private void BlocksCheckBox_Changed(object sender, RoutedEventArgs e)
+    {
+        if (!IsLoaded) return; // setting IsChecked in the constructor isn't a change
+        _viewModel.SetShowColumnsAsBlocks(BlocksCheckBox.IsChecked == true);
     }
 
     private void FitColumnsCheckBox_Changed(object sender, RoutedEventArgs e)

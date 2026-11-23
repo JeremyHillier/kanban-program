@@ -56,7 +56,7 @@ public partial class ReportBuilderWindow
             IncludeColumnsLabel, ColumnsPanel, DueFilterLabel, DueFilterComboBox, DueRangeHeader, DueRangePanel, IncludeNoDueDateCheckBox,
             GroupByLabel, GroupByComboBox, SortOrderLabel, SortLevelsPanel, TaskScopeLabel, TaskScopePanel,
             ArchivedRangeLabel, ArchivedRangePanel, IncludeNotesCheckBox, IncludeSubTasksCheckBox, IncludeSubTaskSummaryCheckBox, SubTaskSummaryOnlyCheckBox,
-            IncludeEmailedCheckBox, EmailedOnlyCheckBox
+            IncludeEmailedCheckBox, EmailedOnlyCheckBox, BriefCheckBox
         };
         foreach (var element in taskListOnly) element.Visibility = statistics ? Visibility.Collapsed : Visibility.Visible;
 

@@ -286,14 +286,17 @@ public partial class MainWindow
         CardViewModel? lastCard = null;
         var lastIndex = -1;
         var lastBottom = 0.0;
+        var sideBySide = itemsControl.Tag is int columns && columns > 1; // a block showing cards side by side
 
         for (var i = 0; i < items.Count; i++)
         {
             if (generator.ContainerFromIndex(i) is not FrameworkElement container) continue;
 
             var card = (CardViewModel)items[i];
-            var top = container.TranslatePoint(new Point(0, 0), itemsControl).Y;
-            if (!draggedCards.Contains(card) && positionInItemsControl.Y < top + container.ActualHeight / 2)
+            var corner = container.TranslatePoint(new Point(0, 0), itemsControl);
+            var top = corner.Y;
+            if (!draggedCards.Contains(card) &&
+                Views.BoardBlocks.DropsBefore(positionInItemsControl, new Rect(corner, new Size(container.ActualWidth, container.ActualHeight)), sideBySide))
             {
                 return (column.Cards.IndexOf(card), top);
             }

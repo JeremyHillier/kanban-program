@@ -10,7 +10,8 @@ public partial class MainViewModel
     // and Updated lines; it is also about where the card's buttons start to need two rows.
     public const double NarrowColumnWidth = 210;
 
-    public bool IsNarrowColumns => EffectiveColumnWidth < NarrowColumnWidth;
+    // In blocks only Done is drawn at a column's width; the blocks are wider.
+    public bool IsNarrowColumns => (IsBlocksOn ? BlocksDoneWidth : EffectiveColumnWidth) < NarrowColumnWidth;
 
     // The goal, flags, attachments and Updated lines.
     public bool ShowCardExtras => !IsNarrowColumns;
@@ -83,6 +84,10 @@ public partial class MainViewModel
     private void NotifyColumnWidthChanged()
     {
         OnPropertyChanged(nameof(EffectiveColumnWidth));
+        OnPropertyChanged(nameof(ColumnTemplateWidth));
+        OnPropertyChanged(nameof(BlocksDoneWidth));
+        OnPropertyChanged(nameof(BlocksDoneSlotWidth));
+        OnPropertyChanged(nameof(BlocksWidth));
         OnPropertyChanged(nameof(LaneRuleWidth));
         OnPropertyChanged(nameof(IsNarrowColumns));
         OnPropertyChanged(nameof(ShowCardExtras));

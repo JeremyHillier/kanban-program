@@ -58,6 +58,10 @@
                           ToolTip="The task columns share the width of the board and resize with the window. When the window is too narrow, the board scrolls sideways instead."
                           Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,8"
                           Checked="FitColumnsCheckBox_Changed" Unchecked="FitColumnsCheckBox_Changed"/>
+                <CheckBox x:Name="BlocksCheckBox" Content="Show the task columns as blocks"
+                          ToolTip="To Do and In Progress across the top, On Hold and Waiting below them, and Done down the right. Each block shows its tasks in as many columns as fit the screen. Columns you added go in further blocks. Swimlanes keep their own layout."
+                          Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,8"
+                          Checked="BlocksCheckBox_Changed" Unchecked="BlocksCheckBox_Changed"/>
                 <TextBlock x:Name="MinFittedWidthLabel" Text="Narrowest a fitted column can get (pixels)" Style="{StaticResource FieldLabelStyle}"/>
                 <TextBox x:Name="MinFittedWidthTextBox" Width="100" Padding="6" HorizontalAlignment="Left" Margin="0,0,0,10"
                          LostFocus="MinFittedWidthTextBox_LostFocus"

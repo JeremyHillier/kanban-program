@@ -19,6 +19,9 @@
         <conv:ViewportWidthToCardWidthConverter x:Key="ViewportWidthToCardWidthConverter"/>
         <conv:SubtractConverter x:Key="SubtractConverter"/>
         <conv:CardButtonPlacementConverter x:Key="CardButtonPlacementConverter"/>
+        <conv:CardColumnsConverter x:Key="CardColumnsConverter"/>
+        <conv:CardWidthConverter x:Key="CardWidthConverter"/>
+        <conv:MoreThanOneConverter x:Key="MoreThanOneConverter"/>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
 
         <!-- Project/Priority/Who filter lists: each ListBoxItem's IsSelected binds TwoWay to the
@@ -428,7 +431,7 @@
         </Style>
         <!-- One workflow column and its cards: used by the plain board and, once per lane, by the swimlanes. -->
         <DataTemplate x:Key="ColumnTemplate">
-                            <Border Width="{Binding DataContext.EffectiveColumnWidth, RelativeSource={RelativeSource AncestorType=Window}}"
+                            <Border Width="{Binding DataContext.ColumnTemplateWidth, RelativeSource={RelativeSource AncestorType=Window}}"
                                     Margin="0,0,12,0" Padding="10" Background="{Binding Background}"
                                     CornerRadius="6"
                                     BorderBrush="{DynamicResource PanelBorderBrush}" BorderThickness="1"
@@ -471,31 +474,69 @@
                                                 </ScrollViewer>
                                             </ControlTemplate>
                                         </ItemsControl.Template>
-                                        <ItemsControl.ItemsPanel>
-                                            <ItemsPanelTemplate>
-                                                <VirtualizingStackPanel/>
-                                            </ItemsPanelTemplate>
-                                        </ItemsControl.ItemsPanel>
+                                        <!-- How many cards go side by side: one, except in a block wide enough for more (BoardBlocks.CardColumns).
+                                             One keeps the virtualized list; more wrap, in reading order. -->
+                                        <ItemsControl.Tag>
+                                            <MultiBinding Converter="{StaticResource CardColumnsConverter}">
+                                                <Binding Path="ActualWidth" RelativeSource="{RelativeSource Self}"/>
+                                                <Binding Path="DataContext.IsBlocksOn" RelativeSource="{RelativeSource AncestorType=Window}"/>
+                                                <Binding Path="DataContext.MinFittedColumnWidth" RelativeSource="{RelativeSource AncestorType=Window}"/>
+                                            </MultiBinding>
+                                        </ItemsControl.Tag>
+                                        <ItemsControl.Style>
+                                            <Style TargetType="ItemsControl">
+                                                <Setter Property="ItemsPanel">
+                                                    <Setter.Value>
+                                                        <ItemsPanelTemplate>
+                                                            <VirtualizingStackPanel/>
+                                                        </ItemsPanelTemplate>
+                                                    </Setter.Value>
+                                                </Setter>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Tag, RelativeSource={RelativeSource Self}, Converter={StaticResource MoreThanOneConverter}}" Value="True">
+                                                        <Setter Property="ItemsPanel">
+                                                            <Setter.Value>
+                                                                <ItemsPanelTemplate>
+                                                                    <WrapPanel Orientation="Horizontal"/>
+                                                                </ItemsPanelTemplate>
+                                                            </Setter.Value>
+                                                        </Setter>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </ItemsControl.Style>
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate>
                                                 <!-- Width: exactly what the list shows, so a card can't run under the
                                                      column's scrollbar (see ViewportWidthToCardWidthConverter). -->
-                                                <Border CornerRadius="4" Padding="8" Margin="0,0,0,6" HorizontalAlignment="Left"
-                                                        Width="{Binding ViewportWidth, RelativeSource={RelativeSource AncestorType=ScrollViewer}, Converter={StaticResource ViewportWidthToCardWidthConverter}}"
+                                                <Border CornerRadius="4" Padding="8" HorizontalAlignment="Left"
                                                         Visibility="{Binding IsVisible, Converter={StaticResource BooleanToVisibilityConverter}}"
                                                         PreviewMouseLeftButtonDown="Card_PreviewMouseLeftButtonDown"
                                                         PreviewMouseRightButtonUp="Card_PreviewMouseRightButtonUp"
                                                         MouseMove="Card_MouseMove"
                                                         MouseLeftButtonUp="Card_MouseLeftButtonUp"
                                                         AllowDrop="True" DragOver="Card_DragOver" Drop="Card_Drop">
+                                                    <!-- Width: exactly what the list shows, or an equal share of it with cards side by side, so a card
+                                                         can't run under the column's scrollbar (see ViewportWidthToCardWidthConverter, BoardBlocks.CardWidth). -->
+                                                    <Border.Width>
+                                                        <MultiBinding Converter="{StaticResource CardWidthConverter}">
+                                                            <Binding Path="ViewportWidth" RelativeSource="{RelativeSource AncestorType=ScrollViewer}"/>
+                                                            <Binding Path="Tag" RelativeSource="{RelativeSource AncestorType=ItemsControl}"/>
+                                                        </MultiBinding>
+                                                    </Border.Width>
                                                     <Border.Style>
                                                         <Style TargetType="Border">
+                                                            <Setter Property="Margin" Value="0,0,0,6"/>
                                                             <Setter Property="Background" Value="{DynamicResource CardBackgroundBrush}"/>
                                                             <Setter Property="BorderBrush" Value="{DynamicResource CardOutlineBrush}"/>
                                                             <!-- 2px at rest (not 1.5) so hover only swaps color - changing thickness on hover
                                                                  shifts every card below it in the column by a fraction of a pixel. -->
                                                             <Setter Property="BorderThickness" Value="2"/>
                                                             <Style.Triggers>
+                                                                <!-- Side by side, a gap to the right of each card too. -->
+                                                                <DataTrigger Binding="{Binding Tag, RelativeSource={RelativeSource AncestorType=ItemsControl}, Converter={StaticResource MoreThanOneConverter}}" Value="True">
+                                                                    <Setter Property="Margin" Value="0,0,6,6"/>
+                                                                </DataTrigger>
                                                                 <!-- A colour the user gave the card (right-click, Colour). Before the selected trigger, so selection still shows. -->
                                                                 <DataTrigger Binding="{Binding HasColor}" Value="True">
                                                                     <Setter Property="Background" Value="{Binding BackgroundBrush}"/>
@@ -1502,13 +1543,32 @@
                 <Grid>
                     <!-- The plain board: one column per workflow status. -->
                     <ItemsControl ItemsSource="{Binding Columns}" ItemTemplate="{StaticResource ColumnTemplate}"
-                                  Visibility="{Binding IsSwimlanesOff, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                  Visibility="{Binding IsPlainBoardOn, Converter={StaticResource BooleanToVisibilityConverter}}">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
                                 <StackPanel Orientation="Horizontal"/>
                             </ItemsPanelTemplate>
                         </ItemsControl.ItemsPanel>
                     </ItemsControl>
+
+                    <!-- Blocks (Settings, Board tab): the columns before Done two to a row, filling the height, and Done down the
+                         right at an ordinary column's width (MainViewModel.Blocks.cs). -->
+                    <DockPanel HorizontalAlignment="Left" Visibility="{Binding IsBlocksOn, Converter={StaticResource BooleanToVisibilityConverter}}">
+                        <ItemsControl ItemsSource="{Binding BlockColumns}" ItemTemplate="{StaticResource ColumnTemplate}" Width="{Binding BlocksWidth}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <UniformGrid Columns="2"/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemContainerStyle>
+                                <Style TargetType="ContentPresenter">
+                                    <Setter Property="Margin" Value="0,0,0,12"/>
+                                </Style>
+                            </ItemsControl.ItemContainerStyle>
+                        </ItemsControl>
+                        <ContentControl Content="{Binding DoneColumn}" ContentTemplate="{StaticResource ColumnTemplate}" Width="{Binding BlocksDoneSlotWidth}"
+                                        Focusable="False"/>
+                    </DockPanel>
 
                     <!-- Swimlanes: a lane per project, goal or person, each with the same columns across it
                          (MainViewModel.Swimlanes.cs). The board scrolls down instead of sizing to the window, and

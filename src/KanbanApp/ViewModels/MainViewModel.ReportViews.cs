@@ -44,15 +44,37 @@ public partial class MainViewModel
     // not put back. A name already in use is left as it is.
     private void AddStandardReportViews()
     {
-        if (_db.GetFlag(StandardReportViewsAddedKey, false)) return;
-
-        foreach (var view in StandardReportViews(Columns.Select(c => c.Name).ToList()))
+        if (!_db.GetFlag(StandardReportViewsAddedKey, false))
         {
-            if (SavedReportViews.Any(v => string.Equals(v.Name, view.Name, StringComparison.OrdinalIgnoreCase))) continue;
+            foreach (var view in StandardReportViews(Columns.Select(c => c.Name).ToList()))
+            {
+                if (SavedReportViews.Any(v => string.Equals(v.Name, view.Name, StringComparison.OrdinalIgnoreCase))) continue;
+                SaveReportView(view);
+            }
+            _db.SetFlag(StandardReportViewsAddedKey, true);
+        }
+
+        AddLaterStandardReportView(TodayAndThisWeekReport);
+    }
+
+    // A standard report that came after a task file already had the first set: added once in the same way, so it is
+    // not put back after being deleted, and a name already in use is left as it is.
+    private void AddLaterStandardReportView(string name)
+    {
+        var key = $"{StandardReportViewsAddedKey}:{name}";
+        if (_db.GetFlag(key, false)) return;
+
+        if (!SavedReportViews.Any(v => string.Equals(v.Name, name, StringComparison.OrdinalIgnoreCase))
+            && StandardReportViews(Columns.Select(c => c.Name).ToList()).FirstOrDefault(v => v.Name == name) is { } view)
+        {
             SaveReportView(view);
         }
-        _db.SetFlag(StandardReportViewsAddedKey, true);
+        _db.SetFlag(key, true);
     }
+
+    // What is due now, short: overdue, today and the rest of this week, each task with just its priority and due date.
+    // Quick Report opens on it until another view has been run.
+    public const string TodayAndThisWeekReport = "Today and This Week";
 
     internal static List<SavedReportView> StandardReportViews(IReadOnlyList<string> columnNames)
     {
@@ -70,6 +92,11 @@ public partial class MainViewModel
 
         return
         [
+            new SavedReportView
+            {
+                Name = TodayAndThisWeekReport, Title = TodayAndThisWeekReport, IncludedColumns = open, Due = ReportService.ThisWeek, GroupBy = "Due",
+                SortLevel1 = "Due Date", SortLevel2 = "Priority", IncludeNotes = false, IncludeSubTasks = false, Brief = true
+            },
             OpenTasks("Overdue and Due Today", "Today", "Project", "Due Date", "Priority"),
             OpenTasks("Due Within a Week", "Within a Week", "Who", "Due Date", "Priority"),
             OpenTasks("Open Tasks by Person", "All", "Who", "Due Date", "Priority"),

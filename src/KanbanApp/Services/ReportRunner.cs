@@ -24,15 +24,16 @@ public static class ReportRunner
             scope == ReportArchiveScope.BoardOnly ? null : board.GetArchivedReportRows(),
             RelativeDate.Resolve(view.ArchivedFrom, today), RelativeDate.Resolve(view.ArchivedTo, today),
             board.GetEmailHistory, view.EmailedOnly, titleSearch: view.TitleSearch,
-            includeCustomFields: IncludedFields(board, view), customFilterField: FilterField(board, view), customFilterText: view.CustomFilterText);
+            includeCustomFields: IncludedFields(board, view), customFilterField: FilterField(board, view), customFilterText: view.CustomFilterText,
+            firstDayOfWeek: board.FirstDayOfWeek, brief: view.Brief);
     }
 
     public static FixedDocument BuildDocument(MainViewModel board, SavedReportView view, DateTime today) =>
         view.IsStatistics
             ? ReportService.BuildStatisticsDocument(view.Title, BuildStatistics(board, view, today), SectionsOf(view), view.StatsBreakdown,
                 view.StatsOverTime, view.IsLandscape, Summarise(view, today, board.CustomFieldDefs))
-            : ReportService.BuildFixedDocument(view.Title, BuildRows(board, view, today), view.GroupBy, view.IncludeNotes, view.IncludeSubTasks,
-                view.IncludeSubTaskSummary, view.IsLandscape, Summarise(view, today, board.CustomFieldDefs), includeEmailed: view.IncludeEmailed, subTaskSummaryOnly: SummaryOnly(view));
+            : ReportService.BuildFixedDocument(view.Title, BuildRows(board, view, today), view.GroupBy, view.IncludeNotes && !view.Brief, view.IncludeSubTasks && !view.Brief,
+                view.IncludeSubTaskSummary, view.IsLandscape, Summarise(view, today, board.CustomFieldDefs), includeEmailed: view.IncludeEmailed && !view.Brief, subTaskSummaryOnly: SummaryOnly(view));
 
     public static void SavePdf(MainViewModel board, SavedReportView view, DateTime today, string filePath)
     {
@@ -43,8 +44,8 @@ public static class ReportRunner
             return;
         }
 
-        ReportService.SavePdf(view.Title, BuildRows(board, view, today), view.GroupBy, view.IncludeNotes, view.IncludeSubTasks, filePath,
-            view.IncludeSubTaskSummary, view.IsLandscape, Summarise(view, today, board.CustomFieldDefs), includeEmailed: view.IncludeEmailed, subTaskSummaryOnly: SummaryOnly(view));
+        ReportService.SavePdf(view.Title, BuildRows(board, view, today), view.GroupBy, view.IncludeNotes && !view.Brief, view.IncludeSubTasks && !view.Brief, filePath,
+            view.IncludeSubTaskSummary, view.IsLandscape, Summarise(view, today, board.CustomFieldDefs), includeEmailed: view.IncludeEmailed && !view.Brief, subTaskSummaryOnly: SummaryOnly(view));
     }
 
     // A statistics report covers every task its filters pick, on the board and archived, whatever
@@ -99,6 +100,11 @@ public static class ReportRunner
 
     // Just the sub-task summary, without the list of tasks; it needs the summary itself to be ticked.
     private static bool SummaryOnly(SavedReportView view) => view.IncludeSubTaskSummary && view.SubTaskSummaryOnly;
+
+    // How a report's heading names a grouping.
+    internal static string GroupLabel(string groupBy) => groupBy switch { "Status" => "Category", "Due" => "Due date", _ => groupBy };
+
+    internal const string ShortLabel = "Short: task, priority and due date";
 
     // The line under the report's title saying what it covers. Written from the saved view, so it
     // matches what the Report Builder would print for the same choices, with the dates as they
@@ -155,7 +161,8 @@ public static class ReportRunner
 
         var sorts = new[] { view.SortLevel1, view.SortLevel2, view.SortLevel3 }.Where(s => s != "None").ToList();
         if (sorts.Count > 0) parts.Add("Sort order: " + string.Join(" then ", sorts));
-        if (view.GroupBy != "None") parts.Add($"Grouped by: {(view.GroupBy == "Status" ? "Category" : view.GroupBy)}");
+        if (view.GroupBy != "None") parts.Add($"Grouped by: {GroupLabel(view.GroupBy)}");
+        if (view.Brief) parts.Add(ShortLabel);
 
         if (view.ArchiveScope != nameof(ReportArchiveScope.BoardOnly))
         {

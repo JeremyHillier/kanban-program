@@ -23,6 +23,7 @@ public partial class MainViewModel
             OnPropertyChanged(nameof(IsSwimlanesOn));
             OnPropertyChanged(nameof(IsSwimlanesOff));
             OnPropertyChanged(nameof(SwimlaneButtonLabel));
+            NotifyBoardLayoutChanged();
         }
     }
 

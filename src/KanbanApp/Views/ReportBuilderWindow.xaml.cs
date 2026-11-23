@@ -28,7 +28,7 @@ public partial class ReportBuilderWindow : Window
         AccessKeys.Bind(this);
         _viewModel = viewModel;
         MaxHeight = SystemParameters.WorkArea.Height * 0.95; // each tab scrolls, so a short screen still reaches everything
-        WindowPlacementMemory.AttachPosition(this, viewModel, "ReportBuilder"); // where it was left in this task file on this PC
+        WindowPlacementMemory.Attach(this, viewModel, "ReportBuilder"); // where it was left, and its size, in this task file on this PC
 
         foreach (var column in _viewModel.Columns)
         {
@@ -55,7 +55,7 @@ public partial class ReportBuilderWindow : Window
 
         GoalFilterComboBox.ItemsSource = _viewModel.GoalFilterOptions;
         FlagFilterComboBox.ItemsSource = _viewModel.FlagFilterOptions;
-        DueFilterComboBox.ItemsSource = _viewModel.DueFilterOptions;
+        DueFilterComboBox.ItemsSource = ReportService.ReportDueOptions(_viewModel.DueFilterOptions);
 
         foreach (var filter in _viewModel.CustomFilters.Where(f => f.IsDefined))
         {
@@ -132,6 +132,7 @@ public partial class ReportBuilderWindow : Window
         ArchivedFromDatePicker.SelectedDate = null;
         ArchivedToDatePicker.SelectedDate = null;
 
+        BriefCheckBox.IsChecked = false;
         IncludeNotesCheckBox.IsChecked = true;
         IncludeSubTasksCheckBox.IsChecked = true;
         IncludeSubTaskSummaryCheckBox.IsChecked = false;
@@ -191,6 +192,9 @@ public partial class ReportBuilderWindow : Window
         _columnCheckBoxes.Where(c => c.IsChecked == true).Select(c => (string)c.Tag).ToHashSet();
 
     private string GetGroupBy() => (string)((ComboBoxItem)GroupByComboBox.SelectedItem).Tag;
+
+    // Short: just each task, its priority and when it is due.
+    private bool IsBrief => BriefCheckBox.IsChecked == true;
 
     private string GetReportTitle() =>
         !string.IsNullOrWhiteSpace(ReportTitleTextBox.Text) ? ReportTitleTextBox.Text.Trim() : IsStatistics ? StatisticsTitle : TaskListTitle;
@@ -273,7 +277,8 @@ public partial class ReportBuilderWindow : Window
         if (sortLevels.Count > 0) parts.Add("Sort order: " + string.Join(" then ", sortLevels));
 
         var groupBy = GetGroupBy();
-        if (groupBy != "None") parts.Add($"Grouped by: {(groupBy == "Status" ? "Category" : groupBy)}");
+        if (groupBy != "None") parts.Add($"Grouped by: {ReportRunner.GroupLabel(groupBy)}");
+        if (IsBrief) parts.Add(ReportRunner.ShortLabel);
         if (EmailedOnlyCheckBox.IsChecked == true) parts.Add("Emailed tasks only");
 
         var scope = GetArchiveScope();
@@ -319,7 +324,8 @@ public partial class ReportBuilderWindow : Window
             ArchivedToDatePicker.SelectedDate,
             _viewModel.GetEmailHistory,
             EmailedOnlyCheckBox.IsChecked == true,
-            titleSearch: TitleSearch, includeCustomFields: SelectedCustomFields, customFilterField: SelectedCustomFilterField, customFilterText: CustomFilterTextBox.Text);
+            titleSearch: TitleSearch, includeCustomFields: SelectedCustomFields, customFilterField: SelectedCustomFilterField, customFilterText: CustomFilterTextBox.Text,
+            firstDayOfWeek: _viewModel.FirstDayOfWeek, brief: IsBrief);
     }
 
     private void Preview_Click(object sender, RoutedEventArgs e)
@@ -334,9 +340,9 @@ public partial class ReportBuilderWindow : Window
         var title = GetReportTitle();
         var rows = BuildRows();
         var document = ReportService.BuildFixedDocument(
-            title, rows, GetGroupBy(), IncludeNotesCheckBox.IsChecked == true, IncludeSubTasksCheckBox.IsChecked == true,
+            title, rows, GetGroupBy(), IncludeNotesCheckBox.IsChecked == true && !IsBrief, IncludeSubTasksCheckBox.IsChecked == true && !IsBrief,
             IncludeSubTaskSummaryCheckBox.IsChecked == true, LandscapeRadio.IsChecked == true, GetParameterSummary(),
-            includeEmailed: IncludeEmailedCheckBox.IsChecked == true, subTaskSummaryOnly: IsSubTaskSummaryOnly);
+            includeEmailed: IncludeEmailedCheckBox.IsChecked == true && !IsBrief, subTaskSummaryOnly: IsSubTaskSummaryOnly);
 
         new ReportPreviewWindow(document) { Owner = this }.ShowDialog();
     }
@@ -370,8 +376,8 @@ public partial class ReportBuilderWindow : Window
             return;
         }
 
-        ReportService.SavePdf(title, BuildRows(), GetGroupBy(), IncludeNotesCheckBox.IsChecked == true, IncludeSubTasksCheckBox.IsChecked == true, filePath,
+        ReportService.SavePdf(title, BuildRows(), GetGroupBy(), IncludeNotesCheckBox.IsChecked == true && !IsBrief, IncludeSubTasksCheckBox.IsChecked == true && !IsBrief, filePath,
             IncludeSubTaskSummaryCheckBox.IsChecked == true, LandscapeRadio.IsChecked == true, GetParameterSummary(),
-            includeEmailed: IncludeEmailedCheckBox.IsChecked == true, subTaskSummaryOnly: IsSubTaskSummaryOnly);
+            includeEmailed: IncludeEmailedCheckBox.IsChecked == true && !IsBrief, subTaskSummaryOnly: IsSubTaskSummaryOnly);
     }
 }
