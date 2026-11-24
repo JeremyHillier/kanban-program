@@ -79,6 +79,22 @@ public static class BoardBlocks
         return (columns, heights);
     }
 
+    // While Shift is held, a drag of the cross keeps to the direction it has moved furthest in: across, or up and down.
+    public static Vector LockToAxis(Vector offset, bool shift) =>
+        !shift ? offset : Math.Abs(offset.X) >= Math.Abs(offset.Y) ? new Vector(offset.X, 0) : new Vector(0, offset.Y);
+
+    // The splits a drag of the cross gives: from where they were when the drag began, moved by how far the pointer has gone
+    // since (kept to one direction with Shift). Worked out from the start each time, so pressing or letting go of Shift in the
+    // middle of a drag puts the other direction straight back, or lets it go again.
+    public static (double X, double Y) DragSplits((double X, double Y) atStart, Vector offset, bool shift, double width, double height, int count)
+    {
+        var moved = LockToAxis(offset, shift);
+        var rows = Math.Max(1, (count + 1) / 2);
+        var x = MoveSplit(atStart.X, moved.X, width, MinBlockWidth, MinBlockWidth);
+        var y = rows > 1 ? MoveSplit(atStart.Y, moved.Y, height, MinBlockHeight, MinBlockHeight * (rows - 1)) : atStart.Y;
+        return (x, y);
+    }
+
     // The cross's size, and the gap each block keeps to its right and below it (the column's own margin and the cell's bottom
     // margin): the cross sits in the middle of the gap where the first four blocks meet.
     public const double CrossSize = 28;

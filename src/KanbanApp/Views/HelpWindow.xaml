@@ -701,6 +701,7 @@
                 <local:BulletItem Text="Columns you added go in further blocks below. Swimlanes keep their own layout."/>
                 <local:BulletItem Text="Drag tasks between blocks, or within a block to put them in order, as on the plain board."/>
                 <local:BulletItem Text="Drag the cross where the blocks meet to make them wider, narrower, taller or shorter."/>
+                <local:BulletItem Text="Hold Shift while dragging to move the cross only across, or only up and down."/>
                 <local:BulletItem Text="Double-click the cross to make the blocks even again."/>
                 <local:BulletItem Text="Each task file remembers where you left the cross."/>
                 <TextBlock Text="Small screens" Style="{StaticResource HelpSubHeaderStyle}"/>

@@ -1572,8 +1572,8 @@
                             </ItemsControl>
                             <Thumb x:Name="BlocksCross" Style="{StaticResource BlockCrossStyle}" Width="28" Height="28" HorizontalAlignment="Left" VerticalAlignment="Top"
                                    Cursor="SizeAll" Focusable="False"
-                                   ToolTip="Drag to make the blocks wider, narrower, taller or shorter. Double-click to make them even."
-                                   DragDelta="BlocksCross_DragDelta" DragCompleted="BlocksCross_DragCompleted" MouseDoubleClick="BlocksCross_MouseDoubleClick">
+                                   ToolTip="Drag to make the blocks wider, narrower, taller or shorter. Hold Shift to move only across or only up and down. Double-click to make them even."
+                                   DragStarted="BlocksCross_DragStarted" DragDelta="BlocksCross_DragDelta" DragCompleted="BlocksCross_DragCompleted" MouseDoubleClick="BlocksCross_MouseDoubleClick">
                                 <Thumb.Margin>
                                     <MultiBinding Converter="{StaticResource BlockCrossPlacementConverter}">
                                         <Binding Path="ActualWidth" RelativeSource="{RelativeSource AncestorType=Grid}"/>
