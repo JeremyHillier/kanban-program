@@ -337,5 +337,29 @@
                 </Setter.Value>
             </Setter>
         </Style>
+
+        <!-- The cross at the middle of the blocks (BlockGridPanel): drag it to resize the blocks, double-click to even them. -->
+        <Style x:Key="BlockCrossStyle" TargetType="Thumb">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Thumb">
+                        <Grid Background="Transparent">
+                            <Path x:Name="Cross" Data="M 14,4 L 14,24 M 4,14 L 24,14" Stroke="{DynamicResource SidebarGripBrush}" StrokeThickness="5"
+                                  StrokeStartLineCap="Round" StrokeEndLineCap="Round" Opacity="0.85"/>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Cross" Property="Stroke" Value="{DynamicResource AccentTextBrush}"/>
+                                <Setter TargetName="Cross" Property="Opacity" Value="1"/>
+                            </Trigger>
+                            <Trigger Property="IsDragging" Value="True">
+                                <Setter TargetName="Cross" Property="Stroke" Value="{DynamicResource AccentTextBrush}"/>
+                                <Setter TargetName="Cross" Property="Opacity" Value="1"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </Application.Resources>
 </Application>

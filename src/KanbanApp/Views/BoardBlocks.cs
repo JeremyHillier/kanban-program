@@ -35,4 +35,58 @@ public static class BoardBlocks
     public static bool DropsBefore(Point pointer, Rect card, bool sideBySide) => sideBySide
         ? pointer.Y < card.Top || (pointer.Y < card.Bottom && pointer.X < card.Left + card.Width / 2)
         : pointer.Y < card.Top + card.Height / 2;
+
+    // The smallest a block can be made: its narrowest column and the gap beside it, and a few cards' height.
+    public const double MinBlockWidth = 172;
+    public const double MinBlockHeight = 120;
+
+    // A split (the share of the total the first part has) kept so the first part is at least minFirst and the rest at
+    // least minRest. Too little room for both: shared evenly.
+    public static double ClampSplit(double split, double total, double minFirst, double minRest)
+    {
+        if (total <= 0) return 0.5;
+        var low = minFirst / total;
+        var high = 1 - minRest / total;
+        return low >= high ? 0.5 : Math.Clamp(split, low, high);
+    }
+
+    // A split moved by delta pixels of the total, kept within the limits.
+    public static double MoveSplit(double split, double delta, double total, double minFirst, double minRest) =>
+        total <= 0 ? split : ClampSplit(ClampSplit(split, total, minFirst, minRest) + delta / total, total, minFirst, minRest);
+
+    // The cells of count blocks laid out two to a row in width x height: the two columns' widths and each row's height.
+    // splitX is the left column's share of the width; splitY is the top row's share of the height, the rest shared by the
+    // other rows. Whole pixels, so the edges stay sharp.
+    public static (double[] Columns, double[] Rows) Cells(int count, double width, double height, double splitX, double splitY)
+    {
+        var rows = Math.Max(1, (count + 1) / 2);
+
+        double[] columns = [width];
+        if (count > 1)
+        {
+            var left = Math.Round(width * ClampSplit(splitX, width, MinBlockWidth, MinBlockWidth));
+            columns = [left, width - left];
+        }
+
+        var heights = new double[rows];
+        if (rows == 1) heights[0] = height;
+        else
+        {
+            var top = Math.Round(height * ClampSplit(splitY, height, MinBlockHeight, MinBlockHeight * (rows - 1)));
+            heights[0] = top;
+            for (var r = 1; r < rows; r++) heights[r] = (height - top) / (rows - 1);
+        }
+        return (columns, heights);
+    }
+
+    // The cross's size, and the gap each block keeps to its right and below it (the column's own margin and the cell's bottom
+    // margin): the cross sits in the middle of the gap where the first four blocks meet.
+    public const double CrossSize = 28;
+    public const double Gap = 12;
+
+    public static Point CrossLocation(int count, double width, double height, double splitX, double splitY)
+    {
+        var (columns, rows) = Cells(count, width, height, splitX, splitY);
+        return new Point(columns[0] - Gap / 2 - CrossSize / 2, rows[0] - Gap / 2 - CrossSize / 2);
+    }
 }

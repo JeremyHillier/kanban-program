@@ -295,6 +295,8 @@
                 <local:BulletItem Text="Drag the box by its edge or heading to move it. It opens where you left it."/>
                 <local:BulletItem Text="Type the task and press Enter. The box stays open for more; Esc closes it."/>
                 <local:BulletItem Text="New tasks go into the first column, at the default priority, in the project shown beside the box."/>
+                <local:BulletItem Text="The goal box beside the project picks the goal. It starts on the last one you used; No goal clears it."/>
+                <local:BulletItem Text="With no goals set up, the goal box is left out."/>
                 <local:BulletItem Text="Priority: add ! and the start of its name, such as !high or !h."/>
                 <local:BulletItem Text="Who: add @ and the start of a name, such as @sam."/>
                 <local:BulletItem Text="Due date: add /today, /tomorrow, /fri, /+3 or /10-15."/>
@@ -698,6 +700,9 @@
                 <local:BulletItem Text="Each block shows its tasks in as many columns as fit, more on a bigger screen."/>
                 <local:BulletItem Text="Columns you added go in further blocks below. Swimlanes keep their own layout."/>
                 <local:BulletItem Text="Drag tasks between blocks, or within a block to put them in order, as on the plain board."/>
+                <local:BulletItem Text="Drag the cross where the blocks meet to make them wider, narrower, taller or shorter."/>
+                <local:BulletItem Text="Double-click the cross to make the blocks even again."/>
+                <local:BulletItem Text="Each task file remembers where you left the cross."/>
                 <TextBlock Text="Small screens" Style="{StaticResource HelpSubHeaderStyle}"/>
                 <local:BulletItem Text="Columns fit the window down to 240 pixels each, then the board scrolls sideways."/>
                 <local:BulletItem Text="In Settings, Board tab, lower the narrowest a fitted column can get, down to 160, to fit more on."/>

@@ -15,6 +15,9 @@ public partial class QuickAddWindow : Window
 {
     private readonly MainViewModel _viewModel;
 
+    // A row of the goal box: a goal, or "No goal".
+    private sealed record GoalChoice(string Name, GoalViewModel? Goal);
+
     // Raised after each task is added, so the board can say so.
     public event Action<CardViewModel>? TaskAdded;
 
@@ -26,6 +29,13 @@ public partial class QuickAddWindow : Window
 
         ProjectComboBox.ItemsSource = viewModel.Projects.Where(p => p.IsActive).ToList();
         ProjectComboBox.SelectedItem = viewModel.QuickAddDefaultProject;
+
+        var goals = viewModel.ActiveGoals.OrderBy(g => g.Name).ToList();
+        var choices = new List<GoalChoice> { new("No goal", null) };
+        choices.AddRange(goals.Select(g => new GoalChoice(g.Name, g)));
+        GoalComboBox.ItemsSource = choices;
+        GoalComboBox.SelectedItem = choices.FirstOrDefault(c => c.Goal is { } goal && goal.Id == viewModel.QuickAddDefaultGoal?.Id) ?? choices[0];
+        GoalComboBox.Visibility = goals.Count == 0 ? Visibility.Collapsed : Visibility.Visible;
         UpdatePreview();
 
         var area = SystemParameters.WorkArea;
@@ -65,16 +75,16 @@ public partial class QuickAddWindow : Window
             e.Handled = true;
             Close();
         }
-        else if (e.Key == Key.Enter && !ProjectComboBox.IsDropDownOpen)
+        else if (e.Key == Key.Enter && !ProjectComboBox.IsDropDownOpen && !GoalComboBox.IsDropDownOpen)
         {
             e.Handled = true;
             AddTask();
         }
     }
 
-    private void AddTask()
+    internal void AddTask()
     {
-        var card = _viewModel.QuickAdd(TaskTextBox.Text, ProjectComboBox.SelectedItem as ProjectViewModel);
+        var card = _viewModel.QuickAdd(TaskTextBox.Text, ProjectComboBox.SelectedItem as ProjectViewModel, (GoalComboBox.SelectedItem as GoalChoice)?.Goal);
         if (card is null) return;
 
         TaskAdded?.Invoke(card);

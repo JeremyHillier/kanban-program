@@ -114,6 +114,7 @@ public partial class MainViewModel : ObservableObject
         _minFittedColumnWidth = Math.Clamp(_db.GetInt("MinFittedColumnWidth", DefaultMinFittedColumnWidth), SmallestColumnWidth, MaxColumnWidth);
         _isFitColumnsToWindow = _db.GetFlag("FitColumnsToWindow", true);
         _showColumnsAsBlocks = _db.GetFlag("ShowColumnsAsBlocks", false);
+        LoadBlocksSplit();
         _projectFilterListHeight = LoadFilterListHeight(_db.GetSetting("ProjectFilterListHeight"));
         _priorityWhoFilterListHeight = LoadFilterListHeight(_db.GetSetting("PriorityWhoFilterListHeight"));
         if (double.TryParse(_db.GetSetting("PriorityListShare"), System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var share))

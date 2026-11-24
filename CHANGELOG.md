@@ -6,6 +6,11 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.177.0 — 2026-11-24
+
+> - New: with the task columns shown as blocks, drag the cross where the blocks meet to make them wider, narrower, taller or shorter. Double-click the cross to make them even again. The sizes are remembered.
+> - New: the Quick Add box has a goal choice beside the project, and starts on the goal you used last.
+
 ## 0.176.0 — 2026-11-23
 
 > - New: the task columns can be shown as blocks, with To Do and In Progress across the top, On Hold and Waiting below, and Done down the right. Each block shows its tasks in as many columns as fit the screen. Turn it on in Settings, on the Board tab; it is off until you do.

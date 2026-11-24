@@ -6,7 +6,8 @@ namespace KanbanApp.ViewModels;
 // Blocks (Settings, Board tab, off at first): instead of one row of columns, the columns before Done are laid out two
 // to a row - To Do and In Progress across the top, On Hold and Waiting below, then any the user added - with Done down
 // the right at an ordinary column's width. Each block shows its cards in as many columns as fit (Views/BoardBlocks).
-// Swimlanes keep their own layout. A preference, so it is in the Settings snapshot.
+// Swimlanes keep their own layout. A preference, so it is in the Settings snapshot. The cross where the blocks meet
+// is dragged to resize them, and where it was left is kept in the file.
 public partial class MainViewModel
 {
     private bool _showColumnsAsBlocks;
@@ -24,6 +25,49 @@ public partial class MainViewModel
         ShowColumnsAsBlocks = value;
         _db.SetFlag("ShowColumnsAsBlocks", value);
     }
+
+    // Where the blocks meet, dragged with the cross in the middle: the left blocks' share of the width and the top row's
+    // share of the height. Kept in the task file when a drag ends (SaveBlocksSplit); the panel keeps every block big enough.
+    private double _blocksSplitX = 0.5;
+    private double _blocksSplitY = 0.5;
+
+    public double BlocksSplitX
+    {
+        get => _blocksSplitX;
+        set => SetField(ref _blocksSplitX, Math.Clamp(value, 0.05, 0.95));
+    }
+
+    public double BlocksSplitY
+    {
+        get => _blocksSplitY;
+        set => SetField(ref _blocksSplitY, Math.Clamp(value, 0.05, 0.95));
+    }
+
+    private void LoadBlocksSplit()
+    {
+        _blocksSplitX = ParseSplit(_db.GetSetting("BlocksSplitX"));
+        _blocksSplitY = ParseSplit(_db.GetSetting("BlocksSplitY"));
+    }
+
+    public void SaveBlocksSplit()
+    {
+        _db.SetSetting("BlocksSplitX", FormatSplit(BlocksSplitX));
+        _db.SetSetting("BlocksSplitY", FormatSplit(BlocksSplitY));
+    }
+
+    // Double-clicking the cross: the blocks even again.
+    public void ResetBlocksSplit()
+    {
+        BlocksSplitX = 0.5;
+        BlocksSplitY = 0.5;
+        SaveBlocksSplit();
+    }
+
+    // Anything that is not a share between 5% and 95% is the even split.
+    internal static double ParseSplit(string? text) =>
+        double.TryParse(text, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var value) && value is >= 0.05 and <= 0.95 ? value : 0.5;
+
+    internal static string FormatSplit(double split) => split.ToString("0.####", System.Globalization.CultureInfo.InvariantCulture);
 
     public bool IsBlocksOn => ShowColumnsAsBlocks && IsSwimlanesOff;
     public bool IsPlainBoardOn => !ShowColumnsAsBlocks && IsSwimlanesOff;

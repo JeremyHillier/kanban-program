@@ -22,6 +22,7 @@
         <conv:CardColumnsConverter x:Key="CardColumnsConverter"/>
         <conv:CardWidthConverter x:Key="CardWidthConverter"/>
         <conv:MoreThanOneConverter x:Key="MoreThanOneConverter"/>
+        <conv:BlockCrossPlacementConverter x:Key="BlockCrossPlacementConverter"/>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
 
         <!-- Project/Priority/Who filter lists: each ListBoxItem's IsSelected binds TwoWay to the
@@ -1554,18 +1555,36 @@
                     <!-- Blocks (Settings, Board tab): the columns before Done two to a row, filling the height, and Done down the
                          right at an ordinary column's width (MainViewModel.Blocks.cs). -->
                     <DockPanel HorizontalAlignment="Left" Visibility="{Binding IsBlocksOn, Converter={StaticResource BooleanToVisibilityConverter}}">
-                        <ItemsControl ItemsSource="{Binding BlockColumns}" ItemTemplate="{StaticResource ColumnTemplate}" Width="{Binding BlocksWidth}">
-                            <ItemsControl.ItemsPanel>
-                                <ItemsPanelTemplate>
-                                    <UniformGrid Columns="2"/>
-                                </ItemsPanelTemplate>
-                            </ItemsControl.ItemsPanel>
-                            <ItemsControl.ItemContainerStyle>
-                                <Style TargetType="ContentPresenter">
-                                    <Setter Property="Margin" Value="0,0,0,12"/>
-                                </Style>
-                            </ItemsControl.ItemContainerStyle>
-                        </ItemsControl>
+                        <!-- The blocks two to a row (BlockGridPanel), with a cross over the middle where they meet: drag it to resize them,
+                             double-click to even them (MainWindow.Blocks.cs). Its place comes from the same rules as the blocks' sizes. -->
+                        <Grid Width="{Binding BlocksWidth}">
+                            <ItemsControl ItemsSource="{Binding BlockColumns}" ItemTemplate="{StaticResource ColumnTemplate}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <views:BlockGridPanel SplitX="{Binding BlocksSplitX}" SplitY="{Binding BlocksSplitY}"/>
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemContainerStyle>
+                                    <Style TargetType="ContentPresenter">
+                                        <Setter Property="Margin" Value="0,0,0,12"/>
+                                    </Style>
+                                </ItemsControl.ItemContainerStyle>
+                            </ItemsControl>
+                            <Thumb x:Name="BlocksCross" Style="{StaticResource BlockCrossStyle}" Width="28" Height="28" HorizontalAlignment="Left" VerticalAlignment="Top"
+                                   Cursor="SizeAll" Focusable="False"
+                                   ToolTip="Drag to make the blocks wider, narrower, taller or shorter. Double-click to make them even."
+                                   DragDelta="BlocksCross_DragDelta" DragCompleted="BlocksCross_DragCompleted" MouseDoubleClick="BlocksCross_MouseDoubleClick">
+                                <Thumb.Margin>
+                                    <MultiBinding Converter="{StaticResource BlockCrossPlacementConverter}">
+                                        <Binding Path="ActualWidth" RelativeSource="{RelativeSource AncestorType=Grid}"/>
+                                        <Binding Path="ActualHeight" RelativeSource="{RelativeSource AncestorType=Grid}"/>
+                                        <Binding Path="BlocksSplitX"/>
+                                        <Binding Path="BlocksSplitY"/>
+                                        <Binding Path="BlockColumns.Count"/>
+                                    </MultiBinding>
+                                </Thumb.Margin>
+                            </Thumb>
+                        </Grid>
                         <ContentControl Content="{Binding DoneColumn}" ContentTemplate="{StaticResource ColumnTemplate}" Width="{Binding BlocksDoneSlotWidth}"
                                         Focusable="False"/>
                     </DockPanel>
