@@ -13,6 +13,8 @@
         Background="{DynamicResource WindowBackgroundBrush}"
         PreviewKeyDown="MainWindow_PreviewKeyDown">
     <Window.Resources>
+        <!-- The board's view model for the card template, without each binding searching up the tree for the window (BindingProxy). -->
+        <views:BindingProxy x:Key="Board" Data="{Binding}"/>
         <conv:EmptyStringToVisibilityConverter x:Key="EmptyStringToVisibilityConverter"/>
         <conv:StringEqualsConverter x:Key="StringEqualsConverter"/>
         <conv:GreaterThanZeroToVisibilityConverter x:Key="GreaterThanZeroToVisibilityConverter"/>
@@ -23,6 +25,7 @@
         <conv:CardWidthConverter x:Key="CardWidthConverter"/>
         <conv:MoreThanOneConverter x:Key="MoreThanOneConverter"/>
         <conv:BlockCrossPlacementConverter x:Key="BlockCrossPlacementConverter"/>
+        <conv:CardRowsConverter x:Key="CardRowsConverter"/>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
 
         <!-- Project/Priority/Who filter lists: each ListBoxItem's IsSelected binds TwoWay to the
@@ -431,102 +434,8 @@
             <Setter Property="HorizontalAlignment" Value="Center"/>
         </Style>
         <!-- One workflow column and its cards: used by the plain board and, once per lane, by the swimlanes. -->
-        <DataTemplate x:Key="ColumnTemplate">
-                            <Border Width="{Binding DataContext.ColumnTemplateWidth, RelativeSource={RelativeSource AncestorType=Window}}"
-                                    Margin="0,0,12,0" Padding="10" Background="{Binding Background}"
-                                    CornerRadius="6"
-                                    BorderBrush="{DynamicResource PanelBorderBrush}" BorderThickness="1"
-                                    AllowDrop="True" Drop="Column_Drop">
-                                <Grid>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="*"/>
-                                    </Grid.RowDefinitions>
-
-                                    <!-- A line under the column's name, so the heading reads as a heading and not
-                                         as the first thing in the list. It stays put while the cards scroll. -->
-                                    <Border Grid.Row="0" BorderBrush="{DynamicResource ColumnHeaderLineBrush}" BorderThickness="0,0,0,1"
-                                            Padding="0,0,0,6" Margin="0,0,0,8">
-                                        <TextBlock Text="{Binding DisplayName}" FontWeight="Bold" FontSize="14" Foreground="{DynamicResource ColumnHeaderTextBrush}"
-                                                   Background="Transparent" Cursor="Hand" ToolTip="Double-click to add a new task in this column"
-                                                   MouseLeftButtonDown="ColumnHeader_MouseLeftButtonDown"/>
-                                    </Border>
-
-                                    <!-- The drop area for drag-reordering within the column. It sits around the
-                                         list rather than inside its scroller, so the insertion line below and
-                                         GetCardDropTarget both work in the list's on-screen coordinates.
-                                         Transparent (not null) so a drop below the last card still lands here. -->
-                                    <Grid Grid.Row="1" Background="Transparent" ClipToBounds="True"
-                                          AllowDrop="True" DragOver="CardsArea_DragOver" DragLeave="CardsArea_DragLeave" Drop="CardsArea_Drop">
-                                    <!-- Virtualized: only the cards on screen (plus a page either side) are built.
-                                         That needs the scroller inside the list's own template and a
-                                         VirtualizingStackPanel; pixel scrolling keeps the same smooth scroll the
-                                         board always had. Bound to CardsView, which leaves filtered-out cards out
-                                         entirely - see ColumnViewModel.CardsView for why. -->
-                                    <ItemsControl ItemsSource="{Binding CardsView}"
-                                                  VirtualizingPanel.IsVirtualizing="True"
-                                                  VirtualizingPanel.VirtualizationMode="Standard"
-                                                  VirtualizingPanel.ScrollUnit="Pixel">
-                                        <ItemsControl.Template>
-                                            <ControlTemplate TargetType="ItemsControl">
-                                                <ScrollViewer CanContentScroll="True" Focusable="False"
-                                                              VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-                                                    <ItemsPresenter/>
-                                                </ScrollViewer>
-                                            </ControlTemplate>
-                                        </ItemsControl.Template>
-                                        <!-- How many cards go side by side: one, except in a block wide enough for more (BoardBlocks.CardColumns).
-                                             One keeps the virtualized list; more wrap, in reading order. -->
-                                        <ItemsControl.Tag>
-                                            <MultiBinding Converter="{StaticResource CardColumnsConverter}">
-                                                <Binding Path="ActualWidth" RelativeSource="{RelativeSource Self}"/>
-                                                <Binding Path="DataContext.IsBlocksOn" RelativeSource="{RelativeSource AncestorType=Window}"/>
-                                                <Binding Path="DataContext.MinFittedColumnWidth" RelativeSource="{RelativeSource AncestorType=Window}"/>
-                                            </MultiBinding>
-                                        </ItemsControl.Tag>
-                                        <ItemsControl.Style>
-                                            <Style TargetType="ItemsControl">
-                                                <Setter Property="ItemsPanel">
-                                                    <Setter.Value>
-                                                        <ItemsPanelTemplate>
-                                                            <VirtualizingStackPanel/>
-                                                        </ItemsPanelTemplate>
-                                                    </Setter.Value>
-                                                </Setter>
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding Tag, RelativeSource={RelativeSource Self}, Converter={StaticResource MoreThanOneConverter}}" Value="True">
-                                                        <Setter Property="ItemsPanel">
-                                                            <Setter.Value>
-                                                                <ItemsPanelTemplate>
-                                                                    <WrapPanel Orientation="Horizontal"/>
-                                                                </ItemsPanelTemplate>
-                                                            </Setter.Value>
-                                                        </Setter>
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </ItemsControl.Style>
-                                        <ItemsControl.ItemTemplate>
-                                            <DataTemplate>
-                                                <!-- Width: exactly what the list shows, so a card can't run under the
-                                                     column's scrollbar (see ViewportWidthToCardWidthConverter). -->
-                                                <Border CornerRadius="4" Padding="8" HorizontalAlignment="Left"
-                                                        Visibility="{Binding IsVisible, Converter={StaticResource BooleanToVisibilityConverter}}"
-                                                        PreviewMouseLeftButtonDown="Card_PreviewMouseLeftButtonDown"
-                                                        PreviewMouseRightButtonUp="Card_PreviewMouseRightButtonUp"
-                                                        MouseMove="Card_MouseMove"
-                                                        MouseLeftButtonUp="Card_MouseLeftButtonUp"
-                                                        AllowDrop="True" DragOver="Card_DragOver" Drop="Card_Drop">
-                                                    <!-- Width: exactly what the list shows, or an equal share of it with cards side by side, so a card
-                                                         can't run under the column's scrollbar (see ViewportWidthToCardWidthConverter, BoardBlocks.CardWidth). -->
-                                                    <Border.Width>
-                                                        <MultiBinding Converter="{StaticResource CardWidthConverter}">
-                                                            <Binding Path="ViewportWidth" RelativeSource="{RelativeSource AncestorType=ScrollViewer}"/>
-                                                            <Binding Path="Tag" RelativeSource="{RelativeSource AncestorType=ItemsControl}"/>
-                                                        </MultiBinding>
-                                                    </Border.Width>
-                                                    <Border.Style>
-                                                        <Style TargetType="Border">
+                <!-- The task card's styles: shared by every card, not built afresh for each one. -->
+        <Style x:Key="CardBorderStyle" TargetType="Border">
                                                             <Setter Property="Margin" Value="0,0,0,6"/>
                                                             <Setter Property="Background" Value="{DynamicResource CardBackgroundBrush}"/>
                                                             <Setter Property="BorderBrush" Value="{DynamicResource CardOutlineBrush}"/>
@@ -552,11 +461,7 @@
                                                                 </DataTrigger>
                                                             </Style.Triggers>
                                                         </Style>
-                                                    </Border.Style>
-                                                    <StackPanel>
-                                                        <TextBlock Text="{Binding Title}" TextWrapping="Wrap" FontSize="13" FontWeight="SemiBold">
-                                                            <TextBlock.Style>
-                                                                <Style TargetType="TextBlock">
+        <Style x:Key="CardTitleStyle" TargetType="TextBlock">
                                                                     <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
                                                                     <Style.Triggers>
                                                                         <DataTrigger Binding="{Binding IsOverdue}" Value="True">
@@ -565,7 +470,181 @@
                                                                         </DataTrigger>
                                                                     </Style.Triggers>
                                                                 </Style>
-                                                            </TextBlock.Style>
+        <Style x:Key="CardDueDateStyle" TargetType="TextBlock">
+                                                                                    <Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}"/>
+                                                                                    <Style.Triggers>
+                                                                                        <DataTrigger Binding="{Binding IsOverdue}" Value="True">
+                                                                                            <Setter Property="Background" Value="#FFFFF176"/>
+                                                                                            <Setter Property="Foreground" Value="#FF1A1A1A"/>
+                                                                                            <Setter Property="FontWeight" Value="Bold"/>
+                                                                                        </DataTrigger>
+                                                                                    </Style.Triggers>
+                                                                                </Style>
+        <Style x:Key="CardSubTaskCheckBoxStyle" TargetType="CheckBox">
+                                                                                                <Style.Triggers>
+                                                                                                    <DataTrigger Binding="{Binding Tag.SubTasksPickOne, RelativeSource={RelativeSource AncestorType=ItemsControl}}" Value="True">
+                                                                                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                                                                                    </DataTrigger>
+                                                                                                </Style.Triggers>
+                                                                                            </Style>
+        <Style x:Key="CardSubTaskRadioStyle" TargetType="RadioButton">
+                                                                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                                                                                <Style.Triggers>
+                                                                                                    <DataTrigger Binding="{Binding Tag.SubTasksPickOne, RelativeSource={RelativeSource AncestorType=ItemsControl}}" Value="True">
+                                                                                                        <Setter Property="Visibility" Value="Visible"/>
+                                                                                                    </DataTrigger>
+                                                                                                </Style.Triggers>
+                                                                                            </Style>
+        <Style x:Key="CardRelatedStyle" TargetType="TextBlock">
+                                                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                                                            <Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}"/>
+                                                                            <Style.Triggers>
+                                                                                <DataTrigger Binding="{Binding HasRelated}" Value="True">
+                                                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                                                </DataTrigger>
+                                                                                <DataTrigger Binding="{Binding IsBlocked}" Value="True">
+                                                                                    <Setter Property="Foreground" Value="#FFD32F2F"/>
+                                                                                </DataTrigger>
+                                                                            </Style.Triggers>
+                                                                        </Style>
+        <Style x:Key="CardCompactWaitingStyle" TargetType="TextBlock">
+                                                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                                                            <Style.Triggers>
+                                                                                <MultiDataTrigger>
+                                                                                    <MultiDataTrigger.Conditions>
+                                                                                        <Condition Binding="{Binding IsWaiting}" Value="True"/>
+                                                                                        <Condition Binding="{Binding Data.IsLargeCards, Source={StaticResource Board}}" Value="False"/>
+                                                                                    </MultiDataTrigger.Conditions>
+                                                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                                                </MultiDataTrigger>
+                                                                            </Style.Triggers>
+                                                                        </Style>
+        <Style x:Key="CardCompactSubTaskStyle" TargetType="TextBlock">
+                                                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                                                            <Style.Triggers>
+                                                                                <MultiDataTrigger>
+                                                                                    <MultiDataTrigger.Conditions>
+                                                                                        <Condition Binding="{Binding HasSubTasks}" Value="True"/>
+                                                                                        <Condition Binding="{Binding Data.IsLargeCards, Source={StaticResource Board}}" Value="False"/>
+                                                                                    </MultiDataTrigger.Conditions>
+                                                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                                                </MultiDataTrigger>
+                                                                            </Style.Triggers>
+                                                                        </Style>
+        <Style x:Key="CardSideButtonsStyle" TargetType="StackPanel">
+                                                                        <Setter Property="Grid.Column" Value="1"/>
+                                                                        <Setter Property="Margin" Value="6,0,0,0"/>
+                                                                        <Setter Property="VerticalAlignment" Value="Top"/>
+                                                                        <Setter Property="HorizontalAlignment" Value="Right"/>
+                                                                        <Style.Triggers>
+                                                                            <DataTrigger Binding="{Binding Tag, RelativeSource={RelativeSource Self}}" Value="Row">
+                                                                                <Setter Property="Grid.Row" Value="1"/>
+                                                                                <Setter Property="Grid.Column" Value="0"/>
+                                                                                <Setter Property="Grid.ColumnSpan" Value="2"/>
+                                                                                <Setter Property="Orientation" Value="Horizontal"/>
+                                                                                <Setter Property="VerticalAlignment" Value="Bottom"/>
+                                                                                <Setter Property="Margin" Value="0"/>
+                                                                            </DataTrigger>
+                                                                        </Style.Triggers>
+                                                                    </Style>
+        <Style x:Key="CardFlagButtonStyle" TargetType="Button" BasedOn="{StaticResource QuickActionButtonStyle}">
+                                                                            <Setter Property="Margin" Value="0"/>
+                                                                            <Style.Triggers>
+                                                                                <DataTrigger Binding="{Binding Tag, RelativeSource={RelativeSource AncestorType=StackPanel}}" Value="Row">
+                                                                                    <Setter Property="Margin" Value="3,0,0,0"/>
+                                                                                </DataTrigger>
+                                                                                <DataTrigger Binding="{Binding Data.IsLargeCards, Source={StaticResource Board}}" Value="False">
+                                                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                                                </DataTrigger>
+                                                                            </Style.Triggers>
+                                                                        </Style>
+        <Style x:Key="CardEmailButtonStyle" TargetType="Button" BasedOn="{StaticResource QuickActionButtonStyle}">
+                                                                            <Setter Property="Margin" Value="0,4,0,0"/>
+                                                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                                                            <Style.Triggers>
+                                                                                <DataTrigger Binding="{Binding Tag, RelativeSource={RelativeSource AncestorType=StackPanel}}" Value="Row">
+                                                                                    <Setter Property="Margin" Value="3,0,0,0"/>
+                                                                                </DataTrigger>
+                                                                                <DataTrigger Binding="{Binding CanEmailCard}" Value="True">
+                                                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                                                </DataTrigger>
+                                                                            </Style.Triggers>
+                                                                        </Style>
+        <Style x:Key="CardCalendarButtonStyle" TargetType="Button" BasedOn="{StaticResource QuickActionButtonStyle}">
+                                                                            <Setter Property="Margin" Value="0,4,0,0"/>
+                                                                            <Style.Triggers>
+                                                                                <DataTrigger Binding="{Binding Tag, RelativeSource={RelativeSource AncestorType=StackPanel}}" Value="Row">
+                                                                                    <Setter Property="Margin" Value="3,0,0,0"/>
+                                                                                </DataTrigger>
+                                                                                <DataTrigger Binding="{Binding Data.IsLargeCards, Source={StaticResource Board}}" Value="False">
+                                                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                                                </DataTrigger>
+                                                                            </Style.Triggers>
+                                                                        </Style>
+        <Style x:Key="CardMoveToDoStyle" TargetType="Button" BasedOn="{StaticResource QuickActionButtonStyle}">
+                                                                        <Style.Triggers>
+                                                                            <DataTrigger Binding="{Binding DataContext.Name, RelativeSource={RelativeSource AncestorType=ItemsControl}}" Value="To Do">
+                                                                                <Setter Property="IsEnabled" Value="False"/>
+                                                                                <Setter Property="Opacity" Value="0.35"/>
+                                                                            </DataTrigger>
+                                                                        </Style.Triggers>
+                                                                    </Style>
+        <Style x:Key="CardMoveInProgressStyle" TargetType="Button" BasedOn="{StaticResource QuickActionButtonStyle}">
+                                                                        <Style.Triggers>
+                                                                            <DataTrigger Binding="{Binding DataContext.Name, RelativeSource={RelativeSource AncestorType=ItemsControl}}" Value="In Progress">
+                                                                                <Setter Property="IsEnabled" Value="False"/>
+                                                                                <Setter Property="Opacity" Value="0.35"/>
+                                                                            </DataTrigger>
+                                                                        </Style.Triggers>
+                                                                    </Style>
+        <Style x:Key="CardMoveOnHoldStyle" TargetType="Button" BasedOn="{StaticResource QuickActionButtonStyle}">
+                                                                        <Style.Triggers>
+                                                                            <DataTrigger Binding="{Binding DataContext.Name, RelativeSource={RelativeSource AncestorType=ItemsControl}}" Value="On Hold">
+                                                                                <Setter Property="IsEnabled" Value="False"/>
+                                                                                <Setter Property="Opacity" Value="0.35"/>
+                                                                            </DataTrigger>
+                                                                        </Style.Triggers>
+                                                                    </Style>
+        <Style x:Key="CardMoveWaitingStyle" TargetType="Button" BasedOn="{StaticResource QuickActionButtonStyle}">
+                                                                        <Style.Triggers>
+                                                                            <DataTrigger Binding="{Binding DataContext.Name, RelativeSource={RelativeSource AncestorType=ItemsControl}}" Value="Waiting">
+                                                                                <Setter Property="IsEnabled" Value="False"/>
+                                                                                <Setter Property="Opacity" Value="0.35"/>
+                                                                            </DataTrigger>
+                                                                        </Style.Triggers>
+                                                                    </Style>
+        <Style x:Key="CardMoveDoneStyle" TargetType="Button" BasedOn="{StaticResource QuickActionButtonStyle}">
+                                                                        <Style.Triggers>
+                                                                            <DataTrigger Binding="{Binding DataContext.Name, RelativeSource={RelativeSource AncestorType=ItemsControl}}" Value="Done">
+                                                                                <Setter Property="IsEnabled" Value="False"/>
+                                                                                <Setter Property="Opacity" Value="0.35"/>
+                                                                            </DataTrigger>
+                                                                        </Style.Triggers>
+                                                                    </Style>
+
+        <!-- One task card: the lists on the plain board, in swimlanes and in blocks, and a block's rows, all use it. -->
+        <DataTemplate x:Key="CardTemplate">
+                                                <!-- Width: exactly what the list shows, so a card can't run under the
+                                                     column's scrollbar (see ViewportWidthToCardWidthConverter). -->
+                                                <Border CornerRadius="4" Padding="8" HorizontalAlignment="Left"
+                                                        Visibility="{Binding IsVisible, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                                        PreviewMouseLeftButtonDown="Card_PreviewMouseLeftButtonDown"
+                                                        PreviewMouseRightButtonUp="Card_PreviewMouseRightButtonUp"
+                                                        MouseMove="Card_MouseMove"
+                                                        MouseLeftButtonUp="Card_MouseLeftButtonUp"
+                                                        AllowDrop="True" DragOver="Card_DragOver" Drop="Card_Drop">
+                                                    <!-- Width: exactly what the list shows, or an equal share of it with cards side by side, so a card
+                                                         can't run under the column's scrollbar (see ViewportWidthToCardWidthConverter, BoardBlocks.CardWidth). -->
+                                                    <Border.Width>
+                                                        <MultiBinding Converter="{StaticResource CardWidthConverter}">
+                                                            <Binding Path="ViewportWidth" RelativeSource="{RelativeSource AncestorType=ScrollViewer}"/>
+                                                            <Binding Path="Tag" RelativeSource="{RelativeSource AncestorType=ItemsControl}"/>
+                                                        </MultiBinding>
+                                                    </Border.Width>
+                                                    <Border.Style><StaticResource ResourceKey="CardBorderStyle"/></Border.Style>
+                                                    <StackPanel>
+                                                        <TextBlock Text="{Binding Title}" TextWrapping="Wrap" FontSize="13" FontWeight="SemiBold">
+                                                            <TextBlock.Style><StaticResource ResourceKey="CardTitleStyle"/></TextBlock.Style>
                                                         </TextBlock>
 
                                                         <Grid Margin="0,3,0,0">
@@ -605,16 +684,16 @@
                                                             </Grid.RowDefinitions>
 
                                                             <StackPanel Grid.Column="0">
-                                                                <StackPanel Visibility="{Binding DataContext.IsLargeCards, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                                <StackPanel Visibility="{Binding Data.IsLargeCards, Source={StaticResource Board}, Converter={StaticResource BooleanToVisibilityConverter}}">
                                                                     <!-- Narrow columns leave these off (ShowCardExtras), with the Updated and attachments lines. -->
-                                                                    <StackPanel Visibility="{Binding DataContext.ShowCardExtras, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BooleanToVisibilityConverter}}">
-                                                                    <Border Visibility="{Binding DataContext.CardParts.Goal, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                                    <StackPanel Visibility="{Binding Data.ShowCardExtras, Source={StaticResource Board}, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                                    <Border Visibility="{Binding Data.CardParts.Goal, Source={StaticResource Board}, Converter={StaticResource BooleanToVisibilityConverter}}">
                                                                     <TextBlock Text="{Binding GoalClickText}" FontSize="10" Foreground="{DynamicResource SecondaryTextBrush}" FontStyle="Italic" Margin="0,3,0,0"
                                                                                Cursor="Hand" ToolTip="Click to change goal" HorizontalAlignment="Left"
                                                                                MouseLeftButtonUp="GoalDisplay_MouseLeftButtonUp"/>
                                                                     </Border>
 
-                                                                    <Border Visibility="{Binding DataContext.CardParts.Flags, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                                    <Border Visibility="{Binding Data.CardParts.Flags, Source={StaticResource Board}, Converter={StaticResource BooleanToVisibilityConverter}}">
                                                                     <TextBlock Text="{Binding FlagsDisplay}" FontSize="10" Foreground="{DynamicResource SecondaryTextBrush}" FontStyle="Italic" Margin="0,3,0,0"
                                                                                Visibility="{Binding FlagsDisplay, Converter={StaticResource EmptyStringToVisibilityConverter}}"/>
                                                                     </Border>
@@ -622,63 +701,52 @@
 
                                                                     <!-- A WrapPanel, so a long list of people drops to its own line and wraps rather than being cut off. -->
                                                                     <WrapPanel Margin="0,3,0,0">
-                                                                        <Border Visibility="{Binding DataContext.CardParts.DueDate, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                                        <Border Visibility="{Binding Data.CardParts.DueDate, Source={StaticResource Board}, Converter={StaticResource BooleanToVisibilityConverter}}">
                                                                         <TextBlock Text="{Binding DueDateDisplay}" FontSize="10" Margin="0,0,8,0" TextWrapping="Wrap"
                                                                                    Cursor="Hand" ToolTip="Click to change due date"
                                                                                    MouseLeftButtonUp="DueDateDisplay_MouseLeftButtonUp"
                                                                                    Visibility="{Binding DueDateDisplay, Converter={StaticResource EmptyStringToVisibilityConverter}}">
-                                                                            <TextBlock.Style>
-                                                                                <Style TargetType="TextBlock">
-                                                                                    <Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}"/>
-                                                                                    <Style.Triggers>
-                                                                                        <DataTrigger Binding="{Binding IsOverdue}" Value="True">
-                                                                                            <Setter Property="Background" Value="#FFFFF176"/>
-                                                                                            <Setter Property="Foreground" Value="#FF1A1A1A"/>
-                                                                                            <Setter Property="FontWeight" Value="Bold"/>
-                                                                                        </DataTrigger>
-                                                                                    </Style.Triggers>
-                                                                                </Style>
-                                                                            </TextBlock.Style>
+                                                                            <TextBlock.Style><StaticResource ResourceKey="CardDueDateStyle"/></TextBlock.Style>
                                                                         </TextBlock>
                                                                         </Border>
-                                                                        <Border Visibility="{Binding DataContext.CardParts.AssignedTo, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                                        <Border Visibility="{Binding Data.CardParts.AssignedTo, Source={StaticResource Board}, Converter={StaticResource BooleanToVisibilityConverter}}">
                                                                         <TextBlock Text="{Binding WhoDisplay}" FontSize="10" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,0,0,0" TextWrapping="Wrap"
                                                                                    Cursor="Hand" ToolTip="Click to change who this is assigned to. The first person named is the lead."
                                                                                    MouseLeftButtonUp="WhoDisplay_MouseLeftButtonUp"
                                                                                    Visibility="{Binding WhoDisplay, Converter={StaticResource EmptyStringToVisibilityConverter}}"/>
                                                                         </Border>
                                                                     </WrapPanel>
-                                                                    <Border Visibility="{Binding DataContext.CardParts.WaitingOn, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                                    <Border Visibility="{Binding Data.CardParts.WaitingOn, Source={StaticResource Board}, Converter={StaticResource BooleanToVisibilityConverter}}">
                                                                     <TextBlock Text="{Binding WaitingOnDisplay}" FontSize="10" FontWeight="SemiBold" TextWrapping="Wrap"
                                                                                Background="#FFFFE0B2" Foreground="#FF4E342E" Padding="3,1" Margin="0,3,0,0" HorizontalAlignment="Left"
                                                                                Cursor="Hand" ToolTip="Click to change or clear what this task is waiting on"
                                                                                MouseLeftButtonUp="WaitingOnDisplay_MouseLeftButtonUp"
                                                                                Visibility="{Binding WaitingOnDisplay, Converter={StaticResource EmptyStringToVisibilityConverter}}"/>
                                                                     </Border>
-                                                                    <Border Visibility="{Binding DataContext.CardParts.StartDate, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                                    <Border Visibility="{Binding Data.CardParts.StartDate, Source={StaticResource Board}, Converter={StaticResource BooleanToVisibilityConverter}}">
                                                                     <TextBlock Text="{Binding StartDateDisplay}" FontSize="10" FontStyle="Italic" TextWrapping="Wrap"
                                                                                Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,1,0,0"
                                                                                ToolTip="This task can't be started before this date"
                                                                                Visibility="{Binding StartDateDisplay, Converter={StaticResource EmptyStringToVisibilityConverter}}"/>
                                                                     </Border>
-                                                                    <Border Visibility="{Binding DataContext.CardParts.Repeats, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                                    <Border Visibility="{Binding Data.CardParts.Repeats, Source={StaticResource Board}, Converter={StaticResource BooleanToVisibilityConverter}}">
                                                                     <TextBlock Text="{Binding RecurrenceDisplay}" FontSize="10" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,1,0,0"
                                                                                Visibility="{Binding RecurrenceDisplay, Converter={StaticResource EmptyStringToVisibilityConverter}}"/>
                                                                     </Border>
-                                                                    <StackPanel Visibility="{Binding DataContext.ShowCardExtras, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BooleanToVisibilityConverter}}">
-                                                                    <Border Visibility="{Binding DataContext.CardParts.Updated, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                                    <StackPanel Visibility="{Binding Data.ShowCardExtras, Source={StaticResource Board}, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                                    <Border Visibility="{Binding Data.CardParts.Updated, Source={StaticResource Board}, Converter={StaticResource BooleanToVisibilityConverter}}">
                                                                     <TextBlock Text="{Binding StatusStampDisplay}" FontSize="9" FontStyle="Italic" TextWrapping="Wrap"
                                                                                Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,3,0,0"/>
                                                                     </Border>
 
-                                                                    <Border Visibility="{Binding DataContext.CardParts.Attachments, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                                    <Border Visibility="{Binding Data.CardParts.Attachments, Source={StaticResource Board}, Converter={StaticResource BooleanToVisibilityConverter}}">
                                                                     <TextBlock Text="{Binding AttachmentsCountDisplay}" FontSize="10"
                                                                                Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,3,0,0"
                                                                                Visibility="{Binding HasAttachments, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                                                                     </Border>
                                                                     </StackPanel>
 
-                                                                    <StackPanel Visibility="{Binding DataContext.CardParts.SubTasks, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                                    <StackPanel Visibility="{Binding Data.CardParts.SubTasks, Source={StaticResource Board}, Converter={StaticResource BooleanToVisibilityConverter}}">
                                                                     <TextBlock Text="{Binding SubTaskProgressDisplay}" FontSize="10" FontWeight="SemiBold"
                                                                                Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,5,0,0"
                                                                                Visibility="{Binding HasSubTasks, Converter={StaticResource BooleanToVisibilityConverter}}"/>
@@ -693,30 +761,13 @@
                                                                                               FontSize="10" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,1,0,0"
                                                                                               Tag="{Binding RelativeSource={RelativeSource AncestorType=ItemsControl}, Path=Tag}"
                                                                                               Checked="SubTaskCheckBox_Changed" Unchecked="SubTaskCheckBox_Changed">
-                                                                                        <CheckBox.Style>
-                                                                                            <Style TargetType="CheckBox">
-                                                                                                <Style.Triggers>
-                                                                                                    <DataTrigger Binding="{Binding Tag.SubTasksPickOne, RelativeSource={RelativeSource AncestorType=ItemsControl}}" Value="True">
-                                                                                                        <Setter Property="Visibility" Value="Collapsed"/>
-                                                                                                    </DataTrigger>
-                                                                                                </Style.Triggers>
-                                                                                            </Style>
-                                                                                        </CheckBox.Style>
+                                                                                        <CheckBox.Style><StaticResource ResourceKey="CardSubTaskCheckBoxStyle"/></CheckBox.Style>
                                                                                     </CheckBox>
                                                                                     <RadioButton Content="{Binding Title}" IsChecked="{Binding IsDone, Mode=OneWay}"
                                                                                                  FontSize="10" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,1,0,0"
                                                                                                  Tag="{Binding RelativeSource={RelativeSource AncestorType=ItemsControl}, Path=Tag}"
                                                                                                  ToolTip="Choose this one. Click it again to clear the choice." Click="SubTaskRadio_Click">
-                                                                                        <RadioButton.Style>
-                                                                                            <Style TargetType="RadioButton">
-                                                                                                <Setter Property="Visibility" Value="Collapsed"/>
-                                                                                                <Style.Triggers>
-                                                                                                    <DataTrigger Binding="{Binding Tag.SubTasksPickOne, RelativeSource={RelativeSource AncestorType=ItemsControl}}" Value="True">
-                                                                                                        <Setter Property="Visibility" Value="Visible"/>
-                                                                                                    </DataTrigger>
-                                                                                                </Style.Triggers>
-                                                                                            </Style>
-                                                                                        </RadioButton.Style>
+                                                                                        <RadioButton.Style><StaticResource ResourceKey="CardSubTaskRadioStyle"/></RadioButton.Style>
                                                                                     </RadioButton>
                                                                                 </Grid>
                                                                             </DataTemplate>
@@ -728,20 +779,7 @@
                                                                 <!-- Linked to other tasks (Related tasks on the task screen): a quiet line, red while it is waiting on open tasks. -->
                                                                 <TextBlock Text="{Binding RelatedDisplay}" FontSize="10" FontWeight="SemiBold" Margin="0,3,0,0" TextWrapping="Wrap" HorizontalAlignment="Left"
                                                                            ToolTip="{Binding RelatedToolTip}">
-                                                                    <TextBlock.Style>
-                                                                        <Style TargetType="TextBlock">
-                                                                            <Setter Property="Visibility" Value="Collapsed"/>
-                                                                            <Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}"/>
-                                                                            <Style.Triggers>
-                                                                                <DataTrigger Binding="{Binding HasRelated}" Value="True">
-                                                                                    <Setter Property="Visibility" Value="Visible"/>
-                                                                                </DataTrigger>
-                                                                                <DataTrigger Binding="{Binding IsBlocked}" Value="True">
-                                                                                    <Setter Property="Foreground" Value="#FFD32F2F"/>
-                                                                                </DataTrigger>
-                                                                            </Style.Triggers>
-                                                                        </Style>
-                                                                    </TextBlock.Style>
+                                                                    <TextBlock.Style><StaticResource ResourceKey="CardRelatedStyle"/></TextBlock.Style>
                                                                 </TextBlock>
 
                                                                 <!-- Compact cards drop the detail lines above, but what a task is waiting on
@@ -750,132 +788,52 @@
                                                                            Background="#FFFFE0B2" Foreground="#FF4E342E" Padding="3,1" Margin="0,3,0,0" HorizontalAlignment="Left"
                                                                            Cursor="Hand" ToolTip="Click to change or clear what this task is waiting on"
                                                                            MouseLeftButtonUp="WaitingOnDisplay_MouseLeftButtonUp">
-                                                                    <TextBlock.Style>
-                                                                        <Style TargetType="TextBlock">
-                                                                            <Setter Property="Visibility" Value="Collapsed"/>
-                                                                            <Style.Triggers>
-                                                                                <MultiDataTrigger>
-                                                                                    <MultiDataTrigger.Conditions>
-                                                                                        <Condition Binding="{Binding IsWaiting}" Value="True"/>
-                                                                                        <Condition Binding="{Binding DataContext.IsLargeCards, RelativeSource={RelativeSource AncestorType=Window}}" Value="False"/>
-                                                                                    </MultiDataTrigger.Conditions>
-                                                                                    <Setter Property="Visibility" Value="Visible"/>
-                                                                                </MultiDataTrigger>
-                                                                            </Style.Triggers>
-                                                                        </Style>
-                                                                    </TextBlock.Style>
+                                                                    <TextBlock.Style><StaticResource ResourceKey="CardCompactWaitingStyle"/></TextBlock.Style>
                                                                 </TextBlock>
 
                                                                 <TextBlock Text="{Binding SubTaskProgressDisplay}" FontSize="9"
                                                                            Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,3,0,0">
-                                                                    <TextBlock.Style>
-                                                                        <Style TargetType="TextBlock">
-                                                                            <Setter Property="Visibility" Value="Collapsed"/>
-                                                                            <Style.Triggers>
-                                                                                <MultiDataTrigger>
-                                                                                    <MultiDataTrigger.Conditions>
-                                                                                        <Condition Binding="{Binding HasSubTasks}" Value="True"/>
-                                                                                        <Condition Binding="{Binding DataContext.IsLargeCards, RelativeSource={RelativeSource AncestorType=Window}}" Value="False"/>
-                                                                                    </MultiDataTrigger.Conditions>
-                                                                                    <Setter Property="Visibility" Value="Visible"/>
-                                                                                </MultiDataTrigger>
-                                                                            </Style.Triggers>
-                                                                        </Style>
-                                                                    </TextBlock.Style>
+                                                                    <TextBlock.Style><StaticResource ResourceKey="CardCompactSubTaskStyle"/></TextBlock.Style>
                                                                 </TextBlock>
                                                             </StackPanel>
 
                                                             <!-- No right margin on these (the style's 3px is for the row along the bottom), so
                                                                  their right edges line up with the priority pill above them. -->
                                                             <StackPanel x:Name="SideButtons"
-                                                                        Visibility="{Binding DataContext.ShowCardSideButtons, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                                        Visibility="{Binding Data.ShowCardSideButtons, Source={StaticResource Board}, Converter={StaticResource BooleanToVisibilityConverter}}">
                                                                 <!-- "Row" when these fit at the right end of the foot row (CardButtonPlacementConverter): then they go there,
                                                                      side by side, and the card's text has the full width. -->
                                                                 <StackPanel.Tag>
                                                                     <MultiBinding Converter="{StaticResource CardButtonPlacementConverter}">
                                                                         <Binding Path="ActualWidth" RelativeSource="{RelativeSource AncestorType=Grid}"/>
-                                                                        <Binding Path="DataContext.CardParts" RelativeSource="{RelativeSource AncestorType=Window}"/>
-                                                                        <Binding Path="DataContext.ShowCardButtons" RelativeSource="{RelativeSource AncestorType=Window}"/>
-                                                                        <Binding Path="DataContext.IsLargeCards" RelativeSource="{RelativeSource AncestorType=Window}"/>
+                                                                        <Binding Path="Data.CardParts" Source="{StaticResource Board}"/>
+                                                                        <Binding Path="Data.ShowCardButtons" Source="{StaticResource Board}"/>
+                                                                        <Binding Path="Data.IsLargeCards" Source="{StaticResource Board}"/>
                                                                         <Binding Path="CanEmailCard"/>
                                                                     </MultiBinding>
                                                                 </StackPanel.Tag>
-                                                                <StackPanel.Style>
-                                                                    <Style TargetType="StackPanel">
-                                                                        <Setter Property="Grid.Column" Value="1"/>
-                                                                        <Setter Property="Margin" Value="6,0,0,0"/>
-                                                                        <Setter Property="VerticalAlignment" Value="Top"/>
-                                                                        <Setter Property="HorizontalAlignment" Value="Right"/>
-                                                                        <Style.Triggers>
-                                                                            <DataTrigger Binding="{Binding Tag, RelativeSource={RelativeSource Self}}" Value="Row">
-                                                                                <Setter Property="Grid.Row" Value="1"/>
-                                                                                <Setter Property="Grid.Column" Value="0"/>
-                                                                                <Setter Property="Grid.ColumnSpan" Value="2"/>
-                                                                                <Setter Property="Orientation" Value="Horizontal"/>
-                                                                                <Setter Property="VerticalAlignment" Value="Bottom"/>
-                                                                                <Setter Property="Margin" Value="0"/>
-                                                                            </DataTrigger>
-                                                                        </Style.Triggers>
-                                                                    </Style>
-                                                                </StackPanel.Style>
-                                                                <Border Visibility="{Binding DataContext.CardParts.FlagButton, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                                <StackPanel.Style><StaticResource ResourceKey="CardSideButtonsStyle"/></StackPanel.Style>
+                                                                <Border Visibility="{Binding Data.CardParts.FlagButton, Source={StaticResource Board}, Converter={StaticResource BooleanToVisibilityConverter}}">
                                                                 <Button Content="&#x1F3F7;" Background="#FF8D6E63"
                                                                         ToolTip="Add a flag" Click="AddFlagQuickAction_Click">
-                                                                    <Button.Style>
-                                                                        <Style TargetType="Button" BasedOn="{StaticResource QuickActionButtonStyle}">
-                                                                            <Setter Property="Margin" Value="0"/>
-                                                                            <Style.Triggers>
-                                                                                <DataTrigger Binding="{Binding Tag, ElementName=SideButtons}" Value="Row">
-                                                                                    <Setter Property="Margin" Value="3,0,0,0"/>
-                                                                                </DataTrigger>
-                                                                                <DataTrigger Binding="{Binding DataContext.IsLargeCards, RelativeSource={RelativeSource AncestorType=Window}}" Value="False">
-                                                                                    <Setter Property="Visibility" Value="Collapsed"/>
-                                                                                </DataTrigger>
-                                                                            </Style.Triggers>
-                                                                        </Style>
-                                                                    </Button.Style>
+                                                                    <Button.Style><StaticResource ResourceKey="CardFlagButtonStyle"/></Button.Style>
                                                                 </Button>
                                                                 </Border>
-                                                                <Border Visibility="{Binding DataContext.CardParts.EmailButton, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                                <Border Visibility="{Binding Data.CardParts.EmailButton, Source={StaticResource Board}, Converter={StaticResource BooleanToVisibilityConverter}}">
                                                                 <Button Content="&#x2709;" Background="#FF1E88E5"
                                                                         ToolTip="Email this task to the assigned person" Click="EmailCardQuickAction_Click">
-                                                                    <Button.Style>
-                                                                        <Style TargetType="Button" BasedOn="{StaticResource QuickActionButtonStyle}">
-                                                                            <Setter Property="Margin" Value="0,4,0,0"/>
-                                                                            <Setter Property="Visibility" Value="Collapsed"/>
-                                                                            <Style.Triggers>
-                                                                                <DataTrigger Binding="{Binding Tag, ElementName=SideButtons}" Value="Row">
-                                                                                    <Setter Property="Margin" Value="3,0,0,0"/>
-                                                                                </DataTrigger>
-                                                                                <DataTrigger Binding="{Binding CanEmailCard}" Value="True">
-                                                                                    <Setter Property="Visibility" Value="Visible"/>
-                                                                                </DataTrigger>
-                                                                            </Style.Triggers>
-                                                                        </Style>
-                                                                    </Button.Style>
+                                                                    <Button.Style><StaticResource ResourceKey="CardEmailButtonStyle"/></Button.Style>
                                                                 </Button>
                                                                 </Border>
                                                                 <!-- Large cards only, like the flag button: compact cards keep it in the right-click menu. -->
-                                                                <Border Visibility="{Binding DataContext.CardParts.CalendarButton, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                                <Border Visibility="{Binding Data.CardParts.CalendarButton, Source={StaticResource Board}, Converter={StaticResource BooleanToVisibilityConverter}}">
                                                                 <Button Content="&#x1F4C5;" Background="#FF5C6BC0"
                                                                         ToolTip="Schedule this task in Outlook" Click="ScheduleCardQuickAction_Click">
-                                                                    <Button.Style>
-                                                                        <Style TargetType="Button" BasedOn="{StaticResource QuickActionButtonStyle}">
-                                                                            <Setter Property="Margin" Value="0,4,0,0"/>
-                                                                            <Style.Triggers>
-                                                                                <DataTrigger Binding="{Binding Tag, ElementName=SideButtons}" Value="Row">
-                                                                                    <Setter Property="Margin" Value="3,0,0,0"/>
-                                                                                </DataTrigger>
-                                                                                <DataTrigger Binding="{Binding DataContext.IsLargeCards, RelativeSource={RelativeSource AncestorType=Window}}" Value="False">
-                                                                                    <Setter Property="Visibility" Value="Collapsed"/>
-                                                                                </DataTrigger>
-                                                                            </Style.Triggers>
-                                                                        </Style>
-                                                                    </Button.Style>
+                                                                    <Button.Style><StaticResource ResourceKey="CardCalendarButtonStyle"/></Button.Style>
                                                                 </Button>
                                                                 </Border>
                                                             </StackPanel>
-                                                            <views:CardButtonRowPanel Grid.Row="1" Grid.ColumnSpan="2" Margin="0,6,0,0" Visibility="{Binding DataContext.ShowCardFootButtons, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                            <views:CardButtonRowPanel Grid.Row="1" Grid.ColumnSpan="2" Margin="0,6,0,0" Visibility="{Binding Data.ShowCardFootButtons, Source={StaticResource Board}, Converter={StaticResource BooleanToVisibilityConverter}}">
                                                             <!-- The visible buttons in as few rows as fit, as even as possible (CardButtonRowPanel). -->
                                                             <!-- The letters and tooltips come from what the columns are called now (the user can
                                                                  rename them); Done is always a tick.
@@ -883,72 +841,27 @@
                                                                  that button's target column - clicking it there would be a no-op. The ancestor
                                                                  ItemsControl is this card's per-column Cards list, whose own DataContext is the
                                                                  enclosing ColumnViewModel, so its Name is the card's current column. -->
-                                                            <Button Content="{Binding DataContext.ToDoColumn.QuickLetter, RelativeSource={RelativeSource AncestorType=Window}}" Background="#FF42A5F5"
-                                                                    Tag="To Do" Visibility="{Binding DataContext.CardParts.MoveToDoButton, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BooleanToVisibilityConverter}}" ToolTip="{Binding DataContext.ToDoColumn.MoveToolTip, RelativeSource={RelativeSource AncestorType=Window}}" Click="QuickMove_Click">
-                                                                <Button.Style>
-                                                                    <Style TargetType="Button" BasedOn="{StaticResource QuickActionButtonStyle}">
-                                                                        <Style.Triggers>
-                                                                            <DataTrigger Binding="{Binding DataContext.Name, RelativeSource={RelativeSource AncestorType=ItemsControl}}" Value="To Do">
-                                                                                <Setter Property="IsEnabled" Value="False"/>
-                                                                                <Setter Property="Opacity" Value="0.35"/>
-                                                                            </DataTrigger>
-                                                                        </Style.Triggers>
-                                                                    </Style>
-                                                                </Button.Style>
+                                                            <Button Content="{Binding Data.ToDoColumn.QuickLetter, Source={StaticResource Board}}" Background="#FF42A5F5"
+                                                                    Tag="To Do" Visibility="{Binding Data.CardParts.MoveToDoButton, Source={StaticResource Board}, Converter={StaticResource BooleanToVisibilityConverter}}" ToolTip="{Binding Data.ToDoColumn.MoveToolTip, Source={StaticResource Board}}" Click="QuickMove_Click">
+                                                                <Button.Style><StaticResource ResourceKey="CardMoveToDoStyle"/></Button.Style>
                                                             </Button>
-                                                            <Button Content="{Binding DataContext.InProgressColumn.QuickLetter, RelativeSource={RelativeSource AncestorType=Window}}" Background="#FFF9A825"
-                                                                    Tag="In Progress" Visibility="{Binding DataContext.CardParts.MoveInProgressButton, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BooleanToVisibilityConverter}}" ToolTip="{Binding DataContext.InProgressColumn.MoveToolTip, RelativeSource={RelativeSource AncestorType=Window}}" Click="QuickMove_Click">
-                                                                <Button.Style>
-                                                                    <Style TargetType="Button" BasedOn="{StaticResource QuickActionButtonStyle}">
-                                                                        <Style.Triggers>
-                                                                            <DataTrigger Binding="{Binding DataContext.Name, RelativeSource={RelativeSource AncestorType=ItemsControl}}" Value="In Progress">
-                                                                                <Setter Property="IsEnabled" Value="False"/>
-                                                                                <Setter Property="Opacity" Value="0.35"/>
-                                                                            </DataTrigger>
-                                                                        </Style.Triggers>
-                                                                    </Style>
-                                                                </Button.Style>
+                                                            <Button Content="{Binding Data.InProgressColumn.QuickLetter, Source={StaticResource Board}}" Background="#FFF9A825"
+                                                                    Tag="In Progress" Visibility="{Binding Data.CardParts.MoveInProgressButton, Source={StaticResource Board}, Converter={StaticResource BooleanToVisibilityConverter}}" ToolTip="{Binding Data.InProgressColumn.MoveToolTip, Source={StaticResource Board}}" Click="QuickMove_Click">
+                                                                <Button.Style><StaticResource ResourceKey="CardMoveInProgressStyle"/></Button.Style>
                                                             </Button>
-                                                            <Button Content="{Binding DataContext.OnHoldColumn.QuickLetter, RelativeSource={RelativeSource AncestorType=Window}}" Background="#FFFB8C00"
-                                                                    Tag="On Hold" Visibility="{Binding DataContext.CardParts.MoveOnHoldButton, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BooleanToVisibilityConverter}}" ToolTip="{Binding DataContext.OnHoldColumn.MoveToolTip, RelativeSource={RelativeSource AncestorType=Window}}" Click="QuickMove_Click">
-                                                                <Button.Style>
-                                                                    <Style TargetType="Button" BasedOn="{StaticResource QuickActionButtonStyle}">
-                                                                        <Style.Triggers>
-                                                                            <DataTrigger Binding="{Binding DataContext.Name, RelativeSource={RelativeSource AncestorType=ItemsControl}}" Value="On Hold">
-                                                                                <Setter Property="IsEnabled" Value="False"/>
-                                                                                <Setter Property="Opacity" Value="0.35"/>
-                                                                            </DataTrigger>
-                                                                        </Style.Triggers>
-                                                                    </Style>
-                                                                </Button.Style>
+                                                            <Button Content="{Binding Data.OnHoldColumn.QuickLetter, Source={StaticResource Board}}" Background="#FFFB8C00"
+                                                                    Tag="On Hold" Visibility="{Binding Data.CardParts.MoveOnHoldButton, Source={StaticResource Board}, Converter={StaticResource BooleanToVisibilityConverter}}" ToolTip="{Binding Data.OnHoldColumn.MoveToolTip, Source={StaticResource Board}}" Click="QuickMove_Click">
+                                                                <Button.Style><StaticResource ResourceKey="CardMoveOnHoldStyle"/></Button.Style>
                                                             </Button>
-                                                            <Button Content="{Binding DataContext.WaitingColumn.QuickLetter, RelativeSource={RelativeSource AncestorType=Window}}" Background="#FFAB47BC"
-                                                                    Tag="Waiting" Visibility="{Binding DataContext.CardParts.MoveWaitingButton, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BooleanToVisibilityConverter}}" ToolTip="{Binding DataContext.WaitingColumn.MoveToolTip, RelativeSource={RelativeSource AncestorType=Window}}" Click="QuickMove_Click">
-                                                                <Button.Style>
-                                                                    <Style TargetType="Button" BasedOn="{StaticResource QuickActionButtonStyle}">
-                                                                        <Style.Triggers>
-                                                                            <DataTrigger Binding="{Binding DataContext.Name, RelativeSource={RelativeSource AncestorType=ItemsControl}}" Value="Waiting">
-                                                                                <Setter Property="IsEnabled" Value="False"/>
-                                                                                <Setter Property="Opacity" Value="0.35"/>
-                                                                            </DataTrigger>
-                                                                        </Style.Triggers>
-                                                                    </Style>
-                                                                </Button.Style>
+                                                            <Button Content="{Binding Data.WaitingColumn.QuickLetter, Source={StaticResource Board}}" Background="#FFAB47BC"
+                                                                    Tag="Waiting" Visibility="{Binding Data.CardParts.MoveWaitingButton, Source={StaticResource Board}, Converter={StaticResource BooleanToVisibilityConverter}}" ToolTip="{Binding Data.WaitingColumn.MoveToolTip, Source={StaticResource Board}}" Click="QuickMove_Click">
+                                                                <Button.Style><StaticResource ResourceKey="CardMoveWaitingStyle"/></Button.Style>
                                                             </Button>
                                                             <Button Content="&#x2713;" Background="#FF66BB6A" views:CardButtonRowPanel.StartsGroup="True"
-                                                                    Tag="Done" Visibility="{Binding DataContext.CardParts.DoneButton, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BooleanToVisibilityConverter}}" ToolTip="{Binding DataContext.DoneColumn.MoveToolTip, RelativeSource={RelativeSource AncestorType=Window}}" Click="QuickMove_Click">
-                                                                <Button.Style>
-                                                                    <Style TargetType="Button" BasedOn="{StaticResource QuickActionButtonStyle}">
-                                                                        <Style.Triggers>
-                                                                            <DataTrigger Binding="{Binding DataContext.Name, RelativeSource={RelativeSource AncestorType=ItemsControl}}" Value="Done">
-                                                                                <Setter Property="IsEnabled" Value="False"/>
-                                                                                <Setter Property="Opacity" Value="0.35"/>
-                                                                            </DataTrigger>
-                                                                        </Style.Triggers>
-                                                                    </Style>
-                                                                </Button.Style>
+                                                                    Tag="Done" Visibility="{Binding Data.CardParts.DoneButton, Source={StaticResource Board}, Converter={StaticResource BooleanToVisibilityConverter}}" ToolTip="{Binding Data.DoneColumn.MoveToolTip, Source={StaticResource Board}}" Click="QuickMove_Click">
+                                                                <Button.Style><StaticResource ResourceKey="CardMoveDoneStyle"/></Button.Style>
                                                             </Button>
-                                                            <Button Style="{StaticResource QuickActionButtonStyle}" Content="X" Background="#FFEF5350" Margin="0" Visibility="{Binding DataContext.CardParts.DeleteButton, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                                            <Button Style="{StaticResource QuickActionButtonStyle}" Content="X" Background="#FFEF5350" Margin="0" Visibility="{Binding Data.CardParts.DeleteButton, Source={StaticResource Board}, Converter={StaticResource BooleanToVisibilityConverter}}"
                                                                     ToolTip="Delete"
                                                                     Click="DeleteQuickAction_Click"/>
                                                         </views:CardButtonRowPanel>
@@ -956,7 +869,99 @@
                                                     </StackPanel>
                                                 </Border>
                                             </DataTemplate>
-                                        </ItemsControl.ItemTemplate>
+
+        <!-- A row of cards side by side, in a block wide enough for more than one across (CardRowsConverter). The row's own
+             list takes the outer list's Tag (how many go across), which the cards' width and margins read. -->
+        <DataTemplate x:Key="CardRowTemplate">
+            <ItemsControl ItemsSource="{Binding}" ItemTemplate="{StaticResource CardTemplate}" Focusable="False"
+                          Tag="{Binding Tag, RelativeSource={RelativeSource AncestorType=ItemsControl}}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Orientation="Horizontal"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+            </ItemsControl>
+        </DataTemplate>
+
+        <DataTemplate x:Key="ColumnTemplate">
+                            <Border Width="{Binding Data.ColumnTemplateWidth, Source={StaticResource Board}}"
+                                    Margin="0,0,12,0" Padding="10" Background="{Binding Background}"
+                                    CornerRadius="6"
+                                    BorderBrush="{DynamicResource PanelBorderBrush}" BorderThickness="1"
+                                    AllowDrop="True" Drop="Column_Drop">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="*"/>
+                                    </Grid.RowDefinitions>
+
+                                    <!-- A line under the column's name, so the heading reads as a heading and not
+                                         as the first thing in the list. It stays put while the cards scroll. -->
+                                    <Border Grid.Row="0" BorderBrush="{DynamicResource ColumnHeaderLineBrush}" BorderThickness="0,0,0,1"
+                                            Padding="0,0,0,6" Margin="0,0,0,8">
+                                        <TextBlock Text="{Binding DisplayName}" FontWeight="Bold" FontSize="14" Foreground="{DynamicResource ColumnHeaderTextBrush}"
+                                                   Background="Transparent" Cursor="Hand" ToolTip="Double-click to add a new task in this column"
+                                                   MouseLeftButtonDown="ColumnHeader_MouseLeftButtonDown"/>
+                                    </Border>
+
+                                    <!-- The drop area for drag-reordering within the column. It sits around the
+                                         list rather than inside its scroller, so the insertion line below and
+                                         GetCardDropTarget both work in the list's on-screen coordinates.
+                                         Transparent (not null) so a drop below the last card still lands here. -->
+                                    <Grid Grid.Row="1" Background="Transparent" ClipToBounds="True"
+                                          AllowDrop="True" DragOver="CardsArea_DragOver" DragLeave="CardsArea_DragLeave" Drop="CardsArea_Drop">
+                                    <!-- Virtualized: only the cards on screen (plus a page either side) are built.
+                                         That needs the scroller inside the list's own template and a
+                                         VirtualizingStackPanel; pixel scrolling keeps the same smooth scroll the
+                                         board always had. Bound to CardsView, which leaves filtered-out cards out
+                                         entirely - see ColumnViewModel.CardsView for why. -->
+                                    <ItemsControl VirtualizingPanel.IsVirtualizing="True"
+                                                  VirtualizingPanel.VirtualizationMode="Standard"
+                                                  VirtualizingPanel.ScrollUnit="Pixel">
+                                        <ItemsControl.Template>
+                                            <ControlTemplate TargetType="ItemsControl">
+                                                <ScrollViewer CanContentScroll="True" Focusable="False"
+                                                              VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                                                    <ItemsPresenter/>
+                                                </ScrollViewer>
+                                            </ControlTemplate>
+                                        </ItemsControl.Template>
+                                        <!-- How many cards go side by side: one, except in a block wide enough for more (BoardBlocks.CardColumns).
+                                             One lists the cards; more lists rows of that many (CardRowsConverter, CardRowTemplate), so only what is in view is built. -->
+                                        <ItemsControl.Tag>
+                                            <MultiBinding Converter="{StaticResource CardColumnsConverter}">
+                                                <Binding Path="ActualWidth" RelativeSource="{RelativeSource Self}"/>
+                                                <Binding Path="Data.IsBlocksOn" Source="{StaticResource Board}"/>
+                                                <Binding Path="Data.MinFittedColumnWidth" Source="{StaticResource Board}"/>
+                                            </MultiBinding>
+                                        </ItemsControl.Tag>
+                                        <ItemsControl.Style>
+                                            <Style TargetType="ItemsControl">
+                                                <Setter Property="ItemsSource" Value="{Binding CardsView}"/>
+                                                <Setter Property="ItemTemplate" Value="{StaticResource CardTemplate}"/>
+                                                <Setter Property="ItemsPanel">
+                                                    <Setter.Value>
+                                                        <ItemsPanelTemplate>
+                                                            <VirtualizingStackPanel/>
+                                                        </ItemsPanelTemplate>
+                                                    </Setter.Value>
+                                                </Setter>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Tag, RelativeSource={RelativeSource Self}, Converter={StaticResource MoreThanOneConverter}}" Value="True">
+                                                        <Setter Property="ItemsSource">
+                                                            <Setter.Value>
+                                                                <MultiBinding Converter="{StaticResource CardRowsConverter}">
+                                                                    <Binding Path="CardsView"/>
+                                                                    <Binding Path="Tag" RelativeSource="{RelativeSource Self}"/>
+                                                                    <Binding Path="Name"/>
+                                                                </MultiBinding>
+                                                            </Setter.Value>
+                                                        </Setter>
+                                                        <Setter Property="ItemTemplate" Value="{StaticResource CardRowTemplate}"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </ItemsControl.Style>
                                     </ItemsControl>
                                     <Border Height="2" Background="{DynamicResource AccentTextBrush}"
                                             VerticalAlignment="Top" HorizontalAlignment="Stretch" IsHitTestVisible="False"
@@ -1543,8 +1548,18 @@
                           Background="{DynamicResource BoardAreaBrush}">
                 <Grid>
                     <!-- The plain board: one column per workflow status. -->
-                    <ItemsControl ItemsSource="{Binding Columns}" ItemTemplate="{StaticResource ColumnTemplate}"
+                    <!-- Holds its cards only while it is the layout on screen. -->
+                    <ItemsControl ItemTemplate="{StaticResource ColumnTemplate}"
                                   Visibility="{Binding IsPlainBoardOn, Converter={StaticResource BooleanToVisibilityConverter}}">
+                        <ItemsControl.Style>
+                            <Style TargetType="ItemsControl">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsPlainBoardOn}" Value="True">
+                                        <Setter Property="ItemsSource" Value="{Binding Columns}"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </ItemsControl.Style>
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
                                 <StackPanel Orientation="Horizontal"/>
@@ -1558,7 +1573,16 @@
                         <!-- The blocks two to a row (BlockGridPanel), with a cross over the middle where they meet: drag it to resize them,
                              double-click to even them (MainWindow.Blocks.cs). Its place comes from the same rules as the blocks' sizes. -->
                         <Grid Width="{Binding BlocksWidth}">
-                            <ItemsControl ItemsSource="{Binding BlockColumns}" ItemTemplate="{StaticResource ColumnTemplate}">
+                            <ItemsControl ItemTemplate="{StaticResource ColumnTemplate}">
+                                <ItemsControl.Style>
+                                    <Style TargetType="ItemsControl">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsBlocksOn}" Value="True">
+                                                <Setter Property="ItemsSource" Value="{Binding BlockColumns}"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </ItemsControl.Style>
                                 <ItemsControl.ItemsPanel>
                                     <ItemsPanelTemplate>
                                         <views:BlockGridPanel SplitX="{Binding BlocksSplitX}" SplitY="{Binding BlocksSplitY}"/>
@@ -1585,14 +1609,32 @@
                                 </Thumb.Margin>
                             </Thumb>
                         </Grid>
-                        <ContentControl Content="{Binding DoneColumn}" ContentTemplate="{StaticResource ColumnTemplate}" Width="{Binding BlocksDoneSlotWidth}"
-                                        Focusable="False"/>
+                        <ContentControl ContentTemplate="{StaticResource ColumnTemplate}" Width="{Binding BlocksDoneSlotWidth}" Focusable="False">
+                            <ContentControl.Style>
+                                <Style TargetType="ContentControl">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsBlocksOn}" Value="True">
+                                            <Setter Property="Content" Value="{Binding DoneColumn}"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </ContentControl.Style>
+                        </ContentControl>
                     </DockPanel>
 
                     <!-- Swimlanes: a lane per project, goal or person, each with the same columns across it
                          (MainViewModel.Swimlanes.cs). The board scrolls down instead of sizing to the window, and
                          each lane's columns are capped in height so their cards scroll inside them as usual. -->
-                    <ItemsControl ItemsSource="{Binding Lanes}" Visibility="{Binding IsSwimlanesOn, Converter={StaticResource BooleanToVisibilityConverter}}">
+                    <ItemsControl Visibility="{Binding IsSwimlanesOn, Converter={StaticResource BooleanToVisibilityConverter}}">
+                        <ItemsControl.Style>
+                            <Style TargetType="ItemsControl">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsSwimlanesOn}" Value="True">
+                                        <Setter Property="ItemsSource" Value="{Binding Lanes}"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </ItemsControl.Style>
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <StackPanel Margin="0,0,0,10" Visibility="{Binding IsShown, Converter={StaticResource BooleanToVisibilityConverter}}">

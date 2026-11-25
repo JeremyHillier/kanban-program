@@ -157,6 +157,8 @@ public partial class MainViewModel
         var filter = CustomFilters[slot];
         if (!filter.IsDefined) return false;
 
+        using var batch = BatchFilterChanges(); // the lists re-filter as their ticks change: all of it is one pass
+
         // Project/Priority/Who selection is set directly on the (already-live) FilterOptionViewModel
         // instances, which notify their own bound ListBoxItems. The rest of the backing fields are
         // set directly and the change notifications raised by hand, so the whole slot lands as one

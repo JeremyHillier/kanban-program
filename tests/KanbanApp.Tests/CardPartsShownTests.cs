@@ -86,7 +86,7 @@ public sealed class CardPartsShownTests
         while (dir is not null && !System.IO.File.Exists(System.IO.Path.Combine(dir.FullName, "KanbanApp.slnx"))) dir = dir.Parent;
         var xaml = System.IO.File.ReadAllText(System.IO.Path.Combine(dir!.FullName, "src", "KanbanApp", "MainWindow.xaml"));
 
-        Assert.All(Enum.GetValues<CardPart>(), part => Assert.Contains($"DataContext.CardParts.{part},", xaml));
+        Assert.All(Enum.GetValues<CardPart>(), part => Assert.Contains($"Data.CardParts.{part},", xaml));
     }
 }
 

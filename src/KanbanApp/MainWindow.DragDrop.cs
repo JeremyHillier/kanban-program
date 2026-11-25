@@ -281,18 +281,14 @@ public partial class MainWindow
     internal static (int Index, double IndicatorY) GetCardDropTarget(System.Windows.Controls.ItemsControl itemsControl, ColumnViewModel column,
         Point positionInItemsControl, IReadOnlyCollection<CardViewModel> draggedCards)
     {
-        var items = itemsControl.Items;
-        var generator = itemsControl.ItemContainerGenerator;
         CardViewModel? lastCard = null;
         var lastIndex = -1;
         var lastBottom = 0.0;
         var sideBySide = itemsControl.Tag is int columns && columns > 1; // a block showing cards side by side
 
-        for (var i = 0; i < items.Count; i++)
+        var built = BuiltCards(itemsControl, out var total);
+        foreach (var (card, container, index) in built)
         {
-            if (generator.ContainerFromIndex(i) is not FrameworkElement container) continue;
-
-            var card = (CardViewModel)items[i];
             var corner = container.TranslatePoint(new Point(0, 0), itemsControl);
             var top = corner.Y;
             if (!draggedCards.Contains(card) &&
@@ -302,7 +298,7 @@ public partial class MainWindow
             }
 
             lastCard = card;
-            lastIndex = i;
+            lastIndex = index;
             lastBottom = top + container.ActualHeight;
         }
 
@@ -311,8 +307,52 @@ public partial class MainWindow
         // Below every card that has an element: after the last visible card in the list means the
         // very end of the column (past any hidden ones too, as before); otherwise straight after
         // the last card on screen.
-        return lastIndex == items.Count - 1
+        return lastIndex == total - 1
             ? (column.Cards.Count, lastBottom)
             : (column.Cards.IndexOf(lastCard) + 1, lastBottom);
+    }
+
+    // The cards a list has built, in reading order, each with its place among all the cards the list shows (total): one per
+    // item, or row by row when a block shows its cards side by side (Views.CardRow).
+    private static List<(CardViewModel Card, FrameworkElement Container, int Index)> BuiltCards(System.Windows.Controls.ItemsControl list, out int total)
+    {
+        var built = new List<(CardViewModel, FrameworkElement, int)>();
+        var items = list.Items;
+        if (items.Count > 0 && items[0] is Views.CardRow)
+        {
+            var index = 0;
+            for (var i = 0; i < items.Count; i++)
+            {
+                var row = (Views.CardRow)items[i];
+                if (list.ItemContainerGenerator.ContainerFromIndex(i) is DependencyObject rowContainer && InnerList(rowContainer) is { } inner)
+                {
+                    for (var j = 0; j < row.Count; j++)
+                    {
+                        if (inner.ItemContainerGenerator.ContainerFromIndex(j) is FrameworkElement container) built.Add((row[j], container, index + j));
+                    }
+                }
+                index += row.Count;
+            }
+            total = index;
+            return built;
+        }
+
+        for (var i = 0; i < items.Count; i++)
+        {
+            if (list.ItemContainerGenerator.ContainerFromIndex(i) is FrameworkElement container) built.Add(((CardViewModel)items[i], container, i));
+        }
+        total = items.Count;
+        return built;
+    }
+
+    private static System.Windows.Controls.ItemsControl? InnerList(DependencyObject element)
+    {
+        for (var i = 0; i < System.Windows.Media.VisualTreeHelper.GetChildrenCount(element); i++)
+        {
+            var child = System.Windows.Media.VisualTreeHelper.GetChild(element, i);
+            if (child is System.Windows.Controls.ItemsControl list) return list;
+            if (InnerList(child) is { } found) return found;
+        }
+        return null;
     }
 }

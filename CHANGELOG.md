@@ -6,6 +6,10 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.178.1 — 2026-11-25
+
+> - Improved: filtering the board is quicker, most of all with the task columns shown as blocks. Only the tasks in view are drawn, each task card is faster to draw, and the board that is not on screen no longer does any work.
+
 ## 0.178.0 — 2026-11-24
 
 > - New: hold Shift while dragging the cross between the blocks to move it only across, or only up and down.

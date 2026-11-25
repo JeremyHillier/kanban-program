@@ -247,8 +247,38 @@ public partial class MainViewModel
         string.IsNullOrWhiteSpace(KeywordFilter) ? null : KeywordFilter.Trim(),
         HideFutureTasks);
 
+    // Changing several filters at once (Clear Filters, a quick button, a custom filter) filters the board once, when the
+    // change is over: every ApplyFilters inside it - including the project, priority and person lists re-filtering as
+    // their ticks change - only notes that a pass is wanted.
+    private int _filterBatchDepth;
+    private bool _filterPassWanted;
+
+    private FilterBatch BatchFilterChanges()
+    {
+        _filterBatchDepth++;
+        return new FilterBatch(this);
+    }
+
+    private readonly struct FilterBatch(MainViewModel board) : IDisposable
+    {
+        public void Dispose() => board.EndFilterBatch();
+    }
+
+    private void EndFilterBatch()
+    {
+        if (--_filterBatchDepth > 0 || !_filterPassWanted) return;
+        _filterPassWanted = false;
+        ApplyFilters();
+    }
+
     public void ApplyFilters()
     {
+        if (_filterBatchDepth > 0)
+        {
+            _filterPassWanted = true;
+            return;
+        }
+
         RefreshWaitingOnFilterOptions(); // a newly chosen answer (a custom filter's, say) has to be listed to show
         var criteria = BuildFilterCriteria();
         foreach (var column in Columns)
@@ -395,6 +425,7 @@ public partial class MainViewModel
     // have selected". So every other filter is reset first and only the due filter is left set.
     public void ShowDueFilterOnly(string dueFilter)
     {
+        using var batch = BatchFilterChanges(); // one pass, not one for the clearing and another for the due filter
         ClearFilters();
         DueFilter = dueFilter;
     }
@@ -413,6 +444,7 @@ public partial class MainViewModel
 
     public void ClearFilters()
     {
+        using var batch = BatchFilterChanges();
         foreach (var option in ProjectFilterOptions) option.IsSelected = false;
         foreach (var option in PriorityFilterOptions) option.IsSelected = false;
         foreach (var option in WhoFilterOptions) option.IsSelected = false;
