@@ -4,6 +4,7 @@ using System.Windows.Controls;
 using System.Windows.Threading;
 using KanbanApp.Services;
 using KanbanApp.Views;
+using KanbanApp.ViewModels;
 
 namespace KanbanApp;
 
@@ -14,6 +15,7 @@ public partial class App : Application
     // silently break the guard that stops two copies writing to the same database.
     private static Mutex? _instanceMutex;
     private static bool _crashPromptOpen; // see DispatcherUnhandledException below
+    private static readonly CrashLog _crashLog = new(); // one entry per burst of the same error (Services/CrashLog)
     private string _dbPath = string.Empty; // the open task file, for the crash log
 
     protected override void OnStartup(StartupEventArgs e)
@@ -85,8 +87,19 @@ public partial class App : Application
 
         DispatcherUnhandledException += (_, ex) =>
         {
-            LogCrash(_dbPath, ex.Exception);
+            var inARow = LogCrash(_dbPath, ex.Exception);
             ex.Handled = true;
+
+            // A layout error repeats on every frame and leaves the board frozen. When the board is shown as blocks, the
+            // blocks are set aside until the app restarts and the board is drawn as ordinary columns, so it can be used.
+            if (CrashLog.IsLayoutError(ex.Exception) && inARow == 5 && MainWindow is MainWindow board && board.DataContext is MainViewModel { IsBlocksOn: true } boardModel)
+            {
+                board.Dispatcher.BeginInvoke(() =>
+                {
+                    boardModel.SetAsideBlocksForThisSession();
+                    board.ShowStatus("The board could not be drawn as blocks, so it is shown as columns until the app is restarted");
+                }, DispatcherPriority.Background);
+            }
 
             // One fault can arrive as a burst of the same error. While the prompt is open the rest are only logged,
             // so it is answered once rather than once for each.
@@ -232,16 +245,20 @@ public partial class App : Application
         $"This PC is running version {thisVersion}. If you carry on, tasks you change here can lose details that only the newer version knows about.\n\n" +
         "It is safer to close now and update this PC first, from the download page. Open the task file anyway?";
 
-    private static void LogCrash(string dbPath, Exception ex)
+    // Writes the error to crash.log (once per burst of the same error, with the app version) and says how many times in a
+    // row it has now come.
+    private static int LogCrash(string dbPath, Exception ex)
     {
+        var (text, inARow) = _crashLog.Record(ex, DateTime.Now, $"{ProblemReport.AppVersion} ({AppChannel.DisplayName})");
         try
         {
-            File.AppendAllText(ProblemReport.CrashLogPath(dbPath), $"{DateTime.Now:yyyy-MM-dd HH:mm:ss}\n{ex}\n\n");
+            if (text is not null) File.AppendAllText(ProblemReport.CrashLogPath(dbPath), text);
         }
         catch
         {
             // Logging is best-effort; never let a failure here mask the original error.
         }
+        return inARow;
     }
 
     private static void SeedDataFolder(string dataFolder)

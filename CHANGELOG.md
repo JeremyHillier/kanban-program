@@ -6,6 +6,11 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.178.2 — 2026-11-25
+
+> - Fixed: if the board cannot be drawn as blocks, it is now shown as ordinary columns for the rest of the session instead of freezing. Blocks stays switched on in Settings and is tried again the next time the app starts.
+> - Improved: the error log records the app's version and writes a repeated error once with a count, which makes problem reports easier to follow.
+
 ## 0.178.1 — 2026-11-25
 
 > - Improved: filtering the board is quicker, most of all with the task columns shown as blocks. Only the tasks in view are drawn, each task card is faster to draw, and the board that is not on screen no longer does any work.

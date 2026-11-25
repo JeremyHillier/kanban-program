@@ -149,6 +149,9 @@ public partial class MainWindow : Window
         }), DispatcherPriority.Background);
     }
 
+    // For App, which tells the user when it has drawn the board as columns after a layout error.
+    internal void ShowStatus(string message) => ShowStatusMessage(message);
+
     // The short line at the foot of the board ("Undid: ...", "Added: ..."), gone after a few seconds.
     private void ShowStatusMessage(string message)
     {

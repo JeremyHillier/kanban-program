@@ -30,7 +30,7 @@ public static class ProblemReport
             $"{AppChannel.DisplayName} problem report (version {AppVersion})", body, files, "Problem Report", DialogTitle);
     }
 
-    private static string AppVersion => Assembly.GetExecutingAssembly().GetName().Version?.ToString(3) ?? "unknown";
+    internal static string AppVersion => Assembly.GetExecutingAssembly().GetName().Version?.ToString(3) ?? "unknown";
 
     // Copies crash.log to its own temp folder (trimmed to the newest MaxLogBytes, starting at a
     // line boundary) so the attachment is a stable snapshot the app can't append to mid-send.

@@ -22,6 +22,11 @@ public partial class MainViewModel
 
     public void SetShowColumnsAsBlocks(bool value)
     {
+        if (value && _blocksSetAside)
+        {
+            _blocksSetAside = false; // switched on again in Settings: try the blocks once more
+            NotifyBoardLayoutChanged();
+        }
         ShowColumnsAsBlocks = value;
         _db.SetFlag("ShowColumnsAsBlocks", value);
     }
@@ -69,8 +74,19 @@ public partial class MainViewModel
 
     internal static string FormatSplit(double split) => split.ToString("0.####", System.Globalization.CultureInfo.InvariantCulture);
 
-    public bool IsBlocksOn => ShowColumnsAsBlocks && IsSwimlanesOff;
-    public bool IsPlainBoardOn => !ShowColumnsAsBlocks && IsSwimlanesOff;
+    public bool IsBlocksOn => ShowColumnsAsBlocks && !_blocksSetAside && IsSwimlanesOff;
+    public bool IsPlainBoardOn => (!ShowColumnsAsBlocks || _blocksSetAside) && IsSwimlanesOff;
+
+    // After the blocks failed to lay out (App's error handler sees the same layout error again and again, which froze
+    // the board), the board is drawn as ordinary columns until the app is next started. The setting itself is kept.
+    private bool _blocksSetAside;
+
+    public void SetAsideBlocksForThisSession()
+    {
+        if (_blocksSetAside) return;
+        _blocksSetAside = true;
+        NotifyBoardLayoutChanged();
+    }
 
     // Every column but Done, in board order, following columns added, moved or removed.
     private ListCollectionView? _blockColumns;
