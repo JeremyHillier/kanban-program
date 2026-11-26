@@ -59,8 +59,15 @@
             </StackPanel>
         </Border>
 
-        <TextBlock Grid.Row="5" x:Name="StatusText" TextWrapping="Wrap" Margin="0,14,0,0"
-                   Foreground="{DynamicResource SecondaryTextBrush}"/>
+        <StackPanel Grid.Row="5">
+            <CheckBox x:Name="ReviewImportsBox" Content="_Review each import" Margin="0,14,0,0"
+                      IsChecked="{Binding ReviewImports, Mode=TwoWay}" Foreground="{DynamicResource PrimaryTextBrush}"
+                      ToolTip="Ticked: the tasks found are listed for a yes, and open for review afterwards. Unticked: everything in the file is imported straight away."/>
+            <TextBlock Text="Untick it to import everything at once, for example when setting up many projects."
+                       FontSize="11" TextWrapping="Wrap" Margin="20,2,0,0" Foreground="{DynamicResource SecondaryTextBrush}"/>
+            <TextBlock x:Name="StatusText" TextWrapping="Wrap" Margin="0,14,0,0"
+                       Foreground="{DynamicResource SecondaryTextBrush}"/>
+        </StackPanel>
 
         <Button Content="Help" Command="{x:Static views:HelpKey.ShowCommand}" CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}" Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}" ToolTip="Help for this window. (F1)" Grid.Row="6" Margin="0,16,0,0" HorizontalAlignment="Left"/>
         <Button Grid.Row="6" Content="Close" Width="90" Padding="0,6" Margin="0,16,0,0"

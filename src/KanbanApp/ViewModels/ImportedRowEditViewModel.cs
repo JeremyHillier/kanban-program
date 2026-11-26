@@ -61,6 +61,20 @@ public class ImportedRowEditViewModel(CardViewModel card, MainViewModel viewMode
         set => SetField(ref _whoId, value);
     }
 
+    // Marked with the row's Delete button: the task is deleted (it goes to Deleted Tasks) when the list is saved,
+    // which leaves it out of the import. Clicking again (Keep) changes the user's mind.
+    private bool _isDeleting;
+    public bool IsDeleting
+    {
+        get => _isDeleting;
+        set
+        {
+            if (SetField(ref _isDeleting, value)) OnPropertyChanged(nameof(DeleteLabel));
+        }
+    }
+
+    public string DeleteLabel => IsDeleting ? "Keep" : "Delete";
+
     private bool _isImported = card.IsImported;
     public bool IsImported
     {

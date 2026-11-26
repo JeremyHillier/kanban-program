@@ -6,6 +6,11 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.179.0 — 2026-11-26
+
+> - New: Import Tasks has a Review each import choice. Untick it to import everything in a file at once, with no list to confirm and no review afterwards, which makes setting up many projects quicker. The window stays open for the next file, and the choice is remembered.
+> - New: the list of imported tasks has a Delete button on each row, so a task you do not want can be left out of the import. Deleted tasks go to Deleted Tasks when you save, where they can be restored.
+
 ## 0.178.2 — 2026-11-25
 
 > - Fixed: if the board cannot be drawn as blocks, it is now shown as ordinary columns for the rest of the session instead of freezing. Blocks stays switched on in Settings and is tried again the next time the app starts.

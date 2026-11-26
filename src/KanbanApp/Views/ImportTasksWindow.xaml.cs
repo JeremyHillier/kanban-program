@@ -8,8 +8,9 @@ using Microsoft.Win32;
 namespace KanbanApp.Views;
 
 // Import from Excel: pick a file, or drop one on the window - from a folder, or out of Outlook as
-// the attachment itself or the whole email. Either way the tasks found are listed for a yes before
-// anything is imported, and the review screen follows.
+// the attachment itself or the whole email. With Review each import ticked the tasks found are listed
+// for a yes before anything is imported, and the review screen follows; unticked, everything is
+// imported at once and the window stays open for the next file.
 public partial class ImportTasksWindow : Window
 {
     private readonly MainViewModel _viewModel;
@@ -30,6 +31,7 @@ public partial class ImportTasksWindow : Window
     {
         InitializeComponent();
         _viewModel = viewModel;
+        DataContext = viewModel;
         Closed += (_, _) =>
         {
             try { if (Directory.Exists(_workDir)) Directory.Delete(_workDir, recursive: true); }
@@ -150,12 +152,23 @@ public partial class ImportTasksWindow : Window
             return;
         }
 
-        var text = ImportDrop.DescribeForConfirm(files, row => _viewModel.FindSharedCard(row.ShareId) is not null);
-        if (ignored is { Count: > 0 }) text += $"\n\nLeft out, not being Excel files: {string.Join(", ", ignored)}.";
-        if (!Dialogs.Confirm(this, DialogMessage.Ask("Import Tasks", text, "Import"))) return;
+        var review = _viewModel.ReviewImports;
+        if (review)
+        {
+            var text = ImportDrop.DescribeForConfirm(files, row => _viewModel.FindSharedCard(row.ShareId) is not null);
+            if (ignored is { Count: > 0 }) text += $"\n\nLeft out, not being Excel files: {string.Join(", ", ignored)}.";
+            if (!Dialogs.Confirm(this, DialogMessage.Ask("Import Tasks", text, "Import"))) return;
+        }
 
-        var changed = _viewModel.ImportCards(rows, AskAboutConflict);
+        // A task changed in two places still asks, unticked too: answering for the user could lose their edits.
+        var changed = _viewModel.ImportCards(rows, AskAboutConflict, markForReview: review);
         var summary = _viewModel.LastImport;
+        if (!review)
+        {
+            StatusText.Text = ImportedText(summary, paths, ignored);
+            return;
+        }
+
         if (changed.Count == 0)
         {
             Dialogs.Tell(this, "Nothing to Change", ImportSummaryText(summary) ?? "No tasks were added or changed.");
@@ -186,6 +199,30 @@ public partial class ImportTasksWindow : Window
             DialogChoice.No => ConflictChoice.KeepBoth,
             _ => ConflictChoice.KeepMine
         };
+    }
+
+    // What an import with no review did, shown in the window so the next file can follow straight on.
+    internal static string ImportedText(ImportSummary summary, IReadOnlyList<string> paths, IReadOnlyList<string>? ignored = null)
+    {
+        static string Count(int n, string one, string many) => $"{n} {(n == 1 ? one : many)}";
+        var parts = new List<string>();
+        if (summary.Added > 0) parts.Add(Count(summary.Added, "new task", "new tasks") + " added");
+        if (summary.Updated > 0) parts.Add(Count(summary.Updated, "task", "tasks") + " updated");
+        if (summary.KeptBoth > 0) parts.Add(Count(summary.KeptBoth, "copy", "copies") + " kept beside yours");
+
+        var from = paths.Count == 1 ? Path.GetFileName(paths[0]) : $"{paths.Count} files";
+        var done = parts.Count switch
+        {
+            0 => $"Nothing was added or changed from {from}.",
+            1 => $"{parts[0]} from {from}.",
+            _ => $"{string.Join(", ", parts.Take(parts.Count - 1))} and {parts[^1]} from {from}."
+        };
+        if (parts.Count > 0) done += " Undo (Ctrl+Z) on the board takes the whole import back.";
+        done = char.ToUpperInvariant(done[0]) + done[1..];
+
+        if (ImportSummaryText(summary) is { } left) done += "\n\n" + left;
+        if (ignored is { Count: > 0 }) done += $"\n\nLeft out, not being Excel files: {string.Join(", ", ignored)}.";
+        return done;
     }
 
     // What was left alone, in words; null when nothing was.

@@ -36,6 +36,21 @@ public partial class MainViewModel
         return id;
     }
 
+    // Ticked (the default), an import lists the tasks found for a yes and opens them for review afterwards. Unticked, everything in
+    // the file goes straight onto the board with no questions, which suits setting up many projects at once. Kept in the task file.
+    private bool? _reviewImports;
+    public bool ReviewImports
+    {
+        get => _reviewImports ??= _db.GetFlag("ReviewImports", true);
+        set
+        {
+            if (ReviewImports == value) return;
+            _reviewImports = value;
+            _db.SetFlag("ReviewImports", value);
+            OnPropertyChanged();
+        }
+    }
+
     // What the last ImportCards did, for the message the window shows afterwards.
     public ImportSummary LastImport { get; private set; } = ImportSummary.None;
 
@@ -59,7 +74,9 @@ public partial class MainViewModel
     // A returned task that has changed on both sides is a clash (ShareSync): onConflict says what to do,
     // and with none given the file wins, as it always did. Their copy only changes the board when it
     // has something new: one identical to the board's, or still the copy that went out, changes nothing.
-    public List<CardViewModel> ImportCards(IEnumerable<ImportedTaskRow> rows, Func<ImportConflict, ConflictChoice>? onConflict = null)
+    // markForReview false (Review each import unticked) leaves the tasks off the review list.
+    public List<CardViewModel> ImportCards(IEnumerable<ImportedTaskRow> rows, Func<ImportConflict, ConflictChoice>? onConflict = null,
+        bool markForReview = true)
     {
         var toDoColumn = Columns.FirstOrDefault(c => c.Name == "To Do") ?? Columns.First();
         var imported = new List<CardViewModel>();
@@ -174,7 +191,7 @@ public partial class MainViewModel
                 EditCard(existing, row.Title.Trim(), column, project, priority, row.DueDate, people,
                     pattern is not null, pattern, goal, flags, subTasks, notes, existing.Attachments, existing.ForceEditOnComplete,
                     website, dueTime, startDate, row.WaitingOn, recurrencesLeft, CustomValuesFromRow(row, existing.CustomValues), row.SubTasksPickOne);
-                SetCardImported(existing, true); // listed on the review screen with the new tasks
+                if (markForReview) SetCardImported(existing, true); // listed on the review screen with the new tasks
                 RememberExchanged(existing);
                 imported.Add(existing);
                 updated++;
@@ -184,7 +201,7 @@ public partial class MainViewModel
             var title = row.Title.Trim() + (asCopy ? " (theirs)" : "");
             var cardVm = AddCard(title, column, project, priority, row.DueDate, people.FirstOrDefault(),
                 pattern is not null, pattern, goal, flags, subTasks,
-                notes: notes, isImported: true, websiteUrl: website, dueTime: dueTime, startDate: startDate,
+                notes: notes, isImported: markForReview, websiteUrl: website, dueTime: dueTime, startDate: startDate,
                 waitingOn: row.WaitingOn, people: people, recurrencesLeft: recurrencesLeft, customValues: CustomValuesFromRow(row, null),
                 subTasksPickOne: row.SubTasksPickOne);
 

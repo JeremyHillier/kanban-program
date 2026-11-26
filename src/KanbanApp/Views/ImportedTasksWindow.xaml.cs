@@ -32,7 +32,7 @@ public partial class ImportedTasksWindow : Window
     }
 
     private string BuildSignature() => string.Join("|", _rows.Select(r =>
-        $"{r.Card.Id}{r.Title}{r.ColumnId}{r.ProjectId}{r.GoalId}{r.WhoId}{r.Priority}{r.DueDate:yyyy-MM-dd}{r.IsImported}"));
+        $"{r.Card.Id}{r.Title}{r.ColumnId}{r.ProjectId}{r.GoalId}{r.WhoId}{r.Priority}{r.DueDate:yyyy-MM-dd}{r.IsImported}{r.IsDeleting}"));
 
     protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
     {
@@ -55,16 +55,32 @@ public partial class ImportedTasksWindow : Window
         HeaderGrid.Margin = new Thickness(1, 10, 1 + scrollBarWidth, 4);
     }
 
+    // Delete on a row marks it (and Keep unmarks it); nothing is deleted until the list is saved.
+    private void DeleteRow_Click(object sender, RoutedEventArgs e)
+    {
+        if (((FrameworkElement)sender).DataContext is ImportedRowEditViewModel row) row.IsDeleting = !row.IsDeleting;
+    }
+
     private void SaveChanges_Click(object sender, RoutedEventArgs e)
     {
-        var toRemove = new List<ImportedRowEditViewModel>();
+        if (SaveRows() is { } deleted)
+            Dialogs.Tell(this, "Imported Tasks", deleted == 0 ? "Changes saved."
+                : $"Changes saved. {deleted} task{(deleted == 1 ? " was" : "s were")} deleted and can be found in Deleted Tasks.");
+    }
 
-        foreach (var row in _rows)
+    // Writes the list to the board: the edits, the Imported ticks, and the tasks marked Delete (one Undo step, to Deleted Tasks).
+    // Returns how many were deleted, or null when a row with no task details stopped the save.
+    internal int? SaveRows()
+    {
+        var toRemove = new List<ImportedRowEditViewModel>();
+        var deleting = _rows.Where(r => r.IsDeleting).ToList();
+
+        foreach (var row in _rows.Except(deleting))
         {
             if (string.IsNullOrWhiteSpace(row.Title))
             {
-                Dialogs.Tell(this, "Missing Task Details", "A row has no task details, so nothing was saved.\n\nFill it in, or remove the row, then save again.", DialogTone.Warning);
-                return;
+                Dialogs.Tell(this, "Missing Task Details", "A row has no task details, so nothing was saved.\n\nFill it in, or click Delete on its row, then save again.", DialogTone.Warning);
+                return null;
             }
 
             var column = _viewModel.Columns.FirstOrDefault(c => c.Id == row.ColumnId);
@@ -89,7 +105,9 @@ public partial class ImportedTasksWindow : Window
             if (!row.IsImported) toRemove.Add(row);
         }
 
-        foreach (var row in toRemove)
+        if (deleting.Count > 0) _viewModel.DeleteCards(deleting.Select(r => r.Card));
+
+        foreach (var row in toRemove.Concat(deleting))
         {
             _rows.Remove(row);
         }
@@ -99,7 +117,6 @@ public partial class ImportedTasksWindow : Window
         // Re-baseline so closing straight after a save doesn't claim there's unsaved work. Only
         // reached once every row has been written - the blank-title path returns before this.
         _savedSignature = BuildSignature();
-
-        Dialogs.Tell(this, "Imported Tasks", "Changes saved.");
+        return deleting.Count;
     }
 }

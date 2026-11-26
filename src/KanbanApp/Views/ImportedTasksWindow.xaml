@@ -22,6 +22,13 @@
         <Style x:Key="CellMargin" TargetType="FrameworkElement">
             <Setter Property="Margin" Value="4,1"/>
             <Setter Property="VerticalAlignment" Value="Top"/>
+            <!-- A row marked for deleting is faded and can't be edited; its Keep button stays clear. -->
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsDeleting}" Value="True">
+                    <Setter Property="Opacity" Value="0.4"/>
+                    <Setter Property="IsEnabled" Value="False"/>
+                </DataTrigger>
+            </Style.Triggers>
         </Style>
     </Window.Resources>
     <Grid Margin="16">
@@ -35,7 +42,7 @@
         <TextBlock Grid.Row="0" Text="Imported Tasks" FontWeight="Bold" FontSize="18" Margin="0,0,0,4"
                    Foreground="{DynamicResource PrimaryTextBrush}"/>
         <TextBlock Grid.Row="0" HorizontalAlignment="Right" VerticalAlignment="Bottom"
-                   Text="Uncheck Imported and Save to remove a task from this review list."
+                   Text="Uncheck Imported to take a task off this list, or click Delete to leave it out of the import. Then save."
                    FontSize="11" Foreground="{DynamicResource SecondaryTextBrush}"/>
 
         <!-- Header row. Its columns must match the row template's below exactly. They used to share
@@ -53,6 +60,7 @@
                 <ColumnDefinition Width="130"/>
                 <ColumnDefinition Width="120"/>
                 <ColumnDefinition Width="70"/>
+                <ColumnDefinition Width="80"/>
             </Grid.ColumnDefinitions>
             <TextBlock Grid.Column="0" Text="Task Details" Style="{StaticResource ColHeaderStyle}"/>
             <TextBlock Grid.Column="1" Text="Category" Style="{StaticResource ColHeaderStyle}"/>
@@ -81,6 +89,7 @@
                                         <ColumnDefinition Width="130"/>
                                         <ColumnDefinition Width="120"/>
                                         <ColumnDefinition Width="70"/>
+                                        <ColumnDefinition Width="80"/>
                                     </Grid.ColumnDefinitions>
 
                                     <TextBox Grid.Column="0" Style="{StaticResource CellMargin}" Text="{Binding Title, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
@@ -124,6 +133,11 @@
 
                                     <CheckBox Grid.Column="7" Style="{StaticResource CellMargin}" IsChecked="{Binding IsImported, Mode=TwoWay}"
                                               HorizontalAlignment="Center" Margin="4,5,4,1"/>
+
+                                    <Button Grid.Column="8" Content="{Binding DeleteLabel}" Padding="10,2" Margin="4,1" VerticalAlignment="Top"
+                                            Click="DeleteRow_Click"
+                                            ToolTip="Delete this task to leave it out of the import. It goes to Deleted Tasks when you save. Click Keep to change your mind."
+                                            Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
                                 </Grid>
                             </Border>
                         </DataTemplate>
