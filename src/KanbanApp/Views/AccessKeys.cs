@@ -13,14 +13,23 @@ namespace KanbanApp.Views;
 // recognises): those also fire on the bare letter whenever focus is not in a text box, so a stray
 // "d" typed at a list could press Delete. Here Alt is always required.
 //
-// A window marks its buttons in XAML with "_" before the letter ("_Rename...") and calls Bind once
-// after InitializeComponent. Bind strips the "_", underlines the letter, and takes over Alt+letter
-// for that window. Buttons without a "_" are left alone.
+// A window marks its buttons in XAML with "_" before the letter ("_Rename..."). Register, at startup, binds every window
+// as it loads; a window that sets labels in code may also call Bind itself after InitializeComponent. Bind strips the "_",
+// underlines the letter, and takes over Alt+letter for that window. Buttons without a "_" are left alone, and a second
+// Bind finds nothing left to do.
 public static class AccessKeys
 {
+    public static void Register()
+    {
+        EventManager.RegisterClassHandler(typeof(Window), FrameworkElement.LoadedEvent, new RoutedEventHandler((sender, _) =>
+        {
+            if (sender is Window window) Bind(window);
+        }));
+    }
+
     public static void Bind(Window window)
     {
-        var map = new Dictionary<Key, Button>();
+        var map = new Dictionary<Key, List<Button>>();
         foreach (var button in Buttons(window))
         {
             if (button.Content is not string label) continue;
@@ -36,7 +45,8 @@ public static class AccessKeys
             }
 
             button.Content = Underlined(plain, at);
-            map[key] = button;
+            if (!map.TryGetValue(key, out var marked)) map[key] = marked = [];
+            marked.Add(button);
         }
 
         if (map.Count == 0) return;
@@ -44,7 +54,9 @@ public static class AccessKeys
         window.PreviewKeyDown += (_, e) =>
         {
             if (e.Key != Key.System || Keyboard.Modifiers != ModifierKeys.Alt) return;
-            if (!map.TryGetValue(e.SystemKey, out var button) || !button.IsEnabled || !button.IsVisible) return;
+            // One letter can mark a button on each tab of a window: the one that can be seen is pressed.
+            var button = map.TryGetValue(e.SystemKey, out var buttons) ? buttons.FirstOrDefault(b => b.IsEnabled && b.IsVisible) : null;
+            if (button is null) return;
 
             Press(button);
             e.Handled = true;

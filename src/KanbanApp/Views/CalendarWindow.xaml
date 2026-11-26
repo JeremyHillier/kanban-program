@@ -2,10 +2,10 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:views="clr-namespace:KanbanApp.Views"
-        Title="Calendar" Height="740" Width="1200" MinWidth="780" MinHeight="480"
+        Title="Calendar" Height="760" Width="1200" MinWidth="780" MinHeight="500"
         WindowStartupLocation="CenterOwner" ShowInTaskbar="False"
         Background="{DynamicResource WindowBackgroundBrush}">
-    <Grid Margin="16">
+    <Grid Margin="12">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -13,13 +13,12 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <TextBlock Grid.Row="0" Text="Calendar" FontWeight="Bold" FontSize="20" Margin="0,0,0,10" Foreground="{DynamicResource PrimaryTextBrush}"/>
 
         <StackPanel Grid.Row="1" Margin="0,0,0,10">
             <StackPanel Orientation="Horizontal">
                 <Button Content="&#x25C0;" Padding="10,6" Click="Prev_Click" ToolTip="Earlier (Left arrow)" AutomationProperties.Name="Previous"
                         Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
-                <Button Content="Today" Padding="10,6" Margin="6,0,0,0" Click="Today_Click" ToolTip="Back to today (Home)"
+                <Button Content="_Today" Padding="10,6" Margin="6,0,0,0" Click="Today_Click" ToolTip="Back to today (Home)"
                         Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
                 <Button Content="&#x25B6;" Padding="10,6" Margin="6,0,0,0" Click="Next_Click" ToolTip="Later (Right arrow)" AutomationProperties.Name="Next"
                         Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
@@ -39,10 +38,10 @@
                 </StackPanel>
                 <Button Content="New Task..." Padding="10,4" Margin="0,0,12,0" VerticalAlignment="Center" Click="NewTask_Click" ToolTip="Add a task (Ctrl+N). Double-click a day to add one due that day."
                         Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
-                <Button x:Name="FiltersButton" Content="Filters..." Padding="10,4" Margin="0,0,12,0" VerticalAlignment="Center" Click="Filters_Click"
+                <Button x:Name="FiltersButton" Content="_Filters..." Padding="10,4" Margin="0,0,12,0" VerticalAlignment="Center" Click="Filters_Click"
                         ToolTip="Show only some projects, goals, people, priorities or flags. The same filters as the Gantt view."
                         Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
-                <Button x:Name="UndoButton" Content="Undo" Padding="10,4" Margin="0,0,24,0" VerticalAlignment="Center" Click="Undo_Click" IsEnabled="False"
+                <Button x:Name="UndoButton" Content="_Undo" Padding="10,4" Margin="0,0,24,0" VerticalAlignment="Center" Click="Undo_Click" IsEnabled="False"
                         Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
                 <CheckBox x:Name="WeekendsCheckBox" Content="Weekends" IsChecked="True" VerticalAlignment="Center" Margin="0,0,16,0"
                           Checked="Option_Changed" Unchecked="Option_Changed" Foreground="{DynamicResource PrimaryTextBrush}" ToolTip="Show Saturday and Sunday"/>
@@ -113,9 +112,9 @@
         </Grid>
 
         <Grid Grid.Row="3" Margin="0,16,0,0">
-            <Button Content="Help" Width="60" Padding="0,6" HorizontalAlignment="Left" Command="{x:Static views:HelpKey.ShowCommand}" CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}"
+            <Button MinWidth="96" Padding="14,6" Content="Help" HorizontalAlignment="Left" Command="{x:Static views:HelpKey.ShowCommand}" CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}"
                     Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}" ToolTip="Open Help at the section about the Calendar. (F1)"/>
-            <Button Content="Close" Width="90" Padding="0,6" HorizontalAlignment="Right" IsCancel="True" IsDefault="True"
+            <Button MinWidth="96" Padding="14,6" Content="Close" HorizontalAlignment="Right" IsCancel="True" IsDefault="True"
                     Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}" ToolTip="Close this window. (Esc)"/>
         </Grid>
     </Grid>

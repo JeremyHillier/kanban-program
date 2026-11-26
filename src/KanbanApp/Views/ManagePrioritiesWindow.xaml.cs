@@ -80,7 +80,7 @@ public partial class ManagePrioritiesWindow : Window
         if (Selected is not { } row) return;
 
         var label = row.Entry.TaskCount == 0 ? "New name" : $"New name (also changes {TaskWord(row.Entry.TaskCount)})";
-        var dialog = new PromptWindow("Rename Priority", label, row.Entry.Name, "Save") { Owner = this };
+        var dialog = new PromptWindow("Rename Priority", label, row.Entry.Name, "Save and Close") { Owner = this };
         if (dialog.ShowDialog() != true || string.IsNullOrWhiteSpace(dialog.Value)) return;
 
         var newName = dialog.Value.Trim();

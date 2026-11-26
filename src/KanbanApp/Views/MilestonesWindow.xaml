@@ -10,7 +10,7 @@
         ShowInTaskbar="False"
         Background="{DynamicResource WindowBackgroundBrush}">
     <!-- A goal's milestones: a description and a date each. Every add, change and delete is saved as it happens. -->
-    <Grid Margin="16">
+    <Grid Margin="12">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -32,7 +32,7 @@
                      BorderBrush="{DynamicResource CardBorderBrush}"/>
             <DatePicker x:Name="NewDatePicker" Grid.Column="1" Width="140" Padding="4" Margin="0,0,8,0" Loaded="Picker_Loaded"
                         ToolTip="The day it is due"/>
-            <Button Grid.Column="2" Content="Add" Width="80" Padding="0,6" Click="Add_Click" IsDefault="True"
+            <Button Grid.Column="2" Content="_Add" Width="80" Padding="0,6" Click="Add_Click" IsDefault="True"
                     ToolTip="Add the milestone (Enter)"
                     Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
         </Grid>
@@ -62,8 +62,8 @@
             </ItemsControl>
         </ScrollViewer>
 
-        <Button Content="Help" Command="{x:Static views:HelpKey.ShowCommand}" CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}" Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}" ToolTip="Help for this window. (F1)" Grid.Row="3" Margin="0,12,0,0" HorizontalAlignment="Left"/>
-        <Button Grid.Row="3" Content="Close" Width="90" Padding="0,6" Margin="0,12,0,0" HorizontalAlignment="Right" IsCancel="True"
+        <Button MinWidth="96" Padding="14,6" Content="Help" Command="{x:Static views:HelpKey.ShowCommand}" CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}" Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}" ToolTip="Help for this window. (F1)" Grid.Row="3" Margin="0,12,0,0" HorizontalAlignment="Left"/>
+        <Button MinWidth="96" Padding="14,6" Grid.Row="3" Content="Close" Margin="0,12,0,0" HorizontalAlignment="Right" IsCancel="True"
                 Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}" ToolTip="Close this window. (Esc)"/>
     </Grid>
 </Window>

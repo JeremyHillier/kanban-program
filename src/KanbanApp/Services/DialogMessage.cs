@@ -34,7 +34,7 @@ public sealed record DialogMessage(string Title, string Text)
     public string? Detail { get; init; }
 
     // The main button: it does what the message asks about.
-    public string Yes { get; init; } = "OK";
+    public string Yes { get; init; } = "Close"; // a message with nothing to decide just closes
 
     // A second button, or none when the message only tells.
     public string? No { get; init; }

@@ -75,7 +75,11 @@ public partial class MassUpdateWindow : Window
         foreach (var item in items) combo.Items.Add(item);
         // Plain strings have no Name to show.
         if (items.Count > 0 && items.All(i => i is string)) combo.DisplayMemberPath = null;
-        else if (items.Any(i => i is string)) combo.ItemTemplate = MixedTemplate(member ?? "Name");
+        else if (items.Any(i => i is string))
+        {
+            combo.DisplayMemberPath = null; // a list cannot have both: the template shows the names and the plain words
+            combo.ItemTemplate = MixedTemplate(member ?? "Name");
+        }
         if (combo.Items.Count > 0) combo.SelectedIndex = 0;
         return combo;
     }

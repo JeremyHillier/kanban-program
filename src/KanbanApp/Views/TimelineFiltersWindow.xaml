@@ -5,11 +5,11 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         mc:Ignorable="d"
-        Title="Filters" Width="940" Height="460" MinWidth="720" MinHeight="320"
+        Title="Filters" Width="940" Height="510" MinWidth="720" MinHeight="370"
         WindowStartupLocation="CenterOwner" ShowInTaskbar="False"
         Background="{DynamicResource WindowBackgroundBrush}">
     <!-- Limits the Gantt view to some people, priorities or flags. Tick nothing in a list to include everything. -->
-    <Grid Margin="16">
+    <Grid Margin="12">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
@@ -61,15 +61,15 @@
 
         <Grid Grid.Row="2" Margin="0,16,0,0">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
-                <Button Content="Help" Command="{x:Static views:HelpKey.ShowCommand}" CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}"
+                <Button MinWidth="96" Padding="14,6" Content="Help" Command="{x:Static views:HelpKey.ShowCommand}" CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}"
                         Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}" ToolTip="Help for this window. (F1)"/>
-                <Button Content="Clear All" Padding="12,6" Margin="8,0,0,0" Click="ClearAll_Click" ToolTip="Untick everything, so every task shows"
+                <Button MinWidth="96" Padding="14,6" Content="_Clear All" Margin="8,0,0,0" Click="ClearAll_Click" ToolTip="Untick everything, so every task shows"
                         Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
             </StackPanel>
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                <Button Content="Show" Width="90" Padding="0,6" IsDefault="True" Click="Show_Click" ToolTip="Apply the filter (Enter)"
+                <Button MinWidth="96" Padding="14,6" Content="_Show" IsDefault="True" Click="Show_Click" ToolTip="Apply the filter (Enter)"
                         Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
-                <Button Content="Cancel" Width="90" Padding="0,6" Margin="8,0,0,0" IsCancel="True"
+                <Button MinWidth="96" Padding="14,6" Content="Cancel" Margin="8,0,0,0" IsCancel="True"
                         Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}" ToolTip="Close without changing the filter (Esc)"/>
             </StackPanel>
         </Grid>

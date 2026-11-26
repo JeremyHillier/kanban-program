@@ -6,7 +6,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:vm="clr-namespace:KanbanApp.ViewModels"
         mc:Ignorable="d"
-        Title="Imported Tasks" Height="620" Width="1400" MinWidth="1180" MinHeight="400"
+        Title="Imported Tasks" Height="650" Width="1400" MinWidth="1180" MinHeight="430"
         WindowStartupLocation="CenterOwner"
         ShowInTaskbar="False"
         Background="{DynamicResource WindowBackgroundBrush}">
@@ -31,7 +31,7 @@
             </Style.Triggers>
         </Style>
     </Window.Resources>
-    <Grid Margin="16">
+    <Grid Margin="12">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -39,9 +39,7 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <TextBlock Grid.Row="0" Text="Imported Tasks" FontWeight="Bold" FontSize="18" Margin="0,0,0,4"
-                   Foreground="{DynamicResource PrimaryTextBrush}"/>
-        <TextBlock Grid.Row="0" HorizontalAlignment="Right" VerticalAlignment="Bottom"
+        <TextBlock Grid.Row="0" HorizontalAlignment="Left"
                    Text="Uncheck Imported to take a task off this list, or click Delete to leave it out of the import. Then save."
                    FontSize="11" Foreground="{DynamicResource SecondaryTextBrush}"/>
 
@@ -151,11 +149,11 @@
                    Visibility="Collapsed"/>
 
         <DockPanel Grid.Row="3" Margin="0,12,0,0">
-            <Button Content="Help" Command="{x:Static views:HelpKey.ShowCommand}" CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}" Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}" ToolTip="Help for this window. (F1)" DockPanel.Dock="Left"/>
+            <Button MinWidth="96" Padding="14,6" Content="Help" Command="{x:Static views:HelpKey.ShowCommand}" CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}" Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}" ToolTip="Help for this window. (F1)" DockPanel.Dock="Left"/>
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                <Button Content="Save Changes" Width="120" Padding="0,6" IsDefault="True" Click="SaveChanges_Click"
+                <Button MinWidth="96" Padding="14,6" Content="Save" IsDefault="True" Click="SaveChanges_Click"
                         Background="#FF66BB6A" Foreground="White"/>
-                <Button Content="Cancel" Width="90" Padding="0,6" Margin="8,0,0,0" IsCancel="True"
+                <Button MinWidth="96" Padding="14,6" Content="Cancel" Margin="8,0,0,0" IsCancel="True"
                         Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}" ToolTip="Close without keeping the changes. (Esc)"/>
             </StackPanel>
         </DockPanel>

@@ -57,9 +57,12 @@ public partial class App : Application
 
         // Must run before any window loads - it works by class handler, so it only affects windows
         // whose Loaded fires after this point.
+        Theming.DialogBand.Register(); // the title band on every dialog; before the copyright line, which goes round it
         Theming.DialogCopyright.Register();
         Theming.WindowFit.Register(); // every window stays inside its screen, buttons and all
+        Theming.WindowReveal.Register(); // no white box while a window draws itself
         Views.HelpKey.Register(); // F1 opens Help from any window, at the section about it
+        Views.AccessKeys.Register(); // Alt+underlined letter presses a button, in every window
 
         TaskLinks.Register(); // so a link to a task opens this copy
 

@@ -6,7 +6,7 @@
         WindowStartupLocation="CenterOwner" ResizeMode="NoResize"
         ShowInTaskbar="False"
         Background="{DynamicResource WindowBackgroundBrush}">
-    <Grid Margin="16">
+    <Grid Margin="12">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
@@ -44,13 +44,13 @@
                    Text="Get the Update opens our download page in your browser. Run the installer from there; it updates the program in place and leaves your tasks as they are."/>
 
         <Grid Grid.Row="3" Margin="0,12,0,0">
-            <Button x:Name="SkipButton" Content="_Skip This Version" Width="140" Padding="0,6" HorizontalAlignment="Left" Click="Skip_Click"
+            <Button MinWidth="96" Padding="14,6" x:Name="SkipButton" Content="_Skip This Version" HorizontalAlignment="Left" Click="Skip_Click"
                     ToolTip="Skip this version. The next one will still be offered."
                     Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                <Button Content="_Get the Update" Width="130" Padding="0,6" IsDefault="True" Click="GetUpdate_Click" ToolTip="Open the download page in your browser"
+                <Button MinWidth="96" Padding="14,6" Content="_Get the Update" IsDefault="True" Click="GetUpdate_Click" ToolTip="Open the download page in your browser"
                         Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
-                <Button Content="_Remind Me Later" ToolTip="Close for now. The update is offered again at the next daily check." Width="130" Padding="0,6" Margin="8,0,0,0" IsCancel="True"
+                <Button MinWidth="96" Padding="14,6" Content="_Remind Me Later" ToolTip="Close for now. The update is offered again at the next daily check." Margin="8,0,0,0" IsCancel="True"
                         Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
             </StackPanel>
         </Grid>

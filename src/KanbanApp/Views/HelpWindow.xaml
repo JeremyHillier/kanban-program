@@ -25,21 +25,13 @@
             <Setter Property="Margin" Value="12,2,0,0"/>
         </Style>
     </Window.Resources>
-    <Grid Margin="16">
+    <Grid Margin="12">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <!-- The header band, as on the board: the heading, and the version at the right. -->
-        <Border Grid.Row="0" Background="{DynamicResource AccentPanelBrush}" BorderBrush="{DynamicResource AccentPanelBorderBrush}"
-                BorderThickness="0,0,0,2" CornerRadius="4" Padding="16,10" Margin="0,0,0,10">
-            <DockPanel>
-                <TextBlock x:Name="VersionText" DockPanel.Dock="Right" FontSize="12" Foreground="White" Opacity="0.8" VerticalAlignment="Center"/>
-                <TextBlock x:Name="HeadingText" Text="HELP" FontSize="17" FontWeight="Bold" Foreground="White" VerticalAlignment="Center"/>
-            </DockPanel>
-        </Border>
 
         <TabControl x:Name="Tabs" Grid.Row="1" Background="{DynamicResource WindowBackgroundBrush}" BorderBrush="{DynamicResource CardBorderBrush}">
             <TabItem Header="How it works">
@@ -133,6 +125,8 @@
                             <TextBlock Grid.Row="5" Text="Ctrl+C" FontFamily="Consolas" Margin="10,1,0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
                             <TextBlock Grid.Row="5" Grid.Column="1" Text="In a message, copy the message" TextWrapping="Wrap" Margin="0,1" Foreground="{DynamicResource PrimaryTextBrush}"/>
                         </Grid>
+                        <local:BulletItem Text="A button with an underlined letter is pressed by holding Alt and pressing that letter, in every window."/>
+                        <local:BulletItem Text="Help, Close, Cancel, Save, New and Delete have no letter: F1, Esc and Ctrl+S already do the first four."/>
                         <TextBlock Text="Gantt and Calendar" FontWeight="SemiBold" Margin="0,6,0,2" Foreground="{DynamicResource PrimaryTextBrush}"/>
                         <Grid>
                             <Grid.ColumnDefinitions><ColumnDefinition Width="230"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
@@ -386,7 +380,7 @@
                 <local:BulletItem Text="You can set the project, goal, priority, category (column), colour or what they wait on, and set, add or take off a person."/>
                 <local:BulletItem Text="Due date: set one date, clear it, or shift every date later or earlier by a number of days. Start dates move with them."/>
                 <local:BulletItem Text="Add a flag to all of them, or take one off."/>
-                <local:BulletItem Text="Apply lists what will change and asks first. Undo takes the whole update back in one step. If anything fails part-way, it is undone for you."/>
+                <local:BulletItem Text="Update Tasks lists what will change and asks first. Undo takes the whole update back in one step. If anything fails part-way, it is undone for you."/>
                 <local:BulletItem Text="The same menu has Copy to Another Task File: the tasks are copied there, and projects, goals, people and flags are matched by name. Attachments and links are not copied."/>
 
                 <TextBlock x:Name="HelpSection_RelatedTasks" Text="Related tasks" Style="{StaticResource HelpSectionHeaderStyle}"/>
@@ -718,7 +712,7 @@
                 <TextBlock x:Name="HelpSection_Settings" Text="Settings" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <TextBlock Text="How it works" Style="{StaticResource HelpSubHeaderStyle}"/>
                 <local:BulletItem Text="Settings has three tabs: Board, General, and Data and files."/>
-                <local:BulletItem Text="Changes show as you make them. Save &amp; Close keeps them."/>
+                <local:BulletItem Text="Changes show as you make them. Save and Close keeps them."/>
                 <local:BulletItem Text="Cancel puts every setting back, after asking."/>
                 <local:BulletItem Text="Backups, task file changes, and adding, moving or removing columns happen straight away. Cancel does not undo them."/>
                 <TextBlock Text="Board tab" Style="{StaticResource HelpSubHeaderStyle}"/>
@@ -853,14 +847,14 @@
 
         <Grid Grid.Row="2" Margin="0,10,0,0">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
-            <Button Content="_Report a Problem" Width="130" Padding="0,6" Margin="0,0,8,0" Click="ReportProblem_Click"
+            <Button MinWidth="96" Padding="14,6" Content="_Report a Problem" Margin="0,0,8,0" Click="ReportProblem_Click"
                     ToolTip="Open an email to support with the app's error log attached"
                     Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
-            <Button Content="_About" Width="90" Padding="0,6" Click="About_Click"
+            <Button MinWidth="96" Padding="14,6" Content="_About" Click="About_Click"
                     ToolTip="Version, ownership, and where this installation keeps its files"
                     Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
             </StackPanel>
-            <Button x:Name="CloseButton" Content="Close" Width="90" Padding="0,6" HorizontalAlignment="Right" IsCancel="True" IsDefault="True" Click="Close_Click"
+            <Button MinWidth="96" Padding="14,6" x:Name="CloseButton" Content="Close" HorizontalAlignment="Right" IsCancel="True" IsDefault="True" Click="Close_Click"
                     Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}" ToolTip="Close this window. (Esc)"/>
         </Grid>
     </Grid>

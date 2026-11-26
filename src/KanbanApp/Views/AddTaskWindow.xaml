@@ -120,7 +120,7 @@
             <Setter Property="ToolTip" Value="Clear selection"/>
         </Style>
     </Window.Resources>
-    <Grid Margin="0,16,0,16">
+    <Grid Margin="0,12,0,12">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -128,14 +128,14 @@
         </Grid.RowDefinitions>
 
         <!-- Reviewing Quick Add tasks (AddTaskWindow.QuickReview.cs): where this one is in the list, a drop-down of them all,
-             Previous / Next, and Reviewed. Each saves what is on screen first, like Save & Close. Hidden otherwise. -->
-        <Border x:Name="ReviewStrip" Grid.Row="0" Visibility="Collapsed" Margin="16,0,16,10" Padding="10,6" CornerRadius="4"
+             Previous / Next, and Reviewed. Each saves what is on screen first, like Save and Close. Hidden otherwise. -->
+        <Border x:Name="ReviewStrip" Grid.Row="0" Visibility="Collapsed" Margin="12,0,12,10" Padding="10,6" CornerRadius="4"
                 BorderBrush="{DynamicResource AccentTextBrush}" BorderThickness="1">
             <DockPanel>
-                <Button x:Name="ReviewedButton" DockPanel.Dock="Right" Content="&#x2714; Reviewed" Padding="12,4" Margin="8,0,0,0" Click="Reviewed_Click"
+                <Button x:Name="ReviewedButton" DockPanel.Dock="Right" Content="&#x2714; _Reviewed" Padding="12,4" Margin="8,0,0,0" Click="Reviewed_Click"
                         ToolTip="Save this task, take it off the review list and go to the next one"
                         Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
-                <Button x:Name="ReviewNextButton" DockPanel.Dock="Right" Content="Next &#x25B6;" Padding="10,4" Margin="6,0,0,0" Click="ReviewNext_Click"
+                <Button x:Name="ReviewNextButton" DockPanel.Dock="Right" Content="_Next &#x25B6;" Padding="10,4" Margin="6,0,0,0" Click="ReviewNext_Click"
                         ToolTip="Save this task and go to the next one to review. It stays on the list."
                         Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
                 <Button x:Name="ReviewPreviousButton" DockPanel.Dock="Right" Content="&#x25C0; Previous" Padding="10,4" Margin="6,0,0,0" Click="ReviewPrevious_Click"
@@ -171,7 +171,7 @@
             </TabControl>
             <Grid Grid.Row="1">
         <ScrollViewer x:Name="FormScrollViewer" VerticalScrollBarVisibility="Auto">
-            <StackPanel Margin="16,0,16,0">
+            <StackPanel Margin="12,0,12,0">
                 <!-- New tasks only: start from a saved template. Choosing one fills in the fields
                      below; everything can still be changed before saving. -->
                 <Border x:Name="TemplatePanel" Margin="0,0,0,12" Padding="8,6" CornerRadius="4"
@@ -191,7 +191,7 @@
                                   BorderBrush="{DynamicResource CardBorderBrush}"/>
                         <TextBlock Grid.Column="1" x:Name="TemplateHintText" IsHitTestVisible="False" Margin="10,0,28,0" VerticalAlignment="Center"
                                    TextTrimming="CharacterEllipsis" Foreground="{DynamicResource SecondaryTextBrush}"/>
-                        <Button Grid.Column="2" Content="Manage..." Padding="10,4" Margin="6,0,0,0" Click="ManageTemplates_Click" IsTabStop="False"
+                        <Button Grid.Column="2" Content="_Manage..." Padding="10,4" Margin="6,0,0,0" Click="ManageTemplates_Click" IsTabStop="False"
                                 ToolTip="Rename or delete templates"
                                 Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
                     </Grid>
@@ -347,7 +347,7 @@
                                 <DatePicker Grid.Column="1" x:Name="DueDatePicker" Padding="4"
                                             Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
                                             BorderBrush="{DynamicResource CardBorderBrush}"/>
-                                <Button Grid.Column="2" Content="Today" Padding="8,4" Margin="6,0,0,0" Click="TodayDueDate_Click" ToolTip="Due today"
+                                <Button Grid.Column="2" Content="To_day" Padding="8,4" Margin="6,0,0,0" Click="TodayDueDate_Click" ToolTip="Due today"
                                         Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
                                 <Button Grid.Column="3" Content="Clear" Padding="8,4" Margin="6,0,0,0" Click="ClearDueDate_Click" ToolTip="No due date"
                                         Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
@@ -472,10 +472,10 @@
                                         </TextBlock.Style>
                                     </TextBlock>
                                 </Grid>
-                                <Button x:Name="AmButton" Content="AM" Width="38" Margin="6,0,0,0" Click="Meridiem_Click" IsTabStop="False"
+                                <Button x:Name="AmButton" Content="_AM" Width="38" Margin="6,0,0,0" Click="Meridiem_Click" IsTabStop="False"
                                         ToolTip="Morning - a time typed without AM or PM is read as AM"
                                         Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
-                                <Button x:Name="PmButton" Content="PM" Width="38" Margin="4,0,0,0" Click="Meridiem_Click" IsTabStop="False"
+                                <Button x:Name="PmButton" Content="_PM" Width="38" Margin="4,0,0,0" Click="Meridiem_Click" IsTabStop="False"
                                         ToolTip="Afternoon / evening - a time typed without AM or PM is read as PM"
                                         Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
                                 <Button x:Name="ClearDueTimeButton" Content="Clear" Padding="6,4" Margin="4,0,0,0" Click="ClearDueTime_Click" IsTabStop="False"
@@ -496,7 +496,7 @@
             </StackPanel>
         </ScrollViewer>
         <ScrollViewer x:Name="SecondaryScrollViewer" Visibility="Hidden" VerticalScrollBarVisibility="Auto">
-            <StackPanel Margin="16,0,16,0">
+            <StackPanel Margin="12,0,12,0">
                 <!-- Force edit on completion (left) and the card colour (right) -->
                 <Grid>
                     <CheckBox x:Name="ForceEditOnCompleteCheckBox" Content="Force edit upon completion" Margin="0,12,0,4" HorizontalAlignment="Left" Tag="FullOnly"
@@ -533,10 +533,10 @@
                                  AllowDrop="True" PreviewDragOver="LinkTextBox_PreviewDragOver" PreviewDrop="LinkTextBox_PreviewDrop"
                                  ToolTip="An optional link for this task: a web address, an email address, or a file or folder (paste it, drag one here, or use Browse). Then click Open to launch it"
                                  Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
-                        <Button Grid.Column="1" Content="Browse" Padding="10,4" Margin="6,0,0,0" Click="BrowseLink_Click"
+                        <Button Grid.Column="1" Content="_Browse" Padding="10,4" Margin="6,0,0,0" Click="BrowseLink_Click"
                                 ToolTip="Choose a file or folder to link to"
                                 Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
-                        <Button Grid.Column="2" Content="Open" Padding="10,4" Margin="6,0,0,0" Click="OpenWebsite_Click"
+                        <Button Grid.Column="2" Content="_Open" Padding="10,4" Margin="6,0,0,0" Click="OpenWebsite_Click"
                                 ToolTip="Open this link: a web address in your browser, a file or folder in Windows"
                                 Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
                     </Grid>
@@ -555,7 +555,7 @@
                                  Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
                         <Button Grid.Column="1" Content="Clear" Padding="10,4" Margin="6,0,0,0" Click="ClearWaitingOn_Click" ToolTip="Nothing is holding this task up" IsTabStop="False"
                                 Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
-                        <Button Grid.Column="2" Content="List..." Padding="10,4" Margin="6,0,0,0" Click="ManageWaitingOn_Click" IsTabStop="False"
+                        <Button Grid.Column="2" Content="_List..." Padding="10,4" Margin="6,0,0,0" Click="ManageWaitingOn_Click" IsTabStop="False"
                                 ToolTip="Add to, reword or prune the answers suggested here"
                                 Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
                     </Grid>
@@ -637,7 +637,7 @@
              Help at the left, the stamps (when the task was finished, last changed, emailed, scheduled) with the
              whole of the rest of the width, and Mark Done, Save and Cancel at the right. The stamps used to share
              a row with the action buttons and were cut short whenever Email showed. -->
-        <Grid Grid.Row="2" Margin="16,10,16,0">
+        <Grid Grid.Row="2" Margin="12,12,12,0">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
@@ -648,21 +648,21 @@
             </Grid.ColumnDefinitions>
             <StackPanel Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" x:Name="TaskActionsPanel" Orientation="Horizontal" Margin="0,0,0,8">
                 <!-- Task actions: they act on the task being edited, so they sit away from Add Task / Cancel. -->
-                <Button Content="Save as _Template..." Padding="12,6" Click="SaveAsTemplate_Click"
+                <Button MinWidth="96" Padding="14,6" Content="Save as _Template..." Click="SaveAsTemplate_Click"
                         ToolTip="Save what is filled in here as a template for new tasks. Dates are kept as so many days from today; attachments and Waiting On are not kept."
                         Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
-                <Button x:Name="EmailButton" Content="&#x2709; _Email" Width="90" Padding="0,6" Margin="8,0,0,0" Click="Email_Click"
+                <Button MinWidth="96" Padding="14,6" x:Name="EmailButton" Content="&#x2709; _Email" Margin="8,0,0,0" Click="Email_Click"
                         Visibility="Collapsed" ToolTip="Email this task to the assigned person"
                         Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
-                <Button x:Name="ScheduleButton" Content="&#x1F4C5; Sc_hedule" Padding="12,6" Margin="8,0,0,0" Click="Schedule_Click"
+                <Button MinWidth="96" Padding="14,6" x:Name="ScheduleButton" Content="&#x1F4C5; Sc_hedule" Margin="8,0,0,0" Click="Schedule_Click"
                         Visibility="Collapsed" ToolTip="Put this task in your Outlook calendar, at the due date and time shown here. Nothing is saved until you save it in Outlook."
                         Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
-                <Button x:Name="SendBackButton" Content="&#x21A9; Send Bac_k" Padding="12,6" Margin="8,0,0,0" Click="SendBack_Click"
+                <Button MinWidth="96" Padding="14,6" x:Name="SendBackButton" Content="&#x21A9; Send Bac_k" Margin="8,0,0,0" Click="SendBack_Click"
                         Visibility="Collapsed" ToolTip="Email this task back to the person who sent it, with its status. Their copy is updated when they import it."
                         Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
             </StackPanel>
             <DockPanel Grid.Row="1" Grid.Column="0" Margin="0,0,8,0">
-                <Button Content="Help" Command="{x:Static views:HelpKey.ShowCommand}" CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}" Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}" ToolTip="Help for this window. (F1)" DockPanel.Dock="Left"/>
+                <Button MinWidth="96" Padding="14,6" Content="Help" Command="{x:Static views:HelpKey.ShowCommand}" CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}" Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}" ToolTip="Help for this window. (F1)" DockPanel.Dock="Left"/>
                 <!-- Edit mode only: when the task was finished (if it has been) and last changed. -->
                 <StackPanel x:Name="TaskStampPanel" Margin="10,0,0,0" VerticalAlignment="Center" Visibility="Collapsed">
                     <TextBlock x:Name="CompletedStampText" FontSize="11" FontWeight="SemiBold" Visibility="Collapsed"
@@ -684,11 +684,11 @@
                         ToolTip="Mark the task as done. Saves any changes first."/>
                 <!-- Switches this window between the full form and the short one (project, goal, task, due, recurring, who).
                      Only this window: the starting view is a setting. Nothing hidden is lost or changed. -->
-                <Button x:Name="ViewModeButton" Content="Simple View" Padding="12,6" Margin="0,0,8,0" Click="ViewMode_Click"
+                <Button MinWidth="96" Padding="14,6" x:Name="ViewModeButton" Content="Simple View" Margin="0,0,8,0" Click="ViewMode_Click"
                         Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
-                <Button x:Name="SubmitButton" Content="Add Task" MinWidth="90" Padding="12,6" IsDefault="True" Click="Add_Click" ToolTip="Add the task (Enter or Ctrl+S)"
+                <Button MinWidth="96" Padding="14,6" x:Name="SubmitButton" Content="Add Task" IsDefault="True" Click="Add_Click" ToolTip="Add the task (Enter or Ctrl+S)"
                         Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
-                <Button Content="Cancel" Width="80" Padding="0,6" Margin="8,0,0,0" IsCancel="True"
+                <Button MinWidth="96" Padding="14,6" Content="Cancel" Margin="8,0,0,0" IsCancel="True"
                         Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}" ToolTip="Close without saving the task. (Esc)"/>
             </StackPanel>
         </Grid>

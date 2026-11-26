@@ -12,7 +12,7 @@
         Background="{DynamicResource WindowBackgroundBrush}">
     <Window.Resources>
     </Window.Resources>
-    <Grid Margin="16">
+    <Grid Margin="12">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
@@ -81,15 +81,15 @@
         <Grid Grid.Row="2" Margin="0,12,0,0">
             <!-- Time alerts only. Shown only while more than one task is listed; each row has its own Snooze. Its menu is filled in code from TimeAlertTracker.SnoozeOptions. -->
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
-                <Button Content="Help" Command="{x:Static views:HelpKey.ShowCommand}" CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}" Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}" ToolTip="Help for this window. (F1)"/>
-                <Button x:Name="SnoozeButton" Content="Snooze All ▾" Width="110" Padding="0,6" Margin="8,0,0,0"
+                <Button MinWidth="96" Padding="14,6" Content="Help" Command="{x:Static views:HelpKey.ShowCommand}" CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}" Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}" ToolTip="Help for this window. (F1)"/>
+                <Button MinWidth="96" Padding="14,6" x:Name="SnoozeButton" Content="_Snooze All ▾" Margin="8,0,0,0"
                     Visibility="Collapsed" Click="Snooze_Click"
                     ToolTip="Ask again later about every task still listed here"
                     Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
             </StackPanel>
             <!-- IsCancel alone only closes a window opened with ShowDialog; the time alert is opened with
                  Show so it doesn't block the board, so Close needs its own Click handler. -->
-            <Button Content="Close" Width="90" Padding="0,6" HorizontalAlignment="Right" IsCancel="True" IsDefault="True"
+            <Button MinWidth="96" Padding="14,6" Content="Close" HorizontalAlignment="Right" IsCancel="True" IsDefault="True"
                     Click="Close_Click"
                     Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}" ToolTip="Close this window. (Esc)"/>
         </Grid>

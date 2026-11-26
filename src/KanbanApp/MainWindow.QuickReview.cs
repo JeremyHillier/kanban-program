@@ -55,7 +55,7 @@ public partial class MainWindow
                 ReviewStep.Next => index < queue.Count - 1 ? queue[index + 1] : null,
                 ReviewStep.Jump => dialog.ReviewJumpTo,
                 ReviewStep.Reviewed => index < queue.Count - 1 ? queue[index + 1] : index > 0 ? queue[0] : null,
-                _ => null // Save & Close
+                _ => null // Save and Close
             };
             if (dialog.ReviewStep == ReviewStep.Reviewed) viewModel.MarkReviewed(current);
 

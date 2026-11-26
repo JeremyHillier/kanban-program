@@ -5,7 +5,7 @@
         Title="Default Fields" Width="440" SizeToContent="Height" ResizeMode="NoResize"
         WindowStartupLocation="CenterOwner" ShowInTaskbar="False"
         Background="{DynamicResource WindowBackgroundBrush}">
-    <StackPanel Margin="16">
+    <StackPanel Margin="12">
         <TextBlock x:Name="IntroText" TextWrapping="Wrap" Margin="0,0,0,10" Foreground="{DynamicResource SecondaryTextStrongBrush}"/>
         <StackPanel x:Name="FieldsPanel"/>
         <Grid Margin="0,14,0,0">
@@ -13,13 +13,13 @@
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            <Button Grid.Column="0" Content="Help" Command="{x:Static views:HelpKey.ShowCommand}" CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}"
-                    HorizontalAlignment="Left" Width="70" Padding="0,6"
+            <Button MinWidth="96" Padding="14,6" Grid.Column="0" Content="Help" Command="{x:Static views:HelpKey.ShowCommand}" CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}"
+                    HorizontalAlignment="Left"
                     Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}" ToolTip="Help for this window. (F1)"/>
             <StackPanel Grid.Column="1" Orientation="Horizontal">
-                <Button Content="Save" IsDefault="True" Width="90" Padding="0,6" Click="Save_Click"
+                <Button MinWidth="96" Padding="14,6" Content="Save and Close" IsDefault="True" Click="Save_Click"
                         Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}" ToolTip="Keep these choices"/>
-                <Button Content="Cancel" IsCancel="True" Width="90" Padding="0,6" Margin="8,0,0,0"
+                <Button MinWidth="96" Padding="14,6" Content="Cancel" IsCancel="True" Margin="8,0,0,0"
                         Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}" ToolTip="Close without saving. (Esc)"/>
             </StackPanel>
         </Grid>

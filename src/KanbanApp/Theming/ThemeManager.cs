@@ -47,6 +47,8 @@ public static class ThemeManager
             // a pale one. Both keep white text readable (the light one is about 5.4:1).
             res["AccentPanelBrush"] = Brush(0x1F, 0x34, 0x52);
             res["AccentPanelBorderBrush"] = Brush(0x3A, 0x55, 0x80);
+            // The title band on dialogs (DialogBand): the same blue, deeper at the left.
+            res["DialogBandBrush"] = Gradient(0x12, 0x21, 0x36, 0x1F, 0x34, 0x52);
             // The button column. Everything in it is a coloured box with its own white text, so its
             // background is free to be whatever sets those boxes off best: the same deep navy here.
             res["SidebarPanelBrush"] = Brush(0x1F, 0x34, 0x52);
@@ -81,6 +83,7 @@ public static class ThemeManager
             res["AlternateRowBrush"] = Brush(0xD7, 0xD8, 0xDB);
             res["AccentPanelBrush"] = Brush(0x4B, 0x6D, 0x96);
             res["AccentPanelBorderBrush"] = Brush(0x70, 0x90, 0xB6);
+            res["DialogBandBrush"] = Gradient(0x2E, 0x4C, 0x73, 0x4B, 0x6D, 0x96);
             // Pale, so the slate and blue buttons stand clear of it instead of washing into a navy of
             // much the same strength. The header keeps AccentPanelBrush: its white text needs the depth.
             res["SidebarPanelBrush"] = Brush(0xC1, 0xC9, 0xD4);
@@ -91,4 +94,8 @@ public static class ThemeManager
     }
 
     private static SolidColorBrush Brush(byte r, byte g, byte b) => new(Color.FromRgb(r, g, b));
+
+    // Left to right, from the first colour to the second.
+    private static LinearGradientBrush Gradient(byte r1, byte g1, byte b1, byte r2, byte g2, byte b2) =>
+        new(Color.FromRgb(r1, g1, b1), Color.FromRgb(r2, g2, b2), 0);
 }

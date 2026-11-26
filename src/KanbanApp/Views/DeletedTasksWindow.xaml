@@ -9,7 +9,7 @@
         WindowStartupLocation="CenterOwner" ResizeMode="NoResize"
         ShowInTaskbar="False"
         Background="{DynamicResource WindowBackgroundBrush}">
-    <Grid Margin="16">
+    <Grid Margin="12">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -25,7 +25,7 @@
             <DatePicker x:Name="FromDatePicker" Width="120" SelectedDateChanged="DateRange_Changed" Loaded="DatePicker_Loaded"/>
             <TextBlock Text="to" VerticalAlignment="Center" Foreground="{DynamicResource PrimaryTextBrush}" Margin="10,0,6,0"/>
             <DatePicker x:Name="ToDatePicker" Width="120" SelectedDateChanged="DateRange_Changed" Loaded="DatePicker_Loaded"/>
-            <Button Content="Clear Dates" Padding="8,4" Margin="12,0,0,0" Click="ClearDates_Click" ToolTip="Show every deleted task, whatever its date"
+            <Button Content="_Clear Dates" Padding="8,4" Margin="12,0,0,0" Click="ClearDates_Click" ToolTip="Show every deleted task, whatever its date"
                     Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
         </StackPanel>
 
@@ -57,11 +57,11 @@
 
         <Grid Grid.Row="3" Margin="0,12,0,0">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
-                <Button Content="Help" Command="{x:Static views:HelpKey.ShowCommand}" CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}" Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}" ToolTip="Help for this window. (F1)"/>
-                <Button Content="Reactivate to To Do" Padding="10,6" Margin="8,0,0,0" Click="Reactivate_Click" ToolTip="Put the selected tasks back on the board, in To Do"
+                <Button MinWidth="96" Padding="14,6" Content="Help" Command="{x:Static views:HelpKey.ShowCommand}" CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}" Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}" ToolTip="Help for this window. (F1)"/>
+                <Button MinWidth="96" Padding="14,6" Content="_Reactivate to To Do" Margin="8,0,0,0" Click="Reactivate_Click" ToolTip="Put the selected tasks back on the board, in To Do"
                     Background="#FF66BB6A" Foreground="White"/>
             </StackPanel>
-            <Button Content="Close" Width="90" Padding="0,6" HorizontalAlignment="Right"
+            <Button MinWidth="96" Padding="14,6" Content="Close" HorizontalAlignment="Right"
                     IsCancel="True" IsDefault="True"
                     Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}" ToolTip="Close this window. (Esc)"/>
         </Grid>

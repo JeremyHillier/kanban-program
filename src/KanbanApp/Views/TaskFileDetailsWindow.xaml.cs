@@ -14,7 +14,7 @@ public partial class TaskFileDetailsWindow : Window
         Projects: ProjectsBox.IsChecked == true, Goals: GoalsBox.IsChecked == true, People: PeopleBox.IsChecked == true,
         Flags: FlagsBox.IsChecked == true, OpenTasks: TasksBox.IsChecked == true, TaskTemplates: TaskTemplatesBox.IsChecked == true);
 
-    public TaskFileDetailsWindow(string title, string intro, string? name, string? description, string okText = "Save", TemplateParts? parts = null)
+    public TaskFileDetailsWindow(string title, string intro, string? name, string? description, string okText = "Save and Close", TemplateParts? parts = null)
     {
         InitializeComponent();
         AccessKeys.Bind(this);

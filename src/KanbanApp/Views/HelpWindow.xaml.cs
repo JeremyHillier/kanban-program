@@ -2,6 +2,7 @@ using System.Windows;
 using System.Windows.Controls;
 using KanbanApp.Services;
 using KanbanApp.ViewModels;
+using KanbanApp.Theming;
 
 namespace KanbanApp.Views;
 
@@ -11,7 +12,6 @@ public partial class HelpWindow : Window
 {
     private readonly MainViewModel _viewModel;
     private readonly string _defaultTitle;
-    private readonly string _defaultHeading;
 
     // Help is not modal: it opens beside whatever is open (a task, Settings, a report) and stays usable while
     // that is. There is only ever one - asking again for a topic takes the open one to it.
@@ -68,13 +68,13 @@ public partial class HelpWindow : Window
         {
             Tabs.SelectedItem = WhatsNewTab;
             Title = "What's New";
-            HeadingText.Text = "WHAT'S NEW";
+            DialogBand.SetTitle(this, "What's New");
             return;
         }
 
         Tabs.SelectedIndex = 0;
         Title = _defaultTitle;
-        HeadingText.Text = _defaultHeading;
+        DialogBand.SetTitle(this, null); // back to the window's own title
         if (section is null) return;
 
         // BringIntoView only scrolls the minimum distance needed to make the target visible, which for a section
@@ -97,10 +97,9 @@ public partial class HelpWindow : Window
         InitializeComponent();
         AccessKeys.Bind(this);
         _defaultTitle = Title;
-        _defaultHeading = HeadingText.Text;
         _viewModel = viewModel;
         DataContext = viewModel;
-        VersionText.Text = $"Version {viewModel.AppVersion.TrimStart('v')}";
+        DialogBand.SetNote(this, $"Version {viewModel.AppVersion.TrimStart('v')}"); // at the right of the title band
         RenderWhatsNew();
         BuildTopics();
 

@@ -6,6 +6,7 @@ using System.Windows.Shapes;
 using KanbanApp.Services;
 using KanbanApp.ViewModels;
 using static KanbanApp.Views.DashboardCharts;
+using KanbanApp.Theming;
 
 namespace KanbanApp.Views;
 
@@ -31,7 +32,7 @@ public partial class DashboardWindow : Window
         var data = DashboardData.Build(cards, columns, viewModel.GetArchivedCompletionDates(), DateTime.Today,
             CultureInfo.CurrentCulture.DateTimeFormat.FirstDayOfWeek, _priorities);
 
-        AsOfText.Text = $"As of {DateTime.Now:MMM d, yyyy h:mm tt}";
+        DialogBand.SetNote(this, $"As of {DateTime.Now:MMM d, yyyy h:mm tt}"); // at the right of the title band
         BuildTiles(data);
         BuildCharts(data);
     }

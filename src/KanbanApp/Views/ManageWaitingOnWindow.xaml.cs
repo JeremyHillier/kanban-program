@@ -57,7 +57,7 @@ public partial class ManageWaitingOnWindow : Window
     {
         if (EntryList.SelectedItem is not MainViewModel.WaitingOnEntry entry) return;
 
-        var dialog = new PromptWindow("Rename", entry.TaskCount == 0 ? "New wording" : $"New wording (also changes {TaskWord(entry.TaskCount)})", entry.Text, "Save") { Owner = this };
+        var dialog = new PromptWindow("Rename", entry.TaskCount == 0 ? "New wording" : $"New wording (also changes {TaskWord(entry.TaskCount)})", entry.Text, "Save and Close") { Owner = this };
         if (dialog.ShowDialog() != true || string.IsNullOrWhiteSpace(dialog.Value)) return;
 
         _viewModel.RenameWaitingOnSuggestion(entry.Text, dialog.Value);

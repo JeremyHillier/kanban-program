@@ -5,7 +5,7 @@
         Title="Custom Fields" Width="740" SizeToContent="Height" ResizeMode="NoResize"
         WindowStartupLocation="CenterOwner" ShowInTaskbar="False"
         Background="{DynamicResource WindowBackgroundBrush}">
-    <StackPanel Margin="16">
+    <StackPanel Margin="12">
         <TextBlock TextWrapping="Wrap" Margin="0,0,0,10" Foreground="{DynamicResource SecondaryTextStrongBrush}"
                    Text="Up to ten fields of your own for this task file. Name a field, choose what it holds and tick Active to offer it. Each task then chooses which of them apply to it, with the + beside Custom fields on the Secondary tab of the task screen. Each change here is saved as you make it."/>
         <!-- One row per field, built by the code behind: number, Active, name, type, Keep on repeat and how many tasks hold a value. -->
@@ -17,10 +17,10 @@
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            <Button Grid.Column="0" Content="Help" Command="{x:Static views:HelpKey.ShowCommand}" CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}"
-                    HorizontalAlignment="Left" Width="70" Padding="0,6"
+            <Button MinWidth="96" Padding="14,6" Grid.Column="0" Content="Help" Command="{x:Static views:HelpKey.ShowCommand}" CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}"
+                    HorizontalAlignment="Left"
                     Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}" ToolTip="Help for this window. (F1)"/>
-            <Button Grid.Column="1" Content="Close" IsCancel="True" IsDefault="True" Width="90" Padding="0,6"
+            <Button MinWidth="96" Padding="14,6" Grid.Column="1" Content="Close" IsCancel="True" IsDefault="True"
                     Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}" ToolTip="Close this window. (Esc)"/>
         </Grid>
     </StackPanel>

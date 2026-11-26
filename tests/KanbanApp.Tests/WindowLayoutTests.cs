@@ -22,7 +22,7 @@ public class WindowLayoutTests
     {
         string? A(string name) => button.Attribute(name)?.Value;
         if (A("IsCancel") == "True" || A("IsDefault") == "True") return true;
-        return A("Content") is "Close" or "Cancel" or "Save" or "OK" or "Save &amp; Close" or "Save & Close";
+        return A("Content") is "Close" or "Cancel" or "Save" or "Save and Close";
     }
 
     [Fact]

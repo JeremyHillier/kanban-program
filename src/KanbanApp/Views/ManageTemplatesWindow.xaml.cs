@@ -38,7 +38,7 @@ public partial class ManageTemplatesWindow : Window
     {
         if (TemplateList.SelectedItem is not TaskTemplate template) return;
 
-        var dialog = new PromptWindow("Rename Template", "Template name", template.Name, "Save") { Owner = this };
+        var dialog = new PromptWindow("Rename Template", "Template name", template.Name, "Save and Close") { Owner = this };
         if (dialog.ShowDialog() != true || string.IsNullOrWhiteSpace(dialog.Value) || dialog.Value == template.Name) return;
 
         if (!_viewModel.RenameTaskTemplate(template, dialog.Value))

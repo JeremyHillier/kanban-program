@@ -20,7 +20,7 @@ public sealed class MessageWindowTests(WpfDispatcherFixture wpf)
         var body = (StackPanel)window.FindName("Body");
         Assert.Equal([typeof(TextBlock), typeof(TextBlock), typeof(Grid), typeof(Grid), typeof(TextBox)],
             body.Children.Cast<object>().Select(c => c.GetType()));
-        Assert.Equal(FontWeights.SemiBold, ((TextBlock)body.Children[0]).FontWeight);
+        Assert.Equal(FontWeights.Bold, ((TextBlock)body.Children[0]).FontWeight);
         window.Close();
     });
 
@@ -45,7 +45,7 @@ public sealed class MessageWindowTests(WpfDispatcherFixture wpf)
     public void AMessageThatOnlyTells_HasOneOkButton() => wpf.Run(() =>
     {
         var window = new MessageWindow(new DialogMessage("Done", "It is done."));
-        Assert.Equal((true, (object)"OK", DialogChoice.Yes), (ButtonOf(window, "YesButton").IsDefault, ButtonOf(window, "YesButton").Content, window.Choice));
+        Assert.Equal((true, (object)"Close", DialogChoice.Yes), (ButtonOf(window, "YesButton").IsDefault, ButtonOf(window, "YesButton").Content, window.Choice));
         Assert.Equal(Visibility.Collapsed, ButtonOf(window, "NoButton").Visibility);
         window.Close();
     });

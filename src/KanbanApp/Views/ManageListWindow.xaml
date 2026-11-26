@@ -11,7 +11,7 @@
         Background="{DynamicResource WindowBackgroundBrush}">
     <!-- One screen for Manage Projects, Goals, Flags and Who; ManagedListKind says which, with its
          title, wording and actions. The email line under each name shows only for people. -->
-    <Grid Margin="16">
+    <Grid Margin="12">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
@@ -22,7 +22,7 @@
             <TextBox x:Name="NewNameTextBox" Width="220" Padding="6"
                      Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
                      BorderBrush="{DynamicResource CardBorderBrush}"/>
-            <Button Content="Add" Width="80" Margin="8,0,0,0" Padding="0,6" Click="Add_Click" ToolTip="Add the name typed on the left" IsDefault="True"
+            <Button Content="_Add" Width="80" Margin="8,0,0,0" Padding="0,6" Click="Add_Click" ToolTip="Add the name typed on the left" IsDefault="True"
                     Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
         </StackPanel>
 
@@ -100,8 +100,8 @@
         </ScrollViewer>
         <!-- Every add, rename and delete is saved as it happens, so there is nothing left to save here. -->
 
-        <Button Content="Help" Command="{x:Static views:HelpKey.ShowCommand}" CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}" Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}" ToolTip="Help for this window. (F1)" Grid.Row="2" Margin="0,12,0,0" HorizontalAlignment="Left"/>
-        <Button Grid.Row="2" Content="Close" Width="90" Padding="0,6" Margin="0,12,0,0"
+        <Button MinWidth="96" Padding="14,6" Content="Help" Command="{x:Static views:HelpKey.ShowCommand}" CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}" Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}" ToolTip="Help for this window. (F1)" Grid.Row="2" Margin="0,12,0,0" HorizontalAlignment="Left"/>
+        <Button MinWidth="96" Padding="14,6" Grid.Row="2" Content="Close" Margin="0,12,0,0"
                 HorizontalAlignment="Right" IsCancel="True"
                 Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}" ToolTip="Close this window. (Esc)"/>
     </Grid>

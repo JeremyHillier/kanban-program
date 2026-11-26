@@ -223,7 +223,7 @@ public partial class AddTaskWindow : Window
     public AddTaskWindow(MainViewModel viewModel, CardViewModel cardToEdit, ColumnViewModel currentColumn) : this(viewModel)
     {
         Title = "Edit Task";
-        SubmitButton.Content = "Save & Close"; // Ctrl+S, see the constructor
+        SubmitButton.Content = "Save and Close"; // Ctrl+S, see the constructor
         SubmitButton.ToolTip = "Save and close (Enter or Ctrl+S)";
 
         _cardToEdit = cardToEdit;

@@ -10,6 +10,13 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 
 > - New: Import Tasks has a Review each import choice. Untick it to import everything in a file at once, with no list to confirm and no review afterwards, which makes setting up many projects quicker. The window stays open for the next file, and the choice is remembered.
 > - New: the list of imported tasks has a Delete button on each row, so a task you do not want can be left out of the import. Deleted tasks go to Deleted Tasks when you save, where they can be restored.
+> - Improved: every dialog has a title band across the top, with the title in capitals and a gold line beneath it. Headings that only repeated the title are gone, and Help, About and the Dashboard show their extra detail at the right of the band.
+> - Improved: messages show their heading in the title band, beside a symbol for the kind of message, in the same text size as the rest of the program. A message with nothing to decide has a Close button.
+> - Improved: footer buttons are one size throughout, and every dialog has the same margin around its contents. Buttons that save and close now say Save and Close, and Mass Update's button says Update Tasks.
+> - Improved: most buttons now have an underlined letter in every window: hold Alt and press it to use the button. Help, Close, Cancel, Save, New and Delete keep their usual keys instead.
+> - Improved: windows no longer show a white box for a moment as they open.
+> - Improved: the lines between groups of buttons match the borders of the boxes around them.
+> - Fixed: Mass Update could fail to open when its lists mixed plain choices with projects, goals or people.
 
 ## 0.178.2 — 2026-11-25
 

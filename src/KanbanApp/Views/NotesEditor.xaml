@@ -49,7 +49,7 @@
                         <Button Content="Insert Table" Margin="0,8,0,0" Padding="0,5" Click="InsertTable_Click"
                                 Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
                                 ToolTip="Put a table of this size under the cursor"/>
-                        <Separator Margin="0,8"/>
+                        <Separator Style="{DynamicResource DividerStyle}" Margin="0,8"/>
                         <Button x:Name="AddRowButton" Content="Add Row Below" Padding="0,4" Margin="0,0,0,3" Click="AddRow_Click"
                                 Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
                         <Button x:Name="AddColumnButton" Content="Add Column on the Right" Padding="0,4" Margin="0,0,0,3" Click="AddColumn_Click"

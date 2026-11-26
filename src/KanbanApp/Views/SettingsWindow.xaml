@@ -85,17 +85,17 @@
                     <TextBox x:Name="NewColumnTextBox" Width="220" Padding="6" MaxLength="40" KeyDown="NewColumnTextBox_KeyDown"
                              ToolTip="The name of a new column. It is added just before Done."
                              Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}" BorderBrush="{DynamicResource CardBorderBrush}"/>
-                    <Button x:Name="AddColumnButton" Content="Add Column" Padding="10,6" Margin="8,0,0,0" Click="AddColumn_Click"
+                    <Button x:Name="AddColumnButton" Content="Add _Column" Padding="10,6" Margin="8,0,0,0" Click="AddColumn_Click"
                             ToolTip="Add a column of your own, just before Done"
                             Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
                 </StackPanel>
                 <TextBlock x:Name="ColumnLimitHint" FontSize="11" Margin="100,0,0,12" TextWrapping="Wrap"
                            Foreground="{DynamicResource SecondaryTextBrush}"/>
                 <StackPanel Orientation="Horizontal" Margin="0,0,0,20">
-                    <Button Content="Use GTD Names" Padding="10,6" Margin="0,0,8,0" Click="UseGtdNames_Click"
+                    <Button Content="Use _GTD Names" Padding="10,6" Margin="0,0,8,0" Click="UseGtdNames_Click"
                             ToolTip="Getting Things Done names: Inbox, Next Actions, In Progress, Waiting, Done"
                             Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
-                    <Button Content="Use Standard Names" Padding="10,6" Click="UseStandardNames_Click"
+                    <Button Content="Use _Standard Names" Padding="10,6" Click="UseStandardNames_Click"
                             ToolTip="To Do, In Progress, On Hold, Waiting, Done"
                             Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
                 </StackPanel>
@@ -117,14 +117,14 @@
                 <TextBlock Text="Priorities" Style="{StaticResource SectionHeaderStyle}"/>
                 <TextBlock x:Name="PrioritiesSummaryText" FontSize="11" Margin="0,0,0,8" TextWrapping="Wrap"
                            Foreground="{DynamicResource SecondaryTextBrush}"/>
-                <Button Content="Manage Priorities..." Padding="10,6" HorizontalAlignment="Left" Margin="0,0,0,20" Click="ManagePriorities_Click"
+                <Button Content="Manage _Priorities..." Padding="10,6" HorizontalAlignment="Left" Margin="0,0,0,20" Click="ManagePriorities_Click"
                         ToolTip="Add, rename, recolour and reorder the priorities tasks can have"
                         Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
 
                 <TextBlock Text="Custom fields" Style="{StaticResource SectionHeaderStyle}"/>
                 <TextBlock x:Name="CustomFieldsSummaryText" FontSize="11" Margin="0,0,0,8" TextWrapping="Wrap"
                            Foreground="{DynamicResource SecondaryTextBrush}"/>
-                <Button Content="Manage Custom Fields..." Padding="10,6" HorizontalAlignment="Left" Margin="0,0,0,20" Click="ManageCustomFields_Click"
+                <Button Content="Manage Custom _Fields..." Padding="10,6" HorizontalAlignment="Left" Margin="0,0,0,20" Click="ManageCustomFields_Click"
                         ToolTip="Define up to ten fields of your own for tasks, and choose which are shown on the task screen"
                         Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
 
@@ -188,7 +188,7 @@
                 <CheckBox x:Name="ShowWhatsNewCheckBox" Content="Show what's new after an update"
                           Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,8"
                           Checked="ShowWhatsNewCheckBox_Changed" Unchecked="ShowWhatsNewCheckBox_Changed"/>
-                <Button Content="Show What's New" Padding="10,4" HorizontalAlignment="Left" Margin="0,0,0,20"
+                <Button Content="Show _What's New" Padding="10,4" HorizontalAlignment="Left" Margin="0,0,0,20"
                         Click="ShowWhatsNew_Click"
                         ToolTip="See what changed in the last few updates"
                         Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
@@ -248,7 +248,7 @@
                          Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
                          BorderBrush="{DynamicResource CardBorderBrush}"/>
                 <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
-                    <Button Content="Check Spelling" Padding="12,4" Click="CheckDictionary_Click"
+                    <Button Content="Check _Spelling" Padding="12,4" Click="CheckDictionary_Click"
                             ToolTip="Test whether your words are accepted on this PC. If Windows is not applying them, they are kept in Windows' own dictionary instead."
                             Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
                     <TextBlock x:Name="DictionaryCheckText" FontSize="11" Margin="10,0,0,0" VerticalAlignment="Center" TextWrapping="Wrap"
@@ -321,7 +321,7 @@
                          BorderBrush="{DynamicResource CardBorderBrush}"/>
 
                 <StackPanel VerticalAlignment="Top" Margin="0,0,0,20">
-                    <Button Content="Change Location..." Padding="10,6" HorizontalAlignment="Left" Click="ChangeLocation_Click" ToolTip="Move the task file to another folder. The app restarts with it there."
+                    <Button Content="Change _Location..." Padding="10,6" HorizontalAlignment="Left" Click="ChangeLocation_Click" ToolTip="Move the task file to another folder. The app restarts with it there."
                             Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
                     <TextBlock Text="Changing the location moves the database file, restarts the app, and removes the old file once the new one is confirmed working." FontSize="11" Margin="0,6,0,0"
                                Foreground="{DynamicResource SecondaryTextBrush}" TextWrapping="Wrap"/>
@@ -332,7 +332,7 @@
                 <TextBlock Text="Task files" Style="{StaticResource SectionHeaderStyle}"/>
                 <TextBlock Text="Keep separate boards in separate task files: one for work, one for home, one per client. The Task Files window lists them, switches between them, makes new ones (from scratch or from a template), adds a file copied from another computer, and manages templates." FontSize="11" Margin="0,0,0,8"
                            Foreground="{DynamicResource SecondaryTextBrush}" TextWrapping="Wrap"/>
-                <Button Content="Manage Task Files..." Padding="10,6" HorizontalAlignment="Left" Margin="0,0,0,20" Click="ManageTaskFiles_Click" ToolTip="Switch to another task file, make a new one, add one from another computer, or manage templates"
+                <Button Content="Manage _Task Files..." Padding="10,6" HorizontalAlignment="Left" Margin="0,0,0,20" Click="ManageTaskFiles_Click" ToolTip="Switch to another task file, make a new one, add one from another computer, or manage templates"
                         Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
 
                 </StackPanel>
@@ -353,9 +353,9 @@
                          Background="{DynamicResource InputBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"
                          BorderBrush="{DynamicResource CardBorderBrush}"/>
                 <StackPanel Orientation="Horizontal" Margin="0,0,0,20">
-                    <Button Content="Back Up Now" Padding="10,6" Margin="0,0,8,0" Click="BackupNow_Click" ToolTip="Copy the task file to the Backups folder now"
+                    <Button Content="_Back Up Now" Padding="10,6" Margin="0,0,8,0" Click="BackupNow_Click" ToolTip="Copy the task file to the Backups folder now"
                             Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
-                    <Button Content="Open Backups Folder" Padding="10,6" Click="OpenBackupsFolder_Click" ToolTip="Show the backup copies in File Explorer"
+                    <Button Content="_Open Backups Folder" Padding="10,6" Click="OpenBackupsFolder_Click" ToolTip="Show the backup copies in File Explorer"
                             Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
                 </StackPanel>
 
@@ -406,16 +406,16 @@
             </ScrollViewer>
         </TabItem>
     </TabControl>
-        <Grid Grid.Row="1" Margin="16,10,16,16">
+        <Grid Grid.Row="1" Margin="12,12,12,12">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
-                <Button Content="Help" Command="{x:Static views:HelpKey.ShowCommand}" CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}" Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}" ToolTip="Help for this window. (F1)" Margin="0,0,8,0"/>
-                <Button Content="About" Width="90" Padding="0,6" Click="About_Click" ToolTip="Version, ownership, and where this installation keeps its files"
+                <Button MinWidth="96" Padding="14,6" Content="Help" Command="{x:Static views:HelpKey.ShowCommand}" CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}" Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}" ToolTip="Help for this window. (F1)" Margin="0,0,8,0"/>
+                <Button MinWidth="96" Padding="14,6" Content="_About" Click="About_Click" ToolTip="Version, ownership, and where this installation keeps its files"
                         Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
             </StackPanel>
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                <Button Content="Save &amp; Close" Width="120" Padding="0,6" IsDefault="True" Click="Save_Click" ToolTip="Save and close (Enter or Ctrl+S)"
+                <Button MinWidth="96" Padding="14,6" Content="Save and Close" IsDefault="True" Click="Save_Click" ToolTip="Save and close (Enter or Ctrl+S)"
                         Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
-                <Button Content="Cancel" Width="90" Padding="0,6" Margin="8,0,0,0" IsCancel="True"
+                <Button MinWidth="96" Padding="14,6" Content="Cancel" Margin="8,0,0,0" IsCancel="True"
                         ToolTip="Close and put every setting back to how it was when this window opened (Esc)"
                         Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
             </StackPanel>

@@ -10,7 +10,7 @@
         WindowStartupLocation="CenterOwner" ResizeMode="NoResize"
         ShowInTaskbar="False"
         Background="{DynamicResource WindowBackgroundBrush}">
-    <Grid Margin="16">
+    <Grid Margin="12">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -32,7 +32,7 @@
         </StackPanel>
 
         <Grid Grid.Row="3" Margin="0,16,0,0">
-            <Button x:Name="ManageLink" Content="Manage list..." Visibility="Collapsed" HorizontalAlignment="Left" VerticalAlignment="Center"
+            <Button x:Name="ManageLink" Content="_Manage list..." Visibility="Collapsed" HorizontalAlignment="Left" VerticalAlignment="Center"
                     Click="ManageLink_Click" IsTabStop="False" Cursor="Hand" Foreground="{DynamicResource AccentTextBrush}"
                     ToolTip="Add to, reword or prune the answers suggested here">
                 <Button.Template>
@@ -47,9 +47,9 @@
                 </Button.Template>
             </Button>
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                <Button x:Name="OkButton" Content="Add" Width="80" Padding="0,6" IsDefault="True" Click="Add_Click"
+                <Button MinWidth="96" Padding="14,6" x:Name="OkButton" Content="Add" IsDefault="True" Click="Add_Click"
                         Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
-                <Button x:Name="CancelButton" Content="Cancel" Width="80" Padding="0,6" Margin="8,0,0,0" IsCancel="True"
+                <Button MinWidth="96" Padding="14,6" x:Name="CancelButton" Content="Cancel" Margin="8,0,0,0" IsCancel="True"
                         Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}" ToolTip="Close without adding anything. (Esc)"/>
             </StackPanel>
         </Grid>

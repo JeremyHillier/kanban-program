@@ -5,11 +5,11 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         mc:Ignorable="d"
-        Title="Gantt" Height="700" Width="1100" MinWidth="700" MinHeight="450"
+        Title="Gantt" Height="720" Width="1100" MinWidth="700" MinHeight="470"
         WindowStartupLocation="CenterOwner"
         ShowInTaskbar="False"
         Background="{DynamicResource WindowBackgroundBrush}">
-    <Grid Margin="16">
+    <Grid Margin="12">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -17,14 +17,12 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <TextBlock Grid.Row="0" Text="Gantt" FontWeight="Bold" FontSize="20" Margin="0,0,0,10"
-                   Foreground="{DynamicResource PrimaryTextBrush}"/>
 
         <StackPanel Grid.Row="1" Margin="0,0,0,10">
             <StackPanel Orientation="Horizontal">
                 <Button x:Name="PrevButton" Padding="10,6" Click="Prev_Click" ToolTip="Earlier (Left arrow)"
                         Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
-                <Button Content="Today" Padding="10,6" Margin="6,0,0,0" Click="Today_Click" ToolTip="Back to today (Home)"
+                <Button Content="_Today" Padding="10,6" Margin="6,0,0,0" Click="Today_Click" ToolTip="Back to today (Home)"
                         Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
                 <Button x:Name="NextButton" Padding="10,6" Margin="6,0,0,0" Click="Next_Click" ToolTip="Later (Right arrow)"
                         Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
@@ -64,10 +62,10 @@
                 <Button Content="New Task..." Padding="10,4" Margin="0,0,12,0" VerticalAlignment="Center" Click="NewTask_Click"
                         ToolTip="Add a task without leaving the Gantt view (Ctrl+N)"
                         Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
-                <Button x:Name="FiltersButton" Content="Filters..." Padding="10,4" Margin="0,0,12,0" VerticalAlignment="Center" Click="Filters_Click"
+                <Button x:Name="FiltersButton" Content="_Filters..." Padding="10,4" Margin="0,0,12,0" VerticalAlignment="Center" Click="Filters_Click"
                         ToolTip="Show only some projects, goals, people, priorities or flags"
                         Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
-                <Button x:Name="UndoButton" Content="Undo" Padding="10,4" Margin="0,0,28,0" VerticalAlignment="Center" Click="Undo_Click" IsEnabled="False"
+                <Button x:Name="UndoButton" Content="_Undo" Padding="10,4" Margin="0,0,28,0" VerticalAlignment="Center" Click="Undo_Click" IsEnabled="False"
                         Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}"/>
                 <CheckBox x:Name="IncludeDoneCheckBox" Content="Include Done tasks" VerticalAlignment="Center"
                           Checked="IncludeDoneCheckBox_Changed" Unchecked="IncludeDoneCheckBox_Changed"
@@ -98,11 +96,11 @@
         </Grid>
 
         <Grid Grid.Row="3" Margin="0,16,0,0">
-            <Button Content="Help" Command="{x:Static views:HelpKey.ShowCommand}" CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}" Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}" ToolTip="Help for this window. (F1)"  HorizontalAlignment="Left"/>
+            <Button MinWidth="96" Padding="14,6" Content="Help" Command="{x:Static views:HelpKey.ShowCommand}" CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}" Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}" ToolTip="Help for this window. (F1)"  HorizontalAlignment="Left"/>
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                <Button Content="_Print" Width="90" Padding="0,6" Click="Print_Click" ToolTip="Print the Gantt chart as shown"
+                <Button MinWidth="96" Padding="14,6" Content="_Print" Click="Print_Click" ToolTip="Print the Gantt chart as shown"
                         Background="#FF66BB6A" Foreground="White"/>
-                <Button Content="Close" Width="90" Padding="0,6" Margin="8,0,0,0"
+                <Button MinWidth="96" Padding="14,6" Content="Close" Margin="8,0,0,0"
                         IsCancel="True" IsDefault="True"
                         Background="{DynamicResource ButtonBackgroundBrush}" Foreground="{DynamicResource PrimaryTextBrush}" ToolTip="Close this window. (Esc)"/>
             </StackPanel>

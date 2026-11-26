@@ -145,7 +145,7 @@ internal static class TemplatePrompts
     // replaced after a yes.
     public static TaskTemplate? SaveAs(Window owner, MainViewModel viewModel, TaskTemplate template)
     {
-        var dialog = new PromptWindow("Save as Template", "Template name", template.Title, "Save") { Owner = owner };
+        var dialog = new PromptWindow("Save as Template", "Template name", template.Title, "Save and Close") { Owner = owner };
         if (dialog.ShowDialog() != true || string.IsNullOrWhiteSpace(dialog.Value)) return null;
 
         if (viewModel.FindTaskTemplate(dialog.Value) is { } existing)

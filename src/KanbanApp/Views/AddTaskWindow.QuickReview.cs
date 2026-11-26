@@ -4,7 +4,7 @@ using KanbanApp.ViewModels;
 
 namespace KanbanApp.Views;
 
-// What the user chose on the review strip. The window saves and closes like Save & Close; the board then marks the task
+// What the user chose on the review strip. The window saves and closes like Save and Close; the board then marks the task
 // reviewed (Reviewed) and opens the next one (MainWindow.QuickReview.cs).
 public enum ReviewStep { None, Previous, Next, Reviewed, Jump }
 

@@ -6,8 +6,8 @@ using KanbanApp.Services;
 
 namespace KanbanApp.Views;
 
-// The app's message window, in place of the plain Windows message box: the point of the message in
-// bold, paragraphs at a readable width, bullets that line up, a path or error in a box of its own,
+// The app's message window, in place of the plain Windows message box: the heading in the title band every
+// dialog has (from the window's Title), the point of the message in bold, paragraphs at a readable width, bullets that line up, a path or error in a box of its own,
 // buttons named for what they do, and the app's own light or dark theme. Services/DialogMessage says
 // how the text is laid out; Services/Dialogs shows it.
 public partial class MessageWindow : Window
@@ -20,9 +20,9 @@ public partial class MessageWindow : Window
         Title = message.Title;
         (Mark.Background, MarkText.Text) = message.Tone switch
         {
-            DialogTone.Question => (Brush("#FF3E6A9B"), "?"),
+            DialogTone.Question => (Brush("#FF1B4568"), "?"),
             DialogTone.Warning => (Brush("#FFC98A1B"), "!"),
-            DialogTone.Error => (Brush("#FFC0392B"), "×"),
+            DialogTone.Error => (Brush("#FFB14A42"), "×"),
             _ => (Brush("#FF2B7BB9"), "i"),
         };
         Layout(message);
@@ -30,7 +30,7 @@ public partial class MessageWindow : Window
         YesButton.Content = WithAccessKey(message.Yes, null);
         if (message.IsDanger)
         {
-            YesButton.Background = Brush("#FFC0392B");
+            YesButton.Background = Brush("#FFB14A42");
             YesButton.Foreground = Brushes.White;
             YesButton.FontWeight = FontWeights.SemiBold;
         }
@@ -83,8 +83,8 @@ public partial class MessageWindow : Window
                 {
                     Text = string.Join("\n", text),
                     TextWrapping = TextWrapping.Wrap,
-                    FontWeight = p == 0 ? FontWeights.SemiBold : FontWeights.Normal,
-                    FontSize = p == 0 ? 14 : 13,
+                    FontWeight = p == 0 ? FontWeights.Bold : FontWeights.Normal,
+                    FontSize = 12,
                     Margin = new Thickness(0, 0, 0, after),
                 };
                 block.SetResourceReference(TextBlock.ForegroundProperty, "PrimaryTextBrush");
@@ -131,10 +131,10 @@ public partial class MessageWindow : Window
         var grid = new Grid { Margin = new Thickness(6, 1, 0, 3) };
         grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(16) });
         grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-        var mark = new TextBlock { Text = "•", FontSize = 13 };
+        var mark = new TextBlock { Text = "•", FontSize = 12 };
         mark.SetResourceReference(TextBlock.ForegroundProperty, "PrimaryTextBrush");
         grid.Children.Add(mark);
-        var body = new TextBlock { Text = text, TextWrapping = TextWrapping.Wrap, FontSize = 13 };
+        var body = new TextBlock { Text = text, TextWrapping = TextWrapping.Wrap, FontSize = 12 };
         body.SetResourceReference(TextBlock.ForegroundProperty, "PrimaryTextBrush");
         Grid.SetColumn(body, 1);
         grid.Children.Add(body);
@@ -142,10 +142,10 @@ public partial class MessageWindow : Window
     }
 
     // Alt+letter presses a verb, as in a Windows dialog: the first letter, or for the second button the
-    // first letter that differs from the first button's. OK and Cancel keep Enter and Esc instead.
+    // first letter that differs from the first button's. Close and Cancel keep Esc instead.
     private static string WithAccessKey(string label, string? taken)
     {
-        if (label is "OK" or "Cancel") return label;
+        if (label is "Close" or "Cancel") return label;
         var avoid = taken is { Length: > 0 } ? char.ToUpperInvariant(taken[0]) : '\0';
         for (var i = 0; i < label.Length; i++)
         {
