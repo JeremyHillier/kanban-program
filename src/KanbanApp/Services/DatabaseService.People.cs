@@ -29,11 +29,28 @@ public partial class DatabaseService
     public void SetPersonActive(int personId, bool isActive) => SetListEntryActive("People", personId, isActive);
 
     // Takes the person off every task. Where they were the lead, the next person on that task's
-    // list steps up (or nobody, if they were the only one).
-    public void DeletePerson(int personId)
+    // list steps up (or nobody, if they were the only one). With moveTasksTo, that person takes their
+    // place on every task instead, archived and deleted ones too: in their spot on the list, so as lead
+    // where they led. Where both were on a task, it keeps whichever of the two places came first.
+    public void DeletePerson(int personId, int? moveTasksTo = null)
     {
         using var connection = OpenConnection();
         using var transaction = connection.BeginTransaction();
+
+        if (moveTasksTo is { } newId && newId != personId)
+        {
+            using var moveCmd = connection.CreateCommand();
+            moveCmd.Transaction = transaction;
+            moveCmd.CommandText = """
+                UPDATE CardPeople SET SortOrder = (SELECT o.SortOrder FROM CardPeople o WHERE o.CardId = CardPeople.CardId AND o.PersonId = $id)
+                WHERE PersonId = $new AND SortOrder > (SELECT o.SortOrder FROM CardPeople o WHERE o.CardId = CardPeople.CardId AND o.PersonId = $id);
+                DELETE FROM CardPeople WHERE PersonId = $id AND CardId IN (SELECT CardId FROM CardPeople WHERE PersonId = $new);
+                UPDATE CardPeople SET PersonId = $new WHERE PersonId = $id;
+                """;
+            moveCmd.Parameters.AddWithValue("$id", personId);
+            moveCmd.Parameters.AddWithValue("$new", newId);
+            moveCmd.ExecuteNonQuery();
+        }
 
         using (var clearCmd = connection.CreateCommand())
         {

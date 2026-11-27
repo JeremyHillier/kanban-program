@@ -456,6 +456,9 @@
                 <local:BulletItem Text="Names are unique, whatever their capitals."/>
                 <local:BulletItem Text="Adding a name already there uses it, and switches it back on if needed."/>
                 <local:BulletItem Text="Delete says how many tasks use the entry first. It cannot be undone."/>
+                <local:BulletItem Text="Deleting a project or person that tasks use asks where those tasks go. Pick another one to move them all at once, or leave them with none."/>
+                <local:BulletItem Text="A person picked in their place takes their spot on each task, as lead where they led."/>
+                <local:BulletItem Text="Archived and deleted tasks move too."/>
 
                 <TextBlock Text="Sorting and filtering" Style="{StaticResource HelpSectionHeaderStyle}"/>
                 <TextBlock Text="Sorting" Style="{StaticResource HelpSubHeaderStyle}"/>

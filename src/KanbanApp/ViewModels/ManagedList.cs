@@ -13,19 +13,19 @@ public class ManagedList<TModel, TViewModel> where TViewModel : ObservableObject
     private readonly ObservableCollection<TViewModel> _items;
     private readonly Func<string, TModel> _dbAdd;
     private readonly Action<int, string> _dbRename;
-    private readonly Action<int> _dbDelete;
+    private readonly Action<int, int?> _dbDelete; // the id, and the entry its tasks move to (null: none)
     private readonly Action<int, bool> _dbSetActive;
     private readonly Func<TModel, TViewModel> _factory;
     private readonly Action _onRefreshFilterOptions;
     private readonly Action _onActiveChanged;
     private readonly Action<TViewModel> _onRenamedSyncCards;
-    private readonly Action<TViewModel> _onDeletedSyncCards;
+    private readonly Action<TViewModel, TViewModel?> _onDeletedSyncCards;
     private readonly Func<TViewModel, int> _countUsage;
 
     public ManagedList(ObservableCollection<TViewModel> items, Func<string, TModel> dbAdd, Action<int, string> dbRename,
-        Action<int> dbDelete, Action<int, bool> dbSetActive, Func<TModel, TViewModel> factory,
+        Action<int, int?> dbDelete, Action<int, bool> dbSetActive, Func<TModel, TViewModel> factory,
         Action onRefreshFilterOptions, Action onActiveChanged,
-        Action<TViewModel> onRenamedSyncCards, Action<TViewModel> onDeletedSyncCards, Func<TViewModel, int> countUsage)
+        Action<TViewModel> onRenamedSyncCards, Action<TViewModel, TViewModel?> onDeletedSyncCards, Func<TViewModel, int> countUsage)
     {
         _items = items;
         _dbAdd = dbAdd;
@@ -83,11 +83,13 @@ public class ManagedList<TModel, TViewModel> where TViewModel : ObservableObject
         return true;
     }
 
-    public void Delete(TViewModel item)
+    // With moveTo, the tasks that used the entry move to that one instead of being left without.
+    public void Delete(TViewModel item, TViewModel? moveTo = null)
     {
-        _dbDelete(item.Id);
+        if (ReferenceEquals(moveTo, item)) moveTo = null;
+        _dbDelete(item.Id, moveTo?.Id);
         _items.Remove(item);
-        _onDeletedSyncCards(item);
+        _onDeletedSyncCards(item, moveTo);
         _onRefreshFilterOptions();
     }
 

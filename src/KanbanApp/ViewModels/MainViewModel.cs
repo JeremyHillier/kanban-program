@@ -58,28 +58,31 @@ public partial class MainViewModel : ObservableObject
             Projects, _db.AddProject, _db.RenameProject, _db.DeleteProject, _db.SetProjectActive, m => new ProjectViewModel(m),
             RefreshProjectFilterOptions, () => OnPropertyChanged(nameof(ActiveProjects)),
             item => UpdateMatchingCards(c => c.ProjectId == item.Id, c => c.ProjectName = item.Name),
-            item => UpdateMatchingCards(c => c.ProjectId == item.Id, c => { c.ProjectId = null; c.ProjectName = "No Project"; }),
+            (item, moveTo) => UpdateMatchingCards(c => c.ProjectId == item.Id, c => { c.ProjectId = moveTo?.Id; c.ProjectName = moveTo?.Name ?? "No Project"; }),
             item => Columns.SelectMany(c => c.Cards).Count(c => c.ProjectId == item.Id));
 
         _personManager = new ManagedList<Person, PersonViewModel>(
             People, _db.AddPerson, _db.RenamePerson, _db.DeletePerson, _db.SetPersonActive, m => new PersonViewModel(m),
             RefreshWhoFilterOptions, () => OnPropertyChanged(nameof(ActivePeople)),
             item => UpdateMatchingCards(c => c.IsAssignedTo(item.Id), c => c.RefreshPeople()),
-            item => UpdateMatchingCards(c => c.IsAssignedTo(item.Id), c => c.People = c.People.Where(p => p.Id != item.Id).ToList()),
+            // Moved, the new person takes the old one's place; where they were both on a task, People keeps the earlier place.
+            (item, moveTo) => UpdateMatchingCards(c => c.IsAssignedTo(item.Id), c => c.People = moveTo is null
+                ? c.People.Where(p => p.Id != item.Id).ToList()
+                : c.People.Select(p => p.Id == item.Id ? moveTo : p).ToList()),
             item => Columns.SelectMany(c => c.Cards).Count(c => c.IsAssignedTo(item.Id)));
 
         _goalManager = new ManagedList<Goal, GoalViewModel>(
-            Goals, _db.AddGoal, _db.RenameGoal, _db.DeleteGoal, _db.SetGoalActive, m => new GoalViewModel(m),
+            Goals, _db.AddGoal, _db.RenameGoal, (id, _) => _db.DeleteGoal(id), _db.SetGoalActive, m => new GoalViewModel(m),
             RefreshGoalFilterOptions, () => OnPropertyChanged(nameof(ActiveGoals)),
             item => UpdateMatchingCards(c => c.GoalId == item.Id, c => c.GoalName = item.Name),
-            item => UpdateMatchingCards(c => c.GoalId == item.Id, c => { c.GoalId = null; c.GoalName = "No Goal"; }),
+            (item, _) => UpdateMatchingCards(c => c.GoalId == item.Id, c => { c.GoalId = null; c.GoalName = "No Goal"; }),
             item => Columns.SelectMany(c => c.Cards).Count(c => c.GoalId == item.Id));
 
         _flagManager = new ManagedList<Flag, FlagViewModel>(
-            Flags, _db.AddFlag, _db.RenameFlag, _db.DeleteFlag, _db.SetFlagActive, m => new FlagViewModel(m),
+            Flags, _db.AddFlag, _db.RenameFlag, (id, _) => _db.DeleteFlag(id), _db.SetFlagActive, m => new FlagViewModel(m),
             RefreshFlagFilterOptions, () => OnPropertyChanged(nameof(ActiveFlags)),
             _ => { }, // Flags are shared object references in each card's Flags list, so a rename needs no per-card sync.
-            item => UpdateMatchingCards(c => c.Flags.Contains(item), c => c.Flags = c.Flags.Where(f => f.Id != item.Id).ToList()),
+            (item, _) => UpdateMatchingCards(c => c.Flags.Contains(item), c => c.Flags = c.Flags.Where(f => f.Id != item.Id).ToList()),
             item => Columns.SelectMany(c => c.Cards).Count(c => c.Flags.Contains(item)));
 
         MoveCardCommand = new RelayCommand(param =>

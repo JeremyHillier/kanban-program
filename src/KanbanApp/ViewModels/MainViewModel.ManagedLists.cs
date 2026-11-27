@@ -13,17 +13,32 @@ public partial class MainViewModel
 
     public ManagedAddResult<ProjectViewModel> AddProject(string name) => _projectManager.Add(name);
     public bool RenameProject(ProjectViewModel project, string newName) => _projectManager.Rename(project, newName);
-    public void DeleteProject(ProjectViewModel project)
+    // With moveTasksTo, its tasks move to that project in the same step instead of being left with none.
+    public void DeleteProject(ProjectViewModel project, ProjectViewModel? moveTasksTo = null)
     {
-        _projectManager.Delete(project);
+        _projectManager.Delete(project, moveTasksTo);
         _projectMilestones?.RemoveAll(m => m.OwnerId == project.Id);
+        if (moveTasksTo is not null) AfterTasksMoved();
     }
     public void SetProjectActive(ProjectViewModel project, bool isActive) => _projectManager.SetActive(project, isActive);
     public int CountTasksUsingProject(ProjectViewModel project) => _projectManager.CountUsage(project);
 
     public ManagedAddResult<PersonViewModel> AddPerson(string name) => _personManager.Add(name);
     public bool RenamePerson(PersonViewModel person, string newName) => _personManager.Rename(person, newName);
-    public void DeletePerson(PersonViewModel person) => _personManager.Delete(person);
+    // With moveTasksTo, that person takes the deleted one's place on each task, as lead where they led.
+    public void DeletePerson(PersonViewModel person, PersonViewModel? moveTasksTo = null)
+    {
+        _personManager.Delete(person, moveTasksTo);
+        if (moveTasksTo is not null) AfterTasksMoved();
+    }
+
+    // Tasks moved to another project or person may match the filters differently now, and sort differently.
+    private void AfterTasksMoved()
+    {
+        ApplyFilters();
+        ApplySort();
+        RefreshDashboardStats();
+    }
     public void SetPersonActive(PersonViewModel person, bool isActive) => _personManager.SetActive(person, isActive);
     public int CountTasksUsingPerson(PersonViewModel person) => _personManager.CountUsage(person);
 

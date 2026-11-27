@@ -41,6 +41,9 @@ public sealed class ManagedListKindTests(WpfDispatcherFixture wpf) : IDisposable
         Assert.Equal("they'll show as unassigned.", people.IfDeleted);
 
         Assert.Equal([false, false, false, true], new[] { projects, goals, flags, people }.Select(k => k.HasEmail));
+        Assert.Equal([true, false, false, true], new[] { projects, goals, flags, people }.Select(k => k.CanMoveTasks));
+        Assert.Equal("Delete Project", projects.DeleteTitle);
+        Assert.Equal("Delete Person", people.DeleteTitle);
     });
 
     [Fact]

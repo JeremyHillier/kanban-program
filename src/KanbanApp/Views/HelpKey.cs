@@ -20,6 +20,7 @@ public static class HelpKey
         [typeof(DeleteRecurringTaskWindow)] = "HelpSection_RecurringTasks",
         [typeof(ManageWaitingOnWindow)] = "HelpSection_WaitingOn",
         [typeof(ManageListWindow)] = "HelpSection_ProjectsGoals",
+        [typeof(DeleteListEntryWindow)] = "HelpSection_ProjectsGoals",
         [typeof(MilestonesWindow)] = "HelpSection_ProjectsGoals",
         [typeof(ManagePrioritiesWindow)] = "HelpSection_Priorities",
         [typeof(ManageCustomFieldsWindow)] = "HelpSection_CustomFields",

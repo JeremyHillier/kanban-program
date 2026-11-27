@@ -142,9 +142,17 @@ public partial class ManageListWindow : Window
     {
         if (sender is not FrameworkElement { DataContext: IManagedItem item }) return;
 
-        if (_viewModel.ConfirmDelete)
+        IManagedItem? moveTo = null;
+        var count = _kind.CountUsage(item);
+        if (_kind.CanMoveTasks && count > 0)
         {
-            var count = _kind.CountUsage(item);
+            // Where its tasks go is a real choice, so this is asked even when delete confirmations are switched off.
+            var dialog = new DeleteListEntryWindow(_kind, item, count) { Owner = this };
+            if (dialog.ShowDialog() != true) return;
+            moveTo = dialog.MoveTo;
+        }
+        else if (_viewModel.ConfirmDelete)
+        {
             var impact = count == 0 ? "No tasks use it." : $"{count} task{(count == 1 ? " uses" : "s use")} it. If it is deleted, {_kind.IfDeleted}";
             // Undo does not cover the lists, so Enter keeps it: a quick Enter never deletes.
             if (!Dialogs.Confirm(this, DialogMessage.AskDanger("Delete",
@@ -154,6 +162,6 @@ public partial class ManageListWindow : Window
 
         // Deferred via BeginInvoke: same reason as the rename above — removing the row tears down
         // this button's own container mid-Click-dispatch.
-        Dispatcher.BeginInvoke(new Action(() => _kind.Delete(item)), DispatcherPriority.Background);
+        Dispatcher.BeginInvoke(new Action(() => _kind.Delete(item, moveTo)), DispatcherPriority.Background);
     }
 }

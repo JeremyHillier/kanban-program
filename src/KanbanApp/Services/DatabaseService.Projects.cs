@@ -41,27 +41,27 @@ public partial class DatabaseService
 
     public void SetProjectActive(int projectId, bool isActive) => SetListEntryActive("Projects", projectId, isActive);
 
-    public void DeleteProject(int projectId)
+    // Takes the project off its tasks, archived and deleted ones too, or with moveTasksTo puts them in that
+    // project instead. Its milestones go with it. All in one step, so nothing is left half done.
+    public void DeleteProject(int projectId, int? moveTasksTo = null)
     {
         using var connection = OpenConnection();
+        using var transaction = connection.BeginTransaction();
 
-        using (var clearCmd = connection.CreateCommand())
+        void Run(string sql, object? newProject = null)
         {
-            clearCmd.CommandText = "UPDATE Cards SET ProjectId = NULL WHERE ProjectId = $id;";
-            clearCmd.Parameters.AddWithValue("$id", projectId);
-            clearCmd.ExecuteNonQuery();
+            using var cmd = connection.CreateCommand();
+            cmd.Transaction = transaction;
+            cmd.CommandText = sql;
+            cmd.Parameters.AddWithValue("$id", projectId);
+            if (newProject is not null) cmd.Parameters.AddWithValue("$new", newProject);
+            cmd.ExecuteNonQuery();
         }
 
-        using (var milestonesCmd = connection.CreateCommand())
-        {
-            milestonesCmd.CommandText = "DELETE FROM ProjectMilestones WHERE ProjectId = $id;";
-            milestonesCmd.Parameters.AddWithValue("$id", projectId);
-            milestonesCmd.ExecuteNonQuery();
-        }
+        Run("UPDATE Cards SET ProjectId = $new WHERE ProjectId = $id;", moveTasksTo is { } id && id != projectId ? id : DBNull.Value);
+        Run("DELETE FROM ProjectMilestones WHERE ProjectId = $id;");
+        Run("DELETE FROM Projects WHERE Id = $id;");
 
-        using var deleteCmd = connection.CreateCommand();
-        deleteCmd.CommandText = "DELETE FROM Projects WHERE Id = $id;";
-        deleteCmd.Parameters.AddWithValue("$id", projectId);
-        deleteCmd.ExecuteNonQuery();
+        transaction.Commit();
     }
 }
