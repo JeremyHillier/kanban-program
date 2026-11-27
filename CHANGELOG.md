@@ -12,6 +12,7 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > - Improved: the filter labels are coloured by group (the dates; project, priority and who; goal, flag, waiting and keyword), with a little space between the groups, and Clear Filters is a solid button.
 > - Improved: Dark Mode now sits with Settings, Help and Close, and Reminders sits with Archive Done, View Archived and Import Tasks.
 > - Improved: the Waiting On button shows how many tasks are waiting in a small badge.
+> - New: right-click a due-date filter button that is on, such as No Due Date or Waiting On, to turn it off. The other filters stay as they are.
 > - Improved: every button in the left column is a little softer, so the column sits more quietly beside the board.
 > - Improved: the move, done and delete buttons on task cards are softer versions of their colours, and the project name on each card is navy.
 > - Improved: the board's header matches the title band on every dialog, with a gold line beneath it. In the dark theme each column has a line of its own colour along its top.

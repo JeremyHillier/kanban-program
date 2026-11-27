@@ -51,11 +51,13 @@ public partial class MainWindow
 
     private void ManagePriorities(MainViewModel viewModel) => new ManagePrioritiesWindow(viewModel) { Owner = this }.ShowDialog();
 
-    // Right-click the Waiting On button: the filter it normally applies, or the list behind the suggestions.
+    // Right-click the Waiting On button: while its filter is on, that switches it off, like the other due buttons.
+    // Otherwise a menu offers the filter it normally applies, or the list behind the suggestions.
     private void WaitingOnButton_PreviewMouseRightButtonUp(object sender, MouseButtonEventArgs e)
     {
         if (sender is not FrameworkElement button || DataContext is not MainViewModel viewModel) return;
         e.Handled = true;
+        if (viewModel.TurnOffDueFilter(MainViewModel.WaitingOnFilter)) return;
 
         var menu = new System.Windows.Controls.ContextMenu { PlacementTarget = button, Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom };
         AddMenuItem(menu, "_Show Waiting Tasks", () => WaitingOn_Click(button, new RoutedEventArgs()));

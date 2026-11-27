@@ -423,6 +423,7 @@
                 <local:BulletItem Text="Skip moves it without saying. Add it later from the card."/>
                 <local:BulletItem Text="Finishing a task clears it."/>
                 <local:BulletItem Text="The Waiting On button shows every waiting task, across all columns."/>
+                <local:BulletItem Text="Right-click it while it is on to turn it off. While it is off, right-click it to manage the list of answers."/>
                 <local:BulletItem Text="The Waiting filter shows the tasks waiting on one answer, alongside your other filters."/>
                 <local:BulletItem Text="Keyword search, Copy as Text, emails, reports and Excel files all include it."/>
                 <TextBlock Text="Suggestions" Style="{StaticResource HelpSubHeaderStyle}"/>
@@ -505,6 +506,7 @@
                 <local:BulletItem Text="Waiting lists the answers on your tasks. Any shows every waiting task."/>
                 <local:BulletItem Text="Drag the bar under the lists to resize them. Double-click it to reset."/>
                 <local:BulletItem Text="Today, Tomorrow, Within a Week and No Due Date clear the other filters first."/>
+                <local:BulletItem Text="Right-click one of these, or Waiting On, while it is on to turn it off. The other filters stay as they are."/>
                 <local:BulletItem Text="Today and Within a Week include overdue tasks."/>
                 <local:BulletItem Text="These buttons also show tasks starting in that period."/>
                 <local:BulletItem Text="From and To set a due date range. Leave either end blank to leave it open."/>

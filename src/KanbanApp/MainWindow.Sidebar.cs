@@ -119,6 +119,14 @@ public partial class MainWindow
         viewModel.ShowDueFilterOnly("No Due Date");
     }
 
+    // Right-click a due button that is on to switch it off. Handled either way, so nothing else opens.
+    private void DueFilterButton_PreviewMouseRightButtonUp(object sender, MouseButtonEventArgs e)
+    {
+        if (sender is not FrameworkElement { Tag: string filter } || DataContext is not MainViewModel viewModel) return;
+        e.Handled = true;
+        viewModel.TurnOffDueFilter(filter);
+    }
+
     // The grip sits right under the list it resizes and moves with it, so each DragDelta is the
     // distance moved since the previous one and can simply be added on.
     private void FilterResizeGrip_DragDelta(object sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)

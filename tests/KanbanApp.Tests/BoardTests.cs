@@ -87,6 +87,28 @@ public sealed class BoardTests(WpfDispatcherFixture wpf) : IDisposable
     });
 
     [Fact]
+    public void RightClickingTheDueShortcutThatIsOn_TurnsItOff_AndOnlyThatOne() => wpf.Run(() =>
+    {
+        var board = OpenBoard();
+        var dated = Add(board, "Tomorrow", due: DateTime.Today.AddDays(1));
+        var undated = Add(board, "Someday");
+
+        board.ShowDueFilterOnly("No Due Date");
+        Assert.False(board.TurnOffDueFilter("Today")); // not the one that is on, so nothing changes
+        Assert.False(dated.IsVisible);
+
+        Assert.True(board.TurnOffDueFilter("No Due Date"));
+        Assert.Equal("All", board.DueFilter);
+        Assert.True(dated.IsVisible);
+        Assert.True(undated.IsVisible);
+        Assert.False(board.TurnOffDueFilter("No Due Date"));
+
+        board.ShowDueFilterOnly(MainViewModel.WaitingOnFilter);
+        Assert.True(board.TurnOffDueFilter(MainViewModel.WaitingOnFilter));
+        Assert.Equal("All", board.DueFilter);
+    });
+
+    [Fact]
     public void CompletingARecurringTask_CreatesTheNextOccurrenceOnce() => wpf.Run(() =>
     {
         var board = OpenBoard();

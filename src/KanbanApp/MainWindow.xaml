@@ -1235,26 +1235,26 @@
                         <Separator Style="{DynamicResource DividerStyle}" Margin="0,12,0,0"/>
 
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,6">
-                            <Button Style="{StaticResource DueFilterButtonToday}" Background="#BF2A7F86" Foreground="White" Click="DueToday_Click"
-                                    ToolTip="Show only tasks due today or overdue (Alt+T). Clears every other filter first.">
+                            <Button Style="{StaticResource DueFilterButtonToday}" Background="#BF2A7F86" Foreground="White" Click="DueToday_Click" Tag="Today" PreviewMouseRightButtonUp="DueFilterButton_PreviewMouseRightButtonUp"
+                                    ToolTip="Show only tasks due today or overdue (Alt+T). Clears every other filter first. Right-click to turn it off.">
                                 <TextBlock Text="Today" TextWrapping="Wrap" TextAlignment="Center"/>
                             </Button>
-                            <Button Style="{StaticResource DueFilterButtonTomorrow}" Background="#BF2A7F86" Foreground="White" Click="DueTomorrow_Click"
-                                    ToolTip="Show only tasks due tomorrow. Clears every other filter first.">
+                            <Button Style="{StaticResource DueFilterButtonTomorrow}" Background="#BF2A7F86" Foreground="White" Click="DueTomorrow_Click" Tag="Tomorrow" PreviewMouseRightButtonUp="DueFilterButton_PreviewMouseRightButtonUp"
+                                    ToolTip="Show only tasks due tomorrow. Clears every other filter first. Right-click to turn it off.">
                                 <Viewbox Stretch="Uniform" StretchDirection="DownOnly">
                                     <TextBlock Text="Tomorrow" TextAlignment="Center"/>
                                 </Viewbox>
                             </Button>
-                            <Button Style="{StaticResource DueFilterButtonWithinWeek}" Background="#BF2A7F86" Foreground="White" Click="DueWithinWeek_Click"
-                                    ToolTip="Show only tasks due within a week. Clears every other filter first.">
+                            <Button Style="{StaticResource DueFilterButtonWithinWeek}" Background="#BF2A7F86" Foreground="White" Click="DueWithinWeek_Click" Tag="Within a Week" PreviewMouseRightButtonUp="DueFilterButton_PreviewMouseRightButtonUp"
+                                    ToolTip="Show only tasks due within a week. Clears every other filter first. Right-click to turn it off.">
                                 <TextBlock Text="Within a Week" TextWrapping="Wrap" TextAlignment="Center"/>
                             </Button>
-                            <Button Style="{StaticResource DueFilterButtonNone}" Background="#BF2A7F86" Foreground="White" Click="DueNone_Click"
-                                    ToolTip="Show only tasks with no due date. Clears every other filter first.">
+                            <Button Style="{StaticResource DueFilterButtonNone}" Background="#BF2A7F86" Foreground="White" Click="DueNone_Click" Tag="No Due Date" PreviewMouseRightButtonUp="DueFilterButton_PreviewMouseRightButtonUp"
+                                    ToolTip="Show only tasks with no due date. Clears every other filter first. Right-click to turn it off.">
                                 <TextBlock Text="No Due Date" TextWrapping="Wrap" TextAlignment="Center"/>
                             </Button>
                             <Button Style="{StaticResource DueFilterButtonWaitingOn}" Background="#BF2A7F86" Foreground="White" Click="WaitingOn_Click" PreviewMouseRightButtonUp="WaitingOnButton_PreviewMouseRightButtonUp"
-                                    ToolTip="Show only tasks that are waiting on someone or something. Clears every other filter first. Right-click to manage the list of Waiting On answers.">
+                                    ToolTip="Show only tasks that are waiting on someone or something. Clears every other filter first. Right-click to turn it off while it is on, or to manage the list of Waiting On answers while it is off.">
                                 <!-- The count sits in a small amber badge, so it stands out from the button's own colour. -->
                                 <TextBlock TextWrapping="Wrap" TextAlignment="Center">
                                     <Run Text="Waiting On"/>

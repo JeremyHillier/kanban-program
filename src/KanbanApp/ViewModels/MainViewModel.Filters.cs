@@ -432,6 +432,16 @@ public partial class MainViewModel
 
     public void ShowTodayOnly() => ShowDueFilterOnly("Today");
 
+    // Right-click on one of those buttons: switches its filter off when it is the one that is on. The other
+    // filters stay as they are. False when that button's filter was not on, so nothing changed.
+    public bool TurnOffDueFilter(string dueFilter)
+    {
+        if (DueFilter != dueFilter) return false;
+
+        DueFilter = "All";
+        return true;
+    }
+
     // "Waiting On" sits in the same button row as Today / Tomorrow / ... and behaves the same way
     // (one click, replaces the other filters, outlined while active), so it rides on DueFilter
     // rather than being a filter of its own - that also gets it remembered between sessions and
