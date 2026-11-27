@@ -16,6 +16,15 @@ public class ColumnViewModel(KanbanColumn model, Brush background) : ObservableO
         set => SetField(ref _background, value);
     }
 
+    // Dark theme only: a line of the column's own colour along its top, so each column keeps its identity on the dark
+    // board (MainViewModel.ApplyColumnPalette). Null in the light theme, where the whole column is that colour.
+    private Brush? _stripe;
+    public Brush? Stripe
+    {
+        get => _stripe;
+        set => SetField(ref _stripe, value);
+    }
+
     public int Id => Model.Id;
 
     // One of the columns the user added, rather than one of the five standard ones.

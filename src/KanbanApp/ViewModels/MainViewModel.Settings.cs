@@ -579,6 +579,21 @@ public partial class MainViewModel
         new SolidColorBrush(Color.FromRgb(0x1F, 0x3A, 0x52)), // sky
     ];
 
+    // The line along the top of each column in the dark theme: the column's colour, bright enough to read on the dark board.
+    private static readonly Brush[] ColumnStripesDark =
+    [
+        new SolidColorBrush(Color.FromRgb(0x8F, 0xA3, 0xBF)), // To Do
+        new SolidColorBrush(Color.FromRgb(0xE0, 0xC5, 0x6E)), // In Progress
+        new SolidColorBrush(Color.FromRgb(0xE0, 0xA0, 0x60)), // On Hold
+        new SolidColorBrush(Color.FromRgb(0xA9, 0x94, 0xD6)), // Waiting
+        new SolidColorBrush(Color.FromRgb(0x7F, 0xBF, 0x95)), // Done
+        new SolidColorBrush(Color.FromRgb(0x6F, 0xC7, 0xBC)), // teal
+        new SolidColorBrush(Color.FromRgb(0xD9, 0x8A, 0xA6)), // rose
+        new SolidColorBrush(Color.FromRgb(0xB8, 0xC6, 0x5E)), // lime
+        new SolidColorBrush(Color.FromRgb(0xC2, 0xA8, 0x8E)), // sand
+        new SolidColorBrush(Color.FromRgb(0x7F, 0xB0, 0xDC)), // sky
+    ];
+
     public void ToggleButtonPosition()
     {
         IsButtonsOnRight = !IsButtonsOnRight;
@@ -604,7 +619,9 @@ public partial class MainViewModel
         foreach (var column in Columns)
         {
             var role = Array.IndexOf(KanbanApp.Models.KanbanColumn.RoleNames, column.Name);
-            column.Background = role >= 0 ? palette[role] : palette[roles + added++ % (palette.Length - roles)];
+            var index = role >= 0 ? role : roles + added++ % (palette.Length - roles);
+            column.Background = palette[index];
+            column.Stripe = IsDarkMode ? ColumnStripesDark[index] : null;
         }
     }
 

@@ -581,6 +581,14 @@
                                                                                 </DataTrigger>
                                                                             </Style.Triggers>
                                                                         </Style>
+        <!-- The task card's move, done and delete buttons: their own colours at half strength, so a board full of cards
+             stays calm. The letters take a deep shade of each colour, white in the dark theme (Quick*TextBrush, ThemeManager). -->
+        <SolidColorBrush x:Key="QuickToDoBrush" Color="#FF42A5F5" Opacity="0.5"/>
+        <SolidColorBrush x:Key="QuickInProgressBrush" Color="#FFF9A825" Opacity="0.5"/>
+        <SolidColorBrush x:Key="QuickOnHoldBrush" Color="#FFFB8C00" Opacity="0.5"/>
+        <SolidColorBrush x:Key="QuickWaitingBrush" Color="#FFAB47BC" Opacity="0.5"/>
+        <SolidColorBrush x:Key="QuickDoneBrush" Color="#FF66BB6A" Opacity="0.5"/>
+        <SolidColorBrush x:Key="QuickDeleteBrush" Color="#FFEF5350" Opacity="0.5"/>
         <Style x:Key="CardMoveToDoStyle" TargetType="Button" BasedOn="{StaticResource QuickActionButtonStyle}">
                                                                         <Style.Triggers>
                                                                             <DataTrigger Binding="{Binding DataContext.Name, RelativeSource={RelativeSource AncestorType=ItemsControl}}" Value="To Do">
@@ -654,7 +662,7 @@
                                                                 <ColumnDefinition Width="Auto"/>
                                                             </Grid.ColumnDefinitions>
                                                             <TextBlock Grid.Column="0" Text="{Binding ProjectName}" FontSize="13" FontWeight="Bold" TextTrimming="CharacterEllipsis"
-                                                                       Foreground="{DynamicResource AccentTextBrush}" VerticalAlignment="Center"
+                                                                       Foreground="{DynamicResource CardProjectBrush}" VerticalAlignment="Center"
                                                                        Cursor="Hand" ToolTip="Click to change project"
                                                                        MouseLeftButtonUp="ProjectName_MouseLeftButtonUp"/>
                                                             <!-- Entered with Quick Add and not yet reviewed (MainViewModel.QuickReview.cs). Outlined, so it reads on any card colour. -->
@@ -841,27 +849,27 @@
                                                                  that button's target column - clicking it there would be a no-op. The ancestor
                                                                  ItemsControl is this card's per-column Cards list, whose own DataContext is the
                                                                  enclosing ColumnViewModel, so its Name is the card's current column. -->
-                                                            <Button Content="{Binding Data.ToDoColumn.QuickLetter, Source={StaticResource Board}}" Background="#FF42A5F5"
+                                                            <Button Content="{Binding Data.ToDoColumn.QuickLetter, Source={StaticResource Board}}" Background="{StaticResource QuickToDoBrush}" Foreground="{DynamicResource QuickToDoTextBrush}"
                                                                     Tag="To Do" Visibility="{Binding Data.CardParts.MoveToDoButton, Source={StaticResource Board}, Converter={StaticResource BooleanToVisibilityConverter}}" ToolTip="{Binding Data.ToDoColumn.MoveToolTip, Source={StaticResource Board}}" Click="QuickMove_Click">
                                                                 <Button.Style><StaticResource ResourceKey="CardMoveToDoStyle"/></Button.Style>
                                                             </Button>
-                                                            <Button Content="{Binding Data.InProgressColumn.QuickLetter, Source={StaticResource Board}}" Background="#FFF9A825"
+                                                            <Button Content="{Binding Data.InProgressColumn.QuickLetter, Source={StaticResource Board}}" Background="{StaticResource QuickInProgressBrush}" Foreground="{DynamicResource QuickInProgressTextBrush}"
                                                                     Tag="In Progress" Visibility="{Binding Data.CardParts.MoveInProgressButton, Source={StaticResource Board}, Converter={StaticResource BooleanToVisibilityConverter}}" ToolTip="{Binding Data.InProgressColumn.MoveToolTip, Source={StaticResource Board}}" Click="QuickMove_Click">
                                                                 <Button.Style><StaticResource ResourceKey="CardMoveInProgressStyle"/></Button.Style>
                                                             </Button>
-                                                            <Button Content="{Binding Data.OnHoldColumn.QuickLetter, Source={StaticResource Board}}" Background="#FFFB8C00"
+                                                            <Button Content="{Binding Data.OnHoldColumn.QuickLetter, Source={StaticResource Board}}" Background="{StaticResource QuickOnHoldBrush}" Foreground="{DynamicResource QuickOnHoldTextBrush}"
                                                                     Tag="On Hold" Visibility="{Binding Data.CardParts.MoveOnHoldButton, Source={StaticResource Board}, Converter={StaticResource BooleanToVisibilityConverter}}" ToolTip="{Binding Data.OnHoldColumn.MoveToolTip, Source={StaticResource Board}}" Click="QuickMove_Click">
                                                                 <Button.Style><StaticResource ResourceKey="CardMoveOnHoldStyle"/></Button.Style>
                                                             </Button>
-                                                            <Button Content="{Binding Data.WaitingColumn.QuickLetter, Source={StaticResource Board}}" Background="#FFAB47BC"
+                                                            <Button Content="{Binding Data.WaitingColumn.QuickLetter, Source={StaticResource Board}}" Background="{StaticResource QuickWaitingBrush}" Foreground="{DynamicResource QuickWaitingTextBrush}"
                                                                     Tag="Waiting" Visibility="{Binding Data.CardParts.MoveWaitingButton, Source={StaticResource Board}, Converter={StaticResource BooleanToVisibilityConverter}}" ToolTip="{Binding Data.WaitingColumn.MoveToolTip, Source={StaticResource Board}}" Click="QuickMove_Click">
                                                                 <Button.Style><StaticResource ResourceKey="CardMoveWaitingStyle"/></Button.Style>
                                                             </Button>
-                                                            <Button Content="&#x2713;" Background="#FF66BB6A" views:CardButtonRowPanel.StartsGroup="True"
+                                                            <Button Content="&#x2713;" Background="{StaticResource QuickDoneBrush}" Foreground="{DynamicResource QuickDoneTextBrush}" views:CardButtonRowPanel.StartsGroup="True"
                                                                     Tag="Done" Visibility="{Binding Data.CardParts.DoneButton, Source={StaticResource Board}, Converter={StaticResource BooleanToVisibilityConverter}}" ToolTip="{Binding Data.DoneColumn.MoveToolTip, Source={StaticResource Board}}" Click="QuickMove_Click">
                                                                 <Button.Style><StaticResource ResourceKey="CardMoveDoneStyle"/></Button.Style>
                                                             </Button>
-                                                            <Button Style="{StaticResource QuickActionButtonStyle}" Content="X" Background="#FFEF5350" Margin="0" Visibility="{Binding Data.CardParts.DeleteButton, Source={StaticResource Board}, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                                            <Button Style="{StaticResource QuickActionButtonStyle}" Content="X" Background="{StaticResource QuickDeleteBrush}" Foreground="{DynamicResource QuickDeleteTextBrush}" Margin="0" Visibility="{Binding Data.CardParts.DeleteButton, Source={StaticResource Board}, Converter={StaticResource BooleanToVisibilityConverter}}"
                                                                     ToolTip="Delete"
                                                                     Click="DeleteQuickAction_Click"/>
                                                         </views:CardButtonRowPanel>
@@ -895,6 +903,10 @@
                                         <RowDefinition Height="*"/>
                                     </Grid.RowDefinitions>
 
+                                    <!-- Dark theme only: a line of the column's own colour along its top (ColumnViewModel.Stripe, none in the
+                                         light theme, where the whole column is that colour). It sits in the padding, so nothing moves. -->
+                                    <Border Grid.Row="0" Height="3" Margin="-10,-10,-10,0" VerticalAlignment="Top" CornerRadius="5,5,0,0"
+                                            Background="{Binding Stripe}" IsHitTestVisible="False"/>
                                     <!-- A line under the column's name, so the heading reads as a heading and not
                                          as the first thing in the list. It stays put while the cards scroll. -->
                                     <Border Grid.Row="0" BorderBrush="{DynamicResource ColumnHeaderLineBrush}" BorderThickness="0,0,0,1"
@@ -981,9 +993,9 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <Border Grid.Row="0" Padding="16,6" Margin="0,0,0,10" CornerRadius="6" Cursor="Hand"
+        <Border Grid.Row="0" Padding="16,6" Margin="0,0,0,10" CornerRadius="4" Cursor="Hand"
                 ToolTip="Double-click for the Dashboard"
-                Background="{DynamicResource AccentPanelBrush}" BorderBrush="{DynamicResource AccentPanelBorderBrush}" BorderThickness="1"
+                Background="{DynamicResource DialogBandBrush}" BorderBrush="{DynamicResource DialogBandRuleBrush}" BorderThickness="0,0,0,2"
                 MouseLeftButtonDown="Header_MouseLeftButtonDown">
             <Grid SizeChanged="HeaderGrid_SizeChanged">
                 <StackPanel x:Name="HeaderStats" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
@@ -1141,7 +1153,7 @@
                         </Button>
                         <StackPanel>
                             <StackPanel x:Name="TopButtonRow" Orientation="Horizontal" HorizontalAlignment="Center">
-                                <Button Style="{StaticResource SortButtonProject}" Background="#FF3E8DD1" Foreground="White" Click="SortByProject_Click"
+                                <Button Style="{StaticResource SortButtonProject}" Background="#FF4A5FA8" Foreground="White" Click="SortByProject_Click"
                                         ToolTip="Click to sort by project alone. Ctrl+click to add or remove project as a sort key alongside others.">
                                     <Grid>
                                         <TextBlock Text="Sort by Project" TextWrapping="Wrap" TextAlignment="Center"/>
@@ -1153,7 +1165,7 @@
                                         </Border>
                                     </Grid>
                                 </Button>
-                                <Button Style="{StaticResource SortButtonDueDate}" Background="#FF2A8E91" Foreground="White" Click="SortByDueDate_Click"
+                                <Button Style="{StaticResource SortButtonDueDate}" Background="#FF4A5FA8" Foreground="White" Click="SortByDueDate_Click"
                                         ToolTip="Click to sort by due date alone. Ctrl+click to add or remove due date as a sort key alongside others.">
                                     <Grid>
                                         <TextBlock Text="Sort by Due Date" TextWrapping="Wrap" TextAlignment="Center"/>
@@ -1165,7 +1177,7 @@
                                         </Border>
                                     </Grid>
                                 </Button>
-                                <Button Style="{StaticResource SortButtonWho}" Background="#FF6856AD" Foreground="White" Click="SortByWho_Click"
+                                <Button Style="{StaticResource SortButtonWho}" Background="#FF4A5FA8" Foreground="White" Click="SortByWho_Click"
                                         ToolTip="Click to sort by person alone. Ctrl+click to add or remove person as a sort key alongside others.">
                                     <Grid>
                                         <TextBlock Text="Sort by Who" TextWrapping="Wrap" TextAlignment="Center"/>
@@ -1177,7 +1189,7 @@
                                         </Border>
                                     </Grid>
                                 </Button>
-                                <Button Style="{StaticResource SortButtonPriority}" Background="#FFB7545E" Foreground="White" Click="SortByPriority_Click"
+                                <Button Style="{StaticResource SortButtonPriority}" Background="#FF4A5FA8" Foreground="White" Click="SortByPriority_Click"
                                         ToolTip="Click to sort by priority alone. Ctrl+click to add or remove priority as a sort key alongside others.">
                                     <Grid>
                                         <TextBlock Text="Sort by Priority" TextWrapping="Wrap" TextAlignment="Center"/>
@@ -1189,29 +1201,29 @@
                                         </Border>
                                     </Grid>
                                 </Button>
-                                <Button Style="{StaticResource SmallSquareButtonStyle}" Background="#FF579C70" Foreground="White" Click="AddTask_Click" PreviewMouseRightButtonUp="NewTaskButton_PreviewMouseRightButtonUp"
+                                <Button Style="{StaticResource SmallSquareButtonStyle}" Background="#FF3F8F5E" Foreground="White" Click="AddTask_Click" PreviewMouseRightButtonUp="NewTaskButton_PreviewMouseRightButtonUp"
                                         ToolTip="Create a new task (Ctrl+N). Right-click to start from a template, or to manage templates (Alt+M).">
                                     <TextBlock Text="New Task" TextWrapping="Wrap" TextAlignment="Center"/>
                                 </Button>
                             </StackPanel>
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,4,0,0">
-                                <Button Style="{StaticResource SmallSquareButtonStyle}" Background="#FF537187" Foreground="White" Click="ToggleCardSize_Click"
+                                <Button Style="{StaticResource SmallSquareButtonStyle}" Background="#FF5B6B7D" Foreground="White" Click="ToggleCardSize_Click"
                                         ToolTip="Toggle task cards between large (full detail) and small (compact) display">
                                     <TextBlock Text="{Binding CardSizeButtonLabel}" TextWrapping="Wrap" TextAlignment="Center"/>
                                 </Button>
-                                <Button Style="{StaticResource CardButtonsButtonStyle}" Background="#FF6D5E8C" Foreground="White" Click="ToggleCardButtons_Click"
+                                <Button Style="{StaticResource CardButtonsButtonStyle}" Background="#FF5B6B7D" Foreground="White" Click="ToggleCardButtons_Click"
                                         ToolTip="Hide or show every button on each task card (Alt+U), for more room in narrow columns. Which buttons a card has is picked in Settings. Everything they do is still on a card's right-click menu.">
                                     <TextBlock Text="{Binding CardButtonsButtonLabel}" TextWrapping="Wrap" TextAlignment="Center"/>
                                 </Button>
-                                <Button Style="{StaticResource HideFutureButtonStyle}" Background="#FF2A8E91" Foreground="White" Click="HideFuture_Click"
+                                <Button Style="{StaticResource HideFutureButtonStyle}" Background="#FF5B6B7D" Foreground="White" Click="HideFuture_Click"
                                         ToolTip="Hide tasks whose start date hasn't arrived yet, so only what you can work on now is showing. Click again to show them. Clear Filters doesn't change this.">
                                     <TextBlock Text="{Binding HideFutureButtonLabel}" TextWrapping="Wrap" TextAlignment="Center"/>
                                 </Button>
-                                <Button Style="{StaticResource UndoButtonStyle}" Background="#FF647E93" Foreground="White" Click="Undo_Click"
+                                <Button Style="{StaticResource UndoButtonStyle}" Background="#FF5B6B7D" Foreground="White" Click="Undo_Click"
                                         IsEnabled="{Binding CanUndo}" ToolTip="{Binding UndoToolTip}" ToolTipService.ShowOnDisabled="True">
                                     <TextBlock Text="Undo" TextWrapping="Wrap" TextAlignment="Center"/>
                                 </Button>
-                                <Button Style="{StaticResource SmallSquareButtonStyle}" Background="#FF4F7F8F" Foreground="White" Click="Swimlanes_Click" PreviewMouseRightButtonDown="Swimlanes_PreviewMouseRightButtonDown" PreviewMouseRightButtonUp="Swimlanes_PreviewMouseRightButtonUp"
+                                <Button Style="{StaticResource SmallSquareButtonStyle}" Background="#FF5B6B7D" Foreground="White" Click="Swimlanes_Click" PreviewMouseRightButtonDown="Swimlanes_PreviewMouseRightButtonDown" PreviewMouseRightButtonUp="Swimlanes_PreviewMouseRightButtonUp"
                                         ToolTip="Show the board as horizontal swimlanes, grouped by project, goal or who a task is assigned to. Click for the choices; right-click to clear the lanes.">
                                     <TextBlock Text="{Binding SwimlaneButtonLabel}" TextWrapping="Wrap" TextAlignment="Center"/>
                                 </Button>
@@ -1221,27 +1233,36 @@
                         <Separator Style="{DynamicResource DividerStyle}" Margin="0,12,0,0"/>
 
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,6">
-                            <Button Style="{StaticResource DueFilterButtonToday}" Background="#FF3E8DD1" Foreground="White" Click="DueToday_Click"
+                            <Button Style="{StaticResource DueFilterButtonToday}" Background="#FF2A7F86" Foreground="White" Click="DueToday_Click"
                                     ToolTip="Show only tasks due today or overdue (Alt+T). Clears every other filter first.">
                                 <TextBlock Text="Today" TextWrapping="Wrap" TextAlignment="Center"/>
                             </Button>
-                            <Button Style="{StaticResource DueFilterButtonTomorrow}" Background="#FF2A8E91" Foreground="White" Click="DueTomorrow_Click"
+                            <Button Style="{StaticResource DueFilterButtonTomorrow}" Background="#FF2A7F86" Foreground="White" Click="DueTomorrow_Click"
                                     ToolTip="Show only tasks due tomorrow. Clears every other filter first.">
                                 <Viewbox Stretch="Uniform" StretchDirection="DownOnly">
                                     <TextBlock Text="Tomorrow" TextAlignment="Center"/>
                                 </Viewbox>
                             </Button>
-                            <Button Style="{StaticResource DueFilterButtonWithinWeek}" Background="#FF6856AD" Foreground="White" Click="DueWithinWeek_Click"
+                            <Button Style="{StaticResource DueFilterButtonWithinWeek}" Background="#FF2A7F86" Foreground="White" Click="DueWithinWeek_Click"
                                     ToolTip="Show only tasks due within a week. Clears every other filter first.">
                                 <TextBlock Text="Within a Week" TextWrapping="Wrap" TextAlignment="Center"/>
                             </Button>
-                            <Button Style="{StaticResource DueFilterButtonNone}" Background="#FF537187" Foreground="White" Click="DueNone_Click"
+                            <Button Style="{StaticResource DueFilterButtonNone}" Background="#FF2A7F86" Foreground="White" Click="DueNone_Click"
                                     ToolTip="Show only tasks with no due date. Clears every other filter first.">
                                 <TextBlock Text="No Due Date" TextWrapping="Wrap" TextAlignment="Center"/>
                             </Button>
-                            <Button Style="{StaticResource DueFilterButtonWaitingOn}" Background="#FFBF7C26" Foreground="White" Click="WaitingOn_Click" PreviewMouseRightButtonUp="WaitingOnButton_PreviewMouseRightButtonUp"
+                            <Button Style="{StaticResource DueFilterButtonWaitingOn}" Background="#FF2A7F86" Foreground="White" Click="WaitingOn_Click" PreviewMouseRightButtonUp="WaitingOnButton_PreviewMouseRightButtonUp"
                                     ToolTip="Show only tasks that are waiting on someone or something. Clears every other filter first. Right-click to manage the list of Waiting On answers.">
-                                <TextBlock Text="{Binding WaitingOnButtonLabel}" TextWrapping="Wrap" TextAlignment="Center"/>
+                                <!-- The count sits in a small amber badge, so it stands out from the button's own colour. -->
+                                <TextBlock TextWrapping="Wrap" TextAlignment="Center">
+                                    <Run Text="Waiting On"/>
+                                    <InlineUIContainer BaselineAlignment="Center">
+                                        <Border Background="#FFE0A030" CornerRadius="7" Padding="5,0" Margin="2,0,0,0"
+                                                Visibility="{Binding WaitingOnCount, Converter={StaticResource GreaterThanZeroToVisibilityConverter}}">
+                                            <TextBlock Text="{Binding WaitingOnCount}" Foreground="#FF3A2400" FontSize="10" FontWeight="Bold"/>
+                                        </Border>
+                                    </InlineUIContainer>
+                                </TextBlock>
                             </Button>
                         </StackPanel>
 
@@ -1280,7 +1301,7 @@
                             </Grid>
                         </UniformGrid>
 
-                        <Grid Margin="0,0,0,2">
+                        <Grid Margin="0,6,0,2">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto"/>
                                 <ColumnDefinition Width="*"/>
@@ -1292,7 +1313,7 @@
                             <Thumb Grid.Row="1" Grid.ColumnSpan="2" Tag="Project" Style="{StaticResource FilterResizeGripStyle}"
                                    DragDelta="FilterResizeGrip_DragDelta" DragCompleted="FilterResizeGrip_DragCompleted"
                                    MouseDoubleClick="FilterResizeGrip_MouseDoubleClick"/>
-                            <Border Grid.Column="0" Background="#FF3E8DD1" Style="{StaticResource FilterLabelRotatedBoxStyle}"
+                            <Border Grid.Column="0" Background="#FF2A7F86" Style="{StaticResource FilterLabelRotatedBoxStyle}"
                                     Cursor="Hand" ToolTip="Click to manage projects" MouseLeftButtonUp="ManageProjectsLabel_MouseLeftButtonUp">
                                 <TextBlock Text="Project" Style="{StaticResource FilterLabelTextStyle}">
                                     <TextBlock.LayoutTransform>
@@ -1327,7 +1348,7 @@
                             <Thumb Grid.Row="1" Grid.ColumnSpan="5" Tag="PriorityWho" Style="{StaticResource FilterResizeGripStyle}"
                                    DragDelta="FilterResizeGrip_DragDelta" DragCompleted="FilterResizeGrip_DragCompleted"
                                    MouseDoubleClick="FilterResizeGrip_MouseDoubleClick"/>
-                            <Border Grid.Column="0" Background="#FFB7545E" Style="{StaticResource FilterLabelRotatedBoxStyle}"
+                            <Border Grid.Column="0" Background="#FF2A7F86" Style="{StaticResource FilterLabelRotatedBoxStyle}"
                                     Cursor="Hand" ToolTip="Click to manage priorities" MouseLeftButtonUp="ManagePrioritiesLabel_MouseLeftButtonUp">
                                 <TextBlock Text="Priority" Style="{StaticResource FilterLabelTextStyle}">
                                     <TextBlock.LayoutTransform>
@@ -1339,7 +1360,7 @@
                                      ItemsSource="{Binding PriorityFilterOptions}" Height="{Binding PriorityWhoFilterListHeight}"
                                      ToolTip="Show only tasks with the selected priorities"
                                      SelectionChanged="PriorityFilterListBox_SelectionChanged"/>
-                            <Border Grid.Column="3" Background="#FF6856AD" Style="{StaticResource FilterLabelRotatedBoxStyle}"
+                            <Border Grid.Column="3" Background="#FF2A7F86" Style="{StaticResource FilterLabelRotatedBoxStyle}"
                                     Cursor="Hand" ToolTip="Click to manage people" MouseLeftButtonUp="ManageWhoLabel_MouseLeftButtonUp">
                                 <TextBlock Text="Who" Style="{StaticResource FilterLabelTextStyle}">
                                     <TextBlock.LayoutTransform>
@@ -1353,12 +1374,12 @@
                                      SelectionChanged="WhoFilterListBox_SelectionChanged"/>
                         </Grid>
 
-                        <Grid Margin="0,0,0,6">
+                        <Grid Margin="0,6,0,6">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
-                            <Border Grid.Column="0" Background="#FF2A8E91" Style="{StaticResource FilterLabelFlatBoxStyle}"
+                            <Border Grid.Column="0" Background="#FF8B5E83" Style="{StaticResource FilterLabelFlatBoxStyle}"
                                     Cursor="Hand" ToolTip="Click to manage goals" MouseLeftButtonUp="ManageGoalsLabel_MouseLeftButtonUp">
                                 <TextBlock Text="Goal" Style="{StaticResource FilterLabelTextStyle}"/>
                             </Border>
@@ -1373,7 +1394,7 @@
                                 <ColumnDefinition Width="Auto"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
-                            <Border Grid.Column="0" Background="#FF72666B" Style="{StaticResource FilterLabelFlatBoxStyle}"
+                            <Border Grid.Column="0" Background="#FF8B5E83" Style="{StaticResource FilterLabelFlatBoxStyle}"
                                     Cursor="Hand" ToolTip="Click to manage flags" MouseLeftButtonUp="ManageFlagsLabel_MouseLeftButtonUp">
                                 <TextBlock Text="Flag" Style="{StaticResource FilterLabelTextStyle}"/>
                             </Border>
@@ -1390,7 +1411,7 @@
                                 <ColumnDefinition Width="Auto"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
-                            <Border Grid.Column="0" Background="#FFBF7C26" Style="{StaticResource FilterLabelFlatBoxStyle}"
+                            <Border Grid.Column="0" Background="#FF8B5E83" Style="{StaticResource FilterLabelFlatBoxStyle}"
                                     Cursor="Hand" ToolTip="Click to manage the Waiting On list" MouseLeftButtonUp="ManageWaitingOnLabel_MouseLeftButtonUp">
                                 <TextBlock Text="Waiting" Style="{StaticResource FilterLabelTextStyle}"/>
                             </Border>
@@ -1406,7 +1427,7 @@
                                 <ColumnDefinition Width="Auto"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
-                            <Border Grid.Column="0" Background="#FF537187" Style="{StaticResource FilterLabelFlatBoxStyle}">
+                            <Border Grid.Column="0" Background="#FF8B5E83" Style="{StaticResource FilterLabelFlatBoxStyle}">
                                 <TextBlock Text="Keyword" Style="{StaticResource FilterLabelTextStyle}"/>
                             </Border>
                             <!-- Goal, Flag and Keyword share a fixed 26px height: a ComboBox and a TextBox
@@ -1426,13 +1447,13 @@
                             </Grid.ColumnDefinitions>
                             <Button Grid.Column="0" Style="{StaticResource ClearFiltersButtonStyle}" HorizontalAlignment="Stretch"
                                     ToolTip="Reset every filter back to All"
-                                    Background="#FFBF7C26" Foreground="White"
+                                    Background="#FF46505E" Foreground="White"
                                     Click="ClearFilters_Click">
                                 <TextBlock Text="Clear Filters" TextWrapping="Wrap" TextAlignment="Center"/>
                             </Button>
                             <Button Grid.Column="2" x:Name="CustomFiltersButton" Style="{StaticResource ClearFiltersButtonStyle}" HorizontalAlignment="Stretch"
                                     ToolTip="Custom filters"
-                                    Background="#FF5064AC" Foreground="White"
+                                    Background="#FF2A7F86" Foreground="White"
                                     Click="ManageCustomFilters_Click" ToolTipOpening="CustomFiltersButton_ToolTipOpening">
                                 <TextBlock Text="Custom Filters..." TextWrapping="Wrap" TextAlignment="Center"/>
                             </Button>
@@ -1444,58 +1465,33 @@
 
                         <StackPanel Margin="0,14,0,0">
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                <Button Style="{StaticResource LargeSquareButtonStyle}" Background="#FF5064AC" Foreground="White" Click="ManageProjects_Click"
+                                <Button Style="{StaticResource LargeSquareButtonStyle}" Background="#FF3E6E9E" Foreground="White" Click="ManageProjects_Click"
                                         ToolTip="Add, rename, or delete projects (Alt+P)">
                                     <TextBlock Text="Manage Projects" TextWrapping="Wrap" TextAlignment="Center"/>
                                 </Button>
-                                <Button Style="{StaticResource LargeSquareButtonStyle}" Background="#FF5064AC" Foreground="White" Click="ManageGoals_Click"
+                                <Button Style="{StaticResource LargeSquareButtonStyle}" Background="#FF3E6E9E" Foreground="White" Click="ManageGoals_Click"
                                         ToolTip="Add, rename, or delete goals (Alt+G)">
                                     <TextBlock Text="Manage Goals" TextWrapping="Wrap" TextAlignment="Center"/>
                                 </Button>
-                                <Button Style="{StaticResource LargeSquareButtonStyle}" Background="#FF5064AC" Foreground="White" Click="ManageFlags_Click"
+                                <Button Style="{StaticResource LargeSquareButtonStyle}" Background="#FF3E6E9E" Foreground="White" Click="ManageFlags_Click"
                                         ToolTip="Add, rename, or delete flags (Alt+F)">
                                     <TextBlock Text="Manage Flags" TextWrapping="Wrap" TextAlignment="Center"/>
                                 </Button>
-                                <Button Style="{StaticResource LargeSquareButtonStyle}" Background="#FF5064AC" Foreground="White" Click="ManageWho_Click"
+                                <Button Style="{StaticResource LargeSquareButtonStyle}" Background="#FF3E6E9E" Foreground="White" Click="ManageWho_Click"
                                         ToolTip="Add, rename, or delete people (Alt+W)">
                                     <TextBlock Text="Manage Who" TextWrapping="Wrap" TextAlignment="Center"/>
                                 </Button>
                             </StackPanel>
+                            <!-- Ways to look at your work. -->
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                <Button Style="{StaticResource LargeSquareButtonStyle}" Background="#FFB7545E" Foreground="White" Click="Reminders_Click"
-                                        ToolTip="Open Reminders: tasks overdue or due today (Alt+R)">
-                                    <TextBlock Text="Reminders" TextWrapping="Wrap" TextAlignment="Center"/>
-                                </Button>
-                                <Button Style="{StaticResource LargeSquareButtonStyle}" Background="#FF4A667B" Foreground="White" Click="ToggleTheme_Click"
-                                        ToolTip="Switch between light and dark theme">
-                                    <TextBlock Text="{Binding ThemeButtonLabel}" TextWrapping="Wrap" TextAlignment="Center"/>
-                                </Button>
-                                <Button Style="{StaticResource LargeSquareButtonStyle}" Background="#FF579C70" Foreground="White" Click="ReportBuilder_Click"
+                                <Button Style="{StaticResource LargeSquareButtonStyle}" Background="#FF6856AD" Foreground="White" Click="ReportBuilder_Click"
                                         ToolTip="Build a custom report and preview it or save it as a PDF (Ctrl+P)">
                                     <TextBlock Text="Report Builder" TextWrapping="Wrap" TextAlignment="Center"/>
                                 </Button>
-                                <Button Style="{StaticResource LargeSquareButtonStyle}" Background="#FF579C70" Foreground="White" Click="QuickReport_Click"
+                                <Button Style="{StaticResource LargeSquareButtonStyle}" Background="#FF6856AD" Foreground="White" Click="QuickReport_Click"
                                         ToolTip="Run a saved report view in two clicks: preview, print or PDF (Ctrl+Shift+P)">
                                     <TextBlock Text="Quick Report" TextWrapping="Wrap" TextAlignment="Center"/>
                                 </Button>
-                            </StackPanel>
-                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                <Button Style="{StaticResource LargeSquareButtonStyle}" Background="#FFC28E40" Foreground="White" Click="ArchiveDone_Click"
-                                        ToolTip="Archive every task currently in the Done column (Alt+A)">
-                                    <TextBlock Text="Archive Done" TextWrapping="Wrap" TextAlignment="Center"/>
-                                </Button>
-                                <Button Style="{StaticResource LargeSquareButtonStyle}" Background="#FFC28E40" Foreground="White"
-                                        ToolTip="Click: View Archived. Double-click: View Deleted."
-                                        PreviewMouseLeftButtonDown="ViewArchived_PreviewMouseDown">
-                                    <TextBlock Text="View Archived" TextWrapping="Wrap" TextAlignment="Center"/>
-                                </Button>
-                                <Button Style="{StaticResource LargeSquareButtonStyle}" Background="#FFC28E40" Foreground="White"
-                                        ToolTip="Click: Import Tasks from Excel. Double-click: Review Imported Tasks."
-                                        PreviewMouseLeftButtonDown="ImportTasks_PreviewMouseDown">
-                                    <TextBlock Text="Import Tasks" TextWrapping="Wrap" TextAlignment="Center"/>
-                                </Button>
-                            </StackPanel>
-                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                                 <Button Style="{StaticResource LargeSquareButtonStyle}" Background="#FF6856AD" Foreground="White" Click="Timeline_Click"
                                         ToolTip="Show a Gantt chart of tasks by due date, grouped by project (Alt+L)">
                                     <TextBlock Text="Gantt" TextWrapping="Wrap" TextAlignment="Center"/>
@@ -1505,12 +1501,38 @@
                                     <TextBlock Text="Calendar" TextWrapping="Wrap" TextAlignment="Center"/>
                                 </Button>
                             </StackPanel>
+                            <!-- Reminders, then tasks moving out of the board or into it. -->
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <Button Style="{StaticResource LargeSquareButtonStyle}" Background="#FFB7545E" Foreground="White" Click="Reminders_Click"
+                                        ToolTip="Open Reminders: tasks overdue or due today (Alt+R)">
+                                    <TextBlock Text="Reminders" TextWrapping="Wrap" TextAlignment="Center"/>
+                                </Button>
+                                <Button Style="{StaticResource LargeSquareButtonStyle}" Background="#FFB57A2E" Foreground="White" Click="ArchiveDone_Click"
+                                        ToolTip="Archive every task currently in the Done column (Alt+A)">
+                                    <TextBlock Text="Archive Done" TextWrapping="Wrap" TextAlignment="Center"/>
+                                </Button>
+                                <Button Style="{StaticResource LargeSquareButtonStyle}" Background="#FFB57A2E" Foreground="White"
+                                        ToolTip="Click: View Archived. Double-click: View Deleted."
+                                        PreviewMouseLeftButtonDown="ViewArchived_PreviewMouseDown">
+                                    <TextBlock Text="View Archived" TextWrapping="Wrap" TextAlignment="Center"/>
+                                </Button>
+                                <Button Style="{StaticResource LargeSquareButtonStyle}" Background="#FFB57A2E" Foreground="White"
+                                        ToolTip="Click: Import Tasks from Excel. Double-click: Review Imported Tasks."
+                                        PreviewMouseLeftButtonDown="ImportTasks_PreviewMouseDown">
+                                    <TextBlock Text="Import Tasks" TextWrapping="Wrap" TextAlignment="Center"/>
+                                </Button>
+                            </StackPanel>
                         </StackPanel>
 
                         <Separator Style="{DynamicResource DividerStyle}" Margin="0,14,0,10"/>
 
+                        <!-- The program itself: the theme, settings, help and closing. -->
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                            <Button Style="{StaticResource LargeSquareButtonStyle}" Background="#FF647E93" Foreground="White" Click="Settings_Click"
+                                <Button Style="{StaticResource LargeSquareButtonStyle}" Background="#FF5B6B7D" Foreground="White" Click="ToggleTheme_Click"
+                                        ToolTip="Switch between light and dark theme">
+                                    <TextBlock Text="{Binding ThemeButtonLabel}" TextWrapping="Wrap" TextAlignment="Center"/>
+                                </Button>
+                            <Button Style="{StaticResource LargeSquareButtonStyle}" Background="#FF5B6B7D" Foreground="White" Click="Settings_Click"
                                     ToolTip="Open app settings (Alt+S)">
                                 <TextBlock Text="Settings" TextWrapping="Wrap" TextAlignment="Center"/>
                             </Button>
@@ -1522,7 +1544,9 @@
                                     ToolTip="Close the application (Ctrl+Q)">
                                 <TextBlock Text="Close" TextWrapping="Wrap" TextAlignment="Center"/>
                             </Button>
-                            <!-- Only while a check has found a newer version. -->
+                        </StackPanel>
+                        <!-- Only while a check has found a newer version: on a row of its own, so the row above keeps its four buttons. -->
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                             <Button Style="{StaticResource LargeSquareButtonStyle}" Background="#FF3E9E5A" Foreground="White" Click="GetUpdate_Click"
                                     Visibility="{Binding HasAvailableUpdate, Converter={StaticResource BooleanToVisibilityConverter}}"
                                     ToolTip="{Binding AvailableUpdate.Version, StringFormat='Version {0} is available. Click to see what is new and get it'}">

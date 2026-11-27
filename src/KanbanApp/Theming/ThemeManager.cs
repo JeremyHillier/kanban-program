@@ -49,6 +49,9 @@ public static class ThemeManager
             res["AccentPanelBorderBrush"] = Brush(0x3A, 0x55, 0x80);
             // The title band on dialogs (DialogBand): the same blue, deeper at the left.
             res["DialogBandBrush"] = Gradient(0x12, 0x21, 0x36, 0x1F, 0x34, 0x52);
+            // The project name on cards, lighter on the dark cards, and white letters on the cards' half-strength buttons.
+            res["CardProjectBrush"] = Brush(0x8F, 0xB4, 0xE0);
+            foreach (var key in QuickTextKeys) res[key] = Brushes.White;
             // The button column. Everything in it is a coloured box with its own white text, so its
             // background is free to be whatever sets those boxes off best: the same deep navy here.
             res["SidebarPanelBrush"] = Brush(0x1F, 0x34, 0x52);
@@ -84,6 +87,14 @@ public static class ThemeManager
             res["AccentPanelBrush"] = Brush(0x4B, 0x6D, 0x96);
             res["AccentPanelBorderBrush"] = Brush(0x70, 0x90, 0xB6);
             res["DialogBandBrush"] = Gradient(0x2E, 0x4C, 0x73, 0x4B, 0x6D, 0x96);
+            res["CardProjectBrush"] = Brush(0x2E, 0x4C, 0x73);
+            // A deep shade of each button's own colour, readable on its half-strength fill.
+            res["QuickToDoTextBrush"] = Brush(0x0D, 0x47, 0xA1);
+            res["QuickInProgressTextBrush"] = Brush(0x6B, 0x4E, 0x00);
+            res["QuickOnHoldTextBrush"] = Brush(0x6E, 0x33, 0x00);
+            res["QuickWaitingTextBrush"] = Brush(0x4A, 0x14, 0x8C);
+            res["QuickDoneTextBrush"] = Brush(0x1B, 0x5E, 0x20);
+            res["QuickDeleteTextBrush"] = Brush(0x8E, 0x1C, 0x1A);
             // Pale, so the slate and blue buttons stand clear of it instead of washing into a navy of
             // much the same strength. The header keeps AccentPanelBrush: its white text needs the depth.
             res["SidebarPanelBrush"] = Brush(0xC1, 0xC9, 0xD4);
@@ -92,6 +103,10 @@ public static class ThemeManager
             res["ColumnHeaderLineBrush"] = new SolidColorBrush(Color.FromArgb(0x4D, 0x00, 0x00, 0x00));
         }
     }
+
+    // The letters on a task card's move, done and delete buttons (see QuickToDoBrush and the rest in MainWindow.xaml).
+    private static readonly string[] QuickTextKeys =
+        ["QuickToDoTextBrush", "QuickInProgressTextBrush", "QuickOnHoldTextBrush", "QuickWaitingTextBrush", "QuickDoneTextBrush", "QuickDeleteTextBrush"];
 
     private static SolidColorBrush Brush(byte r, byte g, byte b) => new(Color.FromRgb(r, g, b));
 

@@ -20,6 +20,15 @@
             <GradientStop Color="#FF4B6D96" Offset="1"/>
         </LinearGradientBrush>
         <SolidColorBrush x:Key="DialogBandRuleBrush" Color="#FFC9A24B"/>
+        <!-- The project name on each task card, and the letters on the card's half-strength move, done and delete buttons.
+             ThemeManager sets both themes. -->
+        <SolidColorBrush x:Key="CardProjectBrush" Color="#FF2E4C73"/>
+        <SolidColorBrush x:Key="QuickToDoTextBrush" Color="#FF0D47A1"/>
+        <SolidColorBrush x:Key="QuickInProgressTextBrush" Color="#FF6B4E00"/>
+        <SolidColorBrush x:Key="QuickOnHoldTextBrush" Color="#FF6E3300"/>
+        <SolidColorBrush x:Key="QuickWaitingTextBrush" Color="#FF4A148C"/>
+        <SolidColorBrush x:Key="QuickDoneTextBrush" Color="#FF1B5E20"/>
+        <SolidColorBrush x:Key="QuickDeleteTextBrush" Color="#FF8E1C1A"/>
         <SolidColorBrush x:Key="PanelBackgroundBrush" Color="#FFFAFAFA"/>
         <SolidColorBrush x:Key="PanelBorderBrush" Color="#FF333333"/>
         <SolidColorBrush x:Key="ButtonBackgroundBrush" Color="#FFECECEC"/>

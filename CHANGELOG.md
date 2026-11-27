@@ -6,6 +6,15 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.180.0 — 2026-11-27
+
+> - Improved: the button column uses one colour for each kind of job: sorting, view switches, due-date filters, your lists, ways to look at your work, and tasks moving in or out. New Task is the one green button.
+> - Improved: the filter labels are coloured by group (the dates; project, priority and who; goal, flag, waiting and keyword), with a little space between the groups, and Clear Filters is a solid button.
+> - Improved: Dark Mode now sits with Settings, Help and Close, and Reminders sits with Archive Done, View Archived and Import Tasks.
+> - Improved: the Waiting On button shows how many tasks are waiting in a small badge.
+> - Improved: the move, done and delete buttons on task cards are softer versions of their colours, and the project name on each card is navy.
+> - Improved: the board's header matches the title band on every dialog, with a gold line beneath it. In the dark theme each column has a line of its own colour along its top.
+
 ## 0.179.0 — 2026-11-26
 
 > - New: Import Tasks has a Review each import choice. Untick it to import everything in a file at once, with no list to confirm and no review afterwards, which makes setting up many projects quicker. The window stays open for the next file, and the choice is remembered.
