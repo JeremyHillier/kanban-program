@@ -56,6 +56,20 @@ public sealed class ColourSchemeTests(WpfDispatcherFixture wpf) : IDisposable
     }
 
     [Fact]
+    public void EveryButtonInTheLeftColumn_IsAtThreeQuarterStrength()
+    {
+        var xaml = MainWindowXaml();
+        var start = xaml.LastIndexOf("<Button", xaml.IndexOf("Click=\"TaskFile_Click\"", StringComparison.Ordinal), StringComparison.Ordinal);
+        var end = xaml.IndexOf("</Button>", xaml.IndexOf("Click=\"GetUpdate_Click\"", StringComparison.Ordinal), StringComparison.Ordinal);
+        var column = xaml[start..end];
+
+        var colours = Regex.Matches(column, "<Button\\b(?:[^>\"]|\"[^\"]*\")*Background=\"(#[0-9A-Fa-f]{8})\"").Select(m => m.Groups[1].Value).ToList();
+
+        Assert.True(colours.Count >= 30, $"only {colours.Count} coloured buttons found");
+        Assert.All(colours, c => Assert.StartsWith("#BF", c));
+    }
+
+    [Fact]
     public void TheHeader_WearsTheDialogsTitleBand()
     {
         var xaml = MainWindowXaml();
