@@ -1,4 +1,3 @@
-using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Interop;
 using KanbanApp.Services;
@@ -13,10 +12,6 @@ namespace KanbanApp;
 // task that has since been archived or deleted says so instead.
 public partial class MainWindow
 {
-    // Marks our own WM_COPYDATA, so a message from some other program is not mistaken for a link.
-    internal const int TaskLinkCopyDataId = 0x4B54; // "KT"
-    private const int WmCopyData = 0x004A;
-
     private void InitializeTaskLinkReceiver()
     {
         SourceInitialized += (_, _) =>
@@ -29,25 +24,13 @@ public partial class MainWindow
 
     private IntPtr TaskLinkHook(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
     {
-        if (msg != WmCopyData || lParam == IntPtr.Zero) return IntPtr.Zero;
-
-        var data = Marshal.PtrToStructure<CopyData>(lParam);
-        if (data.dwData != TaskLinkCopyDataId || data.cbData is <= 0 or > 1024 || data.lpData == IntPtr.Zero) return IntPtr.Zero;
+        if (msg != TaskLinkMessage.WmCopyData || !TaskLinkMessage.TryRead(lParam, out var text)) return IntPtr.Zero;
 
         handled = true;
-        var text = Marshal.PtrToStringUni(data.lpData, data.cbData / 2)?.TrimEnd((char)0);
 
         // Not inside the message: the sender is waiting on it, and opening a window can take a while.
         Dispatcher.BeginInvoke(() => OpenTaskLink(text));
-        return (IntPtr)1;
-    }
-
-    [StructLayout(LayoutKind.Sequential)]
-    private struct CopyData
-    {
-        public IntPtr dwData;
-        public int cbData;
-        public IntPtr lpData;
+        return (IntPtr)1; // tells the sending copy the link was taken, so it can exit
     }
 
     // Shows the task a link names. Anything that is not a link for this build is ignored.

@@ -6,6 +6,10 @@ All notable changes to the Kanban Task Board app, by version. Newest first.
 > stay in 0.x while the app is still under active development; the next release after 1.2.0 was
 > renumbered 0.7.0 and versioning has continued from there.
 
+## 0.180.1 — 2026-11-28
+
+> - Maintenance: internal improvements to keep the app reliable and easy to update; no change to how the app looks or works.
+
 ## 0.180.0 — 2026-11-27
 
 > - Improved: the button column uses one colour for each kind of job: sorting, view switches, due-date filters, your lists, ways to look at your work, and tasks moving in or out. New Task is the one green button.
