@@ -19,6 +19,11 @@ public sealed class UserDictionaryVerifyTests(WpfDispatcherFixture wpf) : IDispo
     // Letters only and not a word anywhere, and different every run (WPF remembers earlier runs' words).
     private static string FreshWord() => "Zq" + new string(Guid.NewGuid().ToString("N").Where(char.IsLetter).Take(7).ToArray()) + "x";
 
+    // WPF applies the list by registering it in the user's registry, which Windows' spelling service reads. A process
+    // started by Claude Code (which sets CLAUDECODE=1) writes to a private copy of the registry instead, so there the
+    // list can never be applied, whatever the app does. Run from an ordinary shell or Visual Studio, it must be.
+    private static bool RegistryIsPrivate => Environment.GetEnvironmentVariable("CLAUDECODE") == "1";
+
     [Fact]
     public void WhereTheListIsApplied_TheCheckSaysSo_AndWindowsDictionaryIsLeftAlone() => wpf.Run(() =>
     {
@@ -29,11 +34,21 @@ public sealed class UserDictionaryVerifyTests(WpfDispatcherFixture wpf) : IDispo
         var (summary, detail) = dictionary.Report();
 
         Assert.True(dictionary.CheckerWorks);
-        Assert.True(dictionary.WordsAccepted);
-        Assert.False(dictionary.UsingWindowsDictionary);
-        Assert.Equal("Your words are accepted on this PC.", summary);
-        Assert.Contains("The app's own list is applied here: yes", detail);
+        if (!RegistryIsPrivate) Assert.True(dictionary.WordsAccepted);
+        Assert.False(dictionary.UsingWindowsDictionary); // the tests never fall back to Windows' own dictionary
         Assert.False(File.Exists(dictionary.WindowsWordsPath));
+
+        // Whatever this PC allows, the report says what the check found.
+        if (dictionary.WordsAccepted)
+        {
+            Assert.Equal("Your words are accepted on this PC.", summary);
+            Assert.Contains("The app's own list is applied here: yes", detail);
+        }
+        else
+        {
+            Assert.StartsWith("Your words are still being underlined", summary);
+            Assert.Contains("The app's own list is applied here: no", detail);
+        }
     });
 
     [Fact]
