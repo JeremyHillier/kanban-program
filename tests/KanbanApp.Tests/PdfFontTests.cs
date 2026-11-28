@@ -37,12 +37,14 @@ public sealed class PdfFontTests : IDisposable
         Assert.True(PdfFontResolver.UsesBundledFont(Path.Combine(folder, "no-such-folder")));
     }
 
-    // The only test that makes a PDF: PDFsharp takes its fonts once per run, so a second one
-    // wanting Segoe UI could not be told apart from this one.
+    // PDFsharp takes its fonts once per run, from whichever PDF is made first, so the whole test run is
+    // set to a fonts folder without Segoe UI before any test starts (PdfTestFonts); this test then holds
+    // whatever order the classes run in.
     [Fact]
     public void WithNoSegoeUi_AReportIsStillMade_InTheBundledFont()
     {
-        PdfFontResolver.FontsFolderOverride = _temp.Path;
+        Assert.Equal(PdfTestFonts.NoFontsFolder, PdfFontResolver.FontsFolderOverride);
+        Assert.True(PdfFontResolver.UsesBundledFont(PdfTestFonts.NoFontsFolder));
         var path = _temp.File("report.pdf");
         var rows = new List<ReportRow>
         {
